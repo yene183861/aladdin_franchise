@@ -10,6 +10,7 @@ import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/models/order_invoice/order_invoice.dart';
 import 'package:aladdin_franchise/src/utils/field_validation.dart';
+import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,8 +38,7 @@ class _CreateInvoiceOrderDialog extends ConsumerStatefulWidget {
   ConsumerState createState() => __CreateInvoiceOrderDialogState();
 }
 
-class __CreateInvoiceOrderDialogState
-    extends ConsumerState<_CreateInvoiceOrderDialog> {
+class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController ctrlName,
       ctrlTax,
@@ -58,13 +58,11 @@ class __CreateInvoiceOrderDialogState
     super.initState();
     ctrlName = TextEditingController(text: widget.orderInvoice?.name);
     ctrlTax = TextEditingController(text: widget.orderInvoice?.taxCode);
-    ctrlCompanyName =
-        TextEditingController(text: widget.orderInvoice?.companyName);
+    ctrlCompanyName = TextEditingController(text: widget.orderInvoice?.companyName);
     ctrlAddress = TextEditingController(text: widget.orderInvoice?.address);
     ctrlEmail = TextEditingController(text: widget.orderInvoice?.email);
     ctrlBank = TextEditingController(text: widget.orderInvoice?.bank);
-    ctrlBankNumber =
-        TextEditingController(text: widget.orderInvoice?.accountNumber);
+    ctrlBankNumber = TextEditingController(text: widget.orderInvoice?.accountNumber);
     ctrlPhone = TextEditingController(text: widget.orderInvoice?.phone);
     ctrlDvqhnsCode = TextEditingController(text: widget.orderInvoice?.maDvqhns);
     ctrlCCCD = TextEditingController(text: widget.orderInvoice?.cccdan);
@@ -78,9 +76,9 @@ class __CreateInvoiceOrderDialogState
 
   @override
   Widget build(BuildContext context) {
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     bool enable = !lockedOrder;
+    bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     return AlertDialog(
       title: Row(
         children: [
@@ -94,12 +92,12 @@ class __CreateInvoiceOrderDialogState
                   ),
             ),
           ),
-          CloseButton(),
+          const CloseButton(),
         ],
       ),
       contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       content: SizedBox(
-        width: 50.w,
+        width: isMobile ? 95.w : 50.w,
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -123,8 +121,7 @@ class __CreateInvoiceOrderDialogState
                         required: isRequiredTaxCode,
                         enabled: enable,
                         validator: isRequiredTaxCode
-                            ? (value) =>
-                                FieldValidationUtils.checkRequired(value)
+                            ? (value) => FieldValidationUtils.checkRequired(value)
                             : null,
                       ),
                     ),
@@ -191,8 +188,7 @@ class __CreateInvoiceOrderDialogState
                   textInputAction: TextInputAction.next,
                   required: true,
                   enabled: enable,
-                  validator: (value) =>
-                      FieldValidationUtils.checkRequired(value),
+                  validator: (value) => FieldValidationUtils.checkRequired(value),
                 ),
                 const GapH(12),
                 TextFieldSimpleWidget(
@@ -202,8 +198,7 @@ class __CreateInvoiceOrderDialogState
                   textInputAction: TextInputAction.next,
                   required: true,
                   enabled: enable,
-                  validator: (value) =>
-                      FieldValidationUtils.checkRequired(value),
+                  validator: (value) => FieldValidationUtils.checkRequired(value),
                 ),
                 const GapH(12),
                 TextFieldSimpleWidget(
@@ -213,9 +208,8 @@ class __CreateInvoiceOrderDialogState
                   textInputType: TextInputType.emailAddress,
                   required: isRequiredData,
                   enabled: enable,
-                  validator: isRequiredData
-                      ? (value) => FieldValidationUtils.validateEmail(value)
-                      : null,
+                  validator:
+                      isRequiredData ? (value) => FieldValidationUtils.validateEmail(value) : null,
                 ),
                 const GapH(12),
                 TextFieldSimpleWidget(
@@ -239,9 +233,8 @@ class __CreateInvoiceOrderDialogState
                   textInputType: TextInputType.number,
                   enabled: enable,
                   required: isRequiredData,
-                  validator: isRequiredData
-                      ? (value) => FieldValidationUtils.checkRequired(value)
-                      : null,
+                  validator:
+                      isRequiredData ? (value) => FieldValidationUtils.checkRequired(value) : null,
                   maxLength: 12,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 ),
@@ -259,9 +252,7 @@ class __CreateInvoiceOrderDialogState
                       const GapW(8),
                       ButtonSimpleWidget(
                         onPressed: () async {
-                          final result = await ref
-                              .read(homeProvider.notifier)
-                              .onUpdateOrderInvoice(
+                          final result = await ref.read(homeProvider.notifier).onUpdateOrderInvoice(
                                 const OrderInvoice(),
                                 isUpdate: widget.orderInvoice != null,
                               );
@@ -293,8 +284,7 @@ class __CreateInvoiceOrderDialogState
   Future<void> _onSearchTax() async {
     final String taxCode = ctrlTax.text.trim();
     if (taxCode.isNotEmpty) {
-      final result =
-          await ref.read(homeProvider.notifier).searchTaxCodeInfo(taxCode);
+      final result = await ref.read(homeProvider.notifier).searchTaxCodeInfo(taxCode);
       final minvoice = result.$1;
       final error = result.$2;
       if (minvoice != null) {

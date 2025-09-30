@@ -410,11 +410,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                     rethrow;
                   }
                 },
-                onComplete: (success, error) async {
-                  await Future.delayed(const Duration(seconds: 0), computation: () {{
-                    
-                  }});
-                  if (success) {
+                onComplete: (success, error)  {
+                 if (success) {
                     showLogs("✅ In thành công");
                   } else {
                     showLogs("❌ In thất bại");
@@ -424,7 +421,6 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                               'Không thể in phiếu thanh toán\n${error ?? ''}');
                     }
                   }
-                  return;
                 },
               );
               // resPrint = await AppPrinterHtmlUtils.instance.printReceipt(

@@ -38,19 +38,15 @@ class ButtonCheckPrinterWidget extends ConsumerWidget {
           closeDialog: false,
           onCheckAction: () {
             if (printerSelect.isEmpty) {
-              showMessageDialog(context,
-                  message: S.current.please_select_printer_to_check);
+              showMessageDialog(context, message: S.current.please_select_printer_to_check);
               return false;
             }
             return true;
           },
           action: () async {
-            final result = await ref
-                .read(homeProvider.notifier)
-                .checkPrinter(printerSelect);
+            final result = await ref.read(homeProvider.notifier).checkPrinter(printerSelect);
             if (result == null) {
-              await showMessageDialog(context,
-                  message: S.current.printer_work_stably);
+              await showMessageDialog(context, message: S.current.printer_work_stably);
               pop(context);
               return;
             }
@@ -71,16 +67,14 @@ class ButtonCheckPrinterWidget extends ConsumerWidget {
 }
 
 class _PrinterSelectWidget extends ConsumerStatefulWidget {
-  const _PrinterSelectWidget(
-      {super.key, this.printers = const [], this.updatePrinterSelect});
+  const _PrinterSelectWidget({super.key, this.printers = const [], this.updatePrinterSelect});
 
   final List<IpOrderModel> printers;
 
   final Function(List<IpOrderModel>)? updatePrinterSelect;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __PrinterSelectWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __PrinterSelectWidgetState();
 }
 
 class __PrinterSelectWidgetState extends ConsumerState<_PrinterSelectWidget> {

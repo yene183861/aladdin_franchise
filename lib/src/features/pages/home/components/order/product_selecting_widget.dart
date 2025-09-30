@@ -214,8 +214,7 @@ class _OrderProductItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     return InkWell(
       onTap: onTap == null
           ? null
@@ -287,17 +286,13 @@ class _OrderProductItem extends ConsumerWidget {
                             if (lockedOrder) return;
                             var state = ref.read(homeProvider);
                             if (state.orderTabSelect == OrderTabEnum.ordering) {
-                              ref
-                                  .read(homeProvider.notifier)
-                                  .changeProductInOrder(item, 0);
+                              ref.read(homeProvider.notifier).changeProductInOrder(item, 0);
                               return;
                             }
-                            var pc = state.productCheckout
-                                .firstWhereOrNull((e) => e.id == item.id);
+                            var pc = state.productCheckout.firstWhereOrNull((e) => e.id == item.id);
                             if (pc != null) {
-                              onPressedCancelItem(context, ref, productCancel: [
-                                pc.copyWith(quantityCancel: -pc.quantity)
-                              ]);
+                              onPressedCancelItem(context, ref,
+                                  productCancel: [pc.copyWith(quantityCancel: -pc.quantity)]);
                             }
                           },
                           child: const Icon(
@@ -322,8 +317,7 @@ class _OrderProductItem extends ConsumerWidget {
             if (item.quantityPromotion > 0)
               Text(
                 '${S.current.complimentary_gift} ${item.quantityPromotion != item.numberSelecting ? '(${S.current.quantityCut}: ${item.quantityPromotion})' : ''}',
-                style: AppTextStyle.regular(
-                    fontSize: 12.sp, color: const Color(0xff0168fe)),
+                style: AppTextStyle.regular(fontSize: 12.sp, color: const Color(0xff0168fe)),
               ),
             const Gap(8),
             SizedBox(
@@ -332,19 +326,17 @@ class _OrderProductItem extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: allowEnterNote
-                        ? _NotePerItemWidget(
-                            item: item, lockedOrder: lockedOrder)
+                        ? _NotePerItemWidget(item: item, lockedOrder: lockedOrder)
                         : Consumer(builder: (context, ref, child) {
-                            var cancelItem = ref.watch(homeProvider
-                                .select((value) => value.cancelOrderItem));
+                            var cancelItem =
+                                ref.watch(homeProvider.select((value) => value.cancelOrderItem));
                             if (cancelItem) {
                               return Row(
                                 children: [
                                   Flexible(
                                     child: Text(
                                       'Hủy: ${0}',
-                                      style: AppTextStyle.semiBold(
-                                          color: AppColors.redColor),
+                                      style: AppTextStyle.semiBold(color: AppColors.redColor),
                                     ),
                                   ),
                                   const Gap(4),
@@ -355,8 +347,7 @@ class _OrderProductItem extends ConsumerWidget {
                                       padding: const EdgeInsets.all(6),
                                       decoration: BoxDecoration(
                                         color: Colors.grey.shade300,
-                                        borderRadius:
-                                            AppConfig.borderRadiusSecond,
+                                        borderRadius: AppConfig.borderRadiusSecond,
                                       ),
                                       child: Icon(Icons.remove),
                                     ),
@@ -366,16 +357,14 @@ class _OrderProductItem extends ConsumerWidget {
                             }
                             return Text(
                               DateTimeUtils.formatToString(
-                                  time: DateTime.now(),
-                                  newPattern: DateTimePatterns.dateTime),
+                                  time: DateTime.now(), newPattern: DateTimePatterns.dateTime),
                             );
                           }),
                   ),
                   const Gap(50),
                   Text(
-                    AppConfig.formatCurrency().format(
-                        (double.tryParse(item.unitPrice) ?? 0) *
-                            (item.numberSelecting - item.quantityPromotion)),
+                    AppConfig.formatCurrency().format((double.tryParse(item.unitPrice) ?? 0) *
+                        (item.numberSelecting - item.quantityPromotion)),
                     style: AppTextStyle.bold(),
                   ),
                 ],
@@ -399,8 +388,7 @@ class _NotePerItemWidget extends ConsumerStatefulWidget {
   final bool lockedOrder;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __NotePerItemWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __NotePerItemWidgetState();
 }
 
 class __NotePerItemWidgetState extends ConsumerState<_NotePerItemWidget> {
@@ -411,8 +399,7 @@ class __NotePerItemWidgetState extends ConsumerState<_NotePerItemWidget> {
   @override
   void initState() {
     super.initState();
-    _controller =
-        TextEditingController(text: widget.item.noteForProcessOrder ?? '');
+    _controller = TextEditingController(text: widget.item.noteForProcessOrder ?? '');
     // _focusNode.addListener(() {
     //   showLogs('');
     //   if (!_focusNode.hasFocus) {
@@ -437,9 +424,7 @@ class __NotePerItemWidgetState extends ConsumerState<_NotePerItemWidget> {
       _textChange.value = _controller.text.trim();
     });
     _textChange.debounceTime(const Duration(milliseconds: 300)).listen((value) {
-      ref
-          .read(homeProvider.notifier)
-          .onChangeNotePerItem(widget.item, _controller.text.trim());
+      ref.read(homeProvider.notifier).onChangeNotePerItem(widget.item, _controller.text.trim());
     });
   }
 
@@ -464,9 +449,7 @@ class __NotePerItemWidgetState extends ConsumerState<_NotePerItemWidget> {
       ),
       onTapOutside: (event) {
         FocusManager.instance.primaryFocus?.unfocus();
-        ref
-            .read(homeProvider.notifier)
-            .onChangeNotePerItem(widget.item, _controller.text.trim());
+        ref.read(homeProvider.notifier).onChangeNotePerItem(widget.item, _controller.text.trim());
       },
     );
   }
@@ -553,8 +536,7 @@ class CurrentOrderItemsWidget extends ConsumerWidget {
       case OrderTabEnum.all:
         return Consumer(
           builder: (context, ref, child) {
-            var items = ref
-                .watch(homeProvider.select((value) => value.currentOrderItems));
+            var items = ref.watch(homeProvider.select((value) => value.currentOrderItems));
             return _ListItemWidget(
               items: items,
               scrollController: notifier.currentOrderItemsScrollCtrl,
@@ -565,17 +547,14 @@ class CurrentOrderItemsWidget extends ConsumerWidget {
       case OrderTabEnum.ordered:
         return Consumer(
           builder: (context, ref, child) {
-            var items = ref
-                .watch(homeProvider.select((value) => value.productsSelected));
-            var orderHistory =
-                ref.watch(homeProvider.select((value) => value.orderHistory));
-            var displayOrderHistory = ref.watch(
-                homeProvider.select((value) => value.displayOrderHistory));
+            var items = ref.watch(homeProvider.select((value) => value.productsSelected));
+            var orderHistory = ref.watch(homeProvider.select((value) => value.orderHistory));
+            var displayOrderHistory =
+                ref.watch(homeProvider.select((value) => value.displayOrderHistory));
             bool useKDS = false;
 
             var orderHistoryData = List<OrderHistory>.from(orderHistory);
-            orderHistoryData
-                .sort((a, b) => b.timesOrder.compareTo(a.timesOrder));
+            orderHistoryData.sort((a, b) => b.timesOrder.compareTo(a.timesOrder));
             return displayOrderHistory
                 ? ScrollablePositionedList.separated(
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -593,19 +572,14 @@ class CurrentOrderItemsWidget extends ConsumerWidget {
                           children: [
                             ListTile(
                               leading: const Icon(Icons.tag),
-                              tileColor: isCancel
-                                  ? Colors.red.shade50
-                                  : Colors.blueGrey.shade50,
+                              tileColor: isCancel ? Colors.red.shade50 : Colors.blueGrey.shade50,
                               title: Text(
                                 "${S.current.turn} ${orderTime.timesOrder} ${isCancel ? " - ${S.current.cancelDish}" : ""}",
                                 style: AppTextStyle.medium(),
                               ),
-                              subtitle: orderTime.notes.isEmpty
-                                  ? null
-                                  : Text(orderTime.notes),
+                              subtitle: orderTime.notes.isEmpty ? null : Text(orderTime.notes),
                               trailing: Text(
-                                appConfig.dateFormatHhMmSsDDMMYYYY
-                                    .format(orderTime.createdAt),
+                                appConfig.dateFormatHhMmSsDDMMYYYY.format(orderTime.createdAt),
                                 style: AppTextStyle.regular(fontSize: 13.sp),
                               ),
                             ),
@@ -618,9 +592,7 @@ class CurrentOrderItemsWidget extends ConsumerWidget {
                                       flex: 2,
                                       child: ListTile(
                                         title: Text(e.getNameView()),
-                                        subtitle: e.notes.isEmpty
-                                            ? null
-                                            : Text(e.notes),
+                                        subtitle: e.notes.isEmpty ? null : Text(e.notes),
                                         trailing: Text(
                                           "${S.current.quantityCut}: ${e.quantity}",
                                           style: AppTextStyle.regular(),
@@ -631,15 +603,12 @@ class CurrentOrderItemsWidget extends ConsumerWidget {
                                         ? Expanded(
                                             flex: 1,
                                             child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
+                                              mainAxisAlignment: MainAxisAlignment.end,
                                               children: [
                                                 Text(
                                                   e.cancel
                                                       ? S.current.cancel
-                                                      : appConfig
-                                                          .getNameByStatus(
-                                                              e.status),
+                                                      : appConfig.getNameByStatus(e.status),
                                                   style: AppTextStyle.medium(),
                                                 ),
                                                 const Gap(12),
@@ -661,8 +630,7 @@ class CurrentOrderItemsWidget extends ConsumerWidget {
                 : _ListItemWidget(
                     items: items,
                     scrollController: notifier.selectedOrderItemsScrollCtrl,
-                    positionsListener:
-                        notifier.selectedOrderItemsPositionsListener,
+                    positionsListener: notifier.selectedOrderItemsPositionsListener,
                     allowEnterNote: false,
                     allowExtraItem: false,
                     onTapItem: (item) {
@@ -696,14 +664,10 @@ class OrderedItemsWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final productCheckoutState =
         ref.watch(homeProvider.select((value) => value.productCheckoutState));
-    var items =
-        ref.watch(homeProvider.select((value) => value.productsSelected));
-    var orderHistory =
-        ref.watch(homeProvider.select((value) => value.orderHistory));
-    var displayOrderHistory =
-        ref.watch(homeProvider.select((value) => value.displayOrderHistory));
-    var productCheckout =
-        ref.watch(homeProvider.select((value) => value.productCheckout));
+    var items = ref.watch(homeProvider.select((value) => value.productsSelected));
+    var orderHistory = ref.watch(homeProvider.select((value) => value.orderHistory));
+    var displayOrderHistory = ref.watch(homeProvider.select((value) => value.displayOrderHistory));
+    var productCheckout = ref.watch(homeProvider.select((value) => value.productCheckout));
     bool useKDS = false;
 
     var orderHistoryData = List<OrderHistory>.from(orderHistory);
@@ -750,9 +714,7 @@ class OrderedItemsWidget extends ConsumerWidget {
                   children: [
                     ListTile(
                       leading: const ResponsiveIconWidget(iconData: Icons.tag),
-                      tileColor: isCancel
-                          ? Colors.red.shade50
-                          : Colors.blueGrey.shade50,
+                      tileColor: isCancel ? Colors.red.shade50 : Colors.blueGrey.shade50,
                       title: Text(
                         "${S.current.turn} ${orderTime.timesOrder} ${isCancel ? " - ${S.current.cancelDish}" : ""}",
                         style: AppTextStyle.medium(),
@@ -764,8 +726,7 @@ class OrderedItemsWidget extends ConsumerWidget {
                               style: AppTextStyle.medium(),
                             ),
                       trailing: Text(
-                        appConfig.dateFormatHhMmSsDDMMYYYY
-                            .format(orderTime.createdAt),
+                        appConfig.dateFormatHhMmSsDDMMYYYY.format(orderTime.createdAt),
                         style: AppTextStyle.regular(fontSize: 13),
                       ),
                     ),
@@ -802,8 +763,7 @@ class OrderedItemsWidget extends ConsumerWidget {
                                         Text(
                                           e.cancel
                                               ? S.current.cancel
-                                              : appConfig
-                                                  .getNameByStatus(e.status),
+                                              : appConfig.getNameByStatus(e.status),
                                           style: AppTextStyle.medium(),
                                         ),
                                         const Gap(12),
@@ -825,9 +785,7 @@ class OrderedItemsWidget extends ConsumerWidget {
         : NotificationListener<ScrollNotification>(
             onNotification: (notification) {
               if (notification is UserScrollNotification) {
-                ref
-                    .read(homeProvider.notifier)
-                    .onChangeAutoScrollProducts(false);
+                ref.read(homeProvider.notifier).onChangeAutoScrollProducts(false);
               }
               return true;
             },
@@ -835,25 +793,20 @@ class OrderedItemsWidget extends ConsumerWidget {
               color: Colors.grey.shade50,
               child: ScrollablePositionedList.separated(
                 itemScrollController: notifier.selectedOrderItemsScrollCtrl,
-                itemPositionsListener:
-                    notifier.selectedOrderItemsPositionsListener,
+                itemPositionsListener: notifier.selectedOrderItemsPositionsListener,
                 padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                 itemBuilder: (context, index) {
                   var p = items[index];
 
-                  var cancelCount = productCheckout
-                          .firstWhereOrNull((e) => e.id == p.id)
-                          ?.quantityCancel ??
-                      0;
+                  var cancelCount =
+                      productCheckout.firstWhereOrNull((e) => e.id == p.id)?.quantityCancel ?? 0;
 
                   return Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border:
-                          Border.all(color: Colors.grey.shade200, width: 0.5),
+                      border: Border.all(color: Colors.grey.shade200, width: 0.5),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -868,14 +821,13 @@ class OrderedItemsWidget extends ConsumerWidget {
                                   children: [
                                     TextSpan(
                                       text:
-                                          '  (${NumberFormat.currency(locale: 'vi', symbol: 'đ').format(double.tryParse(p.unitPrice) ?? 0)}/Suất)',
+                                          '  (${NumberFormat.currency(locale: 'vi', symbol: 'đ').format(double.tryParse(p.unitPrice) ?? 0)}/${p.unit.trim()})',
                                       style: AppTextStyle.medium(
-                                          fontSize: 12.sp,
-                                          color: Colors.grey.shade400),
+                                          fontSize: 12, color: Colors.grey.shade400),
                                     ),
                                   ],
                                 ),
-                                style: AppTextStyle.medium(fontSize: 13.sp),
+                                style: AppTextStyle.medium(),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -887,12 +839,12 @@ class OrderedItemsWidget extends ConsumerWidget {
                                 children: [
                                   TextSpan(
                                     text: p.numberSelecting.toString(),
-                                    style: AppTextStyle.bold(fontSize: 13.sp),
+                                    style: AppTextStyle.bold(),
                                   ),
                                 ],
                                 style: AppTextStyle.bold(
                                   color: Colors.grey.shade500,
-                                  fontSize: 12.sp,
+                                  fontSize: 13,
                                 ),
                               ),
                             ),
@@ -910,13 +862,10 @@ class OrderedItemsWidget extends ConsumerWidget {
                                   InkWell(
                                     onTap: () {
                                       if (-cancelCount < 1) return;
-                                      ref
-                                          .read(homeProvider.notifier)
-                                          .cancelProductCheckout(p, 1);
+                                      ref.read(homeProvider.notifier).cancelProductCheckout(p, 1);
                                     },
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 2),
+                                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                       decoration: BoxDecoration(
                                         color: Colors.grey.shade50,
                                         // border: Border(
@@ -937,17 +886,14 @@ class OrderedItemsWidget extends ConsumerWidget {
                                           Icon(
                                             Icons.remove,
                                             size: 16,
-                                            color: -cancelCount < 1
-                                                ? Colors.grey.shade300
-                                                : null,
+                                            color: -cancelCount < 1 ? Colors.grey.shade300 : null,
                                           ),
                                         ],
                                       ),
                                     ),
                                   ),
                                   Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 2),
+                                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                     decoration: BoxDecoration(
                                       color: Colors.grey.shade50,
                                       // border: Border.symmetric(
@@ -956,21 +902,17 @@ class OrderedItemsWidget extends ConsumerWidget {
                                       // ),
                                     ),
                                     child: Text((-cancelCount).toString(),
-                                        style: AppTextStyle.bold(
-                                            color: Colors.red)),
+                                        style: AppTextStyle.bold(color: Colors.red)),
                                   ),
                                   InkWell(
                                     onTap: () {
                                       if (-cancelCount >= p.numberSelecting) {
                                         return;
                                       }
-                                      ref
-                                          .read(homeProvider.notifier)
-                                          .cancelProductCheckout(p, -1);
+                                      ref.read(homeProvider.notifier).cancelProductCheckout(p, -1);
                                     },
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 2),
+                                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                       decoration: BoxDecoration(
                                         color: Colors.grey.shade50,
                                         // border: Border(
@@ -991,8 +933,7 @@ class OrderedItemsWidget extends ConsumerWidget {
                                           Icon(
                                             Icons.add,
                                             size: 16,
-                                            color: -cancelCount >=
-                                                    p.numberSelecting
+                                            color: -cancelCount >= p.numberSelecting
                                                 ? Colors.grey.shade300
                                                 : null,
                                           ),
@@ -1006,11 +947,8 @@ class OrderedItemsWidget extends ConsumerWidget {
                             const Gap(4),
                             Text(
                               NumberFormat.currency(locale: 'vi', symbol: 'đ')
-                                  .format((double.tryParse(p.unitPrice) ?? 0) *
-                                      p.numberSelecting),
-                              style: AppTextStyle.bold(
-                                fontSize: 13.sp,
-                              ),
+                                  .format((double.tryParse(p.unitPrice) ?? 0) * p.numberSelecting),
+                              style: AppTextStyle.bold(),
                             ),
                           ],
                         ),
@@ -1128,8 +1066,7 @@ class OrderItemsSelectingWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var notifier = ref.read(homeProvider.notifier);
 
-    var items =
-        ref.watch(homeProvider.select((value) => value.productsSelecting));
+    var items = ref.watch(homeProvider.select((value) => value.productsSelecting));
     return _ListItemWidget(
       items: items,
       scrollController: notifier.selectingOrderItemsScrollCtrl,
@@ -1235,8 +1172,7 @@ class _ProductHistoryWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var orderHistory =
-        ref.watch(homeProvider.select((value) => value.orderHistory));
+    var orderHistory = ref.watch(homeProvider.select((value) => value.orderHistory));
     final history = ProductHelper.getHistory(orderHistory, productId);
     if (history.isEmpty) {
       return Padding(
@@ -1268,8 +1204,7 @@ class _ProductHistoryWidget extends ConsumerWidget {
               trailing: e.timeByOrderHistory == null
                   ? null
                   : Text(DateTimeUtils.formatToString(
-                      time: e.timeByOrderHistory,
-                      newPattern: DateTimePatterns.dateTime2)),
+                      time: e.timeByOrderHistory, newPattern: DateTimePatterns.dateTime2)),
             ),
           );
         }).toList(),

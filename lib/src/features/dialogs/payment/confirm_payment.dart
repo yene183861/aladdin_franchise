@@ -36,12 +36,10 @@ class ContentConfirmPaymentWidget extends ConsumerStatefulWidget {
   const ContentConfirmPaymentWidget({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _ContentConfirmPaymentWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _ContentConfirmPaymentWidgetState();
 }
 
-class _ContentConfirmPaymentWidgetState
-    extends ConsumerState<ContentConfirmPaymentWidget> {
+class _ContentConfirmPaymentWidgetState extends ConsumerState<ContentConfirmPaymentWidget> {
   final List<String> tabs = ['Thông tin hóa đơn', 'Thanh toán'];
   String tabSelect = 'Thông tin hóa đơn';
 
@@ -49,8 +47,7 @@ class _ContentConfirmPaymentWidgetState
   Widget build(BuildContext context) {
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation =
-        AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool useTab = (isMobile || (isTablet && portraitOrientation));
     return SizedBox(
@@ -175,17 +172,13 @@ class _MorePaymentInfoWidget extends StatelessWidget {
           const GapH(12),
           Consumer(
             builder: (context, ref, child) {
-              var checked = ref.watch(
-                  homeProvider.select((value) => value.printNumberOfPeople));
+              var checked = ref.watch(homeProvider.select((value) => value.printNumberOfPeople));
               return GestureDetector(
-                onTap:
-                    ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
+                onTap: ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
                 child: Row(
                   children: [
                     CustomCheckbox(
-                      onChange: ref
-                          .read(homeProvider.notifier)
-                          .onChangePrintNumberOfPeople,
+                      onChange: ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
                       checked: checked,
                     ),
                     const Gap(4),
@@ -302,9 +295,7 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
           incrementIcon: const Icon(CupertinoIcons.add),
           decrementIcon: const Icon(CupertinoIcons.minus),
           textStyle: AppTextStyle.bold(),
-          value: ref
-              .watch(homeProvider.select((value) => value.numberOfAdults))
-              .toDouble(),
+          value: ref.watch(homeProvider.select((value) => value.numberOfAdults)).toDouble(),
           decoration: InputDecoration(
             label: Text(
               S.current.number_of_adults,
@@ -322,8 +313,7 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
           const Gap(8),
           Text(
             'Mã giảm giá theo số khách, thay đổi sổ khách người lớn trong mục Ưu đãi.',
-            style: AppTextStyle.regular(
-                color: AppColors.redColor, fontSize: 12.sp),
+            style: AppTextStyle.regular(color: AppColors.redColor, fontSize: 12),
           )
         ],
         const GapH(24),
@@ -333,9 +323,7 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
           incrementIcon: const Icon(CupertinoIcons.add),
           decrementIcon: const Icon(CupertinoIcons.minus),
           textStyle: AppTextStyle.bold(),
-          value: ref
-              .watch(homeProvider.select((value) => value.numberOfChildren))
-              .toDouble(),
+          value: ref.watch(homeProvider.select((value) => value.numberOfChildren)).toDouble(),
           decoration: InputDecoration(
             label: Text(
               S.current.number_of_children,
@@ -358,8 +346,7 @@ class CustomerPortraitSelectWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final portraitSelect =
-        ref.watch(homeProvider.select((value) => value.customerPortraitSelect));
+    final portraitSelect = ref.watch(homeProvider.select((value) => value.customerPortraitSelect));
     final portraits = ref.read(homeProvider.notifier).getCustomerPortrait();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -394,9 +381,7 @@ class CustomerPortraitSelectWidget extends ConsumerWidget {
                     )
                     .toList(),
                 onChanged: (value) {
-                  ref
-                      .read(homeProvider.notifier)
-                      .onChangeCustomerPortraitSelect(value!);
+                  ref.read(homeProvider.notifier).onChangeCustomerPortraitSelect(value!);
                 },
               ),
       ],
@@ -428,19 +413,14 @@ class EmployeeSaleSelectWidget extends ConsumerWidget {
           ),
         ),
         Consumer(builder: (context, ref, child) {
-          final state = ref
-              .watch(homeProvider.select((value) => value.employeeSaleState));
-          final data =
-              ref.watch(homeProvider.select((value) => value.employeeSales));
+          final state = ref.watch(homeProvider.select((value) => value.employeeSaleState));
+          final data = ref.watch(homeProvider.select((value) => value.employeeSales));
 
           var dataView = data
-              .where((e) => [
-                    0,
-                    kTypeOrder == AppConfig.orderOfflineValue ? 1 : 2
-                  ].contains(e.isOnline))
+              .where((e) =>
+                  [0, kTypeOrder == AppConfig.orderOfflineValue ? 1 : 2].contains(e.isOnline))
               .toList();
-          final empSelect = ref
-              .watch(homeProvider.select((value) => value.employeeSaleSelect));
+          final empSelect = ref.watch(homeProvider.select((value) => value.employeeSaleSelect));
           switch (state.status) {
             case PageCommonState.loading:
               return const AppLoadingLineWidget();
@@ -467,14 +447,11 @@ class EmployeeSaleSelectWidget extends ConsumerWidget {
                 },
                 initData: empSelect == null ? [] : [empSelect],
                 onChangeData: (p0) {
-                  ref
-                      .read(homeProvider.notifier)
-                      .onChangeEmployeeSaleSelect(p0.firstOrNull);
+                  ref.read(homeProvider.notifier).onChangeEmployeeSaleSelect(p0.firstOrNull);
                 },
                 hintText: S.current.select_sales_staff,
                 searchMatchFn: (p0, p1) {
-                  return removeDiacritics(
-                          (p0.value?.fullName ?? '').trim().toLowerCase())
+                  return removeDiacritics((p0.value?.fullName ?? '').trim().toLowerCase())
                       .contains(removeDiacritics(p1.trim().toLowerCase()));
                 },
               ),

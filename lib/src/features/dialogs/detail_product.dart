@@ -8,6 +8,7 @@ import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/models/combo_item.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
+import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -38,10 +39,11 @@ class _DetailProductWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const double valueRadius = 12;
-    List<ComboItemModel>? comboItems =
-        ProductHelper().getComboDescription(product);
+    List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(product);
+    bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
+
     return FractionallySizedBox(
-      widthFactor: 0.5,
+      widthFactor: isSmallDevice ? 0.97 : 0.5,
       heightFactor: 0.95,
       child: AlertDialog(
         contentPadding: const EdgeInsets.all(0),
@@ -84,8 +86,7 @@ class ProductDetailWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<ComboItemModel>? comboItems =
-        ProductHelper().getComboDescription(product);
+    List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(product);
     return SingleChildScrollView(
       child: SizedBox(
         width: double.maxFinite,
@@ -122,8 +123,8 @@ class ProductDetailWidget extends StatelessWidget {
                       const GapW(8),
                       Text.rich(
                         TextSpan(
-                          text: AppConfig.formatCurrency().format(
-                              double.tryParse(product.unitPrice ?? "0")),
+                          text: AppConfig.formatCurrency()
+                              .format(double.tryParse(product.unitPrice ?? "0")),
                           style: AppTextStyle.bold(
                             color: AppColors.redColor,
                             fontWeight: FontWeight.w600,
@@ -131,8 +132,7 @@ class ProductDetailWidget extends StatelessWidget {
                           ),
                           children: [
                             WidgetSpan(
-                              alignment: PlaceholderAlignment
-                                  .middle, // dùng middle thôi
+                              alignment: PlaceholderAlignment.middle, // dùng middle thôi
                               child: Baseline(
                                 baseline: 20,
                                 baselineType: TextBaseline.alphabetic,

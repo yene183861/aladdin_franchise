@@ -201,8 +201,7 @@ class AppPrinterHtmlUtils {
         // combo
         List<ComboItemModel> comboItemPrint = [];
         if (comboItem != null) {
-          comboItemPrint =
-              comboItem.where((e) => e.printerType == printer.type).toList();
+          comboItemPrint = comboItem.where((e) => e.printerType == printer.type).toList();
           if (comboItemPrint.isNotEmpty) {
             String? description = p.description;
             try {
@@ -245,18 +244,14 @@ class AppPrinterHtmlUtils {
         throw printer.messageConnectFail();
       }
       if (res == PosPrintResult.success) {
-        var billStatus =
-            await printerManager.printTicket(bytes, isDisconnect: false);
+        var billStatus = await printerManager.printTicket(bytes, isDisconnect: false);
         if (billStatus != PosPrintResult.success) {
           return cancel
               ? "In bill tổng thất bại!\n${billStatus.msg}"
               : 'In bill hủy đồ thất bại\n${billStatus.msg}';
         }
         // chỉ in bill lẻ với bếp
-        if (!cancel &&
-            printEachItem &&
-            productPrinter.length > 1 &&
-            printer.type == 2) {
+        if (!cancel && printEachItem && productPrinter.length > 1 && printer.type == 2) {
           for (var p in productPrinter) {
             List<int> byteDatas;
             var oddHtmlBill = kitchenBillContent(
@@ -268,8 +263,7 @@ class AppPrinterHtmlUtils {
               cancel: cancel,
             );
             byteDatas = await generateImageBill(oddHtmlBill);
-            billStatus = await printerManager.printTicket(byteDatas,
-                isDisconnect: false);
+            billStatus = await printerManager.printTicket(byteDatas, isDisconnect: false);
             if (billStatus != PosPrintResult.success) {
               return "In bill lẻ xuống bếp thất bại!\n${billStatus.msg}";
             }
@@ -326,8 +320,7 @@ class AppPrinterHtmlUtils {
     String dishTable = "";
 
     var finalNote = note;
-    if (!totalBill &&
-        (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
+    if (!totalBill && (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
       finalNote = (product.firstOrNull?.noteForProcessOrder ?? '');
     }
     if (cancel) {
@@ -335,22 +328,23 @@ class AppPrinterHtmlUtils {
     }
 
     for (final pc in product) {
-      dishTable += '''
+      if (totalBill) {
+        dishTable += '''
         <tr>
             <td width="75%">${pc.name}</td>
             <td width="10%" class="center">${cancel ? '-' : ''}${(pc.numberSelecting).abs()}</td>
             <td width="15%" style="text-align: right">${pc.unit}</td>
         </tr>
       ''';
-      List<ComboItemModel>? comboItems =
-          ProductHelper().getComboDescription(pc);
+      }
+      List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(pc);
       if (comboItems != null) {
         // check xem có cần nhân số lượng combo với món trong combo k
         for (var ci in comboItems) {
           dishTable += '''
         <tr>
-            <td width="75%">${'  - ${ci.getNameView()}'}</td>
-            <td width="10%" class="center">'${cancel ? '-' : ''}${(ci.quantity * pc.numberSelecting).abs()}'</td>
+            <td width="75%">${'${totalBill ? '  ' : ''}- ${ci.getNameView()}'}</td>
+            <td width="10%" class="center">${cancel ? '-' : ''}${(ci.quantity * pc.numberSelecting).abs()}</td>
             <td width="15%" style="text-align: right">${ci.unit}</td>
         </tr>
       ''';
@@ -582,7 +576,25 @@ class AppPrinterHtmlUtils {
             border: 1px solid black;
         }
         
+       @media all and (-webkit-min-device-pixel-ratio:0) {
+            body.android {
+                font-family: serif;
+            }
+            .items th,.items td {
+            word-wrap: break-word;
+            border: 1.5px solid black;
+        }
+        }
+
     </style>
+    <script>
+    const ua = navigator.userAgent.toLowerCase();
+    if (ua.indexOf("android") > -1) {
+        document.documentElement.classList.add("android");
+    } else {
+        document.documentElement.classList.add("windows");
+    }
+</script>
 </head>
 <body style="margin: 0px;padding: 0px;">
 <p style="text-align: center">
@@ -690,8 +702,7 @@ class AppPrinterHtmlUtils {
   }
 
   String _printDateTime(DateTime? value) {
-    return DateTimeUtils.formatToString(
-        time: value, newPattern: DateTimePatterns.dateTime1);
+    return DateTimeUtils.formatToString(time: value, newPattern: DateTimePatterns.dateTime1);
   }
 }
 

@@ -92,14 +92,14 @@ class ProductBoxWidget extends ConsumerWidget {
                       color: AppColors.redColor,
                       fontWeight: FontWeight.w600,
                       fontStyle: FontStyle.italic,
-                      fontSize: 12.sp,
+                      fontSize: 12,
                     ),
                     children: [
                       TextSpan(
                         text: "/${product.unit.trim()}",
                         style: AppTextStyle.regular(
                           color: Colors.grey,
-                          fontSize: 12.sp,
+                          fontSize: 12,
                         ),
                       ),
                     ],
@@ -122,7 +122,7 @@ class ProductBoxWidget extends ConsumerWidget {
                           ),
                           style: AppTextStyle.regular().copyWith(
                             fontStyle: FontStyle.italic,
-                            fontSize: 12.sp,
+                            fontSize: 12,
                             color: Colors.grey,
                           ),
                         ),
@@ -200,7 +200,11 @@ class ProductBoxLoadingWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       clipBehavior: Clip.hardEdge,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.white),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.grey.shade100,
+      ),
       child: const Column(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -1,11 +1,13 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/history_order/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/view.dart';
 
 import 'package:aladdin_franchise/src/features/pages/login/view.dart';
+import 'package:aladdin_franchise/src/features/pages/more/widgets/button_check_printer.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_logout.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_type_order.dart';
 import 'package:aladdin_franchise/src/features/pages/settings/view.dart';
@@ -66,8 +68,7 @@ class HomeDrawerWidget extends ConsumerWidget {
                 ListTile(
                   onTap: () async {
                     pop(context);
-                    final res =
-                        await ref.read(homeProvider.notifier).closingShift();
+                    final res = await ref.read(homeProvider.notifier).closingShift();
 
                     if (res != null) {
                       if (context.mounted) {
@@ -76,9 +77,7 @@ class HomeDrawerWidget extends ConsumerWidget {
                       return;
                     }
                     if (context.mounted) {
-                      showDoneSnackBar(
-                          context: context,
-                          message: S.current.closing_shift_success);
+                      showDoneSnackBar(context: context, message: S.current.closing_shift_success);
                     }
                   },
                   leading: const ResponsiveIconWidget(
@@ -93,6 +92,18 @@ class HomeDrawerWidget extends ConsumerWidget {
                 const Divider(height: 1),
                 const ButtonTypeOrderWidget(),
                 const Divider(height: 1),
+                Consumer(
+                  builder: (context, ref, child) {
+                    var printers = LocalStorage.getPrinters();
+                    if (printers.isEmpty) return const SizedBox.shrink();
+                    return Column(
+                      children: [
+                        const Divider(height: 1),
+                        ButtonCheckPrinterWidget(printers: printers),
+                      ],
+                    );
+                  },
+                ),
                 ListTile(
                   onTap: () {
                     pop(context);

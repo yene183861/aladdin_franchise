@@ -40,8 +40,7 @@ class ListOrderProduct extends ConsumerStatefulWidget {
   final TextEditingController noteTextEditingController;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _ListOrderProductState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _ListOrderProductState();
 }
 
 class _ListOrderProductState extends ConsumerState<ListOrderProduct> {
@@ -54,8 +53,7 @@ class _ListOrderProductState extends ConsumerState<ListOrderProduct> {
   List<dynamic> data = [];
 
   final ItemScrollController itemScrollController = ItemScrollController();
-  final ItemPositionsListener itemPositionsListener =
-      ItemPositionsListener.create();
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
 
   @override
   void initState() {
@@ -75,8 +73,7 @@ class _ListOrderProductState extends ConsumerState<ListOrderProduct> {
   @override
   void didUpdateWidget(covariant ListOrderProduct oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.data != oldWidget.data ||
-        widget.allProducts != oldWidget.allProducts) {
+    if (widget.data != oldWidget.data || widget.allProducts != oldWidget.allProducts) {
       setState(() {
         data = widget.data;
         // middleIndex = (data.length * loopMultiplier) ~/ 2;
@@ -87,8 +84,7 @@ class _ListOrderProductState extends ConsumerState<ListOrderProduct> {
   void startAutoScroll() {
     _timer = Timer.periodic(const Duration(seconds: 1), (time) {
       // if (_scrollCtrl.hasClients) {
-      bool autoScrollProduct =
-          ref.read(customerPageProvider).autoScrollProducts;
+      bool autoScrollProduct = ref.read(customerPageProvider).autoScrollProducts;
       int? changedProductId = ref.read(customerPageProvider).changedProductId;
       // if (!autoScrollProduct) return;
       dynamic product = data.firstWhereOrNull((e) {
@@ -118,9 +114,7 @@ class _ListOrderProductState extends ConsumerState<ListOrderProduct> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (itemScrollController.isAttached && index != -1) {
           itemScrollController.scrollTo(
-              index: index,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.linear);
+              index: index, duration: const Duration(milliseconds: 300), curve: Curves.linear);
         }
       });
       // _scrollCtrl.animateTo(_scrollCtrl.position.maxScrollExtent,
@@ -153,8 +147,7 @@ class _ListOrderProductState extends ConsumerState<ListOrderProduct> {
         itemPositionsListener: itemPositionsListener,
         // itemExtent: itemHeight,
         itemCount: data.length,
-        padding: EdgeInsets.symmetric(
-            horizontal: widget.horizontalPadding, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: widget.horizontalPadding, vertical: 8),
         itemBuilder: (context, index) {
           if (data.isEmpty) return const SizedBox.shrink();
           var item = data[index];
@@ -182,8 +175,8 @@ class _ListOrderProductState extends ConsumerState<ListOrderProduct> {
             children: [
               if (item.quantity - item.quantityPromotion > 0)
                 _ProductItemWidget(
-                  item: (item as ProductCheckoutModel).copyWith(
-                      quantity: item.quantity - item.quantityPromotion),
+                  item: (item as ProductCheckoutModel)
+                      .copyWith(quantity: item.quantity - item.quantityPromotion),
                   image: img?.image ?? '',
                 ),
               if (item.quantityPromotion > 0) ...[
@@ -254,7 +247,7 @@ class _ProductItemWidget extends StatelessWidget {
                                 text:
                                     ' ( ${AppConfig.formatCurrency(isCustomerPage: true).format(freeGiftCount > 0 ? 0.0 : double.tryParse(item.unitPrice))} / ${item.unit} )',
                                 style: AppTextStyle.regular(
-                                  fontSize: 12.sp,
+                                  fontSize: 12,
                                   color: AppColors.redColor,
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -275,7 +268,7 @@ class _ProductItemWidget extends StatelessWidget {
                       Text(
                         S.current.complimentary_item,
                         style: AppTextStyle.regular(
-                          fontSize: 11.sp,
+                          fontSize: 11,
                           color: const Color(0xff0168fe),
                         ),
                       ),

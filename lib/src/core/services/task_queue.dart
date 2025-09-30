@@ -15,16 +15,18 @@ class PrinterTaskQueue {
   factory PrinterTaskQueue() => _instance;
   PrinterTaskQueue._internal();
 
-  final _queue = StreamController<_PrintTaskModel>();
+  List<_PrintTaskModel> _queue = [];
+
+  // final _queue = StreamController<_PrintTaskModel>();
   bool _isProcessing = false;
 
   void init() {
     // _queue.stream.asyncMap((task) => _processTask(task)).listen((_) {});
-    _queue.stream.listen(_processTask);
+    // _queue.stream.listen(_processTask);
   }
 
   Future<void> dispose() async {
-    await _queue.close();
+    // await _queue.close();
   }
 
   void addTask({
@@ -32,7 +34,7 @@ class PrinterTaskQueue {
     int port = 9100,
     Duration timeout = const Duration(seconds: 5),
     required Future<List<int>> Function(Generator generator) buildReceipt,
-    Future<void> Function(bool success, String? error)? onComplete,
+    Function(bool success, String? error)? onComplete,
   }) {
     final task = _PrintTaskModel(
       ip: ip,
@@ -41,26 +43,31 @@ class PrinterTaskQueue {
       buildReceipt: buildReceipt,
       onComplete: onComplete,
     );
+
     _queue.add(task);
+    _tryProcessNext();
+  }
+
+  void _tryProcessNext() {
+    if (_isProcessing || _queue.isEmpty) return;
+    _isProcessing = true;
+
+    final task = _queue.removeAt(0);
+    _processTask(task).then((_) {
+      _isProcessing = false;
+      _tryProcessNext();
+    });
   }
 
   Future<void> _processTask(_PrintTaskModel task) async {
-    showLogs(task, flags: 'task');
-    // if (_isProcessing) return;
-    // nếu đang in, chờ nó xong
-    while (_isProcessing) {
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-    _isProcessing = true;
-
-    final profile = await CapabilityProfile.load();
-    final printerManager = PrinterNetworkManager(task.ip, port: task.port);
-
+    String? error;
     bool success = false;
+    PrinterNetworkManager? printerManager;
+    final profile = await CapabilityProfile.load();
+    printerManager = PrinterNetworkManager(task.ip, port: task.port);
 
     var paperSize = LocalStorage.getAppSettings().billHtmlSetting.paperSize;
     final generator = Generator(paperSize.paperSize, profile);
-    String? error;
     try {
       List<int> data = await task.buildReceipt(generator);
       var connectResult = await printerManager.connect();
@@ -68,10 +75,11 @@ class PrinterTaskQueue {
         throw connectResult.msg;
       }
 
-      final res = await printerManager.printTicket(data);
+      final res = await printerManager.printTicket(data, isDisconnect: false);
 
       if (res == PosPrintResult.success) {
         success = true;
+        await Future.delayed(const Duration(seconds: 1));
       } else {
         error = "⚠️ Không in được: ${res.msg}";
         showLogs(error, flags: '_processTask');
@@ -95,9 +103,7 @@ class PrinterTaskQueue {
       }
     }
 
-    await task.onComplete?.call(success, error);
-    // await Future.delayed(const Duration(milliseconds: 300));
-    _isProcessing = false;
+    task.onComplete?.call(success, error);
   }
 }
 

@@ -7,4 +7,6 @@ class AppIcons {
   static String icRequestOrder = 'assets/icons/request_order.svg';
   static String icRequestService = 'assets/icons/request_service.svg';
   static String icChat = 'assets/icons/ic_chat.svg';
+  static String icTakeAway = 'assets/icons/ic_take_away.svg';
+  static String icTableBar = 'assets/icons/ic_table_bar.svg';
 }

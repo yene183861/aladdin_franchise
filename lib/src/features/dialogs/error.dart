@@ -2,15 +2,13 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/ticket/components/dialog.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_with_icon.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:aladdin_franchise/src/utils/take_screenshot.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 Future<void> showErrorDialog(
   BuildContext context, {
@@ -53,6 +51,7 @@ class _ErrorDialogWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
     return PopScope(
       canPop: false,
       child: AlertDialog(
@@ -86,26 +85,43 @@ class _ErrorDialogWidget extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ButtonWithIconWidget(
-                  onPressed: () async {
-                    final data =
-                        await AppTakeScreenshot().takeFileScreenshotError();
-                    await showCreateTicket(
-                      context,
-                      title: titleMessage ?? titleTicket,
-                      content: message,
-                      attachFile: data == null ? null : [data],
-                    );
-                  },
-                  textAction: S.current.submit_error_ticket,
-                  minWidth: 250,
-                  color: Colors.grey,
-                  icon: Icons.outgoing_mail,
-                ),
-                const Gap(36),
+                if (!isSmallDevice) ...[
+                  ButtonWithIconWidget(
+                    onPressed: () async {
+                      final data = await AppTakeScreenshot().takeFileScreenshotError();
+                      await showCreateTicket(
+                        context,
+                        title: titleMessage ?? titleTicket,
+                        content: message,
+                        attachFile: data == null ? null : [data],
+                      );
+                    },
+                    textAction: S.current.submit_error_ticket,
+                    minWidth: 250,
+                    color: Colors.grey,
+                    icon: Icons.outgoing_mail,
+                  ),
+                ] else ...[
+                  ButtonWithIconWidget(
+                    onPressed: () async {
+                      final data = await AppTakeScreenshot().takeFileScreenshotError();
+                      await showCreateTicket(
+                        context,
+                        title: titleMessage ?? titleTicket,
+                        content: message,
+                        attachFile: data == null ? null : [data],
+                      );
+                    },
+                    minWidth: 100,
+                    textAction: 'Gửi ticket',
+                    color: Colors.grey,
+                    icon: Icons.outgoing_mail,
+                  ),
+                ],
+                Gap(isSmallDevice ? 12 : 36),
                 ButtonSimpleWidget(
                   onPressed: () => Navigator.pop(context),
-                  minWidth: 250,
+                  minWidth: isSmallDevice ? 100 : 250,
                   textAction: textAction ?? S.current.close,
                 ),
               ],
