@@ -7,8 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Author: sondv
 /// Created 23/02/2023 at 10:05
-final configProvider =
-    StateNotifierProvider.autoDispose<Config2Notifier, ConfigState>((ref) {
+final configProvider = StateNotifierProvider.autoDispose<Config2Notifier, ConfigState>((ref) {
   return Config2Notifier();
 });
 
@@ -21,12 +20,11 @@ class Config2Notifier extends StateNotifier<ConfigState> {
           styleIds: [],
           styleIdSelected: 1,
           enableOrderOnline: false,
-          typeConfig: TypeConfigPage.chose,
+          typeConfig: TypeConfigPage.manual,
         ));
   void changeTypeConfig() {
-    var newTypeConfig = state.typeConfig == TypeConfigPage.chose
-        ? TypeConfigPage.manual
-        : TypeConfigPage.chose;
+    var newTypeConfig =
+        state.typeConfig == TypeConfigPage.chose ? TypeConfigPage.manual : TypeConfigPage.chose;
     state = state.copyWith(typeConfig: newTypeConfig);
   }
 
@@ -75,8 +73,7 @@ class Config2Notifier extends StateNotifier<ConfigState> {
     state = state.copyWith(keyword: keyword);
   }
 
-  Future<void> onConfirmRestaurantConfig(
-      RestaurantConfigModel restaurant) async {
+  Future<void> onConfirmRestaurantConfig(RestaurantConfigModel restaurant) async {
     await LocalStorage.setApiUrl(restaurant.ip);
     ApiConfig().changeApi(restaurant.ip);
 

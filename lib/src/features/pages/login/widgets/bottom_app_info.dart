@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/features/pages/update_app/android/view.dart';
 import 'package:aladdin_franchise/src/features/pages/update_app/windows/view.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ class LoginAppInfoBottomWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var restaurant = ref.watch(restaurantConfigLocalProvider);
+    var apiUrl = ref.watch(apiUrlProvider);
     String infoRestaurant = '';
     if (restaurant != null) {
       infoRestaurant = "${restaurant.name} - ${restaurant.address}";
@@ -48,8 +50,11 @@ class LoginAppInfoBottomWidget extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
               TextSpan(
                 children: [
-                  const TextSpan(text: " | "),
-                  TextSpan(text: infoRestaurant),
+                  const TextSpan(text: "  |  "),
+                  TextSpan(
+                    text: apiUrl,
+                    style: AppTextStyle.regular(color: Colors.black26),
+                  ),
                 ],
                 style: AppTextStyle.regular(
                   color: Colors.black,
@@ -57,6 +62,7 @@ class LoginAppInfoBottomWidget extends ConsumerWidget {
               ),
             ),
           ),
+
           // TextButton(
           //   onPressed: () async {
           //     if (kCheckAndroidPlatform) {

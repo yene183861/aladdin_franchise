@@ -32,8 +32,7 @@ class BillSettingForHtmlWidget extends ConsumerStatefulWidget {
   ConsumerState createState() => _BillSettingForHtmlWidgetState();
 }
 
-class _BillSettingForHtmlWidgetState
-    extends ConsumerState<BillSettingForHtmlWidget> {
+class _BillSettingForHtmlWidgetState extends ConsumerState<BillSettingForHtmlWidget> {
   Uint8List? returnBill, singleBill, cancelBill;
   List<ProductModel> items = [
     const ProductModel(
@@ -69,11 +68,11 @@ class _BillSettingForHtmlWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final billHtmlSetting = ref.watch(settingsPageProvider
-        .select((value) => value.appSettings.billHtmlSetting));
+    final billHtmlSetting =
+        ref.watch(settingsPageProvider.select((value) => value.appSettings.billHtmlSetting));
     final notifier = ref.read(settingsPageProvider.notifier);
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(0.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -170,22 +169,24 @@ class _BillSettingForHtmlWidgetState
                   const SettingBillUseBillOdd(),
                   // const SettingBillPrintComboNameWidget(),
                   const Divider(),
-                  Text.rich(
-                    TextSpan(
-                      text: "CHÚ Ý:\n",
-                      style: AppTextStyle.bold(color: AppColors.redColor),
-                      children: [
-                        TextSpan(
-                          text:
-                              '- Nếu in có dấu xảy ra lỗi, vui lòng tắt bỏ và quay trở lại bill không dấu.\n',
-                          style: AppTextStyle.semiBold(),
-                        ),
-                        TextSpan(
-                          text:
-                              '- Bill có dấu hiện chỉ áp dụng với bill gọi món/ hủy món.\n',
-                          style: AppTextStyle.semiBold(),
-                        ),
-                      ],
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text.rich(
+                      TextSpan(
+                        text: "CHÚ Ý:\n",
+                        style: AppTextStyle.bold(color: AppColors.redColor),
+                        children: [
+                          TextSpan(
+                            text:
+                                '- Nếu in có dấu xảy ra lỗi, vui lòng tắt bỏ và quay trở lại bill không dấu.\n',
+                            style: AppTextStyle.semiBold(),
+                          ),
+                          TextSpan(
+                            text: '- Bill có dấu hiện chỉ áp dụng với bill gọi món/ hủy món.\n',
+                            style: AppTextStyle.semiBold(),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -332,8 +333,8 @@ class _BillPreviewWidget extends ConsumerWidget {
   final Uint8List? dataImage;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final billHtmlSetting = ref.watch(settingsPageProvider
-        .select((value) => value.appSettings.billHtmlSetting));
+    final billHtmlSetting =
+        ref.watch(settingsPageProvider.select((value) => value.appSettings.billHtmlSetting));
     final paperSize = billHtmlSetting.paperSize.paperSize;
     return SizedBox(
       width: paperSize.width.toDouble(),

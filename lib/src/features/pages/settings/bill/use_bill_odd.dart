@@ -16,14 +16,13 @@ class SettingBillUseBillOdd extends ConsumerWidget {
         SwitchListTile(
           title: Text(
             "Gọi món có in bill lẻ",
-            style: AppTextStyle.regular(),
+            style: AppTextStyle.bold(),
           ),
           value: appSettings.billReturnSetting.useOddBill,
           controlAffinity: ListTileControlAffinity.leading,
           onChanged: (value) {
             ref.read(settingsPageProvider.notifier).onChangeSetting(
-                  billReturnSetting:
-                      appSettings.billReturnSetting.copyWith(useOddBill: value),
+                  billReturnSetting: appSettings.billReturnSetting.copyWith(useOddBill: value),
                 );
           },
         ),

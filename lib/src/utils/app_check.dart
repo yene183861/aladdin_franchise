@@ -66,9 +66,8 @@ void _showDialogUpdateApp(BuildContext context) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => Platform.isAndroid
-              ? const UpdateAppAndroidPage()
-              : const UpdateAppWindowsPage(),
+          builder: (context) =>
+              Platform.isAndroid ? const UpdateAppAndroidPage() : const UpdateAppWindowsPage(),
         ),
       );
       _showDialogNotiUpdateApp = false;
@@ -81,29 +80,29 @@ void _showDialogUpdateApp(BuildContext context) {
 /// Cái này chỉ dùng ở màn login
 ///
 /// Nếu chưa config -> chuyển tới màn config
-// Future<void> checkConfigApi(WidgetRef ref, BuildContext context) async {
-//   try {
-//     await Future.delayed(Duration.zero, () {
-//       final checkConfig = ref.watch(checkConfigApiProvider);
-//       showLog(checkConfig, flags: 'checkConfigApi');
-//       if (checkConfig == false) {
-//         Navigator.push(
-//           context,
-//           MaterialPageRoute(
-//             builder: (context) => const ConfigPage(isCheckConfig: true),
-//           ),
-//         ).then((value) {
-//           ref.invalidate(checkConfigApiProvider);
-//           ref.read(loginProvider.notifier).updateStyle();
-//           ref.invalidate(restaurantConfigLocalProvider);
-//           ref.invalidate(checkLoginProvider);
-//         });
-//       }
-//     });
-//   } catch (ex) {
-//     showLog(ex, flags: "checkConfigApi");
-//   }
-// }
+Future<void> checkConfigApi(WidgetRef ref, BuildContext context) async {
+  try {
+    await Future.delayed(Duration.zero, () {
+      final checkConfig = ref.watch(checkConfigApiProvider);
+      showLog(checkConfig, flags: 'checkConfigApi');
+      if (checkConfig == false) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ConfigPage(isCheckConfig: true),
+          ),
+        ).then((value) {
+          ref.invalidate(checkConfigApiProvider);
+          ref.read(loginProvider.notifier).updateStyle();
+          ref.invalidate(restaurantConfigLocalProvider);
+          ref.invalidate(checkLoginProvider);
+        });
+      }
+    });
+  } catch (ex) {
+    showLog(ex, flags: "checkConfigApi");
+  }
+}
 
 bool isCheckTypeOrderInit = false;
 

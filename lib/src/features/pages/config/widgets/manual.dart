@@ -1,9 +1,12 @@
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/config/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/config/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
+import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
+import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,9 +37,11 @@ class _ManualConfigWidgetState extends ConsumerState<ManualConfigWidget> {
   Widget build(BuildContext context) {
     var state = ref.watch(configProvider);
     var notifier = ref.read(configProvider.notifier);
+
+    bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
     return Center(
       child: FractionallySizedBox(
-        widthFactor: 0.5,
+        widthFactor: isSmallDevice ? 0.9 : 0.5,
         child: state.pageState == ConfigPageState.normal
             ? SingleChildScrollView(
                 child: Column(
@@ -78,20 +83,27 @@ class _ManualConfigWidgetState extends ConsumerState<ManualConfigWidget> {
                             notifier.changeEnableOrderOnline(value);
                           },
                         ),
-                        const SizedBox(width: 36),
-                        Text(state.enableOrderOnline
-                            ? S.current.enableOnline
-                            : S.current.disableOnline),
+                        const Gap(12),
+                        Flexible(
+                          child: Text(
+                            state.enableOrderOnline
+                                ? S.current.enableOnline
+                                : S.current.disableOnline,
+                            style: AppTextStyle.regular(),
+                          ),
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 50),
+                    const Gap(50),
+
                     Center(
                       child: ButtonMainWidget(
                         textAction: S.current.save,
                         onPressed: () async {
                           await notifier.saveConfigs(ctrlApiUrl.text.trim());
-                          showDoneSnackBar(
-                              context: context, message: S.current.saveSuccess);
+
+                          ref.refresh(apiUrlProvider);
+                          showDoneSnackBar(context: context, message: S.current.saveSuccess);
                           Navigator.popUntil(context, (route) => route.isFirst);
                         },
                       ),

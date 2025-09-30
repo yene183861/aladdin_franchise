@@ -45,8 +45,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   ];
   @override
   Widget build(BuildContext context) {
-    final menuView =
-        ref.watch(settingsPageProvider.select((value) => value.menuSelect));
+    final menuView = ref.watch(settingsPageProvider.select((value) => value.menuSelect));
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -59,8 +58,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       ),
       body: Row(
         children: [
-          const MenuSettingWidget(),
-          Expanded(child: views[menuView.index]),
+          // const MenuSettingWidget(),
+          // Expanded(child: views[menuView.index]),
+          Expanded(child: views[2]),
         ],
       ),
     );

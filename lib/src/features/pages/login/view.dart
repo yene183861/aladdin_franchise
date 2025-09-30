@@ -26,7 +26,7 @@ class LoginPageCheckUpdate extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     checkUpdateApp(ref, context);
-    // checkConfigApi(ref, context);
+    checkConfigApi(ref, context);
     return const LoginPage();
   }
 }
@@ -41,8 +41,7 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  _listenEvent(BuildContext context, WidgetRef ref) =>
-      (LoginEvent? previous, LoginEvent? next) {
+  _listenEvent(BuildContext context, WidgetRef ref) => (LoginEvent? previous, LoginEvent? next) {
         switch (next) {
           case LoginEvent.processing:
             showProcessingDialog(context, message: S.current.verifying);
@@ -72,7 +71,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       _listenEvent(context, ref),
     );
     final notifier = ref.read(loginProvider.notifier);
-    bool checkSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
+    bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
+    bool isPortraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool isSmallDevice = isMobile && !isPortraitOrientation;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: _buildAppBar(),
@@ -80,13 +81,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         child: ListView(
           shrinkWrap: true,
           padding: EdgeInsets.symmetric(
-            horizontal: checkSmallDevice ? 20 : 50.sp,
+            horizontal: (isMobile && isPortraitOrientation) ? 20 : 50.sp,
           ),
           children: [
+            if (isSmallDevice) const Gap(70),
             const CirleAppLogoWidget(),
-            const Gap(24),
+            Gap(isSmallDevice ? 12 : 24),
             const BrandRestaurantWidget(),
-            const Gap(24),
+            Gap(isSmallDevice ? 12 : 24),
             TextFormField(
               textInputAction: TextInputAction.next,
               style: AppTextStyle.regular(),
@@ -94,8 +96,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 FocusManager.instance.primaryFocus?.unfocus();
               },
               decoration: InputDecoration(
-                errorText: ref
-                    .watch(loginProvider.select((value) => value.errorEmail)),
+                errorText: ref.watch(loginProvider.select((value) => value.errorEmail)),
                 prefixIcon: const ResponsiveIconWidget(
                   iconData: CupertinoIcons.mail,
                   color: AppColors.secondColor,
@@ -108,10 +109,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
               onChanged: (value) => notifier.changeEmail(value),
             ),
-            const Gap(20),
+            Gap(isSmallDevice ? 12 : 20),
             Consumer(builder: (context, ref, child) {
-              final hiddenPassword = ref
-                  .watch(loginProvider.select((value) => value.hiddenPassword));
+              final hiddenPassword =
+                  ref.watch(loginProvider.select((value) => value.hiddenPassword));
               return TextFormField(
                 style: AppTextStyle.regular(),
                 obscureText: hiddenPassword,
@@ -119,8 +120,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   FocusManager.instance.primaryFocus?.unfocus();
                 },
                 decoration: InputDecoration(
-                  errorText: ref.watch(
-                      loginProvider.select((value) => value.errorPassword)),
+                  errorText: ref.watch(loginProvider.select((value) => value.errorPassword)),
                   errorStyle: AppTextStyle.regular(color: AppColors.redColor),
                   prefixIcon: const ResponsiveIconWidget(
                     iconData: CupertinoIcons.lock,
@@ -133,9 +133,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   suffixIcon: IconButton(
                     onPressed: () => notifier.changeHiddenPassword(),
                     icon: ResponsiveIconWidget(
-                      iconData: hiddenPassword
-                          ? CupertinoIcons.eye
-                          : CupertinoIcons.eye_slash,
+                      iconData: hiddenPassword ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
                     ),
                   ),
                 ),
@@ -150,7 +148,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 },
               );
             }),
-            const Gap(16),
+            Gap(isSmallDevice ? 12 : 16),
             Align(
               alignment: Alignment.centerRight,
               child: GestureDetector(
@@ -167,8 +165,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
               ),
             ),
-            const Gap(24),
+            Gap(isSmallDevice ? 12 : 24),
             const ButtonLoginWidget(),
+            if (isSmallDevice) const Gap(50),
           ],
         ),
       ),
@@ -214,14 +213,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: Row(
                     children: [
                       Text(data[0] == 'null' ? '' : data[0]),
-                      const Gap(32),
+                      const Gap(12),
                       const ResponsiveIconWidget(
                         iconData: CupertinoIcons.antenna_radiowaves_left_right,
                         color: Colors.grey,
                       ),
                       const Gap(8),
                       Text(data[1]),
-                      const Gap(32),
+                      const Gap(12),
                       const ResponsiveIconWidget(
                         iconData: CupertinoIcons.wifi,
                         color: Colors.grey,

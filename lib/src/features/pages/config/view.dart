@@ -23,8 +23,7 @@ class ConfigPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final typeConfig =
-        ref.watch(configProvider.select((value) => value.typeConfig));
+    final typeConfig = ref.watch(configProvider.select((value) => value.typeConfig));
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -34,36 +33,36 @@ class ConfigPage extends ConsumerWidget {
         ),
         leading: isCheckConfig ? const SizedBox() : null,
         actions: [
-          IconButton(
-            onPressed: () async {
-              if (typeConfig == TypeConfigPage.chose) {
-                var security = await showConfirmInputDialog(
-                  context,
-                  title: S.current.verificationCodes,
-                  hintText: S.current.enterAuthCode,
-                  textAction: S.current.verification,
-                  keyboardType: TextInputType.number,
-                  maxLineInput: 1,
-                  obscureText: true,
-                );
-                if (security == appConfig.codeSecurity) {
-                  ref.read(configProvider.notifier).changeTypeConfig();
-                } else {
-                  if (context.mounted) {
-                    showMessageDialog(context,
-                        message: S.current.verificationCodeIsIncorrect);
-                  }
-                }
-              } else {
-                ref.read(configProvider.notifier).changeTypeConfig();
-              }
-            },
-            icon: ResponsiveIconWidget(
-              iconData: typeConfig == TypeConfigPage.chose
-                  ? CupertinoIcons.pencil_outline
-                  : CupertinoIcons.list_bullet,
-            ),
-          ),
+          // IconButton(
+          //   onPressed: () async {
+          //     if (typeConfig == TypeConfigPage.chose) {
+          //       var security = await showConfirmInputDialog(
+          //         context,
+          //         title: S.current.verificationCodes,
+          //         hintText: S.current.enterAuthCode,
+          //         textAction: S.current.verification,
+          //         keyboardType: TextInputType.number,
+          //         maxLineInput: 1,
+          //         obscureText: true,
+          //       );
+          //       if (security == appConfig.codeSecurity) {
+          //         ref.read(configProvider.notifier).changeTypeConfig();
+          //       } else {
+          //         if (context.mounted) {
+          //           showMessageDialog(context,
+          //               message: S.current.verificationCodeIsIncorrect);
+          //         }
+          //       }
+          //     } else {
+          //       ref.read(configProvider.notifier).changeTypeConfig();
+          //     }
+          //   },
+          //   icon: ResponsiveIconWidget(
+          //     iconData: typeConfig == TypeConfigPage.chose
+          //         ? CupertinoIcons.pencil_outline
+          //         : CupertinoIcons.list_bullet,
+          //   ),
+          // ),
         ],
       ),
       body: typeConfig == TypeConfigPage.chose

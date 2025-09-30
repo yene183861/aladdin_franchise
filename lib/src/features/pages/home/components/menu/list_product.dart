@@ -24,24 +24,15 @@ class ProductBoxWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var autoSaveOrder =
-        ref.watch(homeProvider.select((value) => value.autoSaveOrder));
-    var currentOrderItems =
-        ref.watch(homeProvider.select((value) => value.currentOrderItems));
-    var productsSelected =
-        ref.watch(homeProvider.select((value) => value.productsSelected));
+    var autoSaveOrder = ref.watch(homeProvider.select((value) => value.autoSaveOrder));
+    var currentOrderItems = ref.watch(homeProvider.select((value) => value.currentOrderItems));
+    var productsSelected = ref.watch(homeProvider.select((value) => value.productsSelected));
 
-    int total = currentOrderItems
-            .firstWhereOrNull((e) => e.id == product.id)
-            ?.numberSelecting ??
-        0;
+    int total = currentOrderItems.firstWhereOrNull((e) => e.id == product.id)?.numberSelecting ?? 0;
 
     int ordered = autoSaveOrder
         ? 0
-        : (productsSelected
-                .firstWhereOrNull((e) => e.id == product.id)
-                ?.numberSelecting ??
-            0);
+        : (productsSelected.firstWhereOrNull((e) => e.id == product.id)?.numberSelecting ?? 0);
 
     int ordering = max(0, total - ordered);
     var listTags = ref.watch(homeProvider.select((value) => value.tags));
@@ -71,9 +62,8 @@ class ProductBoxWidget extends ConsumerWidget {
         children: [
           Container(
             clipBehavior: Clip.hardEdge,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.grey.shade100),
+            decoration:
+                BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.grey.shade100),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -126,9 +116,7 @@ class ProductBoxWidget extends ConsumerWidget {
                             text: 'Đã gọi: ',
                             children: [
                               TextSpan(
-                                text: ordered > 1000
-                                    ? '1000+'
-                                    : ordered.toString(),
+                                text: ordered > 1000 ? '1000+' : ordered.toString(),
                               ),
                             ],
                           ),
@@ -144,7 +132,7 @@ class ProductBoxWidget extends ConsumerWidget {
                           TextSpan(
                             text: ordering > 0
                                 // ? '${S.current.quantityCut}: '
-                                ? 'Đang chọn: '
+                                ? 'SL: '
                                 : '',
                             children: [
                               TextSpan(
@@ -153,11 +141,11 @@ class ProductBoxWidget extends ConsumerWidget {
                                     : ordering > 1000
                                         ? '1000+'
                                         : ordering.toString(),
-                                style: AppTextStyle.bold(),
+                                style: AppTextStyle.bold(fontSize: 13),
                               ),
                             ],
                           ),
-                          style: AppTextStyle.regular(),
+                          style: AppTextStyle.regular(fontSize: 11),
                         ),
                       )
                     ],
@@ -212,8 +200,7 @@ class ProductBoxLoadingWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       clipBehavior: Clip.hardEdge,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12), color: Colors.white),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.white),
       child: const Column(
         mainAxisSize: MainAxisSize.min,
         children: [

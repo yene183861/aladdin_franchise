@@ -1500,7 +1500,7 @@ Future<void> onPressedCancelItem(
                 buildReceipt: (generator) async {
                   return byteDatas;
                 },
-                onComplete: (success, error) {
+                onComplete: (success, error) async {
                   if (success == false) {
                     showMessageDialog(
                       context,

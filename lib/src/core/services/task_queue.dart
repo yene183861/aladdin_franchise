@@ -7,6 +7,8 @@ import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 
+int count = 0;
+
 class PrinterTaskQueue {
   static PrinterTaskQueue get instance => _instance;
   static final PrinterTaskQueue _instance = PrinterTaskQueue._internal();
@@ -30,7 +32,7 @@ class PrinterTaskQueue {
     int port = 9100,
     Duration timeout = const Duration(seconds: 5),
     required Future<List<int>> Function(Generator generator) buildReceipt,
-    Function(bool success, String? error)? onComplete,
+    Future<void> Function(bool success, String? error)? onComplete,
   }) {
     final task = _PrintTaskModel(
       ip: ip,
@@ -43,6 +45,7 @@ class PrinterTaskQueue {
   }
 
   Future<void> _processTask(_PrintTaskModel task) async {
+    showLogs(task, flags: 'task');
     // if (_isProcessing) return;
     // nếu đang in, chờ nó xong
     while (_isProcessing) {
@@ -66,7 +69,7 @@ class PrinterTaskQueue {
       }
 
       final res = await printerManager.printTicket(data);
-      await printerManager.disconnect();
+
       if (res == PosPrintResult.success) {
         success = true;
       } else {
@@ -76,6 +79,8 @@ class PrinterTaskQueue {
     } catch (e) {
       error = "❌ Lỗi in: $e";
       showLogs(error, flags: '_processTask');
+    } finally {
+      await printerManager.disconnect();
     }
 
     if (error != null) {
@@ -90,7 +95,7 @@ class PrinterTaskQueue {
       }
     }
 
-    task.onComplete?.call(success, error);
+    await task.onComplete?.call(success, error);
     // await Future.delayed(const Duration(milliseconds: 300));
     _isProcessing = false;
   }
