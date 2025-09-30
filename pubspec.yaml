@@ -1,0 +1,114 @@
+name: aladdin_franchise
+description: "A new Flutter project."
+
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  flutter_riverpod: ^2.0.2
+  collection: ^1.18.0
+  http: ^1.2.2
+  shared_preferences: ^2.2.3
+  intl: ^0.18.1
+  shimmer: ^3.0.0
+  json_annotation: ^4.7.0
+  freezed_annotation: ^2.2.0
+  cached_network_image: ^3.4.0
+  responsive_sizer: ^3.3.1
+  badges: ^3.1.2
+  flutter_rating_bar: ^4.0.1
+  custom_refresh_indicator: ^2.0.0
+  visibility_detector: ^0.4.0+2
+  scroll_to_id: ^1.5.1
+  animated_text_kit: ^4.2.3
+  flutter_html: ^3.0.0-beta.2
+  network_info_plus: ^4.0.2
+  # firebase
+  firebase_core: ^2.32.0
+  cloud_firestore: ^4.17.5
+  firebase_messaging: ^14.9.4
+  # end firebase
+  flutter_spinbox: ^0.13.1
+  uuid: ^4.0.0
+  open_filex: ^4.3.4
+  flutter_downloader: ^1.10.2
+  path_provider: ^2.0.11
+  permission_handler: 10.2.0 # giữ 10.2.0, bản mới hơn đang bị lỗi
+  dart_ping: ^9.0.0
+  url_launcher: ^6.1.10
+  webview_flutter: ^4.2.4
+  qr_flutter: any
+  device_info_plus: any
+  path: ^1.9.0
+  image_picker: any
+  equatable: ^2.0.5
+  redis: ^4.0.0
+  flutter_svg: ^2.0.9
+  flutter_local_notifications: ^18.0.0
+
+  # for printer
+  flutter_esc_pos_utils: any
+  flutter_esc_pos_network: any
+  tiengviet: ^0.5.0
+  webcontent_converter:
+    git: https://github.com/yenlt183861/webcontent_converter.git
+  # notification for windows
+  local_notifier: ^0.1.6
+  float_bubble: ^0.0.2
+  auto_size_text: ^3.0.0
+  scrollable_positioned_list: ^0.3.8
+  dropdown_button2: ^2.3.9
+  intl_utils: ^2.8.8
+  popover: ^0.3.0+1
+  desktop_multi_window: ^0.2.1
+  desktop_lifecycle: ^0.1.1
+  window_manager: ^0.4.3
+  flutter_sticky_header: ^0.7.0
+  responsive_framework: ^1.5.1
+  sliver_tools: ^0.2.12
+  two_dimensional_scrollables: ^0.3.3
+  diacritic: ^0.1.6
+  # flutter_barcode_scanner: ^2.0.0
+  rxdart: ^0.28.0
+  desktop_webview_window: ^0.2.3
+  webview_windows: ^0.4.0
+  win32: 5.5.4
+
+  screenshot_ntv: ^1.0.2
+  desktop_screenshot: ^0.0.4
+  device_preview_plus: ^1.2.0
+  flutter_staggered_grid_view: ^0.7.0
+  hive: 2.2.3
+  hive_flutter: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+  build_runner: any
+  freezed: ^2.2.0
+  json_serializable: ^6.5.3
+  hive_generator: ^2.0.1
+
+flutter:
+  generate: true
+  uses-material-design: true
+  assets:
+    - assets/1056772_chrome-win.zip
+    - assets/images/
+    - assets/icons/
+flutter_intl:
+  enabled: true
+
+dependency_overrides:
+  intl: any

@@ -1,0 +1,181 @@
+{
+  "project_info": {
+    "project_number": "425544577026",
+    "firebase_url": "https://aladdin-orders-default-rtdb.firebaseio.com",
+    "project_id": "aladdin-orders",
+    "storage_bucket": "aladdin-orders.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425544577026:android:2ccf04b65b4e01159ff71b",
+        "android_client_info": {
+          "package_name": "jsc.aladdin.aladdin_franchise"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoxPFW0vqqayZaZjV31R2noyKQ54LLGlA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425544577026:android:ce5f08d4da377f5c9ff71b",
+        "android_client_info": {
+          "package_name": "jsc.aladdin.aladdin_kds"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoxPFW0vqqayZaZjV31R2noyKQ54LLGlA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425544577026:android:bc08b73df82c69f89ff71b",
+        "android_client_info": {
+          "package_name": "jsc.aladdin.aladdin_mall_display"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoxPFW0vqqayZaZjV31R2noyKQ54LLGlA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425544577026:android:8a01107f416d0af19ff71b",
+        "android_client_info": {
+          "package_name": "jsc.aladdin.aladdin_orders"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "425544577026-lineiu9pvg88ds265ah71r1mqionrv62.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "jsc.aladdin.aladdin_orders",
+            "certificate_hash": "13825f0a00550fb844116bf9fe86ef86d0d70ea1"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoxPFW0vqqayZaZjV31R2noyKQ54LLGlA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425544577026:android:c5a9a68def15966b9ff71b",
+        "android_client_info": {
+          "package_name": "jsc.aladdin.aladdin_pos_lite"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoxPFW0vqqayZaZjV31R2noyKQ54LLGlA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425544577026:android:93b3046ef45253359ff71b",
+        "android_client_info": {
+          "package_name": "jsc.aladdin.aladdin_pos_manager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoxPFW0vqqayZaZjV31R2noyKQ54LLGlA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425544577026:android:1083603f24a23ec19ff71b",
+        "android_client_info": {
+          "package_name": "jsc.aladdin.aladdin_receptionist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoxPFW0vqqayZaZjV31R2noyKQ54LLGlA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425544577026:android:da5f714dc3dc40a59ff71b",
+        "android_client_info": {
+          "package_name": "jsc.aladdin.ao_logs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "425544577026-1amna7l6qjn6456deej0v4nevi0mpno8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "jsc.aladdin.ao_logs",
+            "certificate_hash": "13825f0a00550fb844116bf9fe86ef86d0d70ea1"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAoxPFW0vqqayZaZjV31R2noyKQ54LLGlA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
