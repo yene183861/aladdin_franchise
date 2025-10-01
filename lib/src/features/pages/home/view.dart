@@ -4,8 +4,11 @@ import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
+import 'package:aladdin_franchise/src/configs/icon_const.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
+import 'package:aladdin_franchise/src/core/services/task_queue.dart';
+import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/info_restaurant.dart';
@@ -25,24 +28,32 @@ import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/pages/more/view.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_logout.dart';
+import 'package:aladdin_franchise/src/features/pages/order_to_online/components/barrel_components.dart';
 import 'package:aladdin_franchise/src/features/pages/ticket/components/dialog.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/models/category.dart';
+import 'package:aladdin_franchise/src/models/data_bill.dart';
+import 'package:aladdin_franchise/src/models/ip_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/utils/app_check.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
+import 'package:aladdin_franchise/src/utils/app_printer/app_printer_html.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
+import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:collection/collection.dart';
 import 'package:diacritic/diacritic.dart';
+import 'package:float_bubble/float_bubble.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -267,6 +278,11 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
   late ScrollController _categoryScrollController;
   Map<dynamic, GlobalKey> categoryKeys = {};
 
+  final GlobalKey _floatingBtnKey = GlobalKey();
+  OverlayEntry? _overlayEntry;
+  double chatPopupHeight = 600;
+  double chatPopupWidth = 600;
+
   @override
   void initState() {
     super.initState();
@@ -276,7 +292,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       ref.refresh(tablesAndOrdersProvider);
-      ref.read(homeProvider.notifier).getEmployeeSales();
+      // ref.read(homeProvider.notifier).getEmployeeSales();
 
       _timerReloadMenu = Timer.periodic(
         const Duration(minutes: 5),
@@ -518,7 +534,6 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
       );
     }
     var viewPadding = MediaQuery.of(context).viewPadding;
-    bool portaitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
     bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
@@ -530,180 +545,222 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         drawer: const HomeDrawerWidget(),
-        body: Padding(
-          padding:
-              EdgeInsets.fromLTRB(viewPadding.left, portaitOrientation ? viewPadding.top : 0, 0, 0),
-          child: Row(children: [
-            Expanded(
-              flex: 1,
-              child: Column(
-                children: [
-                  Container(
-                    height: 48,
-                    width: double.maxFinite,
-                    alignment: Alignment.center,
-                    child: Row(
-                      children: [
-                        const Gap(8),
-                        Builder(
-                          builder: (context) {
-                            return InkWell(
-                              onTap: Scaffold.of(context).openDrawer,
-                              child: const ResponsiveIconWidget(
-                                iconData: Icons.home,
-                                // color: AppColors.secondColor,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(viewPadding.left, 0, 0, 0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 48,
+                            width: double.maxFinite,
+                            alignment: Alignment.center,
+                            child: Row(
+                              children: [
+                                const Gap(8),
+                                Builder(
+                                  builder: (context) {
+                                    return InkWell(
+                                      onTap: Scaffold.of(context).openDrawer,
+                                      child: const ResponsiveIconWidget(
+                                        iconData: Icons.home,
+                                        // color: AppColors.secondColor,
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                    child: _SearchDishWidget(),
+                                  ),
+                                ),
+                                // const ButtonIgnoreCheckCodeWidget(),
+                                if (!isMobile) ...[
+                                  const ButtonHistoryOrderWidget(),
+                                  const Gap(8),
+                                ] else ...[
+                                  const ButtonO2oData(),
+                                  const ButtonRefreshData(),
+                                ],
+                              ],
+                            ),
+                          ),
+                          Consumer(
+                            builder: (context, ref, child) {
+                              var tags = ref.watch(homeProvider.select((value) => value.tags));
+                              if (tags.isEmpty && isMobile) {
+                                return const SizedBox.shrink();
+                              }
+
+                              return SizedBox(
+                                height: 48,
+                                child: Row(
+                                  children: [
+                                    // SizedBox(
+                                    //   width: 10.w,
+                                    //   child: _LogoWidget(),
+                                    // ),
+                                    // Gap(12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          // Gap(12),
+                                          // Expanded(
+                                          //   child: SizedBox(
+                                          //     child: Row(
+                                          //       children: [
+                                          //         Expanded(
+                                          //           child: _SearchDishWidget(),
+                                          //         ),
+                                          //         Gap(12),
+                                          //         HistoryOrderWidget(),
+                                          //       ],
+                                          //     ),
+                                          //   ),
+                                          // ),
+                                          // Gap(8),
+                                          Expanded(
+                                            child: Row(
+                                              children: [
+                                                const Expanded(
+                                                  child: ListTagsWidget(),
+                                                ),
+                                                if (!isMobile) ...const [
+                                                  Gap(8),
+                                                  ButtonRefreshData(),
+                                                  ButtonO2oData(),
+                                                ],
+                                                const Gap(8),
+                                                const TypeOrderWidget(),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Gap(8),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                          Container(
+                            height: 42.px,
+                            padding: const EdgeInsets.fromLTRB(0, 4, 8, 4),
+                            alignment: Alignment.center,
+                            child: ListCategoryWidget(
+                                categoryScrollController: _categoryScrollController,
+                                onTap: (category) async {
+                                  _scrollToCategory(category);
+                                  await Future.delayed(const Duration(milliseconds: 350));
+                                  // ref.read(homeProvider.notifier).ctrlSearch.text = '';
+                                  if (category is CategoryModel) {
+                                    ref.read(homeProvider.notifier).changeCategorySelect(category);
+                                    return;
+                                  }
+                                  ref.read(homeProvider.notifier).changeSubCategorySelect(category);
+                                }),
+                          ),
+                          Expanded(
+                            child: Consumer(builder: (context, ref, child) {
+                              var productsState =
+                                  ref.watch(homeProvider.select((value) => value.productsState));
+
+                              switch (productsState.status) {
+                                case PageCommonState.normal:
+                                case PageCommonState.loading:
+                                  return GridView.builder(
+                                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                                      maxCrossAxisExtent: 200,
+                                      mainAxisSpacing: 10,
+                                      crossAxisSpacing: 10,
+                                      childAspectRatio: 0.7,
+                                    ),
+                                    itemBuilder: (BuildContext context, int index) {
+                                      return const ProductBoxLoadingWidget();
+                                    },
+                                    itemCount: 12,
+                                  );
+                                case PageCommonState.error:
+                                  return AppErrorSimpleWidget(
+                                    onTryAgain: () {
+                                      ref.read(homeProvider.notifier).getProducts();
+                                    },
+                                    message: productsState.messageError,
+                                  );
+                                case PageCommonState.success:
+                              }
+                              return CustomScrollView(
+                                controller: _productScrollController,
+                                slivers: [
+                                  ...dataView,
+                                  const SliverToBoxAdapter(child: Gap(50)),
+                                ],
+                              );
+                            }),
+                          ),
+                        ],
+                      ),
+                    ),
+                    !showOrderInfo
+                        ? const SizedBox.shrink()
+                        : Container(
+                            constraints: const BoxConstraints(maxWidth: 500),
+                            child: const OrderDetailWidget(),
+                          ),
+                  ],
+                ),
+              ),
+              Consumer(
+                builder: (context, ref, child) {
+                  bool useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+                  // useO2o = true;
+                  final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
+
+                  bool isMobile = Device.screenType == ScreenType.mobile;
+                  bool isSmallDevice = isMobile;
+
+                  return orderSelect == null
+                      ? const SizedBox.shrink()
+                      : !(kTypeOrder == AppConfig.orderOfflineValue && useO2o)
+                          ? const SizedBox.shrink()
+                          : FloatBubble(
+                              show: true,
+                              initialAlignment: isSmallDevice
+                                  ? Alignment(1, (140 / 100.w) - 1)
+                                  : Alignment.topRight,
+                              child: GestureDetector(
+                                onTap: () {
+                                  _showChatPopup(ref);
+                                },
+                                child: Container(
+                                  key: _floatingBtnKey,
+                                  height: isSmallDevice ? 48 : 60,
+                                  width: isSmallDevice ? 48 : 60,
+                                  padding: EdgeInsets.all(isSmallDevice ? 12 : 12),
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.bgBoxProduct,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: SvgPicture.asset(
+                                    AppIcons.icChat,
+                                    color: AppColors.secondColor,
+                                  ),
+                                ),
                               ),
                             );
-                          },
-                        ),
-                        const Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                            child: _SearchDishWidget(),
-                          ),
-                        ),
-                        // const ButtonIgnoreCheckCodeWidget(),
-                        if (showOrderInfo) ...[
-                          const ButtonHistoryOrderWidget(),
-                          const Gap(8),
-                        ] else ...[
-                          const ButtonO2oData(),
-                          const ButtonRefreshData(),
-                        ],
-                      ],
-                    ),
-                  ),
-                  Consumer(
-                    builder: (context, ref, child) {
-                      var tags = ref.watch(homeProvider.select((value) => value.tags));
-                      if (tags.isEmpty && !showOrderInfo) {
-                        return const SizedBox.shrink();
-                      }
-
-                      return SizedBox(
-                        height: 48,
-                        child: Row(
-                          children: [
-                            // SizedBox(
-                            //   width: 10.w,
-                            //   child: _LogoWidget(),
-                            // ),
-                            // Gap(12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Gap(12),
-                                  // Expanded(
-                                  //   child: SizedBox(
-                                  //     child: Row(
-                                  //       children: [
-                                  //         Expanded(
-                                  //           child: _SearchDishWidget(),
-                                  //         ),
-                                  //         Gap(12),
-                                  //         HistoryOrderWidget(),
-                                  //       ],
-                                  //     ),
-                                  //   ),
-                                  // ),
-                                  // Gap(8),
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        const Expanded(
-                                          child: ListTagsWidget(),
-                                        ),
-                                        if (showOrderInfo) ...const [
-                                          Gap(8),
-                                          ButtonRefreshData(),
-                                          ButtonO2oData(),
-                                        ],
-                                        const Gap(8),
-                                        const TypeOrderWidget(),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Gap(8),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  Container(
-                    height: 42.px,
-                    padding: const EdgeInsets.fromLTRB(0, 4, 8, 4),
-                    alignment: Alignment.center,
-                    child: ListCategoryWidget(
-                        categoryScrollController: _categoryScrollController,
-                        onTap: (category) async {
-                          _scrollToCategory(category);
-                          await Future.delayed(const Duration(milliseconds: 350));
-                          // ref.read(homeProvider.notifier).ctrlSearch.text = '';
-                          if (category is CategoryModel) {
-                            ref.read(homeProvider.notifier).changeCategorySelect(category);
-                            return;
-                          }
-                          ref.read(homeProvider.notifier).changeSubCategorySelect(category);
-                        }),
-                  ),
-                  Expanded(
-                    child: Consumer(builder: (context, ref, child) {
-                      var productsState =
-                          ref.watch(homeProvider.select((value) => value.productsState));
-
-                      switch (productsState.status) {
-                        case PageCommonState.normal:
-                        case PageCommonState.loading:
-                          return GridView.builder(
-                            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 200,
-                              mainAxisSpacing: 10,
-                              crossAxisSpacing: 10,
-                              childAspectRatio: 0.7,
-                            ),
-                            itemBuilder: (BuildContext context, int index) {
-                              return const ProductBoxLoadingWidget();
-                            },
-                            itemCount: 12,
-                          );
-                        case PageCommonState.error:
-                          return AppErrorSimpleWidget(
-                            onTryAgain: () {
-                              ref.read(homeProvider.notifier).getProducts();
-                            },
-                            message: productsState.messageError,
-                          );
-                        case PageCommonState.success:
-                      }
-                      return CustomScrollView(
-                        controller: _productScrollController,
-                        slivers: [
-                          ...dataView,
-                          const SliverToBoxAdapter(child: Gap(50)),
-                        ],
-                      );
-                    }),
-                  ),
-                ],
+                },
               ),
-            ),
-            Builder(
-              builder: (context) {
-                var isMobile = Device.screenType == ScreenType.mobile;
-                return isMobile
-                    ? const SizedBox.shrink()
-                    : Container(
-                        constraints: const BoxConstraints(maxWidth: 500),
-                        child: const OrderDetailWidget(),
-                      );
-              },
-            )
-          ]),
+            ],
+          ),
         ),
         bottomNavigationBar: Builder(
           builder: (context) {
@@ -770,6 +827,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                                 showMessageDialog(context, message: S.current.noOrderSelect);
                                 return;
                               }
+
                               final OrderModel? order = await Navigator.of(context)
                                   .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
                             },
@@ -781,6 +839,133 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                   );
           },
         ),
+      ),
+    );
+  }
+
+  void _showChatPopup(WidgetRef ref) {
+    ref.read(homeProvider.notifier).getO2OChatMessages();
+    if (_overlayEntry != null) {
+      _overlayEntry?.remove();
+      _overlayEntry = null;
+    }
+    RenderBox renderBox = _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
+    var buttonPosition = renderBox.localToGlobal(Offset.zero);
+    var buttonSize = renderBox.size;
+
+    var mediaQuery = MediaQuery.of(context);
+    var screenSize = mediaQuery.size;
+    double screenWidth = screenSize.width;
+    double screenHeight = screenSize.height;
+
+    double popupLeft = buttonPosition.dx;
+    double popupTop = buttonPosition.dy + buttonSize.height / 2;
+
+    if (popupTop + chatPopupHeight > screenHeight) {
+      popupTop = buttonPosition.dy - chatPopupHeight;
+    }
+    if (popupTop < 0) {
+      popupTop = 10;
+    }
+
+    if (buttonPosition.dx + buttonSize.width / 2 + 5 < screenWidth / 2) {
+      popupLeft = buttonPosition.dx + buttonSize.width + 5;
+    } else {
+      popupLeft = buttonPosition.dx - chatPopupWidth - 5;
+    }
+
+    _overlayEntry = _createOverlayEntry(popupLeft, popupTop);
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  OverlayEntry _createOverlayEntry(double left, double top) {
+    bool canReply = true;
+    return OverlayEntry(
+      builder: (context) => Stack(
+        children: [
+          GestureDetector(
+            onTap: () {
+              _overlayEntry?.remove();
+              _overlayEntry = null;
+            },
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+          Positioned(
+            left: left,
+            top: top,
+            child: Material(
+              color: Colors.transparent,
+              child: GestureDetector(
+                onTap: () {
+                  // Prevent the popup from closing when tapped inside
+                },
+                child: Container(
+                  width: chatPopupWidth,
+                  height: chatPopupHeight,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 12,
+                        offset: Offset(2, 2),
+                      )
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: const BoxDecoration(
+                          color: AppColors.bgTitleChatPopup,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(12),
+                            topRight: Radius.circular(12),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              S.current.chat_with_customers,
+                              style: AppTextStyle.bold(color: Colors.white),
+                            ),
+                            ResponsiveIconButtonWidget(
+                              iconData: Icons.close,
+                              color: Colors.white,
+                              onPressed: () {
+                                _overlayEntry?.remove();
+                                _overlayEntry = null;
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Consumer(builder: (context, ref, child) {
+                          final getChatMessageState =
+                              ref.watch(homeProvider.select((value) => value.getChatMessageState));
+
+                          final chatMessages =
+                              ref.watch(homeProvider.select((value) => value.chatMessages));
+                          return ListChatWidget(
+                            state: getChatMessageState,
+                            chatMessages: chatMessages,
+                            onReload: ref.read(homeProvider.notifier).getO2OChatMessages,
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
@@ -985,6 +1170,8 @@ class LogoWidget extends ConsumerWidget {
               key: UniqueKey(),
               imageUrl: info.restaurant?.logo ?? "",
               fit: BoxFit.cover,
+              memCacheHeight: 720,
+              memCacheWidth: 1080,
               errorWidget: Image.asset(
                 Assets.imagesLogoH,
                 height: 120,

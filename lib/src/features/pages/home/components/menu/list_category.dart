@@ -21,21 +21,16 @@ class ListCategoryWidget extends ConsumerStatefulWidget {
   final Function(dynamic item) onTap;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _ListCategoryWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _ListCategoryWidgetState();
 }
 
 class _ListCategoryWidgetState extends ConsumerState<ListCategoryWidget> {
   @override
   Widget build(BuildContext context) {
-    var productsState =
-        ref.watch(homeProvider.select((value) => value.productsState));
-    var categories =
-        ref.watch(homeProvider.select((value) => value.categories));
-    var categorySelect =
-        ref.watch(homeProvider.select((value) => value.categorySelect));
-    var subCategorySelect =
-        ref.watch(homeProvider.select((value) => value.subCategorySelect));
+    var productsState = ref.watch(homeProvider.select((value) => value.productsState));
+    var categories = ref.watch(homeProvider.select((value) => value.categories));
+    var categorySelect = ref.watch(homeProvider.select((value) => value.categorySelect));
+    var subCategorySelect = ref.watch(homeProvider.select((value) => value.subCategorySelect));
 
     switch (productsState.status) {
       case PageCommonState.loading:
@@ -75,12 +70,11 @@ class _ListCategoryWidgetState extends ConsumerState<ListCategoryWidget> {
         dataView.addAll(item.children ?? []);
       }
     }
-    var itemScrollController =
-        ref.read(homeProvider.notifier).categoryScrollController;
-    var itemPositionsListener =
-        ref.read(homeProvider.notifier).categoryPositionsListener;
+    var itemScrollController = ref.read(homeProvider.notifier).categoryScrollController;
+    var itemPositionsListener = ref.read(homeProvider.notifier).categoryPositionsListener;
 
     return ScrollablePositionedList.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         scrollDirection: Axis.horizontal,
         itemScrollController: itemScrollController,
         itemPositionsListener: itemPositionsListener,
@@ -111,8 +105,7 @@ class _ListCategoryWidgetState extends ConsumerState<ListCategoryWidget> {
               alignment: Alignment.center,
               child: Text(
                 item.title,
-                style: AppTextStyle.bold(
-                    color: selected ? AppColors.white : AppColors.mainColor),
+                style: AppTextStyle.bold(color: selected ? AppColors.white : AppColors.mainColor),
                 textAlign: TextAlign.center,
               ),
             ),

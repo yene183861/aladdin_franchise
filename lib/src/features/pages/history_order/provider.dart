@@ -37,8 +37,7 @@ import 'components/list_employee_sale_dialog.dart';
 import 'state.dart';
 
 final historyOrderPageProvider =
-    StateNotifierProvider.autoDispose<HistoryOrderNotifier, HistoryOrderState>(
-        (ref) {
+    StateNotifierProvider.autoDispose<HistoryOrderNotifier, HistoryOrderState>((ref) {
   return HistoryOrderNotifier(ref, ref.read(orderRepositoryProvider));
 });
 
@@ -63,16 +62,13 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
     );
   }
 
-  Future<({String? error, bool refreshData})> printBillForCustomer(
-      BuildContext context,
+  Future<({String? error, bool refreshData})> printBillForCustomer(BuildContext context,
       {bool completeBillAction = false}) async {
     String? error;
     bool refreshData = false;
     try {
       state = state.copyWith(
-          event: completeBillAction
-              ? HistoryOrderEvent.completeBill
-              : HistoryOrderEvent.printBill);
+          event: completeBillAction ? HistoryOrderEvent.completeBill : HistoryOrderEvent.printBill);
       var historyOrderSelect = state.historyOrderSelect;
       if (historyOrderSelect == null) {
         throw S.current.msg_select_order_before_print_receipt;
@@ -80,10 +76,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
       // await Future.delayed(const Duration(seconds: 1));
       // state = state.copyWith(event: HistoryOrderEvent.normal);
       // return (error: null, refreshData: true);
-      bool requireCompleteBill =
-          historyOrderSelect.status == OrderStatusEnum.waiting;
-      bool isOnline =
-          historyOrderSelect.orderType == AppConfig.orderOnlineValue;
+      bool requireCompleteBill = historyOrderSelect.status == OrderStatusEnum.waiting;
+      bool isOnline = historyOrderSelect.orderType == AppConfig.orderOnlineValue;
       var order = OrderModel(
         id: historyOrderSelect.orderExcute.order,
         // orderCode: historyOrderSelect.orderCode,
@@ -104,10 +98,9 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             throw dataBill.error!;
           }
 
-          List<LineItemDataBill> itemsPrint =
-              List<LineItemDataBill>.from(dataBill.itemsPrint);
-          EmployeeSaleModel? sale = dataBill.sale ??
-              LocalStorage.getEmployeeSaleForOrder(order: order);
+          List<LineItemDataBill> itemsPrint = List<LineItemDataBill>.from(dataBill.itemsPrint);
+          EmployeeSaleModel? sale =
+              dataBill.sale ?? LocalStorage.getEmployeeSaleForOrder(order: order);
           PriceDataBill price = dataBill.price;
 
           var infoPrinter = dataBill.infoPrinter;
@@ -151,11 +144,10 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             while (_count < 3) {
               try {
                 if (listPaymentMethods.isEmpty) {
-                  listPaymentMethods = await ref
-                      .read(restaurantRepositoryProvider)
-                      .getPaymentMethod(
-                        orderId: order.id,
-                      );
+                  listPaymentMethods =
+                      await ref.read(restaurantRepositoryProvider).getPaymentMethod(
+                            orderId: order.id,
+                          );
                 }
                 errorGetPaymentMethods = null;
                 break;
@@ -168,8 +160,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             if (errorGetPaymentMethods != null) {
               throw 'Không thể tải danh sách phương thức thanh toán';
             }
-            paymentMethodSelect = listPaymentMethods
-                .firstWhereOrNull((e) => e.key == paymentMethodSelect?.key);
+            paymentMethodSelect =
+                listPaymentMethods.firstWhereOrNull((e) => e.key == paymentMethodSelect?.key);
           }
 
           if (paymentMethodSelect == null) {
@@ -180,8 +172,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             if (paymentMethodSelect.isGateway) {
               paymentAmount = 0.0;
             } else {
-              paymentAmount =
-                  double.tryParse(price.totalPriceFinal.toString()) ?? 0.0;
+              paymentAmount = double.tryParse(price.totalPriceFinal.toString()) ?? 0.0;
             }
           }
 
@@ -197,10 +188,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                   try {
                     var res = await ref
                         .read(productRepositoryProvider)
-                        .getProductByCategory(null,
-                            typeOrder: AppConfig.orderOnlineValue);
-                    onlineProducts =
-                        List<ProductModel>.from(res.data.data ?? []);
+                        .getProductByCategory(null, typeOrder: AppConfig.orderOnlineValue);
+                    onlineProducts = List<ProductModel>.from(res.data.data ?? []);
                     break;
                   } catch (ex) {
                     retry++;
@@ -224,8 +213,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             if (!checkTax.valid) {
               // dialog sửa thuế
               if (context.mounted) {
-                List<ProductCheckoutModel> productCheckouts =
-                    itemsPrint.map((e) {
+                List<ProductCheckoutModel> productCheckouts = itemsPrint.map((e) {
                   return ProductCheckoutModel(
                     id: e.id,
                     name: e.name,
@@ -235,8 +223,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                     codeProduct: e.codeProduct,
                     tax: e.getTax1(),
                     unitPrice: e.price.toString(),
-                    totalOrdered:
-                        e.count * (double.tryParse(e.price.toString()) ?? 0),
+                    totalOrdered: e.count * (double.tryParse(e.price.toString()) ?? 0),
                   );
                 }).toList();
                 bool editTax = false;
@@ -256,8 +243,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                         }),
                   ),
                   onCheckAction: () {
-                    bool useDefaultTax =
-                        !(paymentMethodSelect?.requireEditTax ?? false);
+                    bool useDefaultTax = !(paymentMethodSelect?.requireEditTax ?? false);
                     var check = true;
                     for (var pc in productCheckouts) {
                       if (useDefaultTax) {
@@ -293,8 +279,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                     if (resultUpdateTax.error != null) {
                       if (context.mounted) {
                         await showMessageDialog(context,
-                            message:
-                                'Phân bổ thuế không thành công\n${resultUpdateTax.error}');
+                            message: 'Phân bổ thuế không thành công\n${resultUpdateTax.error}');
                       }
                       editTax = false;
                     } else {
@@ -317,6 +302,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                 if (dataBill.error != null) {
                   throw dataBill.error!;
                 }
+
                 itemsPrint = List<LineItemDataBill>.from(dataBill.itemsPrint);
 
                 price = dataBill.price;
@@ -360,36 +346,51 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             // check here: check máy in trước khi in
             String? resPrint;
             try {
-              var check = await AppPrinterCommon.checkPrinter(IpOrderModel(
-                  ip: infoPrinter.ip, port: infoPrinter.port, type: 1));
+              var check = await AppPrinterCommon.checkPrinter(
+                  IpOrderModel(ip: infoPrinter.ip, port: infoPrinter.port, type: 1));
               if (check != null) {
                 throw check;
               }
-
               PrinterTaskQueue.instance.addTask(
                 ip: infoPrinter.ip,
                 port: infoPrinter.port,
                 buildReceipt: (generator) async {
                   List<int> bytes = [];
+                  List<LineItemDataBill> _itemsPrint = [];
                   try {
-                    bytes =
-                        await AppPrinterHtmlUtils.instance.getReceptBillContent(
+                    for (var e in itemsPrint) {
+                      _itemsPrint.add(LineItemDataBill(
+                        name: e.name,
+                        price: e.price,
+                        tax: e.tax,
+                        unit: e.unit,
+                        count: e.count,
+                      ));
+                      if (e.listItem.isNotEmpty) {
+                        for (var item in e.listItem) {
+                          _itemsPrint.add(LineItemDataBill(
+                            name: ' - ${item.name}',
+                            price: '0',
+                            tax: '0',
+                            unit: '',
+                            count: 0,
+                          ));
+                        }
+                      }
+                    }
+                    bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(
                       order: order,
                       price: price,
                       printers: [
                         IpOrderModel(
-                            ip: infoPrinter?.ip ?? '',
-                            port: infoPrinter?.port ?? 9100,
-                            type: 1),
+                            ip: infoPrinter?.ip ?? '', port: infoPrinter?.port ?? 9100, type: 1),
                       ],
                       receiptType: ReceiptTypeEnum.paymentReceipt,
                       paymentMethod: paymentMethodSelect,
                       paymentAmount: paymentAmount,
-                      numberPrintCompleted:
-                          (orderPrint?.numberPrintCompleted ?? 0) + 1,
-                      numberPrintTemporary:
-                          (orderPrint?.numberPrintTemporary ?? 0) + 1,
-                      orderLineItems: itemsPrint,
+                      numberPrintCompleted: (orderPrint?.numberPrintCompleted ?? 0) + 1,
+                      numberPrintTemporary: (orderPrint?.numberPrintTemporary ?? 0) + 1,
+                      orderLineItems: _itemsPrint,
                       vouchers: dataBill.vouchers,
                       note: dataBill.description,
                       printNumberOfPeople: orderPrint?.isPrintPeople ?? false,
@@ -410,42 +411,18 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                     rethrow;
                   }
                 },
-                onComplete: (success, error)  {
-                 if (success) {
+                onComplete: (success, error) {
+                  if (success) {
                     showLogs("✅ In thành công");
                   } else {
                     showLogs("❌ In thất bại");
                     if (error != null) {
                       showMessageDialog(context,
-                          message:
-                              'Không thể in phiếu thanh toán\n${error ?? ''}');
+                          message: 'Không thể in phiếu thanh toán\n$error');
                     }
                   }
                 },
               );
-              // resPrint = await AppPrinterHtmlUtils.instance.printReceipt(
-              //   order: order,
-              //   price: price,
-              //   printers: [
-              //     IpOrderModel(
-              //         ip: infoPrinter.ip, port: infoPrinter.port, type: 1),
-              //   ],
-              //   receiptType: ReceiptTypeEnum.paymentReceipt,
-              //   paymentMethod: paymentMethodSelect,
-              //   paymentAmount: paymentAmount,
-              //   numberPrintCompleted: orderPrint.numberPrintCompleted + 1,
-              //   numberPrintTemporary: orderPrint.numberPrintTemporary + 1,
-              //   orderLineItems: itemsPrint,
-              //   vouchers: dataBill.vouchers,
-              //   note: dataBill.description,
-              //   printNumberOfPeople: orderPrint.isPrintPeople,
-              //   customerPhone: orderPrint.phoneNumber,
-              //   numberOfPeople: orderPrint.amountPeople,
-              //   cashierCompleted: orderPrint.cashierCompleted,
-              //   cashierPrint: orderPrint.cashierPrint,
-              //   timeCompleted: orderPrint.timeCompleted,
-              //   timeCreatedAt: orderPrint.createdAt,
-              // );
             } catch (ex) {
               resPrint = ex.toString();
               showLogs(ex.toString(), flags: 'in hoàn thành lỗi');
@@ -583,9 +560,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
 
   void getDetailOrder() async {
     try {
-      state = state.copyWith(
-          getOrderDetailState:
-              const PageState(status: PageCommonState.loading));
+      state = state.copyWith(getOrderDetailState: const PageState(status: PageCommonState.loading));
       var historyOrderSelect = state.historyOrderSelect;
       if (historyOrderSelect == null) {
         return;

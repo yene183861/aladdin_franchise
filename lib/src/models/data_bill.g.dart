@@ -93,6 +93,11 @@ _$LineItemDataBillImpl _$$LineItemDataBillImplFromJson(
       tax: json['tax'] ?? '',
       nameEn: json['name_en'] as String? ?? '',
       codeProduct: json['code_product'] as String? ?? '',
+      listItem: (json['list_item'] as List<dynamic>?)
+              ?.map((e) =>
+                  SubLineItemDataBill.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$$LineItemDataBillImplToJson(
@@ -106,6 +111,31 @@ Map<String, dynamic> _$$LineItemDataBillImplToJson(
       'tax': instance.tax,
       'name_en': instance.nameEn,
       'code_product': instance.codeProduct,
+      'list_item': instance.listItem.map((e) => e.toJson()).toList(),
+    };
+
+_$SubLineItemDataBillImpl _$$SubLineItemDataBillImplFromJson(
+        Map<String, dynamic> json) =>
+    _$SubLineItemDataBillImpl(
+      id: (json['id'] as num?)?.toInt() ?? -1,
+      name: json['name'] as String? ?? '',
+      price: json['price'],
+      count: (json['count'] as num?)?.toInt() ?? 0,
+      unit: json['unit'] as String? ?? '_',
+      tax: json['tax'],
+      type: (json['type'] as num?)?.toInt(),
+    );
+
+Map<String, dynamic> _$$SubLineItemDataBillImplToJson(
+        _$SubLineItemDataBillImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'price': instance.price,
+      'count': instance.count,
+      'unit': instance.unit,
+      'tax': instance.tax,
+      'type': instance.type,
     };
 
 _$PaymentDataBillCheckImpl _$$PaymentDataBillCheckImplFromJson(

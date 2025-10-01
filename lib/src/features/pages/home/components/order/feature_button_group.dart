@@ -40,14 +40,12 @@ class OrderFeatureButtonGroupWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var defaultPaddingFeatureBtn =
-        const EdgeInsets.symmetric(horizontal: 2, vertical: 12);
+    var defaultPaddingFeatureBtn = const EdgeInsets.symmetric(horizontal: 2, vertical: 12);
     return Column(
       children: [
         _FeatureGroupWidget(defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
         const Gap(4),
-        _BottomFeatureGroupWidget(
-            defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
+        _BottomFeatureGroupWidget(defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
       ],
     );
   }
@@ -58,8 +56,7 @@ class _FeatureGroupWidget extends ConsumerStatefulWidget {
   final EdgeInsets defaultPaddingFeatureBtn;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __FeatureGroupWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __FeatureGroupWidgetState();
 }
 
 class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
@@ -88,7 +85,9 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
       (event) {
         _hasSubWindows.value = event;
         if (event == false) {
-          ref.read(homeProvider.notifier).onChangePinnedOrder(false);
+          if (mounted) {
+            ref.read(homeProvider.notifier).onChangePinnedOrder(false);
+          }
         }
       },
     );
@@ -113,8 +112,7 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
               valueListenable: _hasSubWindows,
               builder: (context, hasWindows, child) {
                 return Consumer(builder: (context, ref, child) {
-                  var pinned = ref
-                      .watch(homeProvider.select((value) => value.pinnedOrder));
+                  var pinned = ref.watch(homeProvider.select((value) => value.pinnedOrder));
 
                   return ButtonSimpleWidget(
                     textAction: S.of(context).customer_screen,
@@ -143,44 +141,32 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
                         'products': state.productCheckout,
                         'customer': state.customer,
                         'data_bill': state.dataBill.price.copyWith(
-                            receivedAmount:
-                                (state.paymentMethodSelected?.isCash ?? false)
-                                    ? state.cashReceivedAmount
-                                    : 0),
+                            receivedAmount: (state.paymentMethodSelected?.isCash ?? false)
+                                ? state.cashReceivedAmount
+                                : 0),
                         'note': state.kitchenNote,
                         'payment_method': state.paymentMethodSelected,
                         'detail_payment': {
                           'bank_select': state.bankSelect,
                           'gateway_qr': '',
                         },
-                        'order_product': {
-                          'changed_product_id': state.changedProductId
-                        },
+                        'order_product': {'changed_product_id': state.changedProductId},
                       };
                       if (Platform.isWindows) {
-                        final subWindows =
-                            await DesktopMultiWindow.getAllSubWindowIds();
+                        final subWindows = await DesktopMultiWindow.getAllSubWindowIds();
 
                         if (subWindows.isNotEmpty) {
                           // pin/ unpin màn hình KH
-                          ref
-                              .read(homeProvider.notifier)
-                              .onChangePinnedOrder(!pinned);
+                          ref.read(homeProvider.notifier).onChangePinnedOrder(!pinned);
                           if (pinned) {
-                            ref
-                                .read(homeProvider.notifier)
-                                .syncInfoForCustomer();
+                            ref.read(homeProvider.notifier).syncInfoForCustomer();
                           }
                           return;
                         }
 
-                        ref
-                            .read(homeProvider.notifier)
-                            .onChangePinnedOrder(false);
-                        var restaurant =
-                            LocalStorage.getDataLogin()?.restaurant;
-                        final window = await DesktopMultiWindow.createWindow(
-                            jsonEncode(args));
+                        ref.read(homeProvider.notifier).onChangePinnedOrder(false);
+                        var restaurant = LocalStorage.getDataLogin()?.restaurant;
+                        final window = await DesktopMultiWindow.createWindow(jsonEncode(args));
                         window
                           ..setFrame(Offset(1920, 0) & const Size(1920, 1080))
                           ..center()
@@ -197,13 +183,10 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
           Expanded(
             flex: 1,
             child: Consumer(builder: (context, ref, child) {
-              var customer =
-                  ref.watch(homeProvider.select((value) => value.customer));
+              var customer = ref.watch(homeProvider.select((value) => value.customer));
 
               return Tooltip(
-                message: customer == null
-                    ? ''
-                    : '${customer.name} - ${customer.phoneNumber}',
+                message: customer == null ? '' : '${customer.name} - ${customer.phoneNumber}',
                 child: ButtonSimpleWidget(
                   textAction: '',
                   onPressed: () {
@@ -245,11 +228,9 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
             flex: 1,
             child: Consumer(
               builder: (context, ref, child) {
-                var invoice =
-                    ref.watch(homeProvider.select((value) => value.invoice));
+                var invoice = ref.watch(homeProvider.select((value) => value.invoice));
 
-                var state = ref.watch(
-                    homeProvider.select((value) => value.orderInvoiceState));
+                var state = ref.watch(homeProvider.select((value) => value.orderInvoiceState));
 
                 return ButtonSimpleWidget(
                   textAction: S.of(context).invoice,
@@ -306,8 +287,7 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
         const Gap(8),
         Expanded(
           child: Consumer(builder: (context, ref, child) {
-            var coupons =
-                ref.watch(homeProvider.select((value) => value.coupons));
+            var coupons = ref.watch(homeProvider.select((value) => value.coupons));
             return ButtonSimpleWidget(
               textAction: '',
               padding: defaultPaddingFeatureBtn,
@@ -355,13 +335,11 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
                     }
 
                     var state = ref.read(homeProvider);
-                    bool emptyProductCheckout = (state.autoSaveOrder
-                            ? state.currentOrderItems
-                            : state.productCheckout)
-                        .isEmpty;
+                    bool emptyProductCheckout =
+                        (state.autoSaveOrder ? state.currentOrderItems : state.productCheckout)
+                            .isEmpty;
                     if (emptyProductCheckout) {
-                      showMessageDialog(context,
-                          message: S.current.order_before_payment);
+                      showMessageDialog(context, message: S.current.order_before_payment);
                       return;
                     }
 
@@ -383,26 +361,21 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
                       if (state.autoSaveOrder && state.isOrderSaved) {
                         showConfirmAction(
                           context,
-                          message:
-                              'Có món chưa được lưu, không thể chuyển sang bước Thanh toán',
+                          message: 'Có món chưa được lưu, không thể chuyển sang bước Thanh toán',
                           actionTitle: 'Gọi món',
                           action: () {
-                            ref.read(homeProvider.notifier).handleOrderItem(
-                                retry: true, loadingHome: true);
+                            ref
+                                .read(homeProvider.notifier)
+                                .handleOrderItem(retry: true, loadingHome: true);
                           },
                         );
                         return;
                       }
                       state = ref.read(homeProvider);
 
-                      if (ref
-                          .read(homeProvider)
-                          .needApplyAgainOnlyCoupons
-                          .isNotEmpty) {
+                      if (ref.read(homeProvider).needApplyAgainOnlyCoupons.isNotEmpty) {
                         // với mã only thì xóa mã đi áp dụng lại
-                        var error = await ref
-                            .read(homeProvider.notifier)
-                            .applyAgainOnlyCounpon();
+                        var error = await ref.read(homeProvider.notifier).applyAgainOnlyCounpon();
                         if (error != null) {
                           showMessageDialog(context, message: error.toString());
                           return;
@@ -420,17 +393,14 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
                       state = ref.read(homeProvider);
                       switch (state.applyPolicyState.status) {
                         case PageCommonState.loading:
-                          showMessageDialog(context,
-                              message: 'Đang áp dụng lại mã giảm giá');
+                          showMessageDialog(context, message: 'Đang áp dụng lại mã giảm giá');
                           return;
                         case PageCommonState.error:
                           showConfirmAction(
                             context,
                             message: 'Áp dụng lại mã giảm giá lỗi',
                             actionTitle: S.current.tryAgain,
-                            action: ref
-                                .read(homeProvider.notifier)
-                                .applyCustomerPolicy,
+                            action: ref.read(homeProvider.notifier).applyCustomerPolicy,
                           );
                           return;
                         default:
@@ -438,14 +408,12 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
                       state = ref.read(homeProvider);
                       switch (state.dataBillState.status) {
                         case PageCommonState.loading:
-                          showMessageDialog(context,
-                              message: S.current.updating_payment_info);
+                          showMessageDialog(context, message: S.current.updating_payment_info);
                           return;
                         case PageCommonState.error:
                           showConfirmAction(
                             context,
-                            message:
-                                'Tiền thanh toán chưa được cập nhật chính xác',
+                            message: 'Tiền thanh toán chưa được cập nhật chính xác',
                             actionTitle: 'Thử lại',
                             action: ref.read(homeProvider.notifier).getDataBill,
                           );
@@ -481,8 +449,7 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
                 showMessageDialog(context, message: res);
                 return;
               }
-              showDoneSnackBar(
-                  context: context, message: S.current.closing_shift_success);
+              showDoneSnackBar(context: context, message: S.current.closing_shift_success);
             },
           ),
         ),

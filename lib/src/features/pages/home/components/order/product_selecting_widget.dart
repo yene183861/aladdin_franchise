@@ -1099,6 +1099,20 @@ class _ListItemWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (items.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.shopping_cart_outlined, color: Colors.grey, size: 40),
+            Text(
+              'Thêm món vào đơn bàn',
+              style: AppTextStyle.regular(),
+            ),
+          ],
+        ),
+      );
+    }
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
         if (notification is UserScrollNotification) {

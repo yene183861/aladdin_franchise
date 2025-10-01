@@ -56,7 +56,7 @@ class TitleDialogWithCloseWidget extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: AppTextStyle.bold(fontSize: 14.sp),
+            style: AppTextStyle.bold(fontSize: 15),
           ),
         ),
         const GapW(16),
@@ -73,7 +73,7 @@ class TitleDialogWithCloseWidget extends StatelessWidget {
           ),
           child: Text(
             textCloseButton ?? S.current.close,
-            style: AppTextStyle.semiBold(
+            style: AppTextStyle.bold(
               color: Colors.red.shade700,
             ),
           ),

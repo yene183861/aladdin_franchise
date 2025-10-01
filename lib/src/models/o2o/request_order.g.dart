@@ -9,13 +9,16 @@ part of 'request_order.dart';
 _$RequestOrderItemModelImpl _$$RequestOrderItemModelImplFromJson(
         Map<String, dynamic> json) =>
     _$RequestOrderItemModelImpl(
-      id: json['id'] ?? '',
+      id: (json['id'] as num?)?.toInt(),
+      menuItemId: (json['menu_item_id'] as num?)?.toInt(),
       codeProduct: json['code_product'] as String? ?? '',
       quantity: (json['quantity'] as num?)?.toInt() ?? 0,
       note: json['note'] as String? ?? '',
       image: json['image'] as String? ?? '',
       name: json['name'] as String? ?? '',
       noteRestaurant: json['note_restaurant'] as String? ?? '',
+      printerType: (json['printer_type'] as num?)?.toInt(),
+      unit: json['unit'] as String? ?? '',
     );
 
 Map<String, dynamic> _$$RequestOrderItemModelImplToJson(

@@ -72,8 +72,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
     final notifier = ref.read(loginProvider.notifier);
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
+    bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
     bool isPortraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
-    bool isSmallDevice = isMobile && !isPortraitOrientation;
+    bool isSmallDevice =
+        (isMobile && !isPortraitOrientation) || (isTablet && isPortraitOrientation);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: _buildAppBar(),
@@ -81,7 +83,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         child: ListView(
           shrinkWrap: true,
           padding: EdgeInsets.symmetric(
-            horizontal: (isMobile && isPortraitOrientation) ? 20 : 50.sp,
+            horizontal: isSmallDevice ? 20 : 50.sp,
           ),
           children: [
             if (isSmallDevice) const Gap(70),
@@ -265,7 +267,7 @@ class ResponsiveIconWidget extends StatelessWidget {
     final textScaler = MediaQuery.textScalerOf(context);
     return Icon(
       iconData,
-      size: textScaler.scale(20),
+      size: textScaler.scale(22),
       color: color,
     );
   }

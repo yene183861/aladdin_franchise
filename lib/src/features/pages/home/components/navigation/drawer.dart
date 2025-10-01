@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
@@ -27,7 +29,7 @@ class HomeDrawerWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.75,
+      width: min(MediaQuery.of(context).size.width * 0.75, 400),
       child: Drawer(
         child: SizedBox(
           height: 100.h,

@@ -17,14 +17,13 @@ class ComboItemModel with _$ComboItemModel {
     @Default(1) int quantity,
 
     /// check trường này
-    @Default(-1) int printerType,
+    int? printerType,
 
     /// check trường này
     @Default('') String unit,
   }) = _ComboItemModel;
 
-  factory ComboItemModel.fromJson(Map<String, dynamic> json) =>
-      _$ComboItemModelFromJson(json);
+  factory ComboItemModel.fromJson(Map<String, dynamic> json) => _$ComboItemModelFromJson(json);
 
   const ComboItemModel._();
   String getNameView() => kAppLanguageLocal == AppLanguageLocal.vietnamese

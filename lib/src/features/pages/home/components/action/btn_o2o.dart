@@ -33,11 +33,15 @@ class ButtonO2oData extends ConsumerWidget {
                   )));
         },
         borderRadius: BorderRadius.circular(50),
-        child: const Padding(
-          padding: EdgeInsets.all(4.0),
-          child: ResponsiveIconWidget(
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey.shade200,
+            borderRadius: AppConfig.borderRadiusSecond,
+          ),
+          padding: const EdgeInsets.all(4.0),
+          child: const ResponsiveIconWidget(
             iconData: Icons.notifications_none_rounded,
-            color: AppColors.secondColor,
+            color: AppColors.mainColor,
           ),
         ),
       ),

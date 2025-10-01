@@ -6,6 +6,7 @@ import 'package:aladdin_franchise/src/app.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/core/services/task_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/models/o2o/notification_model.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
@@ -16,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:webcontent_converter/webcontent_converter.dart';
@@ -31,9 +33,8 @@ void main(List<String> args) async {
 
   if (args.firstOrNull == 'multi_window' && Platform.isWindows) {
     final windowId = int.parse(args[1]);
-    final argument = args[2].isEmpty
-        ? const <String, dynamic>{}
-        : jsonDecode(args[2]) as Map<String, dynamic>;
+    final argument =
+        args[2].isEmpty ? const <String, dynamic>{} : jsonDecode(args[2]) as Map<String, dynamic>;
     await LocalStorage.initialize();
     runApp(ProviderScope(
         child: MySecondApp(
@@ -83,6 +84,9 @@ Future<void> _initializeApp() async {
   // firebase
   await _initFirebase();
 
+  // hive
+  await _initHive();
+
   // device small
   // await _checkDeviceSmall();
 
@@ -119,6 +123,25 @@ Future<void> _initFirebase() async {
 //   }
 // }
 
+Future<void> _initHive() async {
+  try {
+    await Hive.initFlutter();
+    Directory directory = await getApplicationSupportDirectory();
+    Hive.init(directory.path);
+
+    if (!Hive.isAdapterRegistered(0)) {
+      Hive.registerAdapter(NotificationModelAdapter());
+    }
+
+    final isOpenBox = Hive.isBoxOpen('notifications');
+    if (!isOpenBox) {
+      await Hive.openBox<NotificationModel>('notifications');
+    }
+  } catch (ex) {
+    showLog(ex, flags: "_initHiveFunction");
+  }
+}
+
 Future<void> _initForAndroidDevice() async {
   try {
     if (Platform.isAndroid) {
@@ -147,8 +170,7 @@ Future<void> _initWebContentConverter() async {
   try {
     if (WebViewHelper.isDesktop) {
       await windowManager.ensureInitialized();
-      var executablePath =
-          await ChromeDesktopDirectoryHelper.saveChromeFromAssetToApp(
+      var executablePath = await ChromeDesktopDirectoryHelper.saveChromeFromAssetToApp(
         assetPath: 'assets/1056772_chrome-win.zip',
       );
       WebViewHelper.customBrowserPath = [executablePath];
@@ -161,8 +183,7 @@ Future<void> _initWebContentConverter() async {
       } catch (e) {
         //
       }
-      await WebcontentConverter.ensureInitialized(
-          executablePath: executablePath);
+      await WebcontentConverter.ensureInitialized(executablePath: executablePath);
     }
   } catch (ex) {
     showLogs(ex.toString(), flags: '_initWebContentConverter');

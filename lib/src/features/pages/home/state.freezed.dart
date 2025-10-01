@@ -279,7 +279,8 @@ mixin _$HomeState {
   bool get cancelOrderItem => throw _privateConstructorUsedError;
   List<OrderHistory> get orderHistory =>
       throw _privateConstructorUsedError; // o2o
-  List<O2OOrderModel> get o2oData => throw _privateConstructorUsedError;
+  Map<O2OOrderModel, Map<String, dynamic>> get o2oData =>
+      throw _privateConstructorUsedError;
   PageState get getO2ODataState => throw _privateConstructorUsedError;
   List<ChatMessageModel> get chatMessages => throw _privateConstructorUsedError;
   PageState get getChatMessageState => throw _privateConstructorUsedError;
@@ -364,7 +365,7 @@ abstract class $HomeStateCopyWith<$Res> {
       bool displayOrderHistory,
       bool cancelOrderItem,
       List<OrderHistory> orderHistory,
-      List<O2OOrderModel> o2oData,
+      Map<O2OOrderModel, Map<String, dynamic>> o2oData,
       PageState getO2ODataState,
       List<ChatMessageModel> chatMessages,
       PageState getChatMessageState,
@@ -746,7 +747,7 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
       o2oData: null == o2oData
           ? _value.o2oData
           : o2oData // ignore: cast_nullable_to_non_nullable
-              as List<O2OOrderModel>,
+              as Map<O2OOrderModel, Map<String, dynamic>>,
       getO2ODataState: null == getO2ODataState
           ? _value.getO2ODataState
           : getO2ODataState // ignore: cast_nullable_to_non_nullable
@@ -1083,7 +1084,7 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       bool displayOrderHistory,
       bool cancelOrderItem,
       List<OrderHistory> orderHistory,
-      List<O2OOrderModel> o2oData,
+      Map<O2OOrderModel, Map<String, dynamic>> o2oData,
       PageState getO2ODataState,
       List<ChatMessageModel> chatMessages,
       PageState getChatMessageState,
@@ -1487,7 +1488,7 @@ class __$$HomeStateImplCopyWithImpl<$Res>
       o2oData: null == o2oData
           ? _value._o2oData
           : o2oData // ignore: cast_nullable_to_non_nullable
-              as List<O2OOrderModel>,
+              as Map<O2OOrderModel, Map<String, dynamic>>,
       getO2ODataState: null == getO2ODataState
           ? _value.getO2ODataState
           : getO2ODataState // ignore: cast_nullable_to_non_nullable
@@ -1582,7 +1583,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       this.displayOrderHistory = false,
       this.cancelOrderItem = false,
       final List<OrderHistory> orderHistory = const [],
-      final List<O2OOrderModel> o2oData = const [],
+      final Map<O2OOrderModel, Map<String, dynamic>> o2oData = const {},
       this.getO2ODataState = const PageState(),
       final List<ChatMessageModel> chatMessages = const [],
       this.getChatMessageState =
@@ -1976,14 +1977,14 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   }
 
 // o2o
-  final List<O2OOrderModel> _o2oData;
+  final Map<O2OOrderModel, Map<String, dynamic>> _o2oData;
 // o2o
   @override
   @JsonKey()
-  List<O2OOrderModel> get o2oData {
-    if (_o2oData is EqualUnmodifiableListView) return _o2oData;
+  Map<O2OOrderModel, Map<String, dynamic>> get o2oData {
+    if (_o2oData is EqualUnmodifiableMapView) return _o2oData;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_o2oData);
+    return EqualUnmodifiableMapView(_o2oData);
   }
 
   @override
@@ -2371,7 +2372,7 @@ abstract class _HomeState implements HomeState {
       final bool displayOrderHistory,
       final bool cancelOrderItem,
       final List<OrderHistory> orderHistory,
-      final List<O2OOrderModel> o2oData,
+      final Map<O2OOrderModel, Map<String, dynamic>> o2oData,
       final PageState getO2ODataState,
       final List<ChatMessageModel> chatMessages,
       final PageState getChatMessageState,
@@ -2542,7 +2543,7 @@ abstract class _HomeState implements HomeState {
   @override
   List<OrderHistory> get orderHistory;
   @override // o2o
-  List<O2OOrderModel> get o2oData;
+  Map<O2OOrderModel, Map<String, dynamic>> get o2oData;
   @override
   PageState get getO2ODataState;
   @override

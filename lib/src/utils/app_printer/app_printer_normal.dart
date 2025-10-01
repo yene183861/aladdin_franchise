@@ -168,8 +168,8 @@ class AppPrinterNormalUtils {
         TiengViet.parse(restaurant?.name ?? AppConfig.appName),
         styles: const PosStyles(
           bold: true,
-          // height: PosTextSize.size2,
-          // width: PosTextSize.size2,
+          height: PosTextSize.size1,
+          width: PosTextSize.size1,
           align: PosAlign.center,
         ),
       );
@@ -194,7 +194,9 @@ class AppPrinterNormalUtils {
       // }
       bytes += generator.text(
         TiengViet.parse(
-            "${title != null ? '$title - ' : ''}${order.getOrderMisc() ?? ''} - Ban: ${order.name}"),
+          "${title ?? ''}${((title ?? '').trim().isNotEmpty && (order.getOrderMisc() ?? '').trim().isNotEmpty) ? ' - ' : ''}"
+          "${order.getOrderMisc() ?? ''} - Ban: ${order.name}",
+        ),
         styles: const PosStyles(
           bold: true,
           // height: PosTextSize.size2,
@@ -289,16 +291,18 @@ class AppPrinterNormalUtils {
           generator: generator,
           item: p,
           cancel: cancel,
-          printNoteForItem: false,
+          printNote: false,
+          totalNote: totalNote,
         );
       } else {
         bytes += _generateCombo(
           generator: generator,
           combo: p,
           cancel: cancel,
-          printNoteForItem: false,
           comboItems: comboItems,
           printComboItem: true,
+          totalNote: totalNote,
+          printNote: false,
         );
       }
     }
@@ -319,33 +323,34 @@ class AppPrinterNormalUtils {
   }) {
     List<int> bytes = [];
 
-    var note = (item.noteForProcessOrder ?? '').trim();
-
     var comboItems = ProductHelper().getComboDescription(item);
     if (comboItems == null) {
       bytes += _generateItemNotCombo(
         generator: generator,
         item: item,
         cancel: cancel,
-        printNoteForItem: false,
+        totalNote: totalNote,
+        printNote: true,
       );
     } else {
       bytes += _generateCombo(
         generator: generator,
         combo: item,
         cancel: cancel,
-        printNoteForItem: false,
         comboItems: comboItems,
         printComboItem: true,
+        totalNote: totalNote,
+        printNote: true,
+        oddBill: true,
       );
     }
 
-    var notePrint = note.isEmpty ? totalNote.trim() : note;
-    if (notePrint.isEmpty) {
-      bytes += generator.hr();
-      bytes += generator.text(TiengViet.parse('Ghi chú: '));
-      bytes += generator.text(TiengViet.parse(notePrint.trim()));
-    }
+    // var notePrint = note.isEmpty ? totalNote.trim() : note;
+    // if (notePrint.isEmpty) {
+    //   bytes += generator.hr();
+    //   bytes += generator.text(TiengViet.parse('Ghi chú: '));
+    //   bytes += generator.text(TiengViet.parse(notePrint.trim()));
+    // }
 
     return bytes;
   }
@@ -354,13 +359,13 @@ class AppPrinterNormalUtils {
   ///
   /// SL lấy theo numberSelecting
   ///
-  /// [printNoteForItem] = false - có in ghi chú món
+  /// [printNote] = false - có in ghi chú
   List<int> _generateItemNotCombo({
     required Generator generator,
     ProductModel? item,
-    int timesOrder = 1,
     bool cancel = false,
-    bool printNoteForItem = false,
+    bool printNote = false,
+    String? totalNote,
   }) {
     if (item == null) return [];
     List<int> bytes = [];
@@ -369,6 +374,9 @@ class AppPrinterNormalUtils {
         PosColumn(
           text: AppPrinterCommon.splitTextPrint(TiengViet.parse(item.name)),
           width: 9,
+          styles: const PosStyles(
+            align: PosAlign.left,
+          ),
         ),
         PosColumn(
           text: "${cancel ? '-' : ''}${item.numberSelecting.abs()}",
@@ -384,48 +392,47 @@ class AppPrinterNormalUtils {
             align: PosAlign.center,
           ),
         ),
-        // PosColumn(
-        //   text: TiengViet.parse("#$timesOrder"),
-        //   width: 1,
-        //   styles: const PosStyles(
-        //     align: PosAlign.right,
-        //   ),
-        // ),
       ],
     );
 
-    if (printNoteForItem &&
-        (item.noteForProcessOrder ?? '').trim().isNotEmpty) {
+    if (printNote) {
+      bytes += generator.hr();
       bytes += generator.text(TiengViet.parse('Ghi chú: '));
-      bytes += generator
-          .text(TiengViet.parse((item.noteForProcessOrder ?? '').trim()));
+      bytes +=
+          generator.text(TiengViet.parse((item.noteForProcessOrder ?? totalNote ?? '').trim()));
     }
     return bytes;
   }
 
-  /// gen combo (
+  /// in combo
   ///
   /// SL lấy theo numberSelecting
   ///
-  /// [printNoteForItem] = false - có in ghi chú món
-  ///
   /// [printComboItem] = true - có in từng món trong combo
+  ///
+  /// [oddBill] = false - bill lẻ
+  ///
+  /// [printNote] = false - có in ghi chú
   List<int> _generateCombo({
     required Generator generator,
     ProductModel? combo,
     List<ComboItemModel> comboItems = const [],
-    int timesOrder = 1,
     bool cancel = false,
-    bool printNoteForItem = false,
     bool printComboItem = true,
+    String? totalNote,
+    bool printNote = false,
+    bool oddBill = false,
   }) {
     List<int> bytes = [];
-    if (combo != null) {
+    if (combo != null && !oddBill) {
       bytes += generator.row(
         [
           PosColumn(
             text: AppPrinterCommon.splitTextPrint(TiengViet.parse(combo.name)),
             width: 9,
+            styles: const PosStyles(
+              align: PosAlign.left,
+            ),
           ),
           PosColumn(
             text: "${cancel ? '-' : ''}${combo.numberSelecting.abs()}",
@@ -441,45 +448,38 @@ class AppPrinterNormalUtils {
               align: PosAlign.center,
             ),
           ),
-          // PosColumn(
-          //   text: TiengViet.parse("#$timesOrder"),
-          //   width: 1,
-          //   styles: const PosStyles(
-          //     align: PosAlign.right,
-          //   ),
-          // ),
         ],
       );
     }
-    for (var item in comboItems) {
-      bytes += _generateOnlyComboItem(
-        generator: generator,
-        cancel: cancel,
-        printEachItem: false,
-        item: item,
-        timesOrder: timesOrder,
-      );
+
+    if (printComboItem) {
+      for (var item in comboItems) {
+        bytes += _generateOnlyComboItem(
+          generator: generator,
+          cancel: cancel,
+          item: item,
+          oddBill: oddBill,
+        );
+      }
     }
-    if (printNoteForItem &&
-        (combo?.noteForProcessOrder ?? '').trim().isNotEmpty) {
-      bytes += generator.text("Ghi chú");
-      bytes += generator.text((combo?.noteForProcessOrder ?? '').trim());
+
+    if (printNote) {
+      bytes += generator.hr();
+      bytes += generator.text(TiengViet.parse("Ghi chú:"));
+      bytes +=
+          generator.text(TiengViet.parse((combo?.noteForProcessOrder ?? totalNote ?? '').trim()));
     }
     return bytes;
   }
 
-  /// gen 1 item trong combo
+  /// từng 1 item trong combo
   ///
-  /// [printEachItem] - false - đang in bill lẻ
+  /// [oddBill] - true - bill lẻ
   List<int> _generateOnlyComboItem({
     required Generator generator,
     ComboItemModel? item,
-    int timesOrder = 1,
     bool cancel = false,
-    String itemNote = '',
-    String comboNote = '',
-    String comboName = '',
-    bool printEachItem = false,
+    bool oddBill = true,
   }) {
     if (item == null) return [];
     List<int> bytes = [];
@@ -487,8 +487,11 @@ class AppPrinterNormalUtils {
       [
         PosColumn(
           text: AppPrinterCommon.splitTextPrint(
-              TiengViet.parse("${printEachItem ? '' : '  - '}${item.name}")),
+              TiengViet.parse("${oddBill ? '' : '- '}${item.name}")),
           width: 9,
+          styles: const PosStyles(
+            align: PosAlign.left,
+          ),
         ),
         PosColumn(
           text: "${cancel ? '-' : ''}${item.quantity.abs()}",
@@ -504,160 +507,9 @@ class AppPrinterNormalUtils {
             align: PosAlign.center,
           ),
         ),
-        // PosColumn(
-        //   text: TiengViet.parse("#$timesOrder"),
-        //   width: 1,
-        //   styles: const PosStyles(
-        //     align: PosAlign.right,
-        //   ),
-        // ),
       ],
     );
 
-    if (printEachItem) {
-      if (itemNote.trim().isNotEmpty) {
-        bytes += generator.text("- (GC: ${TiengViet.parse(itemNote.trim())})");
-      }
-      if (comboName.trim().isNotEmpty) {
-        bytes += generator.text(
-          TiengViet.parse("Trong $comboName"),
-          styles: const PosStyles(underline: true),
-        );
-      }
-      if (comboNote.trim().isNotEmpty) {
-        bytes +=
-            generator.text("- (GCC: ${TiengViet.parse(comboNote.trim())})");
-      }
-    }
-
     return bytes;
   }
-
-  // static Future<List<int>> _generatorBill({
-  //   required String table,
-  //   required List<ProductModel> items,
-  //   String? title,
-  //   String? note,
-  //   bool billSingle = false,
-  //   bool fromBillReturn = false,
-  //   bool printParentName = false,
-  // }) async {
-  //   List<int> bytes = [];
-  //   final profile = await CapabilityProfile.load();
-  //   final generator = Generator(PaperSize.mm80, profile);
-  //   RestaurantModel? restaurant = (LocalStorage.getDataLogin())?.restaurant;
-  //   // header
-  //   bytes += generator.text(
-  //     TiengViet.parse(restaurant?.name ?? appConfig.appName),
-  //     styles: const PosStyles(
-  //       bold: true,
-  //       height: PosTextSize.size2,
-  //       width: PosTextSize.size2,
-  //       align: PosAlign.center,
-  //     ),
-  //   );
-  //   bytes += generator.text(
-  //     TiengViet.parse(restaurant?.address ?? "========="),
-  //     styles: const PosStyles(
-  //       align: PosAlign.center,
-  //     ),
-  //   );
-  //   bytes += generator.emptyLines(1);
-  //   // title bill
-  //   if (title != null) {
-  //     bytes += generator.text(
-  //       TiengViet.parse(title),
-  //       styles: const PosStyles(
-  //         bold: true,
-  //         height: PosTextSize.size2,
-  //         width: PosTextSize.size2,
-  //         align: PosAlign.center,
-  //       ),
-  //     );
-  //   }
-  //   bytes += generator.text(
-  //     TiengViet.parse("Ban: $table"),
-  //     styles: const PosStyles(
-  //       bold: true,
-  //       height: PosTextSize.size2,
-  //       width: PosTextSize.size2,
-  //       align: PosAlign.center,
-  //     ),
-  //   );
-  //   bytes += generator.hr();
-  //   // body
-  //   bytes += generator.row(
-  //     [
-  //       PosColumn(
-  //         text: "TEN MON",
-  //         width: 8,
-  //         styles: const PosStyles(
-  //           bold: true,
-  //           align: PosAlign.left,
-  //         ),
-  //       ),
-  //       PosColumn(
-  //         text: "SL",
-  //         width: 1,
-  //         styles: const PosStyles(
-  //           bold: true,
-  //           align: PosAlign.center,
-  //         ),
-  //       ),
-  //       PosColumn(
-  //         text: "DVT",
-  //         width: 2,
-  //         styles: const PosStyles(
-  //           bold: true,
-  //           align: PosAlign.right,
-  //         ),
-  //       ),
-  //       PosColumn(
-  //         text: "#",
-  //         width: 1,
-  //         styles: const PosStyles(
-  //           bold: true,
-  //           align: PosAlign.right,
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  //   if (!fromBillReturn && billSingle) {
-  //     bytes += _generatorSingleBill(generator, items);
-  //   } else {
-  //     bytes += _generatorItemsBillNormal(
-  //       generator,
-  //       items,
-  //       printParentName: printParentName,
-  //     );
-  //   }
-  //   // Ghi chú
-  //   if (note != null && note.isNotEmpty) {
-  //     bytes += generator.hr();
-  //     bytes += generator.text(
-  //       "Ghi chu: ",
-  //       styles: const PosStyles(
-  //         bold: true,
-  //         underline: true,
-  //       ),
-  //     );
-  //     bytes += generator.text(TiengViet.parse(note));
-  //   }
-  //   // footer
-  //   bytes += generator.hr();
-  //   bytes += generator.text(
-  //     "Powered by Aladdin.,JSC",
-  //     styles: const PosStyles(
-  //       align: PosAlign.center,
-  //     ),
-  //   );
-  //   bytes += generator.text(
-  //     DateFormat("EEEE, dd/MM/yyyy HH:mm:ss").format(DateTime.now()),
-  //     styles: const PosStyles(
-  //       align: PosAlign.center,
-  //     ),
-  //   );
-  //   bytes += generator.cut();
-  //   return bytes;
-  // }
 }

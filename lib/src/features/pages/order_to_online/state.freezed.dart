@@ -44,6 +44,7 @@ mixin _$OrderToOnlineState {
   Set<int> get lockedOrderIds => throw _privateConstructorUsedError;
   List<NotificationModel> get notifications =>
       throw _privateConstructorUsedError;
+  bool get showLoadingGetData => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $OrderToOnlineStateCopyWith<OrderToOnlineState> get copyWith =>
@@ -70,7 +71,8 @@ abstract class $OrderToOnlineStateCopyWith<$Res> {
       Map<O2OOrderModel, Map<String, dynamic>> orders,
       RequestOrderModel? requestSelect,
       Set<int> lockedOrderIds,
-      List<NotificationModel> notifications});
+      List<NotificationModel> notifications,
+      bool showLoadingGetData});
 
   $O2OOrderModelCopyWith<$Res>? get orderSelect;
   $PageStateCopyWith<$Res> get getChatMessageState;
@@ -105,6 +107,7 @@ class _$OrderToOnlineStateCopyWithImpl<$Res, $Val extends OrderToOnlineState>
     Object? requestSelect = freezed,
     Object? lockedOrderIds = null,
     Object? notifications = null,
+    Object? showLoadingGetData = null,
   }) {
     return _then(_value.copyWith(
       message: null == message
@@ -163,6 +166,10 @@ class _$OrderToOnlineStateCopyWithImpl<$Res, $Val extends OrderToOnlineState>
           ? _value.notifications
           : notifications // ignore: cast_nullable_to_non_nullable
               as List<NotificationModel>,
+      showLoadingGetData: null == showLoadingGetData
+          ? _value.showLoadingGetData
+          : showLoadingGetData // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 
@@ -233,7 +240,8 @@ abstract class _$$OrderToOnlineStateImplCopyWith<$Res>
       Map<O2OOrderModel, Map<String, dynamic>> orders,
       RequestOrderModel? requestSelect,
       Set<int> lockedOrderIds,
-      List<NotificationModel> notifications});
+      List<NotificationModel> notifications,
+      bool showLoadingGetData});
 
   @override
   $O2OOrderModelCopyWith<$Res>? get orderSelect;
@@ -270,6 +278,7 @@ class __$$OrderToOnlineStateImplCopyWithImpl<$Res>
     Object? requestSelect = freezed,
     Object? lockedOrderIds = null,
     Object? notifications = null,
+    Object? showLoadingGetData = null,
   }) {
     return _then(_$OrderToOnlineStateImpl(
       message: null == message
@@ -328,6 +337,10 @@ class __$$OrderToOnlineStateImplCopyWithImpl<$Res>
           ? _value._notifications
           : notifications // ignore: cast_nullable_to_non_nullable
               as List<NotificationModel>,
+      showLoadingGetData: null == showLoadingGetData
+          ? _value.showLoadingGetData
+          : showLoadingGetData // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -349,7 +362,8 @@ class _$OrderToOnlineStateImpl implements _OrderToOnlineState {
       final Map<O2OOrderModel, Map<String, dynamic>> orders = const {},
       this.requestSelect,
       final Set<int> lockedOrderIds = const {},
-      final List<NotificationModel> notifications = const []})
+      final List<NotificationModel> notifications = const [],
+      this.showLoadingGetData = true})
       : _chatMessages = chatMessages,
         _printers = printers,
         _orders = orders,
@@ -449,8 +463,12 @@ class _$OrderToOnlineStateImpl implements _OrderToOnlineState {
   }
 
   @override
+  @JsonKey()
+  final bool showLoadingGetData;
+
+  @override
   String toString() {
-    return 'OrderToOnlineState(message: $message, event: $event, orderSelect: $orderSelect, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, statusFilter: $statusFilter, sortByNewestTime: $sortByNewestTime, showChatTab: $showChatTab, printers: $printers, printerSelect: $printerSelect, orders: $orders, requestSelect: $requestSelect, lockedOrderIds: $lockedOrderIds, notifications: $notifications)';
+    return 'OrderToOnlineState(message: $message, event: $event, orderSelect: $orderSelect, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, statusFilter: $statusFilter, sortByNewestTime: $sortByNewestTime, showChatTab: $showChatTab, printers: $printers, printerSelect: $printerSelect, orders: $orders, requestSelect: $requestSelect, lockedOrderIds: $lockedOrderIds, notifications: $notifications, showLoadingGetData: $showLoadingGetData)';
   }
 
   @override
@@ -481,7 +499,9 @@ class _$OrderToOnlineStateImpl implements _OrderToOnlineState {
             const DeepCollectionEquality()
                 .equals(other._lockedOrderIds, _lockedOrderIds) &&
             const DeepCollectionEquality()
-                .equals(other._notifications, _notifications));
+                .equals(other._notifications, _notifications) &&
+            (identical(other.showLoadingGetData, showLoadingGetData) ||
+                other.showLoadingGetData == showLoadingGetData));
   }
 
   @override
@@ -500,7 +520,8 @@ class _$OrderToOnlineStateImpl implements _OrderToOnlineState {
       const DeepCollectionEquality().hash(_orders),
       requestSelect,
       const DeepCollectionEquality().hash(_lockedOrderIds),
-      const DeepCollectionEquality().hash(_notifications));
+      const DeepCollectionEquality().hash(_notifications),
+      showLoadingGetData);
 
   @JsonKey(ignore: true)
   @override
@@ -525,7 +546,8 @@ abstract class _OrderToOnlineState implements OrderToOnlineState {
       final Map<O2OOrderModel, Map<String, dynamic>> orders,
       final RequestOrderModel? requestSelect,
       final Set<int> lockedOrderIds,
-      final List<NotificationModel> notifications}) = _$OrderToOnlineStateImpl;
+      final List<NotificationModel> notifications,
+      final bool showLoadingGetData}) = _$OrderToOnlineStateImpl;
 
   @override
   String get message;
@@ -564,6 +586,8 @@ abstract class _OrderToOnlineState implements OrderToOnlineState {
   Set<int> get lockedOrderIds;
   @override
   List<NotificationModel> get notifications;
+  @override
+  bool get showLoadingGetData;
   @override
   @JsonKey(ignore: true)
   _$$OrderToOnlineStateImplCopyWith<_$OrderToOnlineStateImpl> get copyWith =>

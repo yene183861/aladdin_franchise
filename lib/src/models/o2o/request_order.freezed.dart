@@ -22,7 +22,9 @@ RequestOrderItemModel _$RequestOrderItemModelFromJson(
 /// @nodoc
 mixin _$RequestOrderItemModel {
   @JsonKey(includeToJson: false)
-  dynamic get id => throw _privateConstructorUsedError;
+  int? get id => throw _privateConstructorUsedError;
+  @JsonKey(includeToJson: false)
+  int? get menuItemId => throw _privateConstructorUsedError;
   String get codeProduct => throw _privateConstructorUsedError;
   @JsonKey(includeToJson: false)
   int get quantity => throw _privateConstructorUsedError;
@@ -33,6 +35,10 @@ mixin _$RequestOrderItemModel {
   @JsonKey(includeToJson: false)
   String get name => throw _privateConstructorUsedError;
   String get noteRestaurant => throw _privateConstructorUsedError;
+  @JsonKey(includeToJson: false)
+  int? get printerType => throw _privateConstructorUsedError;
+  @JsonKey(includeToJson: false)
+  String get unit => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -47,13 +53,16 @@ abstract class $RequestOrderItemModelCopyWith<$Res> {
       _$RequestOrderItemModelCopyWithImpl<$Res, RequestOrderItemModel>;
   @useResult
   $Res call(
-      {@JsonKey(includeToJson: false) dynamic id,
+      {@JsonKey(includeToJson: false) int? id,
+      @JsonKey(includeToJson: false) int? menuItemId,
       String codeProduct,
       @JsonKey(includeToJson: false) int quantity,
       @JsonKey(includeToJson: false) String note,
       @JsonKey(includeToJson: false) String image,
       @JsonKey(includeToJson: false) String name,
-      String noteRestaurant});
+      String noteRestaurant,
+      @JsonKey(includeToJson: false) int? printerType,
+      @JsonKey(includeToJson: false) String unit});
 }
 
 /// @nodoc
@@ -71,18 +80,25 @@ class _$RequestOrderItemModelCopyWithImpl<$Res,
   @override
   $Res call({
     Object? id = freezed,
+    Object? menuItemId = freezed,
     Object? codeProduct = null,
     Object? quantity = null,
     Object? note = null,
     Object? image = null,
     Object? name = null,
     Object? noteRestaurant = null,
+    Object? printerType = freezed,
+    Object? unit = null,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as int?,
+      menuItemId: freezed == menuItemId
+          ? _value.menuItemId
+          : menuItemId // ignore: cast_nullable_to_non_nullable
+              as int?,
       codeProduct: null == codeProduct
           ? _value.codeProduct
           : codeProduct // ignore: cast_nullable_to_non_nullable
@@ -106,6 +122,14 @@ class _$RequestOrderItemModelCopyWithImpl<$Res,
       noteRestaurant: null == noteRestaurant
           ? _value.noteRestaurant
           : noteRestaurant // ignore: cast_nullable_to_non_nullable
+              as String,
+      printerType: freezed == printerType
+          ? _value.printerType
+          : printerType // ignore: cast_nullable_to_non_nullable
+              as int?,
+      unit: null == unit
+          ? _value.unit
+          : unit // ignore: cast_nullable_to_non_nullable
               as String,
     ) as $Val);
   }
@@ -121,13 +145,16 @@ abstract class _$$RequestOrderItemModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(includeToJson: false) dynamic id,
+      {@JsonKey(includeToJson: false) int? id,
+      @JsonKey(includeToJson: false) int? menuItemId,
       String codeProduct,
       @JsonKey(includeToJson: false) int quantity,
       @JsonKey(includeToJson: false) String note,
       @JsonKey(includeToJson: false) String image,
       @JsonKey(includeToJson: false) String name,
-      String noteRestaurant});
+      String noteRestaurant,
+      @JsonKey(includeToJson: false) int? printerType,
+      @JsonKey(includeToJson: false) String unit});
 }
 
 /// @nodoc
@@ -143,18 +170,25 @@ class __$$RequestOrderItemModelImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = freezed,
+    Object? menuItemId = freezed,
     Object? codeProduct = null,
     Object? quantity = null,
     Object? note = null,
     Object? image = null,
     Object? name = null,
     Object? noteRestaurant = null,
+    Object? printerType = freezed,
+    Object? unit = null,
   }) {
     return _then(_$RequestOrderItemModelImpl(
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as int?,
+      menuItemId: freezed == menuItemId
+          ? _value.menuItemId
+          : menuItemId // ignore: cast_nullable_to_non_nullable
+              as int?,
       codeProduct: null == codeProduct
           ? _value.codeProduct
           : codeProduct // ignore: cast_nullable_to_non_nullable
@@ -179,6 +213,14 @@ class __$$RequestOrderItemModelImplCopyWithImpl<$Res>
           ? _value.noteRestaurant
           : noteRestaurant // ignore: cast_nullable_to_non_nullable
               as String,
+      printerType: freezed == printerType
+          ? _value.printerType
+          : printerType // ignore: cast_nullable_to_non_nullable
+              as int?,
+      unit: null == unit
+          ? _value.unit
+          : unit // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -189,13 +231,16 @@ class __$$RequestOrderItemModelImplCopyWithImpl<$Res>
 class _$RequestOrderItemModelImpl extends _RequestOrderItemModel
     with DiagnosticableTreeMixin {
   const _$RequestOrderItemModelImpl(
-      {@JsonKey(includeToJson: false) this.id = '',
+      {@JsonKey(includeToJson: false) this.id,
+      @JsonKey(includeToJson: false) this.menuItemId,
       this.codeProduct = '',
       @JsonKey(includeToJson: false) this.quantity = 0,
       @JsonKey(includeToJson: false) this.note = '',
       @JsonKey(includeToJson: false) this.image = '',
       @JsonKey(includeToJson: false) this.name = '',
-      this.noteRestaurant = ''})
+      this.noteRestaurant = '',
+      @JsonKey(includeToJson: false) this.printerType,
+      @JsonKey(includeToJson: false) this.unit = ''})
       : super._();
 
   factory _$RequestOrderItemModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -203,7 +248,10 @@ class _$RequestOrderItemModelImpl extends _RequestOrderItemModel
 
   @override
   @JsonKey(includeToJson: false)
-  final dynamic id;
+  final int? id;
+  @override
+  @JsonKey(includeToJson: false)
+  final int? menuItemId;
   @override
   @JsonKey()
   final String codeProduct;
@@ -222,10 +270,16 @@ class _$RequestOrderItemModelImpl extends _RequestOrderItemModel
   @override
   @JsonKey()
   final String noteRestaurant;
+  @override
+  @JsonKey(includeToJson: false)
+  final int? printerType;
+  @override
+  @JsonKey(includeToJson: false)
+  final String unit;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'RequestOrderItemModel(id: $id, codeProduct: $codeProduct, quantity: $quantity, note: $note, image: $image, name: $name, noteRestaurant: $noteRestaurant)';
+    return 'RequestOrderItemModel(id: $id, menuItemId: $menuItemId, codeProduct: $codeProduct, quantity: $quantity, note: $note, image: $image, name: $name, noteRestaurant: $noteRestaurant, printerType: $printerType, unit: $unit)';
   }
 
   @override
@@ -234,12 +288,15 @@ class _$RequestOrderItemModelImpl extends _RequestOrderItemModel
     properties
       ..add(DiagnosticsProperty('type', 'RequestOrderItemModel'))
       ..add(DiagnosticsProperty('id', id))
+      ..add(DiagnosticsProperty('menuItemId', menuItemId))
       ..add(DiagnosticsProperty('codeProduct', codeProduct))
       ..add(DiagnosticsProperty('quantity', quantity))
       ..add(DiagnosticsProperty('note', note))
       ..add(DiagnosticsProperty('image', image))
       ..add(DiagnosticsProperty('name', name))
-      ..add(DiagnosticsProperty('noteRestaurant', noteRestaurant));
+      ..add(DiagnosticsProperty('noteRestaurant', noteRestaurant))
+      ..add(DiagnosticsProperty('printerType', printerType))
+      ..add(DiagnosticsProperty('unit', unit));
   }
 
   @override
@@ -247,7 +304,9 @@ class _$RequestOrderItemModelImpl extends _RequestOrderItemModel
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$RequestOrderItemModelImpl &&
-            const DeepCollectionEquality().equals(other.id, id) &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.menuItemId, menuItemId) ||
+                other.menuItemId == menuItemId) &&
             (identical(other.codeProduct, codeProduct) ||
                 other.codeProduct == codeProduct) &&
             (identical(other.quantity, quantity) ||
@@ -256,20 +315,16 @@ class _$RequestOrderItemModelImpl extends _RequestOrderItemModel
             (identical(other.image, image) || other.image == image) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.noteRestaurant, noteRestaurant) ||
-                other.noteRestaurant == noteRestaurant));
+                other.noteRestaurant == noteRestaurant) &&
+            (identical(other.printerType, printerType) ||
+                other.printerType == printerType) &&
+            (identical(other.unit, unit) || other.unit == unit));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(id),
-      codeProduct,
-      quantity,
-      note,
-      image,
-      name,
-      noteRestaurant);
+  int get hashCode => Object.hash(runtimeType, id, menuItemId, codeProduct,
+      quantity, note, image, name, noteRestaurant, printerType, unit);
 
   @JsonKey(ignore: true)
   @override
@@ -288,13 +343,17 @@ class _$RequestOrderItemModelImpl extends _RequestOrderItemModel
 
 abstract class _RequestOrderItemModel extends RequestOrderItemModel {
   const factory _RequestOrderItemModel(
-      {@JsonKey(includeToJson: false) final dynamic id,
-      final String codeProduct,
-      @JsonKey(includeToJson: false) final int quantity,
-      @JsonKey(includeToJson: false) final String note,
-      @JsonKey(includeToJson: false) final String image,
-      @JsonKey(includeToJson: false) final String name,
-      final String noteRestaurant}) = _$RequestOrderItemModelImpl;
+          {@JsonKey(includeToJson: false) final int? id,
+          @JsonKey(includeToJson: false) final int? menuItemId,
+          final String codeProduct,
+          @JsonKey(includeToJson: false) final int quantity,
+          @JsonKey(includeToJson: false) final String note,
+          @JsonKey(includeToJson: false) final String image,
+          @JsonKey(includeToJson: false) final String name,
+          final String noteRestaurant,
+          @JsonKey(includeToJson: false) final int? printerType,
+          @JsonKey(includeToJson: false) final String unit}) =
+      _$RequestOrderItemModelImpl;
   const _RequestOrderItemModel._() : super._();
 
   factory _RequestOrderItemModel.fromJson(Map<String, dynamic> json) =
@@ -302,7 +361,10 @@ abstract class _RequestOrderItemModel extends RequestOrderItemModel {
 
   @override
   @JsonKey(includeToJson: false)
-  dynamic get id;
+  int? get id;
+  @override
+  @JsonKey(includeToJson: false)
+  int? get menuItemId;
   @override
   String get codeProduct;
   @override
@@ -319,6 +381,12 @@ abstract class _RequestOrderItemModel extends RequestOrderItemModel {
   String get name;
   @override
   String get noteRestaurant;
+  @override
+  @JsonKey(includeToJson: false)
+  int? get printerType;
+  @override
+  @JsonKey(includeToJson: false)
+  String get unit;
   @override
   @JsonKey(ignore: true)
   _$$RequestOrderItemModelImplCopyWith<_$RequestOrderItemModelImpl>

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/pages/update_app/android/view.dart';
 import 'package:aladdin_franchise/src/features/pages/update_app/windows/view.dart';
 import 'package:flutter/material.dart';
@@ -17,19 +18,18 @@ class ButtonUpdateAppWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
+      visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
       onTap: () {
-        // ref.refresh();
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Platform.isAndroid
-                ? const UpdateAppAndroidPage()
-                : const UpdateAppWindowsPage(),
+            builder: (context) =>
+                Platform.isAndroid ? const UpdateAppAndroidPage() : const UpdateAppWindowsPage(),
           ),
         );
       },
-      leading: Icon(
-        Icons.get_app,
+      leading: const ResponsiveIconWidget(
+        iconData: Icons.get_app,
         color: AppColors.mainColor,
       ),
       title: Text(

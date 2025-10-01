@@ -921,6 +921,7 @@ mixin _$LineItemDataBill {
   dynamic get tax => throw _privateConstructorUsedError;
   String get nameEn => throw _privateConstructorUsedError;
   String get codeProduct => throw _privateConstructorUsedError;
+  List<SubLineItemDataBill> get listItem => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -942,7 +943,8 @@ abstract class $LineItemDataBillCopyWith<$Res> {
       String unit,
       dynamic tax,
       String nameEn,
-      String codeProduct});
+      String codeProduct,
+      List<SubLineItemDataBill> listItem});
 }
 
 /// @nodoc
@@ -966,6 +968,7 @@ class _$LineItemDataBillCopyWithImpl<$Res, $Val extends LineItemDataBill>
     Object? tax = freezed,
     Object? nameEn = null,
     Object? codeProduct = null,
+    Object? listItem = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -1000,6 +1003,10 @@ class _$LineItemDataBillCopyWithImpl<$Res, $Val extends LineItemDataBill>
           ? _value.codeProduct
           : codeProduct // ignore: cast_nullable_to_non_nullable
               as String,
+      listItem: null == listItem
+          ? _value.listItem
+          : listItem // ignore: cast_nullable_to_non_nullable
+              as List<SubLineItemDataBill>,
     ) as $Val);
   }
 }
@@ -1020,7 +1027,8 @@ abstract class _$$LineItemDataBillImplCopyWith<$Res>
       String unit,
       dynamic tax,
       String nameEn,
-      String codeProduct});
+      String codeProduct,
+      List<SubLineItemDataBill> listItem});
 }
 
 /// @nodoc
@@ -1042,6 +1050,7 @@ class __$$LineItemDataBillImplCopyWithImpl<$Res>
     Object? tax = freezed,
     Object? nameEn = null,
     Object? codeProduct = null,
+    Object? listItem = null,
   }) {
     return _then(_$LineItemDataBillImpl(
       id: null == id
@@ -1076,6 +1085,10 @@ class __$$LineItemDataBillImplCopyWithImpl<$Res>
           ? _value.codeProduct
           : codeProduct // ignore: cast_nullable_to_non_nullable
               as String,
+      listItem: null == listItem
+          ? _value._listItem
+          : listItem // ignore: cast_nullable_to_non_nullable
+              as List<SubLineItemDataBill>,
     ));
   }
 }
@@ -1093,8 +1106,10 @@ class _$LineItemDataBillImpl extends _LineItemDataBill
       this.unit = '_',
       this.tax = '',
       this.nameEn = '',
-      this.codeProduct = ''})
-      : super._();
+      this.codeProduct = '',
+      final List<SubLineItemDataBill> listItem = const []})
+      : _listItem = listItem,
+        super._();
 
   factory _$LineItemDataBillImpl.fromJson(Map<String, dynamic> json) =>
       _$$LineItemDataBillImplFromJson(json);
@@ -1123,10 +1138,18 @@ class _$LineItemDataBillImpl extends _LineItemDataBill
   @override
   @JsonKey()
   final String codeProduct;
+  final List<SubLineItemDataBill> _listItem;
+  @override
+  @JsonKey()
+  List<SubLineItemDataBill> get listItem {
+    if (_listItem is EqualUnmodifiableListView) return _listItem;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_listItem);
+  }
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'LineItemDataBill(id: $id, name: $name, price: $price, count: $count, unit: $unit, tax: $tax, nameEn: $nameEn, codeProduct: $codeProduct)';
+    return 'LineItemDataBill(id: $id, name: $name, price: $price, count: $count, unit: $unit, tax: $tax, nameEn: $nameEn, codeProduct: $codeProduct, listItem: $listItem)';
   }
 
   @override
@@ -1141,7 +1164,8 @@ class _$LineItemDataBillImpl extends _LineItemDataBill
       ..add(DiagnosticsProperty('unit', unit))
       ..add(DiagnosticsProperty('tax', tax))
       ..add(DiagnosticsProperty('nameEn', nameEn))
-      ..add(DiagnosticsProperty('codeProduct', codeProduct));
+      ..add(DiagnosticsProperty('codeProduct', codeProduct))
+      ..add(DiagnosticsProperty('listItem', listItem));
   }
 
   @override
@@ -1157,7 +1181,8 @@ class _$LineItemDataBillImpl extends _LineItemDataBill
             const DeepCollectionEquality().equals(other.tax, tax) &&
             (identical(other.nameEn, nameEn) || other.nameEn == nameEn) &&
             (identical(other.codeProduct, codeProduct) ||
-                other.codeProduct == codeProduct));
+                other.codeProduct == codeProduct) &&
+            const DeepCollectionEquality().equals(other._listItem, _listItem));
   }
 
   @JsonKey(ignore: true)
@@ -1171,7 +1196,8 @@ class _$LineItemDataBillImpl extends _LineItemDataBill
       unit,
       const DeepCollectionEquality().hash(tax),
       nameEn,
-      codeProduct);
+      codeProduct,
+      const DeepCollectionEquality().hash(_listItem));
 
   @JsonKey(ignore: true)
   @override
@@ -1197,7 +1223,8 @@ abstract class _LineItemDataBill extends LineItemDataBill {
       final String unit,
       final dynamic tax,
       final String nameEn,
-      final String codeProduct}) = _$LineItemDataBillImpl;
+      final String codeProduct,
+      final List<SubLineItemDataBill> listItem}) = _$LineItemDataBillImpl;
   const _LineItemDataBill._() : super._();
 
   factory _LineItemDataBill.fromJson(Map<String, dynamic> json) =
@@ -1220,8 +1247,301 @@ abstract class _LineItemDataBill extends LineItemDataBill {
   @override
   String get codeProduct;
   @override
+  List<SubLineItemDataBill> get listItem;
+  @override
   @JsonKey(ignore: true)
   _$$LineItemDataBillImplCopyWith<_$LineItemDataBillImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+SubLineItemDataBill _$SubLineItemDataBillFromJson(Map<String, dynamic> json) {
+  return _SubLineItemDataBill.fromJson(json);
+}
+
+/// @nodoc
+mixin _$SubLineItemDataBill {
+  int get id => throw _privateConstructorUsedError;
+  String get name => throw _privateConstructorUsedError;
+  dynamic get price => throw _privateConstructorUsedError;
+  int get count => throw _privateConstructorUsedError;
+  String get unit => throw _privateConstructorUsedError;
+  dynamic get tax => throw _privateConstructorUsedError;
+  int? get type => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $SubLineItemDataBillCopyWith<SubLineItemDataBill> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $SubLineItemDataBillCopyWith<$Res> {
+  factory $SubLineItemDataBillCopyWith(
+          SubLineItemDataBill value, $Res Function(SubLineItemDataBill) then) =
+      _$SubLineItemDataBillCopyWithImpl<$Res, SubLineItemDataBill>;
+  @useResult
+  $Res call(
+      {int id,
+      String name,
+      dynamic price,
+      int count,
+      String unit,
+      dynamic tax,
+      int? type});
+}
+
+/// @nodoc
+class _$SubLineItemDataBillCopyWithImpl<$Res, $Val extends SubLineItemDataBill>
+    implements $SubLineItemDataBillCopyWith<$Res> {
+  _$SubLineItemDataBillCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? price = freezed,
+    Object? count = null,
+    Object? unit = null,
+    Object? tax = freezed,
+    Object? type = freezed,
+  }) {
+    return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      price: freezed == price
+          ? _value.price
+          : price // ignore: cast_nullable_to_non_nullable
+              as dynamic,
+      count: null == count
+          ? _value.count
+          : count // ignore: cast_nullable_to_non_nullable
+              as int,
+      unit: null == unit
+          ? _value.unit
+          : unit // ignore: cast_nullable_to_non_nullable
+              as String,
+      tax: freezed == tax
+          ? _value.tax
+          : tax // ignore: cast_nullable_to_non_nullable
+              as dynamic,
+      type: freezed == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as int?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$SubLineItemDataBillImplCopyWith<$Res>
+    implements $SubLineItemDataBillCopyWith<$Res> {
+  factory _$$SubLineItemDataBillImplCopyWith(_$SubLineItemDataBillImpl value,
+          $Res Function(_$SubLineItemDataBillImpl) then) =
+      __$$SubLineItemDataBillImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {int id,
+      String name,
+      dynamic price,
+      int count,
+      String unit,
+      dynamic tax,
+      int? type});
+}
+
+/// @nodoc
+class __$$SubLineItemDataBillImplCopyWithImpl<$Res>
+    extends _$SubLineItemDataBillCopyWithImpl<$Res, _$SubLineItemDataBillImpl>
+    implements _$$SubLineItemDataBillImplCopyWith<$Res> {
+  __$$SubLineItemDataBillImplCopyWithImpl(_$SubLineItemDataBillImpl _value,
+      $Res Function(_$SubLineItemDataBillImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? price = freezed,
+    Object? count = null,
+    Object? unit = null,
+    Object? tax = freezed,
+    Object? type = freezed,
+  }) {
+    return _then(_$SubLineItemDataBillImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int,
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      price: freezed == price
+          ? _value.price
+          : price // ignore: cast_nullable_to_non_nullable
+              as dynamic,
+      count: null == count
+          ? _value.count
+          : count // ignore: cast_nullable_to_non_nullable
+              as int,
+      unit: null == unit
+          ? _value.unit
+          : unit // ignore: cast_nullable_to_non_nullable
+              as String,
+      tax: freezed == tax
+          ? _value.tax
+          : tax // ignore: cast_nullable_to_non_nullable
+              as dynamic,
+      type: freezed == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as int?,
+    ));
+  }
+}
+
+/// @nodoc
+
+@JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
+class _$SubLineItemDataBillImpl extends _SubLineItemDataBill
+    with DiagnosticableTreeMixin {
+  const _$SubLineItemDataBillImpl(
+      {this.id = -1,
+      this.name = '',
+      this.price,
+      this.count = 0,
+      this.unit = '_',
+      this.tax,
+      this.type})
+      : super._();
+
+  factory _$SubLineItemDataBillImpl.fromJson(Map<String, dynamic> json) =>
+      _$$SubLineItemDataBillImplFromJson(json);
+
+  @override
+  @JsonKey()
+  final int id;
+  @override
+  @JsonKey()
+  final String name;
+  @override
+  final dynamic price;
+  @override
+  @JsonKey()
+  final int count;
+  @override
+  @JsonKey()
+  final String unit;
+  @override
+  final dynamic tax;
+  @override
+  final int? type;
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'SubLineItemDataBill(id: $id, name: $name, price: $price, count: $count, unit: $unit, tax: $tax, type: $type)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'SubLineItemDataBill'))
+      ..add(DiagnosticsProperty('id', id))
+      ..add(DiagnosticsProperty('name', name))
+      ..add(DiagnosticsProperty('price', price))
+      ..add(DiagnosticsProperty('count', count))
+      ..add(DiagnosticsProperty('unit', unit))
+      ..add(DiagnosticsProperty('tax', tax))
+      ..add(DiagnosticsProperty('type', type));
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SubLineItemDataBillImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.name, name) || other.name == name) &&
+            const DeepCollectionEquality().equals(other.price, price) &&
+            (identical(other.count, count) || other.count == count) &&
+            (identical(other.unit, unit) || other.unit == unit) &&
+            const DeepCollectionEquality().equals(other.tax, tax) &&
+            (identical(other.type, type) || other.type == type));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      const DeepCollectionEquality().hash(price),
+      count,
+      unit,
+      const DeepCollectionEquality().hash(tax),
+      type);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SubLineItemDataBillImplCopyWith<_$SubLineItemDataBillImpl> get copyWith =>
+      __$$SubLineItemDataBillImplCopyWithImpl<_$SubLineItemDataBillImpl>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$SubLineItemDataBillImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _SubLineItemDataBill extends SubLineItemDataBill {
+  const factory _SubLineItemDataBill(
+      {final int id,
+      final String name,
+      final dynamic price,
+      final int count,
+      final String unit,
+      final dynamic tax,
+      final int? type}) = _$SubLineItemDataBillImpl;
+  const _SubLineItemDataBill._() : super._();
+
+  factory _SubLineItemDataBill.fromJson(Map<String, dynamic> json) =
+      _$SubLineItemDataBillImpl.fromJson;
+
+  @override
+  int get id;
+  @override
+  String get name;
+  @override
+  dynamic get price;
+  @override
+  int get count;
+  @override
+  String get unit;
+  @override
+  dynamic get tax;
+  @override
+  int? get type;
+  @override
+  @JsonKey(ignore: true)
+  _$$SubLineItemDataBillImplCopyWith<_$SubLineItemDataBillImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 

@@ -1,4 +1,5 @@
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,20 +15,20 @@ class AboutDeviceWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<String>? deviceInfo = ref.watch(deviceProvider).value ??
-        List.generate(3, (index) => S.current.unknown);
-    showLogs(deviceInfo, flags: 'deviceInfo');
+    List<String>? deviceInfo =
+        ref.watch(deviceProvider).value ?? List.generate(3, (index) => S.current.unknown);
 
     return ListTile(
-      leading: const Icon(
-        CupertinoIcons.device_phone_portrait,
-      ),
+      visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
+      leading: const ResponsiveIconWidget(iconData: CupertinoIcons.device_phone_portrait),
       title: Text(
         S.current.infoDevice,
         style: AppTextStyle.regular(),
       ),
       subtitle: Text(
-          "${S.current.deviceCode}: ${deviceInfo[0]}\n${S.current.deviceIP}: ${deviceInfo[1]}\n${S.current.networkConnect}: ${deviceInfo[2]}"),
+        "${S.current.deviceCode}: ${deviceInfo[0]}\n${S.current.deviceIP}: ${deviceInfo[1]}\n${S.current.networkConnect}: ${deviceInfo[2]}",
+        style: AppTextStyle.regular(),
+      ),
     );
   }
 }

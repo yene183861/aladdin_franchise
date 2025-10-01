@@ -73,13 +73,16 @@ RequestProcessingStatus convertRequestProcessingStatus(int type) {
 class RequestOrderItemModel with _$RequestOrderItemModel {
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory RequestOrderItemModel({
-    @Default('') @JsonKey(includeToJson: false) dynamic id,
+    @JsonKey(includeToJson: false) int? id,
+    @JsonKey(includeToJson: false) int? menuItemId,
     @Default('') String codeProduct,
     @Default(0) @JsonKey(includeToJson: false) int quantity,
     @Default('') @JsonKey(includeToJson: false) String note,
     @Default('') @JsonKey(includeToJson: false) String image,
     @Default('') @JsonKey(includeToJson: false) String name,
     @Default('') String noteRestaurant,
+    @JsonKey(includeToJson: false) int? printerType,
+    @Default('') @JsonKey(includeToJson: false) String unit,
   }) = _RequestOrderItemModel;
 
   const RequestOrderItemModel._();
@@ -115,15 +118,11 @@ class RequestOrderModel with _$RequestOrderModel {
 
   const RequestOrderModel._();
 
-  RequestProcessingStatus get requestProcessingStatus =>
-      convertRequestProcessingStatus(status);
+  RequestProcessingStatus get requestProcessingStatus => convertRequestProcessingStatus(status);
 
-  bool get isProcessed =>
-      requestProcessingStatus != RequestProcessingStatus.waiting;
-  bool get isCanceled =>
-      requestProcessingStatus == RequestProcessingStatus.cancel;
-  bool get isAccepted =>
-      requestProcessingStatus == RequestProcessingStatus.accept;
+  bool get isProcessed => requestProcessingStatus != RequestProcessingStatus.waiting;
+  bool get isCanceled => requestProcessingStatus == RequestProcessingStatus.cancel;
+  bool get isAccepted => requestProcessingStatus == RequestProcessingStatus.accept;
 
   factory RequestOrderModel.fromJson(Map<String, dynamic> json) =>
       _$RequestOrderModelFromJson(json);

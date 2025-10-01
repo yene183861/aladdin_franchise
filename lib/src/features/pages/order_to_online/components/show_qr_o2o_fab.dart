@@ -1,15 +1,12 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
-import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/pages/login/view.dart';
@@ -19,10 +16,7 @@ class QrO2OFab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final orderSelect = ref
-        .watch(orderToOnlinePageNotifier.select((value) => value.orderSelect));
-    // bool beingPaid = ref.watch(orderToOnlinePageNotifier.select((value) => value.beingPaid));
-// beingPaid ||
+    final orderSelect = ref.watch(orderToOnlinePageNotifier.select((value) => value.orderSelect));
     return orderSelect == null || orderSelect.qrOrderO2o.isEmpty
         ? const SizedBox.shrink()
         : FloatingActionButton.extended(
@@ -137,9 +131,7 @@ class _QRO2ODialog extends ConsumerWidget {
                   textAction: S.current.print_QR,
                   color: AppColors.secondColor,
                   onPressed: () async {
-                    var error = await ref
-                        .read(orderToOnlinePageNotifier.notifier)
-                        .getPrinters();
+                    var error = await ref.read(orderToOnlinePageNotifier.notifier).getPrinters();
                     if (error == null) {
                       Navigator.pop(context, true);
                     }
@@ -168,10 +160,9 @@ class PrinterContentDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final printers =
-        ref.watch(orderToOnlinePageNotifier.select((value) => value.printers));
-    final printerSelect = ref.watch(
-        orderToOnlinePageNotifier.select((value) => value.printerSelect));
+    final printers = ref.watch(orderToOnlinePageNotifier.select((value) => value.printers));
+    final printerSelect =
+        ref.watch(orderToOnlinePageNotifier.select((value) => value.printerSelect));
     return AlertDialog(
       title: Text(
         S.current.choose_printer_o2o,
@@ -195,8 +186,7 @@ class PrinterContentDialog extends ConsumerWidget {
                           .changePrinterSelect(printers[index]);
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                           color: selected ? Colors.grey.shade200 : null,
                           borderRadius: BorderRadius.circular(12)),
@@ -208,13 +198,13 @@ class PrinterContentDialog extends ConsumerWidget {
                               children: [
                                 Text(
                                   printers[index].name,
-                                  style: AppTextStyle.regular()
-                                      .copyWith(fontWeight: FontWeight.w500),
+                                  style:
+                                      AppTextStyle.regular().copyWith(fontWeight: FontWeight.w500),
                                 ),
                                 Text(
                                   '${printers[index].ip}: ${printers[index].port}',
-                                  style: AppTextStyle.regular()
-                                      .copyWith(fontWeight: FontWeight.w400),
+                                  style:
+                                      AppTextStyle.regular().copyWith(fontWeight: FontWeight.w400),
                                 ),
                               ],
                             ),
@@ -253,9 +243,7 @@ class PrinterContentDialog extends ConsumerWidget {
                     onPressed: () async {
                       if (printerSelect == null) return;
                       Navigator.pop(context);
-                      ref
-                          .read(orderToOnlinePageNotifier.notifier)
-                          .printQRCode();
+                      ref.read(orderToOnlinePageNotifier.notifier).printQRCode();
                     },
                   ),
                 ]

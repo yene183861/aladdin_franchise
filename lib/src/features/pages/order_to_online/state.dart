@@ -44,8 +44,7 @@ class OrderToOnlineState with _$OrderToOnlineState {
     @Default(PageState()) PageState getChatMessageState,
 
     // filter
-    @Default(RequestProcessingStatus.waiting)
-    RequestProcessingStatus statusFilter,
+    @Default(RequestProcessingStatus.waiting) RequestProcessingStatus statusFilter,
     @Default(true) bool sortByNewestTime,
     @Default(true) bool showChatTab,
     // printers
@@ -64,5 +63,6 @@ class OrderToOnlineState with _$OrderToOnlineState {
     /// các đơn bàn đang khoá
     @Default({}) Set<int> lockedOrderIds,
     @Default([]) List<NotificationModel> notifications,
+    @Default(true) bool showLoadingGetData,
   }) = _OrderToOnlineState;
 }

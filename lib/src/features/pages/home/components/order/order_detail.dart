@@ -71,8 +71,7 @@ class OrderDetailWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var orderSelect =
-        ref.watch(homeProvider.select((value) => value.orderSelect));
+    var orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
     bool useReceptionSoftware = false;
 
     // var orderView = orderSelect == null
@@ -106,13 +105,12 @@ class OrderDetailWidget extends ConsumerWidget {
                       Expanded(
                         child: Consumer(
                           builder: (context, ref, child) {
-                            var orderTabSelect = ref.watch(homeProvider
-                                .select((value) => value.orderTabSelect));
+                            var orderTabSelect =
+                                ref.watch(homeProvider.select((value) => value.orderTabSelect));
                             return IndexedStack(
                               index: orderTabSelect.index,
                               children: const [
-                                CurrentOrderItemsWidget(
-                                    orderTab: OrderTabEnum.all),
+                                CurrentOrderItemsWidget(orderTab: OrderTabEnum.all),
                                 OrderItemsSelectingWidget(),
                                 // CurrentOrderItemsWidget(
                                 //     orderTab: OrderTabEnum.ordered),
@@ -143,16 +141,16 @@ class OrderDetailWidget extends ConsumerWidget {
                   children: [
                     Consumer(
                       builder: (context, ref, child) {
-                        var autoSave = ref.watch(homeProvider
-                            .select((value) => value.autoSaveOrder));
-                        var tabSelect = ref.watch(homeProvider
-                            .select((value) => value.orderTabSelect));
-                        var productCheckout = ref.watch(homeProvider
-                            .select((value) => value.productCheckout));
-                        var productsSelecting = ref.watch(homeProvider
-                            .select((value) => value.productsSelecting));
-                        var displayOrderHistory = ref.watch(homeProvider
-                            .select((value) => value.displayOrderHistory));
+                        var autoSave =
+                            ref.watch(homeProvider.select((value) => value.autoSaveOrder));
+                        var tabSelect =
+                            ref.watch(homeProvider.select((value) => value.orderTabSelect));
+                        var productCheckout =
+                            ref.watch(homeProvider.select((value) => value.productCheckout));
+                        var productsSelecting =
+                            ref.watch(homeProvider.select((value) => value.productsSelecting));
+                        var displayOrderHistory =
+                            ref.watch(homeProvider.select((value) => value.displayOrderHistory));
                         if (autoSave || tabSelect != OrderTabEnum.ordered) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -161,12 +159,10 @@ class OrderDetailWidget extends ConsumerWidget {
                                 const Expanded(child: KitchenNoteWidget()),
                                 Consumer(
                                   builder: (context, ref, child) {
-                                    var autoSave = ref.watch(
-                                        homeProvider.select(
-                                            (value) => value.autoSaveOrder));
+                                    var autoSave = ref
+                                        .watch(homeProvider.select((value) => value.autoSaveOrder));
                                     var productsSelecting = ref.watch(
-                                        homeProvider.select((value) =>
-                                            value.productsSelecting));
+                                        homeProvider.select((value) => value.productsSelecting));
                                     if (autoSave || productsSelecting.isEmpty) {
                                       return const SizedBox.shrink();
                                     }
@@ -176,21 +172,18 @@ class OrderDetailWidget extends ConsumerWidget {
                                             .read(homeProvider.notifier)
                                             .addItemsToOrder(context);
                                         if (res != null) {
-                                          showMessageDialog(context,
-                                              message: res);
+                                          showMessageDialog(context, message: res);
                                           return;
                                         }
                                       },
-                                      borderRadius:
-                                          AppConfig.borderRadiusSecond,
+                                      borderRadius: AppConfig.borderRadiusSecond,
                                       child: Container(
                                         margin: const EdgeInsets.only(left: 4),
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 16, vertical: 4),
+                                        padding:
+                                            const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                                         decoration: BoxDecoration(
                                             color: AppColors.mainColor,
-                                            borderRadius:
-                                                AppConfig.borderRadiusSecond),
+                                            borderRadius: AppConfig.borderRadiusSecond),
                                         child: Column(
                                           children: [
                                             // const Icon(
@@ -201,8 +194,7 @@ class OrderDetailWidget extends ConsumerWidget {
                                             Text(
                                               'Gọi món\nngay',
                                               style: AppTextStyle.regular(
-                                                  fontSize: 12,
-                                                  color: AppColors.white),
+                                                  fontSize: 12, color: AppColors.white),
                                               textAlign: TextAlign.center,
                                             ),
                                           ],
@@ -216,8 +208,7 @@ class OrderDetailWidget extends ConsumerWidget {
                           );
                         }
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12)
-                              .copyWith(top: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 12).copyWith(top: 4),
                           child: const ProductCheckoutActionWidget(),
                         );
                       },
@@ -226,31 +217,27 @@ class OrderDetailWidget extends ConsumerWidget {
                       builder: (context, ref, child) {
                         // var autoSave = ref
                         //     .watch(homeProvider.select((value) => value.autoSaveOrder));
-                        var tabSelect = ref.watch(homeProvider
-                            .select((value) => value.orderTabSelect));
-                        var productsSelecting = ref.watch(homeProvider
-                            .select((value) => value.productsSelecting));
+                        var tabSelect =
+                            ref.watch(homeProvider.select((value) => value.orderTabSelect));
+                        var productsSelecting =
+                            ref.watch(homeProvider.select((value) => value.productsSelecting));
 
                         var totalSelecting = productsSelecting.fold(
                           0.0,
                           (previousValue, e) =>
                               previousValue +
-                              (double.tryParse(e.unitPrice) ?? 0.0) *
-                                  e.numberSelecting,
+                              (double.tryParse(e.unitPrice) ?? 0.0) * e.numberSelecting,
                         );
 
                         return Container(
                           margin: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
                               color: Colors.grey.shade200,
-                              borderRadius: BorderRadius.circular(
-                                  AppConfig.sizeBorderRadiusMain)),
+                              borderRadius: BorderRadius.circular(AppConfig.sizeBorderRadiusMain)),
                           child: tabSelect == OrderTabEnum.ordering
                               ? Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 8),
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
                                   child: LineInfoPaymentQRWidget(
                                     title: 'Tổng tiền món đang chọn',
                                     value: totalSelecting,
@@ -282,18 +269,15 @@ class DropdownOrderWidget extends ConsumerStatefulWidget {
   final bool isExpanded;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _DropdownOrderWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _DropdownOrderWidgetState();
 }
 
 class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
-  bool useReservation =
-      LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
+  bool useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
 
   @override
   Widget build(BuildContext context) {
-    var orderSelect =
-        ref.watch(homeProvider.select((value) => value.orderSelect));
+    var orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
     ref.watch(typeOrderWaiterProvider);
     var tablesAndOrders = ref.watch(tablesAndOrdersProvider);
     var reservations = ref.watch(reservationsProvider);
@@ -313,16 +297,12 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
       data: (data) {
         var orderOffline = List<OrderModel>.from(data.offline.userUsing);
         var orderOnline = List<OrderModel>.from(data.online?.userUsing ?? []);
-        var typeOrder =
-            convertToTypeOrderEnum(orderSelect?.typeOrder ?? kTypeOrder);
-        if (orderOffline.isEmpty &&
-            orderOnline.isEmpty &&
-            !widget.showOtherOption) {
+        var typeOrder = convertToTypeOrderEnum(orderSelect?.typeOrder ?? kTypeOrder);
+        if (orderOffline.isEmpty && orderOnline.isEmpty && !widget.showOtherOption) {
           return const SizedBox.shrink();
         }
         List<dynamic> orders = [
-          if (ref.read(enableOrderOnlineProvider) && orderOffline.isNotEmpty)
-            TypeOrderEnum.offline,
+          if (ref.read(enableOrderOnlineProvider) && orderOffline.isNotEmpty) TypeOrderEnum.offline,
           ...orderOffline,
         ];
 
@@ -370,13 +350,9 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                           hint: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text(
-                              orders.isEmpty
-                                  ? S.current.empty_orders
-                                  : S.of(context).noOrderSelect,
+                              orders.isEmpty ? S.current.empty_orders : S.of(context).noOrderSelect,
                               style: AppTextStyle.regular(
-                                  color: widget.showOtherOption
-                                      ? null
-                                      : AppColors.white),
+                                  color: widget.showOtherOption ? null : AppColors.white),
                             ),
                           ),
                           items: orders.map(
@@ -392,8 +368,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                           alignment: Alignment.centerLeft,
                                           child: Text(
                                             (e as TypeOrderEnum).title,
-                                            style: AppTextStyle.bold(
-                                                color: e.color),
+                                            style: AppTextStyle.bold(color: e.color),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                             textAlign: TextAlign.start,
@@ -401,8 +376,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                         ),
                                       )
                                     : Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12),
+                                        padding: const EdgeInsets.symmetric(horizontal: 12),
                                         alignment: Alignment.centerLeft,
                                         child: Text(
                                           "${S.current.table} ${e.getNameView()}",
@@ -422,30 +396,23 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                   (value?.typeOrder ?? kTypeOrder));
                               ref.refresh(typeOrderWaiterProvider);
                               showLogs(null, flags: 'order detail');
-                              ref
-                                  .read(homeProvider.notifier)
-                                  .initialize(order: value);
+                              ref.read(homeProvider.notifier).initialize(order: value);
                               return;
                             }
-                            ref
-                                .read(homeProvider.notifier)
-                                .changeOrderSelect(value);
+                            ref.read(homeProvider.notifier).changeOrderSelect(value);
                           },
                           selectedItemBuilder: (context) {
                             return orders
                                 .map(
                                   (e) => Container(
                                     alignment: Alignment.center,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12),
                                     child: Text(
                                       e is OrderModel
                                           ? "${S.current.table} ${e.getNameView()}"
                                           : (e as TypeOrderEnum).title,
                                       style: AppTextStyle.bold(
-                                          color: widget.showOtherOption
-                                              ? null
-                                              : AppColors.white),
+                                          color: widget.showOtherOption ? null : AppColors.white),
                                       textAlign: TextAlign.start,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
@@ -458,9 +425,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                               ? const SizedBox.shrink()
                               : Icon(
                                   Icons.keyboard_arrow_down_outlined,
-                                  color: widget.showOtherOption
-                                      ? null
-                                      : AppColors.white,
+                                  color: widget.showOtherOption ? null : AppColors.white,
                                 )),
                     ),
                   ),
@@ -490,9 +455,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                           if (result.reservation != null) {
                             ref.read(homeProvider.notifier).addCustomerToOrder(
                                   orderId: result.orderId!,
-                                  phoneNumber: result
-                                          .reservation?.customer?.phoneNumber ??
-                                      '',
+                                  phoneNumber: result.reservation?.customer?.phoneNumber ?? '',
                                   reservationId: result.reservation?.id,
                                 );
                             ref
@@ -501,9 +464,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                           }
                           ref.read(homeProvider.notifier).getOrderToOnline();
                           try {
-                            await ref
-                                .read(homeProvider.notifier)
-                                .loadingChangeOrderSelect(
+                            await ref.read(homeProvider.notifier).loadingChangeOrderSelect(
                                   result.orderId!,
                                   reservationCrmId: result.reservation?.id,
                                   typeOrder: result.typeOrder ?? kTypeOrder,
@@ -526,26 +487,21 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                     ),
                     Consumer(
                       builder: (context, ref, child) {
-                        final orderSelect = ref.watch(
-                            homeProvider.select((value) => value.orderSelect));
-                        final lockedOrder = ref.watch(
-                            homeProvider.select((value) => value.lockedOrder));
-                        return orderSelect == null ||
-                                lockedOrder ||
-                                AppConfig.useFranchise
+                        final orderSelect =
+                            ref.watch(homeProvider.select((value) => value.orderSelect));
+                        final lockedOrder =
+                            ref.watch(homeProvider.select((value) => value.lockedOrder));
+                        return orderSelect == null || lockedOrder || AppConfig.useFranchise
                             ? const SizedBox.shrink()
                             : Padding(
                                 padding: const EdgeInsets.only(left: 12),
                                 child: Builder(
                                   builder: (context) {
                                     Function onTap = () async {
-                                      if (ref
-                                              .read(homeProvider.notifier)
-                                              .getOrderSelect() ==
+                                      if (ref.read(homeProvider.notifier).getOrderSelect() ==
                                           null) {
                                         showMessageDialog(context,
-                                            message: S.current
-                                                .pleaseSelectOrderFirst);
+                                            message: S.current.pleaseSelectOrderFirst);
                                         return;
                                       }
                                       await showConfirmAction(
@@ -554,9 +510,8 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                             "${S.current.confirm} ${S.current.cancelOrder.toUpperCase()}",
                                         message: S.current.messageCancelOrder,
                                         action: () async {
-                                          var result = await ref
-                                              .read(homeProvider.notifier)
-                                              .updateOrder(
+                                          var result =
+                                              await ref.read(homeProvider.notifier).updateOrder(
                                             [],
                                             orderSelect,
                                             cancel: true,
@@ -564,13 +519,9 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                           if (result.error == null) {
                                             showDoneSnackBar(
                                                 context: context,
-                                                message: S.current
-                                                    .cancelOrderSuccess);
-                                            ref
-                                                .read(homeProvider.notifier)
-                                                .changeOrderSelect(null);
-                                            ref.refresh(
-                                                tablesAndOrdersProvider);
+                                                message: S.current.cancelOrderSuccess);
+                                            ref.read(homeProvider.notifier).changeOrderSelect(null);
+                                            ref.refresh(tablesAndOrdersProvider);
                                             Navigator.pop(context);
                                           } else {
                                             showMessageDialog(
@@ -581,27 +532,22 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                         },
                                       );
                                     };
-                                    bool isMobile =
-                                        AppDeviceSizeUtil.checkMobileDevice();
-                                    bool portraitOrientation = AppDeviceSizeUtil
-                                        .checkPortraitOrientation(context);
+                                    bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
+                                    bool portraitOrientation =
+                                        AppDeviceSizeUtil.checkPortraitOrientation(context);
                                     if (isMobile && portraitOrientation) {
                                       return InkWell(
-                                        borderRadius:
-                                            AppConfig.borderRadiusSecond,
+                                        borderRadius: AppConfig.borderRadiusSecond,
                                         onTap: () {
                                           onTap.call();
                                         },
                                         child: Container(
                                           padding: const EdgeInsets.all(4),
                                           decoration: BoxDecoration(
-                                            color: AppColors.redColor
-                                                .withOpacity(0.2),
-                                            borderRadius:
-                                                AppConfig.borderRadiusSecond,
+                                            color: AppColors.redColor.withOpacity(0.2),
+                                            borderRadius: AppConfig.borderRadiusSecond,
                                           ),
-                                          child:
-                                              const ResponsiveIconButtonWidget(
+                                          child: const ResponsiveIconButtonWidget(
                                             iconData: Icons.delete,
                                             color: AppColors.redColor,
                                           ),
@@ -644,9 +590,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                 const Gap(8),
                                 TextButton(
                                   onPressed: () {
-                                    ref
-                                        .read(homeProvider.notifier)
-                                        .changeOrderSelect(null);
+                                    ref.read(homeProvider.notifier).changeOrderSelect(null);
                                   },
                                   child: Text(
                                     'Bỏ chọn',
@@ -664,35 +608,27 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                               color: AppColors.secondColor,
                               textAction: S.current.updateOrderCurrent,
                               onPressed: () async {
-                                if (ref
-                                        .read(homeProvider.notifier)
-                                        .getOrderSelect() ==
-                                    null) {
+                                if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
                                   showMessageDialog(context,
-                                      message:
-                                          S.current.pleaseSelectOrderFirst);
+                                      message: S.current.pleaseSelectOrderFirst);
                                   return;
                                 }
-                                final result =
-                                    await showUpdateOrderDialog(context);
+                                final result = await showUpdateOrderDialog(context);
                                 Navigator.pop(context);
                                 if (result.orderId != null) {
                                   if (result.requireUpdateReservation &&
                                       result.reservation != null) {
                                     ref
                                         .read(homeProvider.notifier)
-                                        .updateReservationModel(
-                                            result.reservation);
+                                        .updateReservationModel(result.reservation);
                                   }
                                   try {
                                     await ref
                                         .read(homeProvider.notifier)
-                                        .loadingChangeOrderSelect(
-                                            result.orderId!,
+                                        .loadingChangeOrderSelect(result.orderId!,
                                             // typeOrderEnum: convertToTypeOrderEnum(
                                             //     kTypeOrder),
-                                            reservationCrmId:
-                                                result.reservation?.id);
+                                            reservationCrmId: result.reservation?.id);
                                   } catch (ex) {
                                     //
                                   }
@@ -705,17 +641,12 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                               color: AppColors.secondColor,
                               textAction: S.current.transferOrderCurrent,
                               onPressed: () async {
-                                if (ref
-                                        .read(homeProvider.notifier)
-                                        .getOrderSelect() ==
-                                    null) {
+                                if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
                                   showMessageDialog(context,
-                                      message:
-                                          S.current.pleaseSelectOrderFirst);
+                                      message: S.current.pleaseSelectOrderFirst);
                                   return;
                                 }
-                                var result =
-                                    await showTransferOrderDialog(context);
+                                var result = await showTransferOrderDialog(context);
 
                                 Navigator.pop(context);
                                 ref.refresh(tablesAndOrdersProvider);
@@ -723,8 +654,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                     result.reservation != null) {
                                   ref
                                       .read(homeProvider.notifier)
-                                      .updateReservationModel(
-                                          result.reservation);
+                                      .updateReservationModel(result.reservation);
                                 }
                               },
                             ),
@@ -836,8 +766,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
             onTryAgain: () {
               ref.refresh(tablesAndOrdersProvider);
             },
-            message:
-                "${S.current.canNotLoadTables}\n${S.current.ex_problem}: ${error.toString()}",
+            message: "${S.current.canNotLoadTables}\n${S.current.ex_problem}: ${error.toString()}",
           );
         }
         return InkWell(
@@ -848,8 +777,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
             children: [
               Text(
                 S.current.unable_load_order_list,
-                style: AppTextStyle.medium(
-                    color: AppColors.white, fontSize: 12.sp),
+                style: AppTextStyle.medium(color: AppColors.white, fontSize: 12.sp),
               ),
               const Gap(4),
               const Icon(Icons.refresh, color: AppColors.white),
@@ -867,8 +795,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(S.current.loading_list,
-                style: AppTextStyle.regular(color: AppColors.white)),
+            Text(S.current.loading_list, style: AppTextStyle.regular(color: AppColors.white)),
             const Gap(8),
             const SizedBox(
               height: 24,
@@ -944,8 +871,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
       );
       if (result.error == null) {
         if (context.mounted) {
-          showDoneSnackBar(
-              context: context, message: S.current.cancelOrderSuccess);
+          showDoneSnackBar(context: context, message: S.current.cancelOrderSuccess);
         }
         ref.read(homeProvider.notifier).changeOrderSelect(null);
         Navigator.pop(context);
@@ -982,8 +908,7 @@ class KitchenNoteWidget extends ConsumerStatefulWidget {
   const KitchenNoteWidget({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __KitchenNoteWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __KitchenNoteWidgetState();
 }
 
 class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
@@ -1006,8 +931,7 @@ class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
     super.dispose();
   }
 
-  _listenChangeNote(BuildContext context, WidgetRef ref) =>
-      (String? previous, String? next) {
+  _listenChangeNote(BuildContext context, WidgetRef ref) => (String? previous, String? next) {
         _controller.text = next ?? '';
       };
 
@@ -1018,8 +942,7 @@ class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
       _listenChangeNote(context, ref),
     );
 
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     return TextFormField(
       controller: _controller,
       style: AppTextStyle.regular(),
@@ -1030,14 +953,10 @@ class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
       ),
       onTapOutside: (event) {
         FocusManager.instance.primaryFocus?.unfocus();
-        ref
-            .read(homeProvider.notifier)
-            .onChangeKitchenNote(_controller.text.trim());
+        ref.read(homeProvider.notifier).onChangeKitchenNote(_controller.text.trim());
       },
       onChanged: (value) {
-        ref
-            .read(homeProvider.notifier)
-            .onChangeKitchenNote(_controller.text.trim());
+        ref.read(homeProvider.notifier).onChangeKitchenNote(_controller.text.trim());
       },
       onFieldSubmitted: (value) {
         ref.read(homeProvider.notifier).onChangeKitchenNote(value.trim());
@@ -1076,35 +995,27 @@ class _SpinBoxWidgetState extends ConsumerState<SpinBoxWidget> {
                     int count = currentCount - 1;
                     if (count == 0) {
                       if (state.orderTabSelect == OrderTabEnum.ordering) {
-                        ref
-                            .read(homeProvider.notifier)
-                            .changeProductInOrder(widget.item, 0);
+                        ref.read(homeProvider.notifier).changeProductInOrder(widget.item, 0);
                         return;
                       }
-                      var pc = state.productCheckout
-                          .firstWhereOrNull((e) => e.id == widget.item.id);
+                      var pc =
+                          state.productCheckout.firstWhereOrNull((e) => e.id == widget.item.id);
                       if (pc == null) return;
                       onPressedCancelItem(context, ref,
-                          productCancel: [
-                            pc.copyWith(quantityCancel: -pc.quantity)
-                          ],
+                          productCancel: [pc.copyWith(quantityCancel: -pc.quantity)],
                           setStateFunc: setState);
                       // onPressedPaymentCancel(
                       //     context, ref, widget.item, setState);
                       return;
                     }
-                    ref
-                        .read(homeProvider.notifier)
-                        .changeProductInOrder(widget.item, count);
+                    ref.read(homeProvider.notifier).changeProductInOrder(widget.item, count);
                   },
                   borderRadius: AppConfig.borderRadiusSecond,
                   child: Container(
                     height: 36,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: AppConfig.borderRadiusSecond),
+                        color: Colors.grey.shade200, borderRadius: AppConfig.borderRadiusSecond),
                     child: const Icon(CupertinoIcons.minus, size: 18),
                   ),
                 ),
@@ -1124,11 +1035,9 @@ class _SpinBoxWidgetState extends ConsumerState<SpinBoxWidget> {
                   borderRadius: AppConfig.borderRadiusSecond,
                   child: Container(
                     height: 36,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: AppConfig.borderRadiusSecond),
+                        color: Colors.grey.shade200, borderRadius: AppConfig.borderRadiusSecond),
                     child: const Icon(CupertinoIcons.add, size: 18),
                   ),
                 ),
@@ -1361,8 +1270,7 @@ Future<void> onPressedCancelItem(
   bool checkDishInCouponFree = false;
   for (var coupon in state.coupons) {
     if (coupon.isPromotion()) {
-      if (coupon.promotionItems
-          .any((e) => cancelItemIds.contains(e.menuItemId))) {
+      if (coupon.promotionItems.any((e) => cancelItemIds.contains(e.menuItemId))) {
         checkDishInCouponFree = true;
       }
     }
@@ -1389,8 +1297,7 @@ Future<void> onPressedCancelItem(
     if (state.autoSaveOrder) {
       var currentOrderItems = ref.read(homeProvider).currentOrderItems;
       for (var item in listProductCancel) {
-        var product =
-            currentOrderItems.firstWhereOrNull((e) => e.id == item.id);
+        var product = currentOrderItems.firstWhereOrNull((e) => e.id == item.id);
         if (product != null) {
           ref.read(homeProvider.notifier).changeProductInOrder(product, 0);
         }
@@ -1438,41 +1345,8 @@ Future<void> onPressedCancelItem(
               );
             }).toList();
 
-            AppPrinterSettingTypeEnum appPrinterType =
-                LocalStorage.getAppSettings().appPrinterType;
-            String? errorPrint;
-            // if (appPrinterType == AppPrinterSettingTypeEnum.normal) {
-            //   errorPrint = await AppPrinterNormalUtils.printKitchenBill(
-            //     order: state.orderSelect!,
-            //     products: productPrint,
-            //     cancel: true,
-            //     totalNote: reason,
-            //     timeOrder: 1,
-            //     allowPrintSingleBill: true,
-            //     printers: result.printers,
-            //   );
-            // } else {
-            // errorPrint = await AppPrinterHtmlUtils.instance.printKitchenBill(
-            //   order: state.orderSelect!,
-            //   printers: result.printers,
-            //   product: productPrint,
-            //   note: reason,
-            //   printEachItem: true,
-            //   cancel: true,
-            // );
+            AppPrinterSettingTypeEnum appPrinterType = LocalStorage.getAppSettings().appPrinterType;
 
-            // }
-            // var res = await AppPrinterHtmlUtils.instance.printKitchenBill(
-            //   order: state.orderSelect!,
-            //   printers: result.printers,
-            //   product: productPrint,
-            //   note: reason,
-            //   printEachItem: true,
-            //   cancel: true,
-            // );
-// for (var printer in result.printers) {
-//   //  PrinterTaskQueue.instance.addTask(ip: ip, buildReceipt: buildReceipt);
-//    }
             var oddHtmlBill = AppPrinterHtmlUtils.instance.kitchenBillContent(
               product: productPrint,
               totalBill: true,
@@ -1491,8 +1365,7 @@ Future<void> onPressedCancelItem(
                     title: 'HUY DO',
                     totalNote: reason,
                   )
-                : await AppPrinterHtmlUtils.instance
-                    .generateImageBill(oddHtmlBill);
+                : await AppPrinterHtmlUtils.instance.generateImageBill(oddHtmlBill);
             for (var printer in result.printers) {
               PrinterTaskQueue.instance.addTask(
                 ip: printer.ip,
@@ -1500,41 +1373,28 @@ Future<void> onPressedCancelItem(
                 buildReceipt: (generator) async {
                   return byteDatas;
                 },
-                onComplete: (success, error)  {
+                onComplete: (success, error) {
                   if (success == false) {
                     showMessageDialog(
                       context,
-                      message:
-                          'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
+                      message: 'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
                           'Lỗi:\n$error',
                     );
                   }
                 },
               );
             }
-            // if (errorPrint != null) {
-            //   if (context.mounted) {
-            //     await showMessageDialog(
-            //       context,
-            //       message:
-            //           'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
-            //           'Lỗi:\n$errorPrint',
-            //     );
-            //   }
-            // }
           } catch (ex) {
             if (context.mounted) {
               await showMessageDialog(
                 context,
-                message:
-                    'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
+                message: 'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
                     'Lỗi:\n${ex.toString()}',
               );
             }
           }
         } else {
-          await showMessageDialog(context,
-              message: 'Không tìm thấy danh sách máy in!');
+          await showMessageDialog(context, message: 'Không tìm thấy danh sách máy in!');
         }
       }
       if (checkDishInCouponOnly) {
@@ -1542,8 +1402,8 @@ Future<void> onPressedCancelItem(
           bool checkFoodCancelInCoupon = false;
           for (var discount in coupon.discount) {
             for (var itemCancel in checkProductCancel) {
-              var product = state.products
-                  .firstWhereOrNull((element) => element.id == itemCancel.id);
+              var product =
+                  state.products.firstWhereOrNull((element) => element.id == itemCancel.id);
               if (product != null) {
                 // copy từ apos sang đoạn này
                 // đối với món thông thường
@@ -1552,26 +1412,23 @@ Future<void> onPressedCancelItem(
                   break;
                 } else {
                   // kiểm tra combo
-                  List<ComboItemModel>? comboItems =
-                      ProductHelper().getComboDescription(product);
+                  List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(product);
                   if (comboItems != null) {
                     // chỉ dùng để check với combo
                     List<ProductModel> productFromDiscount = [];
                     // lọc danh sách món map với tất cả món tại nhà hàng
                     for (var itemCb in comboItems) {
                       if (itemCb.name == discount.name) {
-                        var productCheckDiscount = state.products
-                            .firstWhereOrNull((e) => e.name == discount.name);
+                        var productCheckDiscount =
+                            state.products.firstWhereOrNull((e) => e.name == discount.name);
                         if (productCheckDiscount != null &&
-                            productFromDiscount
-                                    .contains(productCheckDiscount) ==
-                                false) {
+                            productFromDiscount.contains(productCheckDiscount) == false) {
                           productFromDiscount.add(productCheckDiscount);
                         }
                       }
                     }
-                    if (productFromDiscount.any(
-                        (element) => element.id.toString() == discount.id)) {
+                    if (productFromDiscount
+                        .any((element) => element.id.toString() == discount.id)) {
                       checkFoodCancelInCoupon = true;
                       break;
                     }
@@ -1583,8 +1440,7 @@ Future<void> onPressedCancelItem(
             if (checkFoodCancelInCoupon) break;
           }
           if (checkFoodCancelInCoupon && coupon.only) {
-            var resultRemove =
-                await ref.read(homeProvider.notifier).removeCoupon(coupon);
+            var resultRemove = await ref.read(homeProvider.notifier).removeCoupon(coupon);
             if (resultRemove != null) {
               // ignore: use_build_context_synchronously
               showMessageDialog(

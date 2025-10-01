@@ -32,8 +32,7 @@ class AppPrinterUtils {
         throw printer.messageConnectFail();
       }
       final ticket = await _generatorLinkO2OBill(order, linkO2o);
-      final resultBill =
-          await xPrinter.printTicket(ticket, isDisconnect: false);
+      final resultBill = await xPrinter.printTicket(ticket, isDisconnect: false);
       await xPrinter.disconnect();
 
       if (resultBill != PosPrintResult.success) {
@@ -49,8 +48,7 @@ class AppPrinterUtils {
     }
   }
 
-  Future<List<int>> _generatorLinkO2OBill(
-      OrderModel order, String linkO2o) async {
+  Future<List<int>> _generatorLinkO2OBill(OrderModel order, String linkO2o) async {
     try {
       List<int> bytes = [];
       final profile = await CapabilityProfile.load();
@@ -121,8 +119,7 @@ class AppPrinterUtils {
 </body>
 </html> 
     ''';
-      var byteImage =
-          await WebcontentConverter.contentToImage(content: htmlData);
+      var byteImage = await WebcontentConverter.contentToImage(content: htmlData);
       final image_lib.Image? receipt = image_lib.decodeImage(byteImage);
       if (receipt == null) {
         throw AppException.fromMessage(S.current.error_loading_bill_image);
@@ -134,9 +131,9 @@ class AppPrinterUtils {
       );
 
       bytes += generator.image(receiptResize);
-      bytes += generator.hr();
+      bytes += generator.emptyLines(1);
       bytes += generator.qrcode(linkO2o, size: QRSize.size8);
-      bytes += generator.hr();
+      bytes += generator.emptyLines(1);
       bytes += generator.text(
         "Powered by Aladdin.,JSC",
         styles: const PosStyles(

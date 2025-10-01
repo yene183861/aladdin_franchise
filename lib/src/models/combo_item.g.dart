@@ -13,7 +13,7 @@ _$ComboItemModelImpl _$$ComboItemModelImplFromJson(Map<String, dynamic> json) =>
       nameEn: json['name_en'] as String? ?? '',
       image: json['image'] as String? ?? '',
       quantity: (json['quantity'] as num?)?.toInt() ?? 1,
-      printerType: (json['printer_type'] as num?)?.toInt() ?? -1,
+      printerType: (json['printer_type'] as num?)?.toInt(),
       unit: json['unit'] as String? ?? '',
     );
 

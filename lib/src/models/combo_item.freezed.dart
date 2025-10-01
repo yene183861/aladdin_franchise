@@ -27,7 +27,7 @@ mixin _$ComboItemModel {
   int get quantity => throw _privateConstructorUsedError;
 
   /// check trường này
-  int get printerType => throw _privateConstructorUsedError;
+  int? get printerType => throw _privateConstructorUsedError;
 
   /// check trường này
   String get unit => throw _privateConstructorUsedError;
@@ -50,7 +50,7 @@ abstract class $ComboItemModelCopyWith<$Res> {
       String nameEn,
       String image,
       int quantity,
-      int printerType,
+      int? printerType,
       String unit});
 }
 
@@ -72,7 +72,7 @@ class _$ComboItemModelCopyWithImpl<$Res, $Val extends ComboItemModel>
     Object? nameEn = null,
     Object? image = null,
     Object? quantity = null,
-    Object? printerType = null,
+    Object? printerType = freezed,
     Object? unit = null,
   }) {
     return _then(_value.copyWith(
@@ -96,10 +96,10 @@ class _$ComboItemModelCopyWithImpl<$Res, $Val extends ComboItemModel>
           ? _value.quantity
           : quantity // ignore: cast_nullable_to_non_nullable
               as int,
-      printerType: null == printerType
+      printerType: freezed == printerType
           ? _value.printerType
           : printerType // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       unit: null == unit
           ? _value.unit
           : unit // ignore: cast_nullable_to_non_nullable
@@ -122,7 +122,7 @@ abstract class _$$ComboItemModelImplCopyWith<$Res>
       String nameEn,
       String image,
       int quantity,
-      int printerType,
+      int? printerType,
       String unit});
 }
 
@@ -142,7 +142,7 @@ class __$$ComboItemModelImplCopyWithImpl<$Res>
     Object? nameEn = null,
     Object? image = null,
     Object? quantity = null,
-    Object? printerType = null,
+    Object? printerType = freezed,
     Object? unit = null,
   }) {
     return _then(_$ComboItemModelImpl(
@@ -166,10 +166,10 @@ class __$$ComboItemModelImplCopyWithImpl<$Res>
           ? _value.quantity
           : quantity // ignore: cast_nullable_to_non_nullable
               as int,
-      printerType: null == printerType
+      printerType: freezed == printerType
           ? _value.printerType
           : printerType // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       unit: null == unit
           ? _value.unit
           : unit // ignore: cast_nullable_to_non_nullable
@@ -189,7 +189,7 @@ class _$ComboItemModelImpl extends _ComboItemModel
       this.nameEn = '',
       this.image = '',
       this.quantity = 1,
-      this.printerType = -1,
+      this.printerType,
       this.unit = ''})
       : super._();
 
@@ -213,8 +213,7 @@ class _$ComboItemModelImpl extends _ComboItemModel
 
   /// check trường này
   @override
-  @JsonKey()
-  final int printerType;
+  final int? printerType;
 
   /// check trường này
   @override
@@ -283,7 +282,7 @@ abstract class _ComboItemModel extends ComboItemModel {
       final String nameEn,
       final String image,
       final int quantity,
-      final int printerType,
+      final int? printerType,
       final String unit}) = _$ComboItemModelImpl;
   const _ComboItemModel._() : super._();
 
@@ -303,7 +302,7 @@ abstract class _ComboItemModel extends ComboItemModel {
   @override
 
   /// check trường này
-  int get printerType;
+  int? get printerType;
   @override
 
   /// check trường này

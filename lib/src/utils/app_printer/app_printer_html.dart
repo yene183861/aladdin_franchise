@@ -328,6 +328,7 @@ class AppPrinterHtmlUtils {
     }
 
     for (final pc in product) {
+      showLogs(pc, flags: 'pc 123');
       if (totalBill) {
         dishTable += '''
         <tr>
@@ -338,9 +339,12 @@ class AppPrinterHtmlUtils {
       ''';
       }
       List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(pc);
+      showLogs(comboItems, flags: 'comboItems');
       if (comboItems != null) {
         // check xem có cần nhân số lượng combo với món trong combo k
         for (var ci in comboItems) {
+          showLogs(ci.getNameView(), flags: 'ci 123');
+          showLogs(ci, flags: 'ci 123');
           dishTable += '''
         <tr>
             <td width="75%">${'${totalBill ? '  ' : ''}- ${ci.getNameView()}'}</td>
@@ -678,7 +682,7 @@ class AppPrinterHtmlUtils {
 <br>
 <span>
   <b>Hình thức thanh toán</b>:<br>
-  ${receiptType.showPaymentMethod ? '${paymentMethod?.name}:${AppHelper.parseToPrice(paymentAmount)}' : ''}<br>
+  ${receiptType.showPaymentMethod ? '${paymentMethod?.name ?? ''}:${AppHelper.parseToPrice(paymentAmount)}' : ''}<br>
 </span>
 
 <hr>

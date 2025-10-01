@@ -1,6 +1,7 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,9 +16,16 @@ class AboutLineWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
-      leading: const Icon(CupertinoIcons.info, color: AppColors.black),
-      title: Text(S.current.version),
-      subtitle: const Text("${AppConfig.appName} ${AppConfig.appVersion}"),
+      visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
+      leading: const ResponsiveIconWidget(iconData: CupertinoIcons.info, color: AppColors.black),
+      title: Text(
+        S.current.version,
+        style: AppTextStyle.regular(),
+      ),
+      subtitle: Text(
+        "${AppConfig.appName} ${AppConfig.appVersion}",
+        style: AppTextStyle.regular(),
+      ),
     );
   }
 }

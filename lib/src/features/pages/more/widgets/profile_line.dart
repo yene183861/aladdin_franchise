@@ -1,6 +1,8 @@
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
+import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,36 +19,40 @@ class ProfileLineWidget extends ConsumerWidget {
     var userData = LocalStorage.getDataLogin()!;
     var user = userData.user;
     var restaurant = userData.restaurant;
+    bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         children: [
           Row(
             children: [
               AppImageCacheNetworkWidget(
                 imageUrl: user?.image ?? "",
-                width: 98,
-                height: 98,
+                width: isSmallDevice ? 50 : 98,
+                height: isSmallDevice ? 50 : 98,
               ),
-              const SizedBox(width: 24),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    user?.name ?? "User",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyle.bold(),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(user?.email ?? "Email"),
-                ],
+              SizedBox(width: isSmallDevice ? 8 : 24),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user?.name ?? "User",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyle.bold(),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      user?.email ?? "Email",
+                      style: AppTextStyle.regular(),
+                    ),
+                  ],
+                ),
               )
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: isSmallDevice ? 8 : 24),
           InfoLineWidget(
             iconData: CupertinoIcons.home,
             content: restaurant?.name ?? "",
@@ -77,10 +83,8 @@ class InfoLineWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(
-        iconData,
-        color: iconColor,
-      ),
+      visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+      leading: ResponsiveIconWidget(iconData: iconData, color: iconColor),
       title: Text(
         content,
         style: AppTextStyle.regular(),

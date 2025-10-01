@@ -21,13 +21,11 @@ class PriceDataBill with _$PriceDataBill {
     @Default(0) double? receivedAmount,
   }) = _PriceDataBill;
 
-  factory PriceDataBill.fromJson(Map<String, dynamic> json) =>
-      _$PriceDataBillFromJson(json);
+  factory PriceDataBill.fromJson(Map<String, dynamic> json) => _$PriceDataBillFromJson(json);
 
   const PriceDataBill._();
 
-  double getTotalPriceFinal() =>
-      double.tryParse(totalPriceFinal.toString()) ?? 0.0;
+  double getTotalPriceFinal() => double.tryParse(totalPriceFinal.toString()) ?? 0.0;
 }
 
 @freezed
@@ -50,8 +48,7 @@ class OrderDataBill with _$OrderDataBill {
     @Default([]) List<PaymentMethodDataBill> listPaymentMethod,
   }) = _OrderDataBill;
 
-  factory OrderDataBill.fromJson(Map<String, dynamic> json) =>
-      _$OrderDataBillFromJson(json);
+  factory OrderDataBill.fromJson(Map<String, dynamic> json) => _$OrderDataBillFromJson(json);
 
   const OrderDataBill._();
 
@@ -83,10 +80,10 @@ class LineItemDataBill with _$LineItemDataBill {
     @Default('') dynamic tax,
     @Default('') String nameEn,
     @Default('') String codeProduct,
+    @Default([]) List<SubLineItemDataBill> listItem,
   }) = _LineItemDataBill;
 
-  factory LineItemDataBill.fromJson(Map<String, dynamic> json) =>
-      _$LineItemDataBillFromJson(json);
+  factory LineItemDataBill.fromJson(Map<String, dynamic> json) => _$LineItemDataBillFromJson(json);
 
   const LineItemDataBill._();
 
@@ -106,6 +103,25 @@ class LineItemDataBill with _$LineItemDataBill {
       : nameEn.trim().isEmpty
           ? name
           : nameEn;
+}
+
+@freezed
+class SubLineItemDataBill with _$SubLineItemDataBill {
+  @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
+  const factory SubLineItemDataBill({
+    @Default(-1) int id,
+    @Default('') String name,
+    dynamic price,
+    @Default(0) int count,
+    @Default('_') String unit,
+    dynamic tax,
+    int? type,
+  }) = _SubLineItemDataBill;
+
+  factory SubLineItemDataBill.fromJson(Map<String, dynamic> json) =>
+      _$SubLineItemDataBillFromJson(json);
+
+  const SubLineItemDataBill._();
 }
 
 @freezed

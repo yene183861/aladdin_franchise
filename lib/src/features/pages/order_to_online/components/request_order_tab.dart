@@ -35,8 +35,7 @@ class OrderToOnlineBodyPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showChatTab = ref
-        .watch(orderToOnlinePageNotifier.select((value) => value.showChatTab));
+    var showChatTab = ref.watch(orderToOnlinePageNotifier.select((value) => value.showChatTab));
     bool isSmallDebice = AppDeviceSizeUtil.checkSmallDevice(context);
     return isSmallDebice
         ? Column(
@@ -55,9 +54,7 @@ class OrderToOnlineBodyPage extends ConsumerWidget {
                   _buildTab(
                     title: 'Tin nhắn',
                     onTap: () {
-                      ref
-                          .read(orderToOnlinePageNotifier.notifier)
-                          .onChangeShowChatTab(value: true);
+                      ref.read(orderToOnlinePageNotifier.notifier).onChangeShowChatTab(value: true);
                     },
                     selected: showChatTab,
                   ),
@@ -122,15 +119,12 @@ class _ListRequestWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final datas =
-        ref.watch(orderToOnlinePageNotifier.select((value) => value.orders));
+    final datas = ref.watch(orderToOnlinePageNotifier.select((value) => value.orders));
 
-    final statusFilter = ref
-        .watch(orderToOnlinePageNotifier.select((value) => value.statusFilter));
-    final sortByNewestTime = ref.watch(
-        orderToOnlinePageNotifier.select((value) => value.sortByNewestTime));
-    final orderSelect = ref
-        .watch(orderToOnlinePageNotifier.select((value) => value.orderSelect));
+    final statusFilter = ref.watch(orderToOnlinePageNotifier.select((value) => value.statusFilter));
+    final sortByNewestTime =
+        ref.watch(orderToOnlinePageNotifier.select((value) => value.sortByNewestTime));
+    final orderSelect = ref.watch(orderToOnlinePageNotifier.select((value) => value.orderSelect));
 
     var count = datas[orderSelect]?['count'] ?? 0;
     List<RequestOrderModel> requests = List<RequestOrderModel>.from(
@@ -139,17 +133,14 @@ class _ListRequestWidget extends ConsumerWidget {
       requests.removeWhere((e) => e.requestProcessingStatus != statusFilter);
     }
     // xoá tất cả lượt gọi mà ko có món nào (đã được xử lý hết)
-    requests =
-        requests.where((element) => element.listItem.isNotEmpty).toList();
+    requests = requests.where((element) => element.listItem.isNotEmpty).toList();
     if (sortByNewestTime) {
       // mới nhất -> cũ nhất
-      requests.sort((a, b) => (a.timeOrder == null || b.timeOrder == null)
-          ? 0
-          : b.timeOrder!.compareTo(a.timeOrder!));
+      requests.sort((a, b) =>
+          (a.timeOrder == null || b.timeOrder == null) ? 0 : b.timeOrder!.compareTo(a.timeOrder!));
     } else {
-      requests.sort((a, b) => (a.timeOrder == null || b.timeOrder == null)
-          ? 0
-          : a.timeOrder!.compareTo(b.timeOrder!));
+      requests.sort((a, b) =>
+          (a.timeOrder == null || b.timeOrder == null) ? 0 : a.timeOrder!.compareTo(b.timeOrder!));
     }
 
     String emptyMessage = S.current.no_orders_to_confirm;
@@ -191,8 +182,7 @@ class _ListRequestWidget extends ConsumerWidget {
     return Column(
       children: [
         if (count > 0 &&
-            [RequestProcessingStatus.all, RequestProcessingStatus.waiting]
-                .contains(statusFilter))
+            [RequestProcessingStatus.all, RequestProcessingStatus.waiting].contains(statusFilter))
           Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -203,11 +193,8 @@ class _ListRequestWidget extends ConsumerWidget {
                 bgColor: RequestProcessingStatus.waiting.color.withOpacity(0.2),
                 textColor: RequestProcessingStatus.waiting.color,
                 onTap: () async {
-                  final orderItems = ref
-                          .read(orderToOnlinePageNotifier)
-                          .requestSelect
-                          ?.listItem ??
-                      [];
+                  final orderItems =
+                      ref.read(orderToOnlinePageNotifier).requestSelect?.listItem ?? [];
                   if (orderItems.isEmpty) return;
 
                   var orderNote = await showConfirmInputDialog(
@@ -232,11 +219,8 @@ class _ListRequestWidget extends ConsumerWidget {
                 bgColor: Colors.red.withOpacity(0.1),
                 textColor: Colors.red.shade500,
                 onTap: () async {
-                  final orderItems = ref
-                          .read(orderToOnlinePageNotifier)
-                          .requestSelect
-                          ?.listItem ??
-                      [];
+                  final orderItems =
+                      ref.read(orderToOnlinePageNotifier).requestSelect?.listItem ?? [];
                   if (orderItems.isEmpty) return;
 
                   // await showPaymentCancelDialog(
@@ -255,10 +239,9 @@ class _ListRequestWidget extends ConsumerWidget {
         Expanded(
           child: ListView.separated(
             physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.only(
-                bottom: (orderSelect?.qrOrderO2o.isNotEmpty ?? false) ? 70 : 0),
-            itemBuilder: (context, index) =>
-                RequestOrderWidget(requestOrderModel: requests[index]),
+            padding:
+                EdgeInsets.only(bottom: (orderSelect?.qrOrderO2o.isNotEmpty ?? false) ? 70 : 0),
+            itemBuilder: (context, index) => RequestOrderWidget(requestOrderModel: requests[index]),
             itemCount: requests.length,
             separatorBuilder: (context, index) => const Divider(
               color: Colors.blueGrey,
@@ -277,10 +260,9 @@ class _ChatContentWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final getChatMessageState = ref.watch(
-        orderToOnlinePageNotifier.select((value) => value.getChatMessageState));
-    final chatMessages = ref
-        .watch(orderToOnlinePageNotifier.select((value) => value.chatMessages));
+    final getChatMessageState =
+        ref.watch(orderToOnlinePageNotifier.select((value) => value.getChatMessageState));
+    final chatMessages = ref.watch(orderToOnlinePageNotifier.select((value) => value.chatMessages));
 
     return ListChatWidget(
       state: getChatMessageState,
@@ -303,15 +285,12 @@ class RequestOrderWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var request = requestOrderModel;
 
-    var requestSelect = ref.watch(
-        orderToOnlinePageNotifier.select((value) => value.requestSelect));
+    var requestSelect = ref.watch(orderToOnlinePageNotifier.select((value) => value.requestSelect));
 
     var itemsSelect = requestSelect?.listItem ?? [];
 
     final length = request.listItem.length;
-    var selectedCodeProducts = {
-      ...itemsSelect.map((e) => e.codeProduct).toList()
-    };
+    var selectedCodeProducts = {...itemsSelect.map((e) => e.codeProduct).toList()};
     var codeProducts = {...request.listItem.map((e) => e.codeProduct).toList()};
     bool selectAll = request.id == requestSelect?.id &&
         const SetEquality().equals(selectedCodeProducts, codeProducts);
@@ -323,8 +302,7 @@ class RequestOrderWidget extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12).copyWith(right: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12).copyWith(right: 8),
             child: Row(
               children: [
                 Text(
@@ -334,8 +312,7 @@ class RequestOrderWidget extends ConsumerWidget {
                 const Gap(6),
                 switch (request.requestProcessingStatus) {
                   RequestProcessingStatus.waiting => const SizedBox.shrink(),
-                  RequestProcessingStatus.accept =>
-                    const StatusRequestWidget(acceptedStatus: true),
+                  RequestProcessingStatus.accept => const StatusRequestWidget(acceptedStatus: true),
                   RequestProcessingStatus.cancel => const StatusRequestWidget(),
                   RequestProcessingStatus.all => const SizedBox.shrink(),
                 },
@@ -402,9 +379,7 @@ class RequestOrderWidget extends ConsumerWidget {
             const Gap(4),
             GestureDetector(
               onTap: () {
-                ref
-                    .read(orderToOnlinePageNotifier.notifier)
-                    .selectAllRequestItem(
+                ref.read(orderToOnlinePageNotifier.notifier).selectAllRequestItem(
                       request: request,
                       selectAll: !selectAll,
                     );
@@ -416,9 +391,7 @@ class RequestOrderWidget extends ConsumerWidget {
                   children: [
                     CustomCheckbox(
                       onChange: () {
-                        ref
-                            .read(orderToOnlinePageNotifier.notifier)
-                            .selectAllRequestItem(
+                        ref.read(orderToOnlinePageNotifier.notifier).selectAllRequestItem(
                               request: request,
                               selectAll: !selectAll,
                             );
@@ -443,9 +416,7 @@ class RequestOrderWidget extends ConsumerWidget {
                 final item = request.listItem[index];
 
                 bool selected = request.id == requestSelect?.id &&
-                    requestSelect?.listItem
-                            .firstWhereOrNull((e) => e.id == item.id) !=
-                        null;
+                    requestSelect?.listItem.firstWhereOrNull((e) => e.id == item.id) != null;
                 return RequestItemWidget(
                   request: request,
                   item: item,
@@ -485,8 +456,7 @@ class ListChatWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation =
-        AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool useTab = (isMobile || (isTablet && portraitOrientation));
     switch (state.status) {

@@ -2314,12 +2314,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
           }
 
           if (AppConfig.useFranchise) {
-            String? errorPrint;
-            showLogs(paymentPrinter, flags: 'paymentPrinter 1');
-            showLogs(price, flags: ' price paymentPrinter 1');
-            showLogs(itemPrint, flags: ' itemPrint paymentPrinter 1');
-            showLogs(voucherPrint, flags: 'voucherPrint voucherPrint 1');
-
             for (var printer in paymentPrinter) {
               if (printer.type != 1) continue;
               try {
@@ -2329,65 +2323,71 @@ class HomeNotifier extends StateNotifier<HomeState> {
                   throw check;
                 }
 
-                PrinterTaskQueue.instance.addTask(
-                    ip: printer.ip,
-                    port: printer.port,
-                    buildReceipt: (generator) async {
-                      var bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(
-                        order: state.orderSelect!,
-                        price: price,
-                        printers: [
-                          IpOrderModel(ip: printer.ip, port: printer.port, type: 1),
-                        ],
-                        receiptType: ReceiptTypeEnum.paymentReceipt,
-                        paymentMethod: state.paymentMethodSelected,
-                        paymentAmount: state.statusPaymentGateway
-                            ? state.totalPaymentGateway
-                            : price.totalPriceFinal * 1.0,
-                        numberPrintCompleted: 1,
-                        numberPrintTemporary: 0,
-                        orderLineItems: itemPrint,
-                        vouchers: voucherPrint,
-                        note: state.completeNote,
-                        printNumberOfPeople: false,
-                        customerPhone: state.customer?.phoneNumber ?? '',
-                        numberOfPeople: state.numberOfAdults,
-                        cashierCompleted: '',
-                        cashierPrint: '',
-                        timeCompleted: null,
-                        timeCreatedAt: null,
-                      );
-                      return bytes;
-                    });
-                // var resPrint = await AppPrinterHtmlUtils.instance.printReceipt(
-                //   order: state.orderSelect!,
-                //   price: price,
-                //   printers: [
-                //     IpOrderModel(ip: printer.ip, port: printer.port, type: 1),
-                //   ],
-                //   receiptType: ReceiptTypeEnum.paymentReceipt,
-                //   paymentMethod: state.paymentMethodSelected,
-                //   paymentAmount: state.statusPaymentGateway
-                //       ? state.totalPaymentGateway
-                //       : price.totalPriceFinal * 1.0,
-                //   numberPrintCompleted: 1,
-                //   numberPrintTemporary: 0,
-                //   orderLineItems: itemPrint,
-                //   vouchers: voucherPrint,
-                //   note: state.completeNote,
-                //   printNumberOfPeople: false,
-                //   customerPhone: state.customer?.phoneNumber ?? '',
-                //   numberOfPeople: state.numberOfAdults,
-                //   cashierCompleted: '',
-                //   cashierPrint: '',
-                //   timeCompleted: null,
-                //   timeCreatedAt: null,
-                //   // timeoutSecond: 7,
-                // );
+                List<LineItemDataBill> _productPrint = [];
+                for (var e in (ref.read(homeProvider).dataBill.print?.orderLineItems ??
+                    <LineItemDataBill>[])) {
+                  _productPrint.add(LineItemDataBill(
+                    name: e.name,
+                    price: e.price,
+                    tax: e.tax,
+                    unit: e.unit,
+                    count: e.count,
+                  ));
+                  if (e.listItem.isNotEmpty) {
+                    for (var item in e.listItem) {
+                      _productPrint.add(LineItemDataBill(
+                        name: ' - ${item.name}',
+                        price: '0',
+                        tax: '0',
+                        unit: '',
+                        count: 0,
+                      ));
+                    }
+                  }
+                }
 
-                // if (resPrint != null) {
-                //   throw resPrint;
-                // }
+                PrinterTaskQueue.instance.addTask(
+                  ip: printer.ip,
+                  port: printer.port,
+                  buildReceipt: (generator) async {
+                    var bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(
+                      order: state.orderSelect!,
+                      price: price,
+                      printers: [
+                        IpOrderModel(ip: printer.ip, port: printer.port, type: 1),
+                      ],
+                      receiptType: ReceiptTypeEnum.paymentReceipt,
+                      paymentMethod: state.paymentMethodSelected,
+                      paymentAmount: state.statusPaymentGateway
+                          ? state.totalPaymentGateway
+                          : price.totalPriceFinal * 1.0,
+                      numberPrintCompleted: 1,
+                      numberPrintTemporary: 0,
+                      orderLineItems: _productPrint,
+                      vouchers: voucherPrint,
+                      note: state.completeNote,
+                      printNumberOfPeople: state.printNumberOfPeople,
+                      customerPhone: state.customer?.phoneNumber ?? '',
+                      numberOfPeople: state.numberOfAdults,
+                      cashierCompleted: '',
+                      cashierPrint: '',
+                      timeCompleted: null,
+                      timeCreatedAt: null,
+                    );
+                    return bytes;
+                  },
+                  onComplete: (success, error) {
+                    if (success) {
+                      showLogs('in thành công', flags: 'BILL THANH TOÁN');
+                    } else {
+                      showLogs('in thất bại $error', flags: 'BILL THANH TOÁN');
+                      if (error != null) {
+                        showMessageDialog(context,
+                            message: 'Không thể in phiếu thanh toán\nSự cố: $error');
+                      }
+                    }
+                  },
+                );
               } catch (ex) {
                 if (loadingHome) updateEvent(HomeEvent.normal);
                 //
@@ -2899,20 +2899,49 @@ class HomeNotifier extends StateNotifier<HomeState> {
       },
     );
 
-    showLogs(state.orderSelect, flags: 'state.orderSelect');
     var i = LocalStorage.getNotePerOrderItem(order: state.orderSelect ?? const OrderModel());
 
     Set<int> printerCheck = {};
 
-    showLogs(printerCheck, flags: 'printerCheck');
+    Map<int, List<ProductModel>> printerMapProducts = {};
+
     List<ProductModel> productPrintBill = (state.productsSelecting).map((e) {
-      showLogs(e.printerType, flags: 'e.printerType');
+      var comboItems = ProductHelper().getComboDescription(e);
+      if (comboItems == null || comboItems.isEmpty) {
+        if (e.printerType != null) {
+          var items = List<ProductModel>.from(printerMapProducts[e.printerType] ?? []);
+          // coi combo k có món như là món thường (description: null)
+          items.add(e.copyWith(noteForProcessOrder: i?[e.id.toString()] ?? '', description: null));
+          printerMapProducts[e.printerType!] = items;
+        }
+      } else {
+        var cb = e.copyWith(noteForProcessOrder: i?[e.id.toString()] ?? '');
+
+        Map<int, List<ComboItemModel>> printComboItem = {};
+        for (var ci in comboItems) {
+          var printerType = ci.printerType ?? e.printerType;
+          if (printerType != null) {
+            var items = List<ComboItemModel>.from(printComboItem[printerType] ?? []);
+            items.add(ci.copyWith(printerType: printerType));
+            printComboItem[printerType] = items;
+          }
+        }
+
+        printComboItem.forEach(
+          (key, value) {
+            var items = List<ProductModel>.from(printerMapProducts[key] ?? []);
+            items.add(cb.copyWith(description: jsonEncode(value)));
+            printerMapProducts[key] = items;
+          },
+        );
+      }
 
       if (e.printerType != null) {
         printerCheck.add(e.printerType!);
       }
       return e.copyWith(noteForProcessOrder: i?[e.id.toString()] ?? '');
     }).toList();
+
     try {
       updateEvent(HomeEvent.processOrder);
 
@@ -2943,140 +2972,185 @@ class HomeNotifier extends StateNotifier<HomeState> {
         try {
           var appSeting = LocalStorage.getAppSettings();
           AppPrinterSettingTypeEnum appPrinterType = appSeting.appPrinterType;
+          for (var printer in listPrinters.printers.take(1).toList()) {
+            List<ProductModel> productPrinter =
+                List<ProductModel>.from(printerMapProducts[printer.type] ?? []);
 
-          showLogs(listPrinters.printers, flags: 'listPrinters.printers');
-          for (var printer in listPrinters.printers) {
-            List<ProductModel> productPrinter = [];
-            for (var p in productPrintBill) {
-              var comboItem = ProductHelper().getComboDescription(p);
-              List<ComboItemModel> comboItemPrint = [];
-              // combo
-              if (comboItem != null) {
-                // comboItemPrint = comboItem.where((e) => e.printerType == printer.type).toList();
-                comboItemPrint = comboItem.where((e) => true).toList();
-                comboItemPrint =
-                    comboItemPrint.map((e) => e.copyWith(printerType: printer.type)).toList();
-                if (comboItemPrint.isNotEmpty) {
-                  String? description = p.description;
-                  try {
-                    description = jsonEncode(comboItemPrint);
-                  } catch (ex) {
-                    showLogs(ex.toString(), flags: 'encode món trong combo');
-                    //
-                  }
-                  productPrinter.add(p.copyWith(description: description));
-                }
-                // else if (printer.type == p.printerType) {
-                //   productPrinter.add(p.copyWith(description: ''));
-                // }
-              } else {
-                if (printer.type == p.printerType) {
-                  productPrinter.add(p);
-                }
-              }
-            }
-            showLogs(printer, flags: 'printer');
-            showLogs(productPrinter, flags: 'productPrinter');
             if (productPrinter.isEmpty) {
               continue;
             }
+            if (kitchenNote.trim().isEmpty && productPrinter.length == 1) {
+              kitchenNote = productPrinter.firstOrNull?.noteForProcessOrder ?? '';
+            }
+            var htmlData = AppPrinterHtmlUtils.instance.kitchenBillContent(
+              order: state.orderSelect!,
+              product: productPrinter,
+              note: kitchenNote,
+              timeOrders: 1,
+              cancel: false,
+            );
 
-            // productPrinter.forEach(
-            //   (element) {
-            //     showLogs(element, flags: 'element');
-            //   },
-            // );
+            var bytes = appPrinterType == AppPrinterSettingTypeEnum.normal
+                ? await AppPrinterNormalUtils.instance.generateBill(
+                    order: state.orderSelect!,
+                    billSingle: false,
+                    cancel: false,
+                    timeOrder: 1,
+                    totalNote: kitchenNote,
+                    products: productPrinter,
+                    title: '',
+                  )
+                : await AppPrinterHtmlUtils.instance.generateImageBill(htmlData);
+            List<ProductModel> errors = [];
+            PrinterTaskQueue.instance.addTask(
+              ip: printer.ip,
+              port: printer.port,
+              buildReceipt: (generator) async {
+                return bytes;
+              },
+              onComplete: (success, error) async {
+                if (success) {
+                  showLogs("✅ In thành công", flags: 'BILL TỔNG');
+                  // chỉ in bill lẻ với bếp
+                  if (printer.type == 2 && appSeting.billReturnSetting.useOddBill) {
+                    showLogs(productPrinter.length, flags: ' productPrinter.length');
+                    for (var item in productPrinter) {
+                      List<int> byteDatas;
+                      String oddHtmlBill;
+                      //       var pp = productPrinter[i];
+                      //       showLogs(pp.name, flags: 'pp');
+                      var listComboItemPrint = ProductHelper().getComboDescription(item);
+                      //       showLogs(listComboItemPrint, flags: 'listComboItemPrint');
 
-            // var htmlData = AppPrinterHtmlUtils.instance.kitchenBillContent(
-            //   order: state.orderSelect!,
-            //   product: productPrinter,
-            //   note: kitchenNote,
-            //   timeOrders: 1,
-            //   cancel: false,
-            // );
+                      if (listComboItemPrint == null || listComboItemPrint.isEmpty) {
+                        // in bill lẻ
+                        oddHtmlBill = AppPrinterHtmlUtils.instance.kitchenBillContent(
+                          product: [item],
+                          totalBill: false,
+                          order: state.orderSelect!,
+                          note: kitchenNote,
+                          timeOrders: 1,
+                        );
+                        byteDatas = appPrinterType == AppPrinterSettingTypeEnum.normal
+                            ? await AppPrinterNormalUtils.instance.generateBill(
+                                order: state.orderSelect!,
+                                billSingle: true,
+                                cancel: false,
+                                timeOrder: 1,
+                                totalNote: kitchenNote,
+                                products: [item],
+                                title: '',
+                              )
+                            : await AppPrinterHtmlUtils.instance.generateImageBill(oddHtmlBill);
+                        PrinterTaskQueue.instance.addTask(
+                          ip: printer.ip,
+                          port: printer.port,
+                          buildReceipt: (generator) async {
+                            return byteDatas;
+                          },
+                          onComplete: (success, error) {
+                            if (success) {
+                              showLogs("✅ In thành công\n$item", flags: 'BILL LẺ');
+                            } else {
+                              errors.add(item);
+                              showLogs("❌ In thất bại\n$item", flags: 'BILL LẺ');
+                            }
+                          },
+                        );
+                      } else {
+                        // in từng món trong combo
+                        for (var ci in listComboItemPrint) {
+                          showLogs(ci, flags: 'in món lẻ trong combo');
+                          byteDatas = appPrinterType == AppPrinterSettingTypeEnum.normal
+                              ? await AppPrinterNormalUtils.instance.generateBill(
+                                  order: state.orderSelect!,
+                                  billSingle: true,
+                                  cancel: false,
+                                  timeOrder: 1,
+                                  totalNote: kitchenNote,
+                                  products: [
+                                    item.copyWith(description: jsonEncode([ci]))
+                                  ],
+                                  title: '',
+                                )
+                              : await AppPrinterHtmlUtils.instance.generateImageBill(
+                                  AppPrinterHtmlUtils.instance.kitchenBillContent(
+                                    product: [
+                                      item.copyWith(description: jsonEncode([ci]))
+                                    ],
+                                    totalBill: false,
+                                    order: state.orderSelect!,
+                                    note: kitchenNote,
+                                    timeOrders: 1,
+                                  ),
+                                );
+                          PrinterTaskQueue.instance.addTask(
+                            ip: printer.ip,
+                            port: printer.port,
+                            buildReceipt: (generator) async {
+                              return byteDatas;
+                            },
+                            onComplete: (success, error) {
+                              if (success) {
+                                showLogs(
+                                    "✅ In thành công\n${item.copyWith(description: jsonEncode(ci))}",
+                                    flags: 'BILL LẺ');
+                              } else {
+                                errors.add(item);
+                                showLogs(
+                                    "❌ In thất bại\n${item.copyWith(description: jsonEncode(ci))}",
+                                    flags: 'BILL LẺ');
+                              }
+                            },
+                          );
+                        }
+                      }
 
-            // var bytes = appPrinterType == AppPrinterSettingTypeEnum.normal
-            //     ? await AppPrinterNormalUtils.instance.generateBill(
-            //         order: state.orderSelect!,
-            //         billSingle: false,
-            //         cancel: false,
-            //         timeOrder: 1,
-            //         totalNote: kitchenNote,
-            //         products: productPrinter,
-            //         title: '',
-            //       )
-            //     : await AppPrinterHtmlUtils.instance.generateImageBill(htmlData);
-            // showLogs(productPrinter, flags: 'productPrinter');
-            // List<ProductModel> errors = [];
-            // PrinterTaskQueue.instance.addTask(
-            //   ip: printer.ip,
-            //   port: printer.port,
-            //   buildReceipt: (generator) async {
-            //     return bytes;
-            //   },
-            //   onComplete: (success, error) async {
-            //     // if (success) {
-            //     //   showLogs("✅ In thành công", flags: 'in món thành công');
-            //     //   // chỉ in bill lẻ với bếp
-            //     //   if (printer.type == 2 && appSeting.billReturnSetting.useOddBill) {
-            //     //     showLogs(productPrinter.length, flags: ' productPrinter.length');
-            //     //     for (var i = 0; i < productPrinter.length; i++) {
-            //     //       List<int> byteDatas;
-            //     //       String oddHtmlBill;
-            //     //       var pp = productPrinter[i];
-            //     //       showLogs(pp.name, flags: 'pp');
-            //     //       var listComboItemPrint = ProductHelper().getComboDescription(pp);
-            //     //       showLogs(listComboItemPrint, flags: 'listComboItemPrint');
+                      //       byteDatas = appPrinterType == AppPrinterSettingTypeEnum.normal
+                      //           ? await AppPrinterNormalUtils.instance.generateBill(
+                      //               order: state.orderSelect!,
+                      //               billSingle: true,
+                      //               cancel: false,
+                      //               timeOrder: 1,
+                      //               totalNote: kitchenNote,
+                      //               products: [pp],
+                      //               title: '',
+                      //             )
+                      //           : await AppPrinterHtmlUtils.instance.generateImageBill(oddHtmlBill);
+                      //       PrinterTaskQueue.instance.addTask(
+                      //         ip: printer.ip,
+                      //         port: printer.port,
+                      //         buildReceipt: (generator) async {
+                      //           // var byteDatas = await AppPrinterHtmlUtils.instance
+                      //           //     .generateImageBill(oddHtmlBill);
+                      //           return byteDatas;
+                      //         },
+                      //         onComplete: (success, error) {
+                      //           if (success) {
+                      //             showLogs("✅ In thành công", flags: 'in món lẻ thành công');
+                      //           } else {
+                      //             errors.add(pp);
+                      //             showLogs("❌ In thất bại", flags: 'in món lẻ thất bại');
+                      //           }
+                      //         },
+                      //       );
+                      //       // }
+                    }
+                  }
 
-            //     //       oddHtmlBill = AppPrinterHtmlUtils.instance.kitchenBillContent(
-            //     //         product: [pp],
-            //     //         totalBill: false,
-            //     //         order: state.orderSelect!,
-            //     //         note: kitchenNote,
-            //     //         timeOrders: 1,
-            //     //       );
-            //     //       byteDatas = appPrinterType == AppPrinterSettingTypeEnum.normal
-            //     //           ? await AppPrinterNormalUtils.instance.generateBill(
-            //     //               order: state.orderSelect!,
-            //     //               billSingle: true,
-            //     //               cancel: false,
-            //     //               timeOrder: 1,
-            //     //               totalNote: kitchenNote,
-            //     //               products: [pp],
-            //     //               title: '',
-            //     //             )
-            //     //           : await AppPrinterHtmlUtils.instance.generateImageBill(oddHtmlBill);
-            //     //       PrinterTaskQueue.instance.addTask(
-            //     //         ip: printer.ip,
-            //     //         port: printer.port,
-            //     //         buildReceipt: (generator) async {
-            //     //           // var byteDatas = await AppPrinterHtmlUtils.instance
-            //     //           //     .generateImageBill(oddHtmlBill);
-            //     //           return byteDatas;
-            //     //         },
-            //     //         onComplete: (success, error) {
-            //     //           if (success) {
-            //     //             showLogs("✅ In thành công", flags: 'in món lẻ thành công');
-            //     //           } else {
-            //     //             errors.add(pp);
-            //     //             showLogs("❌ In thất bại", flags: 'in món lẻ thất bại');
-            //     //           }
-            //     //         },
-            //     //       );
-            //     //       // }
-            //     //     }
-            //     //   }
-            //     // } else {
-            //     //   if (error != null) {
-            //     //     showMessageDialog(
-            //     //       context,
-            //     //       message: "Món đã được thêm vào hóa đơn nhưng không thể in bill xuống bếp\n"
-            //     //           'Lỗi:\n$errorPrint',
-            //     //     );
-            //     //   }
-            //     // }
-            //   },
-            // );
+                  // showLogs(errors, flags: 'errors in lỗi');
+                } else {
+                  showLogs("❌ In thất bại", flags: 'BILL TỔNG');
+                  if (error != null) {
+                    showMessageDialog(
+                      context,
+                      message: "Món đã được thêm vào hóa đơn nhưng không thể in bill xuống bếp\n"
+                          'Lỗi:\n$error',
+                    );
+                  }
+                }
+              },
+            );
           }
 
           updateEvent(HomeEvent.normal);
@@ -3126,11 +3200,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   Future<void> getOrderToOnline() async {
     bool useO2O = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-    ;
-    if (!useO2O || kTypeOrder == AppConfig.orderOnlineValue) return;
+    if (!useO2O || kTypeOrder == AppConfig.orderOnlineValue) {
+      state = state.copyWith(
+        getO2ODataState: const PageState(status: PageCommonState.success),
+        o2oData: {},
+      );
+      return;
+    }
     try {
+      await Future.delayed(Duration(seconds: 5));
       int retry = 0;
-      List<O2OOrderModel> datas = [];
+      Map<O2OOrderModel, Map<String, dynamic>> orders = {};
       var loginUserId = LocalStorage.getDataLogin()?.user?.id;
 
       showLogs(loginUserId, flags: 'loginUserId check');
@@ -3139,23 +3219,37 @@ class HomeNotifier extends StateNotifier<HomeState> {
       );
       while (retry < 3) {
         try {
-          datas = [];
+          orders = {};
           final result = await _orderRepository.getOrderToOnline();
-          for (var order in result) {
-            if (loginUserId != null && order.userId == loginUserId) {
-              datas.add(order);
-              // List<RequestOrderModel> requests = List<RequestOrderModel>.from(order.items);
-              // for (var request in requests) {
-              //   if (request.requestProcessingStatus == RequestProcessingStatus.waiting &&
-              //       request.listItem.isNotEmpty) {
-              //     count++;
-              //   }
-              // }
+          for (var e in result) {
+            // if (loginUserId != null && e.userId != loginUserId) continue;
+
+            var order = e.copyWith(items: []);
+            var data = orders[order] ?? {};
+
+            var items = List<RequestOrderModel>.from(e.items);
+
+            var itemData = List<RequestOrderModel>.from(data['items'] ?? []);
+
+            int count = data['count'] ?? 0;
+            itemData.addAll(items);
+
+            for (var i in items) {
+              if (i.requestProcessingStatus == RequestProcessingStatus.waiting &&
+                  i.listItem.isNotEmpty) {
+                count++;
+              }
             }
+
+            orders[order] = {
+              'items': itemData,
+              'count': count,
+            };
           }
+
           state = state.copyWith(
             getO2ODataState: const PageState(status: PageCommonState.success),
-            o2oData: datas,
+            o2oData: orders,
           );
           break;
         } catch (ex) {
