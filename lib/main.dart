@@ -1,10 +1,11 @@
+import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:aladdin_franchise/firebase_options.dart';
 import 'package:aladdin_franchise/src/app.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
-import 'package:aladdin_franchise/src/core/services/task_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/models/o2o/notification_model.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
@@ -18,15 +19,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:webcontent_converter/webcontent_converter.dart';
 import 'package:window_manager/window_manager.dart';
-import 'dart:async';
-import 'dart:collection';
-import 'package:path/path.dart' as p;
-import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -87,9 +84,6 @@ Future<void> _initializeApp() async {
   // hive
   await _initHive();
 
-  // device small
-  // await _checkDeviceSmall();
-
   await _initForAndroidDevice();
 
   // await _initForWindowsDevice();
@@ -110,18 +104,6 @@ Future<void> _initFirebase() async {
     //
   }
 }
-
-// Future<void> _checkDeviceSmall() async {
-//   double deviceInh = 8;
-//   try {
-//     var androidInfo = await DeviceInfoPlugin().androidInfo;
-//     deviceInh = androidInfo.displayMetrics.sizeInches;
-//   } catch (ex) {
-//     //
-//   } finally {
-//     kCheckIsDeviceSmall = deviceInh < 9.2;
-//   }
-// }
 
 Future<void> _initHive() async {
   try {

@@ -1,12 +1,10 @@
 import 'dart:async';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
-import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
+import 'package:aladdin_franchise/src/core/network/o2o/o2o_repository.dart';
 import 'package:aladdin_franchise/src/core/network/order/order_repository.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
-import 'package:aladdin_franchise/src/core/services/task_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
-import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
@@ -15,11 +13,8 @@ import 'package:aladdin_franchise/src/models/o2o/notification_model.dart';
 import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
 import 'package:aladdin_franchise/src/models/o2o/request_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
-import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer.dart';
-import 'package:aladdin_franchise/src/utils/app_printer/app_printer_html.dart';
-import 'package:aladdin_franchise/src/utils/app_printer/app_printer_normal.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,14 +27,17 @@ final orderToOnlinePageNotifier =
   return OrderToOnlinePageNotifier(
     ref,
     ref.read(orderRepositoryProvider),
+    ref.read(o2oRepositoryProvider),
   );
 });
 
 class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
-  OrderToOnlinePageNotifier(this.ref, this._orderRepository) : super(const OrderToOnlineState()) {
+  OrderToOnlinePageNotifier(this.ref, this._orderRepository, this._o2oRepository)
+      : super(const OrderToOnlineState()) {
     _listenChangeO2OData();
   }
   final OrderRepository _orderRepository;
+  final OrderToOnlineRepository _o2oRepository;
   final Ref ref;
 
   void _listenChangeO2OData() {
@@ -140,7 +138,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
           state.copyWith(event: OrderToOnlineEvent.loading, message: S.current.canceling_request);
       await onChangeLockedOrderId(orderId: orderSelect.orderId);
 
-      await _orderRepository.updateStatusRequestOrderO2O(
+      await _o2oRepository.processO2oRequest(
         orderId: orderSelect.orderId,
         orderItemId: requestSelect.id,
         orderItems: listItem,
@@ -191,7 +189,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
       );
       // await onChangeLockedOrderId(orderId: orderSelect.orderId);
 
-      await _orderRepository.updateStatusRequestOrderO2O(
+      await _o2oRepository.processO2oRequest(
         orderId: orderSelect.orderId,
         orderItemId: requestSelect.id,
         orderItems: listItem,
@@ -559,7 +557,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     }
 
     try {
-      final messages = await _orderRepository.getChatMessages(
+      final messages = await _o2oRepository.getChatMessages(
         restaurantId: restaurantId,
         orderId: orderSelect.orderId,
       );

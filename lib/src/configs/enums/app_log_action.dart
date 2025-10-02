@@ -7,11 +7,11 @@ enum AppLogAction {
   // user
   checkCodeWaiter,
   // chốt ca
-  closingShift,
+  closeShift,
 
-  // category + product
+  // menu
   getCategory,
-  getProductByCategory,
+  getProduct,
   // data bill
   getDataBill,
   // printer
@@ -24,8 +24,8 @@ enum AppLogAction {
   getStatusLockOrder,
   lockOrder,
   sendPaymentRating,
-  updateInvoiceForOrder,
-  getInvoiceByOrder,
+  updateOrderInvoice,
+  getOrderInvoice,
   // gọi món
   processOrder,
   processOrderBill,
@@ -42,26 +42,31 @@ enum AppLogAction {
   // customer
   findCustomer,
   createCustomer,
-  getLinkZaloOA,
+  resetCustomer,
   // áp lại mã giảm giá
   applyPolicy,
   // restaurant
-  getBankPayment,
+  getBanks,
   getPaymentMethod,
-  getListPos,
+  getListAtmPos,
   getCashiers,
   historyOrder,
   getInfoByTaxCode,
   getEmployeeSales,
   // coupons
-  getCouponByCode,
-  unblockCouponCode,
+  addCoupon,
+  deleteCoupon,
   // ticket
   getTickets,
   createTicket,
 
   //
   localStorage,
+
+  // reservation
+  syncReservation,
+  updateReservation,
+  getReservations,
 }
 
 extension ExtAppLogAction on AppLogAction {
@@ -79,13 +84,13 @@ extension ExtAppLogAction on AppLogAction {
       // user
       case AppLogAction.checkCodeWaiter:
         return "checkCodeWaiter";
-      case AppLogAction.closingShift:
-        return "closingShift";
+      case AppLogAction.closeShift:
+        return "closeShift";
       // category + product
       case AppLogAction.getCategory:
         return "getCategory";
-      case AppLogAction.getProductByCategory:
-        return "getProductByCategory";
+      case AppLogAction.getProduct:
+        return "getProduct";
       // data bill
       case AppLogAction.getDataBill:
         return "getDataBill";
@@ -107,10 +112,10 @@ extension ExtAppLogAction on AppLogAction {
         return "lockOrder";
       case AppLogAction.sendPaymentRating:
         return "sendPaymentRating";
-      case AppLogAction.updateInvoiceForOrder:
-        return "updateInvoiceForOrder";
-      case AppLogAction.getInvoiceByOrder:
-        return "getInvoiceByOrder";
+      case AppLogAction.updateOrderInvoice:
+        return "updateOrderInvoice";
+      case AppLogAction.getOrderInvoice:
+        return "getOrderInvoice";
       // gọi món
       case AppLogAction.processOrder:
         return "processOrder";
@@ -139,18 +144,18 @@ extension ExtAppLogAction on AppLogAction {
         return "findCustomer";
       case AppLogAction.createCustomer:
         return "createCustomer";
-      case AppLogAction.getLinkZaloOA:
-        return "getLinkZaloOA";
+      case AppLogAction.resetCustomer:
+        return "resetCustomer";
       // áp lại mã giảm giá
       case AppLogAction.applyPolicy:
         return "applyPolicy";
       // restaurant
-      case AppLogAction.getBankPayment:
-        return "getBankPayment";
+      case AppLogAction.getBanks:
+        return "getBanks";
       case AppLogAction.getPaymentMethod:
         return "getPaymentMethod";
-      case AppLogAction.getListPos:
-        return "getListPos";
+      case AppLogAction.getListAtmPos:
+        return "getListAtmPos";
       case AppLogAction.getCashiers:
         return "getCashiers";
       case AppLogAction.historyOrder:
@@ -160,10 +165,10 @@ extension ExtAppLogAction on AppLogAction {
       case AppLogAction.getEmployeeSales:
         return "getEmployeeSales";
       // coupons
-      case AppLogAction.getCouponByCode:
-        return "getCouponByCode";
-      case AppLogAction.unblockCouponCode:
-        return "unblockCouponCode";
+      case AppLogAction.addCoupon:
+        return "addCoupon";
+      case AppLogAction.deleteCoupon:
+        return "deleteCoupon";
       // ticket
       case AppLogAction.getTickets:
         return "getTickets";
@@ -185,11 +190,11 @@ extension ExtAppLogAction on AppLogAction {
 
       // user
       case AppLogAction.checkCodeWaiter:
-      case AppLogAction.closingShift:
+      case AppLogAction.closeShift:
         return 'https://discord.com/api/webhooks/1389152569510727833/WHjTU6g0ZS9knucHI_ABBeOE4-hl2yl4QJT9PSpy8qOlEc5eyw1d4X-OkVZxFi_c0bXl';
-      // category + product
+      // menu
       case AppLogAction.getCategory:
-      case AppLogAction.getProductByCategory:
+      case AppLogAction.getProduct:
         return 'https://discord.com/api/webhooks/1389152786125426728/IdQTTlMDvCyRiyTkFpch_ux6KI1SjlUccZ9hN5hHVFjZTOb_MNk6zbSH1P9MMg-ubgX9';
       // data bill
       case AppLogAction.getDataBill:
@@ -205,8 +210,8 @@ extension ExtAppLogAction on AppLogAction {
       case AppLogAction.getStatusLockOrder:
       case AppLogAction.lockOrder:
       case AppLogAction.sendPaymentRating:
-      case AppLogAction.updateInvoiceForOrder:
-      case AppLogAction.getInvoiceByOrder:
+      case AppLogAction.updateOrderInvoice:
+      case AppLogAction.getOrderInvoice:
         return 'https://discord.com/api/webhooks/1389153297197301820/4hPUiW2BMKAUOIVYxj_75LhrSeSWXn7BDqpmeJkGMvI4arR1BL--w4F30VdtKHL01vGt';
       // process-order
       case AppLogAction.processOrder:
@@ -227,15 +232,15 @@ extension ExtAppLogAction on AppLogAction {
       // customer
       case AppLogAction.findCustomer:
       case AppLogAction.createCustomer:
-      case AppLogAction.getLinkZaloOA:
+      case AppLogAction.resetCustomer:
         return 'https://discord.com/api/webhooks/1389153865160589426/VfBz_OGMZ7I_BFYPaz-IfMNwfW65ikR0sPRp6h82A8RvPha3koXO6pvDNAbVqKWQJRno';
       // áp lại mã giảm giá
       case AppLogAction.applyPolicy:
         return 'https://discord.com/api/webhooks/1389153993850093618/2JigvV3cEvFqrCWfOOueRhcgEph3hf0uv11WTDWKGS4J_i9Nx9bcIvuYTKX-3TNfQlJi';
       // restaurant
-      case AppLogAction.getBankPayment:
+      case AppLogAction.getBanks:
       case AppLogAction.getPaymentMethod:
-      case AppLogAction.getListPos:
+      case AppLogAction.getListAtmPos:
       case AppLogAction.getCashiers:
       case AppLogAction.historyOrder:
       case AppLogAction.getInfoByTaxCode:
@@ -243,8 +248,8 @@ extension ExtAppLogAction on AppLogAction {
         return 'https://discord.com/api/webhooks/1389154110997266442/dSX30uEWWdT0F5laCvEq5_AYfYhcp5oPSd8Zogsdt9Hy-mwXiqeFiwhzj9EzdOWyIZHv';
 
       // coupons
-      case AppLogAction.getCouponByCode:
-      case AppLogAction.unblockCouponCode:
+      case AppLogAction.addCoupon:
+      case AppLogAction.deleteCoupon:
         return 'https://discord.com/api/webhooks/1389154255142654012/BOSWsj5d2vXs96LU4R64k4s123deNLbrVIKZWl-yJ7pQoQFXVYQCpPDFqNDcW3wlKvuY';
       // ticket
       case AppLogAction.getTickets:
@@ -267,11 +272,11 @@ extension ExtAppLogAction on AppLogAction {
 
       // user
       case AppLogAction.checkCodeWaiter:
-      case AppLogAction.closingShift:
+      case AppLogAction.closeShift:
         return 2;
       // category + product
       case AppLogAction.getCategory:
-      case AppLogAction.getProductByCategory:
+      case AppLogAction.getProduct:
         return 8;
       // data bill
       case AppLogAction.getDataBill:
@@ -287,8 +292,8 @@ extension ExtAppLogAction on AppLogAction {
       case AppLogAction.getStatusLockOrder:
       case AppLogAction.lockOrder:
       case AppLogAction.sendPaymentRating:
-      case AppLogAction.updateInvoiceForOrder:
-      case AppLogAction.getInvoiceByOrder:
+      case AppLogAction.updateOrderInvoice:
+      case AppLogAction.getOrderInvoice:
         return 12;
       // process-order
       case AppLogAction.processOrder:
@@ -309,15 +314,15 @@ extension ExtAppLogAction on AppLogAction {
       // customer
       case AppLogAction.findCustomer:
       case AppLogAction.createCustomer:
-      case AppLogAction.getLinkZaloOA:
+      case AppLogAction.resetCustomer:
         return 20;
       // áp lại mã giảm giá
       case AppLogAction.applyPolicy:
         return 28;
       // restaurant
-      case AppLogAction.getBankPayment:
+      case AppLogAction.getBanks:
       case AppLogAction.getPaymentMethod:
-      case AppLogAction.getListPos:
+      case AppLogAction.getListAtmPos:
       case AppLogAction.getCashiers:
       case AppLogAction.historyOrder:
       case AppLogAction.getInfoByTaxCode:
@@ -325,8 +330,8 @@ extension ExtAppLogAction on AppLogAction {
         return 22;
 
       // coupons
-      case AppLogAction.getCouponByCode:
-      case AppLogAction.unblockCouponCode:
+      case AppLogAction.addCoupon:
+      case AppLogAction.deleteCoupon:
         return 24;
       // ticket
       case AppLogAction.getTickets:

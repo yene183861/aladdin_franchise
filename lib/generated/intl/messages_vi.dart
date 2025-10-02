@@ -264,6 +264,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Xác nhận của phục vụ"),
         "congratulations":
             MessageLookupByLibrary.simpleMessage("Xin chúc mừng!"),
+        "connecting_payment_verification_server":
+            MessageLookupByLibrary.simpleMessage(
+                "Đang kết nối máy chủ xác minh thanh toán..."),
         "connection_lost": MessageLookupByLibrary.simpleMessage("Mất kết nối"),
         "content": MessageLookupByLibrary.simpleMessage("Nội dung"),
         "content_help_move_table": MessageLookupByLibrary.simpleMessage(
@@ -379,6 +382,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "Đang tải xuống, vui lòng đợi mở trình cài đặt"),
         "downloading_update_1": MessageLookupByLibrary.simpleMessage(
             "Đang tải bản cập nhật, vui lòng đợi"),
+        "driver_not_initialized": MessageLookupByLibrary.simpleMessage(
+            "Trình điều khiển chưa được khởi tạo"),
         "edit_tax_information":
             MessageLookupByLibrary.simpleMessage("Chỉnh sửa thông tin thuế"),
         "email": MessageLookupByLibrary.simpleMessage("Email"),
@@ -736,6 +741,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "Tính năng chỉ khả dụng trên Tab Order"),
         "opening_installer": MessageLookupByLibrary.simpleMessage(
             "Đang mở trình cài đặt, vui lòng đợi"),
+        "opening_payment_gateway": MessageLookupByLibrary.simpleMessage(
+            "Đang mở cổng thanh toán, vui lòng chờ..."),
         "order": MessageLookupByLibrary.simpleMessage("Đơn bàn"),
         "orderConfirm":
             MessageLookupByLibrary.simpleMessage("Xác nhận gọi món?"),
@@ -866,6 +873,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "reasonForCancellation":
             MessageLookupByLibrary.simpleMessage("Lý do huỷ món"),
         "recall": MessageLookupByLibrary.simpleMessage("Thu hồi"),
+        "reconnect": MessageLookupByLibrary.simpleMessage("Kết nối lại"),
         "reduce": MessageLookupByLibrary.simpleMessage("Giảm"),
         "register_customers_via_zalo_oa": MessageLookupByLibrary.simpleMessage(
             "Đăng ký khách hàng qua Zalo-OA"),
@@ -1108,6 +1116,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Email hoặc tên người dùng"),
         "using_lastest_version": MessageLookupByLibrary.simpleMessage(
             "Thiết bị đang sử dụng phiên bản mới nhất"),
+        "using_other_payment_method_if_failed":
+            MessageLookupByLibrary.simpleMessage(
+                "Nếu không thể kết nối, vui lòng sử dụng hình thức thanh toán khác!"),
         "value_invalid":
             MessageLookupByLibrary.simpleMessage("Giá trị không hợp lệ"),
         "verification": MessageLookupByLibrary.simpleMessage("Xác minh"),

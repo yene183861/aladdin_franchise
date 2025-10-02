@@ -5,22 +5,20 @@ import 'dart:math';
 
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/const.dart';
-import 'package:aladdin_franchise/src/configs/data_fake.dart';
 import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
-import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/configs/enums/windows_method.dart';
 import 'package:aladdin_franchise/src/core/network/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/category/category_repository.dart';
 import 'package:aladdin_franchise/src/core/network/coupon/coupon_repository.dart';
 import 'package:aladdin_franchise/src/core/network/customer/customer_repository.dart';
+import 'package:aladdin_franchise/src/core/network/invoice/invoice_repository.dart';
+import 'package:aladdin_franchise/src/core/network/o2o/o2o_repository.dart';
 import 'package:aladdin_franchise/src/core/network/order/order_repository.dart';
 import 'package:aladdin_franchise/src/core/network/product/product_repository.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/network/responses/data_bill.dart';
-import 'package:aladdin_franchise/src/core/network/responses/order.dart';
 import 'package:aladdin_franchise/src/core/network/restaurant/restaurant_repository.dart';
 import 'package:aladdin_franchise/src/core/network/user/user_repository.dart';
-import 'package:aladdin_franchise/src/core/services/local_network.dart';
 import 'package:aladdin_franchise/src/core/services/task_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
@@ -49,12 +47,10 @@ import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/tag_product.dart';
 import 'package:aladdin_franchise/src/models/user_bank.dart';
 import 'package:aladdin_franchise/src/models/waiter.dart';
-import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_html.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_normal.dart';
-import 'package:aladdin_franchise/src/utils/app_printer/test_printer.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/ip_config_helper.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
@@ -64,10 +60,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:redis/redis.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:aladdin_franchise/src/models/o2o/local_notification_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/notification_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/request_order.dart';
 
 import '../../../../generated/l10n.dart';
 import '../../../core/storages/provider.dart';
@@ -88,6 +80,8 @@ final homeProvider = StateNotifierProvider.autoDispose<HomeNotifier, HomeState>(
     ref.read(restaurantRepositoryProvider),
     ref.read(categoryRepositoryProvider),
     ref.read(productRepositoryProvider),
+    ref.read(o2oRepositoryProvider),
+    ref.read(invoiceRepositoryProvider),
   );
 });
 
@@ -101,10 +95,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
     this._restaurantRepository,
     this._categoryRepository,
     this._productRepository,
+    this._o2oRepository,
+    this._invoiceRepository,
   ) : super(const HomeState()) {
     AppConfig.initHomeProvider = true;
     ctrlSearch = TextEditingController();
-    // if (!useDataFake) listenRedisChannel();
+    // confirm dùng redis hay không?
+    // listenRedisChannel();
   }
 
   final Ref ref;
@@ -115,6 +112,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
   final RestaurantRepository _restaurantRepository;
   final CategoryRepository _categoryRepository;
   final ProductRepository _productRepository;
+
+  final OrderToOnlineRepository _o2oRepository;
+  final InvoiceRepository _invoiceRepository;
   Map<dynamic, GlobalKey> categoryKeys = {};
 
   final ItemScrollController categoryScrollController = ItemScrollController();
@@ -207,7 +207,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }) {
     if (!mounted) return;
 
-    getOrderToOnline();
     ctrlSearch.text = '';
     final dataLogin = LocalStorage.getDataLogin();
     final customerPortraits = dataLogin?.customerPortraits ?? [];
@@ -577,19 +576,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  /// Kiểm tra code mỗi lần thao tác yêu cầu
-  Future<String?> checkCode(String code) async {
-    try {
-      var checkCodeRepo = await _userRepository.checkCode(code: code);
-      if (checkCodeRepo.data.checkCode == false) {
-        return S.current.verificationCodeIsIncorrect;
-      }
-      return null;
-    } catch (ex) {
-      return ex.toString();
-    }
-  }
-
   /// Tạo đơn hàng mới
   /// [0]: orderId, -1 là lỗi tạo đơn mới
   /// [1]: Message
@@ -943,7 +929,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
       await _checkLockedOrder();
 
-      final couponRepo = await _couponRepository.getCouponByCode(
+      final couponRepo = await _couponRepository.addCoupon(
         code: code,
         order: state.orderSelect!,
         totalOrder: getFinalPaymentPrice.totalPrice * 1.0,
@@ -1343,7 +1329,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       if (state.orderSelect == null) return S.current.noOrderSelect;
       state = state.copyWith(event: HomeEvent.removeCoupon);
       final result =
-          await _couponRepository.unblockCouponCode(idCode: coupon.id, order: state.orderSelect!);
+          await _couponRepository.deleteCoupon(idCode: coupon.id, order: state.orderSelect!);
       state = state.copyWith(event: HomeEvent.normal);
       showLogs(result, flags: 'kq xóa mã giảm giá');
       if (result) {
@@ -1398,7 +1384,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       List<CategoryModel> categories = categoriesRepo.data.data;
       List<TagProductModel> tags = categoriesRepo.data.tags ?? [];
 
-      final productsRepo = await _productRepository.getProductByCategory(null);
+      final productsRepo = await _productRepository.getProduct(null);
       List<ProductModel> products = List.from(productsRepo.data.data ?? []);
 
       if (categories.isNotEmpty) {
@@ -1497,7 +1483,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     try {
       updateEvent(isUpdate ? HomeEvent.updateInvoice : HomeEvent.insertInvoice);
       await _checkOrderSelect();
-      await _orderRepository.updateOrderInvoice(
+      await _invoiceRepository.updateOrderInvoice(
         orderId: state.orderSelect!.id,
         orderInvoice: invoice,
       );
@@ -1522,7 +1508,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         orderInvoiceState: const PageState(status: PageCommonState.loading),
       );
       await _checkOrderSelect();
-      final orderInvoice = await _orderRepository.getOrderInvoice(state.orderSelect!.id);
+      final orderInvoice = await _invoiceRepository.getOrderInvoice(state.orderSelect!.id);
       state = state.copyWith(
         orderInvoiceState: const PageState(status: PageCommonState.success),
         invoice: orderInvoice.isEmpty() ? null : orderInvoice,
@@ -1740,7 +1726,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     try {
       if (state.orderSelect == null) return S.current.noOrderSelect;
       state = state.copyWith(event: HomeEvent.removeCustomer);
-      await _orderRepository.removeCustomerForOrder(orderId: state.orderSelect!.id);
+      await _customerRepository.resetCustomer(orderId: state.orderSelect!.id);
       state = state.copyWith(event: HomeEvent.normal, customer: null);
       return null;
     } catch (ex) {
@@ -1817,7 +1803,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
           await _checkOrderSelect();
 
-          var result = await _customerRepository.applyPolicy(
+          var result = await _couponRepository.applyPolicy(
             coupons: couponsApply,
             // chính sách khách hàng?
             customerPolicy: [],
@@ -2515,7 +2501,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   Future<String?> closingShift() async {
     try {
       updateEvent(HomeEvent.closingShift);
-      await _orderRepository.closingShift();
+      await _userRepository.closeShift();
       updateEvent(HomeEvent.normal);
       return null;
     } catch (ex) {
@@ -2803,7 +2789,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
             return S.current.noOrderSelect;
           }
           final result =
-              await _couponRepository.unblockCouponCode(idCode: c.id, order: state.orderSelect!);
+              await _couponRepository.deleteCoupon(idCode: c.id, order: state.orderSelect!);
           if (result) {
             mustGetDataBill = true;
             coupons.removeWhere((element) => element.id == c.id);
@@ -2824,7 +2810,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                 failedAdd.add(c);
                 return S.current.noOrderSelect;
               }
-              var couponRepo = await _couponRepository.getCouponByCode(
+              var couponRepo = await _couponRepository.addCoupon(
                   code: c.name,
                   order: state.orderSelect!,
                   totalOrder: getFinalPaymentPrice.totalPrice * 1.0,
@@ -2953,18 +2939,21 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
       var kitchenNote = state.kitchenNote;
 
-      // await _orderRepository.processOrder(
-      //   order: state.orderSelect!,
-      //   total: total,
-      //   orderNote: kitchenNote,
-      //   products: productPrintBill,
-      // );
-      state = state.copyWith(productsSelecting: []);
+      await _orderRepository.processOrder(
+        order: state.orderSelect!,
+        total: total,
+        orderNote: kitchenNote,
+        products: productPrintBill,
+      );
+      state = state.copyWith(
+        productsSelecting: [],
+        orderTabSelect: OrderTabEnum.ordered,
+      );
 
-      // getOrderProductCheckout(
-      //   changeSelecting: true,
-      //   applyPolicy: true,
-      // );
+      getOrderProductCheckout(
+        changeSelecting: true,
+        applyPolicy: true,
+      );
       updateEvent(HomeEvent.normal);
       if (AppConfig.useFranchise) {
         state = state.copyWith(kitchenNote: '');
@@ -3198,79 +3187,81 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<void> getOrderToOnline() async {
-    bool useO2O = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-    if (!useO2O || kTypeOrder == AppConfig.orderOnlineValue) {
-      state = state.copyWith(
-        getO2ODataState: const PageState(status: PageCommonState.success),
-        o2oData: {},
-      );
-      return;
-    }
-    try {
-      await Future.delayed(Duration(seconds: 5));
-      int retry = 0;
-      Map<O2OOrderModel, Map<String, dynamic>> orders = {};
-      var loginUserId = LocalStorage.getDataLogin()?.user?.id;
-
-      showLogs(loginUserId, flags: 'loginUserId check');
-      state = state.copyWith(
-        getO2ODataState: const PageState(status: PageCommonState.loading),
-      );
-      while (retry < 3) {
-        try {
-          orders = {};
-          final result = await _orderRepository.getOrderToOnline();
-          for (var e in result) {
-            // if (loginUserId != null && e.userId != loginUserId) continue;
-
-            var order = e.copyWith(items: []);
-            var data = orders[order] ?? {};
-
-            var items = List<RequestOrderModel>.from(e.items);
-
-            var itemData = List<RequestOrderModel>.from(data['items'] ?? []);
-
-            int count = data['count'] ?? 0;
-            itemData.addAll(items);
-
-            for (var i in items) {
-              if (i.requestProcessingStatus == RequestProcessingStatus.waiting &&
-                  i.listItem.isNotEmpty) {
-                count++;
-              }
-            }
-
-            orders[order] = {
-              'items': itemData,
-              'count': count,
-            };
-          }
-
-          state = state.copyWith(
-            getO2ODataState: const PageState(status: PageCommonState.success),
-            o2oData: orders,
-          );
-          break;
-        } catch (ex) {
-          retry++;
-          if (retry == 3) {
-            state = state.copyWith(
-              getO2ODataState: PageState(
-                status: PageCommonState.error,
-                messageError: ex.toString(),
-              ),
-            );
-          }
-        }
-      }
-    } catch (ex) {
-      //
-    }
-  }
+  // Future<void> getOrderToOnline() async {
+  //   bool useO2O = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+  //   if (!useO2O || kTypeOrder == AppConfig.orderOnlineValue) {
+  //     state = state.copyWith(
+  //       getO2ODataState: const PageState(status: PageCommonState.success),
+  //       o2oData: {},
+  //     );
+  //     return;
+  //   }
+  //   try {
+  //     await Future.delayed(Duration(seconds: 5));
+  //     int retry = 0;
+  //     Map<O2OOrderModel, Map<String, dynamic>> orders = {};
+  //     var loginUserId = LocalStorage.getDataLogin()?.user?.id;
+  //
+  //     showLogs(loginUserId, flags: 'loginUserId check');
+  //     state = state.copyWith(
+  //       getO2ODataState: const PageState(status: PageCommonState.loading),
+  //     );
+  //     while (retry < 3) {
+  //       try {
+  //         orders = {};
+  //         final result = await _orderRepository.getOrderToOnline();
+  //         for (var e in result) {
+  //           // if (loginUserId != null && e.userId != loginUserId) continue;
+  //
+  //           var order = e.copyWith(items: []);
+  //           var data = orders[order] ?? {};
+  //
+  //           var items = List<RequestOrderModel>.from(e.items);
+  //
+  //           var itemData = List<RequestOrderModel>.from(data['items'] ?? []);
+  //
+  //           int count = data['count'] ?? 0;
+  //           itemData.addAll(items);
+  //
+  //           for (var i in items) {
+  //             if (i.requestProcessingStatus == RequestProcessingStatus.waiting &&
+  //                 i.listItem.isNotEmpty) {
+  //               count++;
+  //             }
+  //           }
+  //
+  //           orders[order] = {
+  //             'items': itemData,
+  //             'count': count,
+  //           };
+  //         }
+  //
+  //         state = state.copyWith(
+  //           getO2ODataState: const PageState(status: PageCommonState.success),
+  //           o2oData: orders,
+  //         );
+  //         break;
+  //       } catch (ex) {
+  //         retry++;
+  //         if (retry == 3) {
+  //           state = state.copyWith(
+  //             getO2ODataState: PageState(
+  //               status: PageCommonState.error,
+  //               messageError: ex.toString(),
+  //             ),
+  //           );
+  //         }
+  //       }
+  //     }
+  //   } catch (ex) {
+  //     //
+  //   }
+  // }
 
   void getO2OChatMessages() async {
     try {
+      var useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+      if (!useO2o) return;
       state = state.copyWith(getChatMessageState: const PageState(status: PageCommonState.loading));
       final loginData = LocalStorage.getDataLogin();
       int? restaurantId = loginData?.restaurant?.id;
@@ -3282,7 +3273,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
         );
         return;
       }
-      final messages = await _orderRepository.getChatMessages(
+
+      final messages = await _o2oRepository.getChatMessages(
         restaurantId: restaurantId,
         orderId: selectedOrder.id,
       );
@@ -3300,32 +3292,32 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void getReservations() async {
-    var useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
-    if (!useReservation) {
-      state = state.copyWith(
-        getReservationsState: const PageState(status: PageCommonState.success),
-        reservations: [],
-      );
-      return;
-    }
-    try {
-      state =
-          state.copyWith(getReservationsState: const PageState(status: PageCommonState.loading));
-      var reservations = await ref.read(reservationRepositoryProvider).getReservations();
-      state = state.copyWith(
-        getReservationsState: const PageState(status: PageCommonState.success),
-        reservations: reservations,
-      );
-    } catch (ex) {
-      state = state.copyWith(
-        getReservationsState: PageState(
-          status: PageCommonState.error,
-          messageError: ex.toString(),
-        ),
-      );
-    }
-  }
+  // void getReservations() async {
+  //   var useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
+  //   if (!useReservation) {
+  //     state = state.copyWith(
+  //       getReservationsState: const PageState(status: PageCommonState.success),
+  //       reservations: [],
+  //     );
+  //     return;
+  //   }
+  //   try {
+  //     state =
+  //         state.copyWith(getReservationsState: const PageState(status: PageCommonState.loading));
+  //     var reservations = await ref.read(reservationRepositoryProvider).getReservations();
+  //     state = state.copyWith(
+  //       getReservationsState: const PageState(status: PageCommonState.success),
+  //       reservations: reservations,
+  //     );
+  //   } catch (ex) {
+  //     state = state.copyWith(
+  //       getReservationsState: PageState(
+  //         status: PageCommonState.error,
+  //         messageError: ex.toString(),
+  //       ),
+  //     );
+  //   }
+  // }
 
   void addCustomerToOrder({
     required int orderId,

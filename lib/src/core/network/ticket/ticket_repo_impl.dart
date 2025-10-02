@@ -2,20 +2,18 @@ import 'dart:convert';
 
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
-import 'package:aladdin_franchise/src/configs/data_fake.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/network/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/rest_client.dart';
 import 'package:aladdin_franchise/src/core/network/ticket/ticket_repository.dart';
-import 'package:aladdin_franchise/src/core/services/send_log/discord_service.dart';
 import 'package:aladdin_franchise/src/core/services/send_log/log_service.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/models/ticket.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
-import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 
 class TicketRepositoryImpl extends TicketRepository {
   @override
@@ -33,16 +31,14 @@ class TicketRepositoryImpl extends TicketRepository {
       );
       if (response.statusCode == NetworkCodeConfig.ok) {
         var jsonRes = jsonDecode(response.body);
-        var result = (jsonRes['data'] as List)
-            .map((e) => TicketModel.fromJson(e))
-            .toList();
+        var result = (jsonRes['data'] as List).map((e) => TicketModel.fromJson(e)).toList();
         return result;
       } else {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      showLog(ex.toString(), flags: 'getTickets ex');
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -61,10 +57,6 @@ class TicketRepositoryImpl extends TicketRepository {
       api: ApiConfig.createTicket,
     );
     try {
-      if (useDataFake) {
-        await delayFunc();
-        return;
-      }
       final postUri = Uri.parse(ApiConfig.createTicket);
       MultipartRequest request = http.MultipartRequest("POST", postUri);
       final restaurant = LocalStorage.getDataLogin()?.restaurant?.id;
@@ -75,9 +67,8 @@ class TicketRepositoryImpl extends TicketRepository {
       });
       request.fields['name'] = title;
       request.fields['description'] = content;
-      request.fields['dateofwish'] = dateOfWish == null
-          ? ""
-          : DateTimeUtils.instance.dateFormatYYYYMMDD.format(dateOfWish);
+      request.fields['dateofwish'] =
+          dateOfWish == null ? "" : DateTimeUtils.instance.dateFormatYYYYMMDD.format(dateOfWish);
       request.fields['restaurant_id'] = "$restaurant";
       final images = <MultipartFile>[];
       for (var path in imagePaths) {
@@ -96,9 +87,8 @@ class TicketRepositoryImpl extends TicketRepository {
         throw AppException.fromHttpResponse(response);
       }
     } catch (ex) {
-      showLogs(ex, flags: "error createTicket");
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      showLog(ex.toString(), flags: 'createTicket ex');
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
     }

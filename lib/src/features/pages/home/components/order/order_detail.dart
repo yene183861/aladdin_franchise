@@ -11,33 +11,25 @@ import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/services/task_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
-
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
-import 'package:aladdin_franchise/src/features/dialogs/order/create_new/view.dart';
 // import 'package:aladdin_franchise/src/features/dialogs/create_new_order.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
+import 'package:aladdin_franchise/src/features/dialogs/order/create_new/view.dart';
 import 'package:aladdin_franchise/src/features/dialogs/order/order_option_dialog.dart';
-import 'package:aladdin_franchise/src/features/dialogs/order/reservation/select_reservation.dart';
 import 'package:aladdin_franchise/src/features/dialogs/order/transfer_order/view.dart';
 import 'package:aladdin_franchise/src/features/dialogs/order/update_order_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/reason_cancel_item.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/components/product_checkout_action.dart';
-
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_simple_loading.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
-
 import 'package:aladdin_franchise/src/features/widgets/button_with_icon.dart';
-import 'package:aladdin_franchise/src/features/widgets/custom_checkbox.dart';
-
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/price_data_bill_preview.dart';
 import 'package:aladdin_franchise/src/models/combo_item.dart';
-import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
@@ -45,16 +37,13 @@ import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_html.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_normal.dart';
-import 'package:aladdin_franchise/src/utils/app_printer/test_printer.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:collection/collection.dart';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -63,7 +52,6 @@ import 'feature_button_group.dart';
 import 'locked_order_widget.dart';
 import 'order_tab_widget.dart';
 import 'price_order_widget.dart';
-import 'error_save_order_widget.dart';
 import 'product_selecting_widget.dart';
 
 class OrderDetailWidget extends ConsumerWidget {
@@ -462,7 +450,8 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                 .read(homeProvider.notifier)
                                 .updateReservationModel(result.reservation);
                           }
-                          ref.read(homeProvider.notifier).getOrderToOnline();
+
+                          ref.refresh(orderToOnlineProvider);
                           try {
                             await ref.read(homeProvider.notifier).loadingChangeOrderSelect(
                                   result.orderId!,

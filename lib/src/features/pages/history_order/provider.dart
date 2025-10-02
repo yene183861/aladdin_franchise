@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
-import 'package:aladdin_franchise/src/configs/data_fake.dart';
 import 'package:aladdin_franchise/src/core/network/order/order_repository.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/network/responses/data_bill.dart';
@@ -24,16 +23,13 @@ import 'package:aladdin_franchise/src/models/policy_result.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
-import 'package:aladdin_franchise/src/utils/app_printer/app_printer.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_html.dart';
-import 'package:aladdin_franchise/src/utils/app_printer/test_printer.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'components/list_employee_sale_dialog.dart';
 import 'state.dart';
 
 final historyOrderPageProvider =
@@ -188,7 +184,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                   try {
                     var res = await ref
                         .read(productRepositoryProvider)
-                        .getProductByCategory(null, typeOrder: AppConfig.orderOnlineValue);
+                        .getProduct(null, typeOrder: AppConfig.orderOnlineValue);
                     onlineProducts = List<ProductModel>.from(res.data.data ?? []);
                     break;
                   } catch (ex) {
@@ -417,8 +413,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                   } else {
                     showLogs("❌ In thất bại");
                     if (error != null) {
-                      showMessageDialog(context,
-                          message: 'Không thể in phiếu thanh toán\n$error');
+                      showMessageDialog(context, message: 'Không thể in phiếu thanh toán\n$error');
                     }
                   }
                 },

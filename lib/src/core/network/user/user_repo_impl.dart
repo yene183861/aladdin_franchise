@@ -2,18 +2,15 @@ import 'dart:convert';
 
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
-import 'package:aladdin_franchise/src/configs/data_fake.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/network/app_exception.dart';
-import 'package:aladdin_franchise/src/core/network/responses/check_code.dart';
 import 'package:aladdin_franchise/src/core/network/responses/login.dart';
 import 'package:aladdin_franchise/src/core/network/rest_client.dart';
 import 'package:aladdin_franchise/src/core/network/user/user_repository.dart';
 import 'package:aladdin_franchise/src/core/services/send_log/log_service.dart';
-import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
+import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
-import 'package:aladdin_franchise/src/models/restaurant.dart';
-import 'package:aladdin_franchise/src/models/user.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 
 class UserRepositoryImpl extends UserRepository {
   @override
@@ -24,41 +21,14 @@ class UserRepositoryImpl extends UserRepository {
       modelInterface: LoginResponse.getModelInterface(),
     );
     try {
-      if (useDataFake) {
-        await delayFunc();
-        return LoginResponse(
-          status: 200,
-          token: 'token',
-          customerPortraits: List.generate(
-            5,
-            (index) => CustomerPortrait(
-              key: 'CP${index + 1}',
-              value: 'Nhóm chân dung ${index + 1}',
-            ),
-          ),
-          restaurant: RestaurantModel(
-            id: 1,
-            name: 'NH test',
-            address: 'Khong co dia chi',
-            urlServerO2o: '123',
-          ),
-          user: UserModel(
-            id: 1,
-            name: 'PV 1',
-            myrole: 'pv',
-          ),
-        );
-      }
-      final bodyRequest = jsonEncode(
-          <String, dynamic>{"email": email, "password": password, "role": 5});
+      final bodyRequest =
+          jsonEncode(<String, dynamic>{"email": email, "password": password, "role": 5});
+      log = log.copyWith(request: bodyRequest);
       final response = await restClient.post(
         Uri.parse(ApiConfig.login),
         body: bodyRequest,
       );
-      log = log.copyWith(
-        response: [response.statusCode, response.body],
-        request: bodyRequest,
-      );
+      log = log.copyWith(response: [response.statusCode, response.body]);
       final bodyJson = jsonDecode(response.body);
       if (response.statusCode == 200) {
         final result = LoginResponse.fromJson(bodyJson);
@@ -80,43 +50,42 @@ class UserRepositoryImpl extends UserRepository {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      showLog(ex.toString(), flags: 'login ex');
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
     }
   }
 
   @override
-  Future<CheckCodeResponse> checkCode({required String code}) async {
+  Future<void> closeShift() async {
+    var api = ApiConfig.closeShift;
+    var waiterId = LocalStorage.getDataLogin()?.user?.id;
+    var bodyRequest = jsonEncode({'waiter_id': waiterId});
     var log = ErrorLogModel(
-      action: AppLogAction.checkCodeWaiter,
-      api: ApiConfig.checkCode,
-      modelInterface: CheckCodeResponse.getModelInterface(),
+      action: AppLogAction.closeShift,
+      api: api,
+      request: bodyRequest,
     );
     try {
-      if (useDataFake) {
-        await delayFunc();
-        return CheckCodeResponse(data: CheckCodeResponseData(checkCode: true));
-      }
-      final response = await restClient.post(
-        Uri.parse(ApiConfig.checkCode),
-        body: jsonEncode(<String, dynamic>{"code": code}),
-      );
-      log = log.copyWith(
-        response: [response.statusCode, response.body],
-        request: {"code": code},
-      );
+      final response = await restClient.post(Uri.parse(api), body: bodyRequest);
+      log = log.copyWith(response: [response.statusCode, response.body]);
       if (response.statusCode == NetworkCodeConfig.ok) {
-        final bodyJson = jsonDecode(response.body);
-        final result = CheckCodeResponse.fromJson(bodyJson);
-        return result;
+        var body = jsonDecode(response.body);
+        if (body['status'] != NetworkCodeConfig.ok) {
+          throw body['message'] != null
+              ? AppException.fromMessage(body['message'])
+              : AppException.fromStatusCode(body['status']);
+        }
+
+        return;
       } else {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      showLog(ex.toString(), flags: 'closeShift ex');
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
     }

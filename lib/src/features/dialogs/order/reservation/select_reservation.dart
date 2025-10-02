@@ -1,25 +1,16 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
+import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
-
 import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
-
-import 'package:aladdin_franchise/generated/l10n.dart';
-import 'package:aladdin_franchise/src/configs/color.dart';
-import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
-import 'package:aladdin_franchise/src/configs/text_style.dart';
 
 import 'reservation_item.dart';
 
@@ -60,12 +51,10 @@ class _SelectReservationDialog extends ConsumerStatefulWidget {
   final String? initReserCRMId;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __SelectReservationDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __SelectReservationDialogState();
 }
 
-class __SelectReservationDialogState
-    extends ConsumerState<_SelectReservationDialog> {
+class __SelectReservationDialogState extends ConsumerState<_SelectReservationDialog> {
   late TextEditingController controller;
 
   ReservationModel? reservationSelect;
@@ -96,9 +85,7 @@ class __SelectReservationDialogState
       child: AlertDialog(
         backgroundColor: Colors.white,
         title: Text(
-          widget.initReserCRMId != null
-              ? 'Cập nhật lịch đặt bàn'
-              : S.current.choose_reservation,
+          widget.initReserCRMId != null ? 'Cập nhật lịch đặt bàn' : S.current.choose_reservation,
           style: AppTextStyle.bold(fontSize: 15),
         ),
         content: Material(
@@ -111,8 +98,8 @@ class __SelectReservationDialogState
                 bool isNotEmpty = data.isNotEmpty;
                 WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
                   if (!_initReservationSuccess) {
-                    var reserSelect = data.firstWhereOrNull(
-                        (element) => element.id == widget.initReserCRMId);
+                    var reserSelect =
+                        data.firstWhereOrNull((element) => element.id == widget.initReserCRMId);
                     reservationSelect = reserSelect;
                     initReservation = reserSelect;
                     _initReservationSuccess = true;
@@ -135,17 +122,14 @@ class __SelectReservationDialogState
                       ),
                     ),
                     Row(
-                      mainAxisAlignment: isNotEmpty
-                          ? MainAxisAlignment.end
-                          : MainAxisAlignment.center,
+                      mainAxisAlignment:
+                          isNotEmpty ? MainAxisAlignment.end : MainAxisAlignment.center,
                       children: [
                         ButtonCancelWidget(
                           textAction: isNotEmpty ? null : S.current.close,
                           onPressed: () {
-                            Navigator.pop(context, (
-                              reservation: initReservation,
-                              initReservation: initReservation
-                            ));
+                            Navigator.pop(context,
+                                (reservation: initReservation, initReservation: initReservation));
                           },
                         ),
                         if (isNotEmpty) ...[
@@ -176,16 +160,16 @@ class __SelectReservationDialogState
                     Expanded(
                       child: MessageContent(
                         message: S.current.error_get_reservations,
-                        onPressed:
-                            ref.read(homeProvider.notifier).getReservations,
+                        onPressed: () {
+                          ref.refresh(orderToOnlineProvider);
+                        },
+                        // ref.read(homeProvider.notifier).getReservations,
                       ),
                     ),
                     ButtonCancelWidget(
                       onPressed: () {
-                        Navigator.pop(context, (
-                          reservation: initReservation,
-                          initReservation: initReservation
-                        ));
+                        Navigator.pop(context,
+                            (reservation: initReservation, initReservation: initReservation));
                       },
                     ),
                   ],
@@ -278,8 +262,7 @@ class __SearchReservationState extends State<_SearchReservation> {
 
   @override
   Widget build(BuildContext context) {
-    List<ReservationModel> reservations =
-        List<ReservationModel>.from(widget.reservations);
+    List<ReservationModel> reservations = List<ReservationModel>.from(widget.reservations);
     var today = DateTime.now().onlyDate();
     var yesterday = today.subtract(const Duration(seconds: 1));
     var tomorrow = today.add(const Duration(hours: 24));
@@ -292,10 +275,7 @@ class __SearchReservationState extends State<_SearchReservation> {
     reservations = reservations.where((e) {
       var valid = e.date.isAfter(yesterday) &&
           e.date.isBefore(tomorrow) &&
-          (e.isOnline
-                  ? AppConfig.orderOnlineValue
-                  : AppConfig.orderOfflineValue) ==
-              kTypeOrder &&
+          (e.isOnline ? AppConfig.orderOnlineValue : AppConfig.orderOfflineValue) == kTypeOrder &&
           ([
                 ReservationStatus.pending,
                 ReservationStatus.accept,
@@ -303,9 +283,7 @@ class __SearchReservationState extends State<_SearchReservation> {
               (widget.initReserCRMId != null && e.id == widget.initReserCRMId));
 
       if (valid) {
-        var result = ((e.customer?.phoneNumber ?? '')
-                .toLowerCase()
-                .contains(textSearch) ||
+        var result = ((e.customer?.phoneNumber ?? '').toLowerCase().contains(textSearch) ||
             (e.customer?.name ?? '').toLowerCase().contains(textSearch));
         if (result) {
           bool endCheck = false;
@@ -373,8 +351,7 @@ class __SearchReservationState extends State<_SearchReservation> {
                           reservationSelect = reservation;
                         }
                         setState(() {});
-                        widget.onChangeReservationSelect
-                            ?.call(reservationSelect);
+                        widget.onChangeReservationSelect?.call(reservationSelect);
                       },
                       selected: selected,
                       reservation: reservation,

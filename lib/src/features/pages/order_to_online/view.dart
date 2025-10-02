@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
-import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/configs/image_const.dart';
+import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/processing.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -123,7 +124,9 @@ class _OrderToOnlinePageState extends ConsumerState<OrderToOnlinePage> {
             iconData: Icons.refresh,
             onPressed: () {
               ref.read(orderToOnlinePageNotifier.notifier).onChangeShowLoadingGetData(true);
-              ref.read(homeProvider.notifier).getOrderToOnline();
+
+              ref.refresh(orderToOnlineProvider);
+              // ref.read(homeProvider.notifier).getOrderToOnline();
               ref.read(orderToOnlinePageNotifier.notifier).getChatMessages();
             },
           ),
@@ -147,7 +150,8 @@ class _BodyPage extends ConsumerWidget {
         child: AppErrorSimpleWidget(
           onTryAgain: () {
             ref.read(orderToOnlinePageNotifier.notifier).onChangeShowLoadingGetData(true);
-            ref.read(homeProvider.notifier).getOrderToOnline();
+            ref.refresh(orderToOnlineProvider);
+            // ref.read(homeProvider.notifier).getOrderToOnline();
           },
         ),
       );

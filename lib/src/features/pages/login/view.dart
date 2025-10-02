@@ -74,8 +74,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
     bool isPortraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
-    bool isSmallDevice =
-        (isMobile && !isPortraitOrientation) || (isTablet && isPortraitOrientation);
+    bool isSmallDevice = (isMobile && isPortraitOrientation) || (isTablet && isPortraitOrientation);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: _buildAppBar(),

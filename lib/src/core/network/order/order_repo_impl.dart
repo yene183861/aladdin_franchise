@@ -7,15 +7,14 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/data_fake.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/network/app_exception.dart';
+import 'package:aladdin_franchise/src/core/network/check_locked_order.dart';
 import 'package:aladdin_franchise/src/core/network/order/order_repository.dart';
 import 'package:aladdin_franchise/src/core/network/responses/create_order.dart';
 import 'package:aladdin_franchise/src/core/network/responses/data_bill.dart';
 import 'package:aladdin_franchise/src/core/network/responses/order.dart';
-import 'package:aladdin_franchise/src/core/network/responses/payment_qr_code/order_invoice_info.dart';
 import 'package:aladdin_franchise/src/core/network/responses/process_order.dart';
 import 'package:aladdin_franchise/src/core/network/responses/product_checkout.dart';
 import 'package:aladdin_franchise/src/core/network/rest_client.dart';
-import 'package:aladdin_franchise/src/core/services/local_network.dart';
 import 'package:aladdin_franchise/src/core/services/send_log/log_service.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/order_offine.dart';
@@ -24,10 +23,8 @@ import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_rating.dart';
 import 'package:aladdin_franchise/src/models/data_bill.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
-import 'package:aladdin_franchise/src/models/history_order.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
-import 'package:aladdin_franchise/src/models/order_invoice/order_invoice.dart';
 import 'package:aladdin_franchise/src/models/order_offline/order_offline.dart';
 import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart';
 import 'package:aladdin_franchise/src/models/policy_result.dart';
@@ -38,23 +35,16 @@ import 'package:aladdin_franchise/src/models/table.dart';
 import 'package:aladdin_franchise/src/models/waiter.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
-import 'package:aladdin_franchise/src/utils/date_time.dart';
-import 'package:http/http.dart';
-
-import 'package:aladdin_franchise/src/models/o2o/chat_message_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/customer_info_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/request_order.dart';
 
 class OrderRepositoryImpl extends OrderRepository {
-  void _throwLockedOrder(Response response) {
-    if (response.statusCode == NetworkCodeConfig.locked) {
-      throw AppException(
-        statusCode: response.statusCode,
-        message: jsonDecode(response.body)['message'] ?? S.current.msg_locked_order,
-      );
-    }
-  }
+  // void _throwLockedOrder(Response response) {
+  //   if (response.statusCode == NetworkCodeConfig.locked) {
+  //     throw AppException(
+  //       statusCode: response.statusCode,
+  //       message: jsonDecode(response.body)['message'] ?? S.current.msg_locked_order,
+  //     );
+  //   }
+  // }
 
   @override
   Future<OrdersResponse> getOrders({int? typeOrder}) async {
@@ -187,7 +177,7 @@ class OrderRepositoryImpl extends OrderRepository {
         var result = CreateOrderResponse.fromJson(json);
         return result;
       } else {
-        _throwLockedOrder(response);
+        checkLockedOrder(response);
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
@@ -248,7 +238,7 @@ class OrderRepositoryImpl extends OrderRepository {
         final result = ProcessOrderResponse.fromJson(jsonRes);
         return result;
       } else {
-        _throwLockedOrder(response);
+        checkLockedOrder(response);
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
@@ -355,7 +345,7 @@ class OrderRepositoryImpl extends OrderRepository {
         response: [response.statusCode, response.body],
         request: body,
       );
-      _throwLockedOrder(response);
+      checkLockedOrder(response);
       if (response.statusCode == NetworkCodeConfig.ok) {
         final jsonRes = jsonDecode(response.body);
         final result = ProcessOrderResponse.fromJson(jsonRes);
@@ -364,17 +354,10 @@ class OrderRepositoryImpl extends OrderRepository {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
+      showLog(ex.toString(), flags: 'cancelDishInOrder ex');
       LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
-      if (ex is AppException) {
-        if ((ex).errorCode == NetworkCodeConfig.locked) {
-          throw AppException(
-            message: S.current.msg_locked_order,
-            statusCode: NetworkCodeConfig.locked,
-          );
-        }
-        rethrow;
-      }
+      if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
     }
   }
@@ -729,113 +712,6 @@ class OrderRepositoryImpl extends OrderRepository {
   }
 
   @override
-  Future<OrderInvoice> getOrderInvoice(int orderId) async {
-    var apiUrl = "${ApiConfig.getInvoiceByOrder}?order_id=$orderId";
-    var log = ErrorLogModel(
-      action: AppLogAction.getInvoiceByOrder,
-      api: apiUrl,
-    );
-    try {
-      if (useDataFake) {
-        await delayFunc();
-        var invoice = await kGetOrderInvoice(orderId);
-        return invoice;
-      }
-      var response = await restClient.get(
-        Uri.parse(apiUrl),
-      );
-      log = log.copyWith(
-        response: [response.statusCode, response.body],
-      );
-      if (response.statusCode == NetworkCodeConfig.ok) {
-        var bodyJson = jsonDecode(response.body);
-        final resData = OrderInvoiceInfoResponse.fromJson(bodyJson);
-        return resData.data;
-      } else {
-        throw AppException.fromStatusCode(response.statusCode);
-      }
-    } catch (ex) {
-      showLog(ex, flags: 'Error getInvoiceByOrder');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-      if (ex is AppException) rethrow;
-      throw AppException(message: ex.toString());
-    }
-  }
-
-  @override
-  Future<void> updateOrderInvoice(
-      {required int orderId, required OrderInvoice orderInvoice}) async {
-    var apiUrl = ApiConfig.updateInvoiceForOrder;
-    var log = ErrorLogModel(
-      action: AppLogAction.updateInvoiceForOrder,
-      api: apiUrl,
-    );
-    try {
-      if (useDataFake) {
-        await delayFunc();
-        return;
-      }
-      var bodyRequest = jsonEncode(<String, dynamic>{
-        "order_id": orderId,
-        "invoice": orderInvoice.toJson(),
-      });
-      var response = await restClient.post(
-        Uri.parse(apiUrl),
-        body: bodyRequest,
-      );
-      log = log.copyWith(
-        request: bodyRequest,
-        response: [response.statusCode, response.body],
-      );
-      if (response.statusCode != 200) {
-        _throwLockedOrder(response);
-        throw AppException.fromStatusCode(response.statusCode);
-      }
-    } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-      if (ex is AppException) rethrow;
-      throw AppException(message: ex.toString());
-    }
-  }
-
-  @override
-  Future<void> sendPaymentRating(
-      {required int orderId, required ListCustomerRating customerRatings}) async {
-    var apiUrl = ApiConfig.sendPaymentRating;
-    var log = ErrorLogModel(
-      action: AppLogAction.sendPaymentRating,
-      api: apiUrl,
-    );
-    try {
-      ListCustomerRating customerRatingPush =
-          customerRatings.where((element) => element.isEmptyOrError() == false).toList();
-
-      var bodyRequest = jsonEncode(<String, dynamic>{
-        "order_id": orderId,
-        "customer_rating": customerRatingPush,
-      });
-      var response = await restClient.post(
-        Uri.parse(apiUrl),
-        body: bodyRequest,
-      );
-      log = log.copyWith(
-        request: bodyRequest,
-        response: [response.statusCode, response.body],
-      );
-      if (response.statusCode != 200) {
-        throw AppException.fromStatusCode(response.statusCode);
-      }
-    } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-      if (ex is AppException) rethrow;
-      throw AppException(message: ex.toString());
-    }
-  }
-
-  @override
   Future<void> lockOrder({
     required int orderId,
     required int statusLock,
@@ -862,29 +738,6 @@ class OrderRepositoryImpl extends OrderRepository {
       );
       if (response.statusCode != 200) {
         throw AppException.fromStatusCode(response.statusCode);
-      }
-    } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-      if (ex is AppException) rethrow;
-      throw AppException(message: ex.toString());
-    }
-  }
-
-  @override
-  Future<void> removeCustomerForOrder({required int orderId}) async {
-    final apiUrl = "${ApiConfig.statusLockOrder}?order_id=$orderId";
-    var log = ErrorLogModel(
-      action: AppLogAction.getStatusLockOrder,
-      api: apiUrl,
-    );
-    try {
-      final response = await restClient.get(Uri.parse(apiUrl));
-      log = log.copyWith(
-        response: [response.statusCode, response.body],
-      );
-      if (response.statusCode != 200) {
-        throw AppException.fromHttpResponse(response);
       }
     } catch (ex) {
       LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
@@ -1049,87 +902,6 @@ class OrderRepositoryImpl extends OrderRepository {
   }
 
   @override
-  Future<List<HistoryOrderModel>> getHistoryOrder({
-    required DateTime startDate,
-    required DateTime endDate,
-  }) async {
-    var api =
-        '${ApiConfig.historyOrder}?restaurant_id=${LocalStorage.getDataLogin()?.restaurant?.id}'
-        '&start_date=${DateTimeUtils.formatToString(time: startDate, newPattern: 'yyyy-MM-dd')}&end_date=${DateTimeUtils.formatToString(time: endDate, newPattern: 'yyyy-MM-dd')}';
-    var log = ErrorLogModel(
-      action: AppLogAction.historyOrder,
-      api: api,
-      modelInterface: ProcessOrderResponse.getModelInterface(),
-    );
-    try {
-      if (useDataFake) {
-        return List.generate(
-          10,
-          (index) => HistoryOrderModel(
-            orderCode: 'code-${index + 1}',
-            price: PriceDataBill(
-              totalPrice: 500000,
-              totalPriceTax: 40000,
-              totalPriceVoucher: 0,
-              totalPriceFinal: 540000,
-            ),
-            orderStatus: 16,
-          ),
-        );
-      }
-      final response = await restClient.get(Uri.parse(api));
-      log = log.copyWith(
-        response: [response.statusCode, response.body],
-      );
-
-      if (response.statusCode == NetworkCodeConfig.ok) {
-        var data = jsonDecode(response.body)['data']['data_histories'];
-        return (data as List).map((e) => HistoryOrderModel.fromJson(e)).toList();
-      } else {
-        throw AppException.fromStatusCode(response.statusCode);
-      }
-    } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-      if (ex is AppException) rethrow;
-      throw AppException(message: ex.toString());
-    }
-  }
-
-  @override
-  Future<void> closingShift() async {
-    var api = ApiConfig.closingShift;
-    var waiterId = LocalStorage.getDataLogin()?.user?.id;
-    var bodyRequest = jsonEncode({'waiter_id': waiterId});
-    var log = ErrorLogModel(
-      action: AppLogAction.closingShift,
-      api: api,
-      request: bodyRequest,
-    );
-    try {
-      final response = await restClient.post(Uri.parse(api), body: bodyRequest);
-      log = log.copyWith(response: [response.statusCode, response.body]);
-      if (response.statusCode == NetworkCodeConfig.ok) {
-        var body = jsonDecode(response.body);
-        if (body['status'] != NetworkCodeConfig.ok) {
-          throw body['message'] != null
-              ? AppException.fromMessage(body['message'])
-              : AppException.fromStatusCode(body['status']);
-        }
-
-        return;
-      } else {
-        throw AppException.fromStatusCode(response.statusCode);
-      }
-    } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-      if (ex is AppException) rethrow;
-      throw AppException(message: ex.toString());
-    }
-  }
-
-  @override
   Future<List<ProductCheckoutUpdateTaxModel>> updateTax(
       {required OrderModel order,
       required List<ProductCheckoutModel> pc,
@@ -1176,84 +948,6 @@ class OrderRepositoryImpl extends OrderRepository {
     }
   }
 
-  // o2o
-  @override
-  Future<List<O2OOrderModel>> getOrderToOnline() async {
-    var log = ErrorLogModel(
-      action: AppLogAction.getInfoByTaxCode,
-      modelInterface: O2OOrderModel.getModelInterface(),
-    );
-    try {
-      if (useDataFake) {
-        return [];
-      }
-      final loginData = LocalStorage.getDataLogin();
-      final apiUrl =
-          '${ApiConfig.getOrderToOnline}?restaurant_id=${loginData?.restaurant?.id ?? ''}';
-      log = log.copyWith(api: apiUrl);
-      final response = await restClient.get(Uri.parse(apiUrl));
-      log = log.copyWith(
-        response: [response.statusCode, response.body],
-      );
-      if (response.statusCode != 200) {
-        throw AppException.fromHttpResponse(response);
-      } else {
-        var bodyJson = jsonDecode(response.body);
-        final data = bodyJson['data'] as List;
-        final result = data.map((e) => O2OOrderModel.fromJson(e)).toList();
-
-        return result;
-      }
-    } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-      if (ex is AppException) rethrow;
-      throw AppException(message: ex.toString());
-    }
-  }
-
-  @override
-  Future<void> updateStatusRequestOrderO2O({
-    required int orderId,
-    required int status,
-    required int orderItemId,
-    required List<RequestOrderItemModel> orderItems,
-    String notes = '',
-  }) async {
-    final apiUrl = ApiConfig.updateStatusRequestOrderO2O;
-    var log = ErrorLogModel(
-      action: AppLogAction.getInfoByTaxCode,
-      api: apiUrl,
-      modelInterface: 'xác nhận status = 1, hủy status = 2',
-      order: OrderModel(id: orderId),
-    );
-    try {
-      final loginData = LocalStorage.getDataLogin();
-      final list = jsonEncode(orderItems);
-      final bodyRequest = jsonEncode(<String, dynamic>{
-        "item_order_id": orderItemId,
-        "status": status,
-        "order_id": orderId,
-        "restaurant_id": loginData?.restaurant?.id ?? 0,
-        "items": list,
-        "notes": notes,
-      });
-      log = log.copyWith(request: bodyRequest);
-      final response = await restClient.post(Uri.parse(apiUrl), body: bodyRequest);
-      log = log.copyWith(
-        response: [response.statusCode, response.body],
-      );
-      if (response.statusCode != 200) {
-        throw AppException.fromHttpResponse(response);
-      }
-    } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-      if (ex is AppException) rethrow;
-      throw AppException(message: ex.toString());
-    }
-  }
-
   @override
   Future<bool> checkStatusLockOrder({required int orderId}) async {
     final apiUrl = "${ApiConfig.statusLockOrder}?order_id=$orderId";
@@ -1272,71 +966,6 @@ class OrderRepositoryImpl extends OrderRepository {
         return false;
       } else if (response.statusCode == 423) {
         return true;
-      }
-      throw AppException.fromHttpResponse(response);
-    } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-      if (ex is AppException) rethrow;
-      throw AppException(message: ex.toString());
-    }
-  }
-
-  @override
-  Future<List<ChatMessageModel>> getChatMessages({
-    required int restaurantId,
-    required int orderId,
-  }) async {
-    final dataLogin = LocalStorage.getDataLogin();
-    final apiUrl = "${dataLogin?.restaurant?.urlServerO2o}/$restaurantId/$orderId/$kDeviceId";
-    var log = ErrorLogModel(
-      action: AppLogAction.getInfoByTaxCode,
-      api: apiUrl,
-      modelInterface: ChatMessageModel.getModelInterface(),
-      order: OrderModel(id: orderId),
-    );
-    try {
-      final response = await restClient.get(Uri.parse(apiUrl));
-      log = log.copyWith(
-        response: [response.statusCode, response.body],
-      );
-      if (response.statusCode == 200) {
-        var bodyJson = jsonDecode(response.body);
-        final result = (bodyJson as List).map((e) => ChatMessageModel.fromJson(e)).toList();
-        return result;
-      }
-      throw AppException.fromHttpResponse(response);
-    } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-      if (ex is AppException) rethrow;
-      throw AppException(message: ex.toString());
-    }
-  }
-
-  @override
-  Future<List<O2oCustomerInfoModel>> getO2OCustomerInfo({required int orderId}) async {
-    final dataLogin = LocalStorage.getDataLogin();
-    final apiUrl = ApiConfig.getO2oCustomerInfo;
-    var log = ErrorLogModel(
-      action: AppLogAction.getInfoByTaxCode,
-      api: apiUrl,
-      order: OrderModel(id: orderId),
-    );
-    try {
-      final response = await restClient.post(Uri.parse(apiUrl),
-          body: jsonEncode(<String, dynamic>{
-            "restaurant_id": dataLogin?.restaurant?.id,
-            "order_id": orderId,
-          }));
-      log = log.copyWith(
-        response: [response.statusCode, response.body],
-      );
-      if (response.statusCode == 200) {
-        var bodyJson = jsonDecode(response.body);
-        var customers =
-            (bodyJson['data'] as List).map((e) => O2oCustomerInfoModel.fromJson(e)).toList();
-        return customers;
       }
       throw AppException.fromHttpResponse(response);
     } catch (ex) {

@@ -1,7 +1,6 @@
 import 'dart:core';
 
 import 'package:aladdin_franchise/src/configs/const.dart';
-import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/models/category.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -38,8 +37,7 @@ class AppConfig {
   static const String appVersion = "V1.0.0";
   static const int versionCode = 1;
   static const String appUpdateFileName = "apos-franchise-update.apk";
-  final String urlHelp =
-      "https://sites.google.com/aladdin-jsc.com/aladdin-pos-docs?usp=sharing";
+  final String urlHelp = "https://sites.google.com/aladdin-jsc.com/aladdin-pos-docs?usp=sharing";
 
   static const List<String> reasonCancelItem = [
     "Khách chọn nhầm",
@@ -65,10 +63,6 @@ class AppConfig {
   final String keyConfig = "config";
 
   static NumberFormat formatCurrency({bool isCustomerPage = false}) {
-    // var localCode =
-    // isCustomerPage
-    //     ? LocalStorage.getCustomerLanguageLocal()
-    //     : LocalStorage.getLanguageLocal();
     return NumberFormat.simpleCurrency(locale: 'vi');
   }
 
