@@ -19,7 +19,6 @@ class TypeOrderWidget extends ConsumerWidget {
     var typeOrder = ref.watch(typeOrderWaiterProvider);
     var enableOnline = ref.watch(enableOrderOnlineProvider);
 
-    showLogs(enableOnline, flags: 'enableOnline');
     return ButtonWithIconWidget(
       padding: const EdgeInsets.all(6),
       color: convertToTypeOrderEnum(LocalStorage.getTypeOrderWaiter()).color,

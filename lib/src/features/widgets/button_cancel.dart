@@ -13,6 +13,7 @@ class ButtonCancelWidget extends StatelessWidget {
   final double? minWidth;
   final double? height;
   final EdgeInsetsGeometry? padding;
+  final double? textSize;
   const ButtonCancelWidget({
     Key? key,
     this.onPressed,
@@ -22,6 +23,7 @@ class ButtonCancelWidget extends StatelessWidget {
     this.minWidth,
     this.height,
     this.padding,
+    this.textSize,
   }) : super(key: key);
 
   @override
@@ -39,7 +41,10 @@ class ButtonCancelWidget extends StatelessWidget {
         padding: padding ?? const EdgeInsets.all(12),
         child: Text(
           textAction ?? S.current.cancel,
-          style: AppTextStyle.regular(color: AppColors.white),
+          style: AppTextStyle.regular(
+            color: AppColors.white,
+            fontSize: textSize,
+          ),
         ),
       ),
     );

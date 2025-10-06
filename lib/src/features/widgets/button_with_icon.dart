@@ -1,7 +1,7 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/features/pages/login/view.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../../../generated/l10n.dart';

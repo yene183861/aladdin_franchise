@@ -6,6 +6,7 @@ import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
 import '../../../../../generated/l10n.dart';
 

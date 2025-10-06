@@ -135,45 +135,45 @@ class _UpdateAppWindowsPageState extends ConsumerState<UpdateAppWindowsPage> {
     );
   }
 
-  Widget _loadByFirebaseWidget() {
-    final appUpdate = ref.watch(appUpdateProvider);
-    return appUpdate.when(
-      skipLoadingOnRefresh: false,
-      data: (data) {
-        if (data != null && (data.checkEnableWindows ?? false)) {
-          return _BodyUpdateWidget(
-            appUpdate: data,
-            onPressUpdate: () {
-              ref.read(updateAppWindowsProvider.notifier).onDownload(data);
-            },
-          );
-        } else {
-          return const UpdateAppVersionIsLatesetWidget();
-        }
-      },
-      error: (_, __) {
-        return Consumer(
-          builder: (BuildContext context, WidgetRef ref, Widget? child) {
-            final server = ref.watch(
-                updateAppWindowsProvider.select((value) => value.server));
-            return UpdateAppCheckErrorWidget(
-              infoError: _.toString(),
-              onTryAgain: () {
-                if (server == ConfigServerRestaurantData.firebase) {
-                  ref.refresh(appUpdateProvider);
-                } else {
-                  ref.refresh(aladdinWebLatesetVersionProvider);
-                }
-              },
-            );
-          },
-        );
-      },
-      loading: () {
-        return AppLoadingSimpleWidget(message: S.current.checkForUpdate);
-      },
-    );
-  }
+  // Widget _loadByFirebaseWidget() {
+  //   final appUpdate = ref.watch(appUpdateProvider);
+  //   return appUpdate.when(
+  //     skipLoadingOnRefresh: false,
+  //     data: (data) {
+  //       if (data != null && (data.checkEnableWindows ?? false)) {
+  //         return _BodyUpdateWidget(
+  //           appUpdate: data,
+  //           onPressUpdate: () {
+  //             ref.read(updateAppWindowsProvider.notifier).onDownload(data);
+  //           },
+  //         );
+  //       } else {
+  //         return const UpdateAppVersionIsLatesetWidget();
+  //       }
+  //     },
+  //     error: (_, __) {
+  //       return Consumer(
+  //         builder: (BuildContext context, WidgetRef ref, Widget? child) {
+  //           final server = ref.watch(
+  //               updateAppWindowsProvider.select((value) => value.server));
+  //           return UpdateAppCheckErrorWidget(
+  //             infoError: _.toString(),
+  //             onTryAgain: () {
+  //               if (server == ConfigServerRestaurantData.firebase) {
+  //                 ref.refresh(appUpdateProvider);
+  //               } else {
+  //                 ref.refresh(aladdinWebLatesetVersionProvider);
+  //               }
+  //             },
+  //           );
+  //         },
+  //       );
+  //     },
+  //     loading: () {
+  //       return AppLoadingSimpleWidget(message: S.current.checkForUpdate);
+  //     },
+  //   );
+  // }
 
   Widget _loadByAladdinWebWidget() {
     final appUpdate = ref.watch(aladdinWebLatesetVersionProvider);
@@ -199,11 +199,11 @@ class _UpdateAppWindowsPageState extends ConsumerState<UpdateAppWindowsPage> {
             return UpdateAppCheckErrorWidget(
               infoError: _.toString(),
               onTryAgain: () {
-                if (server == ConfigServerRestaurantData.firebase) {
-                  ref.refresh(appUpdateProvider);
-                } else {
-                  ref.refresh(aladdinWebLatesetVersionProvider);
-                }
+                // if (server == ConfigServerRestaurantData.firebase) {
+                //   ref.refresh(appUpdateProvider);
+                // } else {
+                ref.refresh(aladdinWebLatesetVersionProvider);
+                // }
               },
             );
           },

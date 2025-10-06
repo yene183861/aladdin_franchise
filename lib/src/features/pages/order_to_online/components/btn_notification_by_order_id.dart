@@ -16,9 +16,9 @@ class ListO2ONotificationDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notifications = ref.watch(
-        orderToOnlinePageNotifier.select((value) => value.notifications));
+        orderToOnlinePageProvider.select((value) => value.notifications));
     final orderSelect = ref
-        .watch(orderToOnlinePageNotifier.select((value) => value.orderSelect));
+        .watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
     return AlertDialog(
       title: Text(
         '${S.current.list_request_o2o} (${S.current.table} ${orderSelect?.tableName ?? ''})',
@@ -116,9 +116,9 @@ class __O2ONotificationByOrderIdState
   @override
   Widget build(BuildContext context) {
     final notifications = ref.watch(
-        orderToOnlinePageNotifier.select((value) => value.notifications));
+        orderToOnlinePageProvider.select((value) => value.notifications));
     final orderSelect = ref
-        .watch(orderToOnlinePageNotifier.select((value) => value.orderSelect));
+        .watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
     return AlertDialog(
       title: Text(
         '${S.current.list_request_o2o} (${S.current.table} ${orderSelect?.tableName ?? ''})',

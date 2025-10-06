@@ -219,18 +219,18 @@ Future<void> onSelectPaymentMethod({
             },
           );
 
-          showLogs(res, flags: 'res atm');
+          // showLogs(res, flags: 'res atm');
           if (res != true) {
             return;
           }
         }
         // PTTT k phải atm, payoo -> chọn nhóm chân dung
         onCompleteOrder(
-          context: context,
           ref: ref,
           notCancel: false,
           printKitchenBill: true,
           showCloseBtnInPrintBillKitchen: true,
+          context: context,
         );
       }
     },

@@ -5,6 +5,7 @@ import 'package:aladdin_franchise/src/features/pages/settings/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/settings/state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
 class MenuSettingWidget extends ConsumerWidget {
   const MenuSettingWidget({super.key});

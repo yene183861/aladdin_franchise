@@ -8,7 +8,6 @@ import 'package:aladdin_franchise/src/features/pages/history_order/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/view.dart';
 
-import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_check_printer.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_logout.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_type_order.dart';
@@ -20,6 +19,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
 class HomeDrawerWidget extends ConsumerWidget {
   const HomeDrawerWidget({
@@ -70,7 +70,8 @@ class HomeDrawerWidget extends ConsumerWidget {
                 ListTile(
                   onTap: () async {
                     pop(context);
-                    final res = await ref.read(homeProvider.notifier).closingShift();
+                    final res =
+                        await ref.read(homeProvider.notifier).closeShift();
 
                     if (res != null) {
                       if (context.mounted) {
@@ -79,7 +80,9 @@ class HomeDrawerWidget extends ConsumerWidget {
                       return;
                     }
                     if (context.mounted) {
-                      showDoneSnackBar(context: context, message: S.current.closing_shift_success);
+                      showDoneSnackBar(
+                          context: context,
+                          message: S.current.closing_shift_success);
                     }
                   },
                   leading: const ResponsiveIconWidget(

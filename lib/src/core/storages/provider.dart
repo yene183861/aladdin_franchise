@@ -3,16 +3,13 @@ import 'dart:ui';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
-import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/responses/login.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_selecting.dart';
 import 'package:aladdin_franchise/src/models/restaurant_config.dart';
 import 'package:aladdin_franchise/src/models/app_setting.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 

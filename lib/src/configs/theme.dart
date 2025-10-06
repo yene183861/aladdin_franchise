@@ -7,33 +7,7 @@ import 'app.dart';
 import 'color.dart';
 import 'text_style.dart';
 
-// bool useGreenColor = true;
 
-// final _appBarTheme = AppBarTheme(
-//   // backgroundColor: Color(0xffFFFCF3), //Colors.white,
-//   backgroundColor: Color(0xFFFDFDFD), //Colors.white,
-//   scrolledUnderElevation: 0,
-//   elevation: 0,
-//   shadowColor: Colors.transparent,
-//   titleTextStyle: TextStyle(
-//     fontSize: 20,
-//     fontWeight: FontWeight.bold,
-//     color: AppColors.mainColor,
-//   ),
-//   iconTheme: IconThemeData(
-//     color: AppColors.mainColor,
-//   ),
-// );
-
-// const _dialogTheme = DialogTheme(
-//   surfaceTintColor: Colors.white,
-//   backgroundColor: Colors.white,
-// );
-
-// const _cardTheme = CardTheme(
-//   elevation: 0,
-//   color: Colors.white,
-// );
 
 final _textTheme = TextTheme(
   displayLarge: AppTextStyle.regular(),
@@ -53,70 +27,6 @@ final _textTheme = TextTheme(
   labelSmall: AppTextStyle.regular(),
 );
 
-// const _iconTheme = IconThemeData(
-//   size: 24,
-// );
-// final _inputDecorationTheme = InputDecorationTheme(
-//   contentPadding: const EdgeInsets.all(12),
-//   fillColor: Color(0XFFF9FAFA),
-//   filled: true,
-//   enabledBorder: OutlineInputBorder(
-//     borderRadius: BorderRadius.circular(8),
-//     borderSide: BorderSide(
-//       color: Color(0xFFDCDCDC),
-//     ),
-//   ),
-//   disabledBorder: OutlineInputBorder(
-//     borderRadius: BorderRadius.circular(8),
-//     borderSide: BorderSide(
-//       color: Color(0xFFDCDCDC),
-//     ),
-//   ),
-//   border: const OutlineInputBorder(),
-//   focusedBorder: OutlineInputBorder(
-//     borderRadius: BorderRadius.circular(8),
-//     borderSide: BorderSide(
-//       color: AppColors.blue,
-//     ),
-//   ),
-// );
-
-// final _buttonThem = ButtonThemeData(
-//   minWidth: 120,
-//   buttonColor: AppColors.mainColor,
-//   shape: RoundedRectangleBorder(
-//     borderRadius: BorderRadius.circular(12),
-//   ),
-// );
-
-// final _filledButtonThemeData = FilledButtonThemeData(
-//   style: ButtonStyle(
-//     backgroundColor: MaterialStateProperty.all(AppColors.mainColor),
-//     foregroundColor: MaterialStateProperty.all(Colors.white),
-//   ),
-// );
-
-// final _chipTheme = ChipThemeData(
-//   side: BorderSide.none,
-//   backgroundColor: Colors.white,
-//   shape: RoundedRectangleBorder(
-//     borderRadius: BorderRadius.circular(50),
-//   ),
-// );
-
-// final _listTileTheme = ListTileThemeData(
-//   tileColor: Colors.white,
-// );
-
-// final FloatingActionButtonThemeData _floatingActionButtonThemeData = FloatingActionButtonThemeData(
-//   backgroundColor: AppColors.secondColor,
-//   foregroundColor: Colors.white,
-//   extendedTextStyle: AppTextStyle.semiBold(),
-// );
-
-// final _bottomSheetTheme = BottomSheetThemeData(
-//   backgroundColor: Color(0xffF5F5F5),
-// );
 
 final kAppTheme = ThemeData(
   useMaterial3: true,

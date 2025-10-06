@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/data_fake.dart';
@@ -8,7 +7,6 @@ import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/network/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/responses/payment_method.dart';
 import 'package:aladdin_franchise/src/core/network/responses/payment_qr_code/banks.dart';
-import 'package:aladdin_franchise/src/core/network/responses/payment_qr_code/info_by_tax_code.dart';
 import 'package:aladdin_franchise/src/core/network/responses/process_order.dart';
 import 'package:aladdin_franchise/src/core/network/rest_client.dart';
 import 'package:aladdin_franchise/src/core/network/restaurant/restaurant_repository.dart';
@@ -18,7 +16,6 @@ import 'package:aladdin_franchise/src/models/atm_pos.dart';
 import 'package:aladdin_franchise/src/models/employee_sale.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
-import 'package:aladdin_franchise/src/models/minvoice/minvoice.dart';
 import 'package:aladdin_franchise/src/models/param_family/bank_param.dart';
 import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart';
 import 'package:aladdin_franchise/src/models/user_bank.dart';
@@ -53,41 +50,8 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'getBanks ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-      if (ex is AppException) rethrow;
-      throw AppException(message: ex.toString());
-    }
-  }
-
-  @override
-  Future<MInvoiceInfo> getMInvoiceTaxInfo(String taxCode) async {
-    var apiUrl = "${ApiConfig.getInfoByTaxCode}?tax_code=$taxCode";
-    var log = ErrorLogModel(
-      action: AppLogAction.getInfoByTaxCode,
-      api: apiUrl,
-    );
-    try {
-      var response = await restClient.get(Uri.parse(apiUrl));
-      log = log.copyWith(
-        response: [response.statusCode, response.body],
-      );
-      if (response.statusCode == NetworkCodeConfig.ok) {
-        final bodyJson = jsonDecode(response.body);
-        final resData = InfoByTaxCodeResponse.fromJson(bodyJson);
-        if (resData.data.isEmpty()) {
-          // đang copy từ apos sang
-          // ảo lắm: 200 nhưng data lại là "error": "Mã số thuế không đúng định dạng."
-          var error = bodyJson['data']['error'] ?? S.current.no_data;
-          throw AppException.fromMessage(error);
-        }
-        return resData.data;
-      } else {
-        throw AppException.fromStatusCode(response.statusCode);
-      }
-    } catch (ex) {
-      showLog(ex.toString(), flags: 'getMInvoiceTaxInfo ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -120,7 +84,8 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'getPaymentMethod ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -128,24 +93,20 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
   }
 
   @override
-  Future<({String? url, String? qr, int? expiryMin, String? message, int? status})>
-      getPaymentGateway({
+  Future<
+      ({
+        String? url,
+        String? qr,
+        int? expiryMin,
+        String? message,
+        int? status
+      })> getPaymentGateway({
     required ApiBankParam apiBankParam,
     required int keyPaymentMethod,
   }) async {
     //return "https://newsandbox.payoo.com.vn/v2/paynow/prepare?_token=1ePupay5CD3";
     var log = const ErrorLogModel(action: AppLogAction.getPaymentGateway);
     try {
-      if (useDataFake) {
-        await delayFunc();
-        return (
-          url: 'https://google.com',
-          qr: '1222',
-          expiryMin: 15,
-          message: '',
-          status: 200,
-        );
-      }
       final loginData = LocalStorage.getDataLogin();
       final restaurantId = loginData?.restaurant?.id;
       final apiUrl = "${ApiConfig.getPaymentGateway}?"
@@ -170,13 +131,20 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         final int? expiryMin = data['data']?['expiry_min'];
         final String? message = data['message'];
         final int? status = data['status'];
-        return (url: url, qr: qr, expiryMin: expiryMin, message: message, status: status);
+        return (
+          url: url,
+          qr: qr,
+          expiryMin: expiryMin,
+          message: message,
+          status: status
+        );
       } else {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
       showLog(ex, flags: 'Error getPaymentGateway');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -197,20 +165,24 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         'total_bill': totalBill,
       });
       log = log.copyWith(api: apiUrl, request: bodyRequest);
-      final response = await restClient.post(Uri.parse(apiUrl), body: bodyRequest);
+      final response =
+          await restClient.post(Uri.parse(apiUrl), body: bodyRequest);
 
       log = log.copyWith(
         response: [response.statusCode, response.body],
       );
       if (response.statusCode == NetworkCodeConfig.ok) {
         final data = jsonDecode(response.body);
-        return (data['data'] as List).map((e) => AtmPosModel.fromJson(e)).toList();
+        return (data['data'] as List)
+            .map((e) => AtmPosModel.fromJson(e))
+            .toList();
       } else {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'getListAtmPos ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -219,7 +191,6 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
 
   @override
   Future<void> atmPosCallback({
-    // ố cái url này là gì nhỉ?
     required String urlPos,
     // tổng tiền cuối ? (thấy note trên posman vậy)
     required dynamic orderId,
@@ -242,8 +213,8 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         'x-device-id': kDeviceId,
       };
 
-      var response =
-          await http.Client().post(Uri.parse(apiUrl), headers: defaultHeaders, body: bodyRequest);
+      var response = await http.Client()
+          .post(Uri.parse(apiUrl), headers: defaultHeaders, body: bodyRequest);
 
       log = log.copyWith(response: [response.statusCode, response.body]);
       if (response.statusCode == NetworkCodeConfig.ok) {
@@ -259,7 +230,8 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'atmPosCallback ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -292,7 +264,8 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'getEmployeeSales ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -321,13 +294,16 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
 
       if (response.statusCode == NetworkCodeConfig.ok) {
         var data = jsonDecode(response.body)['data']['data_histories'];
-        return (data as List).map((e) => HistoryOrderModel.fromJson(e)).toList();
+        return (data as List)
+            .map((e) => HistoryOrderModel.fromJson(e))
+            .toList();
       } else {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'getOrderHistoryList ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());

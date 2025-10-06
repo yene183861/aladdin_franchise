@@ -4,6 +4,7 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/core/network/provider.dart';
 
 import 'package:aladdin_franchise/src/features/dialogs/image_bill_checker.dart';
 import 'package:aladdin_franchise/src/features/dialogs/note_for_waiter.dart';
@@ -36,18 +37,21 @@ class ContentConfirmPaymentWidget extends ConsumerStatefulWidget {
   const ContentConfirmPaymentWidget({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _ContentConfirmPaymentWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _ContentConfirmPaymentWidgetState();
 }
 
-class _ContentConfirmPaymentWidgetState extends ConsumerState<ContentConfirmPaymentWidget> {
-  final List<String> tabs = ['Thông tin hóa đơn', 'Thanh toán'];
-  String tabSelect = 'Thông tin hóa đơn';
+class _ContentConfirmPaymentWidgetState
+    extends ConsumerState<ContentConfirmPaymentWidget> {
+  final List<String> tabs = ['Hóa đơn', 'Thanh toán'];
+  String tabSelect = 'Hóa đơn';
 
   @override
   Widget build(BuildContext context) {
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation =
+        AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool useTab = (isMobile || (isTablet && portraitOrientation));
     return SizedBox(
@@ -172,13 +176,17 @@ class _MorePaymentInfoWidget extends StatelessWidget {
           const GapH(12),
           Consumer(
             builder: (context, ref, child) {
-              var checked = ref.watch(homeProvider.select((value) => value.printNumberOfPeople));
+              var checked = ref.watch(
+                  homeProvider.select((value) => value.printNumberOfPeople));
               return GestureDetector(
-                onTap: ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
+                onTap:
+                    ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
                 child: Row(
                   children: [
                     CustomCheckbox(
-                      onChange: ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
+                      onChange: ref
+                          .read(homeProvider.notifier)
+                          .onChangePrintNumberOfPeople,
                       checked: checked,
                     ),
                     const Gap(4),
@@ -295,7 +303,9 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
           incrementIcon: const Icon(CupertinoIcons.add),
           decrementIcon: const Icon(CupertinoIcons.minus),
           textStyle: AppTextStyle.bold(),
-          value: ref.watch(homeProvider.select((value) => value.numberOfAdults)).toDouble(),
+          value: ref
+              .watch(homeProvider.select((value) => value.numberOfAdults))
+              .toDouble(),
           decoration: InputDecoration(
             label: Text(
               S.current.number_of_adults,
@@ -313,7 +323,8 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
           const Gap(8),
           Text(
             'Mã giảm giá theo số khách, thay đổi sổ khách người lớn trong mục Ưu đãi.',
-            style: AppTextStyle.regular(color: AppColors.redColor, fontSize: 12),
+            style:
+                AppTextStyle.regular(color: AppColors.redColor, fontSize: 12),
           )
         ],
         const GapH(24),
@@ -323,7 +334,9 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
           incrementIcon: const Icon(CupertinoIcons.add),
           decrementIcon: const Icon(CupertinoIcons.minus),
           textStyle: AppTextStyle.bold(),
-          value: ref.watch(homeProvider.select((value) => value.numberOfChildren)).toDouble(),
+          value: ref
+              .watch(homeProvider.select((value) => value.numberOfChildren))
+              .toDouble(),
           decoration: InputDecoration(
             label: Text(
               S.current.number_of_children,
@@ -346,7 +359,8 @@ class CustomerPortraitSelectWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final portraitSelect = ref.watch(homeProvider.select((value) => value.customerPortraitSelect));
+    final portraitSelect =
+        ref.watch(homeProvider.select((value) => value.customerPortraitSelect));
     final portraits = ref.read(homeProvider.notifier).getCustomerPortrait();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -381,7 +395,9 @@ class CustomerPortraitSelectWidget extends ConsumerWidget {
                     )
                     .toList(),
                 onChanged: (value) {
-                  ref.read(homeProvider.notifier).onChangeCustomerPortraitSelect(value!);
+                  ref
+                      .read(homeProvider.notifier)
+                      .onChangeCustomerPortraitSelect(value!);
                 },
               ),
       ],
@@ -413,50 +429,118 @@ class EmployeeSaleSelectWidget extends ConsumerWidget {
           ),
         ),
         Consumer(builder: (context, ref, child) {
-          final state = ref.watch(homeProvider.select((value) => value.employeeSaleState));
-          final data = ref.watch(homeProvider.select((value) => value.employeeSales));
-
-          var dataView = data
-              .where((e) =>
-                  [0, kTypeOrder == AppConfig.orderOfflineValue ? 1 : 2].contains(e.isOnline))
-              .toList();
-          final empSelect = ref.watch(homeProvider.select((value) => value.employeeSaleSelect));
-          switch (state.status) {
-            case PageCommonState.loading:
-              return const AppLoadingLineWidget();
-            case PageCommonState.error:
-              return AppErrorSimpleWidget(
-                onTryAgain: ref.read(homeProvider.notifier).getEmployeeSales,
-                textButton: S.current.reload,
-                message: state.messageError,
+          var saleState = ref.watch(employeeSalesProvider);
+          final empSelect = ref
+              .watch(homeProvider.select((value) => value.employeeSaleSelect));
+          // final state = ref
+          //     .watch(homeProvider.select((value) => value.employeeSaleState));
+          // final data =
+          //     ref.watch(homeProvider.select((value) => value.employeeSales));
+          return saleState.when(
+            data: (data) {
+              var dataView = data
+                  .where((e) => [
+                        0,
+                        kTypeOrder == AppConfig.orderOfflineValue ? 1 : 2
+                      ].contains(e.isOnline))
+                  .toList();
+              WidgetsBinding.instance.addPostFrameCallback(
+                (timeStamp) {
+                  if (empSelect != null && !dataView.contains(empSelect)) {
+                    ref
+                        .read(homeProvider.notifier)
+                        .onChangeEmployeeSaleSelect(null);
+                  }
+                },
               );
-            default:
-          }
-          if (dataView.isEmpty) {
-            return Text(S.current.no_sale_staff_set_up);
-          }
+              if (dataView.isEmpty) {
+                return Text(
+                  S.current.no_sale_staff_set_up,
+                  style: AppTextStyle.regular(),
+                );
+              }
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomDropdownButton<EmployeeSaleModel>(
-                data: dataView,
-                allowSearch: true,
-                buildTextDisplay: (data) {
-                  return data.fullName;
-                },
-                initData: empSelect == null ? [] : [empSelect],
-                onChangeData: (p0) {
-                  ref.read(homeProvider.notifier).onChangeEmployeeSaleSelect(p0.firstOrNull);
-                },
-                hintText: S.current.select_sales_staff,
-                searchMatchFn: (p0, p1) {
-                  return removeDiacritics((p0.value?.fullName ?? '').trim().toLowerCase())
-                      .contains(removeDiacritics(p1.trim().toLowerCase()));
-                },
-              ),
-            ],
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomDropdownButton<EmployeeSaleModel>(
+                    data: dataView,
+                    allowSearch: true,
+                    buildTextDisplay: (data) {
+                      return data.fullName;
+                    },
+                    initData: empSelect == null ? [] : [empSelect],
+                    onChangeData: (p0) {
+                      ref
+                          .read(homeProvider.notifier)
+                          .onChangeEmployeeSaleSelect(p0.firstOrNull);
+                    },
+                    hintText: S.current.select_sales_staff,
+                    searchMatchFn: (p0, p1) {
+                      return removeDiacritics(
+                              (p0.value?.fullName ?? '').trim().toLowerCase())
+                          .contains(removeDiacritics(p1.trim().toLowerCase()));
+                    },
+                  ),
+                ],
+              );
+            },
+            error: (error, stackTrace) => AppErrorSimpleWidget(
+              onTryAgain: () {
+                ref.refresh(employeeSalesProvider);
+              },
+              textButton: S.current.reload,
+              message: error.toString(),
+            ),
+            loading: () => const AppLoadingLineWidget(),
           );
+          // var dataView = data
+          //     .where((e) => [
+          //           0,
+          //           kTypeOrder == AppConfig.orderOfflineValue ? 1 : 2
+          //         ].contains(e.isOnline))
+          //     .toList();
+          // final empSelect = ref
+          //     .watch(homeProvider.select((value) => value.employeeSaleSelect));
+          // switch (state.status) {
+          //   case PageCommonState.loading:
+          //     return const AppLoadingLineWidget();
+          //   case PageCommonState.error:
+          //     return AppErrorSimpleWidget(
+          //       onTryAgain: ref.read(homeProvider.notifier).getEmployeeSales,
+          //       textButton: S.current.reload,
+          //       message: state.messageError,
+          //     );
+          //   default:
+          // }
+          // if (dataView.isEmpty) {
+          //   return Text(S.current.no_sale_staff_set_up);
+          // }
+
+          // return Column(
+          //   crossAxisAlignment: CrossAxisAlignment.start,
+          //   children: [
+          //     CustomDropdownButton<EmployeeSaleModel>(
+          //       data: dataView,
+          //       allowSearch: true,
+          //       buildTextDisplay: (data) {
+          //         return data.fullName;
+          //       },
+          //       initData: empSelect == null ? [] : [empSelect],
+          //       onChangeData: (p0) {
+          //         ref
+          //             .read(homeProvider.notifier)
+          //             .onChangeEmployeeSaleSelect(p0.firstOrNull);
+          //       },
+          //       hintText: S.current.select_sales_staff,
+          //       searchMatchFn: (p0, p1) {
+          //         return removeDiacritics(
+          //                 (p0.value?.fullName ?? '').trim().toLowerCase())
+          //             .contains(removeDiacritics(p1.trim().toLowerCase()));
+          //       },
+          //     ),
+          //   ],
+          // );
         })
       ],
     );

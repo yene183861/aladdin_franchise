@@ -7,7 +7,6 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/icon_const.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
-import 'package:aladdin_franchise/src/core/services/task_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
@@ -17,34 +16,23 @@ import 'package:aladdin_franchise/src/features/dialogs/order/order_option_dialog
 import 'package:aladdin_franchise/src/features/dialogs/processing.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/view.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/view.dart';
-import 'package:aladdin_franchise/src/features/pages/history_order/view.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/action/btn_create_ticket.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/action/btn_o2o.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/list_tag.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_detail.dart';
 
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
-import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/pages/more/view.dart';
-import 'package:aladdin_franchise/src/features/pages/more/widgets/button_logout.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/components/barrel_components.dart';
-import 'package:aladdin_franchise/src/features/pages/ticket/components/dialog.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/models/category.dart';
-import 'package:aladdin_franchise/src/models/data_bill.dart';
-import 'package:aladdin_franchise/src/models/ip_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/utils/app_check.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
-import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
-import 'package:aladdin_franchise/src/utils/app_printer/app_printer_html.dart';
-import 'package:aladdin_franchise/src/utils/navigator.dart';
-import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:collection/collection.dart';
@@ -66,24 +54,30 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:badges/badges.dart' as badge_lib;
 
 import 'components/navigation/drawer.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
+
+final GlobalKey<_HomePageState> homeKey = GlobalKey<_HomePageState>();
 
 class HomePage extends ConsumerStatefulWidget {
-  const HomePage({super.key});
+  HomePage({Key? key}) : super(key: homeKey);
 
   @override
   ConsumerState createState() => _HomePageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver {
+class _HomePageState extends ConsumerState<HomePage>
+    with WidgetsBindingObserver {
   late final Timer _timerReloadMenu;
 
-  _listenEvent(BuildContext context, WidgetRef ref) => (HomeEvent? previous, HomeEvent? next) {
+  _listenEvent(BuildContext context, WidgetRef ref) =>
+      (HomeEvent? previous, HomeEvent? next) {
         switch (next) {
           case HomeEvent.checkCode:
             showProcessingDialog(context, message: S.current.verifying);
             break;
           case HomeEvent.createNewOrder:
-            showProcessingDialog(context, message: S.current.creating_a_new_order);
+            showProcessingDialog(context,
+                message: S.current.creating_a_new_order);
             break;
           case HomeEvent.updateOrder:
             showProcessingDialog(context, message: S.current.updating_order);
@@ -92,25 +86,31 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             showProcessingDialog(context, message: S.current.cancel_order);
             break;
           case HomeEvent.loadingChangeOrderCurrent:
-            showProcessingDialog(context, message: S.current.updating_order_panel);
+            showProcessingDialog(context,
+                message: S.current.updating_order_panel);
             break;
           case HomeEvent.transferOrder:
-            showProcessingDialog(context, message: S.current.orders_are_being_delivered);
+            showProcessingDialog(context,
+                message: S.current.orders_are_being_delivered);
             break;
           case HomeEvent.processOrder:
             showProcessingDialog(context, message: S.current.processing);
             break;
           case HomeEvent.cancelDishInOrder:
-            showProcessingDialog(context, message: S.current.sending_request_to_cancel_order);
+            showProcessingDialog(context,
+                message: S.current.sending_request_to_cancel_order);
             break;
           case HomeEvent.paymentProcess:
-            showProcessingDialog(context, message: S.current.processing_payment);
+            showProcessingDialog(context,
+                message: S.current.processing_payment);
             break;
           case HomeEvent.checkLocalNetwork:
-            showProcessingDialog(context, message: S.current.checking_connection);
+            showProcessingDialog(context,
+                message: S.current.checking_connection);
             break;
           case HomeEvent.updateTypeOrderWaiter:
-            showProcessingDialog(context, message: S.current.changing_form_of_sell_mode);
+            showProcessingDialog(context,
+                message: S.current.changing_form_of_sell_mode);
             break;
           case HomeEvent.switchAccount:
             showProcessingDialog(
@@ -122,7 +122,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             Navigator.pop(context);
             showDoneSnackBar(
               context: context,
-              message: "${S.current.switched_accounts} ${ref.read(userInfoProvider).user?.name} "
+              message:
+                  "${S.current.switched_accounts} ${ref.read(userInfoProvider).user?.name} "
                   "(${ref.read(userInfoProvider).user?.username?.toUpperCase()})",
             );
             break;
@@ -131,7 +132,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             break;
           case HomeEvent.errorInfo:
             Navigator.pop(context);
-            showMessageDialog(context, message: ref.read(homeProvider.notifier).getMessageError());
+            showMessageDialog(context,
+                message: ref.read(homeProvider.notifier).getMessageError());
             break;
           case HomeEvent.findingCustomer:
             showProcessingDialog(context, message: S.current.getInfoProcessing);
@@ -148,7 +150,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
           case HomeEvent.removeTicket:
             showProcessingDialog(
               context,
-              message: "${S.current.canceling} ${S.current.discount.toLowerCase()}",
+              message:
+                  "${S.current.canceling} ${S.current.discount.toLowerCase()}",
             );
             break;
           case HomeEvent.findingTaxCode:
@@ -159,11 +162,13 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             break;
           case HomeEvent.updateInvoice:
             showProcessingDialog(context,
-                message: "${S.current.updating} ${S.current.invoice.toLowerCase()}");
+                message:
+                    "${S.current.updating} ${S.current.invoice.toLowerCase()}");
             break;
           case HomeEvent.insertInvoice:
             showProcessingDialog(context,
-                message: "${S.current.creating} ${S.current.invoice.toLowerCase()}");
+                message:
+                    "${S.current.creating} ${S.current.invoice.toLowerCase()}");
             break;
           case HomeEvent.unlockOrder:
             showProcessingDialog(
@@ -254,19 +259,23 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             );
             break;
           case HomeEvent.getDataBill:
-            showProcessingDialog(context, message: S.current.updating_payment_info);
+            showProcessingDialog(context,
+                message: S.current.updating_payment_info);
             break;
           case HomeEvent.getProductCheckout:
-            showProcessingDialog(context, message: S.current.updating_payment_info);
+            showProcessingDialog(context,
+                message: S.current.updating_payment_info);
             break;
           case HomeEvent.checkPrinter:
-            showProcessingDialog(context, message: S.current.checking_printer_status);
+            showProcessingDialog(context,
+                message: S.current.checking_printer_status);
             break;
           // coupon
           case HomeEvent.removeCoupon:
             showProcessingDialog(
               context,
-              message: "${S.current.canceling} ${S.current.discount.toLowerCase()}",
+              message:
+                  "${S.current.canceling} ${S.current.discount.toLowerCase()}",
             );
             break;
           default:
@@ -327,8 +336,9 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
           final pos = box.localToGlobal(Offset.zero);
           if (pos.dy <= 250) {
             if (isSubCategory && item != subCategorySelect) {
-              var category = categories.firstWhereOrNull(
-                  (e) => (e.children ?? []).firstWhereOrNull((i) => i.id == item.id) != null);
+              var category = categories.firstWhereOrNull((e) =>
+                  (e.children ?? []).firstWhereOrNull((i) => i.id == item.id) !=
+                  null);
               if (category != categorySelect) {
                 ref.read(homeProvider.notifier).changeCategorySelect(category);
               }
@@ -358,7 +368,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
         .categoryPositionsListener
         .itemPositions
         .value
-        .where((position) => position.itemLeadingEdge < 1 && position.itemTrailingEdge > 0)
+        .where((position) =>
+            position.itemLeadingEdge < 1 && position.itemTrailingEdge > 0)
         .map((e) => e.index)
         .toList();
     List<dynamic> dataView = [];
@@ -377,7 +388,10 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     if (!items.contains(item)) {
       var index = dataView.indexOf(item);
       if (index != -1) {
-        ref.read(homeProvider.notifier).categoryScrollController.jumpTo(index: index);
+        ref
+            .read(homeProvider.notifier)
+            .categoryScrollController
+            .jumpTo(index: index);
       }
     }
   }
@@ -437,18 +451,24 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
       homeProvider.select((value) => value.event),
       _listenEvent(context, ref),
     );
-    var categories = ref.watch(homeProvider.select((value) => value.categories));
+    var categories =
+        ref.watch(homeProvider.select((value) => value.categories));
     categoryKeys = ref.read(homeProvider.notifier).categoryKeys;
     var products = ref.watch(homeProvider.select((value) => value.products));
-    var currentOrderItems = ref.watch(homeProvider.select((value) => value.currentOrderItems));
-    var productsSelected = ref.watch(homeProvider.select((value) => value.productsSelected));
-    var productsSelecting = ref.watch(homeProvider.select((value) => value.productsSelecting));
+    // var currentOrderItems =
+    //     ref.watch(homeProvider.select((value) => value.currentOrderItems));
+    // var productsSelected =
+    //     ref.watch(homeProvider.select((value) => value.productsSelected));
+    // var productsSelecting =
+    //     ref.watch(homeProvider.select((value) => value.productsSelecting));
     var productsView = List<ProductModel>.from(products);
-    var keyword = ref.watch(homeProvider.select((value) => value.search)).trim();
+    var keyword =
+        ref.watch(homeProvider.select((value) => value.search)).trim();
     var tagSelect = ref.watch(homeProvider.select((value) => value.tagSelect));
     if (tagSelect != null) {
-      productsView =
-          productsView.where((product) => (product.tags ?? []).contains(tagSelect.id)).toList();
+      productsView = productsView
+          .where((product) => (product.tags ?? []).contains(tagSelect.id))
+          .toList();
     }
     if (keyword.isNotEmpty) {
       var search = removeDiacritics(keyword).toLowerCase();
@@ -465,7 +485,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
       var subCategory = List<SubCategoryModel>.from((cate.children ?? []));
       Map<SubCategoryModel, List<ProductModel>> subCategoryProducts = {};
       for (var subCate in subCategory) {
-        var data = productsView.where((e) => e.categoryId == subCate.id).toList();
+        var data =
+            productsView.where((e) => e.categoryId == subCate.id).toList();
 
         if (data.isNotEmpty) {
           subCategoryProducts[subCate] = data;
@@ -494,7 +515,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                 crossAxisSpacing: 10,
                 childAspectRatio: 0.8,
               ),
-              itemBuilder: (context, index) => ProductBoxWidget(product: categoryProducts[index]),
+              itemBuilder: (context, index) =>
+                  ProductBoxWidget(product: categoryProducts[index]),
               itemCount: categoryProducts.length,
             ),
           ));
@@ -508,7 +530,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
               child: Container(
                 key: categoryKeys[key],
                 decoration: const BoxDecoration(color: Colors.white),
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
                 alignment: Alignment.centerLeft,
                 child: Text(
                   key.title,
@@ -525,7 +548,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                   crossAxisSpacing: 10,
                   childAspectRatio: 0.8,
                 ),
-                itemBuilder: (context, index) => ProductBoxWidget(product: value[index]),
+                itemBuilder: (context, index) =>
+                    ProductBoxWidget(product: value[index]),
                 itemCount: value.length,
               ),
             ));
@@ -536,7 +560,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     var viewPadding = MediaQuery.of(context).viewPadding;
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation =
+        AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool showOrderInfo = !(isMobile || (isTablet && portraitOrientation));
 
@@ -576,7 +601,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                                 ),
                                 const Expanded(
                                   child: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 8),
                                     child: _SearchDishWidget(),
                                   ),
                                 ),
@@ -593,7 +619,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                           ),
                           Consumer(
                             builder: (context, ref, child) {
-                              var tags = ref.watch(homeProvider.select((value) => value.tags));
+                              var tags = ref.watch(
+                                  homeProvider.select((value) => value.tags));
                               if (tags.isEmpty && isMobile) {
                                 return const SizedBox.shrink();
                               }
@@ -609,7 +636,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                                     // Gap(12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           // Gap(12),
                                           // Expanded(
@@ -656,35 +684,44 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                             padding: const EdgeInsets.fromLTRB(0, 4, 8, 4),
                             alignment: Alignment.center,
                             child: ListCategoryWidget(
-                                categoryScrollController: _categoryScrollController,
+                                categoryScrollController:
+                                    _categoryScrollController,
                                 onTap: (category) async {
                                   _scrollToCategory(category);
-                                  await Future.delayed(const Duration(milliseconds: 350));
+                                  await Future.delayed(
+                                      const Duration(milliseconds: 350));
                                   // ref.read(homeProvider.notifier).ctrlSearch.text = '';
                                   if (category is CategoryModel) {
-                                    ref.read(homeProvider.notifier).changeCategorySelect(category);
+                                    ref
+                                        .read(homeProvider.notifier)
+                                        .changeCategorySelect(category);
                                     return;
                                   }
-                                  ref.read(homeProvider.notifier).changeSubCategorySelect(category);
+                                  ref
+                                      .read(homeProvider.notifier)
+                                      .changeSubCategorySelect(category);
                                 }),
                           ),
                           Expanded(
                             child: Consumer(builder: (context, ref, child) {
-                              var productsState =
-                                  ref.watch(homeProvider.select((value) => value.productsState));
+                              var productsState = ref.watch(homeProvider
+                                  .select((value) => value.productsState));
 
                               switch (productsState.status) {
                                 case PageCommonState.normal:
                                 case PageCommonState.loading:
                                   return GridView.builder(
-                                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                                    gridDelegate:
+                                        const SliverGridDelegateWithMaxCrossAxisExtent(
                                       maxCrossAxisExtent: 200,
                                       mainAxisSpacing: 10,
                                       crossAxisSpacing: 10,
                                       childAspectRatio: 0.7,
                                     ),
-                                    itemBuilder: (BuildContext context, int index) {
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
                                       return const ProductBoxLoadingWidget();
                                     },
                                     itemCount: 12,
@@ -692,7 +729,9 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                                 case PageCommonState.error:
                                   return AppErrorSimpleWidget(
                                     onTryAgain: () {
-                                      ref.read(homeProvider.notifier).getProducts();
+                                      ref
+                                          .read(homeProvider.notifier)
+                                          .getProducts();
                                     },
                                     message: productsState.messageError,
                                   );
@@ -714,16 +753,19 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                         ? const SizedBox.shrink()
                         : Container(
                             constraints: const BoxConstraints(maxWidth: 500),
-                            child: const OrderDetailWidget(),
+                            child: const OrderPanelWidget(),
                           ),
                   ],
                 ),
               ),
               Consumer(
                 builder: (context, ref, child) {
-                  bool useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+                  bool useO2o =
+                      LocalStorage.getDataLogin()?.restaurant?.o2oStatus ??
+                          false;
                   // useO2o = true;
-                  final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
+                  final orderSelect = ref
+                      .watch(homeProvider.select((value) => value.orderSelect));
 
                   bool isMobile = Device.screenType == ScreenType.mobile;
                   bool isSmallDevice = isMobile;
@@ -745,7 +787,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                                   key: _floatingBtnKey,
                                   height: isSmallDevice ? 48 : 60,
                                   width: isSmallDevice ? 48 : 60,
-                                  padding: EdgeInsets.all(isSmallDevice ? 12 : 12),
+                                  padding:
+                                      EdgeInsets.all(isSmallDevice ? 12 : 12),
                                   decoration: const BoxDecoration(
                                     color: AppColors.bgBoxProduct,
                                     shape: BoxShape.circle,
@@ -772,8 +815,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                     alignment: Alignment.center,
                     child: Consumer(
                       builder: (context, ref, child) {
-                        var orderSelect =
-                            ref.watch(homeProvider.select((value) => value.orderSelect));
+                        var orderSelect = ref.watch(
+                            homeProvider.select((value) => value.orderSelect));
                         if (orderSelect == null) {
                           return GestureDetector(
                             onTap: () {
@@ -804,9 +847,13 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                                 mainAxisSize: MainAxisSize.min,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    "${S.current.table} ${orderSelect.getNameView()}",
-                                    style: AppTextStyle.bold(color: Colors.white),
+                                  Flexible(
+                                    child: Text(
+                                      "${S.current.table} ${orderSelect.getNameView()}",
+                                      style: AppTextStyle.bold(
+                                          color: Colors.white),
+                                      textAlign: TextAlign.center,
+                                    ),
                                   ),
                                   const Gap(4),
                                   const ResponsiveIconWidget(
@@ -820,16 +867,24 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                           const Gap(8),
                           AppButtonWidget(
                             textAction: 'Thanh toán',
-                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 8),
                             borderRadius: BorderRadius.circular(8),
                             onTap: () async {
-                              if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
-                                showMessageDialog(context, message: S.current.noOrderSelect);
+                              if (ref
+                                      .read(homeProvider.notifier)
+                                      .getOrderSelect() ==
+                                  null) {
+                                showMessageDialog(context,
+                                    message: S.current.noOrderSelect);
                                 return;
                               }
 
-                              final OrderModel? order = await Navigator.of(context)
-                                  .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
+                              final OrderModel? order =
+                                  await Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              CheckoutPage()));
                             },
                           ),
                           const Gap(8),
@@ -849,7 +904,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
       _overlayEntry?.remove();
       _overlayEntry = null;
     }
-    RenderBox renderBox = _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
+    RenderBox renderBox =
+        _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
     var buttonPosition = renderBox.localToGlobal(Offset.zero);
     var buttonSize = renderBox.size;
 
@@ -919,7 +975,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                   child: Column(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
                         decoration: const BoxDecoration(
                           color: AppColors.bgTitleChatPopup,
                           borderRadius: BorderRadius.only(
@@ -947,15 +1004,17 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                       ),
                       Expanded(
                         child: Consumer(builder: (context, ref, child) {
-                          final getChatMessageState =
-                              ref.watch(homeProvider.select((value) => value.getChatMessageState));
+                          final getChatMessageState = ref.watch(homeProvider
+                              .select((value) => value.getChatMessageState));
 
-                          final chatMessages =
-                              ref.watch(homeProvider.select((value) => value.chatMessages));
+                          final chatMessages = ref.watch(homeProvider
+                              .select((value) => value.chatMessages));
                           return ListChatWidget(
                             state: getChatMessageState,
                             chatMessages: chatMessages,
-                            onReload: ref.read(homeProvider.notifier).getO2OChatMessages,
+                            onReload: ref
+                                .read(homeProvider.notifier)
+                                .getO2OChatMessages,
                           );
                         }),
                       ),
@@ -980,12 +1039,15 @@ class CartInfoWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var numberOfProduct = 0;
     var totalOrder = 0.0;
-    var productsSelecting = ref.watch(homeProvider.select((value) => value.productsSelecting));
+    var productsSelecting =
+        ref.watch(homeProvider.select((value) => value.productsSelecting));
     var price = ref.watch(homeProvider.select((value) => value.dataBill.price));
-    var priceState = ref.watch(homeProvider.select((value) => value.dataBillState));
+    var priceState =
+        ref.watch(homeProvider.select((value) => value.dataBillState));
     numberOfProduct = productsSelecting.length;
     for (var element in productsSelecting) {
-      totalOrder += (double.tryParse(element.unitPrice) ?? 0) * element.numberSelecting;
+      totalOrder +=
+          (double.tryParse(element.unitPrice) ?? 0) * element.numberSelecting;
     }
     Widget priceView = Container();
 

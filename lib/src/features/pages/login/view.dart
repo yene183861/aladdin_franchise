@@ -15,6 +15,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
 import '../../../../generated/l10n.dart';
 import 'widgets/bottom_app_info.dart';
@@ -41,7 +42,8 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  _listenEvent(BuildContext context, WidgetRef ref) => (LoginEvent? previous, LoginEvent? next) {
+  _listenEvent(BuildContext context, WidgetRef ref) =>
+      (LoginEvent? previous, LoginEvent? next) {
         switch (next) {
           case LoginEvent.processing:
             showProcessingDialog(context, message: S.current.verifying);
@@ -73,8 +75,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final notifier = ref.read(loginProvider.notifier);
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool isPortraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
-    bool isSmallDevice = (isMobile && isPortraitOrientation) || (isTablet && isPortraitOrientation);
+    bool isPortraitOrientation =
+        AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool isSmallDevice = (isMobile && isPortraitOrientation) ||
+        (isTablet && isPortraitOrientation);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: _buildAppBar(),
@@ -97,7 +101,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 FocusManager.instance.primaryFocus?.unfocus();
               },
               decoration: InputDecoration(
-                errorText: ref.watch(loginProvider.select((value) => value.errorEmail)),
+                errorText: ref
+                    .watch(loginProvider.select((value) => value.errorEmail)),
                 prefixIcon: const ResponsiveIconWidget(
                   iconData: CupertinoIcons.mail,
                   color: AppColors.secondColor,
@@ -112,8 +117,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
             Gap(isSmallDevice ? 12 : 20),
             Consumer(builder: (context, ref, child) {
-              final hiddenPassword =
-                  ref.watch(loginProvider.select((value) => value.hiddenPassword));
+              final hiddenPassword = ref
+                  .watch(loginProvider.select((value) => value.hiddenPassword));
               return TextFormField(
                 style: AppTextStyle.regular(),
                 obscureText: hiddenPassword,
@@ -121,7 +126,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   FocusManager.instance.primaryFocus?.unfocus();
                 },
                 decoration: InputDecoration(
-                  errorText: ref.watch(loginProvider.select((value) => value.errorPassword)),
+                  errorText: ref.watch(
+                      loginProvider.select((value) => value.errorPassword)),
                   errorStyle: AppTextStyle.regular(color: AppColors.redColor),
                   prefixIcon: const ResponsiveIconWidget(
                     iconData: CupertinoIcons.lock,
@@ -134,7 +140,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   suffixIcon: IconButton(
                     onPressed: () => notifier.changeHiddenPassword(),
                     icon: ResponsiveIconWidget(
-                      iconData: hiddenPassword ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
+                      iconData: hiddenPassword
+                          ? CupertinoIcons.eye
+                          : CupertinoIcons.eye_slash,
                     ),
                   ),
                 ),
@@ -252,46 +260,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ),
         const Gap(16),
       ],
-    );
-  }
-}
-
-class ResponsiveIconWidget extends StatelessWidget {
-  const ResponsiveIconWidget({super.key, required this.iconData, this.color});
-  final IconData iconData;
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    final textScaler = MediaQuery.textScalerOf(context);
-    return Icon(
-      iconData,
-      size: textScaler.scale(22),
-      color: color,
-    );
-  }
-}
-
-class ResponsiveIconButtonWidget extends StatelessWidget {
-  const ResponsiveIconButtonWidget({
-    super.key,
-    required this.iconData,
-    this.color,
-    this.onPressed,
-  });
-  final IconData iconData;
-  final Color? color;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-      onPressed: onPressed,
-      icon: ResponsiveIconWidget(
-        iconData: iconData,
-        color: color,
-      ),
     );
   }
 }

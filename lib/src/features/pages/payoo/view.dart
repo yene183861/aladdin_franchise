@@ -8,15 +8,12 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
-import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_with_icon.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart';
-import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,20 +78,20 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
         await _windowsController!.loadUrl(widget.gatewayUrl);
 
         setState(() {});
-        var state = ref.read(homeProvider);
+        // var state = ref.read(homeProvider);
 
-        List<ProductCheckoutModel> sortProductCheckout = [];
-        state.currentOrderItems.forEach((element) {
-          var p =
-              state.productCheckout.firstWhereOrNull((e) => e.id == element.id);
-          if (p != null) {
-            var exist =
-                sortProductCheckout.firstWhereOrNull((e) => e.id == element.id);
-            if (exist == null) {
-              sortProductCheckout.add(p);
-            }
-          }
-        });
+        // List<ProductCheckoutModel> sortProductCheckout = [];
+        // state.currentOrderItems.forEach((element) {
+        //   var p =
+        //       state.productCheckout.firstWhereOrNull((e) => e.id == element.id);
+        //   if (p != null) {
+        //     var exist =
+        //         sortProductCheckout.firstWhereOrNull((e) => e.id == element.id);
+        //     if (exist == null) {
+        //       sortProductCheckout.add(p);
+        //     }
+        //   }
+        // });
       } else if (Platform.isAndroid) {
         _androidController = WebViewController()
           ..setJavaScriptMode(JavaScriptMode.unrestricted)

@@ -16,7 +16,7 @@ import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/login/view.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';

@@ -25,6 +25,7 @@ import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
+import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -47,6 +48,7 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
         ref.refresh(tablesAndOrdersProvider);
+        ref.refresh(reservationsProvider);
       },
     );
   }
@@ -77,8 +79,9 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
                       children: [
                         Consumer(
                           builder: (context, ref, child) {
-                            bool ignoreNotifyReservation = ref.watch(createNewOrderDialogProvider
-                                .select((value) => value.ignoreNotifyReservation));
+                            bool ignoreNotifyReservation = ref.watch(
+                                createNewOrderDialogProvider.select(
+                                    (value) => value.ignoreNotifyReservation));
                             return CustomCheckbox(
                               checked: ignoreNotifyReservation,
                               onChange: ref
@@ -100,7 +103,9 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
           }
         }
         if (!mounted) return;
-        ref.read(createNewOrderDialogProvider.notifier).onChangeNotifyReservation(false);
+        ref
+            .read(createNewOrderDialogProvider.notifier)
+            .onChangeNotifyReservation(false);
       };
 
   @override
@@ -112,9 +117,11 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
 
     final tableAvailable = ref.watch(tablesAndOrdersProvider);
     bool isMobile = Device.screenType == ScreenType.mobile;
-    bool isPortraitOrientation = MediaQuery.of(context).orientation == Orientation.portrait;
+    bool isPortraitOrientation =
+        MediaQuery.of(context).orientation == Orientation.portrait;
     bool isSmallDevice = isMobile && isPortraitOrientation;
-    bool useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
+    bool useReservation =
+        LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
     return AlertDialog(
       title: Text(
         '${S.current.selectTable} - ${S.current.createNewOrder}',
@@ -149,32 +156,45 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
             switch (typeOrder) {
               case TypeOrderEnum.offline:
                 if (enableOnline) {
-                  tableNotUseAndType
-                      .addAll([const Gap(20), TypeOrderEnum.online, const Gap(12), notUseOnline]);
+                  tableNotUseAndType.addAll([
+                    const Gap(20),
+                    TypeOrderEnum.online,
+                    const Gap(12),
+                    notUseOnline
+                  ]);
                 }
                 break;
               case TypeOrderEnum.online:
-                tableNotUseAndType.insertAll(
-                    0, [TypeOrderEnum.online, const Gap(12), notUseOnline, const Gap(20)]);
+                tableNotUseAndType.insertAll(0, [
+                  TypeOrderEnum.online,
+                  const Gap(12),
+                  notUseOnline,
+                  const Gap(20)
+                ]);
                 break;
               default:
             }
 
-            Widget reservationSection =
-                useReservation ? _buildListReservationWidget() : Container();
+            Widget reservationSection = useReservation
+                ? _buildListReservationWidget([
+                    ...notUseOffline,
+                    if (enableOnline) ...notUseOnline,
+                  ])
+                : Container();
             Widget tableSection = _buildTableWidget(tableNotUseAndType);
 
             if (useReservation && isSmallDevice) {
               return Consumer(
                 builder: (context, ref, child) {
-                  var tabIndexSelect = ref
-                      .watch(createNewOrderDialogProvider.select((value) => value.tabIndexSelect));
+                  var tabIndexSelect = ref.watch(createNewOrderDialogProvider
+                      .select((value) => value.tabIndexSelect));
                   return Column(
                     children: [
                       Row(
                         children: CreateNewOrderTabEnum.values.map((e) {
                           var selected = e.index == tabIndexSelect;
-                          bool reservationTab = e == CreateNewOrderTabEnum.reservation;
+                          bool reservationTab =
+                              e == CreateNewOrderTabEnum.reservation;
                           return Expanded(
                             child: GestureDetector(
                               onTap: () {
@@ -183,9 +203,12 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
                                     .onChangeTabIndexSelect(e.index);
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
                                 decoration: BoxDecoration(
-                                  color: selected ? AppColors.mainColor : Colors.grey.shade200,
+                                  color: selected
+                                      ? AppColors.mainColor
+                                      : Colors.grey.shade200,
                                 ),
                                 child: Center(
                                     child: Row(
@@ -285,7 +308,8 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
               return;
             }
 
-            var tableName = state.tableSelect.map((e) => e.name ?? '').join(', ');
+            var tableName =
+                state.tableSelect.map((e) => e.name ?? '').join(', ');
 
             var result = await ref.read(homeProvider.notifier).createNewOrder(
                   tableIds,
@@ -295,7 +319,8 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
                 );
             if (result.last == null) {
               if (context.mounted) {
-                showDoneSnackBar(context: context, message: S.current.createdNewOrder);
+                showDoneSnackBar(
+                    context: context, message: S.current.createdNewOrder);
                 Navigator.pop(context, (
                   orderId: result.first,
                   reservation: state.reservationSelect?.copyWith(
@@ -323,7 +348,7 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
     );
   }
 
-  Widget _buildListReservationWidget() {
+  Widget _buildListReservationWidget(List<TableModel> tables) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -336,9 +361,8 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
             ),
             const Spacer(),
             GestureDetector(
-              // ref.read(homeProvider.notifier).getReservations,
               onTap: () {
-                ref.refresh(orderToOnlineProvider);
+                ref.refresh(reservationsProvider);
               },
               child: Text(
                 'Làm mới',
@@ -350,9 +374,9 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
             ),
           ],
         ),
-        const GapH(12),
+        const Gap(8),
         Expanded(
-          child: _ReservationWidget(tables: []),
+          child: _ReservationWidget(tables: tables),
         ),
       ],
     );
@@ -360,8 +384,9 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
 
   Widget _buildTableWidget(List<dynamic> tableNotUseAndType) {
     return Consumer(builder: (context, ref, child) {
-      var tableIds =
-          ref.watch(createNewOrderDialogProvider.select((value) => value.tableIds)).toList();
+      var tableIds = ref
+          .watch(createNewOrderDialogProvider.select((value) => value.tableIds))
+          .toList();
       return SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,9 +396,11 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
                 return e;
               } else if (e is TypeOrderEnum) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20).copyWith(bottomLeft: Radius.zero),
+                    borderRadius: BorderRadius.circular(20)
+                        .copyWith(bottomLeft: Radius.zero),
                     color: e.color,
                   ),
                   child: Text(
@@ -411,17 +438,21 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
                           checkmarkColor: Colors.white,
                           onSelected: (value) {
                             if (value) {
-                              var typeOrder = convertToTypeOrderEnum(e.typeOrder);
+                              var typeOrder =
+                                  convertToTypeOrderEnum(e.typeOrder);
 
-                              var typeOrderSelect =
-                                  ref.read(createNewOrderDialogProvider).typeOrderSelect;
+                              var typeOrderSelect = ref
+                                  .read(createNewOrderDialogProvider)
+                                  .typeOrderSelect;
                               if (typeOrderSelect != typeOrder.type) {
                                 ref
                                     .read(createNewOrderDialogProvider.notifier)
                                     .onChangeTypeOrderSelect(typeOrder.type);
                               }
                             }
-                            ref.read(createNewOrderDialogProvider.notifier).onChangeTableSelect(
+                            ref
+                                .read(createNewOrderDialogProvider.notifier)
+                                .onChangeTableSelect(
                                   value: e,
                                   onSelected: value,
                                 );
@@ -439,13 +470,14 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
   }
 }
 
-Future<({int? orderId, ReservationModel? reservation, int? typeOrder})> showCreateNewOrderDialog(
-    BuildContext context) async {
+Future<({int? orderId, ReservationModel? reservation, int? typeOrder})>
+    showCreateNewOrderDialog(BuildContext context) async {
   final result = await showDialog(
     context: context,
     useRootNavigator: false,
     barrierDismissible: false,
-    builder: (context) => const PopScope(canPop: false, child: CreateNewOrderDialog()),
+    builder: (context) =>
+        const PopScope(canPop: false, child: CreateNewOrderDialog()),
   );
   return result;
 }
@@ -458,7 +490,8 @@ class _ReservationWidget extends ConsumerStatefulWidget {
   final List<TableModel> tables;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => __ReservationWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      __ReservationWidgetState();
 }
 
 class __ReservationWidgetState extends ConsumerState<_ReservationWidget> {
@@ -493,16 +526,20 @@ class __ReservationWidgetState extends ConsumerState<_ReservationWidget> {
   @override
   Widget build(BuildContext context) {
     var reservations = ref.watch(reservationsProvider);
-    final tableIds = ref.watch(createNewOrderDialogProvider.select((value) => value.tableIds));
-    final reservationSelect =
-        ref.watch(createNewOrderDialogProvider.select((value) => value.reservationSelect));
-    final typeOrderSelect =
-        ref.watch(createNewOrderDialogProvider.select((value) => value.typeOrderSelect));
+    final tableIds = ref
+        .watch(createNewOrderDialogProvider.select((value) => value.tableIds));
+    final reservationSelect = ref.watch(createNewOrderDialogProvider
+        .select((value) => value.reservationSelect));
+    final typeOrderSelect = ref.watch(
+        createNewOrderDialogProvider.select((value) => value.typeOrderSelect));
 
-    bool isMobile = Device.screenType == ScreenType.mobile;
-    bool isPortraitOrientation = MediaQuery.of(context).orientation == Orientation.portrait;
-    bool isSmallDevice = isMobile && isPortraitOrientation;
+    // bool isMobile = Device.screenType == ScreenType.mobile;
+    // bool isPortraitOrientation =
+    //     MediaQuery.of(context).orientation == Orientation.portrait;
+    bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
     return reservations.when(
+      skipError: false,
+      skipLoadingOnRefresh: false,
       data: (data) {
         var today = DateTime.now().onlyDate();
         var resers = List<ReservationModel>.from(data);
@@ -526,7 +563,9 @@ class __ReservationWidgetState extends ConsumerState<_ReservationWidget> {
           ].contains(e.reservationStatus)) {
             return false;
           }
-          if ((e.isOnline ? AppConfig.orderOnlineValue : AppConfig.orderOfflineValue) !=
+          if ((e.isOnline
+                  ? AppConfig.orderOnlineValue
+                  : AppConfig.orderOfflineValue) !=
               typeOrderSelect) {
             return false;
           }
@@ -535,11 +574,20 @@ class __ReservationWidgetState extends ConsumerState<_ReservationWidget> {
           if (diffMinutes <= 15 &&
               reservationSelect == null &&
               e.reservationStatus == ReservationStatus.accept &&
-              tableIds.toSet().intersection((e.tableId ?? []).toSet()).isNotEmpty) {
+              tableIds
+                  .toSet()
+                  .intersection((e.tableId ?? []).toSet())
+                  .isNotEmpty) {
             reservationsAssginTable.add(e);
           }
-          if (!((e.customer?.phoneNumber ?? '').trim().toLowerCase().contains(searchText) ||
-              (e.customer?.name ?? '').trim().toLowerCase().contains(searchText))) {
+          if (!((e.customer?.phoneNumber ?? '')
+                  .trim()
+                  .toLowerCase()
+                  .contains(searchText) ||
+              (e.customer?.name ?? '')
+                  .trim()
+                  .toLowerCase()
+                  .contains(searchText))) {
             return false;
           }
           if (diffMinutes <= 60) {
@@ -554,12 +602,15 @@ class __ReservationWidgetState extends ConsumerState<_ReservationWidget> {
           return false;
         }).toList();
 
-        filtedReservations.sort((a, b) => a.startDateTime.compareTo(b.startDateTime));
-        reserInTimeShift.sort((a, b) => a.startDateTime.compareTo(b.startDateTime));
+        filtedReservations
+            .sort((a, b) => a.startDateTime.compareTo(b.startDateTime));
+        reserInTimeShift
+            .sort((a, b) => a.startDateTime.compareTo(b.startDateTime));
 
         /// lịch đặt bàn trước/ sau 1h và trong ca
         var dataView = [...filtedReservations, ...reserInTimeShift];
-        if (reservationSelect != null && !dataView.contains(reservationSelect)) {
+        if (reservationSelect != null &&
+            !dataView.contains(reservationSelect)) {
           dataView.insert(0, reservationSelect);
         }
         WidgetsBinding.instance.addPostFrameCallback(
@@ -624,8 +675,11 @@ class __ReservationWidgetState extends ConsumerState<_ReservationWidget> {
                         .read(createNewOrderDialogProvider.notifier)
                         .onChangeReservationSelect(res.reservation);
                     if (tableIds.isNotEmpty) {
-                      ref.read(createNewOrderDialogProvider.notifier).onChangeListTableSelect(
-                          widget.tables.where((e) => tableIds.contains(e.id)).toList());
+                      ref
+                          .read(createNewOrderDialogProvider.notifier)
+                          .onChangeListTableSelect(widget.tables
+                              .where((e) => tableIds.contains(e.id))
+                              .toList());
                     }
                   },
                   borderRadius: BorderRadius.circular(8),
@@ -673,7 +727,8 @@ class __ReservationWidgetState extends ConsumerState<_ReservationWidget> {
                               ref
                                   .read(createNewOrderDialogProvider.notifier)
                                   .onChangeListTableSelect(widget.tables
-                                      .where((e) => reservationTableIds.contains(e.id))
+                                      .where((e) =>
+                                          reservationTableIds.contains(e.id))
                                       .toList());
                             }
                           },

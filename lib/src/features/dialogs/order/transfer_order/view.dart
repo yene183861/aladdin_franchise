@@ -20,6 +20,7 @@ import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
 import 'package:aladdin_franchise/src/models/waiter.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
+import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -71,10 +72,18 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
     final orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
     final waiterSelect =
         ref.watch(transferOrderProvider.select((value) => value.waiterSelect));
-    bool isMobile = Device.screenType == ScreenType.mobile;
-    bool isPortraitOrientation =
-        MediaQuery.of(context).orientation == Orientation.portrait;
-    bool isSmallDevice = isMobile && isPortraitOrientation;
+    List<ReservationModel> reservations = ref.watch(reservationsProvider).when(
+          skipError: false,
+          skipLoadingOnRefresh: false,
+          data: (data) => List.from(data),
+          error: (error, stackTrace) => [],
+          loading: () => [],
+        );
+    // bool isMobile = Device.screenType == ScreenType.mobile;
+    // bool isPortraitOrientation =
+    //     MediaQuery.of(context).orientation == Orientation.portrait;
+    // bool isSmallDevice = isMobile && isPortraitOrientation;
+    bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
     return AlertDialog(
       title: Text(
         S.current.transferUpdateOrder,
@@ -216,11 +225,11 @@ Phục vụ tiếp nhận: ${state.waiterSelect?.name}
               action: () async {
                 var listTableIds = state.tableSelects.map((e) => e.id).toList();
                 // var listTableNames = state.tableSelects.map((e) => (e.name ?? '')).toList();
-                var homeState = ref.read(homeProvider);
+                // var homeState = ref.read(homeProvider);
                 ReservationModel? reservation;
                 bool requireUpdateReservation = false;
                 if (useReservation && orderSelect?.reservationCrmId != null) {
-                  reservation = homeState.reservations.firstWhereOrNull(
+                  reservation = reservations.firstWhereOrNull(
                       (e) => e.id == orderSelect?.reservationCrmId);
                   if (reservation != null &&
                       (reservation.reservationStatus !=

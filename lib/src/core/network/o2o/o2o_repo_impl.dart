@@ -14,13 +14,13 @@ import 'package:aladdin_franchise/src/models/o2o/customer_info_model.dart';
 import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
 import 'package:aladdin_franchise/src/models/o2o/request_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 
 class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
-  // o2o
   @override
   Future<List<O2OOrderModel>> getOrderToOnline() async {
     var log = ErrorLogModel(
-      action: AppLogAction.getInfoByTaxCode,
+      action: AppLogAction.getOrderToOnline,
       modelInterface: O2OOrderModel.getModelInterface(),
     );
     try {
@@ -42,7 +42,9 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
         return result;
       }
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      showLog(ex, flags: 'getOrderToOnline ex');
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -57,9 +59,9 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
     required List<RequestOrderItemModel> orderItems,
     String notes = '',
   }) async {
-    final apiUrl = ApiConfig.updateStatusRequestOrderO2O;
+    final apiUrl = ApiConfig.processO2oRequest;
     var log = ErrorLogModel(
-      action: AppLogAction.getInfoByTaxCode,
+      action: AppLogAction.processO2oRequest,
       api: apiUrl,
       modelInterface: 'xác nhận status = 1, hủy status = 2',
       order: OrderModel(id: orderId),
@@ -76,7 +78,8 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
         "notes": notes,
       });
       log = log.copyWith(request: bodyRequest);
-      final response = await restClient.post(Uri.parse(apiUrl), body: bodyRequest);
+      final response =
+          await restClient.post(Uri.parse(apiUrl), body: bodyRequest);
       log = log.copyWith(
         response: [response.statusCode, response.body],
       );
@@ -84,7 +87,9 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
         throw AppException.fromHttpResponse(response);
       }
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      showLog(ex, flags: 'processO2oRequest ex');
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -97,9 +102,10 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
     required int orderId,
   }) async {
     final dataLogin = LocalStorage.getDataLogin();
-    final apiUrl = "${dataLogin?.restaurant?.urlServerO2o}/$restaurantId/$orderId/$kDeviceId";
+    final apiUrl =
+        "${dataLogin?.restaurant?.urlServerO2o}/$restaurantId/$orderId/$kDeviceId";
     var log = ErrorLogModel(
-      action: AppLogAction.getInfoByTaxCode,
+      action: AppLogAction.getChatMessages,
       api: apiUrl,
       modelInterface: ChatMessageModel.getModelInterface(),
       order: OrderModel(id: orderId),
@@ -111,12 +117,16 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
       );
       if (response.statusCode == 200) {
         var bodyJson = jsonDecode(response.body);
-        final result = (bodyJson as List).map((e) => ChatMessageModel.fromJson(e)).toList();
+        final result = (bodyJson as List)
+            .map((e) => ChatMessageModel.fromJson(e))
+            .toList();
         return result;
       }
       throw AppException.fromHttpResponse(response);
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      showLog(ex, flags: 'getChatMessages ex');
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -124,32 +134,42 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
   }
 
   @override
-  Future<List<O2oCustomerInfoModel>> getO2OCustomerInfo({required int orderId}) async {
+  Future<List<O2oCustomerInfoModel>> getO2OCustomerInfo(
+      {required int orderId}) async {
     final dataLogin = LocalStorage.getDataLogin();
     final apiUrl = ApiConfig.getO2oCustomerInfo;
     var log = ErrorLogModel(
-      action: AppLogAction.getInfoByTaxCode,
+      action: AppLogAction.getO2oCustomerInfo,
       api: apiUrl,
       order: OrderModel(id: orderId),
     );
     try {
-      final response = await restClient.post(Uri.parse(apiUrl),
-          body: jsonEncode(<String, dynamic>{
-            "restaurant_id": dataLogin?.restaurant?.id,
-            "order_id": orderId,
-          }));
+      var bodyRequest = jsonEncode(<String, dynamic>{
+        "restaurant_id": dataLogin?.restaurant?.id,
+        "order_id": orderId,
+      });
+      log = log.copyWith(
+        request: bodyRequest,
+      );
+      final response = await restClient.post(
+        Uri.parse(apiUrl),
+        body: bodyRequest,
+      );
       log = log.copyWith(
         response: [response.statusCode, response.body],
       );
       if (response.statusCode == 200) {
         var bodyJson = jsonDecode(response.body);
-        var customers =
-            (bodyJson['data'] as List).map((e) => O2oCustomerInfoModel.fromJson(e)).toList();
+        var customers = (bodyJson['data'] as List)
+            .map((e) => O2oCustomerInfoModel.fromJson(e))
+            .toList();
         return customers;
       }
       throw AppException.fromHttpResponse(response);
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      showLog(ex, flags: 'getO2OCustomerInfo ex');
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());

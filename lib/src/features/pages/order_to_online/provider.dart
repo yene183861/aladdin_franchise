@@ -22,8 +22,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'state.dart';
 
-final orderToOnlinePageNotifier =
-    StateNotifierProvider.autoDispose<OrderToOnlinePageNotifier, OrderToOnlineState>((ref) {
+final orderToOnlinePageProvider = StateNotifierProvider.autoDispose<
+    OrderToOnlinePageNotifier, OrderToOnlineState>((ref) {
   return OrderToOnlinePageNotifier(
     ref,
     ref.read(orderRepositoryProvider),
@@ -32,28 +32,30 @@ final orderToOnlinePageNotifier =
 });
 
 class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
-  OrderToOnlinePageNotifier(this.ref, this._orderRepository, this._o2oRepository)
+  OrderToOnlinePageNotifier(
+      this.ref, this._orderRepository, this._o2oRepository)
       : super(const OrderToOnlineState()) {
-    _listenChangeO2OData();
+    // _listenChangeO2OData();
   }
   final OrderRepository _orderRepository;
   final OrderToOnlineRepository _o2oRepository;
   final Ref ref;
 
-  void _listenChangeO2OData() {
-    ref.listen(homeProvider.select((value) => value.o2oData), (previous, next) {
-      if (mounted) {
-        onChangeShowLoadingGetData(false);
-        _getO2OData(next);
-      }
-    });
-  }
+  // void _listenChangeO2OData() {
+  //   ref.listen(homeProvider.select((value) => value.o2oData), (previous, next) {
+  //     if (mounted) {
+  //       onChangeShowLoadingGetData(false);
+  //       _getO2OData(next);
+  //     }
+  //   });
+  // }
 
   void onChangeShowLoadingGetData(bool value) {
     state = state.copyWith(showLoadingGetData: value);
   }
 
-  Future<void> _getO2OData(Map<O2OOrderModel, Map<String, dynamic>> value) async {
+  Future<void> _getO2OData(
+      Map<O2OOrderModel, Map<String, dynamic>> value) async {
     try {
       Map<O2OOrderModel, Map<String, dynamic>> orders = Map.from(value);
       // sort theo value
@@ -71,21 +73,22 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
   }
 
   void init({int? orderId}) async {
-    var data = ref.read(homeProvider).o2oData;
-    await _getO2OData(data);
-    var orders = state.orders.keys.toList();
+    //   var data = ref.read(homeProvider).o2oData;
+    //   await _getO2OData(data);
+    //   var orders = state.orders.keys.toList();
 
-    var orderSelect = orders.isEmpty ? null : orders.first;
-    if (orderId != null) {
-      var check = orders.firstWhereOrNull((element) => element.orderId == orderId);
-      orderSelect = check ?? orderSelect;
-    }
-    state = state.copyWith(orderSelect: orderSelect);
+    //   var orderSelect = orders.isEmpty ? null : orders.first;
+    //   if (orderId != null) {
+    //     var check =
+    //         orders.firstWhereOrNull((element) => element.orderId == orderId);
+    //     orderSelect = check ?? orderSelect;
+    //   }
+    //   state = state.copyWith(orderSelect: orderSelect);
 
-    if (orderSelect != null) {
-      getNotifications();
-      getChatMessages();
-    }
+    //   if (orderSelect != null) {
+    //     getNotifications();
+    //     getChatMessages();
+    //   }
   }
 
   void getNotifications() async {
@@ -98,9 +101,12 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
       await Hive.openBox('notifications');
     }
     var box = Hive.box<NotificationModel>('notifications');
-    List<NotificationModel> data =
-        box.values.toList().where((e) => e.orderId == orderSelect.orderId).toList();
-    data.sort((a, b) => (b.datetime ?? DateTime.now()).compareTo((a.datetime ?? DateTime.now())));
+    List<NotificationModel> data = box.values
+        .toList()
+        .where((e) => e.orderId == orderSelect.orderId)
+        .toList();
+    data.sort((a, b) => (b.datetime ?? DateTime.now())
+        .compareTo((a.datetime ?? DateTime.now())));
     if (mounted) {
       data = data.where((e) => e.title.trim().isNotEmpty).toList();
       state = state.copyWith(notifications: data);
@@ -111,7 +117,8 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     state = state.copyWith(
       orderSelect: order,
       chatMessages: [],
-      getChatMessageState: const PageState(status: PageCommonState.success, messageError: ''),
+      getChatMessageState:
+          const PageState(status: PageCommonState.success, messageError: ''),
       notifications: [],
     );
 
@@ -134,8 +141,9 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
       if (orderSelect == null || requestSelect == null || listItem.isEmpty) {
         return;
       }
-      state =
-          state.copyWith(event: OrderToOnlineEvent.loading, message: S.current.canceling_request);
+      state = state.copyWith(
+          event: OrderToOnlineEvent.loading,
+          message: S.current.canceling_request);
       await onChangeLockedOrderId(orderId: orderSelect.orderId);
 
       await _o2oRepository.processO2oRequest(
@@ -158,7 +166,8 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     }
   }
 
-  void acceptRequest({required String note, required BuildContext context}) async {
+  void acceptRequest(
+      {required String note, required BuildContext context}) async {
     try {
       var orderSelect = state.orderSelect;
       var requestSelect = state.requestSelect;
@@ -182,7 +191,8 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
           name: orderSelect.tableName,
           misc: '{"order_code":"${orderSelect.orderCode}"}');
 
-      state = state.copyWith(event: OrderToOnlineEvent.loading, message: S.current.processing);
+      state = state.copyWith(
+          event: OrderToOnlineEvent.loading, message: S.current.processing);
       var listPrinters = await _orderRepository.getIpPrinterOrder(
         order,
         printerCheck.toList(),
@@ -292,11 +302,13 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     }
   }
 
-  Future<void> onChangeLockedOrderId({required int orderId, bool showLoading = false}) async {
+  Future<void> onChangeLockedOrderId(
+      {required int orderId, bool showLoading = false}) async {
     try {
       if (showLoading) {
         state = state.copyWith(
-            event: OrderToOnlineEvent.loading, message: 'Đang kiểm tra trạng thái đơn bàn');
+            event: OrderToOnlineEvent.loading,
+            message: 'Đang kiểm tra trạng thái đơn bàn');
       }
       final locked = await _checkStatusLockOrder(orderId);
       if (showLoading) {
@@ -324,7 +336,8 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
 
   Future<bool> _checkStatusLockOrder(int orderId) async {
     try {
-      final locked = await _orderRepository.checkStatusLockOrder(orderId: orderId);
+      final locked =
+          await _orderRepository.checkStatusLockOrder(orderId: orderId);
       return locked;
     } catch (ex) {
       return false;
@@ -353,7 +366,8 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
         itemsSelect.removeAt(index);
       }
     }
-    state = state.copyWith(requestSelect: request.copyWith(listItem: itemsSelect));
+    state =
+        state.copyWith(requestSelect: request.copyWith(listItem: itemsSelect));
   }
 
   void changeNoteRestaurantItem({
@@ -398,7 +412,8 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
         Map<O2OOrderModel, Map<String, dynamic>>.from(state.orders);
     List<O2OOrderModel> tables = List<O2OOrderModel>.from(state.orders.keys);
     if (orders.isEmpty) return;
-    var orderChange = tables.firstWhereOrNull((e) => e.orderId == model.orderId);
+    var orderChange =
+        tables.firstWhereOrNull((e) => e.orderId == model.orderId);
     if (orderChange == null) return;
     var orderSelect = state.orderSelect;
     final status = model.orderStatus;
@@ -458,7 +473,8 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     if (orderSelect == null || state.printerSelect == null) return;
     try {
       state = state.copyWith(
-          event: OrderToOnlineEvent.loading, message: '${S.current.printing_QR_code}...');
+          event: OrderToOnlineEvent.loading,
+          message: '${S.current.printing_QR_code}...');
 
       var message = await AppPrinterUtils.instance.printQrO2O(
           order: OrderModel(
@@ -491,7 +507,8 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     }
     try {
       state = state.copyWith(
-          event: OrderToOnlineEvent.loading, message: S.current.retrieving_printer_list);
+          event: OrderToOnlineEvent.loading,
+          message: S.current.retrieving_printer_list);
       final result = await _orderRepository.getIpPrinterOrder(
           OrderModel(
               id: orderSelect.orderId,
@@ -531,7 +548,8 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     }
   }
 
-  void selectAllRequestItem({required RequestOrderModel request, required bool selectAll}) {
+  void selectAllRequestItem(
+      {required RequestOrderModel request, required bool selectAll}) {
     if (!selectAll) {
       state = state.copyWith(requestSelect: null);
       return;
@@ -550,8 +568,8 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     if (restaurantId == null || orderSelect == null) {
       state = state.copyWith(
         chatMessages: [],
-        getChatMessageState:
-            PageState(status: PageCommonState.success, messageError: S.current.no_data),
+        getChatMessageState: PageState(
+            status: PageCommonState.success, messageError: S.current.no_data),
       );
       return;
     }
@@ -562,12 +580,14 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
         orderId: orderSelect.orderId,
       );
       state = state.copyWith(
-        getChatMessageState: const PageState(status: PageCommonState.success, messageError: ''),
+        getChatMessageState:
+            const PageState(status: PageCommonState.success, messageError: ''),
         chatMessages: messages,
       );
     } catch (ex) {
       state = state.copyWith(
-        getChatMessageState: PageState(status: PageCommonState.error, messageError: ex.toString()),
+        getChatMessageState: PageState(
+            status: PageCommonState.error, messageError: ex.toString()),
       );
     }
   }

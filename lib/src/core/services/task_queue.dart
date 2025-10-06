@@ -7,8 +7,6 @@ import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 
-int count = 0;
-
 class PrinterTaskQueue {
   static PrinterTaskQueue get instance => _instance;
   static final PrinterTaskQueue _instance = PrinterTaskQueue._internal();
@@ -68,27 +66,32 @@ class PrinterTaskQueue {
 
     var paperSize = LocalStorage.getAppSettings().billHtmlSetting.paperSize;
     final generator = Generator(paperSize.paperSize, profile);
+    List<int> data = [];
     try {
-      List<int> data = await task.buildReceipt(generator);
-      var connectResult = await printerManager.connect();
-      if (connectResult != PosPrintResult.success) {
-        throw connectResult.msg;
-      }
+      data = await task.buildReceipt(generator);
+      try {
+        var connectResult = await printerManager.connect();
+        if (connectResult != PosPrintResult.success) {
+          throw connectResult.msg;
+        }
 
-      final res = await printerManager.printTicket(data, isDisconnect: false);
+        final res = await printerManager.printTicket(data, isDisconnect: false);
 
-      if (res == PosPrintResult.success) {
-        success = true;
-        await Future.delayed(const Duration(seconds: 1));
-      } else {
-        error = "⚠️ Không in được: ${res.msg}";
+        if (res == PosPrintResult.success) {
+          success = true;
+          await Future.delayed(const Duration(seconds: 1));
+        } else {
+          error = "⚠️ Không in được: ${res.msg}";
+          showLogs(error, flags: '_processTask');
+        }
+      } catch (e) {
+        error = "❌ Lỗi in: $e";
         showLogs(error, flags: '_processTask');
+      } finally {
+        await printerManager.disconnect();
       }
-    } catch (e) {
-      error = "❌ Lỗi in: $e";
-      showLogs(error, flags: '_processTask');
-    } finally {
-      await printerManager.disconnect();
+    } catch (ex) {
+      error = "❌ Lỗi in: $ex";
     }
 
     if (error != null) {

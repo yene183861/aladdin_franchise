@@ -14,7 +14,6 @@ import 'package:flutter_spinbox/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../../../../generated/l10n.dart';
-import '../confirm_action.dart';
 import '../error.dart';
 
 showCouponDialog(BuildContext context) {

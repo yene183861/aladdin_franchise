@@ -136,50 +136,50 @@ void onConfirmPayment({
   bool printKitchenBill = true,
   bool showCloseBtnInPrintBillKitchen = true,
 }) async {
-  if (!AppConfig.useFranchise) {
-    // var prinBill = await showConfirmAction(
-    //   context,
-    //   message: 'Bạn có muốn hoàn tất thanh toán hay không?',
-    //   notCancel: !showCloseBtnInPrintBillKitchen,
-    //   textCancel: 'Đóng',
-    //   actionTitle: 'Đẩy bếp và thanh toán',
-    //   extraAction: [
-    //     // ButtonSimpleWidget(
-    //     //   color: AppColors.secondColor,
-    //     //   textColor: AppColors.tcButtonMain,
-    //     //   textAction: 'Không đẩy bếp và thanh toán',
-    //     //   onPressed: () {
-    //     //     pop(context, null);
-    //     //   },
-    //     // ),
-    //   ],
-    // );
+  // if (!AppConfig.useFranchise) {
+  //   // var prinBill = await showConfirmAction(
+  //   //   context,
+  //   //   message: 'Bạn có muốn hoàn tất thanh toán hay không?',
+  //   //   notCancel: !showCloseBtnInPrintBillKitchen,
+  //   //   textCancel: 'Đóng',
+  //   //   actionTitle: 'Đẩy bếp và thanh toán',
+  //   //   extraAction: [
+  //   //     // ButtonSimpleWidget(
+  //   //     //   color: AppColors.secondColor,
+  //   //     //   textColor: AppColors.tcButtonMain,
+  //   //     //   textAction: 'Không đẩy bếp và thanh toán',
+  //   //     //   onPressed: () {
+  //   //     //     pop(context, null);
+  //   //     //   },
+  //   //     // ),
+  //   //   ],
+  //   // );
 
-    // showLogs(prinBill, flags: 'prinBill check');
-    // if (prinBill == false) {
-    //   return;
-    // } else if (prinBill == true) {
-    //  đẩy bếp và thanh toán
-    final res =
-        await ref.read(homeProvider.notifier).printBillWithoutKDS(context);
-    if (res != null) {
-      print('=== không in được bill bếp');
-      showLogs(showCloseBtnInPrintBillKitchen,
-          flags: 'showCloseBtnInPrintBillKitchen');
+  //   // showLogs(prinBill, flags: 'prinBill check');
+  //   // if (prinBill == false) {
+  //   //   return;
+  //   // } else if (prinBill == true) {
+  //   //  đẩy bếp và thanh toán
+  //   final res =
+  //       await ref.read(homeProvider.notifier).printBillWithoutKDS(context);
+  //   if (res != null) {
+  //     print('=== không in được bill bếp');
+  //     showLogs(showCloseBtnInPrintBillKitchen,
+  //         flags: 'showCloseBtnInPrintBillKitchen');
 
-      // await showMessageDialog(context, message: res);
-      await showErrorDialog(
-        context,
-        message: res,
-        isNotifier: true,
-      );
-      // if (showCloseBtnInPrintBillKitchen && ) {
-      //   return;
-      // }
-      // cà thẻ động thành công thì bắt buộc gọi api tạm tính
-      // }
-    }
-  }
+  //     // await showMessageDialog(context, message: res);
+  //     await showErrorDialog(
+  //       context,
+  //       message: res,
+  //       isNotifier: true,
+  //     );
+  //     // if (showCloseBtnInPrintBillKitchen && ) {
+  //     //   return;
+  //     // }
+  //     // cà thẻ động thành công thì bắt buộc gọi api tạm tính
+  //     // }
+  //   }
+  // }
 
   final result = await ref.read(homeProvider.notifier).onPayment(context);
   if (result.errorType != null) {
@@ -213,7 +213,10 @@ void onConfirmPayment({
         break;
       case HomePaymentError.complete:
         onConfirmCompleteAgain(
-            ref: ref, context: context, errorMessage: result.msg);
+          ref: ref,
+          context: context,
+          errorMessage: result.msg,
+        );
         break;
 
       default:
@@ -253,7 +256,11 @@ void onConfirmCompleteAgain(
       var res =
           await ref.read(homeProvider.notifier).completeBill(context: context);
       if (res != null) {
-        onConfirmCompleteAgain(ref: ref, context: context, errorMessage: res);
+        onConfirmCompleteAgain(
+          ref: ref,
+          context: context,
+          errorMessage: res,
+        );
         return;
       }
 

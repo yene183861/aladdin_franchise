@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
+// ignore: unused_import
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';

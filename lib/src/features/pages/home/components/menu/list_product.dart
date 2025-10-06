@@ -24,17 +24,32 @@ class ProductBoxWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var autoSaveOrder = ref.watch(homeProvider.select((value) => value.autoSaveOrder));
-    var currentOrderItems = ref.watch(homeProvider.select((value) => value.currentOrderItems));
-    var productsSelected = ref.watch(homeProvider.select((value) => value.productsSelected));
+    // var autoSaveOrder = ref.watch(homeProvider.select((value) => value.autoSaveOrder));
+    // var currentOrderItems =
+    //     ref.watch(homeProvider.select((value) => value.currentOrderItems));
+    var productsSelected =
+        ref.watch(homeProvider.select((value) => value.productsSelected));
+    var productsSelecting =
+        ref.watch(homeProvider.select((value) => value.productsSelecting));
 
-    int total = currentOrderItems.firstWhereOrNull((e) => e.id == product.id)?.numberSelecting ?? 0;
+    // int total = currentOrderItems
+    //         .firstWhereOrNull((e) => e.id == product.id)
+    //         ?.numberSelecting ??
+    //     0;
 
-    int ordered = autoSaveOrder
-        ? 0
-        : (productsSelected.firstWhereOrNull((e) => e.id == product.id)?.numberSelecting ?? 0);
+    int ordered =
+        // autoSaveOrder
+        //     ? 0
+        //     :
+        (productsSelected
+                .firstWhereOrNull((e) => e.id == product.id)
+                ?.numberSelecting ??
+            0);
 
-    int ordering = max(0, total - ordered);
+    int ordering = productsSelecting
+            .firstWhereOrNull((e) => e.id == product.id)
+            ?.numberSelecting ??
+        0;
     var listTags = ref.watch(homeProvider.select((value) => value.tags));
     List<TagProductModel> tags = [];
     for (var element in listTags) {
@@ -49,7 +64,7 @@ class ProductBoxWidget extends ConsumerWidget {
           if (ref.read(homeProvider).lockedOrder) return;
           var result = await ref
               .read(homeProvider.notifier)
-              .addProductToOrder(product: product.copyWith(numberSelecting: 1));
+              .addProductToCart(product: product.copyWith(numberSelecting: 1));
           if (result != null) {
             showMessageDialog(context, message: result);
           }
@@ -62,8 +77,9 @@ class ProductBoxWidget extends ConsumerWidget {
         children: [
           Container(
             clipBehavior: Clip.hardEdge,
-            decoration:
-                BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.grey.shade100),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey.shade100),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -116,7 +132,9 @@ class ProductBoxWidget extends ConsumerWidget {
                             text: 'Đã gọi: ',
                             children: [
                               TextSpan(
-                                text: ordered > 1000 ? '1000+' : ordered.toString(),
+                                text: ordered > 1000
+                                    ? '1000+'
+                                    : ordered.toString(),
                               ),
                             ],
                           ),

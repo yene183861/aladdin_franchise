@@ -12,11 +12,11 @@ class LogService {
     } catch (ex) {
       //
     }
-    try {
-      TelegramNotiService.sendLogs(errorLog);
-    } catch (ex) {
-      showLogs(ex.toString(), flags: 'error tele');
-      //
-    }
+    // try {
+    //   TelegramNotiService.sendLogs(errorLog);
+    // } catch (ex) {
+    //   showLogs(ex.toString(), flags: 'error tele');
+    //   //
+    // }
   }
 }

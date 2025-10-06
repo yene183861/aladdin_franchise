@@ -14,26 +14,35 @@ class ProductModel with _$ProductModel {
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory ProductModel({
     required int id,
+    @Default(-1) int categoryId,
     @Default('') String name,
+    @Default('') String nameEn,
+    @Default({}) Map<String, dynamic> language,
+    int? printerType,
     String? slug,
     int? menuNumber,
     @Default("0") String unitPrice,
+    @Default(false) bool outOfStock,
+    @Default(false) bool internalUse,
     String? discountPrice,
+    @Default('') String unit,
+    @Default(0.0) double tax,
     String? currencyCode,
     String? image,
     String? description,
-    @Default(0) int numberSelecting,
-    @Default('unit') String unit,
-    int? printerType,
-    dynamic tax,
-    required int categoryId,
+
+    /// dùng nội bộ
+    @Default(0)
+    @JsonKey(includeToJson: false, includeFromJson: false)
+    int numberSelecting,
+
+    ///
+    /// dùng nội bộ
     String? noteForProcessOrder,
     List<int>? tags,
-    @Default(true) bool active,
-    @Default('') String nameEn,
-    @Default(false) bool outOfStock,
-    @Default(false) bool internalUse,
-    @Default({}) Map<String, dynamic> language,
+    // @Default(true) bool active,
+
+    /// chỉ dùng nội bộ
     @Default(0)
     @JsonKey(includeToJson: false, includeFromJson: false)
     int quantityPromotion,
@@ -81,12 +90,13 @@ class ProductModel with _$ProductModel {
   double getUnitPriceNum() => double.tryParse(unitPrice) ?? 0;
 
   double get getTax {
-    if (tax is double) return tax;
-    try {
-      return double.tryParse(tax) ?? 0.0;
-    } catch (ex) {
-      return 0.0;
-    }
+    // if (tax is double)
+    return tax;
+    // try {
+    //   return double.tryParse(tax) ?? 0.0;
+    // } catch (ex) {
+    //   return 0.0;
+    // }
   }
 
   static String getModelInterface() {

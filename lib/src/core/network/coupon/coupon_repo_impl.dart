@@ -5,7 +5,6 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/const.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/network/app_exception.dart';
-import 'package:aladdin_franchise/src/core/network/check_locked_order.dart';
 import 'package:aladdin_franchise/src/core/network/coupon/coupon_repository.dart';
 import 'package:aladdin_franchise/src/core/network/responses/apply_policy.dart';
 import 'package:aladdin_franchise/src/core/network/responses/coupon.dart';

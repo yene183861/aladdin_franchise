@@ -165,11 +165,12 @@ class _UpdateAppAndroidPageState extends ConsumerState<UpdateAppAndroidPage> {
         actions: [
           IconButton(
             onPressed: () {
-              if (server == ConfigServerRestaurantData.firebase) {
-                ref.refresh(appUpdateProvider);
-              } else {
-                ref.refresh(aladdinWebLatesetVersionProvider);
-              }
+              ref.refresh(aladdinWebLatesetVersionProvider);
+              // if (server == ConfigServerRestaurantData.firebase) {
+              //   ref.refresh(appUpdateProvider);
+              // } else {
+              //   ref.refresh(aladdinWebLatesetVersionProvider);
+              // }
             },
             icon: const Icon(CupertinoIcons.refresh),
           ),
@@ -190,11 +191,12 @@ class _UpdateAppAndroidPageState extends ConsumerState<UpdateAppAndroidPage> {
               ),
             ),
             Expanded(
-              child: switch (server) {
-                ConfigServerRestaurantData.firebase => _loadByFirebaseWidget(),
-                ConfigServerRestaurantData.aladdinWeb =>
-                  _loadByAladdinWebWidget(),
-              },
+              child: _loadByAladdinWebWidget(),
+              // child: switch (server) {
+              //   ConfigServerRestaurantData.firebase => _loadByFirebaseWidget(),
+              //   ConfigServerRestaurantData.aladdinWeb =>
+              //     _loadByAladdinWebWidget(),
+              // },
             ),
           ],
         ),
@@ -202,48 +204,48 @@ class _UpdateAppAndroidPageState extends ConsumerState<UpdateAppAndroidPage> {
     );
   }
 
-  Widget _loadByFirebaseWidget() {
-    final appUpdate = ref.watch(appUpdateProvider);
-    return appUpdate.when(
-      skipLoadingOnRefresh: false,
-      data: (data) {
-        if (data != null && data.checkEnable) {
-          return _BodyUpdateWidget(
-            isRequired: data.isRequired,
-            onPressUpdate: () {
-              startTimerCheckProcess();
-              ref
-                  .read(updateAppAndroidProvider.notifier)
-                  .onUpdateApp(data.apkLink);
-            },
-            note: data.note,
-            apkLink: data.apkLink,
-            timeRelease: data.timeRelease,
-            version: data.version,
-          );
-        } else {
-          return const UpdateAppVersionIsLatesetWidget();
-        }
-      },
-      error: (_, __) {
-        final server =
-            ref.watch(updateAppAndroidProvider.select((value) => value.server));
-        return UpdateAppCheckErrorWidget(
-          infoError: _.toString(),
-          onTryAgain: () {
-            if (server == ConfigServerRestaurantData.firebase) {
-              ref.refresh(appUpdateProvider);
-            } else {
-              ref.refresh(aladdinWebLatesetVersionProvider);
-            }
-          },
-        );
-      },
-      loading: () {
-        return AppLoadingSimpleWidget(message: S.current.checkForUpdate);
-      },
-    );
-  }
+  // Widget _loadByFirebaseWidget() {
+  //   final appUpdate = ref.watch(appUpdateProvider);
+  //   return appUpdate.when(
+  //     skipLoadingOnRefresh: false,
+  //     data: (data) {
+  //       if (data != null && data.checkEnable) {
+  //         return _BodyUpdateWidget(
+  //           isRequired: data.isRequired,
+  //           onPressUpdate: () {
+  //             startTimerCheckProcess();
+  //             ref
+  //                 .read(updateAppAndroidProvider.notifier)
+  //                 .onUpdateApp(data.apkLink);
+  //           },
+  //           note: data.note,
+  //           apkLink: data.apkLink,
+  //           timeRelease: data.timeRelease,
+  //           version: data.version,
+  //         );
+  //       } else {
+  //         return const UpdateAppVersionIsLatesetWidget();
+  //       }
+  //     },
+  //     error: (_, __) {
+  //       final server =
+  //           ref.watch(updateAppAndroidProvider.select((value) => value.server));
+  //       return UpdateAppCheckErrorWidget(
+  //         infoError: _.toString(),
+  //         onTryAgain: () {
+  //           if (server == ConfigServerRestaurantData.firebase) {
+  //             ref.refresh(appUpdateProvider);
+  //           } else {
+  //             ref.refresh(aladdinWebLatesetVersionProvider);
+  //           }
+  //         },
+  //       );
+  //     },
+  //     loading: () {
+  //       return AppLoadingSimpleWidget(message: S.current.checkForUpdate);
+  //     },
+  //   );
+  // }
 
   Widget _loadByAladdinWebWidget() {
     final appUpdate = ref.watch(aladdinWebLatesetVersionProvider);
@@ -276,11 +278,12 @@ class _UpdateAppAndroidPageState extends ConsumerState<UpdateAppAndroidPage> {
             return UpdateAppCheckErrorWidget(
               infoError: _.toString(),
               onTryAgain: () {
-                if (server == ConfigServerRestaurantData.firebase) {
-                  ref.refresh(appUpdateProvider);
-                } else {
-                  ref.refresh(aladdinWebLatesetVersionProvider);
-                }
+                ref.refresh(aladdinWebLatesetVersionProvider);
+                // if (server == ConfigServerRestaurantData.firebase) {
+                //   ref.refresh(appUpdateProvider);
+                // } else {
+                //   ref.refresh(aladdinWebLatesetVersionProvider);
+                // }
               },
             );
           },

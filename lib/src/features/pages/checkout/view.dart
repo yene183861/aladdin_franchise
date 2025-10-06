@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
-import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/button_find_customer.dart';
@@ -11,17 +10,16 @@ import 'package:aladdin_franchise/src/features/dialogs/coupon/button_add_coupon.
 import 'package:aladdin_franchise/src/features/dialogs/coupon_info.dart';
 import 'package:aladdin_franchise/src/features/dialogs/create_invoice_order_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
-import 'package:aladdin_franchise/src/features/dialogs/image_bill_checker.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/components/product_checkout_action.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/order/order_detail.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/order/feature_button_group.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/price_order_widget.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/order/product_selecting_widget.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/order/order_item_list_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
-import 'package:aladdin_franchise/src/features/pages/login/view.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_square_menu.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
@@ -107,106 +105,12 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     );
     var continueBtn = ButtonMainWidget(
       widthFactor: 0.5,
-      textAction: 'Tiếp tục',
-      onPressed: () async {
-        var state = ref.read(homeProvider);
-        bool emptyProductCheckout = (state.autoSaveOrder
-                ? state.currentOrderItems
-                : state.productCheckout)
-            .isEmpty;
-        if (emptyProductCheckout) {
-          showMessageDialog(context, message: S.current.order_before_payment);
-          return;
-        }
-
-        var customer = ref.read(homeProvider).customer;
-        if (customer == null) {
-          var res = await showConfirmAction(context,
-              message: S.current.noti_enter_customer_info,
-              title: S.current.notification);
-          if (res == false) {
-            return;
-          }
-        }
-
-        try {
-          ref.read(homeProvider.notifier).resetPaymentAndBank();
-
-          state = ref.read(homeProvider);
-
-          if (state.autoSaveOrder && state.isOrderSaved) {
-            showConfirmAction(
-              context,
-              message:
-                  'Có món chưa được lưu, không thể chuyển sang bước Thanh toán',
-              actionTitle: 'Gọi món',
-              action: () {
-                ref
-                    .read(homeProvider.notifier)
-                    .handleOrderItem(retry: true, loadingHome: true);
-              },
-            );
-            return;
-          }
-          state = ref.read(homeProvider);
-
-          if (ref.read(homeProvider).needApplyAgainOnlyCoupons.isNotEmpty) {
-            // với mã only thì xóa mã đi áp dụng lại
-            var error =
-                await ref.read(homeProvider.notifier).applyAgainOnlyCounpon();
-            if (error != null) {
-              showMessageDialog(context, message: error.toString());
-              return;
-            }
-          } else {
-            // try {
-            //   await ref.read(homeProvider.notifier).applyCustomerPolicy();
-            // } catch (ex) {
-            //   //
-            // }
-          }
-
-          state = ref.read(homeProvider);
-          switch (state.applyPolicyState.status) {
-            case PageCommonState.loading:
-              showMessageDialog(context,
-                  message: 'Đang áp dụng lại mã giảm giá');
-              return;
-            case PageCommonState.error:
-              showConfirmAction(
-                context,
-                message: 'Áp dụng lại mã giảm giá lỗi',
-                actionTitle: S.current.tryAgain,
-                action: ref.read(homeProvider.notifier).applyCustomerPolicy,
-              );
-              return;
-            default:
-          }
-          state = ref.read(homeProvider);
-          switch (state.dataBillState.status) {
-            case PageCommonState.loading:
-              showMessageDialog(context,
-                  message: S.current.updating_payment_info);
-              return;
-            case PageCommonState.error:
-              showConfirmAction(
-                context,
-                message: 'Tiền thanh toán chưa được cập nhật chính xác',
-                actionTitle: 'Thử lại',
-                action: ref.read(homeProvider.notifier).getDataBill,
-              );
-
-              return;
-            default:
-          }
-
-          await onSelectPaymentMethod(
-            context: context,
-            ref: ref,
-          );
-        } catch (ex) {
-          showMessageDialog(context, message: ex.toString());
-        }
+      textAction: S.current.continue_text,
+      onPressed: () {
+        paymentBtnCallback(
+          ref: ref,
+          context: context,
+        );
       },
     );
     var priceWidget = const Padding(
@@ -217,7 +121,10 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     );
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Thanh toán'),
+        title: Text(
+          S.current.payment,
+          style: AppTextStyle.bold(color: Colors.white),
+        ),
       ),
       body: OrientationBuilder(
         builder: (context, orientation) {
@@ -230,7 +137,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                     CheckoutTabEnum.receipt => Column(
                         children: [
                           const Expanded(
-                            child: OrderedItemsWidget(),
+                            child: OrderedItemsSelectedWidget(),
                           ),
                           priceWidget,
                           continueBtn,
@@ -255,11 +162,8 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Gap(12),
-                    // Text('Sản phẩm đã gọi'),
-                    // Gap(12),
                     Expanded(
-                      child: OrderedItemsWidget(),
+                      child: OrderedItemsSelectedWidget(),
                     ),
                     Padding(
                       padding:

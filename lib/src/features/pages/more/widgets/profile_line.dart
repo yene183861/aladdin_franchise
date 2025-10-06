@@ -6,6 +6,7 @@ import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
 import '../../../../core/storages/local.dart';
 

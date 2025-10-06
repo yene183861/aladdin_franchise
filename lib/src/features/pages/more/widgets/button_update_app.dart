@@ -7,6 +7,7 @@ import 'package:aladdin_franchise/src/features/pages/update_app/android/view.dar
 import 'package:aladdin_franchise/src/features/pages/update_app/windows/view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
 import '../../../../../generated/l10n.dart';
 
@@ -23,8 +24,9 @@ class ButtonUpdateAppWidget extends ConsumerWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                Platform.isAndroid ? const UpdateAppAndroidPage() : const UpdateAppWindowsPage(),
+            builder: (context) => Platform.isAndroid
+                ? const UpdateAppAndroidPage()
+                : const UpdateAppWindowsPage(),
           ),
         );
       },

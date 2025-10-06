@@ -1,13 +1,10 @@
 import 'dart:convert';
 
-// import 'dart:io';
-
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:http/http.dart';
 
-/// Author: sondv
-/// Created 23/02/2023 at 10:05
 class AppException implements Exception {
   late String messageError;
 
@@ -146,5 +143,14 @@ class AppException implements Exception {
   @override
   String toString() {
     return messageError;
+  }
+}
+
+void checkLockedOrder(Response response) {
+  if (response.statusCode == NetworkCodeConfig.locked) {
+    throw AppException(
+      statusCode: response.statusCode,
+      message: jsonDecode(response.body)['message'] ?? S.current.msg_locked_order,
+    );
   }
 }

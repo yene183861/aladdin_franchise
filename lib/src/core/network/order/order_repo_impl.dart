@@ -7,7 +7,6 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/data_fake.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/network/app_exception.dart';
-import 'package:aladdin_franchise/src/core/network/check_locked_order.dart';
 import 'package:aladdin_franchise/src/core/network/order/order_repository.dart';
 import 'package:aladdin_franchise/src/core/network/responses/create_order.dart';
 import 'package:aladdin_franchise/src/core/network/responses/data_bill.dart';
@@ -68,7 +67,8 @@ class OrderRepositoryImpl extends OrderRepository {
           ),
         );
       }
-      var response = await restClient.get(Uri.parse(apiUrl), typeOrder: typeOrder);
+      var response =
+          await restClient.get(Uri.parse(apiUrl), typeOrder: typeOrder);
       log = log.copyWith(response: [response.statusCode, response.body]);
       if (response.statusCode == NetworkCodeConfig.ok) {
         var jsonRes = jsonDecode(response.body);
@@ -84,13 +84,15 @@ class OrderRepositoryImpl extends OrderRepository {
             .map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder))
             .toList();
         return result.copyWith(
-            data: data.copyWith(notUse: notUse, userUsing: orders, using: using));
+            data:
+                data.copyWith(notUse: notUse, userUsing: orders, using: using));
       } else {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
       showLog(ex, flags: "error getOrders");
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -112,36 +114,6 @@ class OrderRepositoryImpl extends OrderRepository {
       order: order,
     );
     try {
-      if (useDataFake) {
-        await delayFunc();
-        if (order.id == 0) {
-          final res = await kCreateNewOrder(tableId: tableIds, typeOrder: typeOrder);
-          if (res.orderId != null) {
-            return CreateOrderResponse(
-              status: 200,
-              orderId: res.orderId,
-              message: 'Tạo đơn bàn thành công',
-            );
-          } else {
-            throw res.message ?? 'Lỗi tạo đơn bàn';
-          }
-        } else {
-          final res = await kUpdateTableOrder(
-            order: order,
-            tableId: tableIds,
-            typeOrder: typeOrder,
-          );
-          if (res.orderId != null) {
-            return CreateOrderResponse(
-              status: 200,
-              orderId: res.orderId,
-              message: 'Cập nhật đơn bàn thành công',
-            );
-          } else {
-            throw res.message ?? 'Lỗi cập nhật đơn bàn';
-          }
-        }
-      }
       var loginData = LocalStorage.getDataLogin();
       bool useReservation = loginData?.restaurant?.reservationStatus ?? false;
       Map<String, dynamic> bodyRequest = {
@@ -152,6 +124,7 @@ class OrderRepositoryImpl extends OrderRepository {
         "restaurant_id": loginData?.restaurant?.id,
         "table_id": tableIds.toString(),
         "total": 0,
+        // check ?
         "waiter_id": loginData?.waiterId,
         "waiter_id_transfer": waiterTransfer?.id,
       };
@@ -163,6 +136,9 @@ class OrderRepositoryImpl extends OrderRepository {
       }
 
       var body = jsonEncode(bodyRequest);
+      log = log.copyWith(
+        request: body,
+      );
       var response = await restClient.post(
         Uri.parse(ApiConfig.createAndUpdateOrder),
         body: body,
@@ -170,7 +146,6 @@ class OrderRepositoryImpl extends OrderRepository {
       );
       log = log.copyWith(
         response: [response.statusCode, response.body],
-        request: body,
       );
       if (response.statusCode == NetworkCodeConfig.ok) {
         var json = jsonDecode(response.body);
@@ -181,7 +156,9 @@ class OrderRepositoryImpl extends OrderRepository {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      showLog(ex, flags: 'createAndUpdateOrder ex');
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -242,7 +219,8 @@ class OrderRepositoryImpl extends OrderRepository {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -296,7 +274,8 @@ class OrderRepositoryImpl extends OrderRepository {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -355,7 +334,8 @@ class OrderRepositoryImpl extends OrderRepository {
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'cancelDishInOrder ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -367,7 +347,8 @@ class OrderRepositoryImpl extends OrderRepository {
     OrderModel order,
     List<int> printerType,
   ) async {
-    var apiUrl = "${ApiConfig.getOrders}?type_order=${order.id}&printer_type=$printerType";
+    var apiUrl =
+        "${ApiConfig.getOrders}?type_order=${order.id}&printer_type=$printerType";
     var log = ErrorLogModel(
         action: AppLogAction.getIpPrinterOrder,
         api: apiUrl,
@@ -387,7 +368,9 @@ class OrderRepositoryImpl extends OrderRepository {
         String? error;
         printers = result.data.ipOrder == null
             ? []
-            : result.data.ipOrder.map<IpOrderModel>((e) => IpOrderModel.fromJson(e)).toList();
+            : result.data.ipOrder
+                .map<IpOrderModel>((e) => IpOrderModel.fromJson(e))
+                .toList();
         if (printers.isEmpty) {
           error = S.current.error_ping_printer;
         }
@@ -396,7 +379,8 @@ class OrderRepositoryImpl extends OrderRepository {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -430,8 +414,9 @@ class OrderRepositoryImpl extends OrderRepository {
       modelInterface: "bool",
       order: order,
     );
-    ListCustomerRating customerRatingPush =
-        customerRatings.where((element) => element.isEmptyOrError() == false).toList();
+    ListCustomerRating customerRatingPush = customerRatings
+        .where((element) => element.isEmptyOrError() == false)
+        .toList();
 
     try {
       var loginData = LocalStorage.getDataLogin();
@@ -469,7 +454,8 @@ class OrderRepositoryImpl extends OrderRepository {
         "numberOfChildren": numberOfChildren,
         "note": note,
         "flag_invoice": flagInvoice,
-        "customer_rating": customerRatingPush, //customerRating.getQuestionPush(),
+        "customer_rating":
+            customerRatingPush, //customerRating.getQuestionPush(),
         //"payment": paymentDataBillCheck.toJson(),
         "files": images,
         "payment_method": paymentMethod,
@@ -494,7 +480,8 @@ class OrderRepositoryImpl extends OrderRepository {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       showLogs(ex, flags: "Call payment error");
       if (ex is AppException) rethrow;
@@ -515,7 +502,9 @@ class OrderRepositoryImpl extends OrderRepository {
   }) async {
     var apiUrl = ApiConfig.processOrderAndPrinter;
     var log = ErrorLogModel(
-      action: status == 2 ? AppLogAction.processOrderBill : AppLogAction.cancelDishBill,
+      action: status == 2
+          ? AppLogAction.processOrderBill
+          : AppLogAction.cancelDishBill,
       api: apiUrl,
       modelInterface: "bool",
       order: order,
@@ -580,7 +569,8 @@ class OrderRepositoryImpl extends OrderRepository {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       showLogs(ex, flags: "processOrderInBill");
       return (result: false, error: ex.toString());
@@ -626,7 +616,8 @@ class OrderRepositoryImpl extends OrderRepository {
     } catch (ex) {
       showLogs(ex.toString(), flags: 'ex getDataBill');
       if (ex.toString() != S.current.error_get_invoice_info) {
-        LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+        LogService.sendLogs(log.copyWith(
+            errorMessage: ex.toString(), createAt: DateTime.now()));
       }
 
       if (ex is AppException) rethrow;
@@ -697,7 +688,8 @@ class OrderRepositoryImpl extends OrderRepository {
                 // var checkPrinterAvailable = await LocalNetworkService.checkPrinter(ipPrinter.ip,
                 // ipPrinter.port);
                 ipPrinter);
-            showLog(checkPrinterAvailable, flags: "checkPrinterAvailable[${ipPrinter.type}]");
+            showLog(checkPrinterAvailable,
+                flags: "checkPrinterAvailable[${ipPrinter.type}]");
             if (checkPrinterAvailable != null) {
               error = ipPrinter.messageConnectFail();
             }
@@ -705,7 +697,8 @@ class OrderRepositoryImpl extends OrderRepository {
         }
       }
     } catch (ex) {
-      error = "${S.current.error_retrieving_printer_info}\n${S.current.please_try_again}!"
+      error =
+          "${S.current.error_retrieving_printer_info}\n${S.current.please_try_again}!"
           "\n${S.current.ex_problem}: ${ex.toString()}";
     }
     return (printers: printers.toList(), error: error);
@@ -740,7 +733,8 @@ class OrderRepositoryImpl extends OrderRepository {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -833,7 +827,8 @@ class OrderRepositoryImpl extends OrderRepository {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -894,7 +889,8 @@ class OrderRepositoryImpl extends OrderRepository {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -941,7 +937,8 @@ class OrderRepositoryImpl extends OrderRepository {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -969,7 +966,8 @@ class OrderRepositoryImpl extends OrderRepository {
       }
       throw AppException.fromHttpResponse(response);
     } catch (ex) {
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());

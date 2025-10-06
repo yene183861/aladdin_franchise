@@ -201,7 +201,8 @@ class AppPrinterHtmlUtils {
         // combo
         List<ComboItemModel> comboItemPrint = [];
         if (comboItem != null) {
-          comboItemPrint = comboItem.where((e) => e.printerType == printer.type).toList();
+          comboItemPrint =
+              comboItem.where((e) => e.printerType == printer.type).toList();
           if (comboItemPrint.isNotEmpty) {
             String? description = p.description;
             try {
@@ -244,14 +245,18 @@ class AppPrinterHtmlUtils {
         throw printer.messageConnectFail();
       }
       if (res == PosPrintResult.success) {
-        var billStatus = await printerManager.printTicket(bytes, isDisconnect: false);
+        var billStatus =
+            await printerManager.printTicket(bytes, isDisconnect: false);
         if (billStatus != PosPrintResult.success) {
           return cancel
               ? "In bill tổng thất bại!\n${billStatus.msg}"
               : 'In bill hủy đồ thất bại\n${billStatus.msg}';
         }
         // chỉ in bill lẻ với bếp
-        if (!cancel && printEachItem && productPrinter.length > 1 && printer.type == 2) {
+        if (!cancel &&
+            printEachItem &&
+            productPrinter.length > 1 &&
+            printer.type == 2) {
           for (var p in productPrinter) {
             List<int> byteDatas;
             var oddHtmlBill = kitchenBillContent(
@@ -263,7 +268,8 @@ class AppPrinterHtmlUtils {
               cancel: cancel,
             );
             byteDatas = await generateImageBill(oddHtmlBill);
-            billStatus = await printerManager.printTicket(byteDatas, isDisconnect: false);
+            billStatus = await printerManager.printTicket(byteDatas,
+                isDisconnect: false);
             if (billStatus != PosPrintResult.success) {
               return "In bill lẻ xuống bếp thất bại!\n${billStatus.msg}";
             }
@@ -320,7 +326,8 @@ class AppPrinterHtmlUtils {
     String dishTable = "";
 
     var finalNote = note;
-    if (!totalBill && (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
+    if (!totalBill &&
+        (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
       finalNote = (product.firstOrNull?.noteForProcessOrder ?? '');
     }
     if (cancel) {
@@ -338,18 +345,29 @@ class AppPrinterHtmlUtils {
         </tr>
       ''';
       }
-      List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(pc);
-      showLogs(comboItems, flags: 'comboItems');
+      List<ComboItemModel>? comboItems =
+          ProductHelper().getComboDescription(pc);
+      // showLogs(comboItems, flags: 'comboItems');
       if (comboItems != null) {
         // check xem có cần nhân số lượng combo với món trong combo k
         for (var ci in comboItems) {
-          showLogs(ci.getNameView(), flags: 'ci 123');
-          showLogs(ci, flags: 'ci 123');
+          // showLogs(ci.getNameView(), flags: 'ci 123');
+          // showLogs(ci, flags: 'ci 123');
           dishTable += '''
         <tr>
             <td width="75%">${'${totalBill ? '  ' : ''}- ${ci.getNameView()}'}</td>
             <td width="10%" class="center">${cancel ? '-' : ''}${(ci.quantity * pc.numberSelecting).abs()}</td>
             <td width="15%" style="text-align: right">${ci.unit}</td>
+        </tr>
+      ''';
+        }
+      } else {
+        if (!totalBill) {
+          dishTable += '''
+        <tr>
+            <td width="75%">${pc.name}</td>
+            <td width="10%" class="center">${cancel ? '-' : ''}${(pc.numberSelecting).abs()}</td>
+            <td width="15%" style="text-align: right">${pc.unit}</td>
         </tr>
       ''';
         }
@@ -706,7 +724,8 @@ class AppPrinterHtmlUtils {
   }
 
   String _printDateTime(DateTime? value) {
-    return DateTimeUtils.formatToString(time: value, newPattern: DateTimePatterns.dateTime1);
+    return DateTimeUtils.formatToString(
+        time: value, newPattern: DateTimePatterns.dateTime1);
   }
 }
 

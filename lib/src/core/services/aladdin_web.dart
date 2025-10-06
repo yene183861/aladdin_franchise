@@ -8,10 +8,7 @@ import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
-/// Author: sondv
-/// Created 02/12/2023 at 09:16
 
-///
 class AladdinWebService {
   AladdinWebService._();
   static final AladdinWebService _instance = AladdinWebService._();
@@ -19,7 +16,7 @@ class AladdinWebService {
 
   Future<AppUpdateModel> getLatesetVersion() async {
     final url = Uri.parse(
-        'https://aladdin-pos.github.io/api/lateset_version_pos_lite.json');
+        'https://aladdin-pos.github.io/api/lateset_version_pos_franchise.json');
     final defaultHeaders = <String, String>{
       'Content-Type': 'application/json; charset=utf-8',
       'Accept': 'application/json',

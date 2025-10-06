@@ -88,7 +88,6 @@ enum PageCommonState {
 }
 
 enum OrderTabEnum {
-  all,
   ordering,
   ordered,
 }
@@ -96,8 +95,6 @@ enum OrderTabEnum {
 extension OrderTabEnumEx on OrderTabEnum {
   String get title {
     switch (this) {
-      case OrderTabEnum.all:
-        return 'Tất cả';
       case OrderTabEnum.ordering:
         return 'Đang chọn';
       case OrderTabEnum.ordered:
@@ -107,12 +104,10 @@ extension OrderTabEnumEx on OrderTabEnum {
 
   int get indexValue {
     switch (this) {
-      case OrderTabEnum.all:
-        return 0;
       case OrderTabEnum.ordering:
-        return 1;
+        return 0;
       case OrderTabEnum.ordered:
-        return 2;
+        return 1;
     }
   }
 }
@@ -134,7 +129,8 @@ class HomeState with _$HomeState {
     @Default(false) bool reconnectRedis,
 
     /// danh mục, món
-    @Default(PageState(status: PageCommonState.loading)) PageState productsState,
+    @Default(PageState(status: PageCommonState.loading))
+    PageState productsState,
     @Default([]) List<CategoryModel> categories,
     @Default([]) List<ProductModel> products,
     @Default([]) List<TagProductModel> tags,
@@ -151,7 +147,7 @@ class HomeState with _$HomeState {
     @Default(false) bool lockedOrder,
 
     /// danh sách món trong đơn hiện tại (các món đã gọi + các món đang gọi)
-    @Default([]) List<ProductModel> currentOrderItems,
+    // @Default([]) List<ProductModel> currentOrderItems,
 
     /// các món đang gọi
     @Default([]) List<ProductModel> productsSelecting,
@@ -162,9 +158,9 @@ class HomeState with _$HomeState {
     @Default([]) List<ProductCheckoutModel> productCheckout,
     @Default(PageState()) PageState productCheckoutState,
     //
-    @Default(true) bool isOrderSaved,
+    // @Default(true) bool isOrderSaved,
     // tự động lưu món đang chọn vào DB
-    @Default(false) bool autoSaveOrder,
+    // @Default(false) bool autoSaveOrder,
 
     /// khách hàng
     CustomerModel? customer,
@@ -177,7 +173,8 @@ class HomeState with _$HomeState {
 
     /// các mã only cần xóa đi áp dụng lại
     @Default([]) List<CustomerPolicyModel> needApplyAgainOnlyCoupons,
-    @Default(PageState(status: PageCommonState.success)) PageState applyPolicyState,
+    @Default(PageState(status: PageCommonState.success))
+    PageState applyPolicyState,
 
     /// phương thức thanh toán
     @Default([]) List<PaymentMethod> paymentMethods,
@@ -213,7 +210,7 @@ class HomeState with _$HomeState {
     @Default(PageState(status: PageCommonState.normal)) PageState dataBillState,
 
     /// pc sau khi phân bổ lại thuế
-    @Default([]) List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax,
+    // @Default([]) List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax,
 
     /// hoàn thành bill
     @Default([]) List<File> imageBills,
@@ -226,8 +223,8 @@ class HomeState with _$HomeState {
     @Default('') String completeNote,
     // nv sale
     EmployeeSaleModel? employeeSaleSelect,
-    @Default([]) List<EmployeeSaleModel> employeeSales,
-    @Default(PageState()) PageState employeeSaleState,
+    // @Default([]) List<EmployeeSaleModel> employeeSales,
+    // @Default(PageState()) PageState employeeSaleState,
     @Default(false) bool printNumberOfPeople,
 
     ///
@@ -237,19 +234,21 @@ class HomeState with _$HomeState {
     /// id của sản phẩm được thay đổi gần nhất
     int? changedProductId,
     @Default(false) bool pinnedOrder,
-    @Default(OrderTabEnum.ordering) OrderTabEnum orderTabSelect,
-    @Default([OrderTabEnum.all]) List<OrderTabEnum> orderTabs,
+    @Default(OrderTabEnum.ordered) OrderTabEnum orderTabSelect,
+    @Default([OrderTabEnum.ordering, OrderTabEnum.ordered])
+    List<OrderTabEnum> orderTabs,
     @Default(false) bool displayOrderHistory,
-    @Default(false) bool cancelOrderItem,
+    // @Default(false) bool cancelOrderItem,
     @Default([]) List<OrderHistory> orderHistory,
     // o2o
-    @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
-    @Default(PageState()) PageState getO2ODataState,
+    // @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
+    // @Default(PageState()) PageState getO2ODataState,
     @Default([]) List<ChatMessageModel> chatMessages,
-    @Default(PageState(status: PageCommonState.loading)) PageState getChatMessageState,
+    @Default(PageState(status: PageCommonState.loading))
+    PageState getChatMessageState,
 
     /// reservation
-    @Default(PageState()) PageState getReservationsState,
-    @Default([]) List<ReservationModel> reservations,
+    // @Default(PageState()) PageState getReservationsState,
+    // @Default([]) List<ReservationModel> reservations,
   }) = _HomeState;
 }

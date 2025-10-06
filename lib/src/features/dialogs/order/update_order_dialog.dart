@@ -45,14 +45,14 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       ref.refresh(tableAvailableUpdateOrderProvider);
-      var error = ref.read(reservationsProvider).when(
-            data: (data) => false,
-            error: (error, stackTrace) => true,
-            loading: () => false,
-          );
-      if (error) {
-        ref.refresh(reservationsProvider);
-      }
+      // var error = ref.read(reservationsProvider).when(
+      //       data: (data) => false,
+      //       error: (error, stackTrace) => true,
+      //       loading: () => false,
+      //     );
+      // if (error) {
+      //   ref.refresh(reservationsProvider);
+      // }
     });
   }
 
@@ -60,6 +60,13 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
   Widget build(BuildContext context) {
     final tableAvailable = ref.watch(tableAvailableUpdateOrderProvider);
     final orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
+    List<ReservationModel> reservations = ref.watch(reservationsProvider).when(
+          skipError: false,
+          skipLoadingOnRefresh: false,
+          data: (data) => List.from(data),
+          error: (error, stackTrace) => [],
+          loading: () => [],
+        );
     return AlertDialog(
       title: Text(
         S.current.updateAndChoseTable,
@@ -181,12 +188,12 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
               return;
             }
             final tableIds = tableSelected.map<int>((e) => e.id).toList();
-            var homeState = ref.read(homeProvider);
+            // var homeState = ref.read(homeProvider);
 
             ReservationModel? reservation;
             bool requireUpdateReservation = false;
             if (useReservation && orderSelect?.reservationCrmId != null) {
-              reservation = homeState.reservations.firstWhereOrNull(
+              reservation = reservations.firstWhereOrNull(
                   (e) => e.id == orderSelect?.reservationCrmId);
               if (reservation != null &&
                   (reservation.reservationStatus != ReservationStatus.process ||

@@ -186,9 +186,7 @@ mixin _$HomeState {
   bool get lockedOrder => throw _privateConstructorUsedError;
 
   /// danh sách món trong đơn hiện tại (các món đã gọi + các món đang gọi)
-  List<ProductModel> get currentOrderItems =>
-      throw _privateConstructorUsedError;
-
+// @Default([]) List<ProductModel> currentOrderItems,
   /// các món đang gọi
   List<ProductModel> get productsSelecting =>
       throw _privateConstructorUsedError;
@@ -199,10 +197,9 @@ mixin _$HomeState {
   List<ProductCheckoutModel> get productCheckout =>
       throw _privateConstructorUsedError;
   PageState get productCheckoutState => throw _privateConstructorUsedError; //
-  bool get isOrderSaved =>
-      throw _privateConstructorUsedError; // tự động lưu món đang chọn vào DB
-  bool get autoSaveOrder => throw _privateConstructorUsedError;
-
+// @Default(true) bool isOrderSaved,
+// tự động lưu món đang chọn vào DB
+// @Default(false) bool autoSaveOrder,
   /// khách hàng
   CustomerModel? get customer => throw _privateConstructorUsedError;
 
@@ -245,9 +242,7 @@ mixin _$HomeState {
   PageState get dataBillState => throw _privateConstructorUsedError;
 
   /// pc sau khi phân bổ lại thuế
-  List<ProductCheckoutUpdateTaxModel> get productCheckoutUpdateTax =>
-      throw _privateConstructorUsedError;
-
+// @Default([]) List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax,
   /// hoàn thành bill
   List<File> get imageBills => throw _privateConstructorUsedError;
   int get numberOfAdults => throw _privateConstructorUsedError;
@@ -260,10 +255,8 @@ mixin _$HomeState {
       throw _privateConstructorUsedError;
   String get completeNote => throw _privateConstructorUsedError; // nv sale
   EmployeeSaleModel? get employeeSaleSelect =>
-      throw _privateConstructorUsedError;
-  List<EmployeeSaleModel> get employeeSales =>
-      throw _privateConstructorUsedError;
-  PageState get employeeSaleState => throw _privateConstructorUsedError;
+      throw _privateConstructorUsedError; // @Default([]) List<EmployeeSaleModel> employeeSales,
+// @Default(PageState()) PageState employeeSaleState,
   bool get printNumberOfPeople => throw _privateConstructorUsedError;
 
   ///
@@ -275,19 +268,14 @@ mixin _$HomeState {
   bool get pinnedOrder => throw _privateConstructorUsedError;
   OrderTabEnum get orderTabSelect => throw _privateConstructorUsedError;
   List<OrderTabEnum> get orderTabs => throw _privateConstructorUsedError;
-  bool get displayOrderHistory => throw _privateConstructorUsedError;
-  bool get cancelOrderItem => throw _privateConstructorUsedError;
+  bool get displayOrderHistory =>
+      throw _privateConstructorUsedError; // @Default(false) bool cancelOrderItem,
   List<OrderHistory> get orderHistory =>
       throw _privateConstructorUsedError; // o2o
-  Map<O2OOrderModel, Map<String, dynamic>> get o2oData =>
-      throw _privateConstructorUsedError;
-  PageState get getO2ODataState => throw _privateConstructorUsedError;
+// @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
+// @Default(PageState()) PageState getO2ODataState,
   List<ChatMessageModel> get chatMessages => throw _privateConstructorUsedError;
   PageState get getChatMessageState => throw _privateConstructorUsedError;
-
-  /// reservation
-  PageState get getReservationsState => throw _privateConstructorUsedError;
-  List<ReservationModel> get reservations => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $HomeStateCopyWith<HomeState> get copyWith =>
@@ -315,13 +303,10 @@ abstract class $HomeStateCopyWith<$Res> {
       bool ignoreCheckCodeWaiter,
       OrderModel? orderSelect,
       bool lockedOrder,
-      List<ProductModel> currentOrderItems,
       List<ProductModel> productsSelecting,
       List<ProductModel> productsSelected,
       List<ProductCheckoutModel> productCheckout,
       PageState productCheckoutState,
-      bool isOrderSaved,
-      bool autoSaveOrder,
       CustomerModel? customer,
       List<CustomerPolicyModel> coupons,
       List<PolicyResultModel> vouchers,
@@ -345,7 +330,6 @@ abstract class $HomeStateCopyWith<$Res> {
       bool checkReloadWhenHiddenApp,
       DataBillResponseData dataBill,
       PageState dataBillState,
-      List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax,
       List<File> imageBills,
       int numberOfAdults,
       int numberOfChildren,
@@ -354,8 +338,6 @@ abstract class $HomeStateCopyWith<$Res> {
       List<CustomerPortrait> customerPortraits,
       String completeNote,
       EmployeeSaleModel? employeeSaleSelect,
-      List<EmployeeSaleModel> employeeSales,
-      PageState employeeSaleState,
       bool printNumberOfPeople,
       bool autoScrollProducts,
       int? changedProductId,
@@ -363,14 +345,9 @@ abstract class $HomeStateCopyWith<$Res> {
       OrderTabEnum orderTabSelect,
       List<OrderTabEnum> orderTabs,
       bool displayOrderHistory,
-      bool cancelOrderItem,
       List<OrderHistory> orderHistory,
-      Map<O2OOrderModel, Map<String, dynamic>> o2oData,
-      PageState getO2ODataState,
       List<ChatMessageModel> chatMessages,
-      PageState getChatMessageState,
-      PageState getReservationsState,
-      List<ReservationModel> reservations});
+      PageState getChatMessageState});
 
   $PageStateCopyWith<$Res> get productsState;
   $CategoryModelCopyWith<$Res>? get categorySelect;
@@ -392,10 +369,7 @@ abstract class $HomeStateCopyWith<$Res> {
   $PageStateCopyWith<$Res> get dataBillState;
   $CustomerPortraitCopyWith<$Res>? get customerPortraitSelect;
   $EmployeeSaleModelCopyWith<$Res>? get employeeSaleSelect;
-  $PageStateCopyWith<$Res> get employeeSaleState;
-  $PageStateCopyWith<$Res> get getO2ODataState;
   $PageStateCopyWith<$Res> get getChatMessageState;
-  $PageStateCopyWith<$Res> get getReservationsState;
 }
 
 /// @nodoc
@@ -426,13 +400,10 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? ignoreCheckCodeWaiter = null,
     Object? orderSelect = freezed,
     Object? lockedOrder = null,
-    Object? currentOrderItems = null,
     Object? productsSelecting = null,
     Object? productsSelected = null,
     Object? productCheckout = null,
     Object? productCheckoutState = null,
-    Object? isOrderSaved = null,
-    Object? autoSaveOrder = null,
     Object? customer = freezed,
     Object? coupons = null,
     Object? vouchers = null,
@@ -456,7 +427,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? checkReloadWhenHiddenApp = null,
     Object? dataBill = null,
     Object? dataBillState = null,
-    Object? productCheckoutUpdateTax = null,
     Object? imageBills = null,
     Object? numberOfAdults = null,
     Object? numberOfChildren = null,
@@ -465,8 +435,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? customerPortraits = null,
     Object? completeNote = null,
     Object? employeeSaleSelect = freezed,
-    Object? employeeSales = null,
-    Object? employeeSaleState = null,
     Object? printNumberOfPeople = null,
     Object? autoScrollProducts = null,
     Object? changedProductId = freezed,
@@ -474,14 +442,9 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? orderTabSelect = null,
     Object? orderTabs = null,
     Object? displayOrderHistory = null,
-    Object? cancelOrderItem = null,
     Object? orderHistory = null,
-    Object? o2oData = null,
-    Object? getO2ODataState = null,
     Object? chatMessages = null,
     Object? getChatMessageState = null,
-    Object? getReservationsState = null,
-    Object? reservations = null,
   }) {
     return _then(_value.copyWith(
       event: null == event
@@ -544,10 +507,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.lockedOrder
           : lockedOrder // ignore: cast_nullable_to_non_nullable
               as bool,
-      currentOrderItems: null == currentOrderItems
-          ? _value.currentOrderItems
-          : currentOrderItems // ignore: cast_nullable_to_non_nullable
-              as List<ProductModel>,
       productsSelecting: null == productsSelecting
           ? _value.productsSelecting
           : productsSelecting // ignore: cast_nullable_to_non_nullable
@@ -564,14 +523,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.productCheckoutState
           : productCheckoutState // ignore: cast_nullable_to_non_nullable
               as PageState,
-      isOrderSaved: null == isOrderSaved
-          ? _value.isOrderSaved
-          : isOrderSaved // ignore: cast_nullable_to_non_nullable
-              as bool,
-      autoSaveOrder: null == autoSaveOrder
-          ? _value.autoSaveOrder
-          : autoSaveOrder // ignore: cast_nullable_to_non_nullable
-              as bool,
       customer: freezed == customer
           ? _value.customer
           : customer // ignore: cast_nullable_to_non_nullable
@@ -664,10 +615,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.dataBillState
           : dataBillState // ignore: cast_nullable_to_non_nullable
               as PageState,
-      productCheckoutUpdateTax: null == productCheckoutUpdateTax
-          ? _value.productCheckoutUpdateTax
-          : productCheckoutUpdateTax // ignore: cast_nullable_to_non_nullable
-              as List<ProductCheckoutUpdateTaxModel>,
       imageBills: null == imageBills
           ? _value.imageBills
           : imageBills // ignore: cast_nullable_to_non_nullable
@@ -700,14 +647,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.employeeSaleSelect
           : employeeSaleSelect // ignore: cast_nullable_to_non_nullable
               as EmployeeSaleModel?,
-      employeeSales: null == employeeSales
-          ? _value.employeeSales
-          : employeeSales // ignore: cast_nullable_to_non_nullable
-              as List<EmployeeSaleModel>,
-      employeeSaleState: null == employeeSaleState
-          ? _value.employeeSaleState
-          : employeeSaleState // ignore: cast_nullable_to_non_nullable
-              as PageState,
       printNumberOfPeople: null == printNumberOfPeople
           ? _value.printNumberOfPeople
           : printNumberOfPeople // ignore: cast_nullable_to_non_nullable
@@ -736,22 +675,10 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.displayOrderHistory
           : displayOrderHistory // ignore: cast_nullable_to_non_nullable
               as bool,
-      cancelOrderItem: null == cancelOrderItem
-          ? _value.cancelOrderItem
-          : cancelOrderItem // ignore: cast_nullable_to_non_nullable
-              as bool,
       orderHistory: null == orderHistory
           ? _value.orderHistory
           : orderHistory // ignore: cast_nullable_to_non_nullable
               as List<OrderHistory>,
-      o2oData: null == o2oData
-          ? _value.o2oData
-          : o2oData // ignore: cast_nullable_to_non_nullable
-              as Map<O2OOrderModel, Map<String, dynamic>>,
-      getO2ODataState: null == getO2ODataState
-          ? _value.getO2ODataState
-          : getO2ODataState // ignore: cast_nullable_to_non_nullable
-              as PageState,
       chatMessages: null == chatMessages
           ? _value.chatMessages
           : chatMessages // ignore: cast_nullable_to_non_nullable
@@ -760,14 +687,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.getChatMessageState
           : getChatMessageState // ignore: cast_nullable_to_non_nullable
               as PageState,
-      getReservationsState: null == getReservationsState
-          ? _value.getReservationsState
-          : getReservationsState // ignore: cast_nullable_to_non_nullable
-              as PageState,
-      reservations: null == reservations
-          ? _value.reservations
-          : reservations // ignore: cast_nullable_to_non_nullable
-              as List<ReservationModel>,
     ) as $Val);
   }
 
@@ -979,33 +898,9 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
 
   @override
   @pragma('vm:prefer-inline')
-  $PageStateCopyWith<$Res> get employeeSaleState {
-    return $PageStateCopyWith<$Res>(_value.employeeSaleState, (value) {
-      return _then(_value.copyWith(employeeSaleState: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $PageStateCopyWith<$Res> get getO2ODataState {
-    return $PageStateCopyWith<$Res>(_value.getO2ODataState, (value) {
-      return _then(_value.copyWith(getO2ODataState: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
   $PageStateCopyWith<$Res> get getChatMessageState {
     return $PageStateCopyWith<$Res>(_value.getChatMessageState, (value) {
       return _then(_value.copyWith(getChatMessageState: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $PageStateCopyWith<$Res> get getReservationsState {
-    return $PageStateCopyWith<$Res>(_value.getReservationsState, (value) {
-      return _then(_value.copyWith(getReservationsState: value) as $Val);
     });
   }
 }
@@ -1034,13 +929,10 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       bool ignoreCheckCodeWaiter,
       OrderModel? orderSelect,
       bool lockedOrder,
-      List<ProductModel> currentOrderItems,
       List<ProductModel> productsSelecting,
       List<ProductModel> productsSelected,
       List<ProductCheckoutModel> productCheckout,
       PageState productCheckoutState,
-      bool isOrderSaved,
-      bool autoSaveOrder,
       CustomerModel? customer,
       List<CustomerPolicyModel> coupons,
       List<PolicyResultModel> vouchers,
@@ -1064,7 +956,6 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       bool checkReloadWhenHiddenApp,
       DataBillResponseData dataBill,
       PageState dataBillState,
-      List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax,
       List<File> imageBills,
       int numberOfAdults,
       int numberOfChildren,
@@ -1073,8 +964,6 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       List<CustomerPortrait> customerPortraits,
       String completeNote,
       EmployeeSaleModel? employeeSaleSelect,
-      List<EmployeeSaleModel> employeeSales,
-      PageState employeeSaleState,
       bool printNumberOfPeople,
       bool autoScrollProducts,
       int? changedProductId,
@@ -1082,14 +971,9 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       OrderTabEnum orderTabSelect,
       List<OrderTabEnum> orderTabs,
       bool displayOrderHistory,
-      bool cancelOrderItem,
       List<OrderHistory> orderHistory,
-      Map<O2OOrderModel, Map<String, dynamic>> o2oData,
-      PageState getO2ODataState,
       List<ChatMessageModel> chatMessages,
-      PageState getChatMessageState,
-      PageState getReservationsState,
-      List<ReservationModel> reservations});
+      PageState getChatMessageState});
 
   @override
   $PageStateCopyWith<$Res> get productsState;
@@ -1132,13 +1016,7 @@ abstract class _$$HomeStateImplCopyWith<$Res>
   @override
   $EmployeeSaleModelCopyWith<$Res>? get employeeSaleSelect;
   @override
-  $PageStateCopyWith<$Res> get employeeSaleState;
-  @override
-  $PageStateCopyWith<$Res> get getO2ODataState;
-  @override
   $PageStateCopyWith<$Res> get getChatMessageState;
-  @override
-  $PageStateCopyWith<$Res> get getReservationsState;
 }
 
 /// @nodoc
@@ -1167,13 +1045,10 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? ignoreCheckCodeWaiter = null,
     Object? orderSelect = freezed,
     Object? lockedOrder = null,
-    Object? currentOrderItems = null,
     Object? productsSelecting = null,
     Object? productsSelected = null,
     Object? productCheckout = null,
     Object? productCheckoutState = null,
-    Object? isOrderSaved = null,
-    Object? autoSaveOrder = null,
     Object? customer = freezed,
     Object? coupons = null,
     Object? vouchers = null,
@@ -1197,7 +1072,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? checkReloadWhenHiddenApp = null,
     Object? dataBill = null,
     Object? dataBillState = null,
-    Object? productCheckoutUpdateTax = null,
     Object? imageBills = null,
     Object? numberOfAdults = null,
     Object? numberOfChildren = null,
@@ -1206,8 +1080,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? customerPortraits = null,
     Object? completeNote = null,
     Object? employeeSaleSelect = freezed,
-    Object? employeeSales = null,
-    Object? employeeSaleState = null,
     Object? printNumberOfPeople = null,
     Object? autoScrollProducts = null,
     Object? changedProductId = freezed,
@@ -1215,14 +1087,9 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? orderTabSelect = null,
     Object? orderTabs = null,
     Object? displayOrderHistory = null,
-    Object? cancelOrderItem = null,
     Object? orderHistory = null,
-    Object? o2oData = null,
-    Object? getO2ODataState = null,
     Object? chatMessages = null,
     Object? getChatMessageState = null,
-    Object? getReservationsState = null,
-    Object? reservations = null,
   }) {
     return _then(_$HomeStateImpl(
       event: null == event
@@ -1285,10 +1152,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.lockedOrder
           : lockedOrder // ignore: cast_nullable_to_non_nullable
               as bool,
-      currentOrderItems: null == currentOrderItems
-          ? _value._currentOrderItems
-          : currentOrderItems // ignore: cast_nullable_to_non_nullable
-              as List<ProductModel>,
       productsSelecting: null == productsSelecting
           ? _value._productsSelecting
           : productsSelecting // ignore: cast_nullable_to_non_nullable
@@ -1305,14 +1168,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.productCheckoutState
           : productCheckoutState // ignore: cast_nullable_to_non_nullable
               as PageState,
-      isOrderSaved: null == isOrderSaved
-          ? _value.isOrderSaved
-          : isOrderSaved // ignore: cast_nullable_to_non_nullable
-              as bool,
-      autoSaveOrder: null == autoSaveOrder
-          ? _value.autoSaveOrder
-          : autoSaveOrder // ignore: cast_nullable_to_non_nullable
-              as bool,
       customer: freezed == customer
           ? _value.customer
           : customer // ignore: cast_nullable_to_non_nullable
@@ -1405,10 +1260,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.dataBillState
           : dataBillState // ignore: cast_nullable_to_non_nullable
               as PageState,
-      productCheckoutUpdateTax: null == productCheckoutUpdateTax
-          ? _value._productCheckoutUpdateTax
-          : productCheckoutUpdateTax // ignore: cast_nullable_to_non_nullable
-              as List<ProductCheckoutUpdateTaxModel>,
       imageBills: null == imageBills
           ? _value._imageBills
           : imageBills // ignore: cast_nullable_to_non_nullable
@@ -1441,14 +1292,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.employeeSaleSelect
           : employeeSaleSelect // ignore: cast_nullable_to_non_nullable
               as EmployeeSaleModel?,
-      employeeSales: null == employeeSales
-          ? _value._employeeSales
-          : employeeSales // ignore: cast_nullable_to_non_nullable
-              as List<EmployeeSaleModel>,
-      employeeSaleState: null == employeeSaleState
-          ? _value.employeeSaleState
-          : employeeSaleState // ignore: cast_nullable_to_non_nullable
-              as PageState,
       printNumberOfPeople: null == printNumberOfPeople
           ? _value.printNumberOfPeople
           : printNumberOfPeople // ignore: cast_nullable_to_non_nullable
@@ -1477,22 +1320,10 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.displayOrderHistory
           : displayOrderHistory // ignore: cast_nullable_to_non_nullable
               as bool,
-      cancelOrderItem: null == cancelOrderItem
-          ? _value.cancelOrderItem
-          : cancelOrderItem // ignore: cast_nullable_to_non_nullable
-              as bool,
       orderHistory: null == orderHistory
           ? _value._orderHistory
           : orderHistory // ignore: cast_nullable_to_non_nullable
               as List<OrderHistory>,
-      o2oData: null == o2oData
-          ? _value._o2oData
-          : o2oData // ignore: cast_nullable_to_non_nullable
-              as Map<O2OOrderModel, Map<String, dynamic>>,
-      getO2ODataState: null == getO2ODataState
-          ? _value.getO2ODataState
-          : getO2ODataState // ignore: cast_nullable_to_non_nullable
-              as PageState,
       chatMessages: null == chatMessages
           ? _value._chatMessages
           : chatMessages // ignore: cast_nullable_to_non_nullable
@@ -1501,14 +1332,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.getChatMessageState
           : getChatMessageState // ignore: cast_nullable_to_non_nullable
               as PageState,
-      getReservationsState: null == getReservationsState
-          ? _value.getReservationsState
-          : getReservationsState // ignore: cast_nullable_to_non_nullable
-              as PageState,
-      reservations: null == reservations
-          ? _value._reservations
-          : reservations // ignore: cast_nullable_to_non_nullable
-              as List<ReservationModel>,
     ));
   }
 }
@@ -1532,13 +1355,10 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       this.ignoreCheckCodeWaiter = true,
       this.orderSelect,
       this.lockedOrder = false,
-      final List<ProductModel> currentOrderItems = const [],
       final List<ProductModel> productsSelecting = const [],
       final List<ProductModel> productsSelected = const [],
       final List<ProductCheckoutModel> productCheckout = const [],
       this.productCheckoutState = const PageState(),
-      this.isOrderSaved = true,
-      this.autoSaveOrder = false,
       this.customer,
       final List<CustomerPolicyModel> coupons = const [],
       final List<PolicyResultModel> vouchers = const [],
@@ -1562,8 +1382,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       this.checkReloadWhenHiddenApp = false,
       this.dataBill = const DataBillResponseData(),
       this.dataBillState = const PageState(status: PageCommonState.normal),
-      final List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax =
-          const [],
       final List<File> imageBills = const [],
       this.numberOfAdults = 1,
       this.numberOfChildren = 0,
@@ -1572,28 +1390,23 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       final List<CustomerPortrait> customerPortraits = const [],
       this.completeNote = '',
       this.employeeSaleSelect,
-      final List<EmployeeSaleModel> employeeSales = const [],
-      this.employeeSaleState = const PageState(),
       this.printNumberOfPeople = false,
       this.autoScrollProducts = true,
       this.changedProductId,
       this.pinnedOrder = false,
-      this.orderTabSelect = OrderTabEnum.ordering,
-      final List<OrderTabEnum> orderTabs = const [OrderTabEnum.all],
+      this.orderTabSelect = OrderTabEnum.ordered,
+      final List<OrderTabEnum> orderTabs = const [
+        OrderTabEnum.ordering,
+        OrderTabEnum.ordered
+      ],
       this.displayOrderHistory = false,
-      this.cancelOrderItem = false,
       final List<OrderHistory> orderHistory = const [],
-      final Map<O2OOrderModel, Map<String, dynamic>> o2oData = const {},
-      this.getO2ODataState = const PageState(),
       final List<ChatMessageModel> chatMessages = const [],
       this.getChatMessageState =
-          const PageState(status: PageCommonState.loading),
-      this.getReservationsState = const PageState(),
-      final List<ReservationModel> reservations = const []})
+          const PageState(status: PageCommonState.loading)})
       : _categories = categories,
         _products = products,
         _tags = tags,
-        _currentOrderItems = currentOrderItems,
         _productsSelecting = productsSelecting,
         _productsSelected = productsSelected,
         _productCheckout = productCheckout,
@@ -1603,15 +1416,11 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         _paymentMethods = paymentMethods,
         _banks = banks,
         _listAtmPos = listAtmPos,
-        _productCheckoutUpdateTax = productCheckoutUpdateTax,
         _imageBills = imageBills,
         _customerPortraits = customerPortraits,
-        _employeeSales = employeeSales,
         _orderTabs = orderTabs,
         _orderHistory = orderHistory,
-        _o2oData = o2oData,
-        _chatMessages = chatMessages,
-        _reservations = reservations;
+        _chatMessages = chatMessages;
 
   @override
   @JsonKey()
@@ -1680,21 +1489,12 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   final bool lockedOrder;
 
   /// danh sách món trong đơn hiện tại (các món đã gọi + các món đang gọi)
-  final List<ProductModel> _currentOrderItems;
-
-  /// danh sách món trong đơn hiện tại (các món đã gọi + các món đang gọi)
-  @override
-  @JsonKey()
-  List<ProductModel> get currentOrderItems {
-    if (_currentOrderItems is EqualUnmodifiableListView)
-      return _currentOrderItems;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_currentOrderItems);
-  }
-
+// @Default([]) List<ProductModel> currentOrderItems,
   /// các món đang gọi
   final List<ProductModel> _productsSelecting;
 
+  /// danh sách món trong đơn hiện tại (các món đã gọi + các món đang gọi)
+// @Default([]) List<ProductModel> currentOrderItems,
   /// các món đang gọi
   @override
   @JsonKey()
@@ -1733,14 +1533,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @JsonKey()
   final PageState productCheckoutState;
 //
-  @override
-  @JsonKey()
-  final bool isOrderSaved;
+// @Default(true) bool isOrderSaved,
 // tự động lưu món đang chọn vào DB
-  @override
-  @JsonKey()
-  final bool autoSaveOrder;
-
+// @Default(false) bool autoSaveOrder,
   /// khách hàng
   @override
   final CustomerModel? customer;
@@ -1869,21 +1664,12 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   final PageState dataBillState;
 
   /// pc sau khi phân bổ lại thuế
-  final List<ProductCheckoutUpdateTaxModel> _productCheckoutUpdateTax;
-
-  /// pc sau khi phân bổ lại thuế
-  @override
-  @JsonKey()
-  List<ProductCheckoutUpdateTaxModel> get productCheckoutUpdateTax {
-    if (_productCheckoutUpdateTax is EqualUnmodifiableListView)
-      return _productCheckoutUpdateTax;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_productCheckoutUpdateTax);
-  }
-
+// @Default([]) List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax,
   /// hoàn thành bill
   final List<File> _imageBills;
 
+  /// pc sau khi phân bổ lại thuế
+// @Default([]) List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax,
   /// hoàn thành bill
   @override
   @JsonKey()
@@ -1921,18 +1707,8 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
 // nv sale
   @override
   final EmployeeSaleModel? employeeSaleSelect;
-  final List<EmployeeSaleModel> _employeeSales;
-  @override
-  @JsonKey()
-  List<EmployeeSaleModel> get employeeSales {
-    if (_employeeSales is EqualUnmodifiableListView) return _employeeSales;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_employeeSales);
-  }
-
-  @override
-  @JsonKey()
-  final PageState employeeSaleState;
+// @Default([]) List<EmployeeSaleModel> employeeSales,
+// @Default(PageState()) PageState employeeSaleState,
   @override
   @JsonKey()
   final bool printNumberOfPeople;
@@ -1964,10 +1740,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final bool displayOrderHistory;
-  @override
-  @JsonKey()
-  final bool cancelOrderItem;
+// @Default(false) bool cancelOrderItem,
   final List<OrderHistory> _orderHistory;
+// @Default(false) bool cancelOrderItem,
   @override
   @JsonKey()
   List<OrderHistory> get orderHistory {
@@ -1977,20 +1752,12 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   }
 
 // o2o
-  final Map<O2OOrderModel, Map<String, dynamic>> _o2oData;
-// o2o
-  @override
-  @JsonKey()
-  Map<O2OOrderModel, Map<String, dynamic>> get o2oData {
-    if (_o2oData is EqualUnmodifiableMapView) return _o2oData;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(_o2oData);
-  }
-
-  @override
-  @JsonKey()
-  final PageState getO2ODataState;
+// @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
+// @Default(PageState()) PageState getO2ODataState,
   final List<ChatMessageModel> _chatMessages;
+// o2o
+// @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
+// @Default(PageState()) PageState getO2ODataState,
   @override
   @JsonKey()
   List<ChatMessageModel> get chatMessages {
@@ -2003,22 +1770,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @JsonKey()
   final PageState getChatMessageState;
 
-  /// reservation
-  @override
-  @JsonKey()
-  final PageState getReservationsState;
-  final List<ReservationModel> _reservations;
-  @override
-  @JsonKey()
-  List<ReservationModel> get reservations {
-    if (_reservations is EqualUnmodifiableListView) return _reservations;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_reservations);
-  }
-
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, productsState: $productsState, categories: $categories, products: $products, tags: $tags, categorySelect: $categorySelect, subCategorySelect: $subCategorySelect, tagSelect: $tagSelect, search: $search, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, currentOrderItems: $currentOrderItems, productsSelecting: $productsSelecting, productsSelected: $productsSelected, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, isOrderSaved: $isOrderSaved, autoSaveOrder: $autoSaveOrder, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, needApplyAgainOnlyCoupons: $needApplyAgainOnlyCoupons, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, checkReloadWhenHiddenApp: $checkReloadWhenHiddenApp, dataBill: $dataBill, dataBillState: $dataBillState, productCheckoutUpdateTax: $productCheckoutUpdateTax, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, customerPortraits: $customerPortraits, completeNote: $completeNote, employeeSaleSelect: $employeeSaleSelect, employeeSales: $employeeSales, employeeSaleState: $employeeSaleState, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, displayOrderHistory: $displayOrderHistory, cancelOrderItem: $cancelOrderItem, orderHistory: $orderHistory, o2oData: $o2oData, getO2ODataState: $getO2ODataState, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, getReservationsState: $getReservationsState, reservations: $reservations)';
+    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, productsState: $productsState, categories: $categories, products: $products, tags: $tags, categorySelect: $categorySelect, subCategorySelect: $subCategorySelect, tagSelect: $tagSelect, search: $search, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productsSelecting: $productsSelecting, productsSelected: $productsSelected, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, needApplyAgainOnlyCoupons: $needApplyAgainOnlyCoupons, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, checkReloadWhenHiddenApp: $checkReloadWhenHiddenApp, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, customerPortraits: $customerPortraits, completeNote: $completeNote, employeeSaleSelect: $employeeSaleSelect, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, displayOrderHistory: $displayOrderHistory, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState)';
   }
 
   @override
@@ -2041,13 +1795,10 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       ..add(DiagnosticsProperty('ignoreCheckCodeWaiter', ignoreCheckCodeWaiter))
       ..add(DiagnosticsProperty('orderSelect', orderSelect))
       ..add(DiagnosticsProperty('lockedOrder', lockedOrder))
-      ..add(DiagnosticsProperty('currentOrderItems', currentOrderItems))
       ..add(DiagnosticsProperty('productsSelecting', productsSelecting))
       ..add(DiagnosticsProperty('productsSelected', productsSelected))
       ..add(DiagnosticsProperty('productCheckout', productCheckout))
       ..add(DiagnosticsProperty('productCheckoutState', productCheckoutState))
-      ..add(DiagnosticsProperty('isOrderSaved', isOrderSaved))
-      ..add(DiagnosticsProperty('autoSaveOrder', autoSaveOrder))
       ..add(DiagnosticsProperty('customer', customer))
       ..add(DiagnosticsProperty('coupons', coupons))
       ..add(DiagnosticsProperty('vouchers', vouchers))
@@ -2073,8 +1824,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
           'checkReloadWhenHiddenApp', checkReloadWhenHiddenApp))
       ..add(DiagnosticsProperty('dataBill', dataBill))
       ..add(DiagnosticsProperty('dataBillState', dataBillState))
-      ..add(DiagnosticsProperty(
-          'productCheckoutUpdateTax', productCheckoutUpdateTax))
       ..add(DiagnosticsProperty('imageBills', imageBills))
       ..add(DiagnosticsProperty('numberOfAdults', numberOfAdults))
       ..add(DiagnosticsProperty('numberOfChildren', numberOfChildren))
@@ -2084,8 +1833,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       ..add(DiagnosticsProperty('customerPortraits', customerPortraits))
       ..add(DiagnosticsProperty('completeNote', completeNote))
       ..add(DiagnosticsProperty('employeeSaleSelect', employeeSaleSelect))
-      ..add(DiagnosticsProperty('employeeSales', employeeSales))
-      ..add(DiagnosticsProperty('employeeSaleState', employeeSaleState))
       ..add(DiagnosticsProperty('printNumberOfPeople', printNumberOfPeople))
       ..add(DiagnosticsProperty('autoScrollProducts', autoScrollProducts))
       ..add(DiagnosticsProperty('changedProductId', changedProductId))
@@ -2093,14 +1840,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       ..add(DiagnosticsProperty('orderTabSelect', orderTabSelect))
       ..add(DiagnosticsProperty('orderTabs', orderTabs))
       ..add(DiagnosticsProperty('displayOrderHistory', displayOrderHistory))
-      ..add(DiagnosticsProperty('cancelOrderItem', cancelOrderItem))
       ..add(DiagnosticsProperty('orderHistory', orderHistory))
-      ..add(DiagnosticsProperty('o2oData', o2oData))
-      ..add(DiagnosticsProperty('getO2ODataState', getO2ODataState))
       ..add(DiagnosticsProperty('chatMessages', chatMessages))
-      ..add(DiagnosticsProperty('getChatMessageState', getChatMessageState))
-      ..add(DiagnosticsProperty('getReservationsState', getReservationsState))
-      ..add(DiagnosticsProperty('reservations', reservations));
+      ..add(DiagnosticsProperty('getChatMessageState', getChatMessageState));
   }
 
   @override
@@ -2135,8 +1877,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
             (identical(other.lockedOrder, lockedOrder) ||
                 other.lockedOrder == lockedOrder) &&
             const DeepCollectionEquality()
-                .equals(other._currentOrderItems, _currentOrderItems) &&
-            const DeepCollectionEquality()
                 .equals(other._productsSelecting, _productsSelecting) &&
             const DeepCollectionEquality()
                 .equals(other._productsSelected, _productsSelected) &&
@@ -2144,10 +1884,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
                 .equals(other._productCheckout, _productCheckout) &&
             (identical(other.productCheckoutState, productCheckoutState) ||
                 other.productCheckoutState == productCheckoutState) &&
-            (identical(other.isOrderSaved, isOrderSaved) ||
-                other.isOrderSaved == isOrderSaved) &&
-            (identical(other.autoSaveOrder, autoSaveOrder) ||
-                other.autoSaveOrder == autoSaveOrder) &&
             (identical(other.customer, customer) ||
                 other.customer == customer) &&
             const DeepCollectionEquality().equals(other._coupons, _coupons) &&
@@ -2190,21 +1926,21 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
                 other.dataBill == dataBill) &&
             (identical(other.dataBillState, dataBillState) ||
                 other.dataBillState == dataBillState) &&
-            const DeepCollectionEquality().equals(
-                other._productCheckoutUpdateTax, _productCheckoutUpdateTax) &&
             const DeepCollectionEquality()
                 .equals(other._imageBills, _imageBills) &&
             (identical(other.numberOfAdults, numberOfAdults) ||
                 other.numberOfAdults == numberOfAdults) &&
             (identical(other.numberOfChildren, numberOfChildren) ||
                 other.numberOfChildren == numberOfChildren) &&
-            (identical(other.kitchenNote, kitchenNote) || other.kitchenNote == kitchenNote) &&
-            (identical(other.customerPortraitSelect, customerPortraitSelect) || other.customerPortraitSelect == customerPortraitSelect) &&
-            const DeepCollectionEquality().equals(other._customerPortraits, _customerPortraits) &&
-            (identical(other.completeNote, completeNote) || other.completeNote == completeNote) &&
+            (identical(other.kitchenNote, kitchenNote) ||
+                other.kitchenNote == kitchenNote) &&
+            (identical(other.customerPortraitSelect, customerPortraitSelect) ||
+                other.customerPortraitSelect == customerPortraitSelect) &&
+            const DeepCollectionEquality()
+                .equals(other._customerPortraits, _customerPortraits) &&
+            (identical(other.completeNote, completeNote) ||
+                other.completeNote == completeNote) &&
             (identical(other.employeeSaleSelect, employeeSaleSelect) || other.employeeSaleSelect == employeeSaleSelect) &&
-            const DeepCollectionEquality().equals(other._employeeSales, _employeeSales) &&
-            (identical(other.employeeSaleState, employeeSaleState) || other.employeeSaleState == employeeSaleState) &&
             (identical(other.printNumberOfPeople, printNumberOfPeople) || other.printNumberOfPeople == printNumberOfPeople) &&
             (identical(other.autoScrollProducts, autoScrollProducts) || other.autoScrollProducts == autoScrollProducts) &&
             (identical(other.changedProductId, changedProductId) || other.changedProductId == changedProductId) &&
@@ -2212,14 +1948,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
             (identical(other.orderTabSelect, orderTabSelect) || other.orderTabSelect == orderTabSelect) &&
             const DeepCollectionEquality().equals(other._orderTabs, _orderTabs) &&
             (identical(other.displayOrderHistory, displayOrderHistory) || other.displayOrderHistory == displayOrderHistory) &&
-            (identical(other.cancelOrderItem, cancelOrderItem) || other.cancelOrderItem == cancelOrderItem) &&
             const DeepCollectionEquality().equals(other._orderHistory, _orderHistory) &&
-            const DeepCollectionEquality().equals(other._o2oData, _o2oData) &&
-            (identical(other.getO2ODataState, getO2ODataState) || other.getO2ODataState == getO2ODataState) &&
             const DeepCollectionEquality().equals(other._chatMessages, _chatMessages) &&
-            (identical(other.getChatMessageState, getChatMessageState) || other.getChatMessageState == getChatMessageState) &&
-            (identical(other.getReservationsState, getReservationsState) || other.getReservationsState == getReservationsState) &&
-            const DeepCollectionEquality().equals(other._reservations, _reservations));
+            (identical(other.getChatMessageState, getChatMessageState) || other.getChatMessageState == getChatMessageState));
   }
 
   @override
@@ -2240,13 +1971,10 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         ignoreCheckCodeWaiter,
         orderSelect,
         lockedOrder,
-        const DeepCollectionEquality().hash(_currentOrderItems),
         const DeepCollectionEquality().hash(_productsSelecting),
         const DeepCollectionEquality().hash(_productsSelected),
         const DeepCollectionEquality().hash(_productCheckout),
         productCheckoutState,
-        isOrderSaved,
-        autoSaveOrder,
         customer,
         const DeepCollectionEquality().hash(_coupons),
         const DeepCollectionEquality().hash(_vouchers),
@@ -2270,7 +1998,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         checkReloadWhenHiddenApp,
         dataBill,
         dataBillState,
-        const DeepCollectionEquality().hash(_productCheckoutUpdateTax),
         const DeepCollectionEquality().hash(_imageBills),
         numberOfAdults,
         numberOfChildren,
@@ -2279,8 +2006,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         const DeepCollectionEquality().hash(_customerPortraits),
         completeNote,
         employeeSaleSelect,
-        const DeepCollectionEquality().hash(_employeeSales),
-        employeeSaleState,
         printNumberOfPeople,
         autoScrollProducts,
         changedProductId,
@@ -2288,14 +2013,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         orderTabSelect,
         const DeepCollectionEquality().hash(_orderTabs),
         displayOrderHistory,
-        cancelOrderItem,
         const DeepCollectionEquality().hash(_orderHistory),
-        const DeepCollectionEquality().hash(_o2oData),
-        getO2ODataState,
         const DeepCollectionEquality().hash(_chatMessages),
-        getChatMessageState,
-        getReservationsState,
-        const DeepCollectionEquality().hash(_reservations)
+        getChatMessageState
       ]);
 
   @JsonKey(ignore: true)
@@ -2322,13 +2042,10 @@ abstract class _HomeState implements HomeState {
       final bool ignoreCheckCodeWaiter,
       final OrderModel? orderSelect,
       final bool lockedOrder,
-      final List<ProductModel> currentOrderItems,
       final List<ProductModel> productsSelecting,
       final List<ProductModel> productsSelected,
       final List<ProductCheckoutModel> productCheckout,
       final PageState productCheckoutState,
-      final bool isOrderSaved,
-      final bool autoSaveOrder,
       final CustomerModel? customer,
       final List<CustomerPolicyModel> coupons,
       final List<PolicyResultModel> vouchers,
@@ -2352,7 +2069,6 @@ abstract class _HomeState implements HomeState {
       final bool checkReloadWhenHiddenApp,
       final DataBillResponseData dataBill,
       final PageState dataBillState,
-      final List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax,
       final List<File> imageBills,
       final int numberOfAdults,
       final int numberOfChildren,
@@ -2361,8 +2077,6 @@ abstract class _HomeState implements HomeState {
       final List<CustomerPortrait> customerPortraits,
       final String completeNote,
       final EmployeeSaleModel? employeeSaleSelect,
-      final List<EmployeeSaleModel> employeeSales,
-      final PageState employeeSaleState,
       final bool printNumberOfPeople,
       final bool autoScrollProducts,
       final int? changedProductId,
@@ -2370,14 +2084,9 @@ abstract class _HomeState implements HomeState {
       final OrderTabEnum orderTabSelect,
       final List<OrderTabEnum> orderTabs,
       final bool displayOrderHistory,
-      final bool cancelOrderItem,
       final List<OrderHistory> orderHistory,
-      final Map<O2OOrderModel, Map<String, dynamic>> o2oData,
-      final PageState getO2ODataState,
       final List<ChatMessageModel> chatMessages,
-      final PageState getChatMessageState,
-      final PageState getReservationsState,
-      final List<ReservationModel> reservations}) = _$HomeStateImpl;
+      final PageState getChatMessageState}) = _$HomeStateImpl;
 
   @override
   HomeEvent get event;
@@ -2418,9 +2127,7 @@ abstract class _HomeState implements HomeState {
   @override
 
   /// danh sách món trong đơn hiện tại (các món đã gọi + các món đang gọi)
-  List<ProductModel> get currentOrderItems;
-  @override
-
+// @Default([]) List<ProductModel> currentOrderItems,
   /// các món đang gọi
   List<ProductModel> get productsSelecting;
   @override
@@ -2432,11 +2139,9 @@ abstract class _HomeState implements HomeState {
   @override
   PageState get productCheckoutState;
   @override //
-  bool get isOrderSaved;
-  @override // tự động lưu món đang chọn vào DB
-  bool get autoSaveOrder;
-  @override
-
+// @Default(true) bool isOrderSaved,
+// tự động lưu món đang chọn vào DB
+// @Default(false) bool autoSaveOrder,
   /// khách hàng
   CustomerModel? get customer;
   @override
@@ -2496,9 +2201,7 @@ abstract class _HomeState implements HomeState {
   @override
 
   /// pc sau khi phân bổ lại thuế
-  List<ProductCheckoutUpdateTaxModel> get productCheckoutUpdateTax;
-  @override
-
+// @Default([]) List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax,
   /// hoàn thành bill
   List<File> get imageBills;
   @override
@@ -2515,11 +2218,8 @@ abstract class _HomeState implements HomeState {
   String get completeNote;
   @override // nv sale
   EmployeeSaleModel? get employeeSaleSelect;
-  @override
-  List<EmployeeSaleModel> get employeeSales;
-  @override
-  PageState get employeeSaleState;
-  @override
+  @override // @Default([]) List<EmployeeSaleModel> employeeSales,
+// @Default(PageState()) PageState employeeSaleState,
   bool get printNumberOfPeople;
   @override
 
@@ -2538,24 +2238,14 @@ abstract class _HomeState implements HomeState {
   List<OrderTabEnum> get orderTabs;
   @override
   bool get displayOrderHistory;
-  @override
-  bool get cancelOrderItem;
-  @override
+  @override // @Default(false) bool cancelOrderItem,
   List<OrderHistory> get orderHistory;
   @override // o2o
-  Map<O2OOrderModel, Map<String, dynamic>> get o2oData;
-  @override
-  PageState get getO2ODataState;
-  @override
+// @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
+// @Default(PageState()) PageState getO2ODataState,
   List<ChatMessageModel> get chatMessages;
   @override
   PageState get getChatMessageState;
-  @override
-
-  /// reservation
-  PageState get getReservationsState;
-  @override
-  List<ReservationModel> get reservations;
   @override
   @JsonKey(ignore: true)
   _$$HomeStateImplCopyWith<_$HomeStateImpl> get copyWith =>

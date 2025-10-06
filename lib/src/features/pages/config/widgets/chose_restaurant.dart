@@ -40,9 +40,7 @@ class _ChoseRestaurantWidgetState extends ConsumerState<ChoseRestaurantWidget> {
   @override
   Widget build(BuildContext context) {
     final server = ref.watch(configProvider.select((value) => value.server));
-    final providerByPlatform = server == ConfigServerRestaurantData.aladdinWeb
-        ? restaurantConfigAladdinWebProvider
-        : restaurantConfigsProvider;
+    final providerByPlatform = restaurantConfigAladdinWebProvider;
     var restaurants = ref.watch(providerByPlatform);
     final keyword = ref.watch(configProvider.select((value) => value.keyword));
     final tags = ref.watch(configProvider.select((value) => value.tags));

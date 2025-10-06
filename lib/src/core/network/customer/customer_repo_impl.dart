@@ -4,7 +4,6 @@ import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/network/app_exception.dart';
-import 'package:aladdin_franchise/src/core/network/check_locked_order.dart';
 import 'package:aladdin_franchise/src/core/network/customer/customer_repository.dart';
 import 'package:aladdin_franchise/src/core/network/responses/customer.dart';
 import 'package:aladdin_franchise/src/core/network/responses/customer_create.dart';

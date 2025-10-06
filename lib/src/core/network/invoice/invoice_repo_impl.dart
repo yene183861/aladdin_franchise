@@ -1,15 +1,17 @@
 import 'dart:convert';
 
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/network/app_exception.dart';
-import 'package:aladdin_franchise/src/core/network/check_locked_order.dart';
 import 'package:aladdin_franchise/src/core/network/invoice/invoice_repository.dart';
+import 'package:aladdin_franchise/src/core/network/responses/payment_qr_code/info_by_tax_code.dart';
 import 'package:aladdin_franchise/src/core/network/responses/payment_qr_code/order_invoice_info.dart';
 import 'package:aladdin_franchise/src/core/network/rest_client.dart';
 import 'package:aladdin_franchise/src/core/services/send_log/log_service.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
+import 'package:aladdin_franchise/src/models/minvoice/minvoice.dart';
 import 'package:aladdin_franchise/src/models/order_invoice/order_invoice.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 
@@ -37,7 +39,8 @@ class InvoiceRepositoryImpl extends InvoiceRepository {
       }
     } catch (ex) {
       showLog(ex, flags: 'getOrderInvoice ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -73,7 +76,43 @@ class InvoiceRepositoryImpl extends InvoiceRepository {
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'updateOrderInvoice ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+
+      if (ex is AppException) rethrow;
+      throw AppException(message: ex.toString());
+    }
+  }
+
+  @override
+  Future<MInvoiceInfo> getMInvoiceTaxInfo(String taxCode) async {
+    var apiUrl = "${ApiConfig.getInfoByTaxCode}?tax_code=$taxCode";
+    var log = ErrorLogModel(
+      action: AppLogAction.getInfoByTaxCode,
+      api: apiUrl,
+    );
+    try {
+      var response = await restClient.get(Uri.parse(apiUrl));
+      log = log.copyWith(
+        response: [response.statusCode, response.body],
+      );
+      if (response.statusCode == NetworkCodeConfig.ok) {
+        final bodyJson = jsonDecode(response.body);
+        final resData = InfoByTaxCodeResponse.fromJson(bodyJson);
+        if (resData.data.isEmpty()) {
+          // đang copy từ apos sang
+          // ảo lắm: 200 nhưng data lại là "error": "Mã số thuế không đúng định dạng."
+          var error = bodyJson['data']['error'] ?? S.current.no_data;
+          throw AppException.fromMessage(error);
+        }
+        return resData.data;
+      } else {
+        throw AppException.fromStatusCode(response.statusCode);
+      }
+    } catch (ex) {
+      showLog(ex.toString(), flags: 'getMInvoiceTaxInfo ex');
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());

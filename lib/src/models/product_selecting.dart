@@ -1,5 +1,3 @@
-import 'package:aladdin_franchise/src/models/customer/customer.dart';
-import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

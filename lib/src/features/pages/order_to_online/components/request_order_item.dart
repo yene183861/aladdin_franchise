@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
 import 'custom_checkbox.dart';
 
@@ -31,7 +32,7 @@ class RequestItemWidget extends ConsumerWidget {
           ? null
           : () {
               ref
-                  .read(orderToOnlinePageNotifier.notifier)
+                  .read(orderToOnlinePageProvider.notifier)
                   .onChangeRequestSelect(
                     request: request,
                     item: item,
@@ -53,7 +54,7 @@ class RequestItemWidget extends ConsumerWidget {
                         ? CustomCheckbox(
                             onChange: () {
                               ref
-                                  .read(orderToOnlinePageNotifier.notifier)
+                                  .read(orderToOnlinePageProvider.notifier)
                                   .onChangeRequestSelect(
                                     request: request,
                                     item: item,

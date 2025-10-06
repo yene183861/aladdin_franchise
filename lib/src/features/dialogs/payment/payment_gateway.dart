@@ -27,21 +27,21 @@ Future<void> onLoadPaymentGateway({
 
   if (result.url != null) {
     final state = ref.read(homeProvider);
-    List<ProductCheckoutModel> sortProductCheckout = [];
-    state.currentOrderItems.forEach((element) {
-      var p = state.productCheckout.firstWhereOrNull((e) => e.id == element.id);
-      if (p != null) {
-        var exist =
-            sortProductCheckout.firstWhereOrNull((e) => e.id == element.id);
-        if (exist == null) {
-          sortProductCheckout.add(p);
-        }
-      }
-    });
+    // List<ProductCheckoutModel> sortProductCheckout = [];
+    // state.currentOrderItems.forEach((element) {
+    //   var p = state.productCheckout.firstWhereOrNull((e) => e.id == element.id);
+    //   if (p != null) {
+    //     var exist =
+    //         sortProductCheckout.firstWhereOrNull((e) => e.id == element.id);
+    //     if (exist == null) {
+    //       sortProductCheckout.add(p);
+    //     }
+    //   }
+    // });
     ref.read(homeProvider.notifier).syncInfoForCustomer(arguments: {
       'all_products': state.products,
       'order': state.orderSelect,
-      'products': sortProductCheckout,
+      'products': state.productCheckout,
       'customer': state.customer,
       'data_bill': state.dataBill.price.copyWith(receivedAmount: 0),
       'note': state.kitchenNote,
@@ -74,7 +74,7 @@ Future<void> onLoadPaymentGateway({
       ref.read(homeProvider.notifier).syncInfoForCustomer(arguments: {
         'all_products': state.products,
         'order': state.orderSelect,
-        'products': sortProductCheckout,
+        'products': state.productCheckout,
         'customer': state.customer,
         'data_bill': state.dataBill.price.copyWith(receivedAmount: 0),
         'note': state.kitchenNote,

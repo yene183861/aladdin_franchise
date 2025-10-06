@@ -49,7 +49,7 @@ class ApiConfig {
 
   // o2o
   static String getOrderToOnline = "";
-  static String updateStatusRequestOrderO2O = "";
+  static String processO2oRequest = "";
 
   // sync reservation
   static String syncReservation = "";
@@ -107,7 +107,7 @@ class ApiConfig {
 
     // o2o
     getOrderToOnline = "$apiUrl/v1/user-order-line-item";
-    updateStatusRequestOrderO2O = "$apiUrl/v1/update-status-user-order";
+    processO2oRequest = "$apiUrl/v1/update-status-user-order";
 
     // reservation
     syncReservation = "$apiUrl/v1/reservation/sync";

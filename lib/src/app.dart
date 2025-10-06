@@ -106,7 +106,7 @@ class _MyAppState extends ConsumerState<MyApp> {
             skipLoadingOnRefresh: false,
             data: (result) {
               if (result) {
-                return const HomePage();
+                return HomePage();
               }
               return const LoginPageCheckUpdate();
             },

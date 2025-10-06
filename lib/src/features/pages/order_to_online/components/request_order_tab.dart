@@ -11,7 +11,9 @@ import 'package:aladdin_franchise/src/features/widgets/empty.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/refresh_data.dart';
 import 'package:aladdin_franchise/src/models/o2o/chat_message_model.dart';
+import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
 import 'package:aladdin_franchise/src/models/o2o/request_order.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:collection/collection.dart';
@@ -21,6 +23,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
 import 'custom_checkbox.dart';
 import 'chat_message_item.dart';
@@ -28,14 +31,15 @@ import 'request_order_item.dart';
 import 'status_request.dart';
 
 class OrderToOnlineBodyPage extends ConsumerWidget {
-  const OrderToOnlineBodyPage({super.key});
-
-  final requestWidget = const _ListRequestWidget();
-  final chatWidget = const _ChatContentWidget();
+  const OrderToOnlineBodyPage({super.key, this.o2oData = const {}});
+  final Map<O2OOrderModel, Map<String, dynamic>> o2oData;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showChatTab = ref.watch(orderToOnlinePageNotifier.select((value) => value.showChatTab));
+    final requestWidget = _ListRequestWidget(o2oData: o2oData);
+    const chatWidget = _ChatContentWidget();
+    var showChatTab = ref
+        .watch(orderToOnlinePageProvider.select((value) => value.showChatTab));
     bool isSmallDebice = AppDeviceSizeUtil.checkSmallDevice(context);
     return isSmallDebice
         ? Column(
@@ -46,7 +50,7 @@ class OrderToOnlineBodyPage extends ConsumerWidget {
                     title: 'Yêu cầu',
                     onTap: () {
                       ref
-                          .read(orderToOnlinePageNotifier.notifier)
+                          .read(orderToOnlinePageProvider.notifier)
                           .onChangeShowChatTab(value: false);
                     },
                     selected: !showChatTab,
@@ -54,7 +58,9 @@ class OrderToOnlineBodyPage extends ConsumerWidget {
                   _buildTab(
                     title: 'Tin nhắn',
                     onTap: () {
-                      ref.read(orderToOnlinePageNotifier.notifier).onChangeShowChatTab(value: true);
+                      ref
+                          .read(orderToOnlinePageProvider.notifier)
+                          .onChangeShowChatTab(value: true);
                     },
                     selected: showChatTab,
                   ),
@@ -82,7 +88,7 @@ class OrderToOnlineBodyPage extends ConsumerWidget {
                   width: 1,
                   color: Colors.grey.shade400,
                 ),
-                Expanded(
+                const Expanded(
                   flex: 1,
                   child: chatWidget,
                 ),
@@ -115,32 +121,38 @@ class OrderToOnlineBodyPage extends ConsumerWidget {
 }
 
 class _ListRequestWidget extends ConsumerWidget {
-  const _ListRequestWidget();
+  const _ListRequestWidget({
+    this.o2oData = const {},
+  });
+
+  final Map<O2OOrderModel, Map<String, dynamic>> o2oData;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final datas = ref.watch(orderToOnlinePageNotifier.select((value) => value.orders));
-
-    final statusFilter = ref.watch(orderToOnlinePageNotifier.select((value) => value.statusFilter));
-    final sortByNewestTime =
-        ref.watch(orderToOnlinePageNotifier.select((value) => value.sortByNewestTime));
-    final orderSelect = ref.watch(orderToOnlinePageNotifier.select((value) => value.orderSelect));
-
-    var count = datas[orderSelect]?['count'] ?? 0;
+    final statusFilter = ref
+        .watch(orderToOnlinePageProvider.select((value) => value.statusFilter));
+    final sortByNewestTime = ref.watch(
+        orderToOnlinePageProvider.select((value) => value.sortByNewestTime));
+    final orderSelect = ref
+        .watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
+    var count = o2oData[orderSelect]?['count'] ?? 0;
     List<RequestOrderModel> requests = List<RequestOrderModel>.from(
-        orderSelect == null ? [] : (datas[orderSelect]?['items'] ?? []));
+        orderSelect == null ? [] : (o2oData[orderSelect]?['items'] ?? []));
     if (statusFilter != RequestProcessingStatus.all) {
       requests.removeWhere((e) => e.requestProcessingStatus != statusFilter);
     }
     // xoá tất cả lượt gọi mà ko có món nào (đã được xử lý hết)
-    requests = requests.where((element) => element.listItem.isNotEmpty).toList();
+    requests =
+        requests.where((element) => element.listItem.isNotEmpty).toList();
     if (sortByNewestTime) {
       // mới nhất -> cũ nhất
-      requests.sort((a, b) =>
-          (a.timeOrder == null || b.timeOrder == null) ? 0 : b.timeOrder!.compareTo(a.timeOrder!));
+      requests.sort((a, b) => (a.timeOrder == null || b.timeOrder == null)
+          ? 0
+          : b.timeOrder!.compareTo(a.timeOrder!));
     } else {
-      requests.sort((a, b) =>
-          (a.timeOrder == null || b.timeOrder == null) ? 0 : a.timeOrder!.compareTo(b.timeOrder!));
+      requests.sort((a, b) => (a.timeOrder == null || b.timeOrder == null)
+          ? 0
+          : a.timeOrder!.compareTo(b.timeOrder!));
     }
 
     String emptyMessage = S.current.no_orders_to_confirm;
@@ -172,7 +184,7 @@ class _ListRequestWidget extends ConsumerWidget {
             const GapH(12),
             Text(
               emptyMessage,
-              style: AppTextStyle.medium(),
+              style: AppTextStyle.regular(),
               textAlign: TextAlign.center,
             ),
           ],
@@ -182,7 +194,8 @@ class _ListRequestWidget extends ConsumerWidget {
     return Column(
       children: [
         if (count > 0 &&
-            [RequestProcessingStatus.all, RequestProcessingStatus.waiting].contains(statusFilter))
+            [RequestProcessingStatus.all, RequestProcessingStatus.waiting]
+                .contains(statusFilter))
           Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -193,8 +206,11 @@ class _ListRequestWidget extends ConsumerWidget {
                 bgColor: RequestProcessingStatus.waiting.color.withOpacity(0.2),
                 textColor: RequestProcessingStatus.waiting.color,
                 onTap: () async {
-                  final orderItems =
-                      ref.read(orderToOnlinePageNotifier).requestSelect?.listItem ?? [];
+                  final orderItems = ref
+                          .read(orderToOnlinePageProvider)
+                          .requestSelect
+                          ?.listItem ??
+                      [];
                   if (orderItems.isEmpty) return;
 
                   var orderNote = await showConfirmInputDialog(
@@ -208,7 +224,7 @@ class _ListRequestWidget extends ConsumerWidget {
                   );
                   if (orderNote != null) {
                     ref
-                        .read(orderToOnlinePageNotifier.notifier)
+                        .read(orderToOnlinePageProvider.notifier)
                         .acceptRequest(note: orderNote, context: context);
                   }
                 },
@@ -219,15 +235,18 @@ class _ListRequestWidget extends ConsumerWidget {
                 bgColor: Colors.red.withOpacity(0.1),
                 textColor: Colors.red.shade500,
                 onTap: () async {
-                  final orderItems =
-                      ref.read(orderToOnlinePageNotifier).requestSelect?.listItem ?? [];
+                  final orderItems = ref
+                          .read(orderToOnlinePageProvider)
+                          .requestSelect
+                          ?.listItem ??
+                      [];
                   if (orderItems.isEmpty) return;
 
                   // await showPaymentCancelDialog(
                   //   context,
                   //   onAction: (content) {
                   //     ref
-                  //         .read(orderToOnlinePageNotifier.notifier)
+                  //         .read(orderToOnlinePageProvider.notifier)
                   //         .cancelRequest(reason: content);
                   //   },
                   // );
@@ -239,9 +258,10 @@ class _ListRequestWidget extends ConsumerWidget {
         Expanded(
           child: ListView.separated(
             physics: const BouncingScrollPhysics(),
-            padding:
-                EdgeInsets.only(bottom: (orderSelect?.qrOrderO2o.isNotEmpty ?? false) ? 70 : 0),
-            itemBuilder: (context, index) => RequestOrderWidget(requestOrderModel: requests[index]),
+            padding: EdgeInsets.only(
+                bottom: (orderSelect?.qrOrderO2o.isNotEmpty ?? false) ? 70 : 0),
+            itemBuilder: (context, index) =>
+                RequestOrderWidget(requestOrderModel: requests[index]),
             itemCount: requests.length,
             separatorBuilder: (context, index) => const Divider(
               color: Colors.blueGrey,
@@ -260,14 +280,15 @@ class _ChatContentWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final getChatMessageState =
-        ref.watch(orderToOnlinePageNotifier.select((value) => value.getChatMessageState));
-    final chatMessages = ref.watch(orderToOnlinePageNotifier.select((value) => value.chatMessages));
+    final getChatMessageState = ref.watch(
+        orderToOnlinePageProvider.select((value) => value.getChatMessageState));
+    final chatMessages = ref
+        .watch(orderToOnlinePageProvider.select((value) => value.chatMessages));
 
     return ListChatWidget(
       state: getChatMessageState,
       chatMessages: chatMessages,
-      onReload: ref.read(orderToOnlinePageNotifier.notifier).getChatMessages,
+      onReload: ref.read(orderToOnlinePageProvider.notifier).getChatMessages,
       paddingBottom: 70,
     );
   }
@@ -285,12 +306,15 @@ class RequestOrderWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var request = requestOrderModel;
 
-    var requestSelect = ref.watch(orderToOnlinePageNotifier.select((value) => value.requestSelect));
+    var requestSelect = ref.watch(
+        orderToOnlinePageProvider.select((value) => value.requestSelect));
 
     var itemsSelect = requestSelect?.listItem ?? [];
 
     final length = request.listItem.length;
-    var selectedCodeProducts = {...itemsSelect.map((e) => e.codeProduct).toList()};
+    var selectedCodeProducts = {
+      ...itemsSelect.map((e) => e.codeProduct).toList()
+    };
     var codeProducts = {...request.listItem.map((e) => e.codeProduct).toList()};
     bool selectAll = request.id == requestSelect?.id &&
         const SetEquality().equals(selectedCodeProducts, codeProducts);
@@ -302,7 +326,8 @@ class RequestOrderWidget extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12).copyWith(right: 8),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12).copyWith(right: 8),
             child: Row(
               children: [
                 Text(
@@ -312,7 +337,8 @@ class RequestOrderWidget extends ConsumerWidget {
                 const Gap(6),
                 switch (request.requestProcessingStatus) {
                   RequestProcessingStatus.waiting => const SizedBox.shrink(),
-                  RequestProcessingStatus.accept => const StatusRequestWidget(acceptedStatus: true),
+                  RequestProcessingStatus.accept =>
+                    const StatusRequestWidget(acceptedStatus: true),
                   RequestProcessingStatus.cancel => const StatusRequestWidget(),
                   RequestProcessingStatus.all => const SizedBox.shrink(),
                 },
@@ -379,7 +405,9 @@ class RequestOrderWidget extends ConsumerWidget {
             const Gap(4),
             GestureDetector(
               onTap: () {
-                ref.read(orderToOnlinePageNotifier.notifier).selectAllRequestItem(
+                ref
+                    .read(orderToOnlinePageProvider.notifier)
+                    .selectAllRequestItem(
                       request: request,
                       selectAll: !selectAll,
                     );
@@ -391,7 +419,9 @@ class RequestOrderWidget extends ConsumerWidget {
                   children: [
                     CustomCheckbox(
                       onChange: () {
-                        ref.read(orderToOnlinePageNotifier.notifier).selectAllRequestItem(
+                        ref
+                            .read(orderToOnlinePageProvider.notifier)
+                            .selectAllRequestItem(
                               request: request,
                               selectAll: !selectAll,
                             );
@@ -416,7 +446,9 @@ class RequestOrderWidget extends ConsumerWidget {
                 final item = request.listItem[index];
 
                 bool selected = request.id == requestSelect?.id &&
-                    requestSelect?.listItem.firstWhereOrNull((e) => e.id == item.id) != null;
+                    requestSelect?.listItem
+                            .firstWhereOrNull((e) => e.id == item.id) !=
+                        null;
                 return RequestItemWidget(
                   request: request,
                   item: item,
@@ -456,7 +488,8 @@ class ListChatWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation =
+        AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool useTab = (isMobile || (isTablet && portraitOrientation));
     switch (state.status) {

@@ -30,8 +30,9 @@ void main(List<String> args) async {
 
   if (args.firstOrNull == 'multi_window' && Platform.isWindows) {
     final windowId = int.parse(args[1]);
-    final argument =
-        args[2].isEmpty ? const <String, dynamic>{} : jsonDecode(args[2]) as Map<String, dynamic>;
+    final argument = args[2].isEmpty
+        ? const <String, dynamic>{}
+        : jsonDecode(args[2]) as Map<String, dynamic>;
     await LocalStorage.initialize();
     runApp(ProviderScope(
         child: MySecondApp(
@@ -59,8 +60,8 @@ void main(List<String> args) async {
     await _initializeApp();
     runApp(ProviderScope(
       child: DevicePreview(
-        // enabled: !kReleaseMode,
-        enabled: false,
+        enabled: !kReleaseMode,
+        // enabled: false,
         builder: (context) => const MyApp(),
       ),
     ));
@@ -152,7 +153,8 @@ Future<void> _initWebContentConverter() async {
   try {
     if (WebViewHelper.isDesktop) {
       await windowManager.ensureInitialized();
-      var executablePath = await ChromeDesktopDirectoryHelper.saveChromeFromAssetToApp(
+      var executablePath =
+          await ChromeDesktopDirectoryHelper.saveChromeFromAssetToApp(
         assetPath: 'assets/1056772_chrome-win.zip',
       );
       WebViewHelper.customBrowserPath = [executablePath];
@@ -165,7 +167,8 @@ Future<void> _initWebContentConverter() async {
       } catch (e) {
         //
       }
-      await WebcontentConverter.ensureInitialized(executablePath: executablePath);
+      await WebcontentConverter.ensureInitialized(
+          executablePath: executablePath);
     }
   } catch (ex) {
     showLogs(ex.toString(), flags: '_initWebContentConverter');

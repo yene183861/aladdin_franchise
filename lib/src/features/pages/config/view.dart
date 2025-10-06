@@ -1,18 +1,14 @@
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
 import 'package:aladdin_franchise/src/features/pages/config/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/config/state.dart';
 import 'package:aladdin_franchise/src/features/pages/config/widgets/chose_restaurant.dart';
 import 'package:aladdin_franchise/src/features/pages/config/widgets/manual.dart';
-import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../generated/l10n.dart';
-import '../../../configs/app.dart';
-import '../../dialogs/message.dart';
 
 class ConfigPage extends ConsumerWidget {
   final bool isCheckConfig;
@@ -23,7 +19,8 @@ class ConfigPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final typeConfig = ref.watch(configProvider.select((value) => value.typeConfig));
+    final typeConfig =
+        ref.watch(configProvider.select((value) => value.typeConfig));
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(

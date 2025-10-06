@@ -159,6 +159,8 @@ abstract class OrderRepository {
     int isPrintPeople = 0,
   });
 
+  /// tax: dạng 0.08
+  /// truyền lên server phải đổi về 8
   Future<List<ProductCheckoutUpdateTaxModel>> updateTax({
     required OrderModel order,
     required List<ProductCheckoutModel> pc,

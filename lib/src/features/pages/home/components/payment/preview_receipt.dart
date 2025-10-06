@@ -97,13 +97,15 @@ class __PreviewProductCheckoutWidgetState
   Widget build(BuildContext context) {
     productCheckouts =
         ref.watch(homeProvider.select((value) => value.productCheckout));
-    productCheckoutUpdateTax = ref
-        .watch(homeProvider.select((value) => value.productCheckoutUpdateTax));
+    // productCheckoutUpdateTax = ref
+    //     .watch(homeProvider.select((value) => value.productCheckoutUpdateTax));
     requireUpdateTax = ref.read(homeProvider.notifier).requireUpdateTax;
 
-    var count = (requireUpdateTax
-            ? productCheckoutUpdateTax.length
-            : productCheckouts.length) +
+    var count = (
+            // requireUpdateTax
+            //       ? productCheckoutUpdateTax.length
+            //       :
+            productCheckouts.length) +
         1;
     return LayoutBuilder(builder: (context, constraint) {
       var maxWidth = constraint.maxWidth;

@@ -7,8 +7,6 @@ import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// Author: sondv
-/// Created 18/9/24 at 15:30
 class OrderOfflineService {
   static final OrderOfflineService _instance = OrderOfflineService._();
 

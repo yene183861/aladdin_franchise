@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/const.dart';
+import 'package:aladdin_franchise/src/configs/data_fake.dart';
 import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
 import 'package:aladdin_franchise/src/configs/enums/windows_method.dart';
 import 'package:aladdin_franchise/src/core/network/app_exception.dart';
@@ -25,6 +26,7 @@ import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
+import 'package:aladdin_franchise/src/features/pages/home/view.dart';
 import 'package:aladdin_franchise/src/models/atm_pos.dart';
 import 'package:aladdin_franchise/src/models/category.dart';
 import 'package:aladdin_franchise/src/models/combo_item.dart';
@@ -57,6 +59,7 @@ import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:redis/redis.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -70,7 +73,8 @@ enum HomePaymentError {
   complete,
 }
 
-final homeProvider = StateNotifierProvider.autoDispose<HomeNotifier, HomeState>((ref) {
+final homeProvider =
+    StateNotifierProvider.autoDispose<HomeNotifier, HomeState>((ref) {
   return HomeNotifier(
     ref,
     ref.read(orderRepositoryProvider),
@@ -118,26 +122,18 @@ class HomeNotifier extends StateNotifier<HomeState> {
   Map<dynamic, GlobalKey> categoryKeys = {};
 
   final ItemScrollController categoryScrollController = ItemScrollController();
-  final ItemPositionsListener categoryPositionsListener = ItemPositionsListener.create();
+  final ItemPositionsListener categoryPositionsListener =
+      ItemPositionsListener.create();
 
   late TextEditingController ctrlSearch;
-
-  Timer? _updateOrderItemTimer;
-  bool _ignoreTimerCallback = false;
-
-  /// số lần đã in bill xuống bếp
-  int printKitchenBill = 0;
-
-  /// check biến này
-  List<ProductCheckoutModel> productCheckouts = [];
 
   List<PaymentMethod> _listPaymentMethods = [];
 
   /// bắt buộc update lại thuế với giá trị mặc định
   bool requireUpdateDefaultTax = false;
 
-  final currentOrderItemsScrollCtrl = ItemScrollController();
-  final currentOrderItemsPositionsListener = ItemPositionsListener.create();
+//   // final currentOrderItemsScrollCtrl = ItemScrollController();
+//   // final currentOrderItemsPositionsListener = ItemPositionsListener.create();
 
   final selectedOrderItemsScrollCtrl = ItemScrollController();
   final selectedOrderItemsPositionsListener = ItemPositionsListener.create();
@@ -145,13 +141,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
   final selectingOrderItemsScrollCtrl = ItemScrollController();
   final selectingOrderItemsPositionsListener = ItemPositionsListener.create();
 
+  /// danh sách máy in thu ngân
   List<IpOrderModel> paymentPrinter = [];
-  List<LineItemDataBill> itemPrint = [];
-  List<HistoryPolicyResultModel> voucherPrint = [];
+//   // List<LineItemDataBill> itemPrint = [];
+//   // List<HistoryPolicyResultModel> voucherPrint = [];
+  bool requireApplyPolicy = false;
+  bool requireGetDataBill = false;
 
   @override
   void dispose() {
-    _updateOrderItemTimer?.cancel();
     AppConfig.initHomeProvider = false;
     ctrlSearch.dispose();
     super.dispose();
@@ -168,37 +166,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
       _resetOrder();
       throw S.current.noOrderSelect;
     }
-    return;
   }
 
   Future<void> _checkLockedOrder() async {
-    try {
-      await _checkOrderSelect();
-      if (state.lockedOrder) throw S.current.msg_locked_order;
-      return;
-    } catch (ex) {
-      rethrow;
-    }
-  }
-
-  void _startUpdateOrderItemTimer() {
-    _updateOrderItemTimer?.cancel();
-    if (!state.autoSaveOrder) return;
-    _updateOrderItemTimer = Timer.periodic(
-      // const Duration(milliseconds: 100),
-      const Duration(seconds: 1),
-      (timer) async {
-        if (_ignoreTimerCallback) return;
-        try {
-          _ignoreTimerCallback = true;
-          state = state.copyWith(dataBillState: const PageState(status: PageCommonState.loading));
-          await handleOrderItem();
-        } catch (ex) {
-          //
-        }
-        _ignoreTimerCallback = false;
-      },
-    );
+    await _checkOrderSelect();
+    if (state.lockedOrder) throw S.current.msg_locked_order;
+    return;
   }
 
   void initialize({
@@ -210,13 +183,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     ctrlSearch.text = '';
     final dataLogin = LocalStorage.getDataLogin();
     final customerPortraits = dataLogin?.customerPortraits ?? [];
-    bool autoSaveOrder = false;
-    List<OrderTabEnum> orderTabs =
-        autoSaveOrder ? [OrderTabEnum.all] : [OrderTabEnum.ordering, OrderTabEnum.ordered];
 
-    OrderTabEnum orderTabSelect = orderTabs.firstWhereOrNull((e) => e == state.orderTabSelect) ??
-        orderTabs.firstOrNull ??
-        OrderTabEnum.all;
     state = state.copyWith(
       orderSelect: order,
       categorySelect: null,
@@ -227,15 +194,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       search: '',
       paymentMethods: [],
       listAtmPos: [],
-      autoSaveOrder: autoSaveOrder,
-      orderTabSelect: orderTabSelect,
-      orderTabs: orderTabs,
     );
-    _listPaymentMethods = [];
-    productCheckouts = [];
-    paymentPrinter = [];
-    itemPrint = [];
-    voucherPrint = [];
     _resetOrder();
     if (loadProducts) {
       getProducts();
@@ -258,13 +217,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
           coupons: state.needApplyAgainOnlyCoupons,
         );
       } catch (ex) {
-        showLogs(ex.toString(), flags: 'lưu lại mã only');
+        showLogs(ex.toString(), flags: 'lưu lại mã only cần áp dụng lại');
       }
     }
     state = state.copyWith(orderSelect: orderModel);
     paymentPrinter = [];
-    itemPrint = [];
-    voucherPrint = [];
     _resetOrder();
     if (orderModel != null) {
       if (orderModel.typeOrder != kTypeOrder) {
@@ -272,85 +229,99 @@ class HomeNotifier extends StateNotifier<HomeState> {
         ref.refresh(typeOrderWaiterProvider);
         ref.read(homeProvider.notifier).initialize(order: orderModel);
       } else {
-        getOrderProductCheckout(changeSelecting: true);
+        getOrderProductCheckout();
         getOrderInvoice();
       }
     }
   }
 
-  /// lấy danh sách các món đã gọi (đã lưu vào db)
   ///
-  /// loadingProductCheckout = true - hiện loading khi lấy dữ liệu (danh sách món đang gọi)
+  /// [loadingProductCheckout] = true - hiện loading khi lấy dữ liệu ở danh sách món đã gọi
   ///
-  /// changeSelecting = true - dữ liệu lấy được có ghi đè các món đang gọi?
+  /// [changeSelecting] = false - dữ liệu lấy được có ghi đè các món đang gọi?
+  ///
+  /// [loadingHome] = false - hiện circle loading
+  ///
+  /// [applyPolicy] = true - áp dụng lại mã giảm giá
+  ///
+  /// [ignoreGetDataBill] = false - bỏ qua lấy data bill
   Future<void> getOrderProductCheckout({
     bool loadingProductCheckout = true,
-    bool changeSelecting = true,
+    bool changeSelecting = false,
     bool loadingHome = false,
     bool applyPolicy = true,
     bool ignoreGetDataBill = false,
   }) async {
     try {
       if (loadingProductCheckout) {
-        state =
-            state.copyWith(productCheckoutState: const PageState(status: PageCommonState.loading));
+        state = state.copyWith(
+          productCheckoutState:
+              const PageState(status: PageCommonState.loading),
+        );
       }
       if (loadingHome) updateEvent(HomeEvent.getProductCheckout);
 
       int tryAgain = 0;
       while (tryAgain < 3) {
+        var orderSelect = state.orderSelect;
         try {
-          if (state.orderSelect == null) {
+          if (orderSelect == null) {
             tryAgain == 3;
             throw S.current.noOrderSelect;
           }
-          final productRepo = await _orderRepository.getProductCheckout(state.orderSelect!);
-          final pc = List<ProductCheckoutModel>.from(productRepo.data?.first.orderItem ?? []);
+          final productRepo =
+              await _orderRepository.getProductCheckout(orderSelect);
+          final pc = List<ProductCheckoutModel>.from(
+              productRepo.data?.first.orderItem ?? []);
 
-          /// check here
-          productCheckouts = List.from(pc);
-          final coupons = List<CustomerPolicyModel>.from(productRepo.coupons ?? []);
+          final coupons =
+              List<CustomerPolicyModel>.from(productRepo.coupons ?? []);
           final customer = productRepo.customer;
           var orderHistory = productRepo.data?.first.orderHistory ?? [];
           state = state.copyWith(orderHistory: orderHistory);
-          var order = state.orderSelect!;
-          var noteEachProductItem = LocalStorage.getNotePerOrderItem(order: order);
-          List<ProductModel> currentOrderItems = [];
+          var notes = LocalStorage.getNotePerOrderItem(order: orderSelect);
           List<ProductModel> productsSelected = [];
 
           // map: ProductCheckoutModel -> ProductModel
-          // với những món đã bị khóa thì có nên bỏ qua hay k?
-          // logic code hiện tại:
-          // đã khóa thì k hiển thị trên UI nhưng mà thông tin bill sẽ hiện thị k khớp
-          // VD: ko có món nào nhưng tổng tiền # 0
-          // chưa confirm cách xử lý
           for (var item in pc) {
             var p = state.products.firstWhereOrNull((e) => e.id == item.id);
             if (p != null) {
               var changeProduct = p.copyWith(
                 numberSelecting: item.quantity,
-                noteForProcessOrder: noteEachProductItem?[p.id.toString()] ?? '',
+                noteForProcessOrder: notes?[p.id.toString()] ?? '',
               );
               productsSelected.add(changeProduct);
-              currentOrderItems.add(changeProduct);
+            } else {
+              // case món k có trong menu (k hiện nhưng tiền # 0)
+              productsSelected.add(
+                ProductModel(
+                  id: item.id,
+                  numberSelecting: item.quantity,
+                  unitPrice: item.unitPrice,
+                  name: item.name,
+                  nameEn: item.nameEn,
+                  language: item.language,
+                  unit: item.unit,
+                  tax: item.tax,
+                  printerType: item.printerType,
+                  noteForProcessOrder: notes?[item.id.toString()] ?? '',
+                ),
+              );
             }
           }
-
+          // xem xét nếu order trên nhiều thiết bị
+          // thì cần apply lại tất cả các mã giảm only
+          // thay vì những mã lưu local
           List<CustomerPolicyModel> needApplyAgainOnlyCoupons = [];
           try {
             needApplyAgainOnlyCoupons =
-                await LocalStorage.getApplyAgainOnlyCouponForOrder(order: order);
+                await LocalStorage.getApplyAgainOnlyCouponForOrder(
+                    order: orderSelect);
           } catch (ex) {
             //
           }
 
           for (final c in coupons) {
-            if (c.only) {
-              if (!needApplyAgainOnlyCoupons.any((e) => e.id == c.id)) {
-                needApplyAgainOnlyCoupons.removeWhere((e) => e.id == c.id);
-              }
-            }
-
             /// cập nhật số lượng món 0 đồng
             if (c.isPromotion()) {
               final discountUpdate = List<DiscountPolicy>.from(c.discount);
@@ -360,55 +331,66 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
                 for (final pt in c.promotionItems) {
                   if (pt.menuItemId.toString() == dcIndex.id) {
-                    discountUpdate[dc] = dcIndex.copyWith(numberSelect: pt.quantity);
+                    discountUpdate[dc] =
+                        dcIndex.copyWith(numberSelect: pt.quantity);
                     // cập nhật số lượng món tặng 0 đồng
-                    var p = currentOrderItems.firstWhereOrNull((e) => e.id == pt.menuItemId);
-                    if (p != null) {
-                      // các món đang chọn
-                      var index = currentOrderItems.indexOf(p);
-                      if (index != -1) {
-                        currentOrderItems[index] =
-                            p.copyWith(quantityPromotion: p.quantityPromotion + pt.quantity);
+                    var ps = productsSelected
+                        .firstWhereOrNull((e) => e.id == pt.menuItemId);
+
+                    if (ps != null) {
+                      try {
+                        productsSelected[productsSelected.indexOf(ps)] =
+                            ps.copyWith(
+                                quantityPromotion:
+                                    ps.quantityPromotion + pt.quantity);
+                      } catch (ex) {
+                        //
                       }
-                      // các món đã lưu trên server
-                      var ps = productsSelected.firstWhereOrNull((e) => e.id == pt.menuItemId);
-                      if (ps != null) {
-                        if (index != -1) {
-                          productsSelected[index] =
-                              ps.copyWith(quantityPromotion: ps.quantityPromotion + pt.quantity);
-                        }
-                      }
-                      var pcout = pc.firstWhereOrNull((e) => e.id == pt.menuItemId);
-                      if (pcout != null) {
-                        if (index != -1) {
-                          pc[index] = pcout.copyWith(
-                              quantityPromotion: (ps?.quantityPromotion ?? 0) + pt.quantity);
-                        }
+                    }
+                    var pcout =
+                        pc.firstWhereOrNull((e) => e.id == pt.menuItemId);
+                    if (pcout != null) {
+                      try {
+                        pc[pc.indexOf(pcout)] = pcout.copyWith(
+                            quantityPromotion:
+                                (ps?.quantityPromotion ?? 0) + pt.quantity);
+                      } catch (ex) {
+                        //
                       }
                     }
                   }
                 }
               }
-              coupons[coupons.indexOf(c)] = c.copyWith(discount: discountUpdate);
+              coupons[coupons.indexOf(c)] =
+                  c.copyWith(discount: discountUpdate);
             }
           }
+          // xóa bỏ các mã only cần áp dụng lại
+          needApplyAgainOnlyCoupons.removeWhere((item) {
+            var check = coupons.firstWhereOrNull((e) => e.id == item.id);
+            return check == null || !check.only;
+          });
           state = state.copyWith(
             needApplyAgainOnlyCoupons: needApplyAgainOnlyCoupons,
             coupons: coupons,
             customer: customer,
             productsSelected: productsSelected,
-            currentOrderItems: changeSelecting ? currentOrderItems : state.currentOrderItems,
+            // currentOrderItems:
+            //     changeSelecting ? currentOrderItems : state.currentOrderItems,
             productCheckout: pc,
             numberOfAdults: max(productRepo.numberOfAdults, 1),
+            orderHistory: orderHistory,
           );
 
-          OrderHistory? history = orderHistory.isEmpty
-              ? null
-              : orderHistory.reduce((a, b) => b.timesOrder > a.timesOrder ? b : a);
-          printKitchenBill = history == null ? 0 : history.timesOrder;
+          // OrderHistory? history = orderHistory.isEmpty
+          //     ? null
+          //     : orderHistory
+          //         .reduce((a, b) => b.timesOrder > a.timesOrder ? b : a);
+          // printKitchenBill = history == null ? 0 : history.timesOrder;
           if (loadingProductCheckout) {
             state = state.copyWith(
-                productCheckoutState: const PageState(status: PageCommonState.success));
+                productCheckoutState:
+                    const PageState(status: PageCommonState.success));
           }
           if (loadingHome) updateEvent(HomeEvent.normal);
           if (applyPolicy) {
@@ -446,131 +428,108 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(categorySelect: categoryModel);
 
     if ((categoryModel?.children ?? []).isEmpty) {
-      ref.read(homeProvider.notifier).changeSubCategorySelect(null);
+      changeSubCategorySelect(null);
     } else {
       var subCategorySelect = state.subCategorySelect;
-      var checkSubCategorySelect =
-          categoryModel?.children?.firstWhereOrNull((e) => e == subCategorySelect);
+      var checkSubCategorySelect = categoryModel?.children
+          ?.firstWhereOrNull((e) => e == subCategorySelect);
       if (subCategorySelect == null || checkSubCategorySelect == null) {
-        ref.read(homeProvider.notifier).changeSubCategorySelect(
-            (categoryModel?.children?.isEmpty ?? true) ? null : categoryModel!.children!.first);
+        changeSubCategorySelect((categoryModel?.children?.isEmpty ?? true)
+            ? null
+            : categoryModel!.children!.first);
       }
     }
   }
 
   void changeSubCategorySelect(SubCategoryModel? subCategoryModel) {
-    if (state.subCategorySelect == subCategoryModel) return;
     state = state.copyWith(subCategorySelect: subCategoryModel);
   }
 
-  Future<String?> addProductToOrder({required ProductModel product}) async {
+  /// thêm sp vào giỏ hàng (số lượng 1)
+  Future<String?> addProductToCart({required ProductModel product}) async {
     if (state.orderSelect == null) {
       return S.current.noOrderSelect;
     }
-    _updateOrderItemTimer?.cancel();
-    state = state.copyWith(isOrderSaved: false);
-    var currentOrderItems = List<ProductModel>.from(state.currentOrderItems);
     var productsSelecting = List<ProductModel>.from(state.productsSelecting);
-    var item = currentOrderItems.firstWhereOrNull((e) => e.id == product.id);
-    if (item != null) {
-      var index = currentOrderItems.indexOf(item);
-      if (index != -1) {
-        currentOrderItems[index] =
-            product.copyWith(numberSelecting: max(0, item.numberSelecting) + 1);
-      }
-    } else {
-      currentOrderItems.add(product.copyWith(numberSelecting: 1));
-    }
 
-    var ind = productsSelecting.indexWhere((e) => e.id == product.id);
-    if (ind != -1) {
-      var item = productsSelecting[ind];
-      productsSelecting[ind] = product.copyWith(numberSelecting: max(0, item.numberSelecting) + 1);
+    var index = productsSelecting.indexWhere((e) => e.id == product.id);
+    if (index != -1) {
+      var item = productsSelecting[index];
+      productsSelecting[index] =
+          product.copyWith(numberSelecting: max(0, item.numberSelecting) + 1);
     } else {
       productsSelecting.add(product.copyWith(numberSelecting: 1));
     }
     state = state.copyWith(
-      currentOrderItems: currentOrderItems,
       productsSelecting: productsSelecting,
       changedProductId: product.id,
     );
     onChangeAutoScrollProducts(true);
-
-    _startUpdateOrderItemTimer();
+    state = state.copyWith(orderTabSelect: OrderTabEnum.ordering);
 
     return null;
   }
 
-  Future<String?> removeProductInOrder(ProductModel productModel) async {
-    try {
-      if (state.orderSelect == null) {
-        return S.current.noOrderSelect;
-      }
-      _updateOrderItemTimer?.cancel();
-      state = state.copyWith(isOrderSaved: false);
-      var currentOrderItems = List<ProductModel>.from(state.currentOrderItems);
-      var item = currentOrderItems.firstWhereOrNull((e) => e.id == productModel.id);
-      if (item != null) {
-        var count = item.numberSelecting - 1;
-        if (count < 1) {
-          currentOrderItems.remove(item);
-        } else {
-          var index = currentOrderItems.indexOf(item);
-          if (index != -1) {
-            currentOrderItems[index] = productModel.copyWith(numberSelecting: count);
-          }
-        }
-      }
+  /// giảm số lượng 1 của sp trong giỏ hàng
+  // Future<String?> removeProductInOrder(ProductModel productModel) async {
+  //   try {
+  //     if (state.orderSelect == null) {
+  //       return S.current.noOrderSelect;
+  //     }
+  // _updateOrderItemTimer?.cancel();
+  // state = state.copyWith(isOrderSaved: false);
+  // var currentOrderItems = List<ProductModel>.from(state.currentOrderItems);
+  // var item =
+  //     currentOrderItems.firstWhereOrNull((e) => e.id == productModel.id);
+  // if (item != null) {
+  //   var count = item.numberSelecting - 1;
+  //   if (count < 1) {
+  //     currentOrderItems.remove(item);
+  //   } else {
+  //     var index = currentOrderItems.indexOf(item);
+  //     if (index != -1) {
+  //       currentOrderItems[index] =
+  //           productModel.copyWith(numberSelecting: count);
+  //     }
+  //   }
+  // }
 
-      state = state.copyWith(
-        currentOrderItems: currentOrderItems,
-        changedProductId: productModel.id,
-      );
-      onChangeAutoScrollProducts(true);
-      _startUpdateOrderItemTimer();
-      return null;
-    } catch (ex) {
-      return S.current.an_error_occurred;
-    }
-  }
-
-  void changeProductInOrder(ProductModel productModel, int count) {
+  //     state = state.copyWith(
+  //       // currentOrderItems: currentOrderItems,
+  //       changedProductId: productModel.id,
+  //     );
+  //     onChangeAutoScrollProducts(true);
+  //     // _startUpdateOrderItemTimer();
+  //     return null;
+  //   } catch (ex) {
+  //     return S.current.an_error_occurred;
+  //   }
+  // }
+  /// thay đổi số lượng 1 sp trong cart
+  void changeProductInCart(ProductModel productModel, int count) {
     try {
       if (state.orderSelect == null) return;
-      _updateOrderItemTimer?.cancel();
-      state = state.copyWith(isOrderSaved: false);
-      var currentOrderItems = List<ProductModel>.from(state.currentOrderItems);
       var productsSelecting = List<ProductModel>.from(state.productsSelecting);
-      var item = currentOrderItems.firstWhereOrNull((e) => e.id == productModel.id);
+
+      var item =
+          productsSelecting.firstWhereOrNull((e) => e.id == productModel.id);
       if (item != null) {
         if (count > 0) {
-          var index = currentOrderItems.indexOf(item);
+          var index = productsSelecting.indexOf(item);
           if (index != -1) {
-            currentOrderItems[index] = productModel.copyWith(numberSelecting: count);
+            productsSelecting[index] =
+                productModel.copyWith(numberSelecting: count);
           }
         } else {
-          currentOrderItems.remove(item);
-        }
-      }
-      var item1 = productsSelecting.firstWhereOrNull((e) => e.id == productModel.id);
-      if (item1 != null) {
-        if (count > 0) {
-          var index = productsSelecting.indexOf(item1);
-          if (index != -1) {
-            productsSelecting[index] = productModel.copyWith(numberSelecting: count);
-          }
-        } else {
-          productsSelecting.remove(item1);
+          productsSelecting.remove(item);
         }
       }
       productsSelecting.remove((e) => e.numberSelecting < 1);
       state = state.copyWith(
-        currentOrderItems: currentOrderItems,
         productsSelecting: productsSelecting,
         changedProductId: productModel.id,
       );
       onChangeAutoScrollProducts(true);
-      _startUpdateOrderItemTimer();
     } catch (ex) {
       //
     }
@@ -633,7 +592,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
         }
 
         try {
-          await LocalStorage.deleteApplyAgainOnlyCouponForOrder(order: state.orderSelect!);
+          await LocalStorage.deleteApplyAgainOnlyCouponForOrder(
+              order: state.orderSelect!);
         } catch (ex) {
           //
         }
@@ -661,12 +621,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
   void _resetOrder() {
     state = state.copyWith(
       lockedOrder: false,
-      currentOrderItems: [],
       productsSelected: [],
       productsSelecting: [],
       productCheckout: [],
       productCheckoutState: const PageState(),
-      isOrderSaved: true,
       customer: null,
       coupons: [],
       vouchers: [],
@@ -683,7 +641,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
       orderInvoiceState: const PageState(),
       dataBill: const DataBillResponseData(),
       dataBillState: const PageState(status: PageCommonState.success),
-      productCheckoutUpdateTax: [],
       imageBills: [],
       numberOfAdults: 1,
       numberOfChildren: 0,
@@ -694,22 +651,16 @@ class HomeNotifier extends StateNotifier<HomeState> {
       printNumberOfPeople: false,
       autoScrollProducts: true,
       changedProductId: null,
-      cancelOrderItem: false,
       displayOrderHistory: false,
     );
     _listPaymentMethods = [];
-    printKitchenBill = 0;
-    _updateOrderItemTimer?.cancel();
-    _ignoreTimerCallback = false;
     requireUpdateDefaultTax = false;
-    productCheckouts = [];
     syncInfoForCustomer();
   }
 
   Future<void> loadingChangeOrderSelect(
     int orderId, {
     int? typeOrder,
-    // required TypeOrderEnum typeOrderEnum,
     dynamic reservationCrmId,
   }) async {
     try {
@@ -730,12 +681,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
         typeOrder: typeOrder ?? kTypeOrder,
         reservationCrmId: reservationCrmId,
       ));
-      paymentPrinter = [];
-      itemPrint = [];
-      voucherPrint = [];
       _resetOrder();
       ref.invalidate(tablesAndOrdersProvider);
-      state = state.copyWith(event: HomeEvent.normal);
+      updateEvent(null);
     } catch (ex) {
       state = state.copyWith(
         event: HomeEvent.errorInfo,
@@ -744,9 +692,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
             "${S.current.ex_problem}: ${ex.toString()}",
         orderSelect: null,
       );
-      paymentPrinter = [];
-      itemPrint = [];
-      voucherPrint = [];
       _resetOrder();
     }
   }
@@ -755,7 +700,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     return state.messageError;
   }
 
-  /// uncheck
   void listenRedisChannel() async {
     StreamSubscription<dynamic>? streamSubscription;
     try {
@@ -820,7 +764,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  /// uncheck
   Future<void> _reconnectRedis({RedisConnection? redisConnection}) async {
     state = state.copyWith(
       reconnectRedis: true,
@@ -835,38 +778,47 @@ class HomeNotifier extends StateNotifier<HomeState> {
     );
   }
 
-  /// check here
   void checkReloadMenu() {
     final lastTime = LocalStorage.getLastReloadMenu();
     final now = DateTime.now();
-    if ((now.compareToWithoutTime(lastTime) == false) && now.hour >= 9 && now.minute >= 5) {
-      ref.read(homeProvider.notifier).getProducts();
+    if ((now.compareToWithoutTime(lastTime) == false) &&
+        now.hour >= 9 &&
+        now.minute >= 5) {
+      getProducts();
     }
   }
 
-  Future<FindCustomerStatus> findCustomer(String phone) async {
+  Future<FindCustomerStatus> findCustomer(
+    String phone, {
+    bool loadingHome = true,
+  }) async {
     try {
-      state = state.copyWith(event: HomeEvent.findingCustomer);
+      if (loadingHome) updateEvent(HomeEvent.findingCustomer);
       await _checkLockedOrder();
-      var customerRepo =
-          await _customerRepository.findCustomer(phoneNumber: phone, order: state.orderSelect!);
-      state = state.copyWith(event: HomeEvent.normal);
+      var customerRepo = await _customerRepository.findCustomer(
+          phoneNumber: phone, order: state.orderSelect!);
+      if (loadingHome) updateEvent(null);
       if (customerRepo.data.customer is List<dynamic> == false) {
-        CustomerModel customer = CustomerModel.fromJson(customerRepo.data.customer);
+        CustomerModel customer =
+            CustomerModel.fromJson(customerRepo.data.customer);
         state = state.copyWith(customer: customer);
         syncInfoForCustomer();
         return FindCustomerStatus.success;
       }
-      state = state.copyWith(messageError: "${S.current.find_customer_not_found} ($phone)");
+      state = state.copyWith(
+          messageError: "${S.current.find_customer_not_found} ($phone)");
       return FindCustomerStatus.notFound;
     } catch (ex) {
       _lockOrder(ex);
-      var errorMessage =
-          ex is AppException ? ex.toString() : AppException.fromStatusCode(-1).toString();
-      state = state.copyWith(
-        event: HomeEvent.normal,
-        messageError: errorMessage,
-      );
+      var errorMessage = ex is AppException
+          ? ex.toString()
+          : AppException.fromStatusCode(-1).toString();
+      if (loadingHome) {
+        state = state.copyWith(
+          event: HomeEvent.normal,
+          messageError: errorMessage,
+        );
+      }
       return FindCustomerStatus.error;
     }
   }
@@ -883,12 +835,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }) async {
     try {
       if (state.orderSelect == null) return S.current.noOrderSelect;
-      state = state.copyWith(event: HomeEvent.createCustomer);
+      updateEvent(HomeEvent.createCustomer);
       if (phone.isEmpty ||
           firstName.isEmpty ||
           lastName.isEmpty ||
           (noBOD ? false : birthday.isEmpty)) {
-        state = state.copyWith(event: HomeEvent.normal);
+        updateEvent(null);
         return S.current.miss_information;
       }
       await _checkOrderSelect();
@@ -902,11 +854,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
         idCardNumber: idCardNumber,
         address: address,
       );
-      state = state.copyWith(event: HomeEvent.normal);
+      updateEvent(null);
       return null;
     } catch (ex) {
       _lockOrder(ex);
-      state = state.copyWith(event: HomeEvent.normal);
+      updateEvent(null);
       return "${S.current.unable_add_customer}\n${ex.toString()}";
     }
   }
@@ -917,10 +869,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
     bool applyPolicy = true,
   }) async {
     try {
-      if (loadingHome) state = state.copyWith(event: HomeEvent.checkTicket);
-      if (state.coupons
-          .any((element) => element.name.trim().toLowerCase() == code.trim().toLowerCase())) {
-        if (loadingHome) state = state.copyWith(event: HomeEvent.normal);
+      if (loadingHome) updateEvent(HomeEvent.checkTicket);
+      if (state.coupons.any((element) =>
+          element.name.trim().toLowerCase() == code.trim().toLowerCase())) {
+        if (loadingHome) updateEvent(null);
         return (
           error: S.current.discount_code_already_exists,
           titleError: null,
@@ -936,34 +888,37 @@ class HomeNotifier extends StateNotifier<HomeState> {
         numberOfAdults: state.numberOfAdults,
       );
 
-      if (loadingHome) state = state.copyWith(event: HomeEvent.normal);
-      List<CustomerPolicyModel> coupons = List<CustomerPolicyModel>.from(couponRepo.data.data);
+      if (loadingHome) updateEvent(null);
+      List<CustomerPolicyModel> coupons =
+          List<CustomerPolicyModel>.from(couponRepo.data.data);
       if (coupons.isEmpty) {
         final errorMessage = couponRepo.data.message;
         return (
-          titleError:
-              errorMessage.isEmpty ? null : "${S.current.discount_code_is_not_valid} ($code)",
+          titleError: errorMessage.isEmpty
+              ? null
+              : "${S.current.discount_code_is_not_valid} ($code)",
           error: errorMessage.isEmpty
               ? "${S.current.discount_code_is_not_valid} ($code)"
               : errorMessage,
         );
       }
+      // check here
+      // var needApplyAgainOnlyCoupons =
+      // List<CustomerPolicyModel>.from(state.needApplyAgainOnlyCoupons);
+      // for (var c in coupons) {
+      //   if (!c.only) continue;
+      //   needApplyAgainOnlyCoupons.removeWhere((e) => e.id == c.id);
+      // }
 
-      var needApplyAgainOnlyCoupons =
-          List<CustomerPolicyModel>.from(state.needApplyAgainOnlyCoupons);
-      for (var c in coupons) {
-        if (!c.only) continue;
-        needApplyAgainOnlyCoupons.removeWhere((e) => e.id == c.id);
-      }
+      // try {
+      //   await LocalStorage.saveApplyAgainOnlyCoupon(
+      //       order: state.orderSelect!, coupons: needApplyAgainOnlyCoupons);
+      // } catch (ex) {
+      //   //
+      // }
 
-      try {
-        await LocalStorage.saveApplyAgainOnlyCoupon(
-            order: state.orderSelect!, coupons: needApplyAgainOnlyCoupons);
-      } catch (ex) {
-        //
-      }
-
-      state = state.copyWith(needApplyAgainOnlyCoupons: needApplyAgainOnlyCoupons);
+      // state =
+      //     state.copyWith(needApplyAgainOnlyCoupons: needApplyAgainOnlyCoupons);
 
       // lấy customer trong coupon nếu có
       CustomerModel? customerCoupon = coupons.first.customer;
@@ -976,7 +931,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       return (error: null, titleError: null);
     } catch (ex) {
       _lockOrder(ex);
-      if (loadingHome) state = state.copyWith(event: HomeEvent.normal);
+      if (loadingHome) updateEvent(null);
       return (
         error: ex.toString(),
         titleError: "${S.current.failed_apply_discount_code} ($code)",
@@ -984,192 +939,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<String?> handleOrderItem({
-    // bool ignoreLoading = false,
-    bool retry = false,
-    bool loadingHome = false,
-  }) async {
-    String? error;
-    try {
-      showLogs(null, flags: 'handleOrderItem');
-      if (loadingHome) updateEvent(HomeEvent.processOrder);
-      var orderSelect = state.orderSelect;
-      if (orderSelect == null) {
-        _updateOrderItemTimer?.cancel();
-        throw S.current.noOrderSelect;
-      }
-
-      if (state.lockedOrder) {
-        _updateOrderItemTimer?.cancel();
-        throw S.current.msg_locked_order;
-      }
-      int retryCount = retry ? 0 : 2;
-
-      bool mustGetProductCheckout = false;
-      while (retryCount < 3) {
-        error = null;
-        var currentOrderItems = List<ProductModel>.from(state.currentOrderItems);
-        var productsSelected = List<ProductModel>.from(state.productsSelected);
-        var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
-
-        List<ProductModel> addProducts = [];
-        List<ProductModel> cancelProducts = [];
-        List<ProductCheckoutModel> cancelProductsCheckout = [];
-        Set<int> changeProductId = {};
-
-        for (var item in currentOrderItems) {
-          var p = productsSelected.firstWhereOrNull((e) => e.id == item.id);
-          if (p == null) {
-            changeProductId.add(item.id);
-            addProducts.add(item);
-          } else {
-            var count = item.numberSelecting;
-            if (count < p.numberSelecting) {
-              changeProductId.add(item.id);
-              // số lượng huỷ
-              cancelProducts.add(p.copyWith(numberSelecting: count - p.numberSelecting));
-            } else if (count > p.numberSelecting) {
-              changeProductId.add(item.id);
-              addProducts.add(p.copyWith(numberSelecting: count - p.numberSelecting));
-            }
-          }
-        }
-        for (var item in productsSelected) {
-          var itemCancel = currentOrderItems.firstWhereOrNull((e) => e.id == item.id);
-          if (itemCancel == null) {
-            changeProductId.add(item.id);
-            cancelProducts.add(item.copyWith(numberSelecting: -item.numberSelecting));
-          }
-        }
-
-        for (var i in cancelProducts) {
-          var item = productCheckout.firstWhereOrNull((e) => e.id == i.id);
-          if (item != null) {
-            cancelProductsCheckout.add(item.copyWith(quantityCancel: i.numberSelecting));
-          }
-        }
-
-        showLogs(addProducts.length, flags: 'addProducts');
-        showLogs(cancelProductsCheckout.length, flags: 'cancelProductsCheckout');
-
-        if (addProducts.isEmpty && cancelProductsCheckout.isEmpty) {
-          _updateOrderItemTimer?.cancel();
-          state = state.copyWith(isOrderSaved: true);
-          syncInfoForCustomer();
-          if (loadingHome) updateEvent(HomeEvent.normal);
-          applyCustomerPolicy(loadingHome: loadingHome);
-          return null;
-        }
-
-        state = state.copyWith(isOrderSaved: false);
-        var onlyCoupons = List<CustomerPolicyModel>.from(state.needApplyAgainOnlyCoupons);
-        for (var c in state.coupons) {
-          if (!c.only) continue;
-          if (c.discountCrm.any((e) => changeProductId.contains(int.tryParse(e.id) ?? -1))) {
-            onlyCoupons.add(CustomerPolicyModel(id: c.id, name: c.name));
-          }
-        }
-
-        if (addProducts.isNotEmpty) {
-          var total = 0.0;
-
-          addProducts.forEach(
-            (element) {
-              total += element.numberSelecting < 0
-                  ? 0
-                  : element.numberSelecting * (double.tryParse(element.unitPrice) ?? 0.0);
-            },
-          );
-
-          try {
-            await _orderRepository.processOrder(
-              order: state.orderSelect!,
-              total: total,
-              orderNote: state.kitchenNote,
-              products: addProducts,
-            );
-            mustGetProductCheckout = true;
-          } catch (ex) {
-            error = ex.toString();
-            if (ex is AppException && ex.errorCode == 423) {
-              _updateOrderItemTimer?.cancel();
-              state = state.copyWith(
-                lockedOrder: true,
-                currentOrderItems: productsSelected,
-                isOrderSaved: true,
-              );
-              if (loadingHome) updateEvent(HomeEvent.normal);
-              return ex.messageError;
-            }
-          }
-        }
-        if (cancelProductsCheckout.isNotEmpty) {
-          try {
-            await _orderRepository.cancelDishInOrder(
-              order: state.orderSelect!,
-              total: 0,
-              contentCancelOrder: 'Khách chọn nhầm',
-              products: cancelProductsCheckout,
-            );
-            mustGetProductCheckout = true;
-          } catch (ex) {
-            error = ex.toString();
-            if (ex is AppException && ex.errorCode == 423) {
-              _updateOrderItemTimer?.cancel();
-              if (loadingHome) updateEvent(HomeEvent.normal);
-              state = state.copyWith(lockedOrder: true);
-              if (mustGetProductCheckout) {
-                try {
-                  await getOrderProductCheckout(
-                    loadingProductCheckout: false,
-                    changeSelecting: true,
-                    loadingHome: loadingHome,
-                    applyPolicy: true,
-                  );
-                } catch (ex) {
-                  //
-                }
-              } else {
-                state = state.copyWith(
-                  currentOrderItems: productsSelected,
-                  isOrderSaved: true,
-                );
-              }
-              return ex.messageError;
-            }
-          }
-        }
-        if (loadingHome) updateEvent(HomeEvent.normal);
-
-        if (mustGetProductCheckout) {
-          try {
-            await LocalStorage.saveApplyAgainOnlyCoupon(
-                order: state.orderSelect!, coupons: onlyCoupons);
-          } catch (ex) {
-            //
-          }
-          state = state.copyWith(needApplyAgainOnlyCoupons: onlyCoupons);
-          await getOrderProductCheckout(
-            loadingProductCheckout: false,
-            changeSelecting: false,
-            loadingHome: loadingHome,
-            applyPolicy: false,
-            ignoreGetDataBill: true,
-          );
-        }
-
-        retryCount++;
-      }
-      return error;
-    } catch (ex) {
-      if (loadingHome) updateEvent(HomeEvent.normal);
-      return ex.toString();
-    }
-  }
-
-  Future<({String? error, List<IpOrderModel> printers})> cancelProductOrder(
+  Future<({String? error, List<IpOrderModel> printers, bool errorGetPrinter})>
+      cancelProductOrder(
     List<ProductCheckoutModel> cancelProductCheckouts, {
     String contentCancelOrder = 'Khách chọn nhầm',
+    bool ignoreGetPrinter = false,
+    List<int> printerCheck = const [],
   }) async {
     try {
       updateEvent(HomeEvent.cancelProductsCheckout);
@@ -1182,66 +957,69 @@ class HomeNotifier extends StateNotifier<HomeState> {
             return (
               error: S.current.noOrderSelect,
               printers: <IpOrderModel>[],
+              errorGetPrinter: false,
             );
           }
-          // nhượng quyền - tự in thì cần lấy danh sách máy in
-          //&& printers.isEmpty
-          if (AppConfig.useFranchise) {
-            List<int> printerCheck = [];
-            for (var pc in cancelProductCheckouts) {
-              if (pc.printerType != null && !printerCheck.contains(pc.printerType)) {
-                printerCheck.add(pc.printerType!);
-              }
-            }
 
+          showLogs(printerCheck);
+          if (AppConfig.useFranchise &&
+              printers.isEmpty &&
+              !ignoreGetPrinter &&
+              printerCheck.isNotEmpty &&
+              (printerCheck.contains(4) || !AppConfig.useKds)) {
             try {
-              var resultCheckPrinter =
-                  await _orderRepository.getPrinterBill(state.orderSelect!, printerCheck);
+              var resultCheckPrinter = await _orderRepository.getPrinterBill(
+                  state.orderSelect!, printerCheck.toList());
               if (resultCheckPrinter.error != null) {
-                showLogs(
-                  resultCheckPrinter.error,
-                  flags: 'resultCheckPrinter.error thông tin máy in',
+                throw resultCheckPrinter.error!;
+              }
+              printers = List<IpOrderModel>.from(resultCheckPrinter.printers);
+            } catch (ex) {
+              if (retry >= 2) {
+                updateEvent(null);
+                return (
+                  error: ex.toString(),
+                  printers: <IpOrderModel>[],
+                  errorGetPrinter: true,
                 );
               }
-              printers = resultCheckPrinter.printers;
-            } catch (ex) {
-              showLogs(
-                ex.toString(),
-                flags: 'get thông tin máy in',
-              );
-              //
+              rethrow;
             }
           }
           await _orderRepository.cancelDishInOrder(
             order: state.orderSelect!,
             total: 0,
             contentCancelOrder: contentCancelOrder,
-            // quantityCancel < 0
             products: cancelProductCheckouts,
           );
-          var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
-          var productsSelected = List<ProductModel>.from(state.productsSelected);
+          var productCheckout =
+              List<ProductCheckoutModel>.from(state.productCheckout);
+          var productsSelected =
+              List<ProductModel>.from(state.productsSelected);
           for (var item in cancelProductCheckouts) {
-            var check = productCheckout.firstWhereOrNull((e) => e.id == item.id);
+            var check =
+                productCheckout.firstWhereOrNull((e) => e.id == item.id);
             int remain = 0;
             if (check != null) {
-              var quantity = check.quantity;
-              remain = max(0, quantity + item.quantityCancel);
+              remain = max(0, check.quantity + item.quantityCancel);
               var index = productCheckout.indexOf(check);
               if (index != -1) {
                 if (remain > 0) {
-                  productCheckout[index] = check.copyWith(quantityCancel: 0, quantity: remain);
+                  productCheckout[index] =
+                      check.copyWith(quantityCancel: 0, quantity: remain);
                 } else {
                   productCheckout.removeAt(index);
                 }
               }
 
-              var pCheck = productsSelected.firstWhereOrNull((e) => e.id == item.id);
+              var pCheck =
+                  productsSelected.firstWhereOrNull((e) => e.id == item.id);
               if (pCheck != null) {
                 var ind = productsSelected.indexOf(pCheck);
                 if (ind != -1) {
                   if (remain > 0) {
-                    productsSelected[ind] = pCheck.copyWith(numberSelecting: remain);
+                    productsSelected[ind] =
+                        pCheck.copyWith(numberSelecting: remain);
                   } else {
                     productsSelected.removeAt(ind);
                   }
@@ -1254,38 +1032,34 @@ class HomeNotifier extends StateNotifier<HomeState> {
             productCheckout: productCheckout,
             productsSelected: productsSelected,
           );
-          getOrderProductCheckout(
-            changeSelecting: false,
-            applyPolicy: true,
-            loadingProductCheckout: false,
-          );
+          getOrderProductCheckout(applyPolicy: true);
 
-          updateEvent(HomeEvent.normal);
+          updateEvent(null);
           return (
             error: null,
             printers: printers,
+            errorGetPrinter: false,
           );
         } catch (ex) {
+          showLogs(ex, flags: 'ex');
           retry++;
           if (retry >= 3) {
-            updateEvent(HomeEvent.normal);
-            return (
-              error: ex.toString(),
-              printers: <IpOrderModel>[],
-            );
+            rethrow;
           }
         }
       }
-      updateEvent(HomeEvent.normal);
+      updateEvent(null);
       return (
         error: null,
         printers: <IpOrderModel>[],
+        errorGetPrinter: false,
       );
     } catch (ex) {
-      updateEvent(HomeEvent.normal);
+      updateEvent(null);
       return (
         error: ex.toString(),
         printers: <IpOrderModel>[],
+        errorGetPrinter: false,
       );
     }
   }
@@ -1327,10 +1101,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }) async {
     try {
       if (state.orderSelect == null) return S.current.noOrderSelect;
-      state = state.copyWith(event: HomeEvent.removeCoupon);
-      final result =
-          await _couponRepository.deleteCoupon(idCode: coupon.id, order: state.orderSelect!);
-      state = state.copyWith(event: HomeEvent.normal);
+      updateEvent(HomeEvent.removeCoupon);
+      final result = await _couponRepository.deleteCoupon(
+          idCode: coupon.id, order: state.orderSelect!);
+      updateEvent(null);
       showLogs(result, flags: 'kq xóa mã giảm giá');
       if (result) {
         var coupons = List<CustomerPolicyModel>.from(state.coupons);
@@ -1350,7 +1124,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
         var needApplyAgainOnlyCoupons =
             List<CustomerPolicyModel>.from(state.needApplyAgainOnlyCoupons);
         needApplyAgainOnlyCoupons.removeWhere((e) => e.id == coupon.id);
-        state = state.copyWith(needApplyAgainOnlyCoupons: needApplyAgainOnlyCoupons);
+        state = state.copyWith(
+            needApplyAgainOnlyCoupons: needApplyAgainOnlyCoupons);
 
         try {
           await LocalStorage.saveApplyAgainOnlyCoupon(
@@ -1359,7 +1134,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
           //
         }
 
-        /// check here
         if (applyPolicy) {
           try {
             await applyCustomerPolicy(loadingHome: loadingApplyPolicy);
@@ -1372,37 +1146,33 @@ class HomeNotifier extends StateNotifier<HomeState> {
       return S.current.discount_code_cannot_be_deleted;
     } catch (ex) {
       _lockOrder(ex);
-      state = state.copyWith(event: HomeEvent.normal);
+      updateEvent(null);
       return ex.toString();
     }
   }
 
   Future<void> getProducts() async {
     try {
-      state = state.copyWith(productsState: const PageState(status: PageCommonState.loading));
+      state = state.copyWith(
+          productsState: const PageState(status: PageCommonState.loading));
       final categoriesRepo = await _categoryRepository.getCategory();
       List<CategoryModel> categories = categoriesRepo.data.data;
       List<TagProductModel> tags = categoriesRepo.data.tags ?? [];
 
       final productsRepo = await _productRepository.getProduct(null);
+      await LocalStorage.setLastReloadMenu();
       List<ProductModel> products = List.from(productsRepo.data.data ?? []);
 
       if (categories.isNotEmpty) {
         var categorySelect = state.categorySelect;
 
-        var checkCategorySelect = categories.firstWhereOrNull((e) => e.id == categorySelect?.id);
+        var checkCategorySelect =
+            categories.firstWhereOrNull((e) => e.id == categorySelect?.id);
         if (categorySelect == null || checkCategorySelect == null) {
-          ref.read(homeProvider.notifier).changeCategorySelect(categories.first);
+          changeCategorySelect(categories.first);
           checkCategorySelect = categories.first;
-        } else if (categorySelect != checkCategorySelect) {
-          ref.read(homeProvider.notifier).changeCategorySelect(checkCategorySelect);
-        }
-
-        if (!(checkCategorySelect.children ?? []).contains(state.subCategorySelect)) {
-          ref.read(homeProvider.notifier).changeSubCategorySelect(
-              (checkCategorySelect.children ?? []).isEmpty
-                  ? null
-                  : (checkCategorySelect.children ?? []).first);
+        } else {
+          changeCategorySelect(checkCategorySelect);
         }
       } else {
         state = state.copyWith(
@@ -1413,7 +1183,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
       // cập nhật ngôn ngữ local khi load menu
       kAppLanguageLocal = LocalStorage.getLanguageLocal();
-      await LocalStorage.setLastReloadMenu();
       for (var element in categories) {
         categoryKeys[element] = categoryKeys[element] ?? GlobalKey();
         for (var sub in (element.children ?? [])) {
@@ -1429,7 +1198,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
         tagSelect: tags.firstWhereOrNull((e) => e == state.tagSelect),
       );
       syncInfoForCustomer();
-      // có cần kiểm tra các món đã gọi còn hay k?
     } catch (ex) {
       if (mounted) {
         state = state.copyWith(
@@ -1454,7 +1222,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }
 
   void changeTagSelect(TagProductModel? tag) {
-    if (tag == state.tagSelect) return;
     state = state.copyWith(tagSelect: tag);
   }
 
@@ -1464,10 +1231,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   bool getCheckReloadWhenHiddenApp() => state.checkReloadWhenHiddenApp;
 
-  Future<(MInvoiceInfo? mInvoiceInfo, String? error)> searchTaxCodeInfo(String taxCode) async {
+  Future<(MInvoiceInfo? mInvoiceInfo, String? error)> searchTaxCodeInfo(
+      String taxCode) async {
     try {
       updateEvent(HomeEvent.findingTaxCode);
-      final minvoiceInfo = await _restaurantRepository.getMInvoiceTaxInfo(taxCode);
+      final minvoiceInfo = await _invoiceRepository.getMInvoiceTaxInfo(taxCode);
       updateEvent(HomeEvent.normal);
       return (minvoiceInfo, null);
     } catch (ex) {
@@ -1507,8 +1275,16 @@ class HomeNotifier extends StateNotifier<HomeState> {
       state = state.copyWith(
         orderInvoiceState: const PageState(status: PageCommonState.loading),
       );
-      await _checkOrderSelect();
-      final orderInvoice = await _invoiceRepository.getOrderInvoice(state.orderSelect!.id);
+      var orderSelect = state.orderSelect;
+      if (orderSelect == null) {
+        state = state.copyWith(
+          orderInvoiceState: const PageState(status: PageCommonState.success),
+          invoice: null,
+        );
+        return;
+      }
+      final orderInvoice =
+          await _invoiceRepository.getOrderInvoice(orderSelect.id);
       state = state.copyWith(
         orderInvoiceState: const PageState(status: PageCommonState.success),
         invoice: orderInvoice.isEmpty() ? null : orderInvoice,
@@ -1543,6 +1319,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       while (retry < 3) {
         try {
           if (state.orderSelect == null) {
+            state = state.copyWith(lockedOrder: false);
             break;
           }
           await _orderRepository.lockOrder(
@@ -1604,14 +1381,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
       return (coupons: [], error: null);
     } catch (ex) {
       updateEvent(HomeEvent.normal);
-      return (coupons: [], error: "${S.current.can_not_check_payment_method}\n${ex.toString()}");
+      return (
+        coupons: [],
+        error: "${S.current.can_not_check_payment_method}\n${ex.toString()}"
+      );
     }
   }
 
   void changeBankSelect(UserBankModel? bank) {
-    state = state.copyWith(
-      bankSelect: state.bankSelect == bank ? null : bank,
-    );
+    state = state.copyWith(bankSelect: bank);
     syncInfoForCustomer();
   }
 
@@ -1623,14 +1401,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
         bankSelect: null,
       );
       await _checkOrderSelect();
-      final apiBankParam = ApiBankParam(state.dataBill.order, getFinalPaymentPrice.totalPriceFinal);
+      final apiBankParam = ApiBankParam(
+          state.dataBill.order, getFinalPaymentPrice.totalPriceFinal);
       final paymentMethodSelect = state.paymentMethodSelected;
       final banks = await _restaurantRepository.getBanks(apiBankParam);
 
       var bankView = List<UserBankModel>.from(banks);
       // Loại bỏ những bank không hỗ trợ PTTT
-      bankView.removeWhere(
-          (element) => element.listPaymentId.contains(paymentMethodSelect?.key) == false);
+      bankView.removeWhere((element) =>
+          element.listPaymentId.contains(paymentMethodSelect?.key) == false);
 
       if (bankView.length == 1) {
         state = state.copyWith(bankSelect: bankView.first);
@@ -1717,8 +1496,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   //   );
   //   syncInfoForCustomer();
   // }
-
-  void onChangeCustomerPortraitSelect(CustomerPortrait customerPortrait) {
+  void onChangeCustomerPortraitSelect(CustomerPortrait? customerPortrait) {
     state = state.copyWith(customerPortraitSelect: customerPortrait);
   }
 
@@ -1736,44 +1514,39 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  /// uncheck
   /// áp dụng ưu đãi
-  ///
-  /// [hotReload] Tự động load lại danh sách món đã gọi (được sử dụng trong xác nhận tạo phiếu thanh toán)
   ///
   /// [loadingHome] = true - show loading giữa trang
   Future<String?> applyCustomerPolicy({
-    bool hotReload = false,
     bool retry = true,
     bool loadingHome = true,
   }) async {
     try {
       if (state.coupons.isEmpty &&
-          state.dataBill.price.totalPriceVoucher == 0 &&
+          getFinalPaymentPrice.totalPriceVoucher == 0 &&
           state.dataBillState.status == PageCommonState.success) {
+        showLogs(null, flags: 'k có mã giảm nào');
+        if (loadingHome) updateEvent(null);
         getDataBill();
-        showLogs(null, flags: 'bỏ qua áp dụng lại mã giảm giá nếu trống');
         return null;
       }
+      showLogs(null, flags: 'apply lại mã có mã giảm nào');
       state = state.copyWith(
-        applyPolicyState: const PageState(status: PageCommonState.loading, messageError: ''),
+        applyPolicyState:
+            const PageState(status: PageCommonState.loading, messageError: ''),
       );
       if (loadingHome) state = state.copyWith(event: HomeEvent.applyPolicy);
       if (state.lockedOrder) throw S.current.msg_locked_order;
       int retryTimes = 0;
       while (retryTimes < (retry ? 3 : 1)) {
         try {
-          List<CustomerPolicyModel> couponsApply = List<CustomerPolicyModel>.from(state.coupons);
+          List<CustomerPolicyModel> couponsApply =
+              List<CustomerPolicyModel>.from(state.coupons);
 
-          var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
-          // productCheckout = productCheckout
-          //     .map((e) => e.copyWith(quantityPromotion: 0))
-          //     .toList();
-          var totalOrder = 0.0;
-          // for (var product in productCheckout) {
-          //   totalOrder += product.totalOrdered;
-          // }
-          totalOrder = getFinalPaymentPrice.totalPrice * 1.0;
+          var productCheckout =
+              List<ProductCheckoutModel>.from(state.productCheckout);
+
+          var totalOrder = getFinalPaymentPrice.totalPrice * 1.0;
 
           for (final c in couponsApply) {
             // chỉ áp dụng cho Tặng món 0 đ (is_type == 5)
@@ -1783,21 +1556,23 @@ class HomeNotifier extends StateNotifier<HomeState> {
               for (var dc in c.discount) {
                 if (dc.numberSelect > 0) {
                   discount.add(dc);
-                  var p =
-                      productCheckout.firstWhereOrNull((e) => e.id == int.tryParse(dc.id ?? '0'));
+                  var p = productCheckout.firstWhereOrNull(
+                      (e) => e.id == int.tryParse(dc.id ?? '0'));
                   if (p != null) {
                     var index = productCheckout.indexOf(p);
 
                     if (index != -1) {
                       productCheckout[index] = p.copyWith(
-                        quantityPromotion: p.quantityPromotion + dc.numberSelect,
+                        quantityPromotion:
+                            p.quantityPromotion + dc.numberSelect,
                       );
                     }
                   }
                 }
               }
 
-              couponsApply[couponsApply.indexOf(c)] = c.copyWith(discount: discount);
+              couponsApply[couponsApply.indexOf(c)] =
+                  c.copyWith(discount: discount);
             }
           }
 
@@ -1827,26 +1602,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
             createVouchers: result.data.dataCreateVouchers,
             productCheckout: productCheckout,
           );
-          List<ProductModel> currentOrderItems = List.from(state.currentOrderItems);
 
-          for (var pc in productCheckout) {
-            var p = currentOrderItems.firstWhereOrNull((e) => e.id == pc.id);
-            if (p != null) {
-              var index = currentOrderItems.indexOf(p);
-              if (index != -1) {
-                currentOrderItems[index] = p.copyWith(quantityPromotion: pc.quantityPromotion);
-              }
-            }
-          }
+          requireApplyPolicy = false;
 
-          state = state.copyWith(currentOrderItems: currentOrderItems);
-
-          if (loadingHome) state = state.copyWith(event: HomeEvent.normal);
-          await getDataBill(loadingHome: loadingHome);
-          syncInfoForCustomer();
           state = state.copyWith(
-            applyPolicyState: const PageState(status: PageCommonState.success, messageError: ''),
+            applyPolicyState: const PageState(
+                status: PageCommonState.success, messageError: ''),
           );
+          if (loadingHome) updateEvent(null);
+          await getDataBill(loadingHome: loadingHome);
           return null;
         } catch (ex) {
           if (ex is AppException && ex.errorCode == 423) {
@@ -1861,27 +1625,31 @@ class HomeNotifier extends StateNotifier<HomeState> {
         }
       }
       state = state.copyWith(
-        applyPolicyState: const PageState(status: PageCommonState.success, messageError: ''),
+        applyPolicyState:
+            const PageState(status: PageCommonState.success, messageError: ''),
       );
       return null;
     } catch (ex) {
+      requireApplyPolicy = true;
       showLogs(ex.toString(), flags: 'áp lại mã giảm giá lỗi');
       _lockOrder(ex);
-      if (loadingHome) state = state.copyWith(event: HomeEvent.normal);
+      if (loadingHome) updateEvent(null);
       state = state.copyWith(
         applyPolicyState: PageState(
             status: PageCommonState.error,
-            messageError: ex.toString().replaceAll(kIgnoreRetryApplyPolicy, "")),
+            messageError:
+                ex.toString().replaceAll(kIgnoreRetryApplyPolicy, "")),
       );
       await getDataBill(loadingHome: loadingHome);
       return ex.toString().replaceAll(kIgnoreRetryApplyPolicy, "");
     }
   }
 
-  /// thanh toán k dùng payoo ??
-  Future<({HomePaymentError? errorType, String msg})> onPayment(BuildContext context) async {
+  /// tạm tính
+  Future<({HomePaymentError? errorType, String msg})> onPayment(
+      BuildContext context) async {
     try {
-      state = state.copyWith(event: HomeEvent.paymentProcess);
+      updateEvent(HomeEvent.paymentProcess);
       syncInfoForCustomer(
         method: WindowsMethod.payment,
         arguments: {
@@ -1898,9 +1666,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
       while (retryTempPayment < timesTempPayment) {
         try {
           if (state.orderSelect == null) {
-            return (errorType: HomePaymentError.temp, msg: S.current.noOrderSelect);
+            updateEvent(null);
+            return (
+              errorType: HomePaymentError.temp,
+              msg: S.current.noOrderSelect
+            );
           }
-          final resultPrinter = await _orderRepository.getIpPrinterOrder(state.orderSelect!, [1]);
+          final resultPrinter =
+              await _orderRepository.getIpPrinterOrder(state.orderSelect!, [1]);
           if (resultPrinter.error != null) {
             throw resultPrinter.error.toString();
           }
@@ -1912,7 +1685,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
           }
           // Kiểm tra tình trạng máy in
           for (var ipPrinter in resultPrinter.printers) {
-            var checkPrinterAvailable = await AppPrinterCommon.checkPrinter(ipPrinter);
+            var checkPrinterAvailable =
+                await AppPrinterCommon.checkPrinter(ipPrinter);
             if (checkPrinterAvailable != null) {
               throw checkPrinterAvailable;
             }
@@ -1920,152 +1694,33 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
           var price = getFinalPaymentPrice;
           if (state.orderSelect == null) {
-            return (errorType: HomePaymentError.temp, msg: S.current.noOrderSelect);
+            return (
+              errorType: HomePaymentError.temp,
+              msg: S.current.noOrderSelect
+            );
           }
 
-          var productPrint = state.productCheckout.map((e) {
-            if (requireUpdateTax) {
-              var item = state.productCheckoutUpdateTax
-                  .firstWhereOrNull((element) => element.menuItemId == e.id);
-              if (item == null) return e;
-              return e.copyWith(
-                unitPrice: item.priceNew.toString(),
-                totalOrdered: item.total,
-                tax: item.tax / 100,
-              );
-            }
-            return e;
-          }).toList();
           await _orderRepository.payment(
             order: state.orderSelect!,
             infoPrint: resultPrinter.printers,
-            products: productPrint,
+            products: state.productCheckout,
             vouchers: state.vouchers,
             createVouchers: state.createVouchers,
             comment: null,
             numberOfAdults: state.numberOfAdults,
             numberOfChildren: state.numberOfChildren,
             note: state.completeNote,
-            // check here
-            flagInvoice: state.invoice != null,
+            flagInvoice: !(state.invoice?.isEmpty() ?? true),
             customerRatings: [],
             imageBills: state.imageBills,
             paymentMethod: state.paymentMethodSelected?.key,
             customerPortrait: state.customerPortraitSelect,
             statusPaymentCompleted: state.statusPaymentGateway,
-            // check here
-            totalPaymentCompleted:
-                state.statusPaymentGateway ? state.totalPaymentGateway : price.totalPriceFinal,
+            totalPaymentCompleted: state.statusPaymentGateway
+                ? state.totalPaymentGateway
+                : price.totalPriceFinal,
           );
-
-          if (AppConfig.useFranchise) {
-            try {
-              String? errorPrint;
-              var orderLineItems = productPrint
-                  .map((e) => LineItemDataBill(
-                        id: e.id,
-                        codeProduct: e.codeProduct,
-                        count: e.quantity,
-                        name: e.name,
-                        tax: e.tax,
-                        nameEn: e.nameEn,
-                        unit: e.unit,
-                        price: e.unitPrice,
-                      ))
-                  .toList();
-              paymentPrinter = List<IpOrderModel>.from(resultPrinter.printers);
-              // paymentPrinter = [
-              //   IpOrderModel(ip: '192.168.10.89', port: 9100, type: 1),
-              // ];
-              itemPrint = List<LineItemDataBill>.from(state.dataBill.print?.orderLineItems ?? []);
-              // check here: voucher
-              voucherPrint =
-                  List<HistoryPolicyResultModel>.from(state.dataBill.print?.vouchers ?? []);
-              // for (var printer in resultPrinter.printers) {
-              //   if (printer.type != 1) continue;
-
-              //   try {
-              //     // var check = await AppPrinterCommon.checkPrinter(printer);
-              //     // if (check != null) {
-              //     //   throw check;
-              //     // }
-
-              //     // TaskQueue.instance.add(() async {
-              //     //   String? resPrint;
-              //     //   try {
-              //     //     resPrint =
-              //     //         await AppPrinterHtmlUtils.instance.printReceipt(
-              //     //       order: state.orderSelect!,
-              //     //       price: price,
-              //     //       printers: [
-              //     //         IpOrderModel(
-              //     //             ip: printer.ip, port: printer.port, type: 1),
-              //     //       ],
-              //     //       receiptType: ReceiptTypeEnum.temporaryReceipt,
-              //     //       paymentMethod: state.paymentMethodSelected,
-              //     //       paymentAmount: state.statusPaymentGateway
-              //     //           ? state.totalPaymentGateway
-              //     //           : price.totalPriceFinal * 1.0,
-              //     //       numberPrintCompleted: 0,
-              //     //       numberPrintTemporary: 1,
-              //     //       orderLineItems: orderLineItems,
-              //     //       vouchers: voucherPrint,
-              //     //       note: state.completeNote,
-              //     //       printNumberOfPeople: false,
-              //     //       customerPhone: state.customer?.phoneNumber ?? '',
-              //     //       numberOfPeople: state.numberOfAdults,
-              //     //       cashierCompleted: '',
-              //     //       cashierPrint: '',
-              //     //       timeCompleted: null,
-              //     //       timeCreatedAt: null,
-              //     //     );
-              //     //   } catch (ex) {
-              //     //     resPrint = ex.toString();
-              //     //   }
-              //     //   showLogs(resPrint, flags: 'KQ in bill tạm tính');
-              //     // });
-              //     // bỏ qua in tạm tính (bao giờ cần in bill tạm tính)
-              //     // await Future.delayed(const Duration(seconds: 2));
-              //     // var resPrint = await AppPrinterHtmlUtils.instance.printReceipt(
-              //     //   order: state.orderSelect!,
-              //     //   price: price,
-              //     //   printers: [
-              //     //     IpOrderModel(ip: printer.ip, port: printer.port, type: 1),
-              //     //   ],
-              //     //   receiptType: ReceiptTypeEnum.temporaryReceipt,
-              //     //   paymentMethod: state.paymentMethodSelected,
-              //     //   paymentAmount: state.statusPaymentGateway
-              //     //       ? state.totalPaymentGateway
-              //     //       : price.totalPriceFinal * 1.0,
-              //     //   numberPrintCompleted: 0,
-              //     //   numberPrintTemporary: 1,
-              //     //   orderLineItems: orderLineItems,
-              //     //   vouchers: voucherPrint,
-              //     //   note: state.completeNote,
-              //     //   printNumberOfPeople: false,
-              //     //   customerPhone: state.customer?.phoneNumber ?? '',
-              //     //   numberOfPeople: state.numberOfAdults,
-              //     //   cashierCompleted: '',
-              //     //   cashierPrint: '',
-              //     //   timeCompleted: null,
-              //     //   timeCreatedAt: null,
-              //     //   timeoutSecond: 7,
-              //     // );
-
-              //     // showLogs(resPrint, flags: 'in tạm tính');
-              //     // if (resPrint != null) {
-              //     //   throw resPrint;
-              //     // }
-              //   } catch (ex) {
-              //     showLogs(ex.toString(), flags: 'in tạm tính lỗi');
-              //     await showMessageDialog(context,
-              //         message: 'Không thể in phiếu tạm tính\n${ex.toString()}');
-              //   }
-              // }
-            } catch (ex) {
-              showLogs(ex.toString(), flags: 'in tạm tính');
-            }
-          }
+          paymentPrinter = List<IpOrderModel>.from(resultPrinter.printers);
 
           try {
             if (state.orderSelect != null) {
@@ -2112,15 +1767,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
       );
 
       if (completeStatus != null) {
-        state = state.copyWith(event: HomeEvent.normal);
+        updateEvent(null);
         return (errorType: HomePaymentError.complete, msg: completeStatus);
       }
       clearImageBill();
 
-      state = state.copyWith(event: HomeEvent.normal);
+      updateEvent(null);
       return (errorType: null, msg: '');
     } catch (ex) {
-      state = state.copyWith(event: HomeEvent.normal);
+      updateEvent(null);
       return (errorType: HomePaymentError.temp, msg: ex.toString());
     }
   }
@@ -2154,26 +1809,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }) async {
     if (!Platform.isWindows) return;
     if (state.pinnedOrder) return;
-    List<ProductCheckoutModel> sortProductCheckout = [];
-    state.currentOrderItems.forEach((element) {
-      var p = state.productCheckout.firstWhereOrNull((e) => e.id == element.id);
-      if (p != null) {
-        var exist = sortProductCheckout.firstWhereOrNull((e) => e.id == element.id);
-        if (exist == null) {
-          sortProductCheckout.add(p.copyWith(quantityPromotion: element.quantityPromotion));
-        }
-      }
-    });
 
     var args = arguments ??
         {
           'all_products': state.products,
           'order': state.orderSelect,
-          'products': sortProductCheckout,
+          'products': state.productCheckout,
           'customer': state.customer,
           'data_bill': getFinalPaymentPrice.copyWith(
-              receivedAmount:
-                  (state.paymentMethodSelected?.isCash ?? false) ? state.cashReceivedAmount : 0),
+              receivedAmount: (state.paymentMethodSelected?.isCash ?? false)
+                  ? state.cashReceivedAmount
+                  : 0),
           'note': state.kitchenNote,
           'payment_method': state.paymentMethodSelected,
           'detail_payment': {
@@ -2188,86 +1834,91 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<String?> printBillWithoutKDS(BuildContext context, {bool loadingHome = true}) async {
-    try {
-      if (loadingHome) state = state.copyWith(event: HomeEvent.printProduct);
-      var order = state.orderSelect;
-      if (order == null) {
-        throw S.current.noOrderSelect;
-      }
-      // lấy danh sách máy in cần ping
-      List<int> printerCheck = [];
-      for (var p in state.productsSelected) {
-        if (printerCheck.contains(p.printerType) == false) {
-          printerCheck.add(p.printerType ?? 0);
-        }
-      }
-      var resultCheckPrinter = await _orderRepository.getPrinterBill(order, printerCheck);
-      if (resultCheckPrinter.error != null) {
-        if (loadingHome) updateEvent(HomeEvent.normal);
-        return resultCheckPrinter.error.toString();
-      }
-      List<IpOrderModel> ipResult = resultCheckPrinter.printers;
-      var printBillResult = false;
-      int retryInBill = 1;
+//   Future<String?> printBillWithoutKDS(BuildContext context,
+//       {bool loadingHome = true}) async {
+//     try {
+//       if (loadingHome) state = state.copyWith(event: HomeEvent.printProduct);
+//       var order = state.orderSelect;
+//       if (order == null) {
+//         throw S.current.noOrderSelect;
+//       }
+//       // lấy danh sách máy in cần ping
+//       List<int> printerCheck = [];
+//       for (var p in state.productsSelected) {
+//         if (printerCheck.contains(p.printerType) == false) {
+//           printerCheck.add(p.printerType ?? 0);
+//         }
+//       }
+//       var resultCheckPrinter =
+//           await _orderRepository.getPrinterBill(order, printerCheck);
+//       if (resultCheckPrinter.error != null) {
+//         if (loadingHome) updateEvent(HomeEvent.normal);
+//         return resultCheckPrinter.error.toString();
+//       }
+//       List<IpOrderModel> ipResult = resultCheckPrinter.printers;
+//       var printBillResult = false;
+//       int retryInBill = 1;
 
-      var i = LocalStorage.getNotePerOrderItem(order: order);
-      // check here: bill bếp có giá hay k?
-      List<ProductModel> productPrint = (state.productsSelected).map((e) {
-        return e.copyWith(noteForProcessOrder: i?[e.id.toString()] ?? '');
-      }).toList();
+//       var i = LocalStorage.getNotePerOrderItem(order: order);
+//       // check here: bill bếp có giá hay k?
+//       List<ProductModel> productPrint = (state.productsSelected).map((e) {
+//         return e.copyWith(noteForProcessOrder: i?[e.id.toString()] ?? '');
+//       }).toList();
 
-      while (printBillResult == false) {
-        var order = state.orderSelect;
-        if (order == null) {
-          throw S.current.noOrderSelect;
-        }
-        final resultBill = await _orderRepository.processOrderPrintBill(
-          order: order,
-          infoPrint: ipResult,
-          products: productPrint,
-          timesOrder: printKitchenBill + 1,
-          status: 2,
-          orderNote: state.kitchenNote,
-        );
-        printBillResult = resultBill.result;
-        String error = resultBill.error.toString();
-        if (printBillResult == false && retryInBill <= 3) {
-          // ignore: use_build_context_synchronously
-          // check here: bắt buộc in bill bếp 3 lần?
-          var resultRetry = await showConfirmAction(
-            context,
-            title: S.current.attention,
-            message: "${S.current.unable_send_bill_kitchen}\n"
-                "${S.current.ex_problem}: $error",
-            actionTitle: S.current.try_printing_again,
-            notCancel: true,
-          );
-          if (resultRetry == false) {
-            break;
-          } else {
-            showLog(retryInBill, flags: 'retryInBill att');
-            retryInBill++;
-          }
-        } else {
-          break;
-        }
-      }
+//       while (printBillResult == false) {
+//         var order = state.orderSelect;
+//         if (order == null) {
+//           throw S.current.noOrderSelect;
+//         }
+//         final resultBill = await _orderRepository.processOrderPrintBill(
+//           order: order,
+//           infoPrint: ipResult,
+//           products: productPrint,
+//           timesOrder: printKitchenBill + 1,
+//           status: 2,
+//           orderNote: state.kitchenNote,
+//         );
+//         printBillResult = resultBill.result;
+//         String error = resultBill.error.toString();
+//         if (printBillResult == false && retryInBill <= 3) {
+//           // ignore: use_build_context_synchronously
+//           // check here: bắt buộc in bill bếp 3 lần?
+//           var resultRetry = await showConfirmAction(
+//             context,
+//             title: S.current.attention,
+//             message: "${S.current.unable_send_bill_kitchen}\n"
+//                 "${S.current.ex_problem}: $error",
+//             actionTitle: S.current.try_printing_again,
+//             notCancel: true,
+//           );
+//           if (resultRetry == false) {
+//             break;
+//           } else {
+//             showLog(retryInBill, flags: 'retryInBill att');
+//             retryInBill++;
+//           }
+//         } else {
+//           break;
+//         }
+//       }
 
-      if (loadingHome) state = state.copyWith(event: HomeEvent.normal);
-      if (printBillResult == false) {
-        return S.current.unable_send_bill_kitchen;
-        return S.current.attention_processed_print;
-      }
-      printKitchenBill++;
-      return null;
-    } catch (ex) {
-      if (loadingHome) state = state.copyWith(event: HomeEvent.normal);
-      return ex.toString();
-    }
-  }
+//       if (loadingHome) state = state.copyWith(event: HomeEvent.normal);
+//       if (printBillResult == false) {
+//         return S.current.unable_send_bill_kitchen;
+//         return S.current.attention_processed_print;
+//       }
+//       printKitchenBill++;
+//       return null;
+//     } catch (ex) {
+//       if (loadingHome) state = state.copyWith(event: HomeEvent.normal);
+//       return ex.toString();
+//     }
+//   }
 
-  Future<String?> completeBill({bool loadingHome = true, required BuildContext context}) async {
+  Future<String?> completeBill({
+    bool loadingHome = true,
+    required BuildContext context,
+  }) async {
     try {
       if (loadingHome) updateEvent(HomeEvent.completeBillAgain);
 
@@ -2276,7 +1927,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
         try {
           PriceDataBill price = getFinalPaymentPrice;
           if (state.orderSelect == null) {
+            if (loadingHome) updateEvent(null);
             return S.current.noOrderSelect;
+          }
+          var paymentMethodSelected = state.paymentMethodSelected;
+          if (paymentMethodSelected == null) {
+            throw 'Chưa chọn phương thức thanh toán';
           }
           await _orderRepository.completeBill(
             order: state.orderSelect!,
@@ -2284,7 +1940,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
             amountAdult: state.numberOfAdults,
             amountChildren: state.numberOfChildren,
             description: state.completeNote,
-            arrMethod: ['${state.paymentMethodSelected?.key}--${price.totalPriceFinal}'],
+            // confirm về tiền nhận gửi lên ở đây
+            arrMethod: [
+              '${paymentMethodSelected.key}--${price.totalPriceFinal}'
+            ],
             totalPrice: price.totalPrice,
             totalPriceFinal: price.totalPriceFinal,
             totalPriceTax: price.totalPriceTax,
@@ -2293,15 +1952,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
             eSaleName: state.employeeSaleSelect?.fullName ?? '',
             isPrintPeople: state.printNumberOfPeople ? 1 : 0,
           );
+
+          // state.statusPaymentGateway
+          //       ? state.totalPaymentGateway
+          //       : price.totalPriceFinal
           try {
             LocalStorage.deleteEmployeeSaleForOrder(order: state.orderSelect!);
           } catch (ex) {
             //
           }
-
           if (AppConfig.useFranchise) {
             for (var printer in paymentPrinter) {
-              if (printer.type != 1) continue;
               try {
                 var check = await AppPrinterCommon.checkPrinter(
                     IpOrderModel(ip: printer.ip, port: printer.port, type: 1));
@@ -2310,7 +1971,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                 }
 
                 List<LineItemDataBill> _productPrint = [];
-                for (var e in (ref.read(homeProvider).dataBill.print?.orderLineItems ??
+                for (var e in (state.dataBill.print?.orderLineItems ??
                     <LineItemDataBill>[])) {
                   _productPrint.add(LineItemDataBill(
                     name: e.name,
@@ -2331,16 +1992,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
                     }
                   }
                 }
-
                 PrinterTaskQueue.instance.addTask(
                   ip: printer.ip,
                   port: printer.port,
                   buildReceipt: (generator) async {
-                    var bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(
+                    var bytes =
+                        await AppPrinterHtmlUtils.instance.getReceptBillContent(
                       order: state.orderSelect!,
                       price: price,
                       printers: [
-                        IpOrderModel(ip: printer.ip, port: printer.port, type: 1),
+                        IpOrderModel(
+                            ip: printer.ip, port: printer.port, type: 1),
                       ],
                       receiptType: ReceiptTypeEnum.paymentReceipt,
                       paymentMethod: state.paymentMethodSelected,
@@ -2350,7 +2012,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                       numberPrintCompleted: 1,
                       numberPrintTemporary: 0,
                       orderLineItems: _productPrint,
-                      vouchers: voucherPrint,
+                      vouchers: state.dataBill.print?.vouchers ?? [],
                       note: state.completeNote,
                       printNumberOfPeople: state.printNumberOfPeople,
                       customerPhone: state.customer?.phoneNumber ?? '',
@@ -2367,15 +2029,24 @@ class HomeNotifier extends StateNotifier<HomeState> {
                       showLogs('in thành công', flags: 'BILL THANH TOÁN');
                     } else {
                       showLogs('in thất bại $error', flags: 'BILL THANH TOÁN');
-                      if (error != null) {
-                        showMessageDialog(context,
-                            message: 'Không thể in phiếu thanh toán\nSự cố: $error');
+                      var homeState = homeKey.currentState;
+                      var homeContext = homeKey.currentContext;
+
+                      if (error != null &&
+                          homeContext != null &&
+                          homeState != null &&
+                          homeState.mounted) {
+                        showMessageDialog(
+                          homeContext,
+                          message:
+                              'Không thể in phiếu thanh toán\nSự cố: $error',
+                        );
                       }
                     }
                   },
                 );
               } catch (ex) {
-                if (loadingHome) updateEvent(HomeEvent.normal);
+                if (loadingHome) updateEvent(null);
                 //
                 await showMessageDialog(context,
                     message: 'Không thể in phiếu thanh toán\n${ex.toString()}');
@@ -2386,10 +2057,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
           break;
         } catch (ex) {
           if (state.employeeSaleSelect != null) {
-            await LocalStorage.saveEmployeeSaleForOrder(
-              order: state.orderSelect!,
-              sale: state.employeeSaleSelect!,
-            );
+            try {
+              await LocalStorage.saveEmployeeSaleForOrder(
+                order: state.orderSelect!,
+                sale: state.employeeSaleSelect!,
+              );
+            } catch (ex) {
+              //
+            }
           }
           retry++;
           if (retry >= 3) {
@@ -2397,10 +2072,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
           }
         }
       }
-      if (loadingHome) updateEvent(HomeEvent.normal);
+      if (loadingHome) updateEvent(null);
       return null;
     } catch (ex) {
-      if (loadingHome) updateEvent(HomeEvent.normal);
+      if (loadingHome) updateEvent(null);
       return ex.toString();
     }
   }
@@ -2413,14 +2088,21 @@ class HomeNotifier extends StateNotifier<HomeState> {
     return 'Chưa triển khai';
   }
 
-  Future<({String? url, String? qr, int? expiryMin, String? error, int? statusCode})>
-      getPaymentGateway() async {
+  Future<
+      ({
+        String? url,
+        String? qr,
+        int? expiryMin,
+        String? error,
+        int? statusCode
+      })> getPaymentGateway() async {
     String? url, qr, error;
     int? statusCode;
     int? expiryMin;
     try {
       updateEvent(HomeEvent.getPaymentGateway);
-      final apiBankParam = ApiBankParam(state.dataBill.order, getFinalPaymentPrice.totalPriceFinal);
+      final apiBankParam = ApiBankParam(
+          state.dataBill.order, getFinalPaymentPrice.totalPriceFinal);
 
       final paymentMethodSelect = state.paymentMethodSelected;
       if (paymentMethodSelect == null) {
@@ -2465,7 +2147,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       );
     } catch (ex) {
       state = state.copyWith(
-        listAtmPosState: PageState(status: PageCommonState.error, messageError: ex.toString()),
+        listAtmPosState: PageState(
+            status: PageCommonState.error, messageError: ex.toString()),
       );
     }
   }
@@ -2485,10 +2168,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
         orderId: getFinalPaymentPrice.totalPriceFinal,
         urlPos: state.atmPosSelect!.url,
       );
-      updateEvent(HomeEvent.normal);
+      updateEvent(null);
       return null;
     } catch (ex) {
-      updateEvent(HomeEvent.normal);
+      updateEvent(null);
       return ex.toString();
     }
   }
@@ -2498,7 +2181,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     syncInfoForCustomer();
   }
 
-  Future<String?> closingShift() async {
+  Future<String?> closeShift() async {
     try {
       updateEvent(HomeEvent.closingShift);
       await _userRepository.closeShift();
@@ -2532,59 +2215,71 @@ class HomeNotifier extends StateNotifier<HomeState> {
     );
   }
 
-  Future<String?> onUpdateTax(List<ProductCheckoutModel> pc, {PaymentMethod? paymentMethod}) async {
+  Future<String?> onUpdateTax(
+    List<ProductCheckoutModel> pc, {
+    PaymentMethod? paymentMethod,
+    bool loadingHome = true,
+  }) async {
     try {
       var pm = paymentMethod ?? state.paymentMethodSelected;
 
-      showLogs('paymentMethod: $paymentMethod', flags: 'onUpdateTax');
       if (pm == null) return null;
-      updateEvent(HomeEvent.updateTax);
+      if (loadingHome) updateEvent(HomeEvent.updateTax);
       await _checkOrderSelect();
       if (pm.requireEditTax && pc.any((e) => e.tax == 0)) {
         throw S.current.error_edit_tax;
       }
-      var result = await _orderRepository.updateTax(
+      await _orderRepository.updateTax(
         order: state.orderSelect!,
         pc: pc,
         paymentMethod: pm,
       );
-      // check here
-      state = state.copyWith(productCheckoutUpdateTax: result);
-      requireUpdateDefaultTax = pm.requireEditTax;
-      updateEvent(HomeEvent.normal);
+      requireGetDataBill = true;
+      requireApplyPolicy = true;
+      requireUpdateDefaultTax =
+          kTypeOrder == AppConfig.orderOnlineValue && pm.requireEditTax;
+      if (loadingHome) updateEvent(null);
+      applyCustomerPolicy(loadingHome: true);
+      // getDataBill(loadingHome: true);
       return null;
     } catch (ex) {
-      updateEvent(HomeEvent.normal);
+      if (loadingHome) updateEvent(null);
       return ex.toString();
     }
   }
 
   Future<String?> getDataBill({bool loadingHome = false}) async {
     try {
-      if (loadingHome) state = state.copyWith(event: HomeEvent.getDataBill);
-      state = state.copyWith(dataBillState: const PageState(status: PageCommonState.loading));
+      if (loadingHome) updateEvent(HomeEvent.getDataBill);
+      state = state.copyWith(
+          dataBillState: const PageState(status: PageCommonState.loading));
       await _checkOrderSelect();
-      final result =
-          await ref.read(orderRepositoryProvider).getDataBill(orderId: state.orderSelect!.id);
+      final result = await ref
+          .read(orderRepositoryProvider)
+          .getDataBill(orderId: state.orderSelect!.id);
 
       var orderLineItems = result.data.orderLineItems;
 
-      /// check here: xem giá trị thuế
-      /// state.productCheckout (thuế sau khi phân bổ - nếu có)
-      showLogs(null, flags: 'cần check thuế trước và sau phân bổ');
-
-      var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
+      var productCheckout =
+          List<ProductCheckoutModel>.from(state.productCheckout);
 
       var length = productCheckout.length;
-      // cập nhật giá trị thuế
       for (var i = 0; i < length; i++) {
-        var newTax = orderLineItems.firstWhereOrNull((e) => e.id == productCheckout[i].id);
-        if (newTax != null) {
+        var p = orderLineItems
+            .firstWhereOrNull((e) => e.id == productCheckout[i].id);
+        if (p != null) {
           productCheckout[i] = productCheckout[i].copyWith(
-            tax: double.tryParse(newTax.tax) ?? 0.0,
-            codeProduct: newTax.codeProduct,
+            tax: double.tryParse(p.tax) ?? 0.0,
+            codeProduct: p.codeProduct,
           );
         }
+      }
+
+      if (kDebugMode) {
+        productCheckout.forEach((e) {
+          showLog('id: ${e.id} - name: ${e.name} - tax: ${e.tax}',
+              flags: 'check thuế getDataBill');
+        });
       }
 
       state = state.copyWith(
@@ -2592,17 +2287,19 @@ class HomeNotifier extends StateNotifier<HomeState> {
         dataBillState: const PageState(status: PageCommonState.success),
         productCheckout: productCheckout,
       );
-      if (loadingHome) state = state.copyWith(event: HomeEvent.normal);
+      requireGetDataBill = false;
+      if (loadingHome) updateEvent(null);
       syncInfoForCustomer();
       return null;
     } catch (ex) {
+      requireGetDataBill = true;
       state = state.copyWith(
         dataBillState: PageState(
           status: PageCommonState.error,
           messageError: ex.toString(),
         ),
       );
-      if (loadingHome) state = state.copyWith(event: HomeEvent.normal);
+      if (loadingHome) updateEvent(null);
       return ex.toString();
     }
   }
@@ -2631,7 +2328,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(lockedOrder: false);
   }
 
-  /// uncheck
+  // uncheck
   // promotion
   void changeSelectDiscountPromotion(
     CustomerPolicyModel coupon,
@@ -2641,13 +2338,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
     DiscountPolicy discountUpdate = discount.copyWith(numberSelect: amount);
     CustomerPolicyModel couponUpdate = coupon.copyWith();
 
-    List<DiscountPolicy> listDiscountUpdate = List<DiscountPolicy>.from(couponUpdate.discount);
-    listDiscountUpdate[listDiscountUpdate
-        .indexWhere((element) => element.id == discountUpdate.id)] = discountUpdate;
+    List<DiscountPolicy> listDiscountUpdate =
+        List<DiscountPolicy>.from(couponUpdate.discount);
+    listDiscountUpdate[listDiscountUpdate.indexWhere(
+        (element) => element.id == discountUpdate.id)] = discountUpdate;
 
     couponUpdate = couponUpdate.copyWith(discount: listDiscountUpdate);
     List<CustomerPolicyModel> couponState = List.from(state.coupons);
-    couponState[couponState.indexWhere((element) => element.id == couponUpdate.id)] = couponUpdate;
+    couponState[couponState
+        .indexWhere((element) => element.id == couponUpdate.id)] = couponUpdate;
 
     state = state.copyWith(coupons: couponState);
     applyCustomerPolicy();
@@ -2664,25 +2363,26 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(employeeSaleSelect: value);
   }
 
-  void getEmployeeSales() async {
-    try {
-      state = state.copyWith(
-        employeeSaleState: const PageState(status: PageCommonState.loading),
-        employeeSaleSelect: null,
-      );
-      final result = await ref.read(restaurantRepositoryProvider).getEmployeeSales();
-      state = state.copyWith(
-        employeeSales: result,
-        employeeSaleState: const PageState(status: PageCommonState.success),
-      );
-    } catch (ex) {
-      state = state.copyWith(
-          employeeSaleState: PageState(
-        status: PageCommonState.error,
-        messageError: ex.toString(),
-      ));
-    }
-  }
+  // void getEmployeeSales() async {
+  //   try {
+  //     state = state.copyWith(
+  //       employeeSaleState: const PageState(status: PageCommonState.loading),
+  //       employeeSaleSelect: null,
+  //     );
+  //     final result =
+  //         await ref.read(restaurantRepositoryProvider).getEmployeeSales();
+  //     state = state.copyWith(
+  //       employeeSales: result,
+  //       employeeSaleState: const PageState(status: PageCommonState.success),
+  //     );
+  //   } catch (ex) {
+  //     state = state.copyWith(
+  //         employeeSaleState: PageState(
+  //       status: PageCommonState.error,
+  //       messageError: ex.toString(),
+  //     ));
+  //   }
+  // }
 
   Future<String?> checkPrinter(List<IpOrderModel> printers) async {
     try {
@@ -2695,11 +2395,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
           failed.add(ipPrinter);
         }
       }
-      updateEvent(HomeEvent.normal);
+      updateEvent(null);
 
       if (failed.isEmpty) return null;
 
-      var error = failed.map((e) => '- ${e.name} (${e.ip}:${e.port})\n').toList().join('');
+      var error = failed
+          .map((e) => '- ${e.name} (${e.ip}:${e.port})\n')
+          .toList()
+          .join('');
 
       return "Không kết nối được máy in\n"
           '$error'
@@ -2708,7 +2411,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
           "- Máy in đã bật và không bị kẹt giấy\n"
           "- Dây mạng kết nối với máy in đã sáng";
     } catch (ex) {
-      updateEvent(HomeEvent.normal);
+      updateEvent(null);
       return ex.toString();
     }
   }
@@ -2717,18 +2420,52 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(printNumberOfPeople: !state.printNumberOfPeople);
   }
 
-  /// check here: productCheckouts
   /// phân bổ lại thuế mặc định nếu đã phân bổ thuế cho đơn Grab, Shopee trước đó
   Future<String?> onUpdateDefaultTax() async {
     if (!requireUpdateDefaultTax) return null;
     if (state.orderSelect == null) return null;
-    int count = 0;
+    int retry = 0;
     String? error;
-    while (count < 3) {
+
+    List<ProductCheckoutModel> pc = [];
+
+    for (var p in state.productCheckout) {
+      var pCheck = state.products.firstWhereOrNull((e) => e.id == p.id);
+      if (pCheck != null) {
+        // check here: check xem tax < 1
+        pc.add(p.copyWith(tax: pCheck.tax));
+      } else {
+        pc.add(p);
+      }
+    }
+    if (kDebugMode) {
+      showLogs('start ==================',
+          flags: 'update thuế mặc định - onUpdateDefaultTax');
+      pc.forEach(
+        (e) {
+          showLog('id: ${e.id} - name: ${e.name} - tax: ${e.tax}',
+              flags: 'update thuế mặc định - item');
+        },
+      );
+      showLogs('end ==================',
+          flags: 'update thuế mặc định - onUpdateDefaultTax');
+    }
+
+    while (retry < 3) {
       try {
         // lấy phương thức tiền mặt để phân bổ lại thuế
-        var paymentCheck = _listPaymentMethods.firstWhereOrNull((e) => e.isCash);
-        error = await onUpdateTax(productCheckouts,
+        var paymentCheck =
+            _listPaymentMethods.firstWhereOrNull((e) => e.isCash);
+        showLogs(
+            paymentCheck ??
+                const PaymentMethod(
+                  key: 25,
+                  name: 'Tiền mặt',
+                  isCash: true,
+                  requireEditTax: false,
+                ),
+            flags: 'phương thức thanh toán - onUpdateDefaultTax');
+        error = await onUpdateTax(pc,
             paymentMethod: paymentCheck ??
                 const PaymentMethod(
                   key: 25,
@@ -2737,19 +2474,21 @@ class HomeNotifier extends StateNotifier<HomeState> {
                   requireEditTax: false,
                 ));
         if (error != null) throw error;
-        state = state.copyWith(productCheckoutUpdateTax: []);
-        requireUpdateDefaultTax = false;
-        try {
-          await getDataBill(loadingHome: true);
-        } catch (ex) {
-          //
-        }
+        // state = state.copyWith(productCheckoutUpdateTax: []);
+        // requireUpdateDefaultTax = false;
+        // requiredGetDataBill = true;
+        // try {
+        //   await getDataBill(loadingHome: true);
+        // } catch (ex) {
+        //   //
+        // }
         break;
       } catch (ex) {
-        count++;
+        retry++;
       }
     }
     if (error != null) {
+      requireGetDataBill = true;
       state = state.copyWith(
         dataBillState: const PageState(
           status: PageCommonState.error,
@@ -2767,36 +2506,37 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   PriceDataBill get getFinalPaymentPrice => state.dataBill.price;
 
-  /// apply lại các mã only
-  /// mã only bắt buộc phải xóa đi, add lại
+  /// xóa và add lại các mã only
   Future<String?> applyAgainOnlyCounpon() async {
     try {
       updateEvent(HomeEvent.applyPolicy);
       List<CustomerPolicyModel> failedDelete = [];
       List<CustomerPolicyModel> failedAdd = [];
 
-      bool mustGetDataBill = false;
-
       var needApplyAgainOnlyCoupons =
           List<CustomerPolicyModel>.from(state.needApplyAgainOnlyCoupons);
       needApplyAgainOnlyCoupons = needApplyAgainOnlyCoupons.toSet().toList();
 
       var coupons = List<CustomerPolicyModel>.from(state.coupons);
-
+      var orderSelect = state.orderSelect;
       for (var c in needApplyAgainOnlyCoupons) {
         try {
-          if (state.orderSelect == null) {
-            return S.current.noOrderSelect;
+          if (orderSelect == null) {
+            updateEvent(HomeEvent.normal);
+            return null;
           }
-          final result =
-              await _couponRepository.deleteCoupon(idCode: c.id, order: state.orderSelect!);
+          final result = await _couponRepository.deleteCoupon(
+              idCode: c.id, order: orderSelect);
           if (result) {
-            mustGetDataBill = true;
+            requireApplyPolicy = true;
+            requireGetDataBill = true;
             coupons.removeWhere((element) => element.id == c.id);
-            needApplyAgainOnlyCoupons.removeWhere((element) => element.id == c.id);
+            needApplyAgainOnlyCoupons
+                .removeWhere((element) => element.id == c.id);
             try {
               await LocalStorage.saveApplyAgainOnlyCoupon(
-                  order: state.orderSelect!, coupons: needApplyAgainOnlyCoupons);
+                  order: state.orderSelect!,
+                  coupons: needApplyAgainOnlyCoupons);
             } catch (ex) {
               //
             }
@@ -2811,11 +2551,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
                 return S.current.noOrderSelect;
               }
               var couponRepo = await _couponRepository.addCoupon(
-                  code: c.name,
-                  order: state.orderSelect!,
-                  totalOrder: getFinalPaymentPrice.totalPrice * 1.0,
-                  numberOfAdults: state.numberOfAdults);
-              List<CustomerPolicyModel> data = List<CustomerPolicyModel>.from(couponRepo.data.data);
+                code: c.name,
+                order: state.orderSelect!,
+                totalOrder: getFinalPaymentPrice.totalPrice * 1.0,
+                numberOfAdults: state.numberOfAdults,
+              );
+              List<CustomerPolicyModel> data =
+                  List<CustomerPolicyModel>.from(couponRepo.data.data);
               if (data.isEmpty) {
                 final errorMessage = couponRepo.data.message;
                 throw errorMessage.isEmpty
@@ -2842,20 +2584,21 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
       updateEvent(HomeEvent.normal);
       if (failedDelete.isNotEmpty || failedAdd.isNotEmpty) {
-        if (mustGetDataBill) getDataBill();
+        if (requireApplyPolicy) {
+          applyCustomerPolicy(loadingHome: false);
+        } else if (requireGetDataBill) {
+          getDataBill(loadingHome: false);
+        }
         return 'Các mã giảm giá chưa được áp dụng thành công\nVui lòng:\n'
             '${failedDelete.isNotEmpty ? '- Xóa mã và nhập lại mã: ${failedDelete.map((e) => e.name).join(', ')}\n' : ''}'
             '${failedAdd.isNotEmpty ? '- Nhập lại mã: ${failedAdd.map((e) => e.name).join(', ')}' : ''}';
       }
-      try {
-        if (state.coupons.any((e) => !e.only)) {
-          await applyCustomerPolicy(loadingHome: true);
-        } else {
-          await getDataBill(loadingHome: true);
-        }
-      } catch (ex) {
-        //
+      if (requireApplyPolicy) {
+        applyCustomerPolicy(loadingHome: true);
+      } else if (requireGetDataBill) {
+        getDataBill(loadingHome: true);
       }
+
       return null;
     } catch (ex) {
       return ex.toString();
@@ -2867,48 +2610,42 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }
 
   void onChangeDisplayOrderHistory(bool? value) {
-    state = state.copyWith(displayOrderHistory: value ?? !state.displayOrderHistory);
+    state = state.copyWith(
+        displayOrderHistory: value ?? !state.displayOrderHistory);
   }
 
-  void onChangeCancelOrderItem({bool? value}) {
-    state = state.copyWith(cancelOrderItem: value ?? !state.cancelOrderItem);
-  }
-
+  /// gọi món
   Future<String?> addItemsToOrder(BuildContext context) async {
-    var total = 0.0;
-
-    state.productsSelecting.forEach(
-      (element) {
-        total += element.numberSelecting < 0
-            ? 0
-            : element.numberSelecting * (double.tryParse(element.unitPrice) ?? 0.0);
-      },
-    );
-
-    var i = LocalStorage.getNotePerOrderItem(order: state.orderSelect ?? const OrderModel());
+    var note = LocalStorage.getNotePerOrderItem(
+        order: state.orderSelect ?? const OrderModel());
 
     Set<int> printerCheck = {};
 
     Map<int, List<ProductModel>> printerMapProducts = {};
-
+    double total = 0.0;
     List<ProductModel> productPrintBill = (state.productsSelecting).map((e) {
-      var comboItems = ProductHelper().getComboDescription(e);
+      total +=
+          (double.tryParse(e.unitPrice) ?? 0.0) * max(0, e.numberSelecting);
+
+      var product =
+          e.copyWith(noteForProcessOrder: note?[e.id.toString()] ?? '');
+      var comboItems = ProductHelper().getComboDescription(product);
       if (comboItems == null || comboItems.isEmpty) {
-        if (e.printerType != null) {
-          var items = List<ProductModel>.from(printerMapProducts[e.printerType] ?? []);
-          // coi combo k có món như là món thường (description: null)
-          items.add(e.copyWith(noteForProcessOrder: i?[e.id.toString()] ?? '', description: null));
-          printerMapProducts[e.printerType!] = items;
+        if (product.printerType != null) {
+          var items = List<ProductModel>.from(
+              printerMapProducts[product.printerType] ?? []);
+          // coi combo k có thành phần như là món thường để in
+          items.add(product.copyWith(description: null));
+          printerMapProducts[product.printerType!] = items;
         }
       } else {
-        var cb = e.copyWith(noteForProcessOrder: i?[e.id.toString()] ?? '');
-
         Map<int, List<ComboItemModel>> printComboItem = {};
         for (var ci in comboItems) {
-          var printerType = ci.printerType ?? e.printerType;
+          var printerType = ci.printerType;
           if (printerType != null) {
-            var items = List<ComboItemModel>.from(printComboItem[printerType] ?? []);
-            items.add(ci.copyWith(printerType: printerType));
+            var items =
+                List<ComboItemModel>.from(printComboItem[printerType] ?? []);
+            items.add(ci);
             printComboItem[printerType] = items;
           }
         }
@@ -2916,52 +2653,64 @@ class HomeNotifier extends StateNotifier<HomeState> {
         printComboItem.forEach(
           (key, value) {
             var items = List<ProductModel>.from(printerMapProducts[key] ?? []);
-            items.add(cb.copyWith(description: jsonEncode(value)));
+            items.add(product.copyWith(description: jsonEncode(value)));
             printerMapProducts[key] = items;
           },
         );
       }
 
-      if (e.printerType != null) {
-        printerCheck.add(e.printerType!);
+      if (product.printerType != null) {
+        printerCheck.add(product.printerType!);
       }
-      return e.copyWith(noteForProcessOrder: i?[e.id.toString()] ?? '');
+      return product;
     }).toList();
 
     try {
       updateEvent(HomeEvent.processOrder);
-
-      var listPrinters =
-          await _orderRepository.getIpPrinterOrder(state.orderSelect!, printerCheck.toList());
+      showLogs(printerCheck, flags: 'ds printerType gọi món');
+      var listPrinters = await _orderRepository.getIpPrinterOrder(
+        state.orderSelect!,
+        printerCheck.toList(),
+      );
       if (listPrinters.error != null) {
         throw listPrinters.error!;
       }
+      showLogs(listPrinters.printers, flags: 'danh sách máy in - gọi món');
 
       var kitchenNote = state.kitchenNote;
-
+      await _checkOrderSelect();
       await _orderRepository.processOrder(
         order: state.orderSelect!,
         total: total,
         orderNote: kitchenNote,
         products: productPrintBill,
       );
+      try {
+        await LocalStorage.deleteNotePerOrderItem(order: state.orderSelect!);
+      } catch (ex) {
+        //
+      }
       state = state.copyWith(
         productsSelecting: [],
         orderTabSelect: OrderTabEnum.ordered,
       );
+      requireApplyPolicy = true;
+      requireGetDataBill = true;
+      getOrderProductCheckout(applyPolicy: true);
 
-      getOrderProductCheckout(
-        changeSelecting: true,
-        applyPolicy: true,
-      );
-      updateEvent(HomeEvent.normal);
       if (AppConfig.useFranchise) {
         state = state.copyWith(kitchenNote: '');
+        // sử dụng kds thì k cần in
+        if (AppConfig.useKds) {
+          updateEvent(HomeEvent.normal);
+          return null;
+        }
 
         try {
           var appSeting = LocalStorage.getAppSettings();
-          AppPrinterSettingTypeEnum appPrinterType = appSeting.appPrinterType;
-          for (var printer in listPrinters.printers.take(1).toList()) {
+          bool printNormal =
+              appSeting.appPrinterType == AppPrinterSettingTypeEnum.normal;
+          for (var printer in listPrinters.printers) {
             List<ProductModel> productPrinter =
                 List<ProductModel>.from(printerMapProducts[printer.type] ?? []);
 
@@ -2969,17 +2718,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
               continue;
             }
             if (kitchenNote.trim().isEmpty && productPrinter.length == 1) {
-              kitchenNote = productPrinter.firstOrNull?.noteForProcessOrder ?? '';
+              kitchenNote =
+                  productPrinter.firstOrNull?.noteForProcessOrder ?? '';
             }
-            var htmlData = AppPrinterHtmlUtils.instance.kitchenBillContent(
-              order: state.orderSelect!,
-              product: productPrinter,
-              note: kitchenNote,
-              timeOrders: 1,
-              cancel: false,
-            );
-
-            var bytes = appPrinterType == AppPrinterSettingTypeEnum.normal
+            showLogs(productPrinter.length, flags: 'check só lượng món in');
+            var bytes = printNormal
                 ? await AppPrinterNormalUtils.instance.generateBill(
                     order: state.orderSelect!,
                     billSingle: false,
@@ -2989,7 +2732,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
                     products: productPrinter,
                     title: '',
                   )
-                : await AppPrinterHtmlUtils.instance.generateImageBill(htmlData);
+                : await AppPrinterHtmlUtils.instance.generateImageBill(
+                    AppPrinterHtmlUtils.instance.kitchenBillContent(
+                    order: state.orderSelect!,
+                    product: productPrinter,
+                    note: kitchenNote,
+                    timeOrders: 1,
+                    cancel: false,
+                    totalBill: true,
+                  ));
             List<ProductModel> errors = [];
             PrinterTaskQueue.instance.addTask(
               ip: printer.ip,
@@ -3001,26 +2752,19 @@ class HomeNotifier extends StateNotifier<HomeState> {
                 if (success) {
                   showLogs("✅ In thành công", flags: 'BILL TỔNG');
                   // chỉ in bill lẻ với bếp
-                  if (printer.type == 2 && appSeting.billReturnSetting.useOddBill) {
-                    showLogs(productPrinter.length, flags: ' productPrinter.length');
+                  String? errorPrintOdd;
+                  if (printer.type == 2 &&
+                      appSeting.billReturnSetting.useOddBill) {
                     for (var item in productPrinter) {
                       List<int> byteDatas;
-                      String oddHtmlBill;
-                      //       var pp = productPrinter[i];
-                      //       showLogs(pp.name, flags: 'pp');
-                      var listComboItemPrint = ProductHelper().getComboDescription(item);
-                      //       showLogs(listComboItemPrint, flags: 'listComboItemPrint');
 
-                      if (listComboItemPrint == null || listComboItemPrint.isEmpty) {
-                        // in bill lẻ
-                        oddHtmlBill = AppPrinterHtmlUtils.instance.kitchenBillContent(
-                          product: [item],
-                          totalBill: false,
-                          order: state.orderSelect!,
-                          note: kitchenNote,
-                          timeOrders: 1,
-                        );
-                        byteDatas = appPrinterType == AppPrinterSettingTypeEnum.normal
+                      var listComboItemPrint =
+                          ProductHelper().getComboDescription(item);
+
+                      if (listComboItemPrint == null ||
+                          listComboItemPrint.isEmpty) {
+                        // món thường
+                        byteDatas = printNormal
                             ? await AppPrinterNormalUtils.instance.generateBill(
                                 order: state.orderSelect!,
                                 billSingle: true,
@@ -3030,7 +2774,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
                                 products: [item],
                                 title: '',
                               )
-                            : await AppPrinterHtmlUtils.instance.generateImageBill(oddHtmlBill);
+                            : await AppPrinterHtmlUtils.instance
+                                .generateImageBill(AppPrinterHtmlUtils.instance
+                                    .kitchenBillContent(
+                                product: [item],
+                                totalBill: false,
+                                order: state.orderSelect!,
+                                note: kitchenNote,
+                                timeOrders: 1,
+                              ));
                         PrinterTaskQueue.instance.addTask(
                           ip: printer.ip,
                           port: printer.port,
@@ -3039,19 +2791,22 @@ class HomeNotifier extends StateNotifier<HomeState> {
                           },
                           onComplete: (success, error) {
                             if (success) {
-                              showLogs("✅ In thành công\n$item", flags: 'BILL LẺ');
+                              showLogs("✅ In thành công\n$item",
+                                  flags: 'BILL LẺ');
                             } else {
+                              errorPrintOdd = error;
                               errors.add(item);
-                              showLogs("❌ In thất bại\n$item", flags: 'BILL LẺ');
+                              showLogs("❌ In thất bại\n$item",
+                                  flags: 'BILL LẺ');
                             }
                           },
                         );
                       } else {
                         // in từng món trong combo
                         for (var ci in listComboItemPrint) {
-                          showLogs(ci, flags: 'in món lẻ trong combo');
-                          byteDatas = appPrinterType == AppPrinterSettingTypeEnum.normal
-                              ? await AppPrinterNormalUtils.instance.generateBill(
+                          byteDatas = printNormal
+                              ? await AppPrinterNormalUtils.instance
+                                  .generateBill(
                                   order: state.orderSelect!,
                                   billSingle: true,
                                   cancel: false,
@@ -3062,10 +2817,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
                                   ],
                                   title: '',
                                 )
-                              : await AppPrinterHtmlUtils.instance.generateImageBill(
-                                  AppPrinterHtmlUtils.instance.kitchenBillContent(
+                              : await AppPrinterHtmlUtils.instance
+                                  .generateImageBill(
+                                  AppPrinterHtmlUtils.instance
+                                      .kitchenBillContent(
                                     product: [
-                                      item.copyWith(description: jsonEncode([ci]))
+                                      item.copyWith(
+                                          description: jsonEncode([ci]))
                                     ],
                                     totalBill: false,
                                     order: state.orderSelect!,
@@ -3085,7 +2843,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
                                     "✅ In thành công\n${item.copyWith(description: jsonEncode(ci))}",
                                     flags: 'BILL LẺ');
                               } else {
-                                errors.add(item);
+                                errorPrintOdd = error;
+                                errors.add(
+                                  item.copyWith(
+                                    description: jsonEncode([ci]),
+                                  ),
+                                );
                                 showLogs(
                                     "❌ In thất bại\n${item.copyWith(description: jsonEncode(ci))}",
                                     flags: 'BILL LẺ');
@@ -3094,46 +2857,23 @@ class HomeNotifier extends StateNotifier<HomeState> {
                           );
                         }
                       }
-
-                      //       byteDatas = appPrinterType == AppPrinterSettingTypeEnum.normal
-                      //           ? await AppPrinterNormalUtils.instance.generateBill(
-                      //               order: state.orderSelect!,
-                      //               billSingle: true,
-                      //               cancel: false,
-                      //               timeOrder: 1,
-                      //               totalNote: kitchenNote,
-                      //               products: [pp],
-                      //               title: '',
-                      //             )
-                      //           : await AppPrinterHtmlUtils.instance.generateImageBill(oddHtmlBill);
-                      //       PrinterTaskQueue.instance.addTask(
-                      //         ip: printer.ip,
-                      //         port: printer.port,
-                      //         buildReceipt: (generator) async {
-                      //           // var byteDatas = await AppPrinterHtmlUtils.instance
-                      //           //     .generateImageBill(oddHtmlBill);
-                      //           return byteDatas;
-                      //         },
-                      //         onComplete: (success, error) {
-                      //           if (success) {
-                      //             showLogs("✅ In thành công", flags: 'in món lẻ thành công');
-                      //           } else {
-                      //             errors.add(pp);
-                      //             showLogs("❌ In thất bại", flags: 'in món lẻ thất bại');
-                      //           }
-                      //         },
-                      //       );
-                      //       // }
+                    }
+                    if (errors.isNotEmpty && context.mounted) {
+                      showMessageDialog(
+                        context,
+                        message: "Không thể in bill lẻ xuống bếp\n"
+                            '$errorPrintOdd\n'
+                            'Danh sách các món không thể ra bill lẻ:\n${errors.map((e) => e.name).join(', ')}',
+                      );
                     }
                   }
-
-                  // showLogs(errors, flags: 'errors in lỗi');
                 } else {
                   showLogs("❌ In thất bại", flags: 'BILL TỔNG');
-                  if (error != null) {
+                  if (error != null && context.mounted) {
                     showMessageDialog(
                       context,
-                      message: "Món đã được thêm vào hóa đơn nhưng không thể in bill xuống bếp\n"
+                      message:
+                          "Món đã được thêm vào hóa đơn nhưng không thể in bill xuống bếp\n"
                           'Lỗi:\n$error',
                     );
                   }
@@ -3149,35 +2889,34 @@ class HomeNotifier extends StateNotifier<HomeState> {
           if (context.mounted) {
             showMessageDialog(
               context,
-              message: 'Món đã được thêm vào hóa đơn nhưng không thể in bill xuống bếp\n'
+              message:
+                  'Món đã được thêm vào hóa đơn nhưng không thể in bill xuống bếp\n'
                   'Lỗi:\n${ex.toString()}',
             );
           }
           return null;
         }
       }
-
       updateEvent(HomeEvent.normal);
       return null;
     } catch (ex) {
       updateEvent(HomeEvent.normal);
-      if (ex is AppException && ex.errorCode == 423) {
-        state = state.copyWith(lockedOrder: true);
-      }
+      _lockOrder(ex);
       return ex.toString();
     }
   }
 
   void cancelProductCheckout(ProductModel p, int count) {
     try {
-      var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
+      var productCheckout =
+          List<ProductCheckoutModel>.from(state.productCheckout);
 
       var productCheck = productCheckout.firstWhereOrNull((e) => e.id == p.id);
       if (productCheck != null) {
         var index = productCheckout.indexOf(productCheck);
         if (index != -1) {
-          // ignore: unused_result
-          productCheck = productCheck.copyWith(quantityCancel: productCheck.quantityCancel + count);
+          productCheck = productCheck.copyWith(
+              quantityCancel: productCheck.quantityCancel + count);
           productCheckout[index] = productCheck;
         }
       }
@@ -3187,96 +2926,27 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  // Future<void> getOrderToOnline() async {
-  //   bool useO2O = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-  //   if (!useO2O || kTypeOrder == AppConfig.orderOnlineValue) {
-  //     state = state.copyWith(
-  //       getO2ODataState: const PageState(status: PageCommonState.success),
-  //       o2oData: {},
-  //     );
-  //     return;
-  //   }
-  //   try {
-  //     await Future.delayed(Duration(seconds: 5));
-  //     int retry = 0;
-  //     Map<O2OOrderModel, Map<String, dynamic>> orders = {};
-  //     var loginUserId = LocalStorage.getDataLogin()?.user?.id;
-  //
-  //     showLogs(loginUserId, flags: 'loginUserId check');
-  //     state = state.copyWith(
-  //       getO2ODataState: const PageState(status: PageCommonState.loading),
-  //     );
-  //     while (retry < 3) {
-  //       try {
-  //         orders = {};
-  //         final result = await _orderRepository.getOrderToOnline();
-  //         for (var e in result) {
-  //           // if (loginUserId != null && e.userId != loginUserId) continue;
-  //
-  //           var order = e.copyWith(items: []);
-  //           var data = orders[order] ?? {};
-  //
-  //           var items = List<RequestOrderModel>.from(e.items);
-  //
-  //           var itemData = List<RequestOrderModel>.from(data['items'] ?? []);
-  //
-  //           int count = data['count'] ?? 0;
-  //           itemData.addAll(items);
-  //
-  //           for (var i in items) {
-  //             if (i.requestProcessingStatus == RequestProcessingStatus.waiting &&
-  //                 i.listItem.isNotEmpty) {
-  //               count++;
-  //             }
-  //           }
-  //
-  //           orders[order] = {
-  //             'items': itemData,
-  //             'count': count,
-  //           };
-  //         }
-  //
-  //         state = state.copyWith(
-  //           getO2ODataState: const PageState(status: PageCommonState.success),
-  //           o2oData: orders,
-  //         );
-  //         break;
-  //       } catch (ex) {
-  //         retry++;
-  //         if (retry == 3) {
-  //           state = state.copyWith(
-  //             getO2ODataState: PageState(
-  //               status: PageCommonState.error,
-  //               messageError: ex.toString(),
-  //             ),
-  //           );
-  //         }
-  //       }
-  //     }
-  //   } catch (ex) {
-  //     //
-  //   }
-  // }
-
   void getO2OChatMessages() async {
     try {
       var useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
       if (!useO2o) return;
-      state = state.copyWith(getChatMessageState: const PageState(status: PageCommonState.loading));
+      state = state.copyWith(
+        getChatMessageState: const PageState(status: PageCommonState.loading),
+      );
       final loginData = LocalStorage.getDataLogin();
       int? restaurantId = loginData?.restaurant?.id;
-      final selectedOrder = state.orderSelect;
-      if (restaurantId == null || selectedOrder == null) {
+      final orderSelect = state.orderSelect;
+      if (restaurantId == null || orderSelect == null) {
         state = state.copyWith(
-          getChatMessageState:
-              PageState(status: PageCommonState.error, messageError: S.current.no_data),
+          getChatMessageState: PageState(
+              status: PageCommonState.error, messageError: S.current.no_data),
         );
         return;
       }
 
       final messages = await _o2oRepository.getChatMessages(
         restaurantId: restaurantId,
-        orderId: selectedOrder.id,
+        orderId: orderSelect.id,
       );
       state = state.copyWith(
         getChatMessageState: const PageState(status: PageCommonState.success),
@@ -3292,61 +2962,28 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  // void getReservations() async {
-  //   var useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
-  //   if (!useReservation) {
-  //     state = state.copyWith(
-  //       getReservationsState: const PageState(status: PageCommonState.success),
-  //       reservations: [],
-  //     );
-  //     return;
-  //   }
-  //   try {
-  //     state =
-  //         state.copyWith(getReservationsState: const PageState(status: PageCommonState.loading));
-  //     var reservations = await ref.read(reservationRepositoryProvider).getReservations();
-  //     state = state.copyWith(
-  //       getReservationsState: const PageState(status: PageCommonState.success),
-  //       reservations: reservations,
-  //     );
-  //   } catch (ex) {
-  //     state = state.copyWith(
-  //       getReservationsState: PageState(
-  //         status: PageCommonState.error,
-  //         messageError: ex.toString(),
-  //       ),
-  //     );
+  // /// thêm thông tin khách từ đơn đặt bàn vào order
+  // void addCustomerToOrder({
+  //   required int orderId,
+  //   required String phoneNumber,
+  // }) async {
+  //   int retry = 0;
+  //   if (phoneNumber.trim().isEmpty) return;
+  //   while (retry < 3) {
+  //     try {
+  //       if (state.orderSelect == null) return;
+  //       if (state.lockedOrder) return;
+  //       await _customerRepository.findCustomer(
+  //         phoneNumber: phoneNumber.trim(),
+  //         order: state.orderSelect!,
+  //       );
+  //       break;
+  //     } catch (ex) {
+  //       _lockOrder(ex);
+  //       retry++;
+  //     }
   //   }
   // }
-
-  void addCustomerToOrder({
-    required int orderId,
-    required String phoneNumber,
-    required dynamic reservationId,
-  }) async {
-    int retry = 0;
-    if (phoneNumber.trim().isEmpty) return;
-
-    while (retry < 3) {
-      try {
-        var loginData = LocalStorage.getDataLogin();
-        await _customerRepository.findCustomer(
-            phoneNumber: phoneNumber,
-            order: OrderModel(
-              id: orderId,
-              name: '',
-              misc: '',
-              waiterId: loginData?.waiterId,
-              reservationCrmId: reservationId,
-            ));
-
-        break;
-      } catch (ex) {
-        //
-        retry++;
-      }
-    }
-  }
 
   void updateReservationModel(ReservationModel? reservation) async {
     if (reservation == null) return;
@@ -3364,8 +3001,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  /// Chuyển giao đơn hàng
-  /// Hàm này không được dùng, đang dùng cho app manager
+  /// Chuyển giao đơn bàn
   Future<String?> transferOrder(
     List<int> tableIds,
     OrderModel order,
@@ -3381,6 +3017,32 @@ class HomeNotifier extends StateNotifier<HomeState> {
         reservation: reservation,
         waiterTransfer: waiterTransfer,
       );
+      updateEvent(null);
+      return null;
+    } catch (ex) {
+      updateEvent(null);
+      return ex.toString();
+    }
+  }
+
+  /// Cập nhật lịch đặt bàn cho đơn bàn
+  Future<String?> updateReservationForOrder({
+    required List<int> tableIds,
+    ReservationModel? newReservation,
+  }) async {
+    try {
+      var orderSelect = state.orderSelect;
+      if (orderSelect == null) return null;
+      updateEvent(HomeEvent.updateOrder);
+      await _orderRepository.createAndUpdateOrder(
+        tableIds,
+        orderSelect,
+        reservation: newReservation,
+      );
+      state = state.copyWith(
+        orderSelect: orderSelect.copyWith(reservationCrmId: newReservation?.id),
+      );
+
       updateEvent(null);
       return null;
     } catch (ex) {
