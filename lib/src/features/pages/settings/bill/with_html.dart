@@ -24,8 +24,7 @@ class BillSettingForHtmlWidget extends ConsumerStatefulWidget {
   ConsumerState createState() => _BillSettingForHtmlWidgetState();
 }
 
-class _BillSettingForHtmlWidgetState
-    extends ConsumerState<BillSettingForHtmlWidget> {
+class _BillSettingForHtmlWidgetState extends ConsumerState<BillSettingForHtmlWidget> {
   Uint8List? returnBill, singleBill, cancelBill;
   List<ProductModel> items = [
     const ProductModel(
@@ -61,8 +60,8 @@ class _BillSettingForHtmlWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final billHtmlSetting = ref.watch(settingsPageProvider
-        .select((value) => value.appSettings.billHtmlSetting));
+    final billHtmlSetting =
+        ref.watch(settingsPageProvider.select((value) => value.printSetting.billHtmlSetting));
     final notifier = ref.read(settingsPageProvider.notifier);
     return Padding(
       padding: const EdgeInsets.all(0.0),
@@ -175,8 +174,7 @@ class _BillSettingForHtmlWidgetState
                             style: AppTextStyle.semiBold(),
                           ),
                           TextSpan(
-                            text:
-                                '- Bill có dấu hiện chỉ áp dụng với bill gọi món/ hủy món.\n',
+                            text: '- Bill có dấu hiện chỉ áp dụng với bill gọi món/ hủy món.\n',
                             style: AppTextStyle.semiBold(),
                           ),
                         ],
@@ -327,8 +325,8 @@ class _BillPreviewWidget extends ConsumerWidget {
   final Uint8List? dataImage;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final billHtmlSetting = ref.watch(settingsPageProvider
-        .select((value) => value.appSettings.billHtmlSetting));
+    final billHtmlSetting =
+        ref.watch(settingsPageProvider.select((value) => value.printSetting.billHtmlSetting));
     final paperSize = billHtmlSetting.paperSize.paperSize;
     return SizedBox(
       width: paperSize.width.toDouble(),

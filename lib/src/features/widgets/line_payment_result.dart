@@ -27,8 +27,8 @@ class LinePaymentResultWidget extends StatelessWidget {
       ),
       trailing: Text(
         "${isNegative ? number <= 0 ? "" : "-" : ""}${AppConfig.formatCurrency().format(number)}",
-        style: AppTextStyle.regular(
-            color: colorNumber, fontSize: 15.sp, fontWeight: FontWeight.w500),
+        style:
+            AppTextStyle.regular(color: colorNumber, rawFontSize: 15, fontWeight: FontWeight.w500),
       ),
     );
   }

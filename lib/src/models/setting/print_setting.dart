@@ -5,19 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'app_setting.freezed.dart';
-part 'app_setting.g.dart';
+part 'print_setting.freezed.dart';
+part 'print_setting.g.dart';
 
 @freezed
-class AppSettingModel with _$AppSettingModel {
+class AppPrintSettingModel with _$AppPrintSettingModel {
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
-  const factory AppSettingModel({
+  const factory AppPrintSettingModel({
     // @Default(true) bool noticeKitchenCancel,
     // @Default(true) bool noticeKitchenDone,
     // @Default(true) bool noticeKitchenConfirmLocation,
     // @Default(300) double boxSizeView,
-    @Default(BillReturnItemTypeEnum.normal)
-    BillReturnItemTypeEnum billReturnType,
+    @Default(BillReturnItemTypeEnum.normal) BillReturnItemTypeEnum billReturnType,
     // @Default(AudioService.noticeDefaultKey) String audioDishCancel,
     // @Default(AudioService.noticeDefaultKey) String audioDishConfirmLocation,
     // @Default(AudioService.orderDefaultKey) String audioKitchenDone,
@@ -25,15 +24,14 @@ class AppSettingModel with _$AppSettingModel {
     // ColorSetting backgroundColor,
     // @Default(AppColors.colorSettingLineSelectDefault)
     // ColorSetting lineSelectColor,
-    @Default(AppPrinterSettingTypeEnum.normal)
-    AppPrinterSettingTypeEnum appPrinterType,
+    @Default(AppPrinterSettingTypeEnum.normal) AppPrinterSettingTypeEnum appPrinterType,
     @Default(BillHtmlSettingModel()) BillHtmlSettingModel billHtmlSetting,
     @Default(BillReturnSettingModel()) BillReturnSettingModel billReturnSetting,
     // @Default(OrderHistorySetting()) OrderHistorySetting orderHistorySetting,
-  }) = _AppSettingModel;
+  }) = _AppPrintSettingModel;
 
-  factory AppSettingModel.fromJson(Map<String, dynamic> json) =>
-      _$AppSettingModelFromJson(json);
+  factory AppPrintSettingModel.fromJson(Map<String, dynamic> json) =>
+      _$AppPrintSettingModelFromJson(json);
 }
 
 // @freezed

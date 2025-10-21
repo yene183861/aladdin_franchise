@@ -39,8 +39,7 @@ class TicketItem extends StatelessWidget {
                       time: DateTime.now(),
                       newPattern: DateTimePatterns.dateTime,
                     ),
-                    style: AppTextStyle.regular(
-                        fontSize: 12.sp, color: Color(0xFFB4A9A9)),
+                    style: AppTextStyle.regular(rawFontSize: 12, color: Color(0xFFB4A9A9)),
                   ),
                 ],
               ),

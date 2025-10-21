@@ -26,7 +26,7 @@ class ProductOutOfStockWidget extends StatelessWidget {
         label: Text(
           S.current.out_of_stock,
           style: AppTextStyle.regular(
-            fontSize: 13.sp,
+            rawFontSize: 13,
             fontWeight: FontWeight.w600,
             color: AppColors.mainColor,
           ),
@@ -52,7 +52,7 @@ class ProductOutOfStockCircleWidget extends StatelessWidget {
           child: Text(
             S.current.out_of_dish,
             style: AppTextStyle.regular(
-              fontSize: 13.sp,
+              rawFontSize: 13,
               fontWeight: FontWeight.w600,
               color: Colors.white,
             ),

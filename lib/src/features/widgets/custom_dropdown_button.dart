@@ -86,8 +86,7 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
     super.didUpdateWidget(oldWidget);
     setState(() {
       selectedItems = [];
-      if (widget.initData.length == widget.data.length &&
-          widget.allowSelectAll) {
+      if (widget.initData.length == widget.data.length && widget.allowSelectAll) {
         selectedItems.add(widget.selectAllObj!);
       }
       selectedItems.addAll(widget.initData);
@@ -128,15 +127,13 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
                           : () {
                               if (widget.allowSelectAll) {
                                 if (e == widget.selectAllObj) {
-                                  selectedItems =
-                                      isSelected ? [] : List<T>.from(datas);
+                                  selectedItems = isSelected ? [] : List<T>.from(datas);
                                   widget.onChangeData?.call(selectedItems);
                                   Navigator.of(context).pop();
                                   setState(() {});
                                 } else {
                                   if (isSelected) {
-                                    if (selectedItems
-                                        .contains(widget.selectAllObj)) {
+                                    if (selectedItems.contains(widget.selectAllObj)) {
                                       selectedItems.remove(widget.selectAllObj);
                                     }
                                     selectedItems.remove(e);
@@ -153,9 +150,7 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
                                   Navigator.of(context).pop();
                                 }
                               } else {
-                                isSelected
-                                    ? selectedItems.remove(e)
-                                    : selectedItems.add(e);
+                                isSelected ? selectedItems.remove(e) : selectedItems.add(e);
                                 widget.onChangeData?.call(selectedItems);
                                 menuSetState(() {});
                                 setState(() {});
@@ -163,8 +158,7 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
                               }
                             },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         width: double.maxFinite,
                         child: Row(
                           children: [
@@ -190,21 +184,18 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
                                             } else {
                                               selectedItems = List.from(datas);
                                             }
-                                            widget.onChangeData
-                                                ?.call(selectedItems);
+                                            widget.onChangeData?.call(selectedItems);
                                             Navigator.of(context).pop();
                                             setState(() {});
                                           } else {
                                             if (isSelected) {
-                                              selectedItems
-                                                  .remove(widget.selectAllObj);
+                                              selectedItems.remove(widget.selectAllObj);
                                               selectedItems.remove(e);
                                             } else {
                                               selectedItems.add(e);
                                             }
 
-                                            widget.onChangeData
-                                                ?.call(selectedItems);
+                                            widget.onChangeData?.call(selectedItems);
                                             setState(() {});
                                             menuSetState(() {});
                                           }
@@ -212,21 +203,18 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
                                           isSelected
                                               ? selectedItems.remove(e)
                                               : selectedItems.add(e);
-                                          widget.onChangeData
-                                              ?.call(selectedItems);
+                                          widget.onChangeData?.call(selectedItems);
                                           menuSetState(() {});
                                           setState(() {});
                                         }
                                       },
-                                visualDensity: const VisualDensity(
-                                    horizontal: -4, vertical: -4),
+                                visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
                               ),
                               const Gap(4),
                             ],
                             Expanded(
                               child: Text(
-                                widget.buildTextDisplay?.call(e) ??
-                                    e.toString(),
+                                widget.buildTextDisplay?.call(e) ?? e.toString(),
                                 style: AppTextStyle.regular(),
                               ),
                             ),
@@ -272,7 +260,7 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.mainColor.withOpacity(0.4),
+              color: AppColors.grey500,
             ),
           ),
           padding: const EdgeInsets.symmetric(
@@ -309,12 +297,11 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
                     },
                     decoration: InputDecoration(
                       isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                       hintText: widget.hintTextSearch ?? '',
                       hintStyle: AppTextStyle.regular(
                         color: Colors.grey.shade500,
-                        fontSize: 13,
+                        rawFontSize: 13,
                       ).copyWith(fontStyle: FontStyle.italic),
                     ),
                   ),
@@ -326,7 +313,7 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
           widget.hintText ?? '',
           style: AppTextStyle.regular(
             color: Colors.grey.shade500,
-            fontSize: 13,
+            rawFontSize: 13,
           ).copyWith(fontStyle: FontStyle.italic),
         ),
       ),
@@ -338,8 +325,6 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
     if (items.contains(widget.selectAllObj)) {
       items.remove(widget.selectAllObj);
     }
-    return items
-        .map((e) => widget.buildTextDisplay?.call(e) ?? e.toString())
-        .join(', ');
+    return items.map((e) => widget.buildTextDisplay?.call(e) ?? e.toString()).join(', ');
   }
 }

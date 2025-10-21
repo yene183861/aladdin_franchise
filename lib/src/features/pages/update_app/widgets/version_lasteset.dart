@@ -25,7 +25,7 @@ class UpdateAppVersionIsLatesetWidget extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Text(
             AppConfig.appVersion,
-            style: AppTextStyle.bold(fontSize: 15.sp),
+            style: AppTextStyle.bold(rawFontSize: 15),
           ),
         ),
         Text(S.current.using_lastest_version),

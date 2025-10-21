@@ -16,7 +16,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$SettingsPageState {
-  AppSettingModel get appSettings => throw _privateConstructorUsedError;
+  AppPrintSettingModel get printSetting => throw _privateConstructorUsedError;
   SettingPageMenuEnum get menuSelect => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -30,9 +30,10 @@ abstract class $SettingsPageStateCopyWith<$Res> {
           SettingsPageState value, $Res Function(SettingsPageState) then) =
       _$SettingsPageStateCopyWithImpl<$Res, SettingsPageState>;
   @useResult
-  $Res call({AppSettingModel appSettings, SettingPageMenuEnum menuSelect});
+  $Res call(
+      {AppPrintSettingModel printSetting, SettingPageMenuEnum menuSelect});
 
-  $AppSettingModelCopyWith<$Res> get appSettings;
+  $AppPrintSettingModelCopyWith<$Res> get printSetting;
 }
 
 /// @nodoc
@@ -48,14 +49,14 @@ class _$SettingsPageStateCopyWithImpl<$Res, $Val extends SettingsPageState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? appSettings = null,
+    Object? printSetting = null,
     Object? menuSelect = null,
   }) {
     return _then(_value.copyWith(
-      appSettings: null == appSettings
-          ? _value.appSettings
-          : appSettings // ignore: cast_nullable_to_non_nullable
-              as AppSettingModel,
+      printSetting: null == printSetting
+          ? _value.printSetting
+          : printSetting // ignore: cast_nullable_to_non_nullable
+              as AppPrintSettingModel,
       menuSelect: null == menuSelect
           ? _value.menuSelect
           : menuSelect // ignore: cast_nullable_to_non_nullable
@@ -65,9 +66,9 @@ class _$SettingsPageStateCopyWithImpl<$Res, $Val extends SettingsPageState>
 
   @override
   @pragma('vm:prefer-inline')
-  $AppSettingModelCopyWith<$Res> get appSettings {
-    return $AppSettingModelCopyWith<$Res>(_value.appSettings, (value) {
-      return _then(_value.copyWith(appSettings: value) as $Val);
+  $AppPrintSettingModelCopyWith<$Res> get printSetting {
+    return $AppPrintSettingModelCopyWith<$Res>(_value.printSetting, (value) {
+      return _then(_value.copyWith(printSetting: value) as $Val);
     });
   }
 }
@@ -80,10 +81,11 @@ abstract class _$$SettingsPageStateImplCopyWith<$Res>
       __$$SettingsPageStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({AppSettingModel appSettings, SettingPageMenuEnum menuSelect});
+  $Res call(
+      {AppPrintSettingModel printSetting, SettingPageMenuEnum menuSelect});
 
   @override
-  $AppSettingModelCopyWith<$Res> get appSettings;
+  $AppPrintSettingModelCopyWith<$Res> get printSetting;
 }
 
 /// @nodoc
@@ -97,14 +99,14 @@ class __$$SettingsPageStateImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? appSettings = null,
+    Object? printSetting = null,
     Object? menuSelect = null,
   }) {
     return _then(_$SettingsPageStateImpl(
-      appSettings: null == appSettings
-          ? _value.appSettings
-          : appSettings // ignore: cast_nullable_to_non_nullable
-              as AppSettingModel,
+      printSetting: null == printSetting
+          ? _value.printSetting
+          : printSetting // ignore: cast_nullable_to_non_nullable
+              as AppPrintSettingModel,
       menuSelect: null == menuSelect
           ? _value.menuSelect
           : menuSelect // ignore: cast_nullable_to_non_nullable
@@ -119,19 +121,19 @@ class _$SettingsPageStateImpl
     with DiagnosticableTreeMixin
     implements _SettingsPageState {
   const _$SettingsPageStateImpl(
-      {this.appSettings = const AppSettingModel(),
+      {this.printSetting = const AppPrintSettingModel(),
       this.menuSelect = SettingPageMenuEnum.audioNotice});
 
   @override
   @JsonKey()
-  final AppSettingModel appSettings;
+  final AppPrintSettingModel printSetting;
   @override
   @JsonKey()
   final SettingPageMenuEnum menuSelect;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'SettingsPageState(appSettings: $appSettings, menuSelect: $menuSelect)';
+    return 'SettingsPageState(printSetting: $printSetting, menuSelect: $menuSelect)';
   }
 
   @override
@@ -139,7 +141,7 @@ class _$SettingsPageStateImpl
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'SettingsPageState'))
-      ..add(DiagnosticsProperty('appSettings', appSettings))
+      ..add(DiagnosticsProperty('printSetting', printSetting))
       ..add(DiagnosticsProperty('menuSelect', menuSelect));
   }
 
@@ -148,14 +150,14 @@ class _$SettingsPageStateImpl
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$SettingsPageStateImpl &&
-            (identical(other.appSettings, appSettings) ||
-                other.appSettings == appSettings) &&
+            (identical(other.printSetting, printSetting) ||
+                other.printSetting == printSetting) &&
             (identical(other.menuSelect, menuSelect) ||
                 other.menuSelect == menuSelect));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, appSettings, menuSelect);
+  int get hashCode => Object.hash(runtimeType, printSetting, menuSelect);
 
   @JsonKey(ignore: true)
   @override
@@ -167,11 +169,11 @@ class _$SettingsPageStateImpl
 
 abstract class _SettingsPageState implements SettingsPageState {
   const factory _SettingsPageState(
-      {final AppSettingModel appSettings,
+      {final AppPrintSettingModel printSetting,
       final SettingPageMenuEnum menuSelect}) = _$SettingsPageStateImpl;
 
   @override
-  AppSettingModel get appSettings;
+  AppPrintSettingModel get printSetting;
   @override
   SettingPageMenuEnum get menuSelect;
   @override

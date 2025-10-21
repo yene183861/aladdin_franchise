@@ -9,17 +9,17 @@ class SettingBillPrintComboNameWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appSettings = ref.watch(appSettingsProvider);
+    final printSetting = ref.watch(printSettingProvider);
     return SwitchListTile(
       title: Text(
         "Gọi món in kèm tên Set/Combo (nếu là món thành phần)",
         style: AppTextStyle.regular(),
       ),
-      value: appSettings.billReturnSetting.printComboNameInOddBill,
+      value: printSetting.billReturnSetting.printComboNameInOddBill,
       controlAffinity: ListTileControlAffinity.leading,
       onChanged: (value) {
         ref.read(settingsPageProvider.notifier).onChangeSetting(
-              billReturnSetting: appSettings.billReturnSetting.copyWith(
+              billReturnSetting: printSetting.billReturnSetting.copyWith(
                 printComboNameInOddBill: value,
               ),
             );

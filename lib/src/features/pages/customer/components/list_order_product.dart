@@ -247,7 +247,7 @@ class _ProductItemWidget extends StatelessWidget {
                                 text:
                                     ' ( ${AppConfig.formatCurrency(isCustomerPage: true).format(freeGiftCount > 0 ? 0.0 : double.tryParse(item.unitPrice))} / ${item.unit} )',
                                 style: AppTextStyle.regular(
-                                  fontSize: 12,
+                                  rawFontSize: 12,
                                   color: AppColors.redColor,
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -268,7 +268,7 @@ class _ProductItemWidget extends StatelessWidget {
                       Text(
                         S.current.complimentary_item,
                         style: AppTextStyle.regular(
-                          fontSize: 11,
+                          rawFontSize: 12,
                           color: const Color(0xff0168fe),
                         ),
                       ),

@@ -64,7 +64,7 @@
 //                   trailing: Text(
 //                     appConfig.dateFormatHhMmSsDDMMYYYY
 //                         .format(orderTime.createdAt),
-//                     style: AppTextStyle.regular(fontSize: 13.sp),
+//                     style: AppTextStyle.regular(fontSize: 13),
 //                   ),
 //                 ),
 //                 ...orderTime.products.map(
@@ -195,7 +195,7 @@
 //                       : Text(
 //                           appConfig.dateFormatHhMmSsDDMMYYYY
 //                               .format(e.timeByOrderHistory!),
-//                           style: AppTextStyle.regular(fontSize: 13.sp),
+//                           style: AppTextStyle.regular(fontSize: 13),
 //                         ),
 //                 ),
 //               );

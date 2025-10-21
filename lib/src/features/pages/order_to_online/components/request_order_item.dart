@@ -31,9 +31,7 @@ class RequestItemWidget extends ConsumerWidget {
       onTap: request.isProcessed
           ? null
           : () {
-              ref
-                  .read(orderToOnlinePageProvider.notifier)
-                  .onChangeRequestSelect(
+              ref.read(orderToOnlinePageProvider.notifier).onChangeRequestSelect(
                     request: request,
                     item: item,
                   );
@@ -53,9 +51,7 @@ class RequestItemWidget extends ConsumerWidget {
                     !request.isProcessed
                         ? CustomCheckbox(
                             onChange: () {
-                              ref
-                                  .read(orderToOnlinePageProvider.notifier)
-                                  .onChangeRequestSelect(
+                              ref.read(orderToOnlinePageProvider.notifier).onChangeRequestSelect(
                                     request: request,
                                     item: item,
                                   );
@@ -72,14 +68,12 @@ class RequestItemWidget extends ConsumerWidget {
                             children: [
                               Builder(
                                 builder: (context) {
-                                  bool mobileDevice =
-                                      AppDeviceSizeUtil.checkMobileDevice();
+                                  bool mobileDevice = AppDeviceSizeUtil.checkMobileDevice();
                                   return AppImageCacheNetworkWidget(
                                     imageUrl: item.image,
                                     width: mobileDevice ? 50 : 80,
                                     height: mobileDevice ? 50 : 80,
-                                    borderRadius: BorderRadius.circular(
-                                        mobileDevice ? 8 : 20),
+                                    borderRadius: BorderRadius.circular(mobileDevice ? 8 : 20),
                                     fit: BoxFit.cover,
                                   );
                                 },
@@ -91,7 +85,7 @@ class RequestItemWidget extends ConsumerWidget {
                                   children: [
                                     Text(
                                       item.name,
-                                      style: AppTextStyle.bold(fontSize: 14.sp),
+                                      style: AppTextStyle.bold(),
                                     ),
                                     const Gap(6),
                                     Text.rich(
@@ -100,13 +94,11 @@ class RequestItemWidget extends ConsumerWidget {
                                         children: [
                                           TextSpan(
                                             text: item.quantity.toString(),
-                                            style: AppTextStyle.bold(
-                                                fontSize: 14.sp),
+                                            style: AppTextStyle.bold(),
                                           ),
                                         ],
                                       ),
-                                      style:
-                                          AppTextStyle.regular(fontSize: 14.sp),
+                                      style: AppTextStyle.regular(),
                                     ),
                                     if (item.note.trim().isNotEmpty) ...[
                                       const GapH(6),
@@ -114,14 +106,12 @@ class RequestItemWidget extends ConsumerWidget {
                                         children: [
                                           Text(
                                             '${S.current.note}: ',
-                                            style: AppTextStyle.regular(
-                                                fontSize: 14.sp),
+                                            style: AppTextStyle.regular(),
                                           ),
                                           const GapW(4),
                                           Text(
                                             item.note,
-                                            style: AppTextStyle.regular(
-                                                fontSize: 14.sp),
+                                            style: AppTextStyle.regular(),
                                           ),
                                         ],
                                       ),
@@ -139,8 +129,7 @@ class RequestItemWidget extends ConsumerWidget {
                 if (item.noteRestaurant.trim().isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 8, left: 36),
-                    child: Text(
-                        '${S.current.note_the_dish}: ${item.noteRestaurant.trim()}'),
+                    child: Text('${S.current.note_the_dish}: ${item.noteRestaurant.trim()}'),
                   ),
               ],
             ),
@@ -162,8 +151,7 @@ class ReasonCancelItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (reason == null || reason!.trim().isEmpty)
-      return const SizedBox.shrink();
+    if (reason == null || reason!.trim().isEmpty) return const SizedBox.shrink();
     return Row(
       children: [
         ResponsiveIconWidget(

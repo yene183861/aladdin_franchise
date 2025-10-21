@@ -146,12 +146,10 @@ class __TicketFormState extends State<_TicketForm> {
                     if (images.length < maxImage)
                       IconButton(
                         style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStatePropertyAll(Colors.grey.shade200),
+                          backgroundColor: MaterialStatePropertyAll(Colors.grey.shade200),
                         ),
                         onPressed: () async {
-                          var file = await ImageUtil.onTakeImage(context,
-                              popContext: false);
+                          var file = await ImageUtil.onTakeImage(context, popContext: false);
                           if (file != null) {
                             images.add(file);
                             setState(() {});
@@ -251,7 +249,6 @@ class BoxImageWidget extends ConsumerWidget {
                   child: Text(
                     "Ảnh lỗi, hãy xoá bỏ!",
                     style: AppTextStyle.regular(
-                      fontSize: 14.sp,
                       color: AppColors.redColor,
                     ),
                   ),

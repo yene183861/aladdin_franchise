@@ -43,7 +43,7 @@ class ButtonCancelWidget extends StatelessWidget {
           textAction ?? S.current.cancel,
           style: AppTextStyle.regular(
             color: AppColors.white,
-            fontSize: textSize,
+            rawFontSize: textSize,
           ),
         ),
       ),

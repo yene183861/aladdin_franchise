@@ -1,4 +1,4 @@
-import 'package:aladdin_franchise/src/models/app_setting.dart';
+import 'package:aladdin_franchise/src/models/setting/print_setting.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -9,7 +9,7 @@ enum SettingPageMenuEnum { audioNotice, boxColSize, bill, color }
 @freezed
 class SettingsPageState with _$SettingsPageState {
   const factory SettingsPageState({
-    @Default(AppSettingModel()) AppSettingModel appSettings,
+    @Default(AppPrintSettingModel()) AppPrintSettingModel printSetting,
     @Default(SettingPageMenuEnum.audioNotice) SettingPageMenuEnum menuSelect,
   }) = _SettingsPageState;
 }

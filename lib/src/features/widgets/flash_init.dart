@@ -19,8 +19,7 @@ class FlashInitWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userData = ref.watch(userInfoProvider);
     final imageUrl = userData.restaurant?.logo ?? " ";
-    final restaurantName =
-        userData.restaurant?.name?.toUpperCase() ?? AppConfig.appName;
+    final restaurantName = userData.restaurant?.name?.toUpperCase() ?? AppConfig.appName;
     return Scaffold(
       backgroundColor: AppColors.mainColor,
       body: Stack(
@@ -47,11 +46,11 @@ class FlashInitWidget extends ConsumerWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 12.sp),
+                SizedBox(height: 12),
                 Text(
                   restaurantName,
                   style: AppTextStyle.regular(
-                    fontSize: 15.sp,
+                    rawFontSize: 15,
                     color: AppColors.secondColor,
                     fontWeight: FontWeight.w500,
                   ),
@@ -60,7 +59,7 @@ class FlashInitWidget extends ConsumerWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(12.sp),
+            padding: EdgeInsets.all(12),
             child: Text(
               "© ${AppConfig.companyName.toUpperCase()}",
               style: AppTextStyle.regular(

@@ -34,8 +34,7 @@ class UpdateOrderDialog extends ConsumerStatefulWidget {
 
 class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
   List<TableModel> tableSelected = [];
-  bool useReservation =
-      LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
+  bool useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
   bool update = true;
 
   // Khởi tạo bàn chọn theo bàn hiện tại
@@ -70,7 +69,7 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
     return AlertDialog(
       title: Text(
         S.current.updateAndChoseTable,
-        style: AppTextStyle.bold(fontSize: 15),
+        style: AppTextStyle.bold(rawFontSize: 15),
       ),
       content: SizedBox(
         width: double.maxFinite,
@@ -94,28 +93,20 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
             });
             var messageView = "Đơn bàn hiện tại [${orderSelect?.name}]";
 
-            List<TableModel> tableNewSelect = tableSelected
-                .where((element) => !tableCurrentSelect.contains(element))
-                .toList();
+            List<TableModel> tableNewSelect =
+                tableSelected.where((element) => !tableCurrentSelect.contains(element)).toList();
 
-            List<TableModel> tableRemoveSelect = tableCurrentSelect
-                .where((element) => !tableSelected.contains(element))
-                .toList();
-            if (tableCurrentSelect
-                    .every((element) => tableSelected.contains(element)) &&
+            List<TableModel> tableRemoveSelect =
+                tableCurrentSelect.where((element) => !tableSelected.contains(element)).toList();
+            if (tableCurrentSelect.every((element) => tableSelected.contains(element)) &&
                 tableNewSelect.isNotEmpty) {
-              messageView +=
-                  " gộp thêm bàn ${tableNewSelect.map((e) => e.name).toList()}";
-            } else if (tableSelected
-                    .any((element) => tableCurrentSelect.contains(element)) &&
+              messageView += " gộp thêm bàn ${tableNewSelect.map((e) => e.name).toList()}";
+            } else if (tableSelected.any((element) => tableCurrentSelect.contains(element)) &&
                 tableRemoveSelect.isNotEmpty &&
                 tableNewSelect.isEmpty) {
-              messageView +=
-                  " bỏ bàn ${tableRemoveSelect.map((e) => e.name).toList()}";
-            } else if (tableSelected
-                .any((element) => !tableCurrentSelect.contains(element))) {
-              messageView +=
-                  " được chuyển thành ${tableSelected.map((e) => e.name).toList()}";
+              messageView += " bỏ bàn ${tableRemoveSelect.map((e) => e.name).toList()}";
+            } else if (tableSelected.any((element) => !tableCurrentSelect.contains(element))) {
+              messageView += " được chuyển thành ${tableSelected.map((e) => e.name).toList()}";
             }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,34 +116,36 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
                   style: AppTextStyle.regular(),
                 ),
                 const GapH(12),
-                SingleChildScrollView(
-                  child: Center(
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: data.notUse.map((e) {
-                        bool isSelected = tableSelected.contains(e);
-                        return ChoiceChip(
-                          padding: const EdgeInsets.all(12),
-                          label: Text(
-                            e.name ?? "",
-                            style: AppTextStyle.regular(
-                              color: isSelected ? Colors.white : Colors.black,
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Center(
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: data.notUse.map((e) {
+                          bool isSelected = tableSelected.contains(e);
+                          return ChoiceChip(
+                            padding: const EdgeInsets.all(12),
+                            label: Text(
+                              e.name ?? "",
+                              style: AppTextStyle.regular(
+                                color: isSelected ? Colors.white : Colors.black,
+                              ),
                             ),
-                          ),
-                          selected: isSelected,
-                          selectedColor: AppColors.mainColor,
-                          checkmarkColor: Colors.white,
-                          onSelected: (value) {
-                            if (value) {
-                              tableSelected.add(e);
-                            } else {
-                              tableSelected.remove(e);
-                            }
-                            setState(() {});
-                          },
-                        );
-                      }).toList(),
+                            selected: isSelected,
+                            selectedColor: AppColors.mainColor,
+                            checkmarkColor: Colors.white,
+                            onSelected: (value) {
+                              if (value) {
+                                tableSelected.add(e);
+                              } else {
+                                tableSelected.remove(e);
+                              }
+                              setState(() {});
+                            },
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
                 ),
@@ -175,11 +168,8 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: [
         ButtonCancelWidget(
-          onPressed: () => Navigator.pop(context, (
-            orderId: null,
-            reservation: null,
-            requireUpdateReservation: false
-          )),
+          onPressed: () => Navigator.pop(
+              context, (orderId: null, reservation: null, requireUpdateReservation: false)),
         ),
         ButtonSimpleWidget(
           onPressed: () async {
@@ -193,13 +183,12 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
             ReservationModel? reservation;
             bool requireUpdateReservation = false;
             if (useReservation && orderSelect?.reservationCrmId != null) {
-              reservation = reservations.firstWhereOrNull(
-                  (e) => e.id == orderSelect?.reservationCrmId);
+              reservation =
+                  reservations.firstWhereOrNull((e) => e.id == orderSelect?.reservationCrmId);
               if (reservation != null &&
                   (reservation.reservationStatus != ReservationStatus.process ||
-                      !const SetEquality().equals(
-                          (reservation.tableId ?? []).toSet(),
-                          tableIds.toSet()))) {
+                      !const SetEquality()
+                          .equals((reservation.tableId ?? []).toSet(), tableIds.toSet()))) {
                 requireUpdateReservation = true;
               }
               reservation ??= ReservationModel(
@@ -217,8 +206,7 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
 
             if (result.error == null) {
               if (context.mounted) {
-                showDoneSnackBar(
-                    context: context, message: S.current.updateSuccess);
+                showDoneSnackBar(context: context, message: S.current.updateSuccess);
                 Navigator.pop(context, (
                   orderId: result.orderId,
                   reservation: requireUpdateReservation
@@ -228,8 +216,7 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
                           statusName: ReservationStatus.process.name,
                           isUpdate: false,
                           tableId: tableIds,
-                          table:
-                              tableSelected.map((e) => e.name ?? '').join(', '),
+                          table: tableSelected.map((e) => e.name ?? '').join(', '),
                         )
                       : reservation,
                   requireUpdateReservation: requireUpdateReservation,
@@ -250,12 +237,8 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
   }
 }
 
-Future<
-    ({
-      int? orderId,
-      ReservationModel? reservation,
-      bool requireUpdateReservation
-    })> showUpdateOrderDialog(BuildContext context) async {
+Future<({int? orderId, ReservationModel? reservation, bool requireUpdateReservation})>
+    showUpdateOrderDialog(BuildContext context) async {
   final result = await showDialog(
     context: context,
     useRootNavigator: false,

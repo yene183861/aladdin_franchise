@@ -39,8 +39,7 @@ class OrderPanelWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var orderSelect =
-        ref.watch(homeProvider.select((value) => value.orderSelect));
+    var orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,8 +78,7 @@ class KitchenNoteWidget extends ConsumerStatefulWidget {
   const KitchenNoteWidget({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __KitchenNoteWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __KitchenNoteWidgetState();
 }
 
 class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
@@ -103,8 +101,7 @@ class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
     super.dispose();
   }
 
-  _listenChangeNote(BuildContext context, WidgetRef ref) =>
-      (String? previous, String? next) {
+  _listenChangeNote(BuildContext context, WidgetRef ref) => (String? previous, String? next) {
         _controller.text = next ?? '';
       };
 
@@ -115,8 +112,7 @@ class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
       _listenChangeNote(context, ref),
     );
 
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     return TextFormField(
       controller: _controller,
       style: AppTextStyle.regular(),
@@ -127,14 +123,10 @@ class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
       ),
       onTapOutside: (event) {
         FocusManager.instance.primaryFocus?.unfocus();
-        ref
-            .read(homeProvider.notifier)
-            .onChangeKitchenNote(_controller.text.trim());
+        ref.read(homeProvider.notifier).onChangeKitchenNote(_controller.text.trim());
       },
       onChanged: (value) {
-        ref
-            .read(homeProvider.notifier)
-            .onChangeKitchenNote(_controller.text.trim());
+        ref.read(homeProvider.notifier).onChangeKitchenNote(_controller.text.trim());
       },
       onFieldSubmitted: (value) {
         ref.read(homeProvider.notifier).onChangeKitchenNote(value.trim());
@@ -173,42 +165,34 @@ class _SpinBoxWidgetState extends ConsumerState<SpinBoxWidget> {
                     int count = currentCount - 1;
                     if (count == 0) {
                       if (state.orderTabSelect == OrderTabEnum.ordering) {
-                        ref
-                            .read(homeProvider.notifier)
-                            .changeProductInCart(widget.item, 0);
+                        ref.read(homeProvider.notifier).changeProductInCart(widget.item, 0);
                         return;
                       }
-                      var pc = state.productCheckout
-                          .firstWhereOrNull((e) => e.id == widget.item.id);
+                      var pc =
+                          state.productCheckout.firstWhereOrNull((e) => e.id == widget.item.id);
                       if (pc == null) return;
                       onPressedCancelItem(context, ref,
-                          productCancel: [
-                            pc.copyWith(quantityCancel: -pc.quantity)
-                          ],
+                          productCancel: [pc.copyWith(quantityCancel: -pc.quantity)],
                           setStateFunc: setState);
                       // onPressedPaymentCancel(
                       //     context, ref, widget.item, setState);
                       return;
                     }
-                    ref
-                        .read(homeProvider.notifier)
-                        .changeProductInCart(widget.item, count);
+                    ref.read(homeProvider.notifier).changeProductInCart(widget.item, count);
                   },
                   borderRadius: AppConfig.borderRadiusSecond,
                   child: Container(
                     height: 36,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: AppConfig.borderRadiusSecond),
+                        color: Colors.grey.shade200, borderRadius: AppConfig.borderRadiusSecond),
                     child: const Icon(CupertinoIcons.minus, size: 18),
                   ),
                 ),
                 const Gap(12),
                 Text(
                   widget.item.numberSelecting.toString(),
-                  style: AppTextStyle.bold(fontSize: 16),
+                  style: AppTextStyle.bold(),
                 ),
                 const Gap(12),
                 InkWell(
@@ -221,11 +205,9 @@ class _SpinBoxWidgetState extends ConsumerState<SpinBoxWidget> {
                   borderRadius: AppConfig.borderRadiusSecond,
                   child: Container(
                     height: 36,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: AppConfig.borderRadiusSecond),
+                        color: Colors.grey.shade200, borderRadius: AppConfig.borderRadiusSecond),
                     child: const Icon(CupertinoIcons.add, size: 18),
                   ),
                 ),
@@ -313,8 +295,7 @@ Future<void> onPressedCancelItem(
       if (cbItems == null || cbItems.isEmpty) {
         var printerType = pCheck.printerType ?? p.printerType;
         if (printerType != null) {
-          var items =
-              List<ProductModel>.from(productMapPrinter[printerType] ?? []);
+          var items = List<ProductModel>.from(productMapPrinter[printerType] ?? []);
           items.add(pCheck.copyWith(numberSelecting: p.quantityCancel.abs()));
           productMapPrinter[printerType] = items;
         }
@@ -324,8 +305,7 @@ Future<void> onPressedCancelItem(
         for (var ci in cbItems) {
           if (ci.printerType != null) {
             if (ci.printerType == 4) {
-              var items = List<ProductModel>.from(
-                  productMapPrinter[ci.printerType] ?? []);
+              var items = List<ProductModel>.from(productMapPrinter[ci.printerType] ?? []);
               items.add(ProductModel(
                 id: ci.id ?? -1,
                 categoryId: 1,
@@ -351,8 +331,7 @@ Future<void> onPressedCancelItem(
       }
     } else {
       if (p.printerType != null) {
-        var items =
-            List<ProductModel>.from(productMapPrinter[p.printerType!] ?? []);
+        var items = List<ProductModel>.from(productMapPrinter[p.printerType!] ?? []);
         items.add(ProductModel(
           id: p.id,
           categoryId: 1,
@@ -400,8 +379,7 @@ Future<void> onPressedCancelItem(
   bool checkDishInCouponFree = false;
   for (var coupon in state.coupons) {
     if (coupon.isPromotion()) {
-      if (coupon.promotionItems
-          .any((e) => cancelItemIds.contains(e.menuItemId))) {
+      if (coupon.promotionItems.any((e) => cancelItemIds.contains(e.menuItemId))) {
         checkDishInCouponFree = true;
       }
     }
@@ -474,8 +452,8 @@ Future<void> onPressedCancelItem(
 
           List<ProductModel> kitchenProductPrint = productMapPrinter[2] ?? [];
           List<int> kitchenByteDatas = [];
-          bool printNormal = LocalStorage.getAppSettings().appPrinterType ==
-              AppPrinterSettingTypeEnum.normal;
+          bool printNormal =
+              LocalStorage.getPrintSetting().appPrinterType == AppPrinterSettingTypeEnum.normal;
           // bỏ qua in bếp nếu sử dụng KDS
           if (!AppConfig.useKds && kitchenProductPrint.isNotEmpty) {
             kitchenByteDatas = printNormal
@@ -488,8 +466,8 @@ Future<void> onPressedCancelItem(
                     title: 'HUY DO',
                     totalNote: reason,
                   )
-                : await AppPrinterHtmlUtils.instance.generateImageBill(
-                    AppPrinterHtmlUtils.instance.kitchenBillContent(
+                : await AppPrinterHtmlUtils.instance
+                    .generateImageBill(AppPrinterHtmlUtils.instance.kitchenBillContent(
                     product: kitchenProductPrint,
                     totalBill: true,
                     order: state.orderSelect!,
@@ -521,8 +499,7 @@ Future<void> onPressedCancelItem(
                 );
               }
             } else {
-              List<ProductModel> productPrint =
-                  productMapPrinter[printer.type] ?? [];
+              List<ProductModel> productPrint = productMapPrinter[printer.type] ?? [];
               if (productPrint.isNotEmpty) {
                 var byteDatas = printNormal
                     ? await AppPrinterNormalUtils.instance.generateBill(
@@ -555,8 +532,7 @@ Future<void> onPressedCancelItem(
                     if (success == false) {
                       showMessageDialog(
                         context,
-                        message:
-                            'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ\n'
+                        message: 'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ\n'
                             '$error',
                       );
                     }
@@ -575,8 +551,7 @@ Future<void> onPressedCancelItem(
         bool checkFoodCancelInCoupon = false;
         for (var discount in coupon.discount) {
           for (var itemCancel in checkProductCancel) {
-            var product = state.products
-                .firstWhereOrNull((element) => element.id == itemCancel.id);
+            var product = state.products.firstWhereOrNull((element) => element.id == itemCancel.id);
             if (product != null) {
               // copy từ apos sang đoạn này
               // đối với món thông thường
@@ -585,25 +560,22 @@ Future<void> onPressedCancelItem(
                 break;
               } else {
                 // kiểm tra combo
-                List<ComboItemModel>? comboItems =
-                    ProductHelper().getComboDescription(product);
+                List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(product);
                 if (comboItems != null) {
                   // chỉ dùng để check với combo
                   List<ProductModel> productFromDiscount = [];
                   // lọc danh sách món map với tất cả món tại nhà hàng
                   for (var itemCb in comboItems) {
                     if (itemCb.name == discount.name) {
-                      var productCheckDiscount = state.products
-                          .firstWhereOrNull((e) => e.name == discount.name);
+                      var productCheckDiscount =
+                          state.products.firstWhereOrNull((e) => e.name == discount.name);
                       if (productCheckDiscount != null &&
-                          productFromDiscount.contains(productCheckDiscount) ==
-                              false) {
+                          productFromDiscount.contains(productCheckDiscount) == false) {
                         productFromDiscount.add(productCheckDiscount);
                       }
                     }
                   }
-                  if (productFromDiscount
-                      .any((element) => element.id.toString() == discount.id)) {
+                  if (productFromDiscount.any((element) => element.id.toString() == discount.id)) {
                     checkFoodCancelInCoupon = true;
                     break;
                   }
@@ -615,8 +587,7 @@ Future<void> onPressedCancelItem(
           if (checkFoodCancelInCoupon) break;
         }
         if (checkFoodCancelInCoupon && coupon.only) {
-          var resultRemove =
-              await ref.read(homeProvider.notifier).removeCoupon(coupon);
+          var resultRemove = await ref.read(homeProvider.notifier).removeCoupon(coupon);
           if (resultRemove != null) {
             // ignore: use_build_context_synchronously
             showMessageDialog(

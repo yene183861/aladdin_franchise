@@ -8,7 +8,8 @@ import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/models/product_selecting.dart';
 import 'package:aladdin_franchise/src/models/restaurant_config.dart';
-import 'package:aladdin_franchise/src/models/app_setting.dart';
+import 'package:aladdin_franchise/src/models/setting/app_setting.dart';
+import 'package:aladdin_franchise/src/models/setting/print_setting.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:network_info_plus/network_info_plus.dart';
@@ -144,9 +145,11 @@ final styleAppProvider = Provider.autoDispose<RestaurantStyle>((ref) {
 final languageLocalProvider = Provider<Locale>((ref) {
   return Locale(LocalStorage.getLanguageLocal());
 });
-
-final appSettingsProvider = Provider<AppSettingModel>((ref) {
-  return LocalStorage.getAppSettings();
+final printSettingProvider = Provider<AppPrintSettingModel>((ref) {
+  return LocalStorage.getPrintSetting();
+});
+final appSettingProvider = Provider<AppSettingModel>((ref) {
+  return LocalStorage.getAppSetting();
 });
 final apiUrlProvider = Provider<String>((ref) {
   return LocalStorage.getApiUrl();

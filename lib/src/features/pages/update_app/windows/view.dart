@@ -48,8 +48,7 @@ class _UpdateAppWindowsPageState extends ConsumerState<UpdateAppWindowsPage> {
             Navigator.pop(context);
             showMessageDialog(
               context,
-              message: ref.watch(updateAppWindowsProvider
-                  .select((value) => value.errorMessage)),
+              message: ref.watch(updateAppWindowsProvider.select((value) => value.errorMessage)),
             );
             break;
           case UpdateAppWindowsEvent.complete:
@@ -66,8 +65,7 @@ class _UpdateAppWindowsPageState extends ConsumerState<UpdateAppWindowsPage> {
             Navigator.pop(context);
             showMessageDialog(
               context,
-              message: ref.watch(updateAppWindowsProvider
-                  .select((value) => value.errorMessage)),
+              message: ref.watch(updateAppWindowsProvider.select((value) => value.errorMessage)),
             );
             break;
           default:
@@ -89,8 +87,7 @@ class _UpdateAppWindowsPageState extends ConsumerState<UpdateAppWindowsPage> {
       updateAppWindowsProvider.select((value) => value.events),
       _listenEvent(context, ref),
     );
-    final server =
-        ref.watch(updateAppWindowsProvider.select((value) => value.server));
+    final server = ref.watch(updateAppWindowsProvider.select((value) => value.server));
     return Scaffold(
       appBar: AppBar(
         title: Text("${S.current.update_app} (Windows)"),
@@ -116,9 +113,7 @@ class _UpdateAppWindowsPageState extends ConsumerState<UpdateAppWindowsPage> {
               child: ChangeServerConfigWidget(
                 value: server,
                 onChangeValue: (value) {
-                  ref
-                      .read(updateAppWindowsProvider.notifier)
-                      .onChangeServer(value);
+                  ref.read(updateAppWindowsProvider.notifier).onChangeServer(value);
                 },
               ),
             ),
@@ -194,8 +189,7 @@ class _UpdateAppWindowsPageState extends ConsumerState<UpdateAppWindowsPage> {
       error: (_, __) {
         return Consumer(
           builder: (BuildContext context, WidgetRef ref, Widget? child) {
-            final server = ref.watch(
-                updateAppWindowsProvider.select((value) => value.server));
+            final server = ref.watch(updateAppWindowsProvider.select((value) => value.server));
             return UpdateAppCheckErrorWidget(
               infoError: _.toString(),
               onTryAgain: () {
@@ -226,8 +220,7 @@ class _BodyUpdateWidget extends ConsumerWidget {
   final AppUpdateModel appUpdate;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final downloadState =
-        ref.watch(updateAppWindowsProvider.select((value) => value.events));
+    final downloadState = ref.watch(updateAppWindowsProvider.select((value) => value.events));
     return SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -241,7 +234,7 @@ class _BodyUpdateWidget extends ConsumerWidget {
             padding: const EdgeInsets.all(8.0),
             child: Text(
               S.current.new_version_available,
-              style: AppTextStyle.bold(fontSize: 15.sp),
+              style: AppTextStyle.bold(rawFontSize: 15),
             ),
           ),
           if (appUpdate.isRequired)

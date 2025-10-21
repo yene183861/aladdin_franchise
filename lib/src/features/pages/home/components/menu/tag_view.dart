@@ -30,7 +30,7 @@ class TagViewWidget extends StatelessWidget {
       child: Text(
         tag.name,
         style: AppTextStyle.regular(
-          fontSize: 12.sp,
+          rawFontSize: 12,
           fontWeight: FontWeight.bold,
           color: AppColors.tcTagInProduct,
         ),

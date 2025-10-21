@@ -61,8 +61,7 @@ class _ConfirmInputDialogState extends ConsumerState<ConfirmInputDialog> {
       shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
       title: Text(
         widget.title,
-        // style: AppTextStyle.regular(fontSize: 15.sp),
-        style: AppTextStyle.regular(fontSize: 15),
+        style: AppTextStyle.regular(rawFontSize: 15),
       ),
       content: SingleChildScrollView(
         child: Column(

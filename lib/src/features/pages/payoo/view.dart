@@ -40,8 +40,7 @@ class PaymentGatewayPage extends ConsumerStatefulWidget {
   final OrderModel order;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _PaymentGatewayPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _PaymentGatewayPageState();
 }
 
 class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
@@ -73,8 +72,7 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
         _windowsController = WebviewController();
         await _windowsController!.initialize();
         await _windowsController!.setBackgroundColor(Colors.transparent);
-        await _windowsController!
-            .setPopupWindowPolicy(WebviewPopupWindowPolicy.deny);
+        await _windowsController!.setPopupWindowPolicy(WebviewPopupWindowPolicy.deny);
         await _windowsController!.loadUrl(widget.gatewayUrl);
 
         setState(() {});
@@ -136,8 +134,7 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
         throw S.current.error_payment_recognition_server_not_configure;
       }
       showLog(redisGateway, flags: 'redisGateway');
-      final channelPayment =
-          "payment_result_${restaurant?.id}_${widget.order.id}";
+      final channelPayment = "payment_result_${restaurant?.id}_${widget.order.id}";
       showLog(channelPayment, flags: 'channelPayment');
       final ip = redisGateway?.host;
       final port = redisGateway?.port;
@@ -207,8 +204,7 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            '${S.current.payment_gateway} (${widget.paymentMethod.getNameView()})'),
+        title: Text('${S.current.payment_gateway} (${widget.paymentMethod.getNameView()})'),
         leading: CloseButton(
           onPressed: () {
             showConfirmActionWithChild(
@@ -237,8 +233,7 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
         actions: [
           IconButton(
             onPressed: () {
-              showConfirmAction(context,
-                  message: S.current.confirm_reload_payment_gateway,
+              showConfirmAction(context, message: S.current.confirm_reload_payment_gateway,
                   action: () {
                 if (Platform.isWindows) {
                   _windowsController?.reload();
@@ -392,13 +387,11 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
         content: Text('${S.current.webview_permission_request_1} \'$kind\''),
         actions: <Widget>[
           TextButton(
-            onPressed: () =>
-                Navigator.pop(context, WebviewPermissionDecision.deny),
+            onPressed: () => Navigator.pop(context, WebviewPermissionDecision.deny),
             child: Text(S.current.deny),
           ),
           TextButton(
-            onPressed: () =>
-                Navigator.pop(context, WebviewPermissionDecision.allow),
+            onPressed: () => Navigator.pop(context, WebviewPermissionDecision.allow),
             child: Text(S.current.allow),
           ),
         ],
@@ -416,12 +409,10 @@ class _ConfirmCloseGatewayWidget extends StatefulWidget {
   });
   final Function(bool) onChanged;
   @override
-  State<_ConfirmCloseGatewayWidget> createState() =>
-      _ConfirmCloseGatewayWidgetState();
+  State<_ConfirmCloseGatewayWidget> createState() => _ConfirmCloseGatewayWidgetState();
 }
 
-class _ConfirmCloseGatewayWidgetState
-    extends State<_ConfirmCloseGatewayWidget> {
+class _ConfirmCloseGatewayWidgetState extends State<_ConfirmCloseGatewayWidget> {
   bool confirmPaymentSuccess = false;
   @override
   Widget build(BuildContext context) {
@@ -473,7 +464,7 @@ class _ConfirmCloseGatewayWidgetState
           S.current.cancel_payment_method_if_customer_not_paid,
           style: AppTextStyle.bold(
             fontStyle: FontStyle.italic,
-            fontSize: 13.sp,
+            rawFontSize: 13,
             color: Colors.orangeAccent,
           ),
         ),

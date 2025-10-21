@@ -48,7 +48,7 @@ class BrandRestaurantWidget extends ConsumerWidget {
           textAlign: TextAlign.center,
           style: AppTextStyle.regular(
             fontWeight: FontWeight.w600,
-            fontSize: 18.sp,
+            rawFontSize: 18,
             color: AppColors.mainColor,
           ),
         ),

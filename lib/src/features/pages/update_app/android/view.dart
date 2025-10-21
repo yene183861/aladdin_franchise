@@ -59,8 +59,7 @@ class _UpdateAppAndroidPageState extends ConsumerState<UpdateAppAndroidPage> {
   }
 
   void _bindBackgroundIsolate() {
-    bool isSuccess = IsolateNameServer.registerPortWithName(
-        _port.sendPort, 'downloader_send_port');
+    bool isSuccess = IsolateNameServer.registerPortWithName(_port.sendPort, 'downloader_send_port');
     showLog(isSuccess, flags: 'isSuccess');
     if (!isSuccess) {
       _unbindBackgroundIsolate();
@@ -106,8 +105,7 @@ class _UpdateAppAndroidPageState extends ConsumerState<UpdateAppAndroidPage> {
     int status,
     int progress,
   ) {
-    IsolateNameServer.lookupPortByName('downloader_send_port')
-        ?.send([id, status, progress]);
+    IsolateNameServer.lookupPortByName('downloader_send_port')?.send([id, status, progress]);
   }
 
   /// Không biết vì sao mà thư viện nó không lắng nghe được :((
@@ -116,13 +114,11 @@ class _UpdateAppAndroidPageState extends ConsumerState<UpdateAppAndroidPage> {
   startTimerCheckProcess() {
     timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       var tasks = await FlutterDownloader.loadTasks();
-      var task = tasks?.firstWhereOrNull(
-          (e) => e.taskId == ref.read(updateAppAndroidProvider).taskId);
+      var task =
+          tasks?.firstWhereOrNull((e) => e.taskId == ref.read(updateAppAndroidProvider).taskId);
       if (task != null) {
         showLog(task.progress, flags: 'process');
-        ref
-            .read(updateAppAndroidProvider.notifier)
-            .changeProcess(task.progress);
+        ref.read(updateAppAndroidProvider.notifier).changeProcess(task.progress);
         switch (task.status) {
           case DownloadTaskStatus.complete: // complete
             showLog('complete');
@@ -142,11 +138,8 @@ class _UpdateAppAndroidPageState extends ConsumerState<UpdateAppAndroidPage> {
             break;
         }
         // 3 complete | 4 failed => close
-        if ([DownloadTaskStatus.complete, DownloadTaskStatus.failed]
-            .contains(task.status)) {
-          ref
-              .read(updateAppAndroidProvider.notifier)
-              .changeDownloadStatus(false);
+        if ([DownloadTaskStatus.complete, DownloadTaskStatus.failed].contains(task.status)) {
+          ref.read(updateAppAndroidProvider.notifier).changeDownloadStatus(false);
           timer.cancel();
           showLog('cancelAll');
           await FlutterDownloader.cancelAll();
@@ -157,8 +150,7 @@ class _UpdateAppAndroidPageState extends ConsumerState<UpdateAppAndroidPage> {
 
   @override
   Widget build(BuildContext context) {
-    final server =
-        ref.watch(updateAppAndroidProvider.select((value) => value.server));
+    final server = ref.watch(updateAppAndroidProvider.select((value) => value.server));
     return Scaffold(
       appBar: AppBar(
         title: Text(S.current.update_app),
@@ -184,9 +176,7 @@ class _UpdateAppAndroidPageState extends ConsumerState<UpdateAppAndroidPage> {
               child: ChangeServerConfigWidget(
                 value: server,
                 onChangeValue: (value) {
-                  ref
-                      .read(updateAppAndroidProvider.notifier)
-                      .onChangeServer(value);
+                  ref.read(updateAppAndroidProvider.notifier).onChangeServer(value);
                 },
               ),
             ),
@@ -257,9 +247,7 @@ class _UpdateAppAndroidPageState extends ConsumerState<UpdateAppAndroidPage> {
             isRequired: data.isRequired,
             onPressUpdate: () {
               startTimerCheckProcess();
-              ref
-                  .read(updateAppAndroidProvider.notifier)
-                  .onUpdateApp(data.apkLink);
+              ref.read(updateAppAndroidProvider.notifier).onUpdateApp(data.apkLink);
             },
             note: data.note,
             apkLink: data.apkLink,
@@ -273,8 +261,7 @@ class _UpdateAppAndroidPageState extends ConsumerState<UpdateAppAndroidPage> {
       error: (_, __) {
         return Consumer(
           builder: (BuildContext context, WidgetRef ref, Widget? child) {
-            final server = ref.watch(
-                updateAppAndroidProvider.select((value) => value.server));
+            final server = ref.watch(updateAppAndroidProvider.select((value) => value.server));
             return UpdateAppCheckErrorWidget(
               infoError: _.toString(),
               onTryAgain: () {
@@ -314,10 +301,10 @@ class _BodyUpdateWidget extends ConsumerWidget {
   });
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final downloadProgress = ref.watch(
-        updateAppAndroidProvider.select((value) => value.downloadProgress));
-    final isDownloading = ref
-        .watch(updateAppAndroidProvider.select((value) => value.isDownloading));
+    final downloadProgress =
+        ref.watch(updateAppAndroidProvider.select((value) => value.downloadProgress));
+    final isDownloading =
+        ref.watch(updateAppAndroidProvider.select((value) => value.isDownloading));
     return SingleChildScrollView(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -332,7 +319,7 @@ class _BodyUpdateWidget extends ConsumerWidget {
             padding: const EdgeInsets.all(8.0),
             child: Text(
               S.current.new_version_available,
-              style: AppTextStyle.bold(fontSize: 15.sp),
+              style: AppTextStyle.bold(rawFontSize: 15),
             ),
           ),
           if (isRequired)

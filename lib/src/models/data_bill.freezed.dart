@@ -923,6 +923,11 @@ mixin _$LineItemDataBill {
   String get codeProduct => throw _privateConstructorUsedError;
   List<SubLineItemDataBill> get listItem => throw _privateConstructorUsedError;
 
+  /// được sửa thuế hay 0
+  /// 0 - k được sửa
+  /// 1 - được sửa
+  int get isChangeTax => throw _privateConstructorUsedError;
+
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
   $LineItemDataBillCopyWith<LineItemDataBill> get copyWith =>
@@ -944,7 +949,8 @@ abstract class $LineItemDataBillCopyWith<$Res> {
       dynamic tax,
       String nameEn,
       String codeProduct,
-      List<SubLineItemDataBill> listItem});
+      List<SubLineItemDataBill> listItem,
+      int isChangeTax});
 }
 
 /// @nodoc
@@ -969,6 +975,7 @@ class _$LineItemDataBillCopyWithImpl<$Res, $Val extends LineItemDataBill>
     Object? nameEn = null,
     Object? codeProduct = null,
     Object? listItem = null,
+    Object? isChangeTax = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -1007,6 +1014,10 @@ class _$LineItemDataBillCopyWithImpl<$Res, $Val extends LineItemDataBill>
           ? _value.listItem
           : listItem // ignore: cast_nullable_to_non_nullable
               as List<SubLineItemDataBill>,
+      isChangeTax: null == isChangeTax
+          ? _value.isChangeTax
+          : isChangeTax // ignore: cast_nullable_to_non_nullable
+              as int,
     ) as $Val);
   }
 }
@@ -1028,7 +1039,8 @@ abstract class _$$LineItemDataBillImplCopyWith<$Res>
       dynamic tax,
       String nameEn,
       String codeProduct,
-      List<SubLineItemDataBill> listItem});
+      List<SubLineItemDataBill> listItem,
+      int isChangeTax});
 }
 
 /// @nodoc
@@ -1051,6 +1063,7 @@ class __$$LineItemDataBillImplCopyWithImpl<$Res>
     Object? nameEn = null,
     Object? codeProduct = null,
     Object? listItem = null,
+    Object? isChangeTax = null,
   }) {
     return _then(_$LineItemDataBillImpl(
       id: null == id
@@ -1089,6 +1102,10 @@ class __$$LineItemDataBillImplCopyWithImpl<$Res>
           ? _value._listItem
           : listItem // ignore: cast_nullable_to_non_nullable
               as List<SubLineItemDataBill>,
+      isChangeTax: null == isChangeTax
+          ? _value.isChangeTax
+          : isChangeTax // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -1107,7 +1124,8 @@ class _$LineItemDataBillImpl extends _LineItemDataBill
       this.tax = '',
       this.nameEn = '',
       this.codeProduct = '',
-      final List<SubLineItemDataBill> listItem = const []})
+      final List<SubLineItemDataBill> listItem = const [],
+      this.isChangeTax = 0})
       : _listItem = listItem,
         super._();
 
@@ -1147,9 +1165,16 @@ class _$LineItemDataBillImpl extends _LineItemDataBill
     return EqualUnmodifiableListView(_listItem);
   }
 
+  /// được sửa thuế hay 0
+  /// 0 - k được sửa
+  /// 1 - được sửa
+  @override
+  @JsonKey()
+  final int isChangeTax;
+
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'LineItemDataBill(id: $id, name: $name, price: $price, count: $count, unit: $unit, tax: $tax, nameEn: $nameEn, codeProduct: $codeProduct, listItem: $listItem)';
+    return 'LineItemDataBill(id: $id, name: $name, price: $price, count: $count, unit: $unit, tax: $tax, nameEn: $nameEn, codeProduct: $codeProduct, listItem: $listItem, isChangeTax: $isChangeTax)';
   }
 
   @override
@@ -1165,7 +1190,8 @@ class _$LineItemDataBillImpl extends _LineItemDataBill
       ..add(DiagnosticsProperty('tax', tax))
       ..add(DiagnosticsProperty('nameEn', nameEn))
       ..add(DiagnosticsProperty('codeProduct', codeProduct))
-      ..add(DiagnosticsProperty('listItem', listItem));
+      ..add(DiagnosticsProperty('listItem', listItem))
+      ..add(DiagnosticsProperty('isChangeTax', isChangeTax));
   }
 
   @override
@@ -1182,7 +1208,9 @@ class _$LineItemDataBillImpl extends _LineItemDataBill
             (identical(other.nameEn, nameEn) || other.nameEn == nameEn) &&
             (identical(other.codeProduct, codeProduct) ||
                 other.codeProduct == codeProduct) &&
-            const DeepCollectionEquality().equals(other._listItem, _listItem));
+            const DeepCollectionEquality().equals(other._listItem, _listItem) &&
+            (identical(other.isChangeTax, isChangeTax) ||
+                other.isChangeTax == isChangeTax));
   }
 
   @JsonKey(ignore: true)
@@ -1197,7 +1225,8 @@ class _$LineItemDataBillImpl extends _LineItemDataBill
       const DeepCollectionEquality().hash(tax),
       nameEn,
       codeProduct,
-      const DeepCollectionEquality().hash(_listItem));
+      const DeepCollectionEquality().hash(_listItem),
+      isChangeTax);
 
   @JsonKey(ignore: true)
   @override
@@ -1224,7 +1253,8 @@ abstract class _LineItemDataBill extends LineItemDataBill {
       final dynamic tax,
       final String nameEn,
       final String codeProduct,
-      final List<SubLineItemDataBill> listItem}) = _$LineItemDataBillImpl;
+      final List<SubLineItemDataBill> listItem,
+      final int isChangeTax}) = _$LineItemDataBillImpl;
   const _LineItemDataBill._() : super._();
 
   factory _LineItemDataBill.fromJson(Map<String, dynamic> json) =
@@ -1248,6 +1278,12 @@ abstract class _LineItemDataBill extends LineItemDataBill {
   String get codeProduct;
   @override
   List<SubLineItemDataBill> get listItem;
+  @override
+
+  /// được sửa thuế hay 0
+  /// 0 - k được sửa
+  /// 1 - được sửa
+  int get isChangeTax;
   @override
   @JsonKey(ignore: true)
   _$$LineItemDataBillImplCopyWith<_$LineItemDataBillImpl> get copyWith =>

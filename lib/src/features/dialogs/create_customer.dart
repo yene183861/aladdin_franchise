@@ -36,10 +36,7 @@ class CreateCustomerDialog extends ConsumerStatefulWidget {
 class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
   String? gender, address, idCardNumber;
   String inputBirthday = "";
-  late TextEditingController ctrlPhone,
-      ctrlFirstName,
-      ctrlLastName,
-      ctrlBirthday;
+  late TextEditingController ctrlPhone, ctrlFirstName, ctrlLastName, ctrlBirthday;
   bool _noBOD = true;
   @override
   void initState() {
@@ -62,8 +59,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     bool enable = !lockedOrder;
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -74,8 +70,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
             title: Text(
               S.current.createNewCustomers,
               style: AppTextStyle.medium(
-                // fontSize: 15.sp,
-                fontSize: 15,
+                rawFontSize: 15,
               ),
             ),
             content: SizedBox(
@@ -228,25 +223,22 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                     if (_noBOD == false) {
                       var checkDob = checkInputDate(ctrlBirthday.text);
                       if (checkDob != null) {
-                        showMessageDialog(context,
-                            message: S.current.dob_not_format);
+                        showMessageDialog(context, message: S.current.dob_not_format);
                         return;
                       }
-                      final dob =
-                          DateFormat("dd/MM/yyyy").parse(ctrlBirthday.text);
+                      final dob = DateFormat("dd/MM/yyyy").parse(ctrlBirthday.text);
                       inputBirthday = appConfig.dateFormatYYYYMMDD.format(dob);
                     }
-                    final result =
-                        await ref.read(homeProvider.notifier).createCustomer(
-                              phone: phone,
-                              firstName: firstName,
-                              lastName: lastName,
-                              birthday: inputBirthday,
-                              gender: gender,
-                              idCardNumber: idCardNumber,
-                              address: address,
-                              noBOD: _noBOD,
-                            );
+                    final result = await ref.read(homeProvider.notifier).createCustomer(
+                          phone: phone,
+                          firstName: firstName,
+                          lastName: lastName,
+                          birthday: inputBirthday,
+                          gender: gender,
+                          idCardNumber: idCardNumber,
+                          address: address,
+                          noBOD: _noBOD,
+                        );
                     if (result != null) {
                       if (context.mounted) {
                         await showErrorDialog(

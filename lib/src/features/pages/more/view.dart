@@ -4,10 +4,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/about_device.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/about_line.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_check_printer.dart';
-import 'package:aladdin_franchise/src/features/pages/more/widgets/ticket/btn_history_ticket.dart';
-import 'package:aladdin_franchise/src/features/pages/more/widgets/button_help.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_logout.dart';
-import 'package:aladdin_franchise/src/features/pages/more/widgets/ticket/btn_ticket.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_type_order.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_update_app.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_update_data.dart';
@@ -19,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../generated/l10n.dart';
 import '../../../core/storages/local.dart';
+import 'widgets/btn_font_scale.dart';
 
 class MorePage extends ConsumerWidget {
   const MorePage({super.key});
@@ -57,7 +55,9 @@ class MorePage extends ConsumerWidget {
                   const Divider(),
                   ButtonCheckPrinterWidget(printers: printers),
                 ],
+                const Divider(), const ButtonChangeUseFontScale(),
                 const Divider(),
+                const ButtonFontScaleSetting(),
                 const ButtonLogoutWidget(),
               ],
             ),

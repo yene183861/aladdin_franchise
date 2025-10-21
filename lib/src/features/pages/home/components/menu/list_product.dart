@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
@@ -15,7 +13,6 @@ import 'package:aladdin_franchise/src/models/tag_product.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProductBoxWidget extends ConsumerWidget {
@@ -24,32 +21,14 @@ class ProductBoxWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // var autoSaveOrder = ref.watch(homeProvider.select((value) => value.autoSaveOrder));
-    // var currentOrderItems =
-    //     ref.watch(homeProvider.select((value) => value.currentOrderItems));
-    var productsSelected =
-        ref.watch(homeProvider.select((value) => value.productsSelected));
-    var productsSelecting =
-        ref.watch(homeProvider.select((value) => value.productsSelecting));
-
-    // int total = currentOrderItems
-    //         .firstWhereOrNull((e) => e.id == product.id)
-    //         ?.numberSelecting ??
-    //     0;
+    var productsSelected = ref.watch(homeProvider.select((value) => value.productsSelected));
+    var productsSelecting = ref.watch(homeProvider.select((value) => value.productsSelecting));
 
     int ordered =
-        // autoSaveOrder
-        //     ? 0
-        //     :
-        (productsSelected
-                .firstWhereOrNull((e) => e.id == product.id)
-                ?.numberSelecting ??
-            0);
+        (productsSelected.firstWhereOrNull((e) => e.id == product.id)?.numberSelecting ?? 0);
 
-    int ordering = productsSelecting
-            .firstWhereOrNull((e) => e.id == product.id)
-            ?.numberSelecting ??
-        0;
+    int ordering =
+        productsSelecting.firstWhereOrNull((e) => e.id == product.id)?.numberSelecting ?? 0;
     var listTags = ref.watch(homeProvider.select((value) => value.tags));
     List<TagProductModel> tags = [];
     for (var element in listTags) {
@@ -77,9 +56,8 @@ class ProductBoxWidget extends ConsumerWidget {
         children: [
           Container(
             clipBehavior: Clip.hardEdge,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.grey.shade100),
+            decoration:
+                BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.grey.shade100),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -108,14 +86,14 @@ class ProductBoxWidget extends ConsumerWidget {
                       color: AppColors.redColor,
                       fontWeight: FontWeight.w600,
                       fontStyle: FontStyle.italic,
-                      fontSize: 12,
+                      rawFontSize: 13,
                     ),
                     children: [
                       TextSpan(
-                        text: "/${product.unit.trim()}",
+                        text: " / ${product.unit.trim()}",
                         style: AppTextStyle.regular(
                           color: Colors.grey,
-                          fontSize: 12,
+                          rawFontSize: 13,
                         ),
                       ),
                     ],
@@ -132,15 +110,13 @@ class ProductBoxWidget extends ConsumerWidget {
                             text: 'Đã gọi: ',
                             children: [
                               TextSpan(
-                                text: ordered > 1000
-                                    ? '1000+'
-                                    : ordered.toString(),
+                                text: ordered > 1000 ? '1000+' : ordered.toString(),
                               ),
                             ],
                           ),
-                          style: AppTextStyle.regular().copyWith(
+                          style: AppTextStyle.regular(
+                            rawFontSize: 12.5,
                             fontStyle: FontStyle.italic,
-                            fontSize: 12,
                             color: Colors.grey,
                           ),
                         ),
@@ -148,10 +124,7 @@ class ProductBoxWidget extends ConsumerWidget {
                         child: Text.rich(
                           textAlign: TextAlign.end,
                           TextSpan(
-                            text: ordering > 0
-                                // ? '${S.current.quantityCut}: '
-                                ? 'SL: '
-                                : '',
+                            text: ordering > 0 ? '${S.current.quantityCut}: ' : '',
                             children: [
                               TextSpan(
                                 text: ordering < 1
@@ -159,11 +132,11 @@ class ProductBoxWidget extends ConsumerWidget {
                                     : ordering > 1000
                                         ? '1000+'
                                         : ordering.toString(),
-                                style: AppTextStyle.bold(fontSize: 13),
+                                style: AppTextStyle.bold(rawFontSize: 13),
                               ),
                             ],
                           ),
-                          style: AppTextStyle.regular(fontSize: 11),
+                          style: AppTextStyle.regular(rawFontSize: 13),
                         ),
                       )
                     ],
@@ -227,17 +200,17 @@ class ProductBoxLoadingWidget extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(
-            child: ShimmerLoading(
+            child: AppShimmerLoading(
               margin: EdgeInsets.symmetric(horizontal: 8),
               borderRadius: 12,
             ),
           ),
           Gap(12),
-          ShimmerLoading(margin: EdgeInsets.symmetric(horizontal: 8)),
+          AppShimmerLoading(margin: EdgeInsets.symmetric(horizontal: 8)),
           Gap(4),
-          ShimmerLoading(width: 60),
+          AppShimmerLoading(width: 60),
           Gap(8),
-          ShimmerLoading(margin: EdgeInsets.symmetric(horizontal: 28)),
+          AppShimmerLoading(margin: EdgeInsets.symmetric(horizontal: 28)),
           Gap(8),
         ],
       ),
@@ -245,8 +218,8 @@ class ProductBoxLoadingWidget extends ConsumerWidget {
   }
 }
 
-class ShimmerLoading extends StatelessWidget {
-  const ShimmerLoading({
+class AppShimmerLoading extends StatelessWidget {
+  const AppShimmerLoading({
     super.key,
     this.baseColor,
     this.highlightColor,

@@ -83,26 +83,24 @@ class TextFieldSimpleWidget extends StatelessWidget {
             ? null
             : required
                 ? Text.rich(
-                    style: AppTextStyle.regular(color: AppColors.tcHintText),
+                    style: AppTextStyle.regular(color: AppColors.tcHintText, rawFontSize: 13.5),
                     TextSpan(
                       text: label ?? "Input",
                       children: [
                         TextSpan(
                           text: " *",
-                          style:
-                              AppTextStyle.regular(color: AppColors.redColor),
+                          style: AppTextStyle.regular(color: AppColors.redColor, rawFontSize: 13.5),
                         )
                       ],
                     ),
                   )
                 : Text(
                     label ?? "Input",
-                    style: AppTextStyle.regular(color: AppColors.tcHintText),
+                    style: AppTextStyle.regular(color: AppColors.tcHintText, rawFontSize: 13.5),
                   ),
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
-        hintStyle:
-            AppTextStyle.regular(fontSize: 12, color: AppColors.tcHintText),
+        hintStyle: AppTextStyle.regular(rawFontSize: 12, color: AppColors.tcHintText),
       ),
       onChanged: (value) {
         onChanged?.call(value);

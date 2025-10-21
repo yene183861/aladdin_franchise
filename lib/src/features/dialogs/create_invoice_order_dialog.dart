@@ -87,9 +87,7 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
               widget.orderInvoice == null
                   ? S.current.add_invoice_information
                   : S.current.update_invoice_information,
-              style: AppTextStyle.bold(
-                  // fontSize: 14.sp,
-                  ),
+              style: AppTextStyle.bold(),
             ),
           ),
           const CloseButton(),

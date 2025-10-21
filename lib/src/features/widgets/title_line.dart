@@ -30,7 +30,7 @@ class TitleLineWidget extends StatelessWidget {
         title,
         style: textStyle ??
             AppTextStyle.bold(
-              fontSize: fontSize,
+              rawFontSize: fontSize,
               color: color,
             ),
       ),
@@ -56,7 +56,7 @@ class TitleDialogWithCloseWidget extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: AppTextStyle.bold(fontSize: 15),
+            style: AppTextStyle.bold(rawFontSize: 15),
           ),
         ),
         const GapW(16),

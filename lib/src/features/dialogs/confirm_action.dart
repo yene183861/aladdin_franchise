@@ -34,7 +34,6 @@ Future<bool?> showConfirmAction(
               Expanded(
                 child: Text(
                   title ?? S.current.confirm,
-                  // style: AppTextStyle.medium(fontSize: 14.sp)
                   style: AppTextStyle.medium(),
                 ),
               ),
@@ -111,7 +110,6 @@ Future<bool?> showConfirmActionWithChild(
                 ? null
                 : Text(
                     title ?? S.current.confirm,
-                    // style: AppTextStyle.semiBold(fontSize: 14.sp),
                     style: AppTextStyle.semiBold(),
                   ),
             content: child,

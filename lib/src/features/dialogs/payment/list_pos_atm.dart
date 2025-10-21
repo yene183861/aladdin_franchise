@@ -15,8 +15,7 @@ class ListPosATMWidget extends ConsumerStatefulWidget {
   const ListPosATMWidget({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _ListPosATMWidgettState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _ListPosATMWidgettState();
 }
 
 class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
@@ -30,10 +29,8 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var atmPosSelect =
-        ref.watch(homeProvider.select((value) => value.atmPosSelect));
-    var orderSelect =
-        ref.watch(homeProvider.select((value) => value.orderSelect));
+    var atmPosSelect = ref.watch(homeProvider.select((value) => value.atmPosSelect));
+    var orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
     var dataBill = ref.watch(homeProvider.select((value) => value.dataBill));
 
     return SingleChildScrollView(
@@ -62,8 +59,7 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
                 const Gap(4),
                 _TitleLine(
                   title: '${S.current.total_amount}: ',
-                  content: AppConfig.formatCurrency()
-                      .format(dataBill.price.totalPriceFinal),
+                  content: AppConfig.formatCurrency().format(dataBill.price.totalPriceFinal),
                 ),
                 if (atmPosSelect != null) ...[
                   const Gap(4),
@@ -78,10 +74,8 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
           const Gap(12),
           Consumer(
             builder: (context, ref, child) {
-              var listAtmPos =
-                  ref.watch(homeProvider.select((value) => value.listAtmPos));
-              var state = ref
-                  .watch(homeProvider.select((value) => value.listAtmPosState));
+              var listAtmPos = ref.watch(homeProvider.select((value) => value.listAtmPos));
+              var state = ref.watch(homeProvider.select((value) => value.listAtmPosState));
 
               switch (state.status) {
                 case PageCommonState.loading:
@@ -105,7 +99,7 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
                           children: [
                             Text(
                               S.current.select_pos_to_continue,
-                              style: AppTextStyle.regular(fontSize: 12),
+                              style: AppTextStyle.regular(rawFontSize: 12),
                             ),
                             const Gap(12),
                             ...listAtmPos.map(
@@ -113,16 +107,13 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
                                 padding: const EdgeInsets.only(bottom: 8),
                                 child: InkWell(
                                   onTap: () {
-                                    ref
-                                        .read(homeProvider.notifier)
-                                        .onChangeAtmPosSelect(e);
+                                    ref.read(homeProvider.notifier).onChangeAtmPosSelect(e);
                                   },
                                   borderRadius: AppConfig.borderRadiusMain,
                                   child: Container(
-                                    constraints:
-                                        const BoxConstraints(minWidth: 500),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 12),
+                                    constraints: const BoxConstraints(minWidth: 500),
+                                    padding:
+                                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                     decoration: BoxDecoration(
                                       border: Border.all(
                                           color: atmPosSelect == e
@@ -172,9 +163,7 @@ class _TitleLine extends StatelessWidget {
       TextSpan(
           text: title,
           children: [
-            TextSpan(
-                text: content,
-                style: contentTextStyle ?? AppTextStyle.regular()),
+            TextSpan(text: content, style: contentTextStyle ?? AppTextStyle.regular()),
           ],
           style: titleTextStyle),
       style: titleTextStyle ?? AppTextStyle.bold(),

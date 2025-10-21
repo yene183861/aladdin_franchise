@@ -51,9 +51,7 @@ class TicketPage extends ConsumerWidget {
                     hintText: 'Tìm ticket',
                     prefixIcon: const Icon(CupertinoIcons.search, size: 18),
                     onChanged: (value) {
-                      ref
-                          .read(ticketPageProvider.notifier)
-                          .onChangeTextSearch(value);
+                      ref.read(ticketPageProvider.notifier).onChangeTextSearch(value);
                     },
                   ),
                   const Gap(12),
@@ -63,8 +61,7 @@ class TicketPage extends ConsumerWidget {
                         return ListView.separated(
                           itemBuilder: (context, index) => TicketItem(),
                           itemCount: 4,
-                          separatorBuilder: (context, index) =>
-                              const Divider(height: 1),
+                          separatorBuilder: (context, index) => const Divider(height: 1),
                         );
                       },
                     ),
@@ -95,7 +92,7 @@ class TicketPage extends ConsumerWidget {
                                 Expanded(
                                   child: Text(
                                     'Khi add mã DTL2 thì hệ thống báo mã không tồn tại',
-                                    style: AppTextStyle.bold(fontSize: 14.sp),
+                                    style: AppTextStyle.bold(rawFontSize: 14),
                                   ),
                                 ),
                               ],

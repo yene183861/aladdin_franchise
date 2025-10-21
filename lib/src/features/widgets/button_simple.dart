@@ -61,7 +61,7 @@ class ButtonSimpleWidget extends StatelessWidget {
                     textAction ?? S.current.confirm,
                     style: AppTextStyle.regular(
                       color: textColor ?? Colors.white,
-                      fontSize: textSize,
+                      rawFontSize: textSize,
                     ),
                     textAlign: TextAlign.center,
                     maxLines: maxLines,

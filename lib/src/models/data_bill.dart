@@ -81,6 +81,11 @@ class LineItemDataBill with _$LineItemDataBill {
     @Default('') String nameEn,
     @Default('') String codeProduct,
     @Default([]) List<SubLineItemDataBill> listItem,
+
+    /// được sửa thuế hay 0
+    /// 0 - k được sửa
+    /// 1 - được sửa
+    @Default(0) int isChangeTax,
   }) = _LineItemDataBill;
 
   factory LineItemDataBill.fromJson(Map<String, dynamic> json) => _$LineItemDataBillFromJson(json);

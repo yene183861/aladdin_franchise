@@ -61,7 +61,6 @@ class _ErrorDialogWidget extends StatelessWidget {
             Text(
               isNotifier ? S.current.notification : S.current.error,
               style: AppTextStyle.bold(
-                // fontSize: 14.sp,
                 color: isNotifier ? null : AppColors.redColor,
               ),
             ),

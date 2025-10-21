@@ -22,7 +22,8 @@ import 'package:aladdin_franchise/src/models/order_time.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_selecting.dart';
 import 'package:aladdin_franchise/src/models/restaurant_config.dart';
-import 'package:aladdin_franchise/src/models/app_setting.dart';
+import 'package:aladdin_franchise/src/models/setting/app_setting.dart';
+import 'package:aladdin_franchise/src/models/setting/print_setting.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,7 +32,27 @@ import 'package:uuid/uuid.dart';
 class LocalStorage {
   static late SharedPreferences _prefs;
   static Future<void> initialize() async {
-    _prefs = await SharedPreferences.getInstance();
+    var log = const ErrorLogModel(
+      action: AppLogAction.localStorage,
+      api: '',
+    );
+    try {
+      _prefs = await SharedPreferences.getInstance();
+    } catch (e, s) {
+      LogService.sendLogs(log.copyWith(
+          errorMessage: 'Prefs init failed, resetting... $e', createAt: DateTime.now()));
+      showLogs('Prefs init failed, resetting... $e');
+      try {
+        final tempPrefs = await SharedPreferences.getInstance();
+        await tempPrefs.clear();
+        _prefs = tempPrefs;
+      } catch (ex) {
+        LogService.sendLogs(
+            log.copyWith(errorMessage: 'Prefs recovery failed: $ex', createAt: DateTime.now()));
+        showLogs('Prefs recovery failed: $ex');
+        _prefs = await SharedPreferences.getInstance();
+      }
+    }
   }
 
   static const String _tokenKey = "token";
@@ -58,7 +79,8 @@ class LocalStorage {
   static const String _employeeSaleForOrder = "employee_sale_for_order";
   static const String _printers = "printers";
   static const String _applyAgainOnlyCoupon = "apply_again_only_coupon";
-  static const String _settings = "settings";
+  static const String printSetting = "print_setting";
+  static const String appSetting = "app_setting";
 
   static String getToken() {
     return _prefs.getString(_tokenKey) ?? "";
@@ -86,12 +108,11 @@ class LocalStorage {
 
   static List<ProductSelectingModel> getProductsSelecting() {
     var json = _prefs.getString(_productsSelectingKey) ?? "[]";
-    return List<ProductSelectingModel>.from(jsonDecode(json)
-        .map<ProductSelectingModel>((e) => ProductSelectingModel.fromJson(e)));
+    return List<ProductSelectingModel>.from(
+        jsonDecode(json).map<ProductSelectingModel>((e) => ProductSelectingModel.fromJson(e)));
   }
 
-  static void addProductsSelecting(
-      int orderId, ProductModel productModel) async {
+  static void addProductsSelecting(int orderId, ProductModel productModel) async {
     var data = getProductsSelecting();
     // Check sự tồn tại của đơn hàng, nếu chưa có thì tạo mới
     if (data.any((element) => element.orderId == orderId)) {
@@ -99,65 +120,49 @@ class LocalStorage {
       // kiểm tra xem món đã có trong đơn chưa, nếu có thì +1
       // Nếu chưa thì add mới
       if (psOrder.products.any((element) => element.id == productModel.id)) {
-        var product = psOrder.products
-            .firstWhere((element) => element.id == productModel.id);
-        var products =
-            List<ProductModel>.from(data[data.indexOf(psOrder)].products);
-        var productUpdate =
-            product.copyWith(numberSelecting: product.numberSelecting + 1);
+        var product = psOrder.products.firstWhere((element) => element.id == productModel.id);
+        var products = List<ProductModel>.from(data[data.indexOf(psOrder)].products);
+        var productUpdate = product.copyWith(numberSelecting: product.numberSelecting + 1);
         products[products.indexOf(product)] = productUpdate;
-        data[data.indexOf(psOrder)] =
-            data[data.indexOf(psOrder)].copyWith(products: products);
+        data[data.indexOf(psOrder)] = data[data.indexOf(psOrder)].copyWith(products: products);
       } else {
-        var products =
-            List<ProductModel>.from(data[data.indexOf(psOrder)].products);
+        var products = List<ProductModel>.from(data[data.indexOf(psOrder)].products);
         products.add(productModel.copyWith(numberSelecting: 1));
-        data[data.indexOf(psOrder)] =
-            data[data.indexOf(psOrder)].copyWith(products: products);
+        data[data.indexOf(psOrder)] = data[data.indexOf(psOrder)].copyWith(products: products);
       }
     } else {
       data.add(ProductSelectingModel(
-          orderId: orderId,
-          products: [productModel.copyWith(numberSelecting: 1)]));
+          orderId: orderId, products: [productModel.copyWith(numberSelecting: 1)]));
     }
     await _prefs.setString(_productsSelectingKey, jsonEncode(data));
   }
 
-  static void removeProductsSelecting(
-      int orderId, ProductModel productModel) async {
+  static void removeProductsSelecting(int orderId, ProductModel productModel) async {
     var data = getProductsSelecting();
     // lấy đơn hàng
     var psOrder = data.firstWhere((element) => element.orderId == orderId);
     // Trừ số lượng món -1
-    var product = psOrder.products
-        .firstWhereOrNull((element) => element.id == productModel.id);
+    var product = psOrder.products.firstWhereOrNull((element) => element.id == productModel.id);
     if (product == null) return;
     if (product.numberSelecting > 1) {
-      var products =
-          List<ProductModel>.from(data[data.indexOf(psOrder)].products);
-      var productUpdate =
-          product.copyWith(numberSelecting: product.numberSelecting - 1);
+      var products = List<ProductModel>.from(data[data.indexOf(psOrder)].products);
+      var productUpdate = product.copyWith(numberSelecting: product.numberSelecting - 1);
       products[products.indexOf(product)] = productUpdate;
-      data[data.indexOf(psOrder)] =
-          data[data.indexOf(psOrder)].copyWith(products: products);
+      data[data.indexOf(psOrder)] = data[data.indexOf(psOrder)].copyWith(products: products);
     }
     await _prefs.setString(_productsSelectingKey, jsonEncode(data));
   }
 
-  static void deleteProductsSelecting(
-      int orderId, ProductModel productModel) async {
+  static void deleteProductsSelecting(int orderId, ProductModel productModel) async {
     var data = getProductsSelecting();
     // lấy đơn hàng
     var psOrder = data.firstWhere((element) => element.orderId == orderId);
     // lấy ra sản phẩm cần xoá bỏ
-    var product = psOrder.products
-        .firstWhereOrNull((element) => element.id == productModel.id);
+    var product = psOrder.products.firstWhereOrNull((element) => element.id == productModel.id);
     if (product == null) return;
-    var products =
-        List<ProductModel>.from(data[data.indexOf(psOrder)].products);
+    var products = List<ProductModel>.from(data[data.indexOf(psOrder)].products);
     products.remove(product);
-    data[data.indexOf(psOrder)] =
-        data[data.indexOf(psOrder)].copyWith(products: products);
+    data[data.indexOf(psOrder)] = data[data.indexOf(psOrder)].copyWith(products: products);
     await _prefs.setString(_productsSelectingKey, jsonEncode(data));
   }
 
@@ -171,17 +176,14 @@ class LocalStorage {
     // lấy đơn hàng
     var psOrder = data.firstWhere((element) => element.orderId == orderId);
     // Cập nhật số lượng
-    var product =
-        psOrder.products.firstWhere((element) => element.id == productModel.id);
-    var products =
-        List<ProductModel>.from(data[data.indexOf(psOrder)].products);
+    var product = psOrder.products.firstWhere((element) => element.id == productModel.id);
+    var products = List<ProductModel>.from(data[data.indexOf(psOrder)].products);
     var productUpdate = product.copyWith(
       numberSelecting: quantity ?? product.numberSelecting,
       noteForProcessOrder: note,
     );
     products[products.indexOf(product)] = productUpdate;
-    data[data.indexOf(psOrder)] =
-        data[data.indexOf(psOrder)].copyWith(products: products);
+    data[data.indexOf(psOrder)] = data[data.indexOf(psOrder)].copyWith(products: products);
     await _prefs.setString(_productsSelectingKey, jsonEncode(data));
   }
 
@@ -194,24 +196,20 @@ class LocalStorage {
     var data = getProductsSelecting();
     // lấy đơn hàng
     var psOrder = data.firstWhere((element) => element.orderId == orderId);
-    var product = psOrder.products
-        .firstWhereOrNull((element) => element.id == productModel.id);
+    var product = psOrder.products.firstWhereOrNull((element) => element.id == productModel.id);
     if (product == null) return;
 
-    var products =
-        List<ProductModel>.from(data[data.indexOf(psOrder)].products);
+    var products = List<ProductModel>.from(data[data.indexOf(psOrder)].products);
     var productUpdate = product.copyWith(numberSelecting: quantity);
     products[products.indexOf(product)] = productUpdate;
-    data[data.indexOf(psOrder)] =
-        data[data.indexOf(psOrder)].copyWith(products: products);
+    data[data.indexOf(psOrder)] = data[data.indexOf(psOrder)].copyWith(products: products);
     await _prefs.setString(_productsSelectingKey, jsonEncode(data));
   }
 
   static void deleteOrder(int orderId) async {
     var data = getProductsSelecting();
     // lấy đơn hàng
-    var psOrder =
-        data.firstWhereOrNull((element) => element.orderId == orderId);
+    var psOrder = data.firstWhereOrNull((element) => element.orderId == orderId);
     if (psOrder != null) {
       data.remove(psOrder);
     }
@@ -229,13 +227,11 @@ class LocalStorage {
   // Policy checkout
   static List<InfoPolicyCheckoutModel> getPolicyCheckout() {
     var json = _prefs.getString(_policyForCheckout) ?? "[]";
-    return List<InfoPolicyCheckoutModel>.from(jsonDecode(json)
-        .map<InfoPolicyCheckoutModel>(
-            (e) => InfoPolicyCheckoutModel.fromJson(e)));
+    return List<InfoPolicyCheckoutModel>.from(
+        jsonDecode(json).map<InfoPolicyCheckoutModel>((e) => InfoPolicyCheckoutModel.fromJson(e)));
   }
 
-  static void updatePolicyCheckout(
-      int orderId, InfoPolicyCheckoutModel infoPolicyCheckout) async {
+  static void updatePolicyCheckout(int orderId, InfoPolicyCheckoutModel infoPolicyCheckout) async {
     var data = getPolicyCheckout();
     // Check sự tồn tại của đơn hàng, nếu chưa có thì tạo mới
     if (data.any((element) => element.orderId == orderId)) {
@@ -249,8 +245,7 @@ class LocalStorage {
 
   static Future<void> deletePolicy(int orderId) async {
     var data = getPolicyCheckout();
-    var checkoutOrder =
-        data.firstWhereOrNull((element) => element.orderId == orderId);
+    var checkoutOrder = data.firstWhereOrNull((element) => element.orderId == orderId);
     if (checkoutOrder != null) {
       data.remove(checkoutOrder);
     }
@@ -284,23 +279,20 @@ class LocalStorage {
   // get order time
   static List<OrderTimeModel> getOrderTimes() {
     var json = _prefs.getString(_orderTime) ?? "[]";
-    return List<OrderTimeModel>.from(jsonDecode(json)
-        .map<OrderTimeModel>((e) => OrderTimeModel.fromJson(e)));
+    return List<OrderTimeModel>.from(
+        jsonDecode(json).map<OrderTimeModel>((e) => OrderTimeModel.fromJson(e)));
   }
 
   // cập nhật order time
-  static void updateOrderTime(
-      int orderId, ProductOrderTimeModel productOrderTime) async {
+  static void updateOrderTime(int orderId, ProductOrderTimeModel productOrderTime) async {
     var data = getOrderTimes();
     // Check sự tồn tại của đơn hàng, nếu chưa có thì tạo mới
     if (data.any((element) => element.orderId == orderId)) {
       var pOrderTime = data.firstWhere((element) => element.orderId == orderId);
       // thêm sản phẩm vào order
-      var products = List<ProductOrderTimeModel>.from(
-          data[data.indexOf(pOrderTime)].products);
+      var products = List<ProductOrderTimeModel>.from(data[data.indexOf(pOrderTime)].products);
       products.add(productOrderTime);
-      data[data.indexOf(pOrderTime)] =
-          data[data.indexOf(pOrderTime)].copyWith(products: products);
+      data[data.indexOf(pOrderTime)] = data[data.indexOf(pOrderTime)].copyWith(products: products);
     } else {
       data.add(OrderTimeModel(orderId: orderId, products: [productOrderTime]));
     }
@@ -311,8 +303,7 @@ class LocalStorage {
   static Future<void> deleteOrderTime(int orderId) async {
     var data = getOrderTimes();
     // lấy đơn hàng
-    var pOrderTime =
-        data.firstWhereOrNull((element) => element.orderId == orderId);
+    var pOrderTime = data.firstWhereOrNull((element) => element.orderId == orderId);
     if (pOrderTime != null) {
       data.remove(pOrderTime);
     }
@@ -321,8 +312,7 @@ class LocalStorage {
   }
 
   // Lấy thông tin lịch sử gọi món của 1 món ăn
-  static List<ProductOrderTimeModel> getOrderTimeForProduct(
-      int orderId, int productId) {
+  static List<ProductOrderTimeModel> getOrderTimeForProduct(int orderId, int productId) {
     var data = getOrderTimes();
     List<ProductOrderTimeModel> result = [];
     if (data.any((element) => element.orderId == orderId)) {
@@ -369,21 +359,17 @@ class LocalStorage {
   static RestaurantConfigModel? getRestaurantConfig() {
     try {
       var json = _prefs.getString(_restaurantConfig);
-      return json == null
-          ? null
-          : RestaurantConfigModel.fromJson(jsonDecode(json));
+      return json == null ? null : RestaurantConfigModel.fromJson(jsonDecode(json));
     } catch (ex) {
       return null;
     }
   }
 
-  static Future<void> setRestaurantConfig(
-      RestaurantConfigModel? restaurantConfigModel) async {
+  static Future<void> setRestaurantConfig(RestaurantConfigModel? restaurantConfigModel) async {
     if (restaurantConfigModel == null) {
       await _prefs.remove(_restaurantConfig);
     }
-    await _prefs.setString(
-        _restaurantConfig, jsonEncode(restaurantConfigModel));
+    await _prefs.setString(_restaurantConfig, jsonEncode(restaurantConfigModel));
   }
 
   /// True => POS dùng với KDS
@@ -444,8 +430,7 @@ class LocalStorage {
   // }
 
   /// Lọc-Kiểm món đang chọn khi có thay đổi menu bán
-  static Future<void> updateProductSelectingReloadMenu(
-      List<ProductModel> allProducts) async {
+  static Future<void> updateProductSelectingReloadMenu(List<ProductModel> allProducts) async {
     try {
       var psOrders = getProductsSelecting();
       if (psOrders.isNotEmpty) {
@@ -453,8 +438,8 @@ class LocalStorage {
         for (var psOrder in psOrders) {
           var productOfOrder = List<ProductModel>.from(psOrder.products);
           for (var product in psOrder.products) {
-            final productValid = allProducts
-                .firstWhereOrNull((element) => element.id == product.id);
+            final productValid =
+                allProducts.firstWhereOrNull((element) => element.id == product.id);
             if (productValid != null) {
               // Cập nhật lại thông tin món
               final productUpdate = productValid.copyWith(
@@ -467,14 +452,12 @@ class LocalStorage {
               productOfOrder.remove(product);
             }
           }
-          psOrders[psOrders.indexOf(psOrder)] =
-              psOrder.copyWith(products: productOfOrder);
+          psOrders[psOrders.indexOf(psOrder)] = psOrder.copyWith(products: productOfOrder);
         }
         await _prefs.setString(_productsSelectingKey, jsonEncode(psOrders));
       }
     } catch (ex) {
-      throw AppException.fromMessage(
-          S.current.error_reload_menu_check_product_selecting);
+      throw AppException.fromMessage(S.current.error_reload_menu_check_product_selecting);
     }
   }
 
@@ -535,8 +518,7 @@ class LocalStorage {
   static List<OrderOffline> getOrderOffline() {
     try {
       final dataRaw = _prefs.getStringList(_orderOffline) ?? [];
-      final results =
-          dataRaw.map((e) => OrderOffline.fromJson(jsonDecode(e))).toList();
+      final results = dataRaw.map((e) => OrderOffline.fromJson(jsonDecode(e))).toList();
       return results;
     } catch (ex) {
       return [];
@@ -548,14 +530,12 @@ class LocalStorage {
       List<OrderOffline> orders = getOrderOffline();
       final now = DateTime.now();
       // Loại bỏ đơn hàng >= 24h
-      orders.removeWhere(
-          (element) => now.difference(element.lastUpdate).inHours >= 24);
+      orders.removeWhere((element) => now.difference(element.lastUpdate).inHours >= 24);
 
       // Kiểm tra sự tồn tại của đơn bàn
       // Tồn tại => ghi đè dữ liệu
       // Đơn mới => thêm vào
-      final orderExistIndex =
-          orders.indexWhere((e) => e.order.id == orderOffline.order.id);
+      final orderExistIndex = orders.indexWhere((e) => e.order.id == orderOffline.order.id);
       if (orderExistIndex == -1) {
         orders.add(orderOffline);
       } else {
@@ -568,8 +548,7 @@ class LocalStorage {
         orders = orders.take(30).toList();
       }
 
-      await _prefs.setStringList(
-          _orderOffline, orders.map((e) => jsonEncode(e)).toList());
+      await _prefs.setStringList(_orderOffline, orders.map((e) => jsonEncode(e)).toList());
     } catch (ex) {
       showLog(ex, flags: 'LC-updateOrderOffline');
     }
@@ -645,9 +624,7 @@ class LocalStorage {
     Map<String, dynamic> data = {};
     try {
       var raw = _prefs.getString(_notePerOrderItem);
-      data = raw == null || raw.isEmpty
-          ? <String, Map<String, String>>{}
-          : jsonDecode(raw);
+      data = raw == null || raw.isEmpty ? <String, Map<String, String>>{} : jsonDecode(raw);
     } catch (ex) {
       //
     }
@@ -672,15 +649,12 @@ class LocalStorage {
     Map<String, dynamic> data = {};
     try {
       var raw = _prefs.getString(_notePerOrderItem);
-      data = raw == null || raw.isEmpty
-          ? <String, Map<String, String>>{}
-          : jsonDecode(raw);
+      data = raw == null || raw.isEmpty ? <String, Map<String, String>>{} : jsonDecode(raw);
     } catch (ex) {
       //
     }
 
-    Map<String, dynamic> value =
-        data[order.id.toString()] ?? <String, dynamic>{};
+    Map<String, dynamic> value = data[order.id.toString()] ?? <String, dynamic>{};
     Map<String, String> t = value.map((key, value) {
       if (value is Map) {
         return MapEntry(
@@ -700,14 +674,11 @@ class LocalStorage {
     return t;
   }
 
-  static Future<void> deleteNotePerOrderItem(
-      {required OrderModel order}) async {
+  static Future<void> deleteNotePerOrderItem({required OrderModel order}) async {
     Map<String, dynamic> data = {};
     try {
       var raw = _prefs.getString(_notePerOrderItem);
-      data = raw == null || raw.isEmpty
-          ? <String, Map<String, String>>{}
-          : jsonDecode(raw);
+      data = raw == null || raw.isEmpty ? <String, Map<String, String>>{} : jsonDecode(raw);
     } catch (ex) {
       //
     }
@@ -759,8 +730,7 @@ class LocalStorage {
 
       result[order.getOrderMisc().toString()] = sale;
 
-      final res =
-          await _prefs.setString(_employeeSaleForOrder, jsonEncode(result));
+      final res = await _prefs.setString(_employeeSaleForOrder, jsonEncode(result));
       showLogs(res, flags: 'res saveEmployeeSaleForOrder');
     } catch (ex) {
       _sendLog(
@@ -772,8 +742,7 @@ class LocalStorage {
     }
   }
 
-  static EmployeeSaleModel? getEmployeeSaleForOrder(
-      {required OrderModel order}) {
+  static EmployeeSaleModel? getEmployeeSaleForOrder({required OrderModel order}) {
     Map<String, dynamic> data = {};
     try {
       var raw = _prefs.getString(_employeeSaleForOrder);
@@ -792,8 +761,7 @@ class LocalStorage {
     }
   }
 
-  static Future<void> deleteEmployeeSaleForOrder(
-      {required OrderModel order}) async {
+  static Future<void> deleteEmployeeSaleForOrder({required OrderModel order}) async {
     Map<String, dynamic> data = {};
     try {
       var raw = _prefs.getString(_employeeSaleForOrder);
@@ -842,8 +810,7 @@ class LocalStorage {
     try {
       List<IpOrderModel> data = List<IpOrderModel>.from(getPrinters());
 
-      var item = data.firstWhereOrNull(
-          (e) => e.ip == printer.ip && e.port == printer.port);
+      var item = data.firstWhereOrNull((e) => e.ip == printer.ip && e.port == printer.port);
       if (item != null) {
         if (item != printer) {
           var index = data.indexOf(item);
@@ -883,8 +850,7 @@ class LocalStorage {
     try {
       List<IpOrderModel> data = List<IpOrderModel>.from(getPrinters());
 
-      var item = data.firstWhereOrNull(
-          (e) => e.ip == printer.ip && e.port == printer.port);
+      var item = data.firstWhereOrNull((e) => e.ip == printer.ip && e.port == printer.port);
       if (item != null) {
         data.remove(item);
         await _prefs.setString(_printers, jsonEncode(data));
@@ -910,8 +876,7 @@ class LocalStorage {
     }
   }
 
-  static Future<Map<String, List<CustomerPolicyModel>>>
-      _getApplyAgainOnlyCoupon() async {
+  static Future<Map<String, List<CustomerPolicyModel>>> _getApplyAgainOnlyCoupon() async {
     Map<String, dynamic> data = {};
     try {
       var raw = _prefs.getString(_applyAgainOnlyCoupon);
@@ -919,9 +884,7 @@ class LocalStorage {
       Map<String, List<CustomerPolicyModel>> result = {};
       data.forEach(
         (key, value) {
-          var res = (value as List)
-              .map((e) => CustomerPolicyModel.fromJson(e))
-              .toList();
+          var res = (value as List).map((e) => CustomerPolicyModel.fromJson(e)).toList();
           if (res.isNotEmpty) {
             result[key] = res;
           }
@@ -931,8 +894,7 @@ class LocalStorage {
       return result;
     } catch (ex) {
       _sendLog(
-        title:
-            '_getApplyAgainOnlyCoupon - GET ds mã giảm only cần xóa đi áp dụng lại',
+        title: '_getApplyAgainOnlyCoupon - GET ds mã giảm only cần xóa đi áp dụng lại',
         ex: ex,
       );
       showLogs(ex.toString(), flags: 'error _getApplyAgainOnlyCoupon');
@@ -946,8 +908,7 @@ class LocalStorage {
     List<CustomerPolicyModel> coupons = const [],
   }) async {
     try {
-      Map<String, List<CustomerPolicyModel>> result =
-          await _getApplyAgainOnlyCoupon();
+      Map<String, List<CustomerPolicyModel>> result = await _getApplyAgainOnlyCoupon();
       result[order.id.toString()] = coupons;
 
       await _prefs.setString(_applyAgainOnlyCoupon, jsonEncode(result));
@@ -965,8 +926,7 @@ class LocalStorage {
   static Future<List<CustomerPolicyModel>> getApplyAgainOnlyCouponForOrder(
       {required OrderModel order}) async {
     try {
-      Map<String, List<CustomerPolicyModel>> result =
-          await _getApplyAgainOnlyCoupon();
+      Map<String, List<CustomerPolicyModel>> result = await _getApplyAgainOnlyCoupon();
 
       return result[order.id.toString()] ?? [];
     } catch (ex) {
@@ -981,11 +941,9 @@ class LocalStorage {
     }
   }
 
-  static Future<void> deleteApplyAgainOnlyCouponForOrder(
-      {required OrderModel order}) async {
+  static Future<void> deleteApplyAgainOnlyCouponForOrder({required OrderModel order}) async {
     try {
-      Map<String, List<CustomerPolicyModel>> result =
-          await _getApplyAgainOnlyCoupon();
+      Map<String, List<CustomerPolicyModel>> result = await _getApplyAgainOnlyCoupon();
 
       result.remove(order.id.toString());
       await _prefs.setString(_applyAgainOnlyCoupon, jsonEncode(result));
@@ -1007,8 +965,7 @@ class LocalStorage {
       return;
     } catch (ex) {
       _sendLog(
-        title:
-            'clearApplyAgainOnlyCoupon - CLEAR các mã giảm only cần xóa đi áp dụng lại',
+        title: 'clearApplyAgainOnlyCoupon - CLEAR các mã giảm only cần xóa đi áp dụng lại',
         ex: ex,
       );
     }
@@ -1027,15 +984,24 @@ class LocalStorage {
     LogService.sendLogs(log);
   }
 
-  // setting
-  static AppSettingModel getAppSettings() {
-    var json = _prefs.getString(_settings);
+  /// setting
+  static AppPrintSettingModel getPrintSetting() {
+    var json = _prefs.getString(printSetting);
     return json == null
-        ? const AppSettingModel()
-        : AppSettingModel.fromJson(jsonDecode(json));
+        ? const AppPrintSettingModel()
+        : AppPrintSettingModel.fromJson(jsonDecode(json));
   }
 
-  static Future<void> setAppSettings(AppSettingModel setting) async {
-    await _prefs.setString(_settings, jsonEncode(setting));
+  static Future<void> setPrintSetting(AppPrintSettingModel setting) async {
+    await _prefs.setString(printSetting, jsonEncode(setting));
+  }
+
+  static AppSettingModel getAppSetting() {
+    var json = _prefs.getString(appSetting);
+    return json == null ? const AppSettingModel() : AppSettingModel.fromJson(jsonDecode(json));
+  }
+
+  static Future<void> setAppSetting(AppSettingModel setting) async {
+    await _prefs.setString(appSetting, jsonEncode(setting));
   }
 }

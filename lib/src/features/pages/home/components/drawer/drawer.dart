@@ -7,6 +7,7 @@ import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/history_order/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/view.dart';
+import 'package:aladdin_franchise/src/features/pages/more/widgets/btn_font_scale.dart';
 
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_check_printer.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_logout.dart';
@@ -70,19 +71,16 @@ class HomeDrawerWidget extends ConsumerWidget {
                 ListTile(
                   onTap: () async {
                     pop(context);
-                    final res =
-                        await ref.read(homeProvider.notifier).closeShift();
+                    final res = await ref.read(homeProvider.notifier).closeShift();
 
                     if (res != null) {
-                      if (context.mounted) {
-                        showMessageDialog(context, message: res);
+                      if (homeKey.currentContext != null) {
+                        showMessageDialog(homeKey.currentContext!, message: res);
+                        return;
                       }
-                      return;
                     }
                     if (context.mounted) {
-                      showDoneSnackBar(
-                          context: context,
-                          message: S.current.closing_shift_success);
+                      showDoneSnackBar(context: context, message: S.current.closing_shift_success);
                     }
                   },
                   leading: const ResponsiveIconWidget(
@@ -118,11 +116,13 @@ class HomeDrawerWidget extends ConsumerWidget {
                     iconData: CupertinoIcons.settings,
                   ),
                   title: Text(
-                    'Cài đặt',
+                    'Cài đặt in',
                     style: AppTextStyle.regular(),
                   ),
                 ),
+                const ButtonChangeUseFontScale(),
                 const Divider(height: 1),
+                const ButtonFontScaleSetting(),
                 const ButtonLogoutWidget(),
               ],
             ),

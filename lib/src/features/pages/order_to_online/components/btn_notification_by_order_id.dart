@@ -15,16 +15,15 @@ class ListO2ONotificationDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notifications = ref.watch(
-        orderToOnlinePageProvider.select((value) => value.notifications));
-    final orderSelect = ref
-        .watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
+    final notifications =
+        ref.watch(orderToOnlinePageProvider.select((value) => value.notifications));
+    final orderSelect = ref.watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
     return AlertDialog(
       title: Text(
         '${S.current.list_request_o2o} (${S.current.table} ${orderSelect?.tableName ?? ''})',
         style: AppTextStyle.bold(
           color: AppColors.mainColor,
-          fontSize: 15,
+          rawFontSize: 15,
         ),
         textAlign: TextAlign.center,
       ),
@@ -82,7 +81,7 @@ class ListO2ONotificationDialog extends ConsumerWidget {
                       ),
                       style: AppTextStyle.regular(
                         color: Colors.grey,
-                        fontSize: 14,
+                        rawFontSize: 14,
                       ),
                     ),
                   ],
@@ -106,25 +105,22 @@ class _O2ONotificationByOrderId extends ConsumerStatefulWidget {
   const _O2ONotificationByOrderId();
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __O2ONotificationByOrderIdState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __O2ONotificationByOrderIdState();
 }
 
-class __O2ONotificationByOrderIdState
-    extends ConsumerState<_O2ONotificationByOrderId>
+class __O2ONotificationByOrderIdState extends ConsumerState<_O2ONotificationByOrderId>
     with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    final notifications = ref.watch(
-        orderToOnlinePageProvider.select((value) => value.notifications));
-    final orderSelect = ref
-        .watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
+    final notifications =
+        ref.watch(orderToOnlinePageProvider.select((value) => value.notifications));
+    final orderSelect = ref.watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
     return AlertDialog(
       title: Text(
         '${S.current.list_request_o2o} (${S.current.table} ${orderSelect?.tableName ?? ''})',
         style: AppTextStyle.bold(
           color: AppColors.mainColor,
-          fontSize: 15.sp,
+          rawFontSize: 15,
         ),
         textAlign: TextAlign.center,
       ),
@@ -135,7 +131,7 @@ class __O2ONotificationByOrderIdState
             ? Center(
                 child: Text(
                   S.current.no_o2o_request,
-                  style: AppTextStyle.regular(fontSize: 14.sp),
+                  style: AppTextStyle.regular(),
                 ),
               )
             : _buildListNotifications(notifications),
@@ -182,7 +178,7 @@ class __O2ONotificationByOrderIdState
                       ),
                       style: AppTextStyle.regular(
                         color: Colors.grey,
-                        fontSize: 14,
+                        rawFontSize: 14,
                       ),
                     ),
                   ],

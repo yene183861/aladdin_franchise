@@ -51,7 +51,7 @@ enum HomeEvent {
   findingTaxCode,
   updateInvoice,
   insertInvoice,
-  unlockOrder,
+
   processed,
   processError,
   checkPaymentMethod,
@@ -78,6 +78,10 @@ enum HomeEvent {
   checkPrinter,
   // coupon
   removeCoupon,
+
+  /// lock order
+  lockOrder,
+  unlockOrder,
 }
 
 enum PageCommonState {
@@ -129,8 +133,7 @@ class HomeState with _$HomeState {
     @Default(false) bool reconnectRedis,
 
     /// danh mục, món
-    @Default(PageState(status: PageCommonState.loading))
-    PageState productsState,
+    @Default(PageState(status: PageCommonState.loading)) PageState productsState,
     @Default([]) List<CategoryModel> categories,
     @Default([]) List<ProductModel> products,
     @Default([]) List<TagProductModel> tags,
@@ -173,8 +176,7 @@ class HomeState with _$HomeState {
 
     /// các mã only cần xóa đi áp dụng lại
     @Default([]) List<CustomerPolicyModel> needApplyAgainOnlyCoupons,
-    @Default(PageState(status: PageCommonState.success))
-    PageState applyPolicyState,
+    @Default(PageState(status: PageCommonState.success)) PageState applyPolicyState,
 
     /// phương thức thanh toán
     @Default([]) List<PaymentMethod> paymentMethods,
@@ -235,8 +237,7 @@ class HomeState with _$HomeState {
     int? changedProductId,
     @Default(false) bool pinnedOrder,
     @Default(OrderTabEnum.ordered) OrderTabEnum orderTabSelect,
-    @Default([OrderTabEnum.ordering, OrderTabEnum.ordered])
-    List<OrderTabEnum> orderTabs,
+    @Default([OrderTabEnum.ordering, OrderTabEnum.ordered]) List<OrderTabEnum> orderTabs,
     @Default(false) bool displayOrderHistory,
     // @Default(false) bool cancelOrderItem,
     @Default([]) List<OrderHistory> orderHistory,
@@ -244,8 +245,7 @@ class HomeState with _$HomeState {
     // @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
     // @Default(PageState()) PageState getO2ODataState,
     @Default([]) List<ChatMessageModel> chatMessages,
-    @Default(PageState(status: PageCommonState.loading))
-    PageState getChatMessageState,
+    @Default(PageState(status: PageCommonState.loading)) PageState getChatMessageState,
 
     /// reservation
     // @Default(PageState()) PageState getReservationsState,

@@ -42,8 +42,7 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  _listenEvent(BuildContext context, WidgetRef ref) =>
-      (LoginEvent? previous, LoginEvent? next) {
+  _listenEvent(BuildContext context, WidgetRef ref) => (LoginEvent? previous, LoginEvent? next) {
         switch (next) {
           case LoginEvent.processing:
             showProcessingDialog(context, message: S.current.verifying);
@@ -75,10 +74,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final notifier = ref.read(loginProvider.notifier);
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool isPortraitOrientation =
-        AppDeviceSizeUtil.checkPortraitOrientation(context);
-    bool isSmallDevice = (isMobile && isPortraitOrientation) ||
-        (isTablet && isPortraitOrientation);
+    bool isPortraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool isSmallDevice = (isMobile && isPortraitOrientation) || (isTablet && isPortraitOrientation);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: _buildAppBar(),
@@ -101,8 +98,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 FocusManager.instance.primaryFocus?.unfocus();
               },
               decoration: InputDecoration(
-                errorText: ref
-                    .watch(loginProvider.select((value) => value.errorEmail)),
+                errorText: ref.watch(loginProvider.select((value) => value.errorEmail)),
                 prefixIcon: const ResponsiveIconWidget(
                   iconData: CupertinoIcons.mail,
                   color: AppColors.secondColor,
@@ -117,8 +113,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
             Gap(isSmallDevice ? 12 : 20),
             Consumer(builder: (context, ref, child) {
-              final hiddenPassword = ref
-                  .watch(loginProvider.select((value) => value.hiddenPassword));
+              final hiddenPassword =
+                  ref.watch(loginProvider.select((value) => value.hiddenPassword));
               return TextFormField(
                 style: AppTextStyle.regular(),
                 obscureText: hiddenPassword,
@@ -126,8 +122,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   FocusManager.instance.primaryFocus?.unfocus();
                 },
                 decoration: InputDecoration(
-                  errorText: ref.watch(
-                      loginProvider.select((value) => value.errorPassword)),
+                  errorText: ref.watch(loginProvider.select((value) => value.errorPassword)),
                   errorStyle: AppTextStyle.regular(color: AppColors.redColor),
                   prefixIcon: const ResponsiveIconWidget(
                     iconData: CupertinoIcons.lock,
@@ -140,9 +135,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   suffixIcon: IconButton(
                     onPressed: () => notifier.changeHiddenPassword(),
                     icon: ResponsiveIconWidget(
-                      iconData: hiddenPassword
-                          ? CupertinoIcons.eye
-                          : CupertinoIcons.eye_slash,
+                      iconData: hiddenPassword ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
                     ),
                   ),
                 ),

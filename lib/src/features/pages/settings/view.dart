@@ -7,7 +7,7 @@ import 'package:aladdin_franchise/src/features/pages/settings/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/settings/widgets/color.dart';
 import 'package:aladdin_franchise/src/features/pages/settings/widgets/menu.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
-import 'package:aladdin_franchise/src/models/app_setting.dart';
+import 'package:aladdin_franchise/src/models/setting/print_setting.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +52,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           'Cài đặt',
           style: AppTextStyle.bold(
             color: AppColors.white,
-            fontSize: 15,
+            rawFontSize: 15,
           ),
         ),
       ),

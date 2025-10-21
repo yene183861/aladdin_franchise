@@ -5,7 +5,7 @@ class ResponsiveIconWidget extends StatelessWidget {
     super.key,
     required this.iconData,
     this.color,
-    this.iconSize = 22,
+    this.iconSize = 24,
   });
   final IconData iconData;
   final double iconSize;
@@ -28,7 +28,7 @@ class ResponsiveIconButtonWidget extends StatelessWidget {
     required this.iconData,
     this.color,
     this.onPressed,
-    this.iconSize = 22,
+    this.iconSize = 24,
   });
   final IconData iconData;
   final Color? color;

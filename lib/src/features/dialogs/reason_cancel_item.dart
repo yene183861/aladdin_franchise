@@ -13,12 +13,10 @@ class ReasonCancelItemDialog extends ConsumerStatefulWidget {
   const ReasonCancelItemDialog({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _ReasonCancelItemDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _ReasonCancelItemDialogState();
 }
 
-class _ReasonCancelItemDialogState
-    extends ConsumerState<ReasonCancelItemDialog> {
+class _ReasonCancelItemDialogState extends ConsumerState<ReasonCancelItemDialog> {
   String? reason;
   @override
   Widget build(BuildContext context) {
@@ -27,8 +25,7 @@ class _ReasonCancelItemDialogState
       title: Text(
         S.current.reasonForCancellation,
         style: AppTextStyle.regular(
-          // fontSize: 15.sp,
-          fontSize: 15,
+          rawFontSize: 15,
         ),
       ),
       content: SingleChildScrollView(
@@ -60,8 +57,7 @@ class _ReasonCancelItemDialogState
         ButtonSimpleWidget(
           onPressed: () async {
             if (reason == null) {
-              showMessageDialog(context,
-                  message: 'Vui lòng chọn lí do hủy món!');
+              showMessageDialog(context, message: 'Vui lòng chọn lí do hủy món!');
               return;
             }
             Navigator.pop(context, reason);

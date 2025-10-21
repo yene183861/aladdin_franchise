@@ -23,7 +23,6 @@ showCouponDialog(BuildContext context) {
       return AlertDialog(
         title: Text(
           S.current.discountCode,
-          style: AppTextStyle.titleBold(),
         ),
         content: const _CouponDialogContent(),
       );
@@ -35,8 +34,7 @@ class _CouponDialogContent extends ConsumerStatefulWidget {
   const _CouponDialogContent();
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __CouponDialogContentState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __CouponDialogContentState();
 }
 
 class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
@@ -81,8 +79,7 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
           const _NumberOfAdultsWidget(),
           Consumer(
             builder: (context, ref, child) {
-              var lockedOrder =
-                  ref.watch(homeProvider.select((value) => value.lockedOrder));
+              var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
               if (lockedOrder) return const SizedBox.shrink();
               return Padding(
                 padding: const EdgeInsets.only(top: 8),
@@ -130,8 +127,7 @@ class _NumberOfAdultsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     var coupons = ref.watch(homeProvider.select((value) => value.coupons));
     bool enable = !lockedOrder;
     String message = '';
@@ -156,8 +152,7 @@ class _NumberOfAdultsWidget extends ConsumerWidget {
               Expanded(
                 child: Text(
                   message,
-                  style:
-                      AppTextStyle.regular(fontSize: 12.sp, color: Colors.red),
+                  style: AppTextStyle.regular(rawFontSize: 12, color: Colors.red),
                 ),
               )
             ],
@@ -174,8 +169,7 @@ class NumberOfAdultsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     bool enable = !lockedOrder;
     return SpinBox(
       min: 1,
@@ -184,9 +178,7 @@ class NumberOfAdultsWidget extends ConsumerWidget {
       incrementIcon: const Icon(CupertinoIcons.add),
       decrementIcon: const Icon(CupertinoIcons.minus),
       textStyle: AppTextStyle.bold(),
-      value: ref
-          .watch(homeProvider.select((value) => value.numberOfAdults))
-          .toDouble(),
+      value: ref.watch(homeProvider.select((value) => value.numberOfAdults)).toDouble(),
       decoration: InputDecoration(
         label: Text.rich(
           TextSpan(
@@ -203,8 +195,7 @@ class NumberOfAdultsWidget extends ConsumerWidget {
         ),
       ),
       onChanged: (value) {
-        bool requiredApplyPolicy =
-            ref.read(homeProvider).coupons.any((e) => e.isType == 6);
+        bool requiredApplyPolicy = ref.read(homeProvider).coupons.any((e) => e.isType == 6);
         ref.read(homeProvider.notifier).changeNumberOfPeople(
               numberOfAdults: value.toInt(),
               //  applyPolicy: false
@@ -220,10 +211,8 @@ class _ListCouponWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var coupons = ref.watch(homeProvider.select((value) => value.coupons));
-    var productCheckout =
-        ref.watch(homeProvider.select((value) => value.productCheckout));
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var productCheckout = ref.watch(homeProvider.select((value) => value.productCheckout));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
 
     return
         // coupons.isEmpty
@@ -265,8 +254,7 @@ class _CounponActionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -283,8 +271,7 @@ class _CounponActionWidget extends ConsumerWidget {
           ButtonSimpleWidget(
             textAction: S.current.apply_policy_again,
             onPressed: () async {
-              var res =
-                  await ref.read(homeProvider.notifier).applyCustomerPolicy();
+              var res = await ref.read(homeProvider.notifier).applyCustomerPolicy();
 
               if (res != null && context.mounted) {
                 showErrorDialog(

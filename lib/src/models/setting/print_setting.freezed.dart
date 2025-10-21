@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'app_setting.dart';
+part of 'print_setting.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -14,12 +14,12 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-AppSettingModel _$AppSettingModelFromJson(Map<String, dynamic> json) {
-  return _AppSettingModel.fromJson(json);
+AppPrintSettingModel _$AppPrintSettingModelFromJson(Map<String, dynamic> json) {
+  return _AppPrintSettingModel.fromJson(json);
 }
 
 /// @nodoc
-mixin _$AppSettingModel {
+mixin _$AppPrintSettingModel {
 // @Default(true) bool noticeKitchenCancel,
 // @Default(true) bool noticeKitchenDone,
 // @Default(true) bool noticeKitchenConfirmLocation,
@@ -41,15 +41,15 @@ mixin _$AppSettingModel {
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $AppSettingModelCopyWith<AppSettingModel> get copyWith =>
+  $AppPrintSettingModelCopyWith<AppPrintSettingModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $AppSettingModelCopyWith<$Res> {
-  factory $AppSettingModelCopyWith(
-          AppSettingModel value, $Res Function(AppSettingModel) then) =
-      _$AppSettingModelCopyWithImpl<$Res, AppSettingModel>;
+abstract class $AppPrintSettingModelCopyWith<$Res> {
+  factory $AppPrintSettingModelCopyWith(AppPrintSettingModel value,
+          $Res Function(AppPrintSettingModel) then) =
+      _$AppPrintSettingModelCopyWithImpl<$Res, AppPrintSettingModel>;
   @useResult
   $Res call(
       {BillReturnItemTypeEnum billReturnType,
@@ -62,9 +62,10 @@ abstract class $AppSettingModelCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$AppSettingModelCopyWithImpl<$Res, $Val extends AppSettingModel>
-    implements $AppSettingModelCopyWith<$Res> {
-  _$AppSettingModelCopyWithImpl(this._value, this._then);
+class _$AppPrintSettingModelCopyWithImpl<$Res,
+        $Val extends AppPrintSettingModel>
+    implements $AppPrintSettingModelCopyWith<$Res> {
+  _$AppPrintSettingModelCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
@@ -118,11 +119,11 @@ class _$AppSettingModelCopyWithImpl<$Res, $Val extends AppSettingModel>
 }
 
 /// @nodoc
-abstract class _$$AppSettingModelImplCopyWith<$Res>
-    implements $AppSettingModelCopyWith<$Res> {
-  factory _$$AppSettingModelImplCopyWith(_$AppSettingModelImpl value,
-          $Res Function(_$AppSettingModelImpl) then) =
-      __$$AppSettingModelImplCopyWithImpl<$Res>;
+abstract class _$$AppPrintSettingModelImplCopyWith<$Res>
+    implements $AppPrintSettingModelCopyWith<$Res> {
+  factory _$$AppPrintSettingModelImplCopyWith(_$AppPrintSettingModelImpl value,
+          $Res Function(_$AppPrintSettingModelImpl) then) =
+      __$$AppPrintSettingModelImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -138,11 +139,11 @@ abstract class _$$AppSettingModelImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$AppSettingModelImplCopyWithImpl<$Res>
-    extends _$AppSettingModelCopyWithImpl<$Res, _$AppSettingModelImpl>
-    implements _$$AppSettingModelImplCopyWith<$Res> {
-  __$$AppSettingModelImplCopyWithImpl(
-      _$AppSettingModelImpl _value, $Res Function(_$AppSettingModelImpl) _then)
+class __$$AppPrintSettingModelImplCopyWithImpl<$Res>
+    extends _$AppPrintSettingModelCopyWithImpl<$Res, _$AppPrintSettingModelImpl>
+    implements _$$AppPrintSettingModelImplCopyWith<$Res> {
+  __$$AppPrintSettingModelImplCopyWithImpl(_$AppPrintSettingModelImpl _value,
+      $Res Function(_$AppPrintSettingModelImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -153,7 +154,7 @@ class __$$AppSettingModelImplCopyWithImpl<$Res>
     Object? billHtmlSetting = null,
     Object? billReturnSetting = null,
   }) {
-    return _then(_$AppSettingModelImpl(
+    return _then(_$AppPrintSettingModelImpl(
       billReturnType: null == billReturnType
           ? _value.billReturnType
           : billReturnType // ignore: cast_nullable_to_non_nullable
@@ -177,17 +178,17 @@ class __$$AppSettingModelImplCopyWithImpl<$Res>
 /// @nodoc
 
 @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
-class _$AppSettingModelImpl
+class _$AppPrintSettingModelImpl
     with DiagnosticableTreeMixin
-    implements _AppSettingModel {
-  const _$AppSettingModelImpl(
+    implements _AppPrintSettingModel {
+  const _$AppPrintSettingModelImpl(
       {this.billReturnType = BillReturnItemTypeEnum.normal,
       this.appPrinterType = AppPrinterSettingTypeEnum.normal,
       this.billHtmlSetting = const BillHtmlSettingModel(),
       this.billReturnSetting = const BillReturnSettingModel()});
 
-  factory _$AppSettingModelImpl.fromJson(Map<String, dynamic> json) =>
-      _$$AppSettingModelImplFromJson(json);
+  factory _$AppPrintSettingModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$AppPrintSettingModelImplFromJson(json);
 
 // @Default(true) bool noticeKitchenCancel,
 // @Default(true) bool noticeKitchenDone,
@@ -215,14 +216,14 @@ class _$AppSettingModelImpl
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AppSettingModel(billReturnType: $billReturnType, appPrinterType: $appPrinterType, billHtmlSetting: $billHtmlSetting, billReturnSetting: $billReturnSetting)';
+    return 'AppPrintSettingModel(billReturnType: $billReturnType, appPrinterType: $appPrinterType, billHtmlSetting: $billHtmlSetting, billReturnSetting: $billReturnSetting)';
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties
-      ..add(DiagnosticsProperty('type', 'AppSettingModel'))
+      ..add(DiagnosticsProperty('type', 'AppPrintSettingModel'))
       ..add(DiagnosticsProperty('billReturnType', billReturnType))
       ..add(DiagnosticsProperty('appPrinterType', appPrinterType))
       ..add(DiagnosticsProperty('billHtmlSetting', billHtmlSetting))
@@ -233,7 +234,7 @@ class _$AppSettingModelImpl
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$AppSettingModelImpl &&
+            other is _$AppPrintSettingModelImpl &&
             (identical(other.billReturnType, billReturnType) ||
                 other.billReturnType == billReturnType) &&
             (identical(other.appPrinterType, appPrinterType) ||
@@ -252,27 +253,29 @@ class _$AppSettingModelImpl
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$AppSettingModelImplCopyWith<_$AppSettingModelImpl> get copyWith =>
-      __$$AppSettingModelImplCopyWithImpl<_$AppSettingModelImpl>(
-          this, _$identity);
+  _$$AppPrintSettingModelImplCopyWith<_$AppPrintSettingModelImpl>
+      get copyWith =>
+          __$$AppPrintSettingModelImplCopyWithImpl<_$AppPrintSettingModelImpl>(
+              this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$AppSettingModelImplToJson(
+    return _$$AppPrintSettingModelImplToJson(
       this,
     );
   }
 }
 
-abstract class _AppSettingModel implements AppSettingModel {
-  const factory _AppSettingModel(
-      {final BillReturnItemTypeEnum billReturnType,
-      final AppPrinterSettingTypeEnum appPrinterType,
-      final BillHtmlSettingModel billHtmlSetting,
-      final BillReturnSettingModel billReturnSetting}) = _$AppSettingModelImpl;
+abstract class _AppPrintSettingModel implements AppPrintSettingModel {
+  const factory _AppPrintSettingModel(
+          {final BillReturnItemTypeEnum billReturnType,
+          final AppPrinterSettingTypeEnum appPrinterType,
+          final BillHtmlSettingModel billHtmlSetting,
+          final BillReturnSettingModel billReturnSetting}) =
+      _$AppPrintSettingModelImpl;
 
-  factory _AppSettingModel.fromJson(Map<String, dynamic> json) =
-      _$AppSettingModelImpl.fromJson;
+  factory _AppPrintSettingModel.fromJson(Map<String, dynamic> json) =
+      _$AppPrintSettingModelImpl.fromJson;
 
   @override // @Default(true) bool noticeKitchenCancel,
 // @Default(true) bool noticeKitchenDone,
@@ -293,8 +296,8 @@ abstract class _AppSettingModel implements AppSettingModel {
   BillReturnSettingModel get billReturnSetting;
   @override
   @JsonKey(ignore: true)
-  _$$AppSettingModelImplCopyWith<_$AppSettingModelImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$AppPrintSettingModelImplCopyWith<_$AppPrintSettingModelImpl>
+      get copyWith => throw _privateConstructorUsedError;
 }
 
 BillHtmlSettingModel _$BillHtmlSettingModelFromJson(Map<String, dynamic> json) {

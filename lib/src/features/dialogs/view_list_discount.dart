@@ -24,8 +24,7 @@ void showCouponDetailDialog(
           Text(
             "${S.current.discountCode}: ${coupon.name}",
             style: AppTextStyle.regular(
-              fontSize: 15,
-              // fontSize: 15.sp,
+              rawFontSize: 15,
             ),
           ),
           const CloseButton(color: AppColors.redColor),

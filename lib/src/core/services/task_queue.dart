@@ -64,7 +64,7 @@ class PrinterTaskQueue {
     final profile = await CapabilityProfile.load();
     printerManager = PrinterNetworkManager(task.ip, port: task.port);
 
-    var paperSize = LocalStorage.getAppSettings().billHtmlSetting.paperSize;
+    var paperSize = LocalStorage.getPrintSetting().billHtmlSetting.paperSize;
     final generator = Generator(paperSize.paperSize, profile);
     List<int> data = [];
     try {

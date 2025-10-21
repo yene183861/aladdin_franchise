@@ -20,27 +20,21 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var productCheckout =
-        ref.watch(homeProvider.select((value) => value.productCheckout));
+    var productCheckout = ref.watch(homeProvider.select((value) => value.productCheckout));
 
-    var displayOrderHistory =
-        ref.watch(homeProvider.select((value) => value.displayOrderHistory));
+    var displayOrderHistory = ref.watch(homeProvider.select((value) => value.displayOrderHistory));
     return Padding(
       padding: padding ?? const EdgeInsets.all(8.0),
       child: Row(children: [
         InkWell(
           onTap: () {
-            ref
-                .read(homeProvider.notifier)
-                .onChangeDisplayOrderHistory(!displayOrderHistory);
+            ref.read(homeProvider.notifier).onChangeDisplayOrderHistory(!displayOrderHistory);
           },
           borderRadius: AppConfig.borderRadiusSecond,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: displayOrderHistory
-                  ? AppColors.secondColor
-                  : Colors.grey.shade200,
+              color: displayOrderHistory ? AppColors.secondColor : Colors.grey.shade200,
               borderRadius: AppConfig.borderRadiusSecond,
             ),
             child: Row(
@@ -55,7 +49,7 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
                 ],
                 Text(
                   'Xem lịch sử',
-                  style: AppTextStyle.medium(fontSize: 12),
+                  style: AppTextStyle.medium(rawFontSize: 12.5),
                 ),
               ],
             ),
@@ -84,7 +78,7 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
               child: Text(
                 'Xác nhận hủy',
                 style: AppTextStyle.regular(
-                  fontSize: 12,
+                  rawFontSize: 12.5,
                   color: Colors.white,
                 ),
               ),

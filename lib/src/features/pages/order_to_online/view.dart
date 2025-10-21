@@ -31,8 +31,7 @@ class OrderToOnlinePage extends ConsumerStatefulWidget {
   final int? orderId;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _OrderToOnlinePageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _OrderToOnlinePageState();
 }
 
 class _OrderToOnlinePageState extends ConsumerState<OrderToOnlinePage> {
@@ -43,9 +42,7 @@ class _OrderToOnlinePageState extends ConsumerState<OrderToOnlinePage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref
-          .read(orderToOnlinePageProvider.notifier)
-          .init(orderId: widget.orderId);
+      ref.read(orderToOnlinePageProvider.notifier).init(orderId: widget.orderId);
       // streamSubscription = ref
       //     .read(homeProvider.notifier)
       //     .o2oStreamController
@@ -116,7 +113,7 @@ class _OrderToOnlinePageState extends ConsumerState<OrderToOnlinePage> {
         title: Text(
           S.current.order_to_online,
           style: AppTextStyle.bold(
-            fontSize: 15,
+            rawFontSize: 15,
             color: Colors.white,
           ),
         ),
@@ -125,9 +122,7 @@ class _OrderToOnlinePageState extends ConsumerState<OrderToOnlinePage> {
           ResponsiveIconButtonWidget(
             iconData: Icons.refresh,
             onPressed: () {
-              ref
-                  .read(orderToOnlinePageProvider.notifier)
-                  .onChangeShowLoadingGetData(true);
+              ref.read(orderToOnlinePageProvider.notifier).onChangeShowLoadingGetData(true);
 
               ref.refresh(orderToOnlineProvider);
               ref.read(orderToOnlinePageProvider.notifier).getChatMessages();
@@ -148,17 +143,14 @@ class _BodyPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
     final orderToOnline = ref.watch(orderToOnlineProvider);
-    final orderSelect = ref
-        .watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
+    final orderSelect = ref.watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
     return orderToOnline.when(
       skipError: false,
       data: (data) {
         WidgetsBinding.instance.addPostFrameCallback(
           (timeStamp) {
             if (orderSelect == null && data.isNotEmpty) {
-              ref
-                  .read(orderToOnlinePageProvider.notifier)
-                  .changeOrderSelect(data.keys.first);
+              ref.read(orderToOnlinePageProvider.notifier).changeOrderSelect(data.keys.first);
             }
           },
         );
@@ -207,24 +199,21 @@ class _BodyPage extends ConsumerWidget {
                           const Gap(8),
                           Consumer(
                             builder: (context, ref, child) {
-                              final lockedOrderIds = ref.watch(
-                                  orderToOnlinePageProvider
-                                      .select((value) => value.lockedOrderIds));
+                              final lockedOrderIds = ref.watch(orderToOnlinePageProvider
+                                  .select((value) => value.lockedOrderIds));
 
-                              bool locked =
-                                  lockedOrderIds.contains(orderSelect.orderId);
+                              bool locked = lockedOrderIds.contains(orderSelect.orderId);
 
                               return locked
                                   ? Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 8),
+                                      padding:
+                                          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                       color: Colors.blueGrey.shade400,
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
+                                            mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
                                               const ResponsiveIconWidget(
                                                 iconData: Icons.notifications,
@@ -233,30 +222,23 @@ class _BodyPage extends ConsumerWidget {
                                               const Gap(8),
                                               Flexible(
                                                 child: Text(
-                                                  S.current
-                                                      .temporarily_locked_order,
+                                                  S.current.temporarily_locked_order,
                                                   textAlign: TextAlign.center,
-                                                  style: AppTextStyle.bold(
-                                                      color: Colors.white),
+                                                  style: AppTextStyle.bold(color: Colors.white),
                                                 ),
                                               ),
                                             ],
                                           ),
                                           ButtonCancelWidget(
                                             padding: const EdgeInsets.all(4),
-                                            textAction: S.current
-                                                .check_the_order_status_again,
+                                            textAction: S.current.check_the_order_status_again,
                                             onPressed: () {
-                                              if (orderSelect?.orderId !=
-                                                  null) {
+                                              if (orderSelect?.orderId != null) {
                                                 try {
                                                   ref
-                                                      .read(
-                                                          orderToOnlinePageProvider
-                                                              .notifier)
+                                                      .read(orderToOnlinePageProvider.notifier)
                                                       .onChangeLockedOrderId(
-                                                        orderId: orderSelect!
-                                                            .orderId,
+                                                        orderId: orderSelect!.orderId,
                                                         showLoading: true,
                                                       );
                                                 } catch (ex) {
@@ -276,28 +258,24 @@ class _BodyPage extends ConsumerWidget {
                               Expanded(
                                 child: Consumer(
                                   builder: (context, ref, child) {
-                                    final statusFilter = ref.watch(
-                                        orderToOnlinePageProvider.select(
-                                            (value) => value.statusFilter));
+                                    final statusFilter = ref.watch(orderToOnlinePageProvider
+                                        .select((value) => value.statusFilter));
 
-                                    var filters =
-                                        RequestProcessingStatus.values;
+                                    var filters = RequestProcessingStatus.values;
                                     return isSmallDevice
                                         ? Container(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 4),
-                                            child: DropdownButtonFormField<
-                                                RequestProcessingStatus>(
+                                            child: DropdownButtonFormField<RequestProcessingStatus>(
                                               value: statusFilter,
                                               items: filters
                                                   .map(
-                                                    (e) => DropdownMenuItem<
-                                                        RequestProcessingStatus>(
+                                                    (e) =>
+                                                        DropdownMenuItem<RequestProcessingStatus>(
                                                       value: e,
                                                       child: Text(
                                                         e.title,
-                                                        style: AppTextStyle
-                                                            .regular(),
+                                                        style: AppTextStyle.regular(),
                                                       ),
                                                     ),
                                                   )
@@ -305,9 +283,7 @@ class _BodyPage extends ConsumerWidget {
                                               onChanged: (value) {
                                                 if (value == null) return;
                                                 ref
-                                                    .read(
-                                                        orderToOnlinePageProvider
-                                                            .notifier)
+                                                    .read(orderToOnlinePageProvider.notifier)
                                                     .changeStatusFilter(value);
                                               },
                                             ),
@@ -318,47 +294,35 @@ class _BodyPage extends ConsumerWidget {
                                             child: Wrap(
                                               spacing: 8,
                                               children: filters.map((e) {
-                                                bool selected =
-                                                    statusFilter == e;
+                                                bool selected = statusFilter == e;
                                                 return FilterChip(
                                                   label: Text(
                                                     e.title,
                                                     style: AppTextStyle.medium(
-                                                      color: selected
-                                                          ? e.color
-                                                          : Colors
-                                                              .grey.shade700,
+                                                      color:
+                                                          selected ? e.color : Colors.grey.shade700,
                                                     ),
                                                   ),
                                                   onSelected: (value) {
                                                     ref
-                                                        .read(
-                                                            orderToOnlinePageProvider
-                                                                .notifier)
+                                                        .read(orderToOnlinePageProvider.notifier)
                                                         .changeStatusFilter(e);
                                                   },
                                                   selected: selected,
                                                   backgroundColor: selected
                                                       ? e.color.withOpacity(0.2)
-                                                      : Colors.grey.shade700
-                                                          .withOpacity(0.2),
+                                                      : Colors.grey.shade700.withOpacity(0.2),
                                                   shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            12),
+                                                    borderRadius: BorderRadius.circular(12),
                                                     side: BorderSide.none,
                                                   ),
                                                   side: BorderSide.none,
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 8),
-                                                  labelStyle:
-                                                      AppTextStyle.regular(
+                                                  padding: const EdgeInsets.symmetric(
+                                                      horizontal: 12, vertical: 8),
+                                                  labelStyle: AppTextStyle.regular(
                                                     color: e.color,
                                                   ),
-                                                  selectedColor:
-                                                      e.color.withOpacity(0.2),
+                                                  selectedColor: e.color.withOpacity(0.2),
                                                   checkmarkColor: e.color,
                                                 );
                                               }).toList(),
@@ -370,29 +334,24 @@ class _BodyPage extends ConsumerWidget {
                               Gap(isSmallDevice ? 8 : 20),
                               Consumer(
                                 builder: (context, ref, child) {
-                                  final sortByNewestTime = ref.watch(
-                                      orderToOnlinePageProvider.select(
-                                          (value) => value.sortByNewestTime));
+                                  final sortByNewestTime = ref.watch(orderToOnlinePageProvider
+                                      .select((value) => value.sortByNewestTime));
                                   String text = S.current.latest;
-                                  String icon =
-                                      'assets/icons/ic_sort_descending.svg';
+                                  String icon = 'assets/icons/ic_sort_descending.svg';
                                   if (!sortByNewestTime) {
                                     text = S.current.oldest;
-                                    icon =
-                                        './assets/icons/ic_sort_ascending.svg';
+                                    icon = './assets/icons/ic_sort_ascending.svg';
                                   }
                                   return GestureDetector(
                                     onTap: ref
-                                        .read(
-                                            orderToOnlinePageProvider.notifier)
+                                        .read(orderToOnlinePageProvider.notifier)
                                         .changeSortByNewestTime,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
                                           text,
-                                          style: AppTextStyle.regular(
-                                              fontSize: 13),
+                                          style: AppTextStyle.regular(rawFontSize: 13),
                                         ),
                                         const Gap(4),
                                         SvgPicture.asset(
@@ -422,14 +381,12 @@ class _BodyPage extends ConsumerWidget {
                                 const Gap(12),
                                 Consumer(
                                   builder: (context, ref, child) {
-                                    bool showChatTab = ref.watch(
-                                        orderToOnlinePageProvider.select(
-                                            (value) => value.showChatTab));
+                                    bool showChatTab = ref.watch(orderToOnlinePageProvider
+                                        .select((value) => value.showChatTab));
 
                                     return GestureDetector(
                                       onTap: ref
-                                          .read(orderToOnlinePageProvider
-                                              .notifier)
+                                          .read(orderToOnlinePageProvider.notifier)
                                           .onChangeShowChatTab,
                                       child: Container(
                                         height: isSmallDevice ? 24 : 28,
@@ -441,8 +398,7 @@ class _BodyPage extends ConsumerWidget {
                                         child: ResponsiveIconWidget(
                                           iconData: showChatTab
                                               ? Icons.mark_chat_read_outlined
-                                              : CupertinoIcons
-                                                  .chat_bubble_2_fill,
+                                              : CupertinoIcons.chat_bubble_2_fill,
                                         ),
                                       ),
                                     );
@@ -478,9 +434,7 @@ class _BodyPage extends ConsumerWidget {
         return Center(
           child: AppErrorSimpleWidget(
             onTryAgain: () {
-              ref
-                  .read(orderToOnlinePageProvider.notifier)
-                  .onChangeShowLoadingGetData(true);
+              ref.read(orderToOnlinePageProvider.notifier).onChangeShowLoadingGetData(true);
               ref.refresh(orderToOnlineProvider);
             },
           ),

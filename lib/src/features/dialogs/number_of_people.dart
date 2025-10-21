@@ -50,7 +50,7 @@
 //           Text(
 //             'Mã giảm giá theo số khách, thay đổi sổ khách người lớn trong mục Ưu đãi.',
 //             style: AppTextStyle.regular(
-//                 color: AppColors.redColor, fontSize: 12.sp),
+//                 color: AppColors.redColor, fontSize: 12),
 //           )
 //         ],
 //         const GapH(24),

@@ -8,14 +8,8 @@ import 'package:aladdin_franchise/src/models/user_bank.dart';
 abstract class RestaurantRepository {
   Future<List<UserBankModel>> getBanks(ApiBankParam apiBankParam);
   Future<List<PaymentMethod>> getPaymentMethod({required int orderId});
-  Future<
-      ({
-        String? url,
-        String? qr,
-        int? expiryMin,
-        String? message,
-        int? status
-      })> getPaymentGateway({
+  Future<({String? url, String? qr, int? expiryMin, String? message, int? status})>
+      getPaymentGateway({
     required ApiBankParam apiBankParam,
     required int keyPaymentMethod,
   });
@@ -26,7 +20,6 @@ abstract class RestaurantRepository {
     required dynamic totalBill,
   });
 
-  /// gửi lệnh đến máy cà thẻ (check lại cái này)
   Future<void> atmPosCallback({
     required String urlPos,
     // tổng tiền cuối ? (thấy note trên posman vậy)

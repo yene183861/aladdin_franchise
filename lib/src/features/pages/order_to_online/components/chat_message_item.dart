@@ -35,9 +35,8 @@ class ChatMessageGroupByDateItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              DateTimeUtils.formatToString(
-                  time: datetime, newPattern: 'dd/MM/yyyy'),
-              style: AppTextStyle.regular(fontSize: 13),
+              DateTimeUtils.formatToString(time: datetime, newPattern: 'dd/MM/yyyy'),
+              style: AppTextStyle.regular(rawFontSize: 13),
             ),
           ),
         ListView.builder(
@@ -67,14 +66,11 @@ class _ChatMessageItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: isMine
-          ? const EdgeInsets.only(left: 60)
-          : const EdgeInsets.only(right: 60),
+      margin: isMine ? const EdgeInsets.only(left: 60) : const EdgeInsets.only(right: 60),
       padding: const EdgeInsets.symmetric(horizontal: 8).copyWith(bottom: 12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment:
-            isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Text.rich(
             TextSpan(
@@ -83,11 +79,11 @@ class _ChatMessageItem extends StatelessWidget {
                 TextSpan(
                   text:
                       ' | ${DateTimeUtils.formatToString(time: chatMessageModel.createdAt.toLocal(), newPattern: 'HH:mm:ss')}',
-                  style: AppTextStyle.regular(fontSize: 12, color: Colors.grey),
+                  style: AppTextStyle.regular(rawFontSize: 12, color: Colors.grey),
                 ),
               ],
             ),
-            style: AppTextStyle.bold(color: Colors.black, fontSize: 12),
+            style: AppTextStyle.bold(color: Colors.black, rawFontSize: 12),
           ),
           const SizedBox(height: 4),
           Container(

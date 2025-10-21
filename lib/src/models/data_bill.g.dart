@@ -98,6 +98,7 @@ _$LineItemDataBillImpl _$$LineItemDataBillImplFromJson(
                   SubLineItemDataBill.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      isChangeTax: (json['is_change_tax'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$$LineItemDataBillImplToJson(
@@ -112,6 +113,7 @@ Map<String, dynamic> _$$LineItemDataBillImplToJson(
       'name_en': instance.nameEn,
       'code_product': instance.codeProduct,
       'list_item': instance.listItem.map((e) => e.toJson()).toList(),
+      'is_change_tax': instance.isChangeTax,
     };
 
 _$SubLineItemDataBillImpl _$$SubLineItemDataBillImplFromJson(

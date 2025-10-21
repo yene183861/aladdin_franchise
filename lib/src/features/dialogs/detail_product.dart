@@ -139,18 +139,10 @@ class ProductDetailWidget extends StatelessWidget {
                                 child: Text(" / ${product.unit}",
                                     style: AppTextStyle.regular(
                                       color: Colors.grey,
-                                      // fontSize: 12.sp,
-                                      fontSize: 13,
+                                      rawFontSize: 13,
                                     )),
                               ),
                             ),
-                            // TextSpan(
-                            //   text: " / ${product.unit}",
-                            //   style: AppTextStyle.regular(
-                            //     color: Colors.grey,
-                            //     fontSize: 12.sp,
-                            //   ),
-                            // ),
                           ],
                         ),
                       ),

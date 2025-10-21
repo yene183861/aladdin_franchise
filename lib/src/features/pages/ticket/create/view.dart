@@ -81,8 +81,7 @@ class _TicketCreateWidgetState extends ConsumerState<TicketCreateWidget> {
             showMessageDialog(
               context,
               titleMessage: S.current.sending_ticket_failed,
-              message:
-                  ref.read(ticketCreatePageProvider.notifier).getErrorMessage(),
+              message: ref.read(ticketCreatePageProvider.notifier).getErrorMessage(),
             );
             break;
           case TicketCreateEvent.success:
@@ -110,8 +109,7 @@ class _TicketCreateWidgetState extends ConsumerState<TicketCreateWidget> {
     final notifier = ref.read(ticketCreatePageProvider.notifier);
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation =
-        AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool useTab = (isMobile || (isTablet && portraitOrientation));
     return PopScope(
@@ -140,7 +138,7 @@ class _TicketCreateWidgetState extends ConsumerState<TicketCreateWidget> {
                   // ),
                   title: Text(
                     S.current.create_ticket_apos_lite_sys,
-                    style: AppTextStyle.bold(fontSize: 14.sp),
+                    style: AppTextStyle.bold(),
                   ),
                   trailing: CloseButton(
                     onPressed: () => pop(context),
@@ -159,8 +157,7 @@ class _TicketCreateWidgetState extends ConsumerState<TicketCreateWidget> {
                             label: S.current.problem,
                             required: true,
                             textController: titleCtrl,
-                            validator: (value) =>
-                                FieldValidationUtils.checkRequired(value),
+                            validator: (value) => FieldValidationUtils.checkRequired(value),
                             maxLength: 1000,
                             multiLine: true,
                             minLines: 1,
@@ -172,8 +169,7 @@ class _TicketCreateWidgetState extends ConsumerState<TicketCreateWidget> {
                           TextFieldSimpleWidget(
                             label: S.current.description,
                             textController: contentCtrl,
-                            validator: (value) =>
-                                FieldValidationUtils.checkRequired(value),
+                            validator: (value) => FieldValidationUtils.checkRequired(value),
                             required: true,
                             multiLine: true,
                             minLines: 3,
@@ -221,8 +217,7 @@ class _DateOfWishWidget extends ConsumerStatefulWidget {
 class __DateOfWishWidgetState extends ConsumerState<_DateOfWishWidget> {
   @override
   Widget build(BuildContext context) {
-    final dateOfWish =
-        ref.watch(ticketCreatePageProvider.select((value) => value.dateOfWish));
+    final dateOfWish = ref.watch(ticketCreatePageProvider.select((value) => value.dateOfWish));
     return Material(
       child: ListTile(
         shape: RoundedRectangleBorder(
@@ -235,16 +230,13 @@ class __DateOfWishWidgetState extends ConsumerState<_DateOfWishWidget> {
             Text(
               dateOfWish == null
                   ? S.current.no_date_selected
-                  : DateTimeUtils.instance.dateFormatDDMMYYYY
-                      .format(dateOfWish),
+                  : DateTimeUtils.instance.dateFormatDDMMYYYY.format(dateOfWish),
             ),
             if (dateOfWish != null)
               IconButton(
                 tooltip: S.current.delete_desired_completion_date,
                 onPressed: () {
-                  ref
-                      .read(ticketCreatePageProvider.notifier)
-                      .changeDateOfWish(null);
+                  ref.read(ticketCreatePageProvider.notifier).changeDateOfWish(null);
                 },
                 color: AppColors.redColor,
                 iconSize: 20,
@@ -260,9 +252,7 @@ class __DateOfWishWidgetState extends ConsumerState<_DateOfWishWidget> {
               lastDate: DateTime(2222),
             );
             if (pickDate != null) {
-              ref
-                  .read(ticketCreatePageProvider.notifier)
-                  .changeDateOfWish(pickDate);
+              ref.read(ticketCreatePageProvider.notifier).changeDateOfWish(pickDate);
             }
           },
           tooltip: S.current.select_completion_date,
@@ -309,8 +299,7 @@ class __AttachedFileWidgetState extends ConsumerState<_AttachedFileWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final attachFile =
-        ref.watch(ticketCreatePageProvider.select((value) => value.attachFile));
+    final attachFile = ref.watch(ticketCreatePageProvider.select((value) => value.attachFile));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -369,7 +358,7 @@ class __AttachedFileWidgetState extends ConsumerState<_AttachedFileWidget> {
                                       child: Text(
                                         S.current.image_error_delete,
                                         style: AppTextStyle.regular(
-                                          fontSize: 16,
+                                          rawFontSize: 16,
                                           color: AppColors.redColor,
                                         ),
                                       ),
@@ -383,9 +372,7 @@ class __AttachedFileWidgetState extends ConsumerState<_AttachedFileWidget> {
                               right: -5,
                               child: IconButton(
                                 onPressed: () {
-                                  ref
-                                      .read(ticketCreatePageProvider.notifier)
-                                      .updateAttachFile(e);
+                                  ref.read(ticketCreatePageProvider.notifier).updateAttachFile(e);
                                 },
                                 padding: EdgeInsets.zero,
                                 color: Colors.red,

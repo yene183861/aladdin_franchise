@@ -28,8 +28,7 @@ class OrderItemsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var orderTabSelect =
-        ref.watch(homeProvider.select((value) => value.orderTabSelect));
+    var orderTabSelect = ref.watch(homeProvider.select((value) => value.orderTabSelect));
 
     return Row(
       children: [
@@ -43,7 +42,6 @@ class OrderItemsWidget extends ConsumerWidget {
                 child: IndexedStack(
                   index: orderTabSelect.index,
                   children: const [
-                    // CurrentOrderItemsWidget(),
                     OrderItemsSelectingWidget(),
                     OrderedItemsSelectedWidget(),
                   ],
@@ -62,8 +60,8 @@ class OrderItemsWidget extends ConsumerWidget {
                       const Expanded(child: KitchenNoteWidget()),
                       Consumer(
                         builder: (mContext, ref, child) {
-                          var productsSelecting = ref.watch(homeProvider
-                              .select((value) => value.productsSelecting));
+                          var productsSelecting =
+                              ref.watch(homeProvider.select((value) => value.productsSelecting));
                           if (productsSelecting.isEmpty) {
                             return const SizedBox.shrink();
                           }
@@ -71,9 +69,8 @@ class OrderItemsWidget extends ConsumerWidget {
                             onTap: () async {
                               // var locked =
                               //     ref.read(homeProvider).lockedOrder;
-                              var res = await ref
-                                  .read(homeProvider.notifier)
-                                  .addItemsToOrder(context);
+                              var res =
+                                  await ref.read(homeProvider.notifier).addItemsToOrder(context);
                               if (res != null && context.mounted) {
                                 showMessageDialog(context, message: res);
                                 return;
@@ -82,15 +79,14 @@ class OrderItemsWidget extends ConsumerWidget {
                             borderRadius: AppConfig.borderRadiusSecond,
                             child: Container(
                               margin: const EdgeInsets.only(left: 4),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 4),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                               decoration: BoxDecoration(
                                   color: AppColors.mainColor,
                                   borderRadius: AppConfig.borderRadiusSecond),
                               child: Text(
                                 textProcessOrderItem ?? 'Gọi món\nngay',
-                                style: AppTextStyle.regular(
-                                    fontSize: 12, color: AppColors.white),
+                                style:
+                                    AppTextStyle.regular(rawFontSize: 13, color: AppColors.white),
                                 textAlign: TextAlign.center,
                               ),
                             ),
@@ -114,8 +110,7 @@ class OrderItemsWidget extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: Text(
                     'Hóa đơn',
                     style: AppTextStyle.regular(),

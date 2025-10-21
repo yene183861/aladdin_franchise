@@ -19,13 +19,11 @@ class QrO2OFab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final orderSelect = ref
-        .watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
+    final orderSelect = ref.watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
     return orderSelect == null || orderSelect.qrOrderO2o.isEmpty
         ? const SizedBox.shrink()
         : FloatingActionButton.extended(
-            extendedPadding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            extendedPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             onPressed: () async {
               final res = await showDialog(
                 context: context,
@@ -44,7 +42,7 @@ class QrO2OFab extends ConsumerWidget {
             },
             label: Text(
               S.current.view_order_qr,
-              style: AppTextStyle.regular(color: Colors.white, fontSize: 13),
+              style: AppTextStyle.regular(color: Colors.white, rawFontSize: 13),
             ),
             icon: const ResponsiveIconWidget(iconData: Icons.qr_code_2),
             foregroundColor: Colors.white,
@@ -66,8 +64,7 @@ class _QRO2ODialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
-    bool isPortraitOrientation =
-        AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool isPortraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
     bool isSmallDevice = isMobile && !isPortraitOrientation;
     var fontSize = isSmallDevice ? 13.0 : 14.0;
     return AlertDialog(
@@ -75,18 +72,18 @@ class _QRO2ODialog extends ConsumerWidget {
         children: [
           Text(
             S.current.qr_order_to_online,
-            style: AppTextStyle.regular(fontSize: fontSize),
+            style: AppTextStyle.regular(rawFontSize: fontSize),
             textAlign: TextAlign.center,
           ),
           const GapH(8),
           Text(
             '${S.current.order.toUpperCase()} $orderCode',
-            style: AppTextStyle.bold(fontSize: fontSize),
+            style: AppTextStyle.bold(rawFontSize: fontSize),
             textAlign: TextAlign.center,
           ),
           Text(
             '${S.current.table.toUpperCase()} $tableName',
-            style: AppTextStyle.bold(fontSize: fontSize),
+            style: AppTextStyle.bold(rawFontSize: fontSize),
             textAlign: TextAlign.center,
             maxLines: 5,
             overflow: TextOverflow.ellipsis,
@@ -127,7 +124,7 @@ class _QRO2ODialog extends ConsumerWidget {
           children: [
             Text(
               S.current.use_camera_zalo_to_scan_the_code,
-              style: AppTextStyle.regular(fontSize: fontSize),
+              style: AppTextStyle.regular(rawFontSize: fontSize),
             ),
             const Gap(12),
             Row(
@@ -144,9 +141,7 @@ class _QRO2ODialog extends ConsumerWidget {
                   textSize: fontSize,
                   color: AppColors.secondColor,
                   onPressed: () async {
-                    var error = await ref
-                        .read(orderToOnlinePageProvider.notifier)
-                        .getPrinters();
+                    var error = await ref.read(orderToOnlinePageProvider.notifier).getPrinters();
                     if (error == null) {
                       Navigator.pop(context, true);
                     }
@@ -175,10 +170,9 @@ class PrinterContentDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final printers =
-        ref.watch(orderToOnlinePageProvider.select((value) => value.printers));
-    final printerSelect = ref.watch(
-        orderToOnlinePageProvider.select((value) => value.printerSelect));
+    final printers = ref.watch(orderToOnlinePageProvider.select((value) => value.printers));
+    final printerSelect =
+        ref.watch(orderToOnlinePageProvider.select((value) => value.printerSelect));
     return AlertDialog(
       title: Text(
         S.current.choose_printer_o2o,
@@ -202,8 +196,7 @@ class PrinterContentDialog extends ConsumerWidget {
                           .changePrinterSelect(printers[index]);
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                           color: selected ? Colors.grey.shade200 : null,
                           borderRadius: BorderRadius.circular(12)),
@@ -215,13 +208,13 @@ class PrinterContentDialog extends ConsumerWidget {
                               children: [
                                 Text(
                                   printers[index].name,
-                                  style: AppTextStyle.regular()
-                                      .copyWith(fontWeight: FontWeight.w500),
+                                  style:
+                                      AppTextStyle.regular().copyWith(fontWeight: FontWeight.w500),
                                 ),
                                 Text(
                                   '${printers[index].ip}: ${printers[index].port}',
-                                  style: AppTextStyle.regular()
-                                      .copyWith(fontWeight: FontWeight.w400),
+                                  style:
+                                      AppTextStyle.regular().copyWith(fontWeight: FontWeight.w400),
                                 ),
                               ],
                             ),
@@ -260,9 +253,7 @@ class PrinterContentDialog extends ConsumerWidget {
                     onPressed: () async {
                       if (printerSelect == null) return;
                       Navigator.pop(context);
-                      ref
-                          .read(orderToOnlinePageProvider.notifier)
-                          .printQRCode();
+                      ref.read(orderToOnlinePageProvider.notifier).printQRCode();
                     },
                   ),
                 ]

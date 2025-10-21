@@ -132,8 +132,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
     paymentStatusNotifier = ValueNotifier<PaymentStatus?>(null);
     noteNotifier = ValueNotifier<String>('');
     gatewayNotifier = ValueNotifier<bool>(false);
-    languageNotifier =
-        ValueNotifier<String>(LocalStorage.getCustomerLanguageLocal());
+    languageNotifier = ValueNotifier<String>(LocalStorage.getCustomerLanguageLocal());
     if (Platform.isWindows) {
       DesktopMultiWindow.setMethodHandler(_handleMethodCallback);
     }
@@ -150,18 +149,15 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
 
   void _convertData(Map<String, dynamic> data) {
     try {
-      allProductsNotifier.value = (data['all_products'] as List)
-          .map((item) => ProductModel.fromJson(item))
-          .toList();
+      allProductsNotifier.value =
+          (data['all_products'] as List).map((item) => ProductModel.fromJson(item)).toList();
     } catch (ex) {
       //
     }
     try {
       var orderId = orderNotifier.value?.id;
-      orderNotifier.value =
-          data['order'] == null ? null : OrderModel.fromJson(data['order']);
-      if (orderNotifier.value?.id != null &&
-          orderId != orderNotifier.value?.id) {
+      orderNotifier.value = data['order'] == null ? null : OrderModel.fromJson(data['order']);
+      if (orderNotifier.value?.id != null && orderId != orderNotifier.value?.id) {
         _paymentTimer?.cancel();
         paymentStatusNotifier.value = PaymentStatus.close;
       }
@@ -169,34 +165,29 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
       //
     }
     try {
-      productsNotifier.value = (data['products'] as List)
-          .map((item) => ProductCheckoutModel.fromJson(item))
-          .toList();
+      productsNotifier.value =
+          (data['products'] as List).map((item) => ProductCheckoutModel.fromJson(item)).toList();
     } catch (ex) {
       //
     }
 
     try {
-      customerNotifier.value = data['customer'] == null
-          ? null
-          : CustomerModel.fromJson(data['customer']);
+      customerNotifier.value =
+          data['customer'] == null ? null : CustomerModel.fromJson(data['customer']);
     } catch (ex) {
       //
     }
 
     try {
       var value = data['note'] as String;
-      _noteTextController.text =
-          value.trim().isNotEmpty ? '${S.current.note}: $value' : '';
-      noteNotifier.value =
-          value.trim().isNotEmpty ? '${S.current.note}: $value' : '';
+      _noteTextController.text = value.trim().isNotEmpty ? '${S.current.note}: $value' : '';
+      noteNotifier.value = value.trim().isNotEmpty ? '${S.current.note}: $value' : '';
     } catch (ex) {
       //
     }
     try {
-      paymentMethodNotifier.value = data['payment_method'] == null
-          ? null
-          : PaymentMethod.fromJson(data['payment_method']);
+      paymentMethodNotifier.value =
+          data['payment_method'] == null ? null : PaymentMethod.fromJson(data['payment_method']);
     } catch (ex) {
       //
     }
@@ -208,8 +199,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
     }
 
     try {
-      detailPaymentNotifier.value =
-          data['detail_payment'] ?? <String, dynamic>{};
+      detailPaymentNotifier.value = data['detail_payment'] ?? <String, dynamic>{};
       _startPayooTimer(Duration(seconds: data['detail_payment']['expiry_min']));
     } catch (ex) {
       //
@@ -218,9 +208,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
       var orderProduct = data['order_product'];
       if (orderProduct != null) {
         ref.read(customerPageProvider.notifier).onChangeChangedProductId(
-            orderProduct['changed_product_id'] is int?
-                ? orderProduct['changed_product_id']
-                : null);
+            orderProduct['changed_product_id'] is int? ? orderProduct['changed_product_id'] : null);
       }
     } catch (ex) {
       //
@@ -281,8 +269,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
         if (!isShowPaymentInfo) {
           isShowPaymentInfo = true;
           showMessageDialog(context,
-              message: S.current.completing_payment_verification,
-              showAction: false);
+              message: S.current.completing_payment_verification, showAction: false);
         }
 
         break;
@@ -313,8 +300,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                             Navigator.of(context).pop();
                             isShowPaymentInfo = false;
                           }
-                          var restaurant =
-                              LocalStorage.getDataLogin()?.restaurant;
+                          var restaurant = LocalStorage.getDataLogin()?.restaurant;
                           return Text(
                             '${S.current.payment_successful}\n${(restaurant?.name ?? '').isNotEmpty ? S.current.msg_thanks_customer(restaurant?.name ?? '') : ''}',
                             style: AppTextStyle.bold(),
@@ -325,8 +311,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                       const GapH(8),
                       Text(
                         '${S.current.dialog_auto_close_after} ${paymentSuccessDuration}s',
-                        style:
-                            AppTextStyle.regular(fontStyle: FontStyle.italic),
+                        style: AppTextStyle.regular(fontStyle: FontStyle.italic),
                       ),
                     ],
                   ),
@@ -407,8 +392,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
     }
   }
 
-  Future<dynamic> _handleMethodCallback(
-      MethodCall call, int fromWindowId) async {
+  Future<dynamic> _handleMethodCallback(MethodCall call, int fromWindowId) async {
     var data = jsonDecode(call.arguments);
     if (call.method == WindowsMethod.closeApp.value) {
       widget.windowController?.close();
@@ -451,14 +435,10 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
       var autoScroll = data['auto_scroll_order_product'] ?? true;
       var changedProductId = data['changed_product_id'];
 
-      ref
-          .read(customerPageProvider.notifier)
-          .onChangeAutoScrollProducts(autoScroll);
+      ref.read(customerPageProvider.notifier).onChangeAutoScrollProducts(autoScroll);
       WidgetsBinding.instance.addPostFrameCallback(
         (timeStamp) {
-          ref
-              .read(customerPageProvider.notifier)
-              .onChangeChangedProductId(changedProductId);
+          ref.read(customerPageProvider.notifier).onChangeChangedProductId(changedProductId);
         },
       );
       return;
@@ -544,8 +524,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                                       }
                                       return Text(
                                         '${S.current.table_served}: ${S.current.table} ${value.getNameView()}',
-                                        style: AppTextStyle.bold(
-                                            color: AppColors.white),
+                                        style: AppTextStyle.bold(color: AppColors.white),
                                       );
                                     },
                                   ),
@@ -557,10 +536,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                             child: Chip(
                               label: Text(
                                 S.current.infoVAT,
-                                style: AppTextStyle.regular(
-                                  // fontSize: 12.sp,
-                                  fontSize: 12,
-                                ),
+                                style: AppTextStyle.regular(rawFontSize: 12),
                               ),
                             ),
                           ),
@@ -576,8 +552,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                             builder: (context, allProducts, child) {
                               return ValueListenableBuilder(
                                 valueListenable: noteNotifier,
-                                builder: (context, note, child) =>
-                                    ValueListenableBuilder(
+                                builder: (context, note, child) => ValueListenableBuilder(
                                   valueListenable: productsNotifier,
                                   builder: (context, value, child) {
                                     return ListOrderProduct(
@@ -586,10 +561,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                                         if (note.trim().isNotEmpty) note.trim(),
                                       ],
                                       allProducts: allProducts,
-                                      horizontalPadding:
-                                          defaultPaddingHorizontalPage,
-                                      noteTextEditingController:
-                                          _noteTextController,
+                                      horizontalPadding: defaultPaddingHorizontalPage,
+                                      noteTextEditingController: _noteTextController,
                                     );
                                   },
                                 ),
@@ -648,23 +621,20 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             _TitleSection(
-                              defaultPaddingHorizontalPage:
-                                  defaultPaddingHorizontalPage,
+                              defaultPaddingHorizontalPage: defaultPaddingHorizontalPage,
                               title: S.current.payment_info,
                             ),
                             ValueListenableBuilder(
                               valueListenable: dataBillNotifier,
                               builder: (context, value, child) {
                                 return Container(
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 12),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 4),
+                                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
                                       color: Colors.grey.shade200,
-                                      borderRadius: BorderRadius.circular(
-                                          AppConfig.sizeBorderRadiusMain)),
+                                      borderRadius:
+                                          BorderRadius.circular(AppConfig.sizeBorderRadiusMain)),
                                   child: Builder(builder: (context) {
                                     return PriceDataBillPreviewWidget(
                                       dataBill: value,
@@ -686,18 +656,14 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _TitleSection(
-                                defaultPaddingHorizontalPage:
-                                    defaultPaddingHorizontalPage,
+                                defaultPaddingHorizontalPage: defaultPaddingHorizontalPage,
                                 title: S.current.payment_method,
                               ),
                               Expanded(
                                 child: _PaymentSection(
-                                    paymentMethodNotifier:
-                                        paymentMethodNotifier,
-                                    defaultHorizontalPadding:
-                                        defaultPaddingHorizontalPage,
-                                    detailPaymentNotifier:
-                                        detailPaymentNotifier,
+                                    paymentMethodNotifier: paymentMethodNotifier,
+                                    defaultHorizontalPadding: defaultPaddingHorizontalPage,
+                                    detailPaymentNotifier: detailPaymentNotifier,
                                     gatewayNotifier: gatewayNotifier),
                               ),
                             ],
@@ -716,10 +682,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
   }
 
   Future<WebviewPermissionDecision> _onPermissionRequested(
-      String url,
-      WebviewPermissionKind kind,
-      bool isUserInitiated,
-      BuildContext context) async {
+      String url, WebviewPermissionKind kind, bool isUserInitiated, BuildContext context) async {
     final decision = await showDialog<WebviewPermissionDecision>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -727,13 +690,11 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
         content: Text('${S.current.webview_permission_request_1} \'$kind\''),
         actions: <Widget>[
           TextButton(
-            onPressed: () =>
-                Navigator.pop(context, WebviewPermissionDecision.deny),
+            onPressed: () => Navigator.pop(context, WebviewPermissionDecision.deny),
             child: Text(S.current.deny),
           ),
           TextButton(
-            onPressed: () =>
-                Navigator.pop(context, WebviewPermissionDecision.allow),
+            onPressed: () => Navigator.pop(context, WebviewPermissionDecision.allow),
             child: Text(S.current.allow),
           ),
         ],
@@ -811,11 +772,9 @@ class _PaymentSection extends StatelessWidget {
                     } else if (paymentMethod.isGateway) {
                       if ((detail['gateway_qr'] ?? '').trim().isNotEmpty) {
                         return FutureBuilder<Uint8List?>(
-                          future: loadImageBypassingSSL(
-                              (detail['gateway_qr'] ?? '')),
+                          future: loadImageBypassingSSL((detail['gateway_qr'] ?? '')),
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
                               return Center(
                                   child: Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -825,14 +784,12 @@ class _PaymentSection extends StatelessWidget {
                                   Text(
                                     S.current.loading_qr_code,
                                     style: AppTextStyle.regular(
-                                      // fontSize: 12.sp,
-                                      fontSize: 12,
+                                      rawFontSize: 12,
                                     ),
                                   ),
                                 ],
                               ));
-                            } else if (snapshot.hasError ||
-                                snapshot.data == null) {
+                            } else if (snapshot.hasError || snapshot.data == null) {
                               return Center(
                                   child: Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -845,8 +802,7 @@ class _PaymentSection extends StatelessWidget {
                                   Text(
                                     S.current.error_loading_qr_code,
                                     style: AppTextStyle.regular(
-                                      // fontSize: 12.sp,
-                                      fontSize: 12,
+                                      rawFontSize: 12,
                                       color: AppColors.redColor,
                                     ),
                                   ),
@@ -861,17 +817,13 @@ class _PaymentSection extends StatelessWidget {
                                       children: [
                                         if (gatewayNotifier.value)
                                           CountDownPayooTimer(
-                                            initDuration: Duration(
-                                                seconds:
-                                                    detail['expiry_min'] ?? 0),
+                                            initDuration:
+                                                Duration(seconds: detail['expiry_min'] ?? 0),
                                             onDone: () {
-                                              var value =
-                                                  Map<String, dynamic>.from(
-                                                      detail);
+                                              var value = Map<String, dynamic>.from(detail);
                                               value['expiry_min'] = 0;
 
-                                              detailPaymentNotifier.value =
-                                                  value;
+                                              detailPaymentNotifier.value = value;
                                               gatewayNotifier.value = false;
                                             },
                                           ),
@@ -908,8 +860,7 @@ class _PaymentSection extends StatelessWidget {
 
 Future<Uint8List?> loadImageBypassingSSL(String url) async {
   final client = HttpClient()
-    ..badCertificateCallback =
-        (X509Certificate cert, String host, int port) => true;
+    ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
 
   try {
     final request = await client.getUrl(Uri.parse(url));
@@ -950,8 +901,7 @@ class CustomerInfoWidget extends ConsumerWidget {
           Card(
             elevation: 0,
             color: Colors.grey[100],
-            shape: RoundedRectangleBorder(
-                borderRadius: AppConfig.borderRadiusMain),
+            shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
             child: ListTile(
               visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
               leading: _AvatarCustomerWidget(
@@ -966,23 +916,19 @@ class CustomerInfoWidget extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      const ResponsiveIconWidget(
-                          iconData: CupertinoIcons.sunrise),
+                      const ResponsiveIconWidget(iconData: CupertinoIcons.sunrise),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text(
-                            customer.dob == null || customer.dob!.trim().isEmpty
-                                ? S.current.noBOD
-                                : appConfig.dateFormatDDMMYYYY
-                                    .format(DateTime.parse(customer.dob!))),
+                        child: Text(customer.dob == null || customer.dob!.trim().isEmpty
+                            ? S.current.noBOD
+                            : appConfig.dateFormatDDMMYYYY.format(DateTime.parse(customer.dob!))),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const ResponsiveIconWidget(
-                          iconData: CupertinoIcons.phone),
+                      const ResponsiveIconWidget(iconData: CupertinoIcons.phone),
                       const SizedBox(width: 8),
                       Text(customer.phoneNumber),
                     ],
@@ -992,8 +938,7 @@ class CustomerInfoWidget extends ConsumerWidget {
                     FittedBox(
                       child: Row(
                         children: [
-                          const ResponsiveIconWidget(
-                              iconData: CupertinoIcons.star),
+                          const ResponsiveIconWidget(iconData: CupertinoIcons.star),
                           const SizedBox(width: 8),
                           Text(
                             "${S.current.rank}: ${customer.level ?? S.current.notAvailableYet} "
@@ -1011,9 +956,7 @@ class CustomerInfoWidget extends ConsumerWidget {
                         showConfirmAction(
                           context,
                           action: () async {
-                            final result = await ref
-                                .read(homeProvider.notifier)
-                                .resetCustomer();
+                            final result = await ref.read(homeProvider.notifier).resetCustomer();
                             if (result != null) {
                               await showErrorDialog(
                                 context,
@@ -1025,13 +968,9 @@ class CustomerInfoWidget extends ConsumerWidget {
                               //   message: result.toString(),
                               // );
                             } else {
-                              ref
-                                  .read(homeProvider.notifier)
-                                  .syncInfoForCustomer();
+                              ref.read(homeProvider.notifier).syncInfoForCustomer();
                               // xoá khách xong thì áp dụng lại giảm giá
-                              await ref
-                                  .read(homeProvider.notifier)
-                                  .applyCustomerPolicy();
+                              await ref.read(homeProvider.notifier).applyCustomerPolicy();
                             }
                           },
                           message: S.current.removeCustomer,

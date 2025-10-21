@@ -10,7 +10,7 @@ class SettingBillUseBillOdd extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appSettings = ref.watch(appSettingsProvider);
+    final printSetting = ref.watch(printSettingProvider);
     return Column(
       children: [
         SwitchListTile(
@@ -18,11 +18,11 @@ class SettingBillUseBillOdd extends ConsumerWidget {
             "Gọi món có in bill lẻ",
             style: AppTextStyle.bold(),
           ),
-          value: appSettings.billReturnSetting.useOddBill,
+          value: printSetting.billReturnSetting.useOddBill,
           controlAffinity: ListTileControlAffinity.leading,
           onChanged: (value) {
             ref.read(settingsPageProvider.notifier).onChangeSetting(
-                  billReturnSetting: appSettings.billReturnSetting.copyWith(useOddBill: value),
+                  billReturnSetting: printSetting.billReturnSetting.copyWith(useOddBill: value),
                 );
           },
         ),

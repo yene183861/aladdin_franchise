@@ -15,8 +15,7 @@ class ListTagsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var pageState =
-        ref.watch(homeProvider.select((value) => value.productsState));
+    var pageState = ref.watch(homeProvider.select((value) => value.productsState));
     final tags = ref.watch(homeProvider.select((value) => value.tags));
 
     switch (pageState.status) {
@@ -24,7 +23,7 @@ class ListTagsWidget extends ConsumerWidget {
         return ListView.separated(
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
-            return ShimmerLoading(
+            return AppShimmerLoading(
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 width: 70,
@@ -66,8 +65,7 @@ class _SubTagSelectWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    bool active =
-        ref.watch(homeProvider.select((value) => value.tagSelect)) == tag;
+    bool active = ref.watch(homeProvider.select((value) => value.tagSelect)) == tag;
     return InkWell(
       onTap: () {
         ref.read(homeProvider.notifier).changeTagSelect(active ? null : tag);
@@ -83,7 +81,7 @@ class _SubTagSelectWidget extends ConsumerWidget {
           tag.name,
           style: AppTextStyle.regular(
             color: active ? AppColors.white : AppColors.tcMenuSelect,
-            fontSize: 12.sp,
+            rawFontSize: 12,
           ),
         ),
       ),

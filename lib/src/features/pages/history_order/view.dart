@@ -1,4 +1,3 @@
-
 import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
@@ -38,8 +37,7 @@ class HistoryOrderPage extends ConsumerStatefulWidget {
   const HistoryOrderPage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _HistoryOrderPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _HistoryOrderPageState();
 }
 
 class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
@@ -47,24 +45,20 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
       (HistoryOrderEvent? previous, HistoryOrderEvent? next) {
         switch (next) {
           case HistoryOrderEvent.printBill:
-            showProcessingDialog(context,
-                message: S.current.msg_reprint_payment_receipt);
+            showProcessingDialog(context, message: S.current.msg_reprint_payment_receipt);
             break;
           case HistoryOrderEvent.printKitchenBill:
-            showProcessingDialog(context,
-                message: S.current.msg_reprinting_kitchen_order);
+            showProcessingDialog(context, message: S.current.msg_reprinting_kitchen_order);
             break;
           case HistoryOrderEvent.completeBill:
-            showProcessingDialog(context,
-                message: S.current.msg_completing_order);
+            showProcessingDialog(context, message: S.current.msg_completing_order);
             break;
 
           case HistoryOrderEvent.normal:
             Navigator.pop(context);
             break;
           case HistoryOrderEvent.updateTax:
-            showProcessingDialog(context,
-                message: 'Đang cập nhật lại thông tin thuế');
+            showProcessingDialog(context, message: 'Đang cập nhật lại thông tin thuế');
             break;
 
           default:
@@ -76,9 +70,7 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
     required WidgetRef ref,
     required BuildContext context,
   }) async {
-    await ref
-        .read(historyOrderPageProvider.notifier)
-        .onChangeHistoryOrderSelect(item);
+    await ref.read(historyOrderPageProvider.notifier).onChangeHistoryOrderSelect(item);
     if (context.mounted) {
       showDialog(
         context: context,
@@ -105,15 +97,13 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
     required WidgetRef ref,
     bool completeBillAction = false,
   }) async {
-    await ref
-        .read(historyOrderPageProvider.notifier)
-        .onChangeHistoryOrderSelect(item);
+    await ref.read(historyOrderPageProvider.notifier).onChangeHistoryOrderSelect(item);
     bool refreshData = false;
+    // ignore: prefer_function_declarations_over_variables
     var action = () async {
       var res = await ref
           .read(historyOrderPageProvider.notifier)
-          .printBillForCustomer(context,
-              completeBillAction: completeBillAction);
+          .printBillForCustomer(context, completeBillAction: completeBillAction);
 
       if (res.error != null && context.mounted) {
         await showMessageDialog(context, message: res.error!);
@@ -175,28 +165,25 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
               child: Container(
                 width: TextUtil.getTextSize(
                             text: OrderStatusEnum.waiting.title,
-                            textStyle: AppTextStyle.regular(
-                                color: AppColors.white, fontSize: 12))
+                            textStyle:
+                                AppTextStyle.regular(color: AppColors.white, rawFontSize: 12))
                         .width +
                     12,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   borderRadius: AppConfig.borderRadiusMain,
                   color: item.status.color,
                 ),
                 child: Text(
                   item.status.title,
-                  style: AppTextStyle.regular(
-                      color: AppColors.white, fontSize: 12),
+                  style: AppTextStyle.regular(color: AppColors.white, rawFontSize: 12),
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
-            if ([OrderStatusEnum.waiting, OrderStatusEnum.completed]
-                    .contains(item.status) &&
+            if ([OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status) &&
                 ((item.price?.getTotalPriceFinal() ?? 0) > 0)) ...[
               const Gap(4),
               InkWell(
@@ -268,9 +255,7 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
     }
 
     return TableSpan(
-      extent: maxValue == null
-          ? FixedTableSpanExtent(remain)
-          : FixedTableSpanExtent(maxValue),
+      extent: maxValue == null ? FixedTableSpanExtent(remain) : FixedTableSpanExtent(maxValue),
     );
   }
 
@@ -296,15 +281,13 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
           var maxWidth = constraint.maxWidth;
           var isDesktop = Device.screenType == ScreenType.desktop;
           var isTablet = Device.screenType == ScreenType.tablet;
-          bool portraitOrientation =
-              AppDeviceSizeUtil.checkPortraitOrientation(context);
+          bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
           bool showDataTable = isDesktop || (isTablet && !portraitOrientation);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 color: const Color(0xff292929),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
@@ -332,26 +315,21 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                           data: (data) {
                             var totalMoney = 0.0;
                             for (var element in data) {
-                              totalMoney +=
-                                  element.price?.getTotalPriceFinal() ?? 0.0;
+                              totalMoney += element.price?.getTotalPriceFinal() ?? 0.0;
                             }
 
-                            return AppConfig.formatCurrency()
-                                .format(totalMoney);
+                            return AppConfig.formatCurrency().format(totalMoney);
                           },
                           error: (error, stackTrace) => '********* đ',
                           loading: () => '********* đ',
                         );
                         return Text.rich(
-                          TextSpan(
-                              text: '${S.current.total_amount}:    ',
-                              children: [
-                                TextSpan(
-                                  text: total,
-                                  style: AppTextStyle.bold(
-                                      color: AppColors.white, fontSize: 16),
-                                )
-                              ]),
+                          TextSpan(text: '${S.current.total_amount}:    ', children: [
+                            TextSpan(
+                              text: total,
+                              style: AppTextStyle.bold(color: AppColors.white, rawFontSize: 15),
+                            )
+                          ]),
                           style: AppTextStyle.regular(color: AppColors.white),
                           textAlign: TextAlign.end,
                           maxLines: 1,
@@ -365,8 +343,7 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
               if (!showDataTable) ...[
                 Padding(
                   padding:
-                      const EdgeInsets.symmetric(vertical: 4, horizontal: 8)
-                          .copyWith(bottom: 0),
+                      const EdgeInsets.symmetric(vertical: 4, horizontal: 8).copyWith(bottom: 0),
                   child: const Row(
                     children: [
                       HistoryDateRangeWidget(),
@@ -385,8 +362,7 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                 child: Consumer(builder: (context, ref, child) {
                   var historyOrder = ref.watch(historyOrderProvider);
                   var search = ref
-                      .watch(historyOrderPageProvider
-                          .select((value) => value.textSearch))
+                      .watch(historyOrderPageProvider.select((value) => value.textSearch))
                       .toLowerCase();
 
                   return historyOrder.when(
@@ -401,14 +377,12 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                                   e.customer!.phoneNumber.trim().toLowerCase(),
                                 ],
                               ].contains(search) ||
-                              e.coupons.any((c) =>
-                                  c.name.trim().toLowerCase().contains(search));
+                              e.coupons.any((c) => c.name.trim().toLowerCase().contains(search));
                         }).toList();
                       }
-                      data.sort((a, b) =>
-                          a.timeCreated == null || b.timeCreated == null
-                              ? 0
-                              : b.timeCreated!.compareTo(a.timeCreated!));
+                      data.sort((a, b) => a.timeCreated == null || b.timeCreated == null
+                          ? 0
+                          : b.timeCreated!.compareTo(a.timeCreated!));
                       if (data.isEmpty) {
                         return Center(
                           child: Text(
@@ -420,8 +394,7 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                       if (!showDataTable) {
                         return GridView.builder(
                           padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                          gridDelegate:
-                              SliverGridDelegateWithMaxCrossAxisExtent(
+                          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                             maxCrossAxisExtent: 200,
                             mainAxisSpacing: 8,
                             crossAxisSpacing: 8,
@@ -431,19 +404,7 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                             var item = data[index];
                             return InkWell(
                               onTap: () {
-                                _onTapItem(
-                                    item: item, ref: ref, context: context);
-                                // await ref
-                                //     .read(historyOrderPageProvider.notifier)
-                                //     .onChangeHistoryOrderSelect(item);
-                                // if (context.mounted) {
-                                //   showDialog(
-                                //     context: context,
-                                //     builder: (context) {
-                                //       return HistoryOrderDetailDialog(item: item);
-                                //     },
-                                //   );
-                                // }
+                                _onTapItem(item: item, ref: ref, context: context);
                               },
                               child: Card(
                                 color: Colors.grey.shade100,
@@ -452,8 +413,7 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                                   padding: const EdgeInsets.all(8.0),
                                   child: SingleChildScrollView(
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Container(
                                             padding: const EdgeInsets.symmetric(
@@ -461,84 +421,58 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                                             decoration: BoxDecoration(
                                               // color: Colors.grey.shade200,
                                               color: Colors.white,
-                                              borderRadius:
-                                                  AppConfig.borderRadiusSecond,
+                                              borderRadius: AppConfig.borderRadiusSecond,
                                             ),
                                             child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Expanded(
                                                   child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
                                                       Row(
                                                         crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
+                                                            CrossAxisAlignment.center,
                                                         children: [
                                                           Container(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(2),
+                                                            padding: const EdgeInsets.all(2),
                                                             height: 18,
                                                             width: 18,
-                                                            child: item.orderType ==
-                                                                    1
-                                                                ? SvgPicture
-                                                                    .asset(
-                                                                    AppIcons
-                                                                        .icTakeAway,
-                                                                    color: Colors
-                                                                        .blue,
+                                                            child: item.orderType == 1
+                                                                ? SvgPicture.asset(
+                                                                    AppIcons.icTakeAway,
+                                                                    color: Colors.blue,
                                                                   )
                                                                 : const ResponsiveIconWidget(
-                                                                    iconData:
-                                                                        CupertinoIcons
-                                                                            .home,
-                                                                    color: Colors
-                                                                        .orange,
+                                                                    iconData: CupertinoIcons.home,
+                                                                    color: Colors.orange,
                                                                   ),
                                                           ),
                                                           const Gap(8),
                                                           Expanded(
                                                             child: Text(
                                                               '# ${item.tableName}',
-                                                              style: AppTextStyle
-                                                                  .bold(
-                                                                      fontSize:
-                                                                          13),
+                                                              style: AppTextStyle.bold(
+                                                                  rawFontSize: 13),
                                                               maxLines: 2,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
+                                                              overflow: TextOverflow.ellipsis,
+                                                              textAlign: TextAlign.center,
                                                             ),
                                                           ),
                                                           const Gap(8),
                                                           Text.rich(
                                                             TextSpan(
-                                                              text: item
-                                                                  .orderItems
-                                                                  .length
-                                                                  .toString(),
+                                                              text:
+                                                                  item.orderItems.length.toString(),
                                                               children: [
                                                                 TextSpan(
                                                                   text: ' món',
-                                                                  style: AppTextStyle
-                                                                      .regular(
-                                                                          fontSize:
-                                                                              12),
+                                                                  style: AppTextStyle.regular(
+                                                                      rawFontSize: 12),
                                                                 ),
                                                               ],
-                                                              style: AppTextStyle
-                                                                  .bold(
-                                                                      fontSize:
-                                                                          12),
+                                                              style: AppTextStyle.bold(
+                                                                  rawFontSize: 12),
                                                             ),
                                                           ),
                                                         ],
@@ -548,63 +482,38 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                                                         children: [
                                                           Expanded(
                                                             child: FittedBox(
-                                                              fit: BoxFit
-                                                                  .scaleDown,
+                                                              fit: BoxFit.scaleDown,
                                                               child: Text(
-                                                                DateTimeUtils
-                                                                    .formatToString(
-                                                                  time: item
-                                                                      .orderCreated,
+                                                                DateTimeUtils.formatToString(
+                                                                  time: item.orderCreated,
                                                                   newPattern:
                                                                       'dd/MM/yyyy\nHH:mm:ss',
                                                                 ),
                                                                 maxLines: 2,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                style:
-                                                                    AppTextStyle
-                                                                        .regular(
-                                                                  fontSize: 11,
-                                                                  color: Colors
-                                                                      .grey
-                                                                      .shade600,
+                                                                overflow: TextOverflow.ellipsis,
+                                                                style: AppTextStyle.regular(
+                                                                  rawFontSize: 11,
+                                                                  color: Colors.grey.shade600,
                                                                 ),
                                                               ),
                                                             ),
                                                           ),
                                                           Container(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                        6,
-                                                                    vertical:
-                                                                        4),
+                                                            padding: const EdgeInsets.symmetric(
+                                                                horizontal: 6, vertical: 4),
                                                             decoration: BoxDecoration(
-                                                                color: item
-                                                                    .status
-                                                                    .color
-                                                                    .withOpacity(
-                                                                        0.15),
+                                                                color: item.status.color
+                                                                    .withOpacity(0.15),
                                                                 borderRadius:
-                                                                    AppConfig
-                                                                        .borderRadiusSecond),
+                                                                    AppConfig.borderRadiusSecond),
                                                             child: Text(
                                                               item.status.title,
-                                                              textAlign:
-                                                                  TextAlign.end,
+                                                              textAlign: TextAlign.end,
                                                               maxLines: 1,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              style:
-                                                                  AppTextStyle
-                                                                      .bold(
-                                                                color: item
-                                                                    .status
-                                                                    .color,
-                                                                fontSize: 11,
+                                                              overflow: TextOverflow.ellipsis,
+                                                              style: AppTextStyle.bold(
+                                                                color: item.status.color,
+                                                                rawFontSize: 11,
                                                               ),
                                                             ),
                                                           ),
@@ -616,82 +525,39 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                                               ],
                                             )),
                                         const Gap(4),
-                                        // if (item.customer != null ||
-                                        //     item.coupons.isNotEmpty) ...[
-                                        //   Container(
-                                        //     padding: const EdgeInsets.symmetric(
-                                        //         horizontal: 8, vertical: 8),
-                                        //     width: double.maxFinite,
-                                        //     decoration: BoxDecoration(
-                                        //       color: Colors.grey.shade200,
-                                        //       borderRadius:
-                                        //           AppConfig.borderRadiusSecond,
-                                        //     ),
-                                        //     child: Column(
-                                        //       crossAxisAlignment:
-                                        //           CrossAxisAlignment.start,
-                                        //       children: [
-                                        //         if (item.customer != null)
-                                        //           Text(
-                                        //             'KH: ${item.customer?.name ?? ''}',
-                                        //             maxLines: 1,
-                                        //             overflow: TextOverflow.ellipsis,
-                                        //           ),
-                                        //         if (item.coupons.isNotEmpty)
-                                        //           Text(
-                                        //             'Voucher: ${item.coupons.map((e) => e.name).join(', ')}',
-                                        //             maxLines: 1,
-                                        //             overflow: TextOverflow.ellipsis,
-                                        //           ),
-                                        //       ],
-                                        //     ),
-                                        //   ),
-                                        //   const Gap(4),
-                                        // ],
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 8, vertical: 8),
                                           width: double.maxFinite,
                                           decoration: BoxDecoration(
-                                            // color: Colors.grey.shade200,
                                             color: Colors.white,
-                                            borderRadius:
-                                                AppConfig.borderRadiusSecond,
+                                            borderRadius: AppConfig.borderRadiusSecond,
                                           ),
                                           child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               _LinePriceWidget(
                                                 title: 'Tổng tiền',
-                                                value:
-                                                    item.price?.totalPrice ?? 0,
+                                                value: item.price?.totalPrice ?? 0,
                                               ),
                                               _LinePriceWidget(
                                                 title: 'Thuế',
-                                                value:
-                                                    item.price?.totalPriceTax ??
-                                                        0,
+                                                value: item.price?.totalPriceTax ?? 0,
                                               ),
                                               _LinePriceWidget(
                                                 title: 'Giảm giá',
-                                                value: item.price
-                                                        ?.totalPriceVoucher ??
-                                                    0,
+                                                value: item.price?.totalPriceVoucher ?? 0,
                                               ),
                                               _LinePriceWidget(
                                                 title: 'Thành tiền',
-                                                value: item.price
-                                                        ?.totalPriceFinal ??
-                                                    0,
+                                                value: item.price?.totalPriceFinal ?? 0,
                                               ),
                                             ],
                                           ),
                                         ),
                                         const Gap(4),
                                         Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             if ([
                                               OrderStatusEnum.waiting,
@@ -705,22 +571,17 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                                                     ref: ref,
                                                   );
                                                 },
-                                                borderRadius: AppConfig
-                                                    .borderRadiusSecond,
+                                                borderRadius: AppConfig.borderRadiusSecond,
                                                 child: Container(
                                                   width: 28,
                                                   height: 28,
-                                                  padding:
-                                                      const EdgeInsets.all(4),
+                                                  padding: const EdgeInsets.all(4),
                                                   decoration: BoxDecoration(
                                                     color: Colors.grey.shade300,
-                                                    borderRadius: AppConfig
-                                                        .borderRadiusSecond,
+                                                    borderRadius: AppConfig.borderRadiusSecond,
                                                   ),
-                                                  child:
-                                                      const ResponsiveIconWidget(
-                                                    iconData:
-                                                        Icons.info_outline,
+                                                  child: const ResponsiveIconWidget(
+                                                    iconData: Icons.info_outline,
                                                   ),
                                                 ),
                                               ),
@@ -733,61 +594,21 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                                                     item: item,
                                                   );
                                                 },
-                                                borderRadius: AppConfig
-                                                    .borderRadiusSecond,
+                                                borderRadius: AppConfig.borderRadiusSecond,
                                                 child: Container(
                                                   width: 28,
                                                   height: 28,
-                                                  padding:
-                                                      const EdgeInsets.all(4),
+                                                  padding: const EdgeInsets.all(4),
                                                   decoration: BoxDecoration(
                                                     color: Colors.grey.shade300,
-                                                    borderRadius: AppConfig
-                                                        .borderRadiusSecond,
+                                                    borderRadius: AppConfig.borderRadiusSecond,
                                                   ),
-                                                  child:
-                                                      const ResponsiveIconWidget(
+                                                  child: const ResponsiveIconWidget(
                                                     iconData: Icons.print,
                                                   ),
                                                 ),
                                               ),
-                                              // if (OrderStatusEnum.waiting == item.status) ...[
-                                              //   const Gap(4),
-                                              //   Expanded(
-                                              //     child: ButtonMainWidget(
-                                              //       textAction: 'Hoàn thành',
-                                              //       onPressed: () async {
-                                              //         await ref
-                                              //             .read(historyOrderPageProvider.notifier)
-                                              //             .onChangeHistoryOrderSelect(item);
-                                              //         _printBillForCustomer(
-                                              //           item: item,
-                                              //           context: context,
-                                              //           ref: ref,
-                                              //           completeBillAction: true,
-                                              //         );
-                                              //       },
-                                              //     ),
-                                              //   ),
-                                              // ],
                                             ],
-                                            // if ([
-                                            //   OrderStatusEnum.processing,
-                                            //   OrderStatusEnum.cancelled,
-                                            // ].contains(item.status)) ...[
-                                            //   Expanded(
-                                            //     child: ButtonMainWidget(
-                                            //       textAction: 'Xem chi tiết',
-                                            //       onPressed: () {
-                                            //         _onTapItem(
-                                            //           context: context,
-                                            //           item: item,
-                                            //           ref: ref,
-                                            //         );
-                                            //       },
-                                            //     ),
-                                            //   ),
-                                            // ],
                                           ],
                                         ),
                                       ],
@@ -809,14 +630,11 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                           return buildColumnSpan(index, maxWidth);
                         },
                         rowBuilder: buildRowSpan,
-                        cellBuilder:
-                            (BuildContext context, TableVicinity vicinity) {
+                        cellBuilder: (BuildContext context, TableVicinity vicinity) {
                           if (vicinity.yIndex == 0) {
                             String colTitle = '';
                             try {
-                              colTitle =
-                                  (colSettings[vicinity.xIndex]['title'] ?? '')
-                                      as String;
+                              colTitle = (colSettings[vicinity.xIndex]['title'] ?? '') as String;
                             } catch (ex) {
                               //
                             }
@@ -836,21 +654,18 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                             item.tableName,
                             '',
                             ((item.customer?.name ?? '').trim().isEmpty &&
-                                    (item.customer?.phoneNumber ?? '')
-                                        .trim()
-                                        .isEmpty)
+                                    (item.customer?.phoneNumber ?? '').trim().isEmpty)
                                 ? ''
                                 : '${(item.customer?.name ?? '').trim()} - ${(item.customer?.phoneNumber ?? '').trim()}',
                             item.coupons.map((e) => e.name).toList().join(', '),
-                            AppConfig.formatCurrency().format(
-                                item.price?.getTotalPriceFinal() ?? 0.0),
+                            AppConfig.formatCurrency()
+                                .format(item.price?.getTotalPriceFinal() ?? 0.0),
                             '',
                             item.timeCreated == null
                                 ? ''
                                 : DateTimeUtils.formatToString(
                                     time: item.timeCreated!,
-                                    newPattern:
-                                        DateTimePatterns.dateTimeNotSecond,
+                                    newPattern: DateTimePatterns.dateTimeNotSecond,
                                   ),
                           ];
 
@@ -858,19 +673,7 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                           return TableViewCell(
                             child: InkWell(
                               onTap: () {
-                                _onTapItem(
-                                    item: item, ref: ref, context: context);
-                                // await ref
-                                //     .read(historyOrderPageProvider.notifier)
-                                //     .onChangeHistoryOrderSelect(item);
-                                // if (context.mounted) {
-                                //   showDialog(
-                                //     context: context,
-                                //     builder: (context) {
-                                //       return HistoryOrderDetailDialog(item: item);
-                                //     },
-                                //   );
-                                // }
+                                _onTapItem(item: item, ref: ref, context: context);
                               },
                               hoverColor: Colors.transparent,
                               splashColor: Colors.transparent,
@@ -879,11 +682,10 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                                   // nhớ khi khai báo cả context, ref nữa nha
                                   ? func.call(item, context, ref)
                                   : Align(
-                                      alignment: colSettings[vicinity.xIndex]
-                                          ['align'] as AlignmentGeometry,
+                                      alignment: colSettings[vicinity.xIndex]['align']
+                                          as AlignmentGeometry,
                                       child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 2),
+                                        padding: const EdgeInsets.symmetric(horizontal: 2),
                                         child: Text(
                                           values[xIndex],
                                           maxLines: 2,
@@ -937,11 +739,10 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                               ),
                             );
                           }
-                          return ShimmerLoading(
+                          return AppShimmerLoading(
                             child: Container(
                               height: 50,
-                              color:
-                                  index % 2 == 0 ? null : Colors.grey.shade100,
+                              color: index % 2 == 0 ? null : Colors.grey.shade100,
                             ),
                           );
                         },
@@ -972,7 +773,7 @@ class GridViewLoadingOrderHistoryWidget extends StatelessWidget {
         childAspectRatio: 0.7,
       ),
       itemBuilder: (BuildContext context, int index) {
-        return const ShimmerLoading(borderRadius: 8);
+        return const AppShimmerLoading(borderRadius: 8);
       },
       itemCount: 6,
     );
@@ -995,18 +796,16 @@ class _LinePriceWidget extends StatelessWidget {
       children: [
         Text(
           '$title: ',
-          style: AppTextStyle.regular(fontSize: 11),
+          style: AppTextStyle.regular(rawFontSize: 11),
         ),
         Expanded(
           child: Text(
-            NumberFormat.currency(symbol: 'đ', locale: 'vi').format(
-                value is String
-                    ? (double.tryParse(value) ?? 0.0)
-                    : (value * 1.0)),
+            NumberFormat.currency(symbol: 'đ', locale: 'vi')
+                .format(value is String ? (double.tryParse(value) ?? 0.0) : (value * 1.0)),
             textAlign: TextAlign.right,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyle.regular(fontSize: 12),
+            style: AppTextStyle.regular(rawFontSize: 12),
           ),
         ),
       ],

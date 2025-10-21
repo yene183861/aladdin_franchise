@@ -1,14 +1,14 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'app_setting.dart';
+part of 'print_setting.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$AppSettingModelImpl _$$AppSettingModelImplFromJson(
+_$AppPrintSettingModelImpl _$$AppPrintSettingModelImplFromJson(
         Map<String, dynamic> json) =>
-    _$AppSettingModelImpl(
+    _$AppPrintSettingModelImpl(
       billReturnType: $enumDecodeNullable(
               _$BillReturnItemTypeEnumEnumMap, json['bill_return_type']) ??
           BillReturnItemTypeEnum.normal,
@@ -25,8 +25,8 @@ _$AppSettingModelImpl _$$AppSettingModelImplFromJson(
               json['bill_return_setting'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$$AppSettingModelImplToJson(
-        _$AppSettingModelImpl instance) =>
+Map<String, dynamic> _$$AppPrintSettingModelImplToJson(
+        _$AppPrintSettingModelImpl instance) =>
     <String, dynamic>{
       'bill_return_type':
           _$BillReturnItemTypeEnumEnumMap[instance.billReturnType]!,

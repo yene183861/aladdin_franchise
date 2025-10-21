@@ -4,6 +4,7 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/list_product.dart';
 import 'package:aladdin_franchise/src/models/data_bill.dart';
+import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:flutter/material.dart';
 
 class PriceDataBillPreviewWidget extends StatelessWidget {
@@ -39,6 +40,7 @@ class PriceDataBillPreviewWidget extends StatelessWidget {
             textStyleValue: AppTextStyle.bold(),
             isLoading: isLoading,
             isCustomerPage: isCustomerPage,
+            isDiscount: true,
           ),
           LineInfoPaymentQRWidget(
             title: S.current.tax_money,
@@ -66,8 +68,7 @@ class PriceDataBillPreviewWidget extends StatelessWidget {
             if (((dataBill.receivedAmount ?? 0) - dataBill.totalPriceFinal) > 0)
               LineInfoPaymentQRWidget(
                 title: S.current.change_returned,
-                value:
-                    (dataBill.receivedAmount ?? 0) - dataBill.totalPriceFinal,
+                value: (dataBill.receivedAmount ?? 0) - dataBill.totalPriceFinal,
                 textStyleTitle: AppTextStyle.bold(),
                 textStyleValue: AppTextStyle.bold(
                   color: AppColors.redColor,
@@ -89,6 +90,7 @@ class LineInfoPaymentQRWidget extends StatelessWidget {
   final TextStyle? textStyleValue;
   final bool isLoading;
   final bool isCustomerPage;
+  final bool isDiscount;
   const LineInfoPaymentQRWidget({
     Key? key,
     required this.title,
@@ -97,6 +99,7 @@ class LineInfoPaymentQRWidget extends StatelessWidget {
     this.textStyleValue,
     this.isLoading = false,
     this.isCustomerPage = false,
+    this.isDiscount = false,
   }) : super(key: key);
 
   @override
@@ -111,16 +114,19 @@ class LineInfoPaymentQRWidget extends StatelessWidget {
             style: textStyleTitle ?? AppTextStyle.bold(),
           ),
         ),
-        isLoading
-            ? const ShimmerLoading(
-                width: 100,
-                margin: EdgeInsets.only(bottom: 8),
-              )
-            : Text(
-                AppConfig.formatCurrency(isCustomerPage: isCustomerPage)
-                    .format(number),
-                style: textStyleValue ?? AppTextStyle.bold(),
-              ),
+        SizedBox(
+          height: TextUtil.getTextSize(
+            text: AppConfig.formatCurrency(isCustomerPage: isCustomerPage).format(100000),
+            textStyle: textStyleValue ?? AppTextStyle.bold(),
+          ).height,
+          child: isLoading
+              ? const AppShimmerLoading(width: 100)
+              : Text(
+                  AppConfig.formatCurrency(isCustomerPage: isCustomerPage)
+                      .format(number * ((isDiscount && number > 0) ? -1.0 : 1.0)),
+                  style: textStyleValue ?? AppTextStyle.bold(),
+                ),
+        ),
       ],
     );
   }

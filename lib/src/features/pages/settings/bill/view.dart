@@ -16,8 +16,8 @@ class BillSettingsWidget extends ConsumerStatefulWidget {
 class _BillSettingsWidgetState extends ConsumerState<BillSettingsWidget> {
   @override
   Widget build(BuildContext context) {
-    final typePrinter = ref.watch(settingsPageProvider
-        .select((value) => value.appSettings.appPrinterType));
+    final typePrinter =
+        ref.watch(settingsPageProvider.select((value) => value.printSetting.appPrinterType));
     return Container(
       color: Colors.grey.shade100,
       child: Column(
@@ -33,9 +33,8 @@ class _BillSettingsWidgetState extends ConsumerState<BillSettingsWidget> {
             controlAffinity: ListTileControlAffinity.leading,
             value: typePrinter == AppPrinterSettingTypeEnum.withHtml,
             onChanged: (value) {
-              final typePrinterNew = value
-                  ? AppPrinterSettingTypeEnum.withHtml
-                  : AppPrinterSettingTypeEnum.normal;
+              final typePrinterNew =
+                  value ? AppPrinterSettingTypeEnum.withHtml : AppPrinterSettingTypeEnum.normal;
               ref
                   .read(settingsPageProvider.notifier)
                   .onChangeSetting(appPrinterType: typePrinterNew);

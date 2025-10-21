@@ -81,7 +81,7 @@ class _RequestTimeWidgetState extends State<RequestTimeWidget> {
         color = Colors.grey.shade800;
         icon = AppIcons.icOnTime;
     }
-    final textStyle = AppTextStyle.medium(color: color, fontSize: 12.sp);
+    final textStyle = AppTextStyle.medium(color: color, rawFontSize: 12);
 
     return Tooltip(
       message: DateFormat('HH:mm:ss dd/MM/yyyy').format(widget.dateTime),
@@ -91,9 +91,7 @@ class _RequestTimeWidgetState extends State<RequestTimeWidget> {
             minWidth: 6 * 2 +
                 20 +
                 4 +
-                TextUtil.getTextSize(
-                        text: '60 phút trước', textStyle: textStyle)
-                    .width),
+                TextUtil.getTextSize(text: '60 phút trước', textStyle: textStyle).width),
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         decoration: BoxDecoration(

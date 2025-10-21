@@ -201,8 +201,7 @@ class AppPrinterHtmlUtils {
         // combo
         List<ComboItemModel> comboItemPrint = [];
         if (comboItem != null) {
-          comboItemPrint =
-              comboItem.where((e) => e.printerType == printer.type).toList();
+          comboItemPrint = comboItem.where((e) => e.printerType == printer.type).toList();
           if (comboItemPrint.isNotEmpty) {
             String? description = p.description;
             try {
@@ -245,18 +244,14 @@ class AppPrinterHtmlUtils {
         throw printer.messageConnectFail();
       }
       if (res == PosPrintResult.success) {
-        var billStatus =
-            await printerManager.printTicket(bytes, isDisconnect: false);
+        var billStatus = await printerManager.printTicket(bytes, isDisconnect: false);
         if (billStatus != PosPrintResult.success) {
           return cancel
               ? "In bill tổng thất bại!\n${billStatus.msg}"
               : 'In bill hủy đồ thất bại\n${billStatus.msg}';
         }
         // chỉ in bill lẻ với bếp
-        if (!cancel &&
-            printEachItem &&
-            productPrinter.length > 1 &&
-            printer.type == 2) {
+        if (!cancel && printEachItem && productPrinter.length > 1 && printer.type == 2) {
           for (var p in productPrinter) {
             List<int> byteDatas;
             var oddHtmlBill = kitchenBillContent(
@@ -268,8 +263,7 @@ class AppPrinterHtmlUtils {
               cancel: cancel,
             );
             byteDatas = await generateImageBill(oddHtmlBill);
-            billStatus = await printerManager.printTicket(byteDatas,
-                isDisconnect: false);
+            billStatus = await printerManager.printTicket(byteDatas, isDisconnect: false);
             if (billStatus != PosPrintResult.success) {
               return "In bill lẻ xuống bếp thất bại!\n${billStatus.msg}";
             }
@@ -286,7 +280,7 @@ class AppPrinterHtmlUtils {
   }
 
   Future<List<int>> generateImageBill(String data) async {
-    final billHtmlSetting = LocalStorage.getAppSettings().billHtmlSetting;
+    final billHtmlSetting = LocalStorage.getPrintSetting().billHtmlSetting;
     // final fontSize = billHtmlSetting.fontSize;
     final profile = await CapabilityProfile.load();
     var paperSize = billHtmlSetting.paperSize.paperSize;
@@ -326,8 +320,7 @@ class AppPrinterHtmlUtils {
     String dishTable = "";
 
     var finalNote = note;
-    if (!totalBill &&
-        (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
+    if (!totalBill && (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
       finalNote = (product.firstOrNull?.noteForProcessOrder ?? '');
     }
     if (cancel) {
@@ -345,8 +338,7 @@ class AppPrinterHtmlUtils {
         </tr>
       ''';
       }
-      List<ComboItemModel>? comboItems =
-          ProductHelper().getComboDescription(pc);
+      List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(pc);
       // showLogs(comboItems, flags: 'comboItems');
       if (comboItems != null) {
         // check xem có cần nhân số lượng combo với món trong combo k
@@ -724,8 +716,7 @@ class AppPrinterHtmlUtils {
   }
 
   String _printDateTime(DateTime? value) {
-    return DateTimeUtils.formatToString(
-        time: value, newPattern: DateTimePatterns.dateTime1);
+    return DateTimeUtils.formatToString(time: value, newPattern: DateTimePatterns.dateTime1);
   }
 }
 

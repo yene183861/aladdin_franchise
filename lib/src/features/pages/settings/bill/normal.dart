@@ -17,7 +17,7 @@ class BillSettingForNormalWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appSettings = ref.watch(appSettingsProvider);
+    final setting = ref.watch(printSettingProvider);
     return ListView(
       children: [
         // const TitleSettingsWidget(title: 'Mẫu bill gọi đồ'),

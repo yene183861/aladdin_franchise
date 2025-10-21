@@ -30,8 +30,8 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'provider.dart';
 import 'state.dart';
 
-Future<({ReservationModel? reservation, bool requireUpdateReservation})>
-    showTransferOrderDialog(BuildContext context) async {
+Future<({ReservationModel? reservation, bool requireUpdateReservation})> showTransferOrderDialog(
+    BuildContext context) async {
   final result = await showDialog(
     context: context,
     useRootNavigator: false,
@@ -55,8 +55,7 @@ class TransferOrderDialog extends ConsumerStatefulWidget {
 }
 
 class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
-  bool useReservation =
-      LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
+  bool useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
   @override
   void initState() {
     super.initState();
@@ -67,11 +66,9 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
   Widget build(BuildContext context) {
     var notifier = ref.read(transferOrderProvider.notifier);
     var state = ref.watch(transferOrderProvider);
-    final tableAndWaiterTransferAvailable =
-        ref.watch(tableAvailableAndWaiterTransferOrderProvider);
+    final tableAndWaiterTransferAvailable = ref.watch(tableAvailableAndWaiterTransferOrderProvider);
     final orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
-    final waiterSelect =
-        ref.watch(transferOrderProvider.select((value) => value.waiterSelect));
+    final waiterSelect = ref.watch(transferOrderProvider.select((value) => value.waiterSelect));
     List<ReservationModel> reservations = ref.watch(reservationsProvider).when(
           skipError: false,
           skipLoadingOnRefresh: false,
@@ -87,7 +84,7 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
     return AlertDialog(
       title: Text(
         S.current.transferUpdateOrder,
-        style: AppTextStyle.bold(fontSize: 15),
+        style: AppTextStyle.bold(rawFontSize: 15),
       ),
       content: tableAndWaiterTransferAvailable.when(
         skipLoadingOnRefresh: false,
@@ -97,13 +94,11 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
           final waiter = data[2] as List<WaiterModel>;
           var waiterView = List<WaiterModel>.from(waiter);
           final waiterCurrent = waiterView.firstWhereOrNull((element) =>
-              element.id ==
-              ref.read(homeProvider.notifier).getOrderSelect()?.waiterId);
+              element.id == ref.read(homeProvider.notifier).getOrderSelect()?.waiterId);
           waiterView.remove(waiterCurrent);
           if (state.searchWaiter.isNotEmpty) {
             waiterView = waiterView
-                .where((element) =>
-                    element.name.toLowerCase().contains(state.searchWaiter))
+                .where((element) => element.name.toLowerCase().contains(state.searchWaiter))
                 .toList();
           }
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -118,8 +113,8 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
 
           double iconSize = isSmallDevice ? 20 : 24;
 
-          Widget tableSection = _ListTableWidget(
-              tablesAvailable: tablesAvailable, iconSize: iconSize);
+          Widget tableSection =
+              _ListTableWidget(tablesAvailable: tablesAvailable, iconSize: iconSize);
           Widget waiterSection = _ListWaiterWidget(
             waiters: waiterView,
             waiterCurrent: waiterCurrent,
@@ -129,8 +124,8 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
           if (isSmallDevice) {
             return Consumer(
               builder: (context, ref, child) {
-                var tabIndexSelect = ref.watch(transferOrderProvider
-                    .select((value) => value.tabIndexSelect));
+                var tabIndexSelect =
+                    ref.watch(transferOrderProvider.select((value) => value.tabIndexSelect));
                 return Column(
                   children: [
                     Row(
@@ -148,9 +143,7 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
                               decoration: BoxDecoration(
                                 border: Border(
                                   bottom: BorderSide(
-                                      color: selected
-                                          ? AppColors.mainColor
-                                          : Colors.transparent,
+                                      color: selected ? AppColors.mainColor : Colors.transparent,
                                       width: 2),
                                 ),
                               ),
@@ -203,8 +196,8 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: [
         ButtonCancelWidget(
-          onPressed: () => Navigator.pop(
-              context, (requireUpdateReservation: false, reservation: null)),
+          onPressed: () =>
+              Navigator.pop(context, (requireUpdateReservation: false, reservation: null)),
         ),
         ButtonSimpleWidget(
           onPressed: () {
@@ -229,14 +222,12 @@ Phục vụ tiếp nhận: ${state.waiterSelect?.name}
                 ReservationModel? reservation;
                 bool requireUpdateReservation = false;
                 if (useReservation && orderSelect?.reservationCrmId != null) {
-                  reservation = reservations.firstWhereOrNull(
-                      (e) => e.id == orderSelect?.reservationCrmId);
+                  reservation =
+                      reservations.firstWhereOrNull((e) => e.id == orderSelect?.reservationCrmId);
                   if (reservation != null &&
-                      (reservation.reservationStatus !=
-                              ReservationStatus.process ||
-                          !const SetEquality().equals(
-                              (reservation.tableId ?? []).toSet(),
-                              listTableIds.toSet()))) {
+                      (reservation.reservationStatus != ReservationStatus.process ||
+                          !const SetEquality()
+                              .equals((reservation.tableId ?? []).toSet(), listTableIds.toSet()))) {
                     requireUpdateReservation = true;
                   }
                   reservation ??= ReservationModel(
@@ -246,17 +237,14 @@ Phục vụ tiếp nhận: ${state.waiterSelect?.name}
                     startTime: '',
                   );
                 }
-                final result =
-                    await ref.read(homeProvider.notifier).transferOrder(
-                          listTableIds,
-                          orderSelect!,
-                          waiterSelect!,
-                          reservation: reservation,
-                        );
+                final result = await ref.read(homeProvider.notifier).transferOrder(
+                      listTableIds,
+                      orderSelect!,
+                      waiterSelect!,
+                      reservation: reservation,
+                    );
                 if (result == null) {
-                  showDoneSnackBar(
-                      context: context,
-                      message: S.current.transferOrderSuccess);
+                  showDoneSnackBar(context: context, message: S.current.transferOrderSuccess);
                   // ref.read(homeProvider.notifier).changeOrderSelect(null);
                   Navigator.pop(
                     context,
@@ -268,9 +256,7 @@ Phục vụ tiếp nhận: ${state.waiterSelect?.name}
                               statusName: ReservationStatus.process.name,
                               isUpdate: false,
                               tableId: listTableIds,
-                              table: state.tableSelects
-                                  .map((e) => (e.name ?? ''))
-                                  .join(', '),
+                              table: state.tableSelects.map((e) => (e.name ?? '')).join(', '),
                             )
                           : reservation,
                       requireUpdateReservation: requireUpdateReservation,
@@ -303,8 +289,7 @@ class _ListTableWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var tableSelects =
-        ref.watch(transferOrderProvider.select((value) => value.tableSelects));
+    var tableSelects = ref.watch(transferOrderProvider.select((value) => value.tableSelects));
     final orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -352,9 +337,7 @@ class _ListTableWidget extends ConsumerWidget {
                             return InkWell(
                               borderRadius: AppConfig.borderRadiusMain,
                               onTap: () {
-                                ref
-                                    .read(transferOrderProvider.notifier)
-                                    .updateTableSelect(e);
+                                ref.read(transferOrderProvider.notifier).updateTableSelect(e);
                               },
                               child: Chip(
                                 backgroundColor: isSelected
@@ -364,9 +347,7 @@ class _ListTableWidget extends ConsumerWidget {
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(e.name ?? "",
                                       style: AppTextStyle.regular(
-                                        color: isSelected
-                                            ? Colors.white
-                                            : Colors.black,
+                                        color: isSelected ? Colors.white : Colors.black,
                                       )),
                                 ),
                               ),
@@ -395,8 +376,7 @@ class _ListWaiterWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var waiterSelect =
-        ref.watch(transferOrderProvider.select((value) => value.waiterSelect));
+    var waiterSelect = ref.watch(transferOrderProvider.select((value) => value.waiterSelect));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -406,8 +386,7 @@ class _ListWaiterWidget extends ConsumerWidget {
             children: [
               TitleLineWidget(
                 fontWeight: FontWeight.w500,
-                title:
-                    'Phục vụ tiếp nhận: ${waiterSelect?.name ?? "Chưa chọn"}',
+                title: 'Phục vụ tiếp nhận: ${waiterSelect?.name ?? "Chưa chọn"}',
               ),
               IconButton(
                 onPressed: () {

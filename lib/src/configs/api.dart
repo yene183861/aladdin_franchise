@@ -59,7 +59,7 @@ class ApiConfig {
 
   void changeApi(String newApiUrl) {
     // v1
-    apiUrl = newApiUrl;
+    apiUrl = '$newApiUrl/api';
     login = "$apiUrl/v1/login";
     // menu
     getCategory = "$apiUrl/v1/make-waiter-restaurant-category";

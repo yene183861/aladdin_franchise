@@ -1,14 +1,13 @@
 import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
-import 'package:aladdin_franchise/src/models/app_setting.dart';
+import 'package:aladdin_franchise/src/models/setting/print_setting.dart';
 
 import 'state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final settingsPageProvider =
-    StateNotifierProvider.autoDispose<SettingsPageNotifier, SettingsPageState>(
-        (ref) {
+    StateNotifierProvider.autoDispose<SettingsPageNotifier, SettingsPageState>((ref) {
   return SettingsPageNotifier(ref);
 });
 
@@ -19,8 +18,8 @@ class SettingsPageNotifier extends StateNotifier<SettingsPageState> {
         ));
   final Ref ref;
   void initialize() {
-    var settings = LocalStorage.getAppSettings();
-    state = state.copyWith(appSettings: settings);
+    var settings = LocalStorage.getPrintSetting();
+    state = state.copyWith(printSetting: settings);
   }
 
   void onChangeSetting({
@@ -38,7 +37,7 @@ class SettingsPageNotifier extends StateNotifier<SettingsPageState> {
     BillHtmlSettingModel? billHtmlSetting,
     BillReturnSettingModel? billReturnSetting,
   }) {
-    var settings = state.appSettings.copyWith(
+    var settings = state.printSetting.copyWith(
       // noticeKitchenCancel:
       //     noticeCancel ?? state.appSettings.noticeKitchenCancel,
       // noticeKitchenConfirmLocation: noticeConfirmLocation ??
@@ -46,21 +45,20 @@ class SettingsPageNotifier extends StateNotifier<SettingsPageState> {
       // noticeKitchenDone:
       //     noticeKitchenDone ?? state.appSettings.noticeKitchenDone,
       // boxSizeView: boxSizeView ?? state.appSettings.boxSizeView,
-      billReturnType: billReturnType ?? state.appSettings.billReturnType,
+      billReturnType: billReturnType ?? state.printSetting.billReturnType,
       // audioDishCancel: audioDishCancel ?? state.appSettings.audioDishCancel,
       // audioDishConfirmLocation: audioDishConfirmLocation ??
       //     state.appSettings.audioDishConfirmLocation,
       // audioKitchenDone: audioKitchenDone ?? state.appSettings.audioKitchenDone,
       // backgroundColor: backgroundColor ?? state.appSettings.backgroundColor,
       // lineSelectColor: lineSelectColor ?? state.appSettings.lineSelectColor,
-      appPrinterType: appPrinterType ?? state.appSettings.appPrinterType,
-      billHtmlSetting: billHtmlSetting ?? state.appSettings.billHtmlSetting,
-      billReturnSetting:
-          billReturnSetting ?? state.appSettings.billReturnSetting,
+      appPrinterType: appPrinterType ?? state.printSetting.appPrinterType,
+      billHtmlSetting: billHtmlSetting ?? state.printSetting.billHtmlSetting,
+      billReturnSetting: billReturnSetting ?? state.printSetting.billReturnSetting,
     );
-    state = state.copyWith(appSettings: settings);
-    LocalStorage.setAppSettings(settings);
-    ref.invalidate(appSettingsProvider);
+    state = state.copyWith(printSetting: settings);
+    LocalStorage.setPrintSetting(settings);
+    ref.invalidate(printSettingProvider);
   }
 
   void changeMenuSelect(SettingPageMenuEnum menu) {

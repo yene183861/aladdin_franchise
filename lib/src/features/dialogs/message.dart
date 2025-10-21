@@ -25,9 +25,7 @@ Future<void> showMessageDialog(
       child: AlertDialog(
         title: Text(
           title ?? S.current.notification,
-          style: AppTextStyle.medium(
-              // fontSize: 14.sp,
-              ),
+          style: AppTextStyle.medium(),
         ),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

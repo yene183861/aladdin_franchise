@@ -34,8 +34,7 @@ class ButtonMainWidget extends StatelessWidget {
     return FractionallySizedBox(
       widthFactor: widthFactor,
       child: MaterialButton(
-        shape: shape ??
-            RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
+        shape: shape ?? RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
         onPressed: () {
           onPressed?.call();
         },
@@ -49,7 +48,7 @@ class ButtonMainWidget extends StatelessWidget {
           child: Text(
             textAction ?? S.current.confirm,
             style: AppTextStyle.semiBold(
-              fontSize: fontSize,
+              rawFontSize: fontSize,
               color: textColor ?? Colors.white,
             ),
             textAlign: TextAlign.center,
@@ -93,8 +92,7 @@ class AppButtonWidget extends StatelessWidget {
       borderRadius: br,
       child: Container(
         width: width,
-        padding:
-            padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           borderRadius: br,
           color: color ?? AppColors.mainColor,
@@ -102,7 +100,7 @@ class AppButtonWidget extends StatelessWidget {
         child: Text(
           textAction ?? S.current.confirm,
           style: AppTextStyle.semiBold(
-            fontSize: fontSize,
+            rawFontSize: fontSize,
             color: textColor ?? Colors.white,
           ),
         ),

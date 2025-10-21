@@ -38,7 +38,7 @@ class _ListCategoryWidgetState extends ConsumerState<ListCategoryWidget> {
           padding: const EdgeInsets.only(left: 8),
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
-            return ShimmerLoading(
+            return AppShimmerLoading(
               child: Container(
                 width: 100,
                 decoration: BoxDecoration(

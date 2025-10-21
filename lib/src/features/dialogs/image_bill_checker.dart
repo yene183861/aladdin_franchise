@@ -27,8 +27,7 @@ class PQCImageBillCheckerWidget extends ConsumerStatefulWidget {
   ConsumerState createState() => _PQCImageBillCheckerWidgetState();
 }
 
-class _PQCImageBillCheckerWidgetState
-    extends ConsumerState<PQCImageBillCheckerWidget> {
+class _PQCImageBillCheckerWidgetState extends ConsumerState<PQCImageBillCheckerWidget> {
   final ImagePicker picker = ImagePicker();
   @override
   Widget build(BuildContext context) {
@@ -58,8 +57,7 @@ class _PQCImageBillCheckerWidgetState
             if (images.length < 3 && widget.canAction)
               Platform.isAndroid
                   ? PopupMenuButton(
-                      icon: const ResponsiveIconWidget(
-                          iconData: Icons.add_photo_alternate),
+                      icon: const ResponsiveIconWidget(iconData: Icons.add_photo_alternate),
                       iconColor: AppColors.secondColor,
                       iconSize: 28,
                       shape: RoundedRectangleBorder(
@@ -74,8 +72,7 @@ class _PQCImageBillCheckerWidgetState
                                 S.current.take_photo_use_camera,
                                 style: AppTextStyle.regular(),
                               ),
-                              onTap: () =>
-                                  _onTakeImage(context, useCamera: true),
+                              onTap: () => _onTakeImage(context, useCamera: true),
                             ),
                           ),
                           PopupMenuItem(
@@ -108,8 +105,7 @@ class _PQCImageBillCheckerWidgetState
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children:
-                    images.map((e) => _BoxImageBillWidget(image: e)).toList(),
+                children: images.map((e) => _BoxImageBillWidget(image: e)).toList(),
               ),
             ),
           )
@@ -176,8 +172,6 @@ class _BoxImageBillWidget extends ConsumerWidget {
                   child: Text(
                     S.current.image_error_delete,
                     style: AppTextStyle.regular(
-                      // fontSize: 16.sp,
-                      // fontSize: 16,
                       color: AppColors.redColor,
                     ),
                   ),

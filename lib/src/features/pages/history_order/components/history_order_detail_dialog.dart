@@ -47,12 +47,10 @@ class HistoryOrderDetailDialog extends ConsumerStatefulWidget {
 
   final Future<bool> Function()? completeBillAction;
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _HistoryOrderDetailDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _HistoryOrderDetailDialogState();
 }
 
-class _HistoryOrderDetailDialogState
-    extends ConsumerState<HistoryOrderDetailDialog> {
+class _HistoryOrderDetailDialogState extends ConsumerState<HistoryOrderDetailDialog> {
   @override
   void initState() {
     super.initState();
@@ -70,7 +68,7 @@ class _HistoryOrderDetailDialogState
           Expanded(
             child: Text(
               '${S.current.order_detail} - ${widget.item.orderCode}',
-              style: AppTextStyle.bold(fontSize: 15),
+              style: AppTextStyle.bold(rawFontSize: 15),
             ),
           ),
           const Gap(20),
@@ -101,8 +99,8 @@ class _HistoryOrderDetailDialogState
         ),
         if (widget.item.status == OrderStatusEnum.waiting)
           Consumer(builder: (context, ref, child) {
-            var statusLoading = ref.watch(historyOrderPageProvider
-                .select((value) => value.getOrderDetailState));
+            var statusLoading =
+                ref.watch(historyOrderPageProvider.select((value) => value.getOrderDetailState));
             if (statusLoading.status == PageCommonState.success) {
               return ButtonSimpleWidget(
                 textAction: S.current.complete_order,
@@ -229,24 +227,22 @@ class _OrderDetailContentDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var state = ref.watch(
-        historyOrderPageProvider.select((value) => value.getOrderDetailState));
-    var vouchers = ref.watch(historyOrderPageProvider
-        .select((value) => value.dataBill?.print?.vouchers ?? []));
-    var orderLineItems = ref.watch(historyOrderPageProvider
-        .select((value) => value.dataBill?.orderLineItems ?? []));
+    var state = ref.watch(historyOrderPageProvider.select((value) => value.getOrderDetailState));
+    var vouchers = ref
+        .watch(historyOrderPageProvider.select((value) => value.dataBill?.print?.vouchers ?? []));
+    var orderLineItems =
+        ref.watch(historyOrderPageProvider.select((value) => value.dataBill?.orderLineItems ?? []));
     List<ProductCheckoutHistoryModel> products = List.from(item.orderItems);
     List<ProductCheckoutHistoryModel> productsView = [];
 
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation =
-        AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool useTab = (isMobile || (isTablet && portraitOrientation));
 
-    var promotionVouchers = vouchers
-        .where((element) => element.isType == 5 && element.listUse.isNotEmpty);
+    var promotionVouchers =
+        vouchers.where((element) => element.isType == 5 && element.listUse.isNotEmpty);
     for (var e in products) {
       var quantity = e.count;
       var promotion = 0;
@@ -261,15 +257,14 @@ class _OrderDetailContentDialog extends ConsumerWidget {
         }
       }
       if (quantity - promotion > 0) {
-        var pc =
-            orderLineItems.firstWhereOrNull((element) => element.id == e.id);
+        var pc = orderLineItems.firstWhereOrNull((element) => element.id == e.id);
 
         productsView.add(
           e.copyWith(
             count: quantity - promotion,
             price: pc?.price ?? e.price ?? '0',
-            totalPrice: (double.tryParse(pc?.price ?? e.price ?? 0.0) ?? 0) *
-                (quantity - promotion),
+            totalPrice:
+                (double.tryParse(pc?.price ?? e.price ?? 0.0) ?? 0) * (quantity - promotion),
           ),
         );
       }
@@ -279,8 +274,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
               count: promotion,
               price: '0',
               totalPrice: 0.0,
-              name:
-                  '${e.name}${promotionName.trim().isNotEmpty ? '\n$promotionName' : ''}'),
+              name: '${e.name}${promotionName.trim().isNotEmpty ? '\n$promotionName' : ''}'),
         );
       }
     }
@@ -327,8 +321,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                   return _buildColumnSpan(index, maxWidth);
                 },
                 rowBuilder: _buildRowSpan,
-                cellBuilder: (context, vicinity) =>
-                    _buildCell(context, vicinity, productsView),
+                cellBuilder: (context, vicinity) => _buildCell(context, vicinity, productsView),
               ),
             ),
             if (item.orderItems.isEmpty)
@@ -396,21 +389,15 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                     children: [
                       _PriceItem(
                         title: S.current.total_amount,
-                        value:
-                            double.tryParse((billInfo.totalPrice.toString())) ??
-                                0.0,
+                        value: double.tryParse((billInfo.totalPrice.toString())) ?? 0.0,
                       ),
                       _PriceItem(
                         title: S.current.tax_money,
-                        value: double.tryParse(
-                                (billInfo.totalPriceTax.toString())) ??
-                            0.0,
+                        value: double.tryParse((billInfo.totalPriceTax.toString())) ?? 0.0,
                       ),
                       _PriceItem(
                         title: S.current.discount_money,
-                        value: double.tryParse(
-                                (billInfo.totalPriceVoucher.toString())) ??
-                            0.0,
+                        value: double.tryParse((billInfo.totalPriceVoucher.toString())) ?? 0.0,
                       ),
                       _PriceItem(
                         title: S.current.totalAmountPayment,
@@ -423,8 +410,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
             }),
             Consumer(
               builder: (context, ref, child) {
-                var customer = ref.watch(
-                    historyOrderPageProvider.select((value) => value.customer));
+                var customer =
+                    ref.watch(historyOrderPageProvider.select((value) => value.customer));
                 if (customer == null) return const SizedBox.shrink();
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,11 +432,10 @@ class _OrderDetailContentDialog extends ConsumerWidget {
               builder: (context, ref, child) {
                 // var paymentMethods = ref.watch(historyOrderPageProvider
                 //     .select((value) => value.paymentMethods));
-                var paymentMethods = ref.watch(historyOrderPageProvider.select(
-                        (value) => value.dataBill?.order.listPaymentMethod)) ??
+                var paymentMethods = ref.watch(historyOrderPageProvider
+                        .select((value) => value.dataBill?.order.listPaymentMethod)) ??
                     [];
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
-                    .contains(item.status)) {
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status)) {
                   return const SizedBox.shrink();
                 }
                 if (paymentMethods.isEmpty) return const SizedBox.shrink();
@@ -481,8 +467,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                             label: S.current.payment_amount,
                             enabled: false,
                             readOnly: true,
-                            initialValue: AppConfig.formatCurrency().format(
-                                paymentMethods.first.paymentAmount.toDouble()),
+                            initialValue: AppConfig.formatCurrency()
+                                .format(paymentMethods.first.paymentAmount.toDouble()),
                           ),
                         ),
                       ],
@@ -492,184 +478,21 @@ class _OrderDetailContentDialog extends ConsumerWidget {
               },
             ),
             const Gap(12),
-            // Consumer(
-            //   builder: (context, ref, child) {
-            //     // var paymentMethods = ref.watch(historyOrderPageProvider
-            //     //     .select((value) => value.paymentMethods));
-            //     var sale = ref.watch(historyOrderPageProvider
-            //         .select((value) => value.dataBill?.sale));
-            //     if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
-            //         .contains(item.status)) {
-            //       return const SizedBox.shrink();
-            //     }
-
-            //     bool disable = true;
-            //     var saleSelect = sale == null
-            //         ? null
-            //         : EmployeeSaleModel(
-            //             employeeCode: sale.eSaleCode,
-            //             fullName: sale.eSaleName,
-            //             isOnline: (item.orderType == AppConfig.orderOfflineValue
-            //                 ? 1
-            //                 : 2),
-            //           );
-            //     return Column(
-            //       crossAxisAlignment: CrossAxisAlignment.start,
-            //       children: [
-            //         const Gap(12),
-            //         _TitleWidget(
-            //           maxWidth: maxWidth,
-            //           title: S.current.sale_staff,
-            //         ),
-            //         const Gap(8),
-            //         SizedBox(
-            //           width: isMobile ? 100.w : 30.w,
-            //           child: item.status == OrderStatusEnum.completed
-            //               ? CustomDropdownButton<EmployeeSaleModel>(
-            //                   disableDropdown: true,
-            //                   data: saleSelect == null ? [] : [saleSelect],
-            //                   allowSearch: true,
-            //                   buildTextDisplay: (data) {
-            //                     return data.fullName;
-            //                   },
-            //                   initData: saleSelect == null ? [] : [saleSelect],
-            //                   onChangeData: (p0) {
-            //                     ref
-            //                         .read(historyOrderPageProvider.notifier)
-            //                         .onChangeEmployeeSaleSelect(p0.firstOrNull);
-            //                   },
-            //                   hintText: S.current.no_sale_selected,
-            //                   searchMatchFn: (p0, p1) {
-            //                     return removeDiacritics(
-            //                             (p0.value?.fullName ?? '')
-            //                                 .trim()
-            //                                 .toLowerCase())
-            //                         .contains(removeDiacritics(
-            //                             p1.trim().toLowerCase()));
-            //                   },
-            //                 )
-            //               : Consumer(
-            //                   builder: (context, ref, child) {
-            //                     final state = ref.watch(homeProvider.select(
-            //                         (value) => value.employeeSaleState));
-
-            //                     switch (state.status) {
-            //                       case PageCommonState.loading:
-            //                         return const AppLoadingLineWidget();
-            //                       case PageCommonState.error:
-            //                         return AppErrorSimpleWidget(
-            //                           onTryAgain: ref
-            //                               .read(homeProvider.notifier)
-            //                               .getEmployeeSales,
-            //                           textButton: S.current.reload,
-            //                           message: state.messageError,
-            //                         );
-            //                       default:
-            //                     }
-
-            //                     final employeeSales = ref.watch(homeProvider
-            //                         .select((value) => value.employeeSales));
-            //                     var dataView = employeeSales
-            //                         .where((e) =>
-            //                             e.isOnline ==
-            //                             (item.orderType ==
-            //                                     AppConfig.orderOfflineValue
-            //                                 ? 1
-            //                                 : 2))
-            //                         .toList();
-            //                     var saleSelect = sale == null
-            //                         ? null
-            //                         : EmployeeSaleModel(
-            //                             employeeCode: sale.eSaleCode,
-            //                             fullName: sale.eSaleName,
-            //                             isOnline: (item.orderType ==
-            //                                     AppConfig.orderOfflineValue
-            //                                 ? 1
-            //                                 : 2),
-            //                           );
-
-            //                     WidgetsBinding.instance.addPostFrameCallback(
-            //                       (timeStamp) {
-            //                         if (saleSelect != null) {
-            //                           var check = dataView.firstWhereOrNull(
-            //                               (e) =>
-            //                                   e.employeeCode ==
-            //                                   saleSelect.employeeCode);
-
-            //                           if (check == null) {
-            //                             ref
-            //                                 .read(historyOrderPageProvider
-            //                                     .notifier)
-            //                                 .onChangeEmployeeSaleSelect(null);
-            //                           } else if (check != saleSelect) {
-            //                             ref
-            //                                 .read(historyOrderPageProvider
-            //                                     .notifier)
-            //                                 .onChangeEmployeeSaleSelect(check);
-            //                           }
-            //                         }
-            //                       },
-            //                     );
-            //                     if (dataView.isEmpty) {
-            //                       return Text(S.current.no_sale_staff_set_up);
-            //                     }
-            //                     return CustomDropdownButton<EmployeeSaleModel>(
-            //                       data: dataView,
-            //                       allowSearch: true,
-            //                       buildTextDisplay: (data) {
-            //                         return data.fullName;
-            //                       },
-            //                       initData:
-            //                           saleSelect == null ? [] : [saleSelect],
-            //                       onChangeData: (p0) {
-            //                         ref
-            //                             .read(historyOrderPageProvider.notifier)
-            //                             .onChangeEmployeeSaleSelect(
-            //                                 p0.firstOrNull);
-            //                       },
-            //                       hintText: S.current.select_sales_staff,
-            //                       searchMatchFn: (p0, p1) {
-            //                         return removeDiacritics(
-            //                                 (p0.value?.fullName ?? '')
-            //                                     .trim()
-            //                                     .toLowerCase())
-            //                             .contains(removeDiacritics(
-            //                                 p1.trim().toLowerCase()));
-            //                       },
-            //                       hintTextSearch: S.current.search,
-            //                     );
-            //                   },
-            //                 ),
-            //         ),
-            //         const Gap(8),
-            //         Text(
-            //           S.current.attention_unknown_sale,
-            //           style: AppTextStyle.regular(
-            //               color: AppColors.redColor, fontSize: 12.sp),
-            //         ),
-            //       ],
-            //     );
-            //   },
-            // ),
-            // const Gap(12),
             Consumer(
               builder: (context, ref, child) {
-                var amountAdult = ref.watch(historyOrderPageProvider.select(
-                        (value) => value.dataBill?.order.amountAdult)) ??
+                var amountAdult = ref.watch(historyOrderPageProvider
+                        .select((value) => value.dataBill?.order.amountAdult)) ??
                     0;
-                var amountChildren = ref.watch(historyOrderPageProvider.select(
-                        (value) => value.dataBill?.order.amountChildren)) ??
+                var amountChildren = ref.watch(historyOrderPageProvider
+                        .select((value) => value.dataBill?.order.amountChildren)) ??
                     0;
-                var description = ref.watch(historyOrderPageProvider
-                        .select((value) => value.dataBill?.description)) ??
+                var description = ref.watch(
+                        historyOrderPageProvider.select((value) => value.dataBill?.description)) ??
                     '';
-                if (amountAdult <= 0 &&
-                    amountChildren <= 0 &&
-                    description.trim().isEmpty) {
+                if (amountAdult <= 0 && amountChildren <= 0 && description.trim().isEmpty) {
                   return const SizedBox.shrink();
                 }
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
-                    .contains(item.status)) {
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status)) {
                   return const SizedBox.shrink();
                 }
                 return Column(
@@ -692,8 +515,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                               label: S.current.number_of_people,
                               enabled: false,
                               readOnly: true,
-                              initialValue:
-                                  (amountAdult + amountChildren).toString(),
+                              initialValue: (amountAdult + amountChildren).toString(),
                             ),
                           ),
                         SizedBox(
@@ -738,16 +560,15 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                 var portrait = ref.watch(historyOrderPageProvider
                         .select((value) => value.dataBill?.order.portrait)) ??
                     '';
-                var customerPortraits = ref.watch(
-                    homeProvider.select((value) => value.customerPortraits));
+                var customerPortraits =
+                    ref.watch(homeProvider.select((value) => value.customerPortraits));
                 CustomerPortrait? portraitSelect = portrait.trim().isEmpty
                     ? null
                     : customerPortraits.firstWhereOrNull(
                         (element) => element.key.trim() == portrait.trim(),
                       );
 
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
-                    .contains(item.status)) {
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status)) {
                   return const SizedBox.shrink();
                 }
                 return Column(
@@ -777,11 +598,10 @@ class _OrderDetailContentDialog extends ConsumerWidget {
               builder: (context, ref, child) {
                 // var imageConfirms = ref.watch(historyOrderPageProvider
                 //     .select((value) => value.imageConfirms));
-                var imageConfirms = ref.watch(historyOrderPageProvider.select(
-                        (value) => value.dataBill?.order.imageConfirms)) ??
+                var imageConfirms = ref.watch(historyOrderPageProvider
+                        .select((value) => value.dataBill?.order.imageConfirms)) ??
                     [];
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
-                        .contains(item.status) ||
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status) ||
                     imageConfirms.isEmpty) {
                   return const SizedBox.shrink();
                 }
@@ -814,8 +634,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
     });
   }
 
-  TableViewCell _buildCell(BuildContext context, TableVicinity vicinity,
-      List<ProductCheckoutHistoryModel> products) {
+  TableViewCell _buildCell(
+      BuildContext context, TableVicinity vicinity, List<ProductCheckoutHistoryModel> products) {
     if (vicinity.yIndex == 0) {
       String colTitle = '';
       try {
@@ -831,8 +651,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
             ? titleAlign
             : colSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
         child: Padding(
-          padding: EdgeInsets.only(
-              right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
+          padding: EdgeInsets.only(right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
           child: Text(
             colTitle,
             maxLines: 2,
@@ -858,8 +677,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
         child: Align(
       alignment: colSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
       child: Padding(
-        padding: EdgeInsets.only(
-            right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
+        padding: EdgeInsets.only(right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
         child: Text(
           contents[xIndex],
           maxLines: 2,
@@ -890,9 +708,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
     double w = 0.0;
     for (var e in colSettings) {
       bool isTax = colSettings[index]['is_tax'] as bool? ?? false;
-      w += isTax
-          ? 100
-          : max((e['percent'] as double? ?? 0) / 100 * maxWidth, 60);
+      w += isTax ? 100 : max((e['percent'] as double? ?? 0) / 100 * maxWidth, 60);
     }
 
     width = percent == null ? max(maxWidth - w, 120.0) : width;
@@ -927,11 +743,9 @@ class _OrderDetailContentDialog extends ConsumerWidget {
       }
       return TableViewCell(
           child: Align(
-        alignment:
-            couponSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
+        alignment: couponSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
         child: Padding(
-          padding: EdgeInsets.only(
-              right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
+          padding: EdgeInsets.only(right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
           child: Text(
             colTitle,
             maxLines: 2,
@@ -954,8 +768,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
         child: Align(
       alignment: couponSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
       child: Padding(
-        padding: EdgeInsets.only(
-            right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
+        padding: EdgeInsets.only(right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
         child: Text(
           contents[xIndex],
           maxLines: 2,
@@ -974,9 +787,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
     }
 
     return TableSpan(
-      extent: maxValue == null
-          ? FixedTableSpanExtent(remain)
-          : FixedTableSpanExtent(maxValue),
+      extent: maxValue == null ? FixedTableSpanExtent(remain) : FixedTableSpanExtent(maxValue),
     );
   }
 }
