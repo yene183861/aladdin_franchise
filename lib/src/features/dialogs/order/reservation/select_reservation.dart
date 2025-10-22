@@ -88,7 +88,7 @@ class __SelectReservationDialogState extends ConsumerState<_SelectReservationDia
         backgroundColor: Colors.white,
         title: Text(
           widget.initReserCRMId != null ? 'Cập nhật lịch đặt bàn' : S.current.choose_reservation,
-          style: AppTextStyle.bold(rawFontSize: 15),
+          // style: AppTextStyle.bold(rawFontSize: 15),
         ),
         content: Material(
           color: Colors.white,
@@ -309,7 +309,7 @@ class __SearchReservationState extends State<_SearchReservation> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        TextFieldSimpleWidget(
+        AppTextFieldWidget(
           textController: widget.controller,
           hintText: S.current.search_reservation,
           prefixIcon: const ResponsiveIconWidget(

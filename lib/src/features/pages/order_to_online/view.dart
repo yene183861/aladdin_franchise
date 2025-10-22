@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
+import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/image_const.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
@@ -113,7 +114,7 @@ class _OrderToOnlinePageState extends ConsumerState<OrderToOnlinePage> {
         title: Text(
           S.current.order_to_online,
           style: AppTextStyle.bold(
-            rawFontSize: 15,
+            rawFontSize: AppConfig.defaultRawTextSize + 1,
             color: Colors.white,
           ),
         ),
@@ -144,6 +145,7 @@ class _BodyPage extends ConsumerWidget {
     bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
     final orderToOnline = ref.watch(orderToOnlineProvider);
     final orderSelect = ref.watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
+    var isMobile = AppDeviceSizeUtil.checkMobileDevice();
     return orderToOnline.when(
       skipError: false,
       data: (data) {
@@ -161,8 +163,8 @@ class _BodyPage extends ConsumerWidget {
                   children: [
                     Image.asset(
                       AppImages.imgProductEmpty,
-                      width: 300,
-                      height: 300,
+                      width: isMobile ? 100 : 300,
+                      height: isMobile ? 100 : 300,
                     ),
                     Text(
                       S.current.no_orders,

@@ -9,8 +9,7 @@ class InputSearchBillWidget extends ConsumerStatefulWidget {
   const InputSearchBillWidget({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _InputSearchBillWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _InputSearchBillWidgetState();
 }
 
 class _InputSearchBillWidgetState extends ConsumerState<InputSearchBillWidget> {
@@ -30,12 +29,11 @@ class _InputSearchBillWidgetState extends ConsumerState<InputSearchBillWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var search =
-        ref.watch(historyOrderPageProvider.select((value) => value.textSearch));
+    var search = ref.watch(historyOrderPageProvider.select((value) => value.textSearch));
     return SizedBox(
       height: 40,
       width: 300,
-      child: TextFieldSimpleWidget(
+      child: AppTextFieldWidget(
         hintText: S.current.search_order_history,
         textController: _controller,
         contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
@@ -46,9 +44,7 @@ class _InputSearchBillWidgetState extends ConsumerState<InputSearchBillWidget> {
                 onTap: () {
                   _controller.text = '';
                   FocusManager.instance.primaryFocus?.unfocus();
-                  ref
-                      .read(historyOrderPageProvider.notifier)
-                      .onChangeTextSearch('');
+                  ref.read(historyOrderPageProvider.notifier).onChangeTextSearch('');
                 },
                 child: const Icon(Icons.clear, size: 18),
               ),

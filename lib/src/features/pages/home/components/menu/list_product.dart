@@ -69,7 +69,7 @@ class ProductBoxWidget extends ConsumerWidget {
                 ),
                 const Gap(8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
                     product.getNameView(),
                     style: AppTextStyle.bold(),
@@ -86,14 +86,14 @@ class ProductBoxWidget extends ConsumerWidget {
                       color: AppColors.redColor,
                       fontWeight: FontWeight.w600,
                       fontStyle: FontStyle.italic,
-                      rawFontSize: 13,
+                      rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                     ),
                     children: [
                       TextSpan(
                         text: " / ${product.unit.trim()}",
                         style: AppTextStyle.regular(
                           color: Colors.grey,
-                          rawFontSize: 13,
+                          rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                         ),
                       ),
                     ],
@@ -101,7 +101,7 @@ class ProductBoxWidget extends ConsumerWidget {
                 ),
                 const Gap(4),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Row(
                     children: [
                       if (ordered > 0)
@@ -115,7 +115,7 @@ class ProductBoxWidget extends ConsumerWidget {
                             ],
                           ),
                           style: AppTextStyle.regular(
-                            rawFontSize: 12.5,
+                            rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                             fontStyle: FontStyle.italic,
                             color: Colors.grey,
                           ),
@@ -132,17 +132,21 @@ class ProductBoxWidget extends ConsumerWidget {
                                     : ordering > 1000
                                         ? '1000+'
                                         : ordering.toString(),
-                                style: AppTextStyle.bold(rawFontSize: 13),
+                                style: AppTextStyle.bold(
+                                  rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                                ),
                               ),
                             ],
                           ),
-                          style: AppTextStyle.regular(rawFontSize: 13),
+                          style: AppTextStyle.regular(
+                            rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                          ),
                         ),
                       )
                     ],
                   ),
                 ),
-                const Gap(2),
+                const Gap(4),
               ],
             ),
           ),

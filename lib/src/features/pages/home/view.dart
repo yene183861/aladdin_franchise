@@ -285,9 +285,6 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     _productScrollController.addListener(_onScrollProduct);
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.refresh(tablesAndOrdersProvider);
-      // ref.read(homeProvider.notifier).getEmployeeSales();
-
       _timerReloadMenu = Timer.periodic(
         const Duration(minutes: 5),
         (timer) {
@@ -344,8 +341,9 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
 
   void _scrollCategoryBarTo(dynamic item, List<dynamic> allCategory) {
     var state = ref.read(homeProvider);
-    var categories = state.categories;
-    var categorySelect = state.categorySelect;
+    // var categories = state.categories;
+    var menuCategoryItem = state.menuCategoryItem;
+    // var categorySelect = state.categorySelect;
 
     final visibleItems = ref
         .read(homeProvider.notifier)
@@ -355,15 +353,15 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
         .where((position) => position.itemLeadingEdge < 1 && position.itemTrailingEdge > 0)
         .map((e) => e.index)
         .toList();
-    List<dynamic> dataView = [];
-    for (var item in categories) {
-      bool selected = item == categorySelect;
-      dataView.add(item);
-      if (selected && (item.children ?? []).isNotEmpty) {
-        dataView.add(null);
-        dataView.addAll(item.children ?? []);
-      }
-    }
+    List<dynamic> dataView = List.from(menuCategoryItem);
+    // for (var item in categories) {
+    //   bool selected = item == categorySelect;
+    //   dataView.add(item);
+    //   if (selected && (item.children ?? []).isNotEmpty) {
+    //     dataView.add(null);
+    //     dataView.addAll(item.children ?? []);
+    //   }
+    // }
     var items = [];
     for (var i in visibleItems) {
       items.add(dataView[i]);
@@ -434,12 +432,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     var categories = ref.watch(homeProvider.select((value) => value.categories));
     categoryKeys = ref.read(homeProvider.notifier).categoryKeys;
     var products = ref.watch(homeProvider.select((value) => value.products));
-    // var currentOrderItems =
-    //     ref.watch(homeProvider.select((value) => value.currentOrderItems));
-    // var productsSelected =
-    //     ref.watch(homeProvider.select((value) => value.productsSelected));
-    // var productsSelecting =
-    //     ref.watch(homeProvider.select((value) => value.productsSelecting));
+    var tags = ref.watch(homeProvider.select((value) => value.tags));
+
     var productsView = List<ProductModel>.from(products);
     var keyword = ref.watch(homeProvider.select((value) => value.search)).trim();
     var tagSelect = ref.watch(homeProvider.select((value) => value.tagSelect));
@@ -536,227 +530,217 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool showOrderInfo = !(isMobile || (isTablet && portraitOrientation));
-
+    bool emptyTags = tags.isEmpty;
     return PopScope(
       canPop: false,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         drawer: const HomeDrawerWidget(),
-        body: SafeArea(
-          child: Stack(
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(viewPadding.left, 0, 0, 0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        children: [
-                          Container(
-                            height: 48,
-                            width: double.maxFinite,
-                            alignment: Alignment.center,
-                            child: Row(
-                              children: [
-                                const Gap(8),
-                                Builder(
-                                  builder: (context) {
-                                    return InkWell(
-                                      onTap: Scaffold.of(context).openDrawer,
-                                      child: const ResponsiveIconWidget(
-                                        iconData: Icons.home,
-                                      ),
-                                    );
-                                  },
-                                ),
-                                const Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                    child: _SearchDishWidget(),
-                                  ),
-                                ),
-                                // const ButtonIgnoreCheckCodeWidget(),
-                                if (!isMobile) ...[
-                                  const ButtonHistoryOrderWidget(),
-                                  const Gap(8),
-                                ] else ...[
-                                  const ButtonO2oData(),
-                                  const ButtonRefreshData(),
-                                ],
-                              ],
-                            ),
-                          ),
-                          Consumer(
-                            builder: (context, ref, child) {
-                              var tags = ref.watch(homeProvider.select((value) => value.tags));
-                              if (tags.isEmpty && isMobile) {
-                                return const SizedBox.shrink();
-                              }
-
-                              return SizedBox(
-                                height: 48,
-                                child: Row(
-                                  children: [
-                                    // SizedBox(
-                                    //   width: 10.w,
-                                    //   child: _LogoWidget(),
-                                    // ),
-                                    // Gap(12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          // Gap(12),
-                                          // Expanded(
-                                          //   child: SizedBox(
-                                          //     child: Row(
-                                          //       children: [
-                                          //         Expanded(
-                                          //           child: _SearchDishWidget(),
-                                          //         ),
-                                          //         Gap(12),
-                                          //         HistoryOrderWidget(),
-                                          //       ],
-                                          //     ),
-                                          //   ),
-                                          // ),
-                                          // Gap(8),
-                                          Expanded(
-                                            child: Row(
-                                              children: [
-                                                const Expanded(
-                                                  child: ListTagsWidget(),
-                                                ),
-                                                if (!isMobile) ...const [
-                                                  Gap(8),
-                                                  ButtonRefreshData(),
-                                                  ButtonO2oData(),
-                                                ],
-                                                const Gap(8),
-                                                const TypeOrderWidget(),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+        body: Stack(
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(viewPadding.left, 0, 0, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 48,
+                          width: double.maxFinite,
+                          alignment: Alignment.center,
+                          child: Row(
+                            children: [
+                              const Gap(8),
+                              Builder(
+                                builder: (context) {
+                                  return InkWell(
+                                    onTap: Scaffold.of(context).openDrawer,
+                                    child: const ResponsiveIconWidget(
+                                      iconData: CupertinoIcons.home,
                                     ),
-                                    Gap(8),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                          Container(
-                            height: 42.px,
-                            padding: const EdgeInsets.fromLTRB(0, 4, 8, 4),
-                            alignment: Alignment.center,
-                            child: ListCategoryWidget(
-                                categoryScrollController: _categoryScrollController,
-                                onTap: (category) async {
-                                  _scrollToCategory(category);
-                                  await Future.delayed(const Duration(milliseconds: 350));
-                                  // ref.read(homeProvider.notifier).ctrlSearch.text = '';
-                                  if (category is CategoryModel) {
-                                    ref.read(homeProvider.notifier).changeCategorySelect(category);
-                                    return;
-                                  }
-                                  ref.read(homeProvider.notifier).changeSubCategorySelect(category);
-                                }),
-                          ),
-                          Expanded(
-                            child: Consumer(builder: (context, ref, child) {
-                              var productsState =
-                                  ref.watch(homeProvider.select((value) => value.productsState));
-
-                              switch (productsState.status) {
-                                case PageCommonState.normal:
-                                case PageCommonState.loading:
-                                  return GridView.builder(
-                                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                                      maxCrossAxisExtent: 200,
-                                      mainAxisSpacing: 10,
-                                      crossAxisSpacing: 10,
-                                      childAspectRatio: 0.7,
-                                    ),
-                                    itemBuilder: (BuildContext context, int index) {
-                                      return const ProductBoxLoadingWidget();
-                                    },
-                                    itemCount: 12,
                                   );
-                                case PageCommonState.error:
-                                  return AppErrorSimpleWidget(
-                                    onTryAgain: () {
-                                      ref.read(homeProvider.notifier).getProducts();
-                                    },
-                                    message: productsState.messageError,
-                                  );
-                                case PageCommonState.success:
-                              }
-                              return CustomScrollView(
-                                controller: _productScrollController,
-                                slivers: [
-                                  ...dataView,
-                                  const SliverToBoxAdapter(child: Gap(50)),
-                                ],
-                              );
-                            }),
-                          ),
-                        ],
-                      ),
-                    ),
-                    !showOrderInfo
-                        ? const SizedBox.shrink()
-                        : Container(
-                            constraints: const BoxConstraints(maxWidth: 500),
-                            child: const OrderPanelWidget(),
-                          ),
-                  ],
-                ),
-              ),
-              Consumer(
-                builder: (context, ref, child) {
-                  bool useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-                  // useO2o = true;
-                  final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
-
-                  bool isMobile = Device.screenType == ScreenType.mobile;
-                  bool isSmallDevice = isMobile;
-
-                  return orderSelect == null
-                      ? const SizedBox.shrink()
-                      : !(kTypeOrder == AppConfig.orderOfflineValue && useO2o)
-                          ? const SizedBox.shrink()
-                          : FloatBubble(
-                              show: true,
-                              initialAlignment: isSmallDevice
-                                  ? Alignment(1, (140 / 100.w) - 1)
-                                  : Alignment.topRight,
-                              child: GestureDetector(
-                                onTap: () {
-                                  _showChatPopup(ref);
                                 },
-                                child: Container(
-                                  key: _floatingBtnKey,
-                                  height: isSmallDevice ? 48 : 60,
-                                  width: isSmallDevice ? 48 : 60,
-                                  padding: EdgeInsets.all(isSmallDevice ? 12 : 12),
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.bgBoxProduct,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: SvgPicture.asset(
-                                    AppIcons.icChat,
-                                    color: AppColors.secondColor,
-                                  ),
+                              ),
+                              const Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                  child: _SearchDishWidget(),
                                 ),
                               ),
+                              if (!isMobile) ...[
+                                const ButtonHistoryOrderWidget(),
+                                const Gap(8),
+                              ] else ...[
+                                const ButtonO2oData(),
+                                Consumer(
+                                  builder: (context, ref, child) {
+                                    ref.watch(typeOrderWaiterProvider);
+                                    var useO2O =
+                                        LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+                                    if (useO2O || portraitOrientation) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    if (emptyTags) {
+                                      return const TypeOrderWidget();
+                                    }
+                                    return const ButtonHistoryOrderWidget();
+                                  },
+                                ),
+                                const ButtonRefreshData(),
+                              ],
+                            ],
+                          ),
+                        ),
+                        Consumer(
+                          builder: (context, ref, child) {
+                            var tags = ref.watch(homeProvider.select((value) => value.tags));
+                            if (tags.isEmpty && isMobile) {
+                              return const SizedBox.shrink();
+                            }
+
+                            return SizedBox(
+                              height: 48,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              const Expanded(
+                                                child: ListTagsWidget(),
+                                              ),
+                                              if (!isMobile) ...const [
+                                                Gap(8),
+                                                ButtonRefreshData(),
+                                                ButtonO2oData(),
+                                              ],
+                                              const Gap(8),
+                                              const TypeOrderWidget(),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             );
-                },
+                          },
+                        ),
+                        Container(
+                          height: 42.px,
+                          padding: const EdgeInsets.fromLTRB(0, 4, 8, 4),
+                          alignment: Alignment.center,
+                          child: ListCategoryWidget(
+                              categoryScrollController: _categoryScrollController,
+                              onTap: (category) async {
+                                _scrollToCategory(category);
+                                await Future.delayed(const Duration(milliseconds: 350));
+                                // ref.read(homeProvider.notifier).ctrlSearch.text = '';
+                                if (category is CategoryModel) {
+                                  ref.read(homeProvider.notifier).changeCategorySelect(category);
+                                  return;
+                                }
+                                ref.read(homeProvider.notifier).changeSubCategorySelect(category);
+                              }),
+                        ),
+                        Expanded(
+                          child: Consumer(builder: (context, ref, child) {
+                            var productsState =
+                                ref.watch(homeProvider.select((value) => value.productsState));
+
+                            switch (productsState.status) {
+                              case PageCommonState.normal:
+                              case PageCommonState.loading:
+                                return GridView.builder(
+                                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                                    maxCrossAxisExtent: 200,
+                                    mainAxisSpacing: 10,
+                                    crossAxisSpacing: 10,
+                                    childAspectRatio: 0.7,
+                                  ),
+                                  itemBuilder: (BuildContext context, int index) {
+                                    return const ProductBoxLoadingWidget();
+                                  },
+                                  itemCount: 12,
+                                );
+                              case PageCommonState.error:
+                                return AppErrorSimpleWidget(
+                                  onTryAgain: () {
+                                    ref.read(homeProvider.notifier).getProducts();
+                                  },
+                                  message: productsState.messageError,
+                                );
+                              case PageCommonState.success:
+                            }
+                            return CustomScrollView(
+                              controller: _productScrollController,
+                              slivers: [
+                                ...dataView,
+                                const SliverToBoxAdapter(child: Gap(50)),
+                              ],
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
+                  ),
+                  !showOrderInfo
+                      ? const SizedBox.shrink()
+                      : Container(
+                          constraints: const BoxConstraints(maxWidth: 500),
+                          child: const OrderPanelWidget(),
+                        ),
+                ],
               ),
-            ],
-          ),
+            ),
+            Consumer(
+              builder: (context, ref, child) {
+                bool useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+                // useO2o = true;
+                final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
+
+                bool isMobile = Device.screenType == ScreenType.mobile;
+                bool isSmallDevice = isMobile;
+
+                return orderSelect == null
+                    ? const SizedBox.shrink()
+                    : !(kTypeOrder == AppConfig.orderOfflineValue && useO2o)
+                        ? const SizedBox.shrink()
+                        : FloatBubble(
+                            show: true,
+                            initialAlignment: isSmallDevice
+                                ? Alignment(1, (140 / 100.w) - 1)
+                                : Alignment.topRight,
+                            child: GestureDetector(
+                              onTap: () {
+                                _showChatPopup(ref);
+                              },
+                              child: Container(
+                                key: _floatingBtnKey,
+                                height: isSmallDevice ? 48 : 60,
+                                width: isSmallDevice ? 48 : 60,
+                                padding: EdgeInsets.all(isSmallDevice ? 12 : 12),
+                                decoration: const BoxDecoration(
+                                  color: AppColors.bgBoxProduct,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: SvgPicture.asset(
+                                  AppIcons.icChat,
+                                  color: AppColors.secondColor,
+                                ),
+                              ),
+                            ),
+                          );
+              },
+            ),
+          ],
         ),
         bottomNavigationBar: Builder(
           builder: (context) {

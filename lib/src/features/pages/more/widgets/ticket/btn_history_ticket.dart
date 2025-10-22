@@ -20,10 +20,7 @@ class ButtonHistoryTicketWidget extends StatelessWidget {
         color: Colors.black,
         height: 18,
       ),
-      title: Text(
-        S.current.ticket_submission_history,
-        style: AppTextStyle.regular(),
-      ),
+      title: Text(S.current.ticket_submission_history),
     );
   }
 }

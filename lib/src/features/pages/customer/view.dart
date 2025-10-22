@@ -536,7 +536,9 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                             child: Chip(
                               label: Text(
                                 S.current.infoVAT,
-                                style: AppTextStyle.regular(rawFontSize: 12),
+                                style: AppTextStyle.regular(
+                                  rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                                ),
                               ),
                             ),
                           ),
@@ -784,7 +786,7 @@ class _PaymentSection extends StatelessWidget {
                                   Text(
                                     S.current.loading_qr_code,
                                     style: AppTextStyle.regular(
-                                      rawFontSize: 12,
+                                      rawFontSize: AppConfig.defaultRawTextSize - 1.5,
                                     ),
                                   ),
                                 ],
@@ -802,7 +804,7 @@ class _PaymentSection extends StatelessWidget {
                                   Text(
                                     S.current.error_loading_qr_code,
                                     style: AppTextStyle.regular(
-                                      rawFontSize: 12,
+                                      rawFontSize: AppConfig.defaultRawTextSize - 1.5,
                                       color: AppColors.redColor,
                                     ),
                                   ),

@@ -42,7 +42,7 @@ class AppConfig {
   static const String appUpdateFileName = "apos-franchise-update.apk";
   final String urlHelp = "https://sites.google.com/aladdin-jsc.com/aladdin-pos-docs?usp=sharing";
 
-  static const double defaultRawTextSize = 14.0;
+  static const double defaultRawTextSize = 13.0;
 
   static const List<String> reasonCancelItem = [
     "Khách chọn nhầm",

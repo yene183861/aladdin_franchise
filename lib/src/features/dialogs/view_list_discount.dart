@@ -23,9 +23,10 @@ void showCouponDetailDialog(
         children: [
           Text(
             "${S.current.discountCode}: ${coupon.name}",
-            style: AppTextStyle.regular(
-              rawFontSize: 15,
-            ),
+            style: Theme.of(context).dialogTheme.titleTextStyle,
+            // style: AppTextStyle.regular(
+            //   rawFontSize: 15,
+            // ),
           ),
           const CloseButton(color: AppColors.redColor),
         ],

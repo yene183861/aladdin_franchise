@@ -69,9 +69,9 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
           child: AlertDialog(
             title: Text(
               S.current.createNewCustomers,
-              style: AppTextStyle.medium(
-                rawFontSize: 15,
-              ),
+              // style: AppTextStyle.medium(
+              //   rawFontSize: 15,
+              // ),
             ),
             content: SizedBox(
               width: 45.w,
@@ -79,7 +79,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextFieldSimpleWidget(
+                  AppTextFieldWidget(
                     label: S.current.phone,
                     textController: ctrlPhone,
                     textInputAction: TextInputAction.next,
@@ -102,7 +102,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                   Row(
                     children: [
                       Expanded(
-                        child: TextFieldSimpleWidget(
+                        child: AppTextFieldWidget(
                           label: S.current.firstName,
                           textController: ctrlFirstName,
                           textInputAction: TextInputAction.next,
@@ -112,7 +112,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: TextFieldSimpleWidget(
+                        child: AppTextFieldWidget(
                           label: S.current.lastName,
                           textController: ctrlLastName,
                           textInputAction: TextInputAction.next,
@@ -170,7 +170,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  TextFieldSimpleWidget(
+                  AppTextFieldWidget(
                     label: S.current.bod,
                     hintText: "dd/MM/yyyy",
                     enabled: !_noBOD && enable,

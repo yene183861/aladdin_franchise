@@ -49,7 +49,7 @@ class _ManualConfigWidgetState extends ConsumerState<ManualConfigWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const TitleConfigWidget(title: "Server"),
-                    TextFieldSimpleWidget(
+                    AppTextFieldWidget(
                       textController: ctrlApiUrl,
                       label: "Api URL",
                     ),

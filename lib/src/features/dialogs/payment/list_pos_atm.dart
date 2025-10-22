@@ -99,7 +99,8 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
                           children: [
                             Text(
                               S.current.select_pos_to_continue,
-                              style: AppTextStyle.regular(rawFontSize: 12),
+                              style: AppTextStyle.regular(rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                              ),
                             ),
                             const Gap(12),
                             ...listAtmPos.map(

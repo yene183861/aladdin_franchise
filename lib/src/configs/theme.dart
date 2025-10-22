@@ -7,8 +7,6 @@ import 'app.dart';
 import 'color.dart';
 import 'text_style.dart';
 
-
-
 final _textTheme = TextTheme(
   displayLarge: AppTextStyle.regular(),
   displayMedium: AppTextStyle.regular(),
@@ -26,7 +24,6 @@ final _textTheme = TextTheme(
   labelMedium: AppTextStyle.regular(),
   labelSmall: AppTextStyle.regular(),
 );
-
 
 final kAppTheme = ThemeData(
   useMaterial3: true,
@@ -57,12 +54,14 @@ final kAppTheme = ThemeData(
     elevation: 0,
     backgroundColor: AppColors.mainColor,
     foregroundColor: Colors.white,
-    titleTextStyle: AppTextStyle.bold(color: AppColors.white),
+    titleTextStyle:
+        AppTextStyle.bold(color: AppColors.white, rawFontSize: AppConfig.defaultRawTextSize + 1.0),
   ),
   dialogTheme: DialogTheme(
     shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
     surfaceTintColor: Colors.grey.shade200,
     backgroundColor: Colors.white,
+    titleTextStyle: AppTextStyle.bold(rawFontSize: AppConfig.defaultRawTextSize + 1.0),
   ),
   inputDecorationTheme: InputDecorationTheme(
     contentPadding: const EdgeInsets.all(16),

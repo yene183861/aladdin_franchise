@@ -11,6 +11,7 @@ import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/edit_tax_dialog.dart';
+import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/models/data_bill.dart';
@@ -48,6 +49,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
   final OrderRepository _orderRepository;
 
   List<ProductModel> onlineProducts = [];
+  List<ProductModel> offlineProducts = [];
 
   Future<void> onChangeHistoryOrderSelect(HistoryOrderModel? order) async {
     state = state.copyWith(
@@ -73,20 +75,15 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
       if (historyOrderSelect == null) {
         throw S.current.msg_select_order_before_print_receipt;
       }
-      // await Future.delayed(const Duration(seconds: 1));
-      // state = state.copyWith(event: HistoryOrderEvent.normal);
-      // return (error: null, refreshData: true);
       bool requireCompleteBill =
           historyOrderSelect.status == OrderStatusEnum.waiting;
       bool isOnline =
           historyOrderSelect.orderType == AppConfig.orderOnlineValue;
-      var order = OrderModel(
-        id: historyOrderSelect.orderExcute.order,
-        // orderCode: historyOrderSelect.orderCode,
-        name: historyOrderSelect.tableName,
-        misc: '{"order_code":"${historyOrderSelect.orderCode}","remarks":""}',
-        typeOrder: historyOrderSelect.orderType,
-      );
+      var order = orderSelect;
+      if (order == null) {
+        state = state.copyWith(event: HistoryOrderEvent.normal);
+        return (error: null, refreshData: refreshData);
+      }
 
       var printBillResult = false;
       int retry = 0;
@@ -102,8 +99,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
 
           List<LineItemDataBill> itemsPrint =
               List<LineItemDataBill>.from(dataBill.itemsPrint);
-          EmployeeSaleModel? sale = dataBill.sale ??
-              LocalStorage.getEmployeeSaleForOrder(order: order);
+
           PriceDataBill price = dataBill.price;
 
           var infoPrinter = dataBill.infoPrinter;
@@ -115,23 +111,6 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
           if (orderPrint == null) {
             throw 'Không có thông tin in';
           }
-
-          // if (sale == null) {
-          //   if (context.mounted) {
-          //     sale = await showEmployeeSaleListDialog(context);
-          //   }
-          //   if (sale == null) {
-          //     state = state.copyWith(event: HistoryOrderEvent.normal);
-          //     return (error: null, refreshData: refreshData);
-          //   }
-
-          //   try {
-          //     await LocalStorage.saveEmployeeSaleForOrder(
-          //         order: order, sale: sale);
-          //   } catch (ex) {
-          //     //
-          //   }
-          // }
 
           PaymentMethod? paymentMethodSelect = dataBill.paymentMethod;
           double paymentAmount = max(-1.0, dataBill.paymentAmount);
@@ -181,128 +160,180 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             }
           }
 
-          if (requireCompleteBill && isOnline) {
+          if (requireCompleteBill) {
             var homeState = ref.read(homeProvider);
-            if (kTypeOrder == AppConfig.orderOnlineValue &&
-                homeState.productsState.status == PageCommonState.success) {
-              onlineProducts = List<ProductModel>.from(homeState.products);
-            } else {
-              if (onlineProducts.isEmpty) {
-                int retry = 0;
-                while (retry < 3) {
-                  try {
-                    var res = await ref
-                        .read(productRepositoryProvider)
-                        .getProduct(null,
-                            typeOrder: AppConfig.orderOnlineValue);
-                    onlineProducts =
-                        List<ProductModel>.from(res.data.data ?? []);
-                    break;
-                  } catch (ex) {
-                    retry++;
+            List<ProductModel> products = [];
+            if (isOnline) {
+              if (kTypeOrder == AppConfig.orderOnlineValue &&
+                  homeState.productsState.status == PageCommonState.success) {
+                onlineProducts = List<ProductModel>.from(homeState.products);
+              } else {
+                if (onlineProducts.isEmpty) {
+                  int retry = 0;
+                  while (retry < 3) {
+                    try {
+                      var res = await ref
+                          .read(productRepositoryProvider)
+                          .getProduct(null,
+                              typeOrder: AppConfig.orderOnlineValue);
+                      onlineProducts =
+                          List<ProductModel>.from(res.data.data ?? []);
+                      break;
+                    } catch (ex) {
+                      retry++;
+                    }
                   }
                 }
-              }
 
-              if (onlineProducts.isEmpty) {
-                throw 'Không có thông tin món mang về!';
+                if (onlineProducts.isEmpty) {
+                  throw 'Không có thông tin món mang về!';
+                }
               }
+              products = List<ProductModel>.from(onlineProducts);
+            } else {
+              if (kTypeOrder == AppConfig.orderOfflineValue &&
+                  homeState.productsState.status == PageCommonState.success) {
+                offlineProducts = List<ProductModel>.from(homeState.products);
+              } else {
+                if (offlineProducts.isEmpty) {
+                  int retry = 0;
+                  while (retry < 3) {
+                    try {
+                      var res = await ref
+                          .read(productRepositoryProvider)
+                          .getProduct(null,
+                              typeOrder: AppConfig.orderOfflineValue);
+                      offlineProducts =
+                          List<ProductModel>.from(res.data.data ?? []);
+                      break;
+                    } catch (ex) {
+                      retry++;
+                    }
+                  }
+                }
+
+                if (offlineProducts.isEmpty) {
+                  throw 'Không có thông tin món bán tại nhà hàng!';
+                }
+              }
+              products = List<ProductModel>.from(offlineProducts);
             }
-
+            showLogs(paymentMethodSelect, flags: 'paymentMethodSelect');
             var checkTax = _checkValidTaxItemsPrint(
               requireUpdateTax: paymentMethodSelect.requireEditTax,
               itemsPrint: itemsPrint,
-              products: onlineProducts,
+              products: products,
             );
-
-            var tax = Map<int, double>.from(checkTax.tax);
+            var tax = Map<int, Map<String, dynamic>>.from(checkTax.tax);
+            showLogs(tax, flags: 'tax require change');
+            showLogs(checkTax.valid, flags: 'tax require change');
 
             if (!checkTax.valid) {
               // dialog sửa thuế
               if (context.mounted) {
-                List<ProductCheckoutModel> productCheckouts =
-                    itemsPrint.map((e) {
-                  return ProductCheckoutModel(
-                    id: e.id,
-                    name: e.name,
-                    nameEn: e.nameEn,
-                    quantity: e.count,
-                    unit: e.unit,
-                    codeProduct: e.codeProduct,
-                    tax: e.getTax1(),
-                    unitPrice: e.price.toString(),
-                    totalOrdered:
-                        e.count * (double.tryParse(e.price.toString()) ?? 0),
-                  );
-                }).toList();
+                List<ProductCheckoutModel> productCheckouts = [];
+                for (var e in itemsPrint) {
+                  if (tax[e.id] != null) {
+                    productCheckouts.add(ProductCheckoutModel(
+                      id: e.id,
+                      name: e.name,
+                      nameEn: e.nameEn,
+                      quantity: e.count,
+                      unit: e.unit,
+                      codeProduct: e.codeProduct,
+                      tax: e.getTax1(),
+                      unitPrice: e.price.toString(),
+                      totalOrdered:
+                          e.count * (double.tryParse(e.price.toString()) ?? 0),
+                    ));
+                  }
+                }
+
                 bool editTax = false;
 
-                await showConfirmActionWithChild(
+                var taxDialog = await showConfirmActionWithChild(
                   context,
                   noTitle: true,
-                  title: S.current.edit_tax_information,
+                  title: '',
                   closeDialog: true,
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: EditTaxDialog(
-                        products: onlineProducts,
+                        products: products,
                         productCheckouts: productCheckouts,
                         onSave: (List<ProductCheckoutModel> changedPc) {
                           productCheckouts = changedPc;
                         }),
                   ),
                   onCheckAction: () {
-                    bool useDefaultTax =
-                        !(paymentMethodSelect?.requireEditTax ?? false);
                     var check = true;
+                    List<ProductCheckoutModel> pcMustDefaultTax = [];
+                    List<ProductCheckoutModel> pcMustChangeTax = [];
                     for (var pc in productCheckouts) {
-                      if (useDefaultTax) {
-                        if (tax[pc.id] != pc.tax) {
+                      var taxProduct = tax[pc.id];
+                      var useDefault =
+                          (taxProduct?['use_default'] ?? false) as bool;
+                      var valueDefault =
+                          (taxProduct?['default'] ?? 0.0) as double;
+
+                      if (useDefault) {
+                        if (pc.tax != valueDefault) {
                           check = false;
-                          break;
+                          pcMustDefaultTax.add(pc);
                         }
                       } else {
-                        // phải sửa thuế khác 0
-                        if (pc.tax == 0) {
+                        if (pc.tax == 0 &&
+                            (paymentMethodSelect?.requireEditTax ?? false)) {
                           check = false;
-                          break;
+                          pcMustChangeTax.add(pc);
                         }
                       }
                     }
                     if (!check) {
-                      showMessageDialog(context,
-                          canPop: false,
-                          message: useDefaultTax
-                              ? 'Vui lòng chọn thuế mặc định của món để cập nhật lại hóa đơn!'
-                              : S.current.error_edit_tax);
+                      showMessageDialog(
+                        context,
+                        canPop: false,
+                        message:
+                            '${pcMustDefaultTax.isNotEmpty ? 'Các món ${pcMustDefaultTax.map((e) => e.name).join(', ')} không được phép sửa thuế. Hãy chọn về thuế mặc định của món!\n' : ''}'
+                            '${pcMustChangeTax.isNotEmpty ? 'Các món ${pcMustChangeTax.map((e) => e.name).join(', ')} bắt buộc phải sửa thuế # 0.' : ''}',
+                      );
                       return false;
                     }
 
                     return check;
                   },
-                  action: () async {
-                    var resultUpdateTax = await updateTax(
-                      paymentMethod: paymentMethodSelect!,
-                      item: productCheckouts,
-                      order: order,
-                    );
-                    if (resultUpdateTax.error != null) {
-                      if (context.mounted) {
-                        await showMessageDialog(context,
-                            message:
-                                'Phân bổ thuế không thành công\n${resultUpdateTax.error}');
-                      }
-                      editTax = false;
-                    } else {
-                      refreshData = true;
-                      editTax = true;
-                    }
-                  },
+                  action: () async {},
                   actionCancel: () {
                     editTax = false;
                   },
                   actionTitle: 'Cập nhật',
                 );
+                if (!(taxDialog ?? false)) {
+                  state = state.copyWith(event: HistoryOrderEvent.normal);
+                  return (error: null, refreshData: refreshData);
+                }
+
+                var resultUpdateTax = await updateTax(
+                  paymentMethod: paymentMethodSelect,
+                  item: productCheckouts,
+                  order: order,
+                );
+                if (resultUpdateTax.error != null) {
+                  state = state.copyWith(event: HistoryOrderEvent.normal);
+                  // if (context.mounted) {
+                  //   showMessageDialog(context,
+                  //       message:
+                  //           'Chỉnh sửa thuế không thành công\n${resultUpdateTax.error}');
+                  // }
+                  return (
+                    error:
+                        'Chỉnh sửa thuế không thành công\n${resultUpdateTax.error}',
+                    refreshData: refreshData
+                  );
+                } else {
+                  refreshData = true;
+                  editTax = true;
+                }
                 if (!editTax) {
                   state = state.copyWith(event: HistoryOrderEvent.normal);
                   return (error: null, refreshData: refreshData);
@@ -329,12 +360,25 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                 }
               }
             }
+
+            var checkItemBeforePrint = checkItemBeforeCompleteBill(
+              orderLineItems: itemsPrint,
+              paymentMethodSelect: paymentMethodSelect,
+            );
+            showLogs(checkItemBeforePrint, flags: 'checkItemBeforePrint');
+            if (checkItemBeforePrint != null) {
+              state = state.copyWith(event: HistoryOrderEvent.normal);
+
+              return (
+                error: '$checkItemBeforePrint\n'
+                    'Vui lòng mở web thu ngân, chuyển trạng thái đơn bàn này sang "Đang xử lý"'
+                    ' để có thể thay đổi danh sách món!',
+                refreshData: refreshData
+              );
+            }
           }
 
-          /// - đơn đang chờ thanh toán => đơn đã thanh toán
-          /// - concept HS (thanh toán trước khi ăn) (bên anh TA in nên k cần in local nữa)
-          ///
-          if (requireCompleteBill || !AppConfig.useFranchise) {
+          if (requireCompleteBill) {
             await _orderRepository.completeBill(
                 order: order,
                 description: dataBill.description,
@@ -346,113 +390,111 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                 totalPriceTax: price.totalPriceTax,
                 totalPriceVoucher: price.totalPriceVoucher,
                 totalPriceFinal: price.totalPriceFinal,
-                eSaleName: sale?.fullName ?? '',
-                eSaleCode: sale?.employeeCode ?? '',
+                eSaleName: '',
+                eSaleCode: '',
                 arrMethod: ['${paymentMethodSelect.key}--$paymentAmount']);
             if (requireCompleteBill) {
               refreshData = true;
             }
           }
-          if (AppConfig.useFranchise) {
-            String? resPrint;
-            try {
-              var check = await AppPrinterCommon.checkPrinter(IpOrderModel(
-                  ip: infoPrinter.ip, port: infoPrinter.port, type: 1));
-              if (check != null) {
-                throw check;
-              }
+          String? resPrint;
+          try {
+            var check = await AppPrinterCommon.checkPrinter(IpOrderModel(
+                ip: infoPrinter.ip, port: infoPrinter.port, type: 1));
+            if (check != null) {
+              throw check;
+            }
 
-              PrinterTaskQueue.instance.addTask(
-                ip: infoPrinter.ip,
-                port: infoPrinter.port,
-                buildReceipt: (generator) async {
-                  List<int> bytes = [];
-                  List<LineItemDataBill> _itemsPrint = [];
-                  try {
-                    for (var e in itemsPrint) {
-                      _itemsPrint.add(LineItemDataBill(
-                        name: e.name,
-                        price: e.price,
-                        tax: e.tax,
-                        unit: e.unit,
-                        count: e.count,
-                      ));
-                      if (e.listItem.isNotEmpty) {
-                        for (var item in e.listItem) {
-                          _itemsPrint.add(LineItemDataBill(
-                            name: ' - ${item.name}',
-                            price: '0',
-                            tax: '0',
-                            unit: '',
-                            count: 0,
-                          ));
-                        }
+            PrinterTaskQueue.instance.addTask(
+              ip: infoPrinter.ip,
+              port: infoPrinter.port,
+              buildReceipt: (generator) async {
+                List<int> bytes = [];
+                List<LineItemDataBill> _itemsPrint = [];
+                try {
+                  for (var e in itemsPrint) {
+                    _itemsPrint.add(LineItemDataBill(
+                      name: e.name,
+                      price: e.price,
+                      tax: e.tax,
+                      unit: e.unit,
+                      count: e.count,
+                    ));
+                    if (e.listItem.isNotEmpty) {
+                      for (var item in e.listItem) {
+                        _itemsPrint.add(LineItemDataBill(
+                          name: ' - ${item.name}',
+                          price: '0',
+                          tax: '0',
+                          unit: '',
+                          count: 0,
+                        ));
                       }
                     }
-                    bytes =
-                        await AppPrinterHtmlUtils.instance.getReceptBillContent(
-                      order: order,
-                      price: price,
-                      printers: [
-                        IpOrderModel(
-                            ip: infoPrinter?.ip ?? '',
-                            port: infoPrinter?.port ?? 9100,
-                            type: 1),
-                      ],
-                      receiptType: ReceiptTypeEnum.paymentReceipt,
-                      paymentMethod: paymentMethodSelect,
-                      paymentAmount: paymentAmount,
-                      numberPrintCompleted:
-                          (orderPrint?.numberPrintCompleted ?? 0) + 1,
-                      numberPrintTemporary:
-                          (orderPrint?.numberPrintTemporary ?? 0) + 1,
-                      orderLineItems: _itemsPrint,
-                      vouchers: dataBill.vouchers,
-                      note: dataBill.description,
-                      printNumberOfPeople: orderPrint?.isPrintPeople ?? false,
-                      customerPhone: orderPrint?.phoneNumber ?? '',
-                      numberOfPeople: orderPrint?.amountPeople ?? 0,
-                      cashierCompleted: orderPrint?.cashierCompleted ?? '',
-                      cashierPrint: orderPrint?.cashierPrint ?? '',
-                      timeCompleted: orderPrint?.timeCompleted,
-                      timeCreatedAt: orderPrint?.createdAt,
-                    );
-                    if (bytes.isEmpty) {
-                      return <int>[];
-                    } else {
-                      return bytes;
-                    }
-                  } catch (ex) {
-                    debugPrint("⚠️ getReceptBillContent ex");
-                    rethrow;
                   }
-                },
-                onComplete: (success, error) {
-                  if (success) {
-                    showLogs("✅ In thành công");
+                  bytes =
+                      await AppPrinterHtmlUtils.instance.getReceptBillContent(
+                    order: order,
+                    price: price,
+                    printers: [
+                      IpOrderModel(
+                          ip: infoPrinter?.ip ?? '',
+                          port: infoPrinter?.port ?? 9100,
+                          type: 1),
+                    ],
+                    receiptType: ReceiptTypeEnum.paymentReceipt,
+                    paymentMethod: paymentMethodSelect,
+                    paymentAmount: paymentAmount,
+                    numberPrintCompleted:
+                        (orderPrint?.numberPrintCompleted ?? 0) + 1,
+                    numberPrintTemporary:
+                        (orderPrint?.numberPrintTemporary ?? 0) + 1,
+                    orderLineItems: _itemsPrint,
+                    vouchers: dataBill.vouchers,
+                    note: dataBill.description,
+                    printNumberOfPeople: orderPrint?.isPrintPeople ?? false,
+                    customerPhone: orderPrint?.phoneNumber ?? '',
+                    numberOfPeople: orderPrint?.amountPeople ?? 0,
+                    cashierCompleted: orderPrint?.cashierCompleted ?? '',
+                    cashierPrint: orderPrint?.cashierPrint ?? '',
+                    timeCompleted: orderPrint?.timeCompleted,
+                    timeCreatedAt: orderPrint?.createdAt,
+                  );
+                  if (bytes.isEmpty) {
+                    return <int>[];
                   } else {
-                    resPrint = error;
-                    showLogs("❌ In thất bại");
-
-                    if (error != null) {
-                      showMessageDialog(context, message: error);
-                    }
+                    return bytes;
                   }
-                },
-              );
-            } catch (ex) {
-              resPrint = ex.toString();
-              showLogs(ex.toString(), flags: 'in hoàn thành lỗi');
-            }
+                } catch (ex) {
+                  debugPrint("⚠️ getReceptBillContent ex");
+                  rethrow;
+                }
+              },
+              onComplete: (success, error) {
+                if (success) {
+                  showLogs("✅ In thành công");
+                } else {
+                  resPrint = error;
+                  showLogs("❌ In thất bại");
 
-            if (resPrint != null) {
-              state = state.copyWith(event: HistoryOrderEvent.normal);
-              return (
-                error:
-                    '${S.current.msg_error_print_receipt}${(resPrint ?? '').trim().isNotEmpty ? '\n${S.current.ex_problem}: $resPrint' : ''}',
-                refreshData: refreshData
-              );
-            }
+                  if (error != null) {
+                    showMessageDialog(context, message: error);
+                  }
+                }
+              },
+            );
+          } catch (ex) {
+            resPrint = ex.toString();
+            showLogs(ex.toString(), flags: 'in hoàn thành lỗi');
+          }
+
+          if (resPrint != null) {
+            state = state.copyWith(event: HistoryOrderEvent.normal);
+            return (
+              error:
+                  '${S.current.msg_error_print_receipt}${(resPrint ?? '').trim().isNotEmpty ? '\n${S.current.ex_problem}: $resPrint' : ''}',
+              refreshData: refreshData
+            );
           }
           try {
             await LocalStorage.deleteEmployeeSaleForOrder(order: order);
@@ -670,5 +712,16 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
     }
     state = state.copyWith(event: HistoryOrderEvent.normal);
     return (error: error, pc: <ProductCheckoutUpdateTaxModel>[]);
+  }
+
+  OrderModel? get orderSelect {
+    var historyOrderSelect = state.historyOrderSelect;
+    if (historyOrderSelect == null) return null;
+    return OrderModel(
+      id: historyOrderSelect.orderExcute.order,
+      name: historyOrderSelect.tableName,
+      misc: '{"order_code":"${historyOrderSelect.orderCode}","remarks":""}',
+      typeOrder: historyOrderSelect.orderType,
+    );
   }
 }

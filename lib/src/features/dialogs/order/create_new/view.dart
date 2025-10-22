@@ -120,7 +120,7 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
     return AlertDialog(
       title: Text(
         '${S.current.selectTable} - ${S.current.createNewOrder}',
-        style: AppTextStyle.bold(rawFontSize: 15),
+        // style: AppTextStyle.bold(rawFontSize: 15),
       ),
       content: SizedBox(
         width: double.maxFinite,
@@ -348,7 +348,7 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
               child: Text(
                 'Làm mới',
                 style: AppTextStyle.regular(
-                  rawFontSize: 13,
+                  rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                   color: Colors.blue,
                 ),
               ),
@@ -583,7 +583,7 @@ class __ReservationWidgetState extends ConsumerState<_ReservationWidget> {
             Row(
               children: [
                 Expanded(
-                  child: TextFieldSimpleWidget(
+                  child: AppTextFieldWidget(
                     textController: _controller,
                     hintText: S.current.search_reservation,
                     prefixIcon: const Icon(
@@ -718,48 +718,6 @@ class __ReservationWidgetState extends ConsumerState<_ReservationWidget> {
     );
   }
 }
-
-// class AppTextFormFieldWidget extends StatelessWidget {
-//   const AppTextFormFieldWidget({
-//     super.key,
-//     this.controller,
-//     this.initValue,
-//     this.hintText = '',
-//     this.onTapOutside,
-//     this.onChanged,
-//     this.suffixIcon,
-//     this.prefixIcon,
-//   }) : assert(controller == null || initValue == null);
-//   final TextEditingController? controller;
-//   final String? initValue;
-//   final String hintText;
-
-//   final Function(PointerDownEvent)? onTapOutside;
-//   final Function(String)? onChanged;
-
-//   final Widget? suffixIcon;
-//   final Widget? prefixIcon;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return TextFormField(
-//       controller: controller,
-//       initialValue: initValue,
-//       decoration: InputDecoration(
-//         hintStyle: styleConfig.textStyleMain,
-//         hintText: hintText,
-//         prefixIcon: prefixIcon,
-//         suffixIcon: suffixIcon,
-//         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-//       ),
-//       onChanged: onChanged,
-//       onTapOutside: (event) {
-//         FocusManager.instance.primaryFocus?.unfocus();
-//         onTapOutside?.call(event);
-//       },
-//     );
-//   }
-// }
 
 class MessageContent extends StatelessWidget {
   const MessageContent({

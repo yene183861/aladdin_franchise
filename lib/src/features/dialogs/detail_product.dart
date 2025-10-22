@@ -139,7 +139,7 @@ class ProductDetailWidget extends StatelessWidget {
                                 child: Text(" / ${product.unit}",
                                     style: AppTextStyle.regular(
                                       color: Colors.grey,
-                                      rawFontSize: 13,
+                                      rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                                     )),
                               ),
                             ),

@@ -81,15 +81,16 @@ class _OrderProductItem extends ConsumerWidget {
                             text: AppConfig.formatCurrency()
                                 .format(double.tryParse(item.unitPrice) ?? 0),
                             style: AppTextStyle.bold(
-                                color: AppColors.redColor,
-                                fontStyle: FontStyle.italic,
-                                rawFontSize: 13),
+                              color: AppColors.redColor,
+                              fontStyle: FontStyle.italic,
+                              rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                            ),
                           ),
                           TextSpan(
                             text: ' / ${item.unit.trim()}',
                             style: AppTextStyle.bold(
                               fontStyle: FontStyle.italic,
-                              rawFontSize: 13,
+                              rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                               color: Colors.grey,
                             ),
                           ),
@@ -97,14 +98,14 @@ class _OrderProductItem extends ConsumerWidget {
                             text: ' )',
                             style: AppTextStyle.bold(
                               fontStyle: FontStyle.italic,
-                              rawFontSize: 13,
+                              rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                               color: Colors.black,
                             ),
                           ),
                         ],
                         style: AppTextStyle.bold(
                           fontStyle: FontStyle.italic,
-                          rawFontSize: 13,
+                          rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                           color: Colors.black,
                         ),
                       )),
@@ -151,7 +152,9 @@ class _OrderProductItem extends ConsumerWidget {
             if (item.quantityPromotion > 0)
               Text(
                 '${S.current.complimentary_gift} ${item.quantityPromotion != item.numberSelecting ? '(${S.current.quantityCut}: ${item.quantityPromotion})' : ''}',
-                style: AppTextStyle.regular(rawFontSize: 13, color: const Color(0xff0168fe)),
+                style: AppTextStyle.regular(
+                    rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                    color: const Color(0xff0168fe)),
               ),
             const Gap(8),
             SizedBox(
@@ -280,7 +283,7 @@ class __NotePerItemWidgetState extends ConsumerState<_NotePerItemWidget> {
         enabled: !(widget.lockedOrder),
         hintText: "${S.current.add_notes}...",
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        hintStyle: AppTextStyle.regular(rawFontSize: 12),
+        hintStyle: AppTextStyle.regular(rawFontSize: AppConfig.defaultRawTextSize - 1.5),
       ),
       onTapOutside: (event) {
         FocusManager.instance.primaryFocus?.unfocus();
@@ -358,7 +361,8 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                             ),
                       trailing: Text(
                         appConfig.dateFormatHhMmSsDDMMYYYY.format(orderTime.createdAt),
-                        style: AppTextStyle.regular(rawFontSize: 13),
+                        style:
+                            AppTextStyle.regular(rawFontSize: AppConfig.defaultRawTextSize - 1.0),
                       ),
                     ),
                     ...orderTime.products.map(
@@ -426,7 +430,7 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                     'Danh sách món đã gọi đang trống',
                     style: AppTextStyle.regular(
                       color: Colors.grey,
-                      rawFontSize: 13,
+                      rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                     ),
                   ),
                 ],
@@ -441,8 +445,8 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                 child: Container(
                   color: Colors.grey.shade50,
                   child: ScrollablePositionedList.separated(
-                    itemScrollController: notifier.selectedOrderItemsScrollCtrl,
-                    itemPositionsListener: notifier.selectedOrderItemsPositionsListener,
+                    itemScrollController: notifier.selectedItemsScrollCtrl,
+                    itemPositionsListener: notifier.selectedItemsPositionsListener,
                     padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                     itemBuilder: (context, index) {
                       var p = items[index];
@@ -473,7 +477,8 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                                           text:
                                               '  (${NumberFormat.currency(locale: 'vi', symbol: 'đ').format(double.tryParse(p.unitPrice) ?? 0)}/${p.unit.trim()})',
                                           style: AppTextStyle.medium(
-                                              rawFontSize: 12, color: Colors.grey.shade400),
+                                              rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                                              color: Colors.grey.shade400),
                                         ),
                                       ],
                                     ),
@@ -494,7 +499,7 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                                     ],
                                     style: AppTextStyle.bold(
                                       color: Colors.grey.shade500,
-                                      rawFontSize: 13,
+                                      rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                                     ),
                                   ),
                                 ),
@@ -710,8 +715,8 @@ class OrderItemsSelectingWidget extends ConsumerWidget {
     var items = ref.watch(homeProvider.select((value) => value.productsSelecting));
     return _ListItemWidget(
       items: items,
-      scrollController: notifier.selectingOrderItemsScrollCtrl,
-      positionsListener: notifier.selectingOrderItemsPositionsListener,
+      scrollController: notifier.selectingItemsScrollCtrl,
+      positionsListener: notifier.selectingItemsPositionsListener,
       allowEnterNote: true,
       allowExtraItem: true,
     );
@@ -752,7 +757,7 @@ class _ListItemWidget extends ConsumerWidget {
               'Thêm món vào đơn bàn',
               style: AppTextStyle.regular(
                 color: Colors.grey,
-                rawFontSize: 13,
+                rawFontSize: AppConfig.defaultRawTextSize - 1.0,
               ),
             ),
           ],

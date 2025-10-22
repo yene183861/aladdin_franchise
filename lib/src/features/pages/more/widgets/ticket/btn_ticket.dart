@@ -36,10 +36,7 @@ class ButtonTicketWidget extends StatelessWidget {
         color: Colors.black,
         height: 18,
       ),
-      title: Text(
-        'Ticket',
-        style: AppTextStyle.regular(),
-      ),
+      title: Text('Ticket'),
     );
   }
 }
@@ -103,7 +100,7 @@ class __TicketFormState extends State<_TicketForm> {
                   title: 'Vấn đề',
                   isRequired: true,
                 ),
-                TextFieldSimpleWidget(
+                AppTextFieldWidget(
                   required: true,
                   multiLine: false,
                   textController: titleCtrl,
@@ -121,7 +118,7 @@ class __TicketFormState extends State<_TicketForm> {
                   isRequired: true,
                 ),
                 const Gap(8),
-                TextFieldSimpleWidget(
+                AppTextFieldWidget(
                   required: true,
                   multiLine: true,
                   minLines: 3,

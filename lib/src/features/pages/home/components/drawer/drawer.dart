@@ -7,11 +7,12 @@ import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/history_order/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/view.dart';
-import 'package:aladdin_franchise/src/features/pages/more/widgets/btn_font_scale.dart';
+import 'package:aladdin_franchise/src/features/pages/more/widgets/font/btn_setting_font_scale.dart';
 
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_check_printer.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_logout.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_type_order.dart';
+import 'package:aladdin_franchise/src/features/pages/more/widgets/font/btn_use_font_scale.dart';
 import 'package:aladdin_franchise/src/features/pages/settings/view.dart';
 import 'package:aladdin_franchise/src/features/pages/ticket/components/dialog.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
@@ -93,20 +94,8 @@ class HomeDrawerWidget extends ConsumerWidget {
                   ),
                 ),
                 const Divider(height: 1),
-                const ButtonTypeOrderWidget(),
-                const Divider(height: 1),
-                Consumer(
-                  builder: (context, ref, child) {
-                    var printers = LocalStorage.getPrinters();
-                    if (printers.isEmpty) return const SizedBox.shrink();
-                    return Column(
-                      children: [
-                        const Divider(height: 1),
-                        ButtonCheckPrinterWidget(printers: printers),
-                      ],
-                    );
-                  },
-                ),
+                const ButtonTypeOrderWidget(canPop: true),
+                const ButtonCheckPrinterWidget(canPop: true),
                 ListTile(
                   onTap: () {
                     pop(context);
@@ -120,9 +109,9 @@ class HomeDrawerWidget extends ConsumerWidget {
                     style: AppTextStyle.regular(),
                   ),
                 ),
-                const ButtonChangeUseFontScale(),
+                const ButtonUseFontScale(),
                 const Divider(height: 1),
-                const ButtonFontScaleSetting(),
+                const ButtonSettingFontScale(),
                 const ButtonLogoutWidget(),
               ],
             ),

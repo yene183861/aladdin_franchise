@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
@@ -19,15 +20,16 @@ class ButtonO2oData extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     return Tooltip(
-      message: 'Yêu cầu tại bàn',
+      message: S.current.order_to_online,
       child: InkWell(
         onTap: () {
           var orderSelect = ref.read(homeProvider).orderSelect;
           Navigator.of(context).push(
             MaterialPageRoute(
-                builder: (context) => OrderToOnlinePage(
-                      orderId: orderSelect?.id,
-                    )),
+              builder: (context) => OrderToOnlinePage(
+                orderId: orderSelect?.id,
+              ),
+            ),
           );
         },
         borderRadius: BorderRadius.circular(50),

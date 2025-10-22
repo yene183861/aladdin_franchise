@@ -164,10 +164,11 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
             Expanded(
               child: Container(
                 width: TextUtil.getTextSize(
-                            text: OrderStatusEnum.waiting.title,
-                            textStyle:
-                                AppTextStyle.regular(color: AppColors.white, rawFontSize: 12))
-                        .width +
+                        text: OrderStatusEnum.waiting.title,
+                        textStyle: AppTextStyle.regular(
+                          color: AppColors.white,
+                          rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                        )).width +
                     12,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
@@ -176,7 +177,10 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                 ),
                 child: Text(
                   item.status.title,
-                  style: AppTextStyle.regular(color: AppColors.white, rawFontSize: 12),
+                  style: AppTextStyle.regular(
+                    color: AppColors.white,
+                    rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                  ),
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -327,7 +331,10 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                           TextSpan(text: '${S.current.total_amount}:    ', children: [
                             TextSpan(
                               text: total,
-                              style: AppTextStyle.bold(color: AppColors.white, rawFontSize: 15),
+                              style: AppTextStyle.bold(
+                                color: AppColors.white,
+                                rawFontSize: AppConfig.defaultRawTextSize + 1,
+                              ),
                             )
                           ]),
                           style: AppTextStyle.regular(color: AppColors.white),
@@ -434,26 +441,27 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                                                         crossAxisAlignment:
                                                             CrossAxisAlignment.center,
                                                         children: [
-                                                          Container(
-                                                            padding: const EdgeInsets.all(2),
-                                                            height: 18,
-                                                            width: 18,
-                                                            child: item.orderType == 1
-                                                                ? SvgPicture.asset(
-                                                                    AppIcons.icTakeAway,
-                                                                    color: Colors.blue,
-                                                                  )
-                                                                : const ResponsiveIconWidget(
-                                                                    iconData: CupertinoIcons.home,
-                                                                    color: Colors.orange,
-                                                                  ),
+                                                          ResponsiveIconWidget(
+                                                            iconData: item.orderType == 1
+                                                                ? null
+                                                                : CupertinoIcons.home,
+                                                            svgPath: item.orderType == 1
+                                                                ? AppIcons.icTakeAway
+                                                                : null,
+                                                            color: item.orderType == 1
+                                                                ? Colors.blue
+                                                                : Colors.orange,
+                                                            iconSize: 18,
                                                           ),
                                                           const Gap(8),
                                                           Expanded(
                                                             child: Text(
                                                               '# ${item.tableName}',
                                                               style: AppTextStyle.bold(
-                                                                  rawFontSize: 13),
+                                                                rawFontSize:
+                                                                    AppConfig.defaultRawTextSize -
+                                                                        1,
+                                                              ),
                                                               maxLines: 2,
                                                               overflow: TextOverflow.ellipsis,
                                                               textAlign: TextAlign.center,
@@ -468,11 +476,17 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                                                                 TextSpan(
                                                                   text: ' món',
                                                                   style: AppTextStyle.regular(
-                                                                      rawFontSize: 12),
+                                                                    rawFontSize: AppConfig
+                                                                            .defaultRawTextSize -
+                                                                        1.5,
+                                                                  ),
                                                                 ),
                                                               ],
                                                               style: AppTextStyle.bold(
-                                                                  rawFontSize: 12),
+                                                                rawFontSize:
+                                                                    AppConfig.defaultRawTextSize -
+                                                                        1.5,
+                                                              ),
                                                             ),
                                                           ),
                                                         ],
@@ -492,7 +506,9 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                                                                 maxLines: 2,
                                                                 overflow: TextOverflow.ellipsis,
                                                                 style: AppTextStyle.regular(
-                                                                  rawFontSize: 11,
+                                                                  rawFontSize:
+                                                                      AppConfig.defaultRawTextSize -
+                                                                          1.5,
                                                                   color: Colors.grey.shade600,
                                                                 ),
                                                               ),
@@ -513,7 +529,9 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                                                               overflow: TextOverflow.ellipsis,
                                                               style: AppTextStyle.bold(
                                                                 color: item.status.color,
-                                                                rawFontSize: 11,
+                                                                rawFontSize:
+                                                                    AppConfig.defaultRawTextSize -
+                                                                        1.5,
                                                               ),
                                                             ),
                                                           ),
@@ -796,7 +814,9 @@ class _LinePriceWidget extends StatelessWidget {
       children: [
         Text(
           '$title: ',
-          style: AppTextStyle.regular(rawFontSize: 11),
+          style: AppTextStyle.regular(
+            rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+          ),
         ),
         Expanded(
           child: Text(
@@ -805,7 +825,9 @@ class _LinePriceWidget extends StatelessWidget {
             textAlign: TextAlign.right,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyle.regular(rawFontSize: 12),
+            style: AppTextStyle.regular(
+              rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+            ),
           ),
         ),
       ],

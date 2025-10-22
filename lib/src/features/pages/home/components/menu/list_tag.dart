@@ -8,7 +8,6 @@ import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/tag_product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class ListTagsWidget extends ConsumerWidget {
   const ListTagsWidget({super.key});
@@ -45,14 +44,14 @@ class ListTagsWidget extends ConsumerWidget {
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       shrinkWrap: true,
       scrollDirection: Axis.horizontal,
       itemBuilder: (BuildContext context, int index) {
         return _SubTagSelectWidget(tag: tags[index]);
       },
       separatorBuilder: (BuildContext context, int index) {
-        return const SizedBox(width: 12);
+        return const SizedBox(width: 8);
       },
       itemCount: tags.length,
     );
@@ -73,15 +72,15 @@ class _SubTagSelectWidget extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
         decoration: BoxDecoration(
-          color: active ? AppColors.bgLineMenu : Colors.grey[200],
+          color: active ? AppColors.bgTagInProduct : Colors.grey[200],
           borderRadius: AppConfig.borderRadiusSecond,
         ),
         alignment: Alignment.center,
         child: Text(
           tag.name,
           style: AppTextStyle.regular(
-            color: active ? AppColors.white : AppColors.tcMenuSelect,
-            rawFontSize: 12,
+            color: active ? AppColors.white : null,
+            rawFontSize: AppConfig.defaultRawTextSize - 1.5,
           ),
         ),
       ),

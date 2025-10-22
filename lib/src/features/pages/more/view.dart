@@ -6,8 +6,8 @@ import 'package:aladdin_franchise/src/features/pages/more/widgets/about_line.dar
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_check_printer.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_logout.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_type_order.dart';
-import 'package:aladdin_franchise/src/features/pages/more/widgets/button_update_app.dart';
-import 'package:aladdin_franchise/src/features/pages/more/widgets/button_update_data.dart';
+import 'package:aladdin_franchise/src/features/pages/more/widgets/update/btn_update_app.dart';
+import 'package:aladdin_franchise/src/features/pages/more/widgets/update/btn_update_data.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/profile_line.dart';
 import 'package:aladdin_franchise/src/features/widgets/title_line.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,15 +16,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../generated/l10n.dart';
 import '../../../core/storages/local.dart';
-import 'widgets/btn_font_scale.dart';
+import 'widgets/font/btn_setting_font_scale.dart';
+import 'widgets/font/btn_use_font_scale.dart';
 
 class MorePage extends ConsumerWidget {
   const MorePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var enableOrderOnline = LocalStorage.getEnableOrderOnline();
-    var printers = LocalStorage.getPrinters();
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -41,23 +40,13 @@ class MorePage extends ConsumerWidget {
               children: [
                 TitleLineWidget(title: S.current.personal),
                 const ProfileLineWidget(),
-                if (enableOrderOnline)
-                  const Column(
-                    children: [
-                      Divider(),
-                      ButtonTypeOrderWidget(),
-                    ],
-                  ),
                 const Divider(),
-                const ButtonUpdateDataWidget(),
-                // const ButtonClearCacheWidget(),
-                if (printers.isNotEmpty) ...[
-                  const Divider(),
-                  ButtonCheckPrinterWidget(printers: printers),
-                ],
-                const Divider(), const ButtonChangeUseFontScale(),
+                const ButtonTypeOrderWidget(),
+                const ButtonUpdateData(),
+                const ButtonCheckPrinterWidget(),
+                const ButtonUseFontScale(),
                 const Divider(),
-                const ButtonFontScaleSetting(),
+                const ButtonSettingFontScale(),
                 const ButtonLogoutWidget(),
               ],
             ),
@@ -81,7 +70,7 @@ class MorePage extends ConsumerWidget {
                 // const Divider(),
                 // const ButtonHistoryTicketWidget(),
                 // const Divider(),
-                const ButtonUpdateAppWidget(),
+                const ButtonUpdateApp(),
               ],
             ),
           ),

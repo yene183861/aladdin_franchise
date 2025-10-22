@@ -22,9 +22,6 @@ import 'package:image/image.dart' as image_lib;
 import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:webcontent_converter/webcontent_converter.dart';
-import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
-// import 'package:webcontent_converter/src/webcontent_converter/webcontent_converter_io.dart'
-//     as convertIo;
 
 class AppPrinterHtmlUtils {
   AppPrinterHtmlUtils._();
@@ -53,6 +50,7 @@ class AppPrinterHtmlUtils {
     DateTime? timeCompleted,
     DateTime? timeCreatedAt,
     String cashierPrint = '',
+    String invoiceQr = '',
   }) async {
     var htmlData = paymentBillContent(
       order: order,
@@ -72,6 +70,7 @@ class AppPrinterHtmlUtils {
       timeCompleted: timeCompleted,
       timeCreatedAt: timeCreatedAt,
       cashierPrint: cashierPrint,
+      invoiceQr: invoiceQr,
     );
     var bytes = await generateImageBill(htmlData);
     return bytes;
@@ -201,7 +200,8 @@ class AppPrinterHtmlUtils {
         // combo
         List<ComboItemModel> comboItemPrint = [];
         if (comboItem != null) {
-          comboItemPrint = comboItem.where((e) => e.printerType == printer.type).toList();
+          comboItemPrint =
+              comboItem.where((e) => e.printerType == printer.type).toList();
           if (comboItemPrint.isNotEmpty) {
             String? description = p.description;
             try {
@@ -244,14 +244,18 @@ class AppPrinterHtmlUtils {
         throw printer.messageConnectFail();
       }
       if (res == PosPrintResult.success) {
-        var billStatus = await printerManager.printTicket(bytes, isDisconnect: false);
+        var billStatus =
+            await printerManager.printTicket(bytes, isDisconnect: false);
         if (billStatus != PosPrintResult.success) {
           return cancel
               ? "In bill tổng thất bại!\n${billStatus.msg}"
               : 'In bill hủy đồ thất bại\n${billStatus.msg}';
         }
         // chỉ in bill lẻ với bếp
-        if (!cancel && printEachItem && productPrinter.length > 1 && printer.type == 2) {
+        if (!cancel &&
+            printEachItem &&
+            productPrinter.length > 1 &&
+            printer.type == 2) {
           for (var p in productPrinter) {
             List<int> byteDatas;
             var oddHtmlBill = kitchenBillContent(
@@ -263,7 +267,8 @@ class AppPrinterHtmlUtils {
               cancel: cancel,
             );
             byteDatas = await generateImageBill(oddHtmlBill);
-            billStatus = await printerManager.printTicket(byteDatas, isDisconnect: false);
+            billStatus = await printerManager.printTicket(byteDatas,
+                isDisconnect: false);
             if (billStatus != PosPrintResult.success) {
               return "In bill lẻ xuống bếp thất bại!\n${billStatus.msg}";
             }
@@ -320,7 +325,8 @@ class AppPrinterHtmlUtils {
     String dishTable = "";
 
     var finalNote = note;
-    if (!totalBill && (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
+    if (!totalBill &&
+        (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
       finalNote = (product.firstOrNull?.noteForProcessOrder ?? '');
     }
     if (cancel) {
@@ -338,7 +344,8 @@ class AppPrinterHtmlUtils {
         </tr>
       ''';
       }
-      List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(pc);
+      List<ComboItemModel>? comboItems =
+          ProductHelper().getComboDescription(pc);
       // showLogs(comboItems, flags: 'comboItems');
       if (comboItems != null) {
         // check xem có cần nhân số lượng combo với món trong combo k
@@ -477,6 +484,7 @@ class AppPrinterHtmlUtils {
     DateTime? timeCompleted,
     DateTime? timeCreatedAt,
     String cashierPrint = '',
+    String invoiceQr = '',
   }) {
     RestaurantModel? restaurant = LocalStorage.getDataLogin()?.restaurant;
     var user = LocalStorage.getDataLogin()?.user;
@@ -541,182 +549,204 @@ class AppPrinterHtmlUtils {
     return '''
 <!DOCTYPE HTML>
 <html style="margin: 0px;padding: 0px;">
+
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <style type="text/css">
-    body {
-     width: 302.36px;
-     }
-     h2, h3 {
-     font-size: 16px;
-     }
-    
+        body {
+            width: 302.36px;
+        }
+
+        h2,
+        h3 {
+            font-size: 16px;
+        }
+
         p {
             margin-bottom: 0.25cm;
             line-height: 120%;
         }
+
         .items {
             width: 100%;
             word-wrap: break-word;
             border-collapse: collapse;
         }
+
         .infobill {
             width: 100%;
             word-wrap: break-word;
             border-collapse: collapse;
         }
-        .infobill th,.infobill td {
+
+        .infobill th,
+        .infobill td {
             word-wrap: break-word;
         }
-        .items th,.items td {
+
+        .items th,
+        .items td {
             word-wrap: break-word;
             border: 1px solid black;
         }
+
         th {
             text-align: left;
         }
-        .tax{
+
+        .tax {
             text-align: center;
         }
+
         .total {
             width: 100%;
             word-wrap: break-word;
             border-collapse: collapse;
         }
-        .total td{
+
+        .total td {
             padding-top: 10px;
         }
+
         hr {
             border: 1px solid black;
         }
-        
-       @media all and (-webkit-min-device-pixel-ratio:0) {
-            body.android {
-                font-family: serif;
-            }
-            .items th,.items td {
-            word-wrap: break-word;
-            border: 1.5px solid black;
-        }
+
+        #qrcode_block {
+            text-align: center;
         }
 
+        .qrcode {
+            display: inline-block;
+        }
     </style>
-    <script>
-    const ua = navigator.userAgent.toLowerCase();
-    if (ua.indexOf("android") > -1) {
-        document.documentElement.classList.add("android");
-    } else {
-        document.documentElement.classList.add("windows");
-    }
-</script>
+     ${invoiceQr.trim().isNotEmpty ? '<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>' : ''}
+
 </head>
+
 <body style="margin: 0px;padding: 0px;">
-<p style="text-align: center">
-<h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">${restaurant?.name ?? ''}</h2>
-<h5 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">${restaurant?.address ?? ''}</h5>
-<h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">${receiptType.title}</h2>
-<h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">Bill ${order.getOrderMisc()} Bàn ${order.name}</h2>
-<h3 style="text-align: center;word-wrap: break-word;">${receiptType.note}</h3>
-<table class="infobill">
-    <tr>
-        <th width="50%">Người in bill:</th>
-        <td width="50%">${cashierPrint.trim().isEmpty ? (user?.name ?? '') : cashierPrint.trim()}</td>
-    </tr>
-    <tr>
-        <th width="50%">Người hoàn thành:</th>
-        <td width="50%">${cashierCompleted.trim().isEmpty ? (user?.name ?? '') : cashierCompleted.trim()}</td>
-    </tr>
-    <tr>
-        <th width="50%">Giờ vào:</th>
-        <td width="50%">${_printDateTime(timeCreatedAt ?? DateTime.now())}</td>
-    </tr>
-    <tr>
-        <th width="50%">Giờ ra:</th>
-        <td width="50%">${_printDateTime(timeCompleted ?? DateTime.now())}</td>
-    </tr>
-    <tr>
-        <th width="50%">Điện thoại KH:</th>
-        <td width="50%">$customerPhone</td>
-    </tr>
-    <tr>
-        <th width="50%">Số khách:</th>
-        <td width="50%">${printNumberOfPeople ? max(0, numberOfPeople).toString() : ''}</td>
-    </tr>
-</table>
-<p></p>
-<table class="items">
-    <tr>
-        <th width="46%">Tên món</th>
-        <th width="7%">SL</th>
-        <th width="20%">Đ.Giá</th>
-        <th width="7%">Thuế</th>
-        <th width="20%">T.Tiền</th>
-    </tr>
-    $dishTable
-</table>
-<table class="total" style="margin-top: 10px;">
-    <tr>
-        <td style="font-weight: bold" width="80%" colspan="4">T.Tiền trước thuế</td>
-        <td width="20%" style="text-align: right">${AppHelper.parseToPrice(price.totalPrice)}</td>
-    </tr>
-    <tr>
-        <td style="font-weight: bold" colspan="4">Giảm tiền trước thuế</td>
-        <td style="text-align: right">${AppHelper.parseToPrice(price.totalPriceVoucher)}</td>
-    </tr>
-    $voucherDetail
+    <p style="text-align: center">
+    <h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">${restaurant?.name ?? ''}</h2>
+    <h5 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">${restaurant?.address ?? ''}</h5>
+    <h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">${receiptType.title}</h2>
+    <h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">Bill ${order.getOrderMisc()} Bàn ${order.name}</h2>
+    <h3 style="text-align: center;word-wrap: break-word;">${receiptType.note}</h3>
+    <table class="infobill">
+        <tr>
+            <th width="50%">Người in bill:</th>
+            <td width="50%">${cashierPrint.trim().isEmpty ? (user?.name ?? '') : cashierPrint.trim()}</td>
+        </tr>
+        <tr>
+            <th width="50%">Người hoàn thành:</th>
+            <td width="50%">${cashierCompleted.trim().isEmpty ? (user?.name ?? '') : cashierCompleted.trim()}</td>
+        </tr>
+        <tr>
+            <th width="50%">Giờ vào:</th>
+            <td width="50%">${_printDateTime(timeCreatedAt ?? DateTime.now())}</td>
+        </tr>
+        <tr>
+            <th width="50%">Giờ ra:</th>
+            <td width="50%">${_printDateTime(timeCompleted ?? DateTime.now())}</td>
+        </tr>
+        <tr>
+            <th width="50%">Điện thoại KH:</th>
+            <td width="50%">$customerPhone</td>
+        </tr>
+        <tr>
+            <th width="50%">Số khách:</th>
+            <td width="50%">${printNumberOfPeople ? max(0, numberOfPeople).toString() : ''}</td>
+        </tr>
+    </table>
+    <p></p>
+    <table class="items">
+        <tr>
+            <th width="46%">Tên món</th>
+            <th width="7%">SL</th>
+            <th width="20%">Đ.Giá</th>
+            <th width="7%">Thuế</th>
+            <th width="20%">T.Tiền</th>
+        </tr>
+        $dishTable
+    </table>
+    <table class="total" style="margin-top: 10px;">
+        <tr>
+            <td style="font-weight: bold" width="80%" colspan="4">T.Tiền trước thuế</td>
+            <td width="20%" style="text-align: right">${AppHelper.parseToPrice(price.totalPrice)}</td>
+        </tr>
+        <tr>
+            <td style="font-weight: bold" colspan="4">Giảm tiền trước thuế</td>
+            <td style="text-align: right">${AppHelper.parseToPrice(price.totalPriceVoucher)}</td>
+        </tr>
+        $voucherDetail
 
-    <tr>
-        <td colspan="4" style="font-weight: bold">Tổng tiền thuế</td>
-        <td style="text-align: right">${AppHelper.parseToPrice(price.totalPriceTax)}</td>
-    </tr>
-    $taxDetail
-                                  
-    <tr>
-        <td style="font-weight: bold" colspan="4">Giảm tiền sau thuế</td>
-        <td style="text-align: right">0</td>
-    </tr>
-    
-    <tr>
-        <td style="font-weight: bold" colspan="4">Tiền thanh toán</td>
-        <td style="text-align: right">${AppHelper.parseToPrice(price.totalPriceFinal)}</td>
-    </tr>
-</table>
-</p>
-<hr>
-<span>
- <b>Ghi chú:</b> <br>
- $note 
-  
-</span>
-<p></p>
-<br>
-<span>
-  <b>Hình thức thanh toán</b>:<br>
-  ${receiptType.showPaymentMethod ? '${paymentMethod?.name ?? ''}:${AppHelper.parseToPrice(paymentAmount)}' : ''}<br>
-</span>
+        <tr>
+            <td colspan="4" style="font-weight: bold">Tổng tiền thuế</td>
+            <td style="text-align: right">${AppHelper.parseToPrice(price.totalPriceTax)}</td>
+        </tr>
+        $taxDetail
 
-<hr>
-<p style="word-wrap: break-word;text-align: justify;">
-    Khách hàng vui lòng cung cấp thông tin xuất hóa đơn GTGT tại thời điểm thanh toán.
-	Trường hợp khách hàng không cung cấp thông tin xuất hóa đơn GTGT thì công ty 
-	sẽ xuất hóa đơn Khách Lẻ và không xuất lại hóa đơn trong mọi trường hợp sau đó.
-</p>
-<p style="text-align: center">
-    Powered by Aladdin.,JSC <br>
-    Thời gian in: ${_printDateTime(DateTime.now())}
-</p>
-<p style="text-align: center">
-    ${isPaymentReceipt ? '' : 'Lần in tạm tính: $numberPrintTemporary<br>'}
-    ${isPaymentReceipt ? 'Lần in hoàn thành: $numberPrintCompleted' : ''}
-</p>
-<p></p>
+        <tr>
+            <td style="font-weight: bold" colspan="4">Giảm tiền sau thuế</td>
+            <td style="text-align: right">0</td>
+        </tr>
+
+        <tr>
+            <td style="font-weight: bold" colspan="4">Tiền thanh toán</td>
+            <td style="text-align: right">${AppHelper.parseToPrice(price.totalPriceFinal)}</td>
+        </tr>
+    </table>
+    <hr>
+    <span>
+        <b>Ghi chú:</b> <br>
+        $note
+
+    </span>
+    <p></p>
+    <br>
+    <span>
+        <b>Hình thức thanh toán</b>:<br>
+        ${receiptType.showPaymentMethod ? '${paymentMethod?.name ?? ''}:${AppHelper.parseToPrice(paymentAmount)}' : ''}<br>
+    </span>
+
+    <hr>
+    <p style="word-wrap: break-word;text-align: justify;">
+        ${invoiceQr.trim().isNotEmpty ? 'Quý khách vui lòng quét QR để nhập thông tin hoá đơn:'
+            ' Trong 60 phút sau khi in bill và trước 23h30 cùng ngày.'
+            'Trường hợp khách hàng không nhập thông tin xuất hoá đơn GTGT trong khung giờ nêu trên'
+            ' thì Công ty sẽ xuất hoá đơn Khách lẻ và không xuất lại hoá đơn trong mọi trường hợp sau đó. Xin cảm ơn Quý khách!' : 'Khách hàng vui lòng cung cấp thông tin xuất hóa đơn GTGT tại thời điểm thanh toán.'
+            'Trường hợp khách hàng không cung cấp thông tin xuất hóa đơn GTGT thì công ty'
+            'sẽ xuất hóa đơn Khách Lẻ và không xuất lại hóa đơn trong mọi trường hợp sau đó.'}
+        ${invoiceQr.trim().isNotEmpty ? '<div id="qrcode"></div>' : ''}
+    <p style="text-align: center">
+        Powered by Aladdin.,JSC <br>
+        Thời gian in: ${_printDateTime(DateTime.now())}
+    </p>
+    <p style="text-align: center">
+        ${isPaymentReceipt ? '' : 'Lần in tạm tính: $numberPrintTemporary<br>'}
+        ${isPaymentReceipt ? 'Lần in hoàn thành: $numberPrintCompleted' : ''}
+    </p>
+    ${invoiceQr.trim().isNotEmpty ? '''
+    <script>
+      window.onload = function() {
+        const url = "${invoiceQr.trim()}";
+        new QRCode(document.getElementById("qrcode"), {
+            text: url,
+            width: 128,
+            height: 128
+        });
+      };
+    </script>
+    ''' : ''}
+
 </body>
+
 </html>
 ''';
   }
 
   String _printDateTime(DateTime? value) {
-    return DateTimeUtils.formatToString(time: value, newPattern: DateTimePatterns.dateTime1);
+    return DateTimeUtils.formatToString(
+        time: value, newPattern: DateTimePatterns.dateTime1);
   }
 }
 

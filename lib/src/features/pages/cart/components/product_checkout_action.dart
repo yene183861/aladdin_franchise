@@ -49,7 +49,9 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
                 ],
                 Text(
                   'Xem lịch sử',
-                  style: AppTextStyle.medium(rawFontSize: 12.5),
+                  style: AppTextStyle.medium(
+                    rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                  ),
                 ),
               ],
             ),
@@ -78,7 +80,7 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
               child: Text(
                 'Xác nhận hủy',
                 style: AppTextStyle.regular(
-                  rawFontSize: 12.5,
+                  rawFontSize: AppConfig.defaultRawTextSize - 1.5,
                   color: Colors.white,
                 ),
               ),

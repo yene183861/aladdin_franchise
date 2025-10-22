@@ -201,7 +201,10 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
           const Gap(8),
           Text(
             'Mã giảm giá theo số khách, thay đổi sổ khách người lớn trong mục Ưu đãi.',
-            style: AppTextStyle.regular(color: AppColors.redColor, rawFontSize: 12),
+            style: AppTextStyle.regular(
+              color: AppColors.redColor,
+              rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+            ),
           )
         ],
         const GapH(24),

@@ -1,7 +1,5 @@
-import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/pages/history_order/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:flutter/material.dart';
@@ -14,10 +12,8 @@ class HistoryDateRangeWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var startDate =
-        ref.watch(historyOrderPageProvider.select((value) => value.startDate));
-    var endDate =
-        ref.watch(historyOrderPageProvider.select((value) => value.endDate));
+    var startDate = ref.watch(historyOrderPageProvider.select((value) => value.startDate));
+    var endDate = ref.watch(historyOrderPageProvider.select((value) => value.endDate));
     return InkWell(
         onTap: () async {
           var dateSelect = await showDateRangePicker(
@@ -27,15 +23,15 @@ class HistoryDateRangeWidget extends ConsumerWidget {
             initialDateRange: DateTimeRange(start: startDate, end: endDate),
           );
           if (dateSelect != null) {
-            ref.read(historyOrderPageProvider.notifier).onChangeDate(
-                startDate: dateSelect.start, endDate: dateSelect.end);
+            ref
+                .read(historyOrderPageProvider.notifier)
+                .onChangeDate(startDate: dateSelect.start, endDate: dateSelect.end);
           }
         },
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ResponsiveIconWidget(
-                iconData: Icons.calendar_month, color: textColor),
+            ResponsiveIconWidget(iconData: Icons.calendar_month, color: textColor),
             const Gap(4),
             Text(
               '${DateTimeUtils.formatToString(time: startDate, newPattern: DateTimePatterns.date)}'

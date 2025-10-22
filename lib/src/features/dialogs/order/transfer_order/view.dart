@@ -84,7 +84,7 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
     return AlertDialog(
       title: Text(
         S.current.transferUpdateOrder,
-        style: AppTextStyle.bold(rawFontSize: 15),
+        // style: AppTextStyle.bold(rawFontSize: 15),
       ),
       content: tableAndWaiterTransferAvailable.when(
         skipLoadingOnRefresh: false,
@@ -406,7 +406,7 @@ class _ListWaiterWidget extends ConsumerWidget {
             ],
           ),
         ),
-        TextFieldSimpleWidget(
+        AppTextFieldWidget(
           onChanged: (value) {
             ref.read(transferOrderProvider.notifier).changeSearch(value);
           },

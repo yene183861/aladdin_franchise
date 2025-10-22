@@ -173,6 +173,9 @@ mixin _$HomeState {
   List<CategoryModel> get categories => throw _privateConstructorUsedError;
   List<ProductModel> get products => throw _privateConstructorUsedError;
   List<TagProductModel> get tags => throw _privateConstructorUsedError;
+
+  /// chứa category, subcategory, dấu >
+  List<dynamic> get menuCategoryItem => throw _privateConstructorUsedError;
   CategoryModel? get categorySelect => throw _privateConstructorUsedError;
   SubCategoryModel? get subCategorySelect => throw _privateConstructorUsedError;
   TagProductModel? get tagSelect => throw _privateConstructorUsedError;
@@ -185,8 +188,6 @@ mixin _$HomeState {
   OrderModel? get orderSelect => throw _privateConstructorUsedError;
   bool get lockedOrder => throw _privateConstructorUsedError;
 
-  /// danh sách món trong đơn hiện tại (các món đã gọi + các món đang gọi)
-// @Default([]) List<ProductModel> currentOrderItems,
   /// các món đang gọi
   List<ProductModel> get productsSelecting =>
       throw _privateConstructorUsedError;
@@ -196,10 +197,8 @@ mixin _$HomeState {
       throw _privateConstructorUsedError; // các món đã gọi
   List<ProductCheckoutModel> get productCheckout =>
       throw _privateConstructorUsedError;
-  PageState get productCheckoutState => throw _privateConstructorUsedError; //
-// @Default(true) bool isOrderSaved,
-// tự động lưu món đang chọn vào DB
-// @Default(false) bool autoSaveOrder,
+  PageState get productCheckoutState => throw _privateConstructorUsedError;
+
   /// khách hàng
   CustomerModel? get customer => throw _privateConstructorUsedError;
 
@@ -296,6 +295,7 @@ abstract class $HomeStateCopyWith<$Res> {
       List<CategoryModel> categories,
       List<ProductModel> products,
       List<TagProductModel> tags,
+      List<dynamic> menuCategoryItem,
       CategoryModel? categorySelect,
       SubCategoryModel? subCategorySelect,
       TagProductModel? tagSelect,
@@ -393,6 +393,7 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? categories = null,
     Object? products = null,
     Object? tags = null,
+    Object? menuCategoryItem = null,
     Object? categorySelect = freezed,
     Object? subCategorySelect = freezed,
     Object? tagSelect = freezed,
@@ -479,6 +480,10 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.tags
           : tags // ignore: cast_nullable_to_non_nullable
               as List<TagProductModel>,
+      menuCategoryItem: null == menuCategoryItem
+          ? _value.menuCategoryItem
+          : menuCategoryItem // ignore: cast_nullable_to_non_nullable
+              as List<dynamic>,
       categorySelect: freezed == categorySelect
           ? _value.categorySelect
           : categorySelect // ignore: cast_nullable_to_non_nullable
@@ -922,6 +927,7 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       List<CategoryModel> categories,
       List<ProductModel> products,
       List<TagProductModel> tags,
+      List<dynamic> menuCategoryItem,
       CategoryModel? categorySelect,
       SubCategoryModel? subCategorySelect,
       TagProductModel? tagSelect,
@@ -1038,6 +1044,7 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? categories = null,
     Object? products = null,
     Object? tags = null,
+    Object? menuCategoryItem = null,
     Object? categorySelect = freezed,
     Object? subCategorySelect = freezed,
     Object? tagSelect = freezed,
@@ -1124,6 +1131,10 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value._tags
           : tags // ignore: cast_nullable_to_non_nullable
               as List<TagProductModel>,
+      menuCategoryItem: null == menuCategoryItem
+          ? _value._menuCategoryItem
+          : menuCategoryItem // ignore: cast_nullable_to_non_nullable
+              as List<dynamic>,
       categorySelect: freezed == categorySelect
           ? _value.categorySelect
           : categorySelect // ignore: cast_nullable_to_non_nullable
@@ -1348,6 +1359,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       final List<CategoryModel> categories = const [],
       final List<ProductModel> products = const [],
       final List<TagProductModel> tags = const [],
+      final List<dynamic> menuCategoryItem = const [],
       this.categorySelect,
       this.subCategorySelect,
       this.tagSelect,
@@ -1407,6 +1419,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       : _categories = categories,
         _products = products,
         _tags = tags,
+        _menuCategoryItem = menuCategoryItem,
         _productsSelecting = productsSelecting,
         _productsSelected = productsSelected,
         _productCheckout = productCheckout,
@@ -1466,6 +1479,19 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
     return EqualUnmodifiableListView(_tags);
   }
 
+  /// chứa category, subcategory, dấu >
+  final List<dynamic> _menuCategoryItem;
+
+  /// chứa category, subcategory, dấu >
+  @override
+  @JsonKey()
+  List<dynamic> get menuCategoryItem {
+    if (_menuCategoryItem is EqualUnmodifiableListView)
+      return _menuCategoryItem;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_menuCategoryItem);
+  }
+
   @override
   final CategoryModel? categorySelect;
   @override
@@ -1488,13 +1514,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @JsonKey()
   final bool lockedOrder;
 
-  /// danh sách món trong đơn hiện tại (các món đã gọi + các món đang gọi)
-// @Default([]) List<ProductModel> currentOrderItems,
   /// các món đang gọi
   final List<ProductModel> _productsSelecting;
 
-  /// danh sách món trong đơn hiện tại (các món đã gọi + các món đang gọi)
-// @Default([]) List<ProductModel> currentOrderItems,
   /// các món đang gọi
   @override
   @JsonKey()
@@ -1532,10 +1554,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final PageState productCheckoutState;
-//
-// @Default(true) bool isOrderSaved,
-// tự động lưu món đang chọn vào DB
-// @Default(false) bool autoSaveOrder,
+
   /// khách hàng
   @override
   final CustomerModel? customer;
@@ -1772,7 +1791,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, productsState: $productsState, categories: $categories, products: $products, tags: $tags, categorySelect: $categorySelect, subCategorySelect: $subCategorySelect, tagSelect: $tagSelect, search: $search, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productsSelecting: $productsSelecting, productsSelected: $productsSelected, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, needApplyAgainOnlyCoupons: $needApplyAgainOnlyCoupons, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, checkReloadWhenHiddenApp: $checkReloadWhenHiddenApp, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, customerPortraits: $customerPortraits, completeNote: $completeNote, employeeSaleSelect: $employeeSaleSelect, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, displayOrderHistory: $displayOrderHistory, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState)';
+    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, productsState: $productsState, categories: $categories, products: $products, tags: $tags, menuCategoryItem: $menuCategoryItem, categorySelect: $categorySelect, subCategorySelect: $subCategorySelect, tagSelect: $tagSelect, search: $search, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productsSelecting: $productsSelecting, productsSelected: $productsSelected, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, needApplyAgainOnlyCoupons: $needApplyAgainOnlyCoupons, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, checkReloadWhenHiddenApp: $checkReloadWhenHiddenApp, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, customerPortraits: $customerPortraits, completeNote: $completeNote, employeeSaleSelect: $employeeSaleSelect, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, displayOrderHistory: $displayOrderHistory, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState)';
   }
 
   @override
@@ -1788,6 +1807,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       ..add(DiagnosticsProperty('categories', categories))
       ..add(DiagnosticsProperty('products', products))
       ..add(DiagnosticsProperty('tags', tags))
+      ..add(DiagnosticsProperty('menuCategoryItem', menuCategoryItem))
       ..add(DiagnosticsProperty('categorySelect', categorySelect))
       ..add(DiagnosticsProperty('subCategorySelect', subCategorySelect))
       ..add(DiagnosticsProperty('tagSelect', tagSelect))
@@ -1863,6 +1883,8 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
                 .equals(other._categories, _categories) &&
             const DeepCollectionEquality().equals(other._products, _products) &&
             const DeepCollectionEquality().equals(other._tags, _tags) &&
+            const DeepCollectionEquality()
+                .equals(other._menuCategoryItem, _menuCategoryItem) &&
             (identical(other.categorySelect, categorySelect) ||
                 other.categorySelect == categorySelect) &&
             (identical(other.subCategorySelect, subCategorySelect) ||
@@ -1938,8 +1960,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
                 other.customerPortraitSelect == customerPortraitSelect) &&
             const DeepCollectionEquality()
                 .equals(other._customerPortraits, _customerPortraits) &&
-            (identical(other.completeNote, completeNote) ||
-                other.completeNote == completeNote) &&
+            (identical(other.completeNote, completeNote) || other.completeNote == completeNote) &&
             (identical(other.employeeSaleSelect, employeeSaleSelect) || other.employeeSaleSelect == employeeSaleSelect) &&
             (identical(other.printNumberOfPeople, printNumberOfPeople) || other.printNumberOfPeople == printNumberOfPeople) &&
             (identical(other.autoScrollProducts, autoScrollProducts) || other.autoScrollProducts == autoScrollProducts) &&
@@ -1964,6 +1985,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         const DeepCollectionEquality().hash(_categories),
         const DeepCollectionEquality().hash(_products),
         const DeepCollectionEquality().hash(_tags),
+        const DeepCollectionEquality().hash(_menuCategoryItem),
         categorySelect,
         subCategorySelect,
         tagSelect,
@@ -2035,6 +2057,7 @@ abstract class _HomeState implements HomeState {
       final List<CategoryModel> categories,
       final List<ProductModel> products,
       final List<TagProductModel> tags,
+      final List<dynamic> menuCategoryItem,
       final CategoryModel? categorySelect,
       final SubCategoryModel? subCategorySelect,
       final TagProductModel? tagSelect,
@@ -2107,6 +2130,10 @@ abstract class _HomeState implements HomeState {
   @override
   List<TagProductModel> get tags;
   @override
+
+  /// chứa category, subcategory, dấu >
+  List<dynamic> get menuCategoryItem;
+  @override
   CategoryModel? get categorySelect;
   @override
   SubCategoryModel? get subCategorySelect;
@@ -2126,8 +2153,6 @@ abstract class _HomeState implements HomeState {
   bool get lockedOrder;
   @override
 
-  /// danh sách món trong đơn hiện tại (các món đã gọi + các món đang gọi)
-// @Default([]) List<ProductModel> currentOrderItems,
   /// các món đang gọi
   List<ProductModel> get productsSelecting;
   @override
@@ -2138,10 +2163,8 @@ abstract class _HomeState implements HomeState {
   List<ProductCheckoutModel> get productCheckout;
   @override
   PageState get productCheckoutState;
-  @override //
-// @Default(true) bool isOrderSaved,
-// tự động lưu món đang chọn vào DB
-// @Default(false) bool autoSaveOrder,
+  @override
+
   /// khách hàng
   CustomerModel? get customer;
   @override

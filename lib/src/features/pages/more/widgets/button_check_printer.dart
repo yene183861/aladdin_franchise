@@ -4,6 +4,7 @@ import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/custom_checkbox.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
@@ -15,72 +16,75 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ButtonCheckPrinterWidget extends ConsumerWidget {
   const ButtonCheckPrinterWidget({
     super.key,
-    this.printers = const [],
+    this.canPop = false,
   });
 
-  final List<IpOrderModel> printers;
+  final bool canPop;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var printers = LocalStorage.getPrinters();
     if (printers.isEmpty) return const SizedBox.shrink();
-    return ListTile(
-      onTap: () async {
-        List<IpOrderModel> printerSelect = [];
-        await showConfirmActionWithChild(
-          context,
-          title: S.current.printer_list,
-          child: _PrinterSelectWidget(
-            printers: printers,
-            updatePrinterSelect: (p0) {
-              printerSelect = List.from(p0);
-            },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ListTile(
+          onTap: () async {
+            if (canPop) pop(context);
+            List<IpOrderModel> printerSelect = [];
+            await showConfirmActionWithChild(
+              context,
+              title: S.current.printer_list,
+              child: _PrinterSelectWidget(
+                printers: printers,
+                updatePrinterSelect: (p0) {
+                  printerSelect = List.from(p0);
+                },
+              ),
+              closeDialog: false,
+              onCheckAction: () {
+                if (printerSelect.isEmpty) {
+                  showMessageDialog(context, message: S.current.please_select_printer_to_check);
+                  return false;
+                }
+                return true;
+              },
+              action: () async {
+                final result = await ref.read(homeProvider.notifier).checkPrinter(printerSelect);
+                if (result == null) {
+                  await showMessageDialog(context, message: S.current.printer_work_stably);
+                  pop(context);
+                  return;
+                }
+                showMessageDialog(context, message: result);
+              },
+            );
+          },
+          leading: ResponsiveIconWidget(
+            iconData: CupertinoIcons.printer,
+            color: Colors.red[700],
           ),
-          closeDialog: false,
-          onCheckAction: () {
-            if (printerSelect.isEmpty) {
-              showMessageDialog(context,
-                  message: S.current.please_select_printer_to_check);
-              return false;
-            }
-            return true;
-          },
-          action: () async {
-            final result = await ref
-                .read(homeProvider.notifier)
-                .checkPrinter(printerSelect);
-            if (result == null) {
-              await showMessageDialog(context,
-                  message: S.current.printer_work_stably);
-              pop(context);
-              return;
-            }
-            showMessageDialog(context, message: result);
-          },
-        );
-      },
-      leading: Icon(
-        CupertinoIcons.printer,
-        color: Colors.red[700],
-      ),
-      title: Text(
-        S.current.check_printer_status,
-        style: AppTextStyle.regular(),
-      ),
+          title: Text(
+            S.current.check_printer_status,
+            style: AppTextStyle.regular(),
+          ),
+        ),
+        const Divider(),
+      ],
     );
   }
 }
 
 class _PrinterSelectWidget extends ConsumerStatefulWidget {
-  const _PrinterSelectWidget(
-      {super.key, this.printers = const [], this.updatePrinterSelect});
+  const _PrinterSelectWidget({super.key, this.printers = const [], this.updatePrinterSelect});
 
   final List<IpOrderModel> printers;
 
   final Function(List<IpOrderModel>)? updatePrinterSelect;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __PrinterSelectWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __PrinterSelectWidgetState();
 }
 
 class __PrinterSelectWidgetState extends ConsumerState<_PrinterSelectWidget> {

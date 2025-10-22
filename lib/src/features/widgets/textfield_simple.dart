@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class TextFieldSimpleWidget extends StatelessWidget {
+class AppTextFieldWidget extends StatelessWidget {
   final String? label;
   final bool required;
   final String? hintText;
@@ -30,7 +30,7 @@ class TextFieldSimpleWidget extends StatelessWidget {
   final Function? onTapOutside;
   final Function()? onEditingComplete;
 
-  const TextFieldSimpleWidget({
+  const AppTextFieldWidget({
     Key? key,
     this.label,
     this.onChanged,

@@ -102,7 +102,7 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
             child: Column(
               children: [
                 const GapH(8),
-                TextFieldSimpleWidget(
+                AppTextFieldWidget(
                   label: "${S.current.firstName} & ${S.current.lastName}",
                   textInputAction: TextInputAction.next,
                   textController: ctrlName,
@@ -112,7 +112,7 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
                 Row(
                   children: [
                     Expanded(
-                      child: TextFieldSimpleWidget(
+                      child: AppTextFieldWidget(
                         label: S.current.tax_code,
                         textInputAction: TextInputAction.next,
                         textController: ctrlTax,
@@ -134,7 +134,7 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
                   ],
                 ),
                 const Gap(12),
-                TextFieldSimpleWidget(
+                AppTextFieldWidget(
                   textController: ctrlDvqhnsCode,
                   label: S.current.budget_relationship_unit_code,
                   textInputAction: TextInputAction.next,
@@ -160,7 +160,7 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
                   },
                 ),
                 const GapH(12),
-                TextFieldSimpleWidget(
+                AppTextFieldWidget(
                   textController: ctrlCCCD,
                   label: S.current.citizen_id_card,
                   textInputAction: TextInputAction.next,
@@ -180,7 +180,7 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
                   },
                 ),
                 const GapH(12),
-                TextFieldSimpleWidget(
+                AppTextFieldWidget(
                   textController: ctrlCompanyName,
                   label: S.current.company_name,
                   textInputAction: TextInputAction.next,
@@ -189,7 +189,7 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
                   validator: (value) => FieldValidationUtils.checkRequired(value),
                 ),
                 const GapH(12),
-                TextFieldSimpleWidget(
+                AppTextFieldWidget(
                   textController: ctrlAddress,
                   label: S.current.address,
                   multiLine: true,
@@ -199,7 +199,7 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
                   validator: (value) => FieldValidationUtils.checkRequired(value),
                 ),
                 const GapH(12),
-                TextFieldSimpleWidget(
+                AppTextFieldWidget(
                   textController: ctrlEmail,
                   label: S.current.email,
                   textInputAction: TextInputAction.next,
@@ -210,21 +210,21 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
                       isRequiredData ? (value) => FieldValidationUtils.validateEmail(value) : null,
                 ),
                 const GapH(12),
-                TextFieldSimpleWidget(
+                AppTextFieldWidget(
                   textController: ctrlBank,
                   label: S.current.bank,
                   textInputAction: TextInputAction.next,
                   enabled: enable,
                 ),
                 const GapH(12),
-                TextFieldSimpleWidget(
+                AppTextFieldWidget(
                   textController: ctrlBankNumber,
                   label: S.current.bank_number,
                   textInputAction: TextInputAction.next,
                   enabled: enable,
                 ),
                 const GapH(12),
-                TextFieldSimpleWidget(
+                AppTextFieldWidget(
                   textController: ctrlPhone,
                   label: S.current.phone,
                   textInputAction: TextInputAction.done,

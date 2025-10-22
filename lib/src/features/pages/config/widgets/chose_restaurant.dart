@@ -92,18 +92,15 @@ class _ChoseRestaurantWidgetState extends ConsumerState<ChoseRestaurantWidget> {
         SliverToBoxAdapter(
           child: Padding(
             padding: paddingHorizontal,
-            child: TextFieldSimpleWidget(
-              label:
-                  "${S.current.search} ${S.current.restaurant.toLowerCase()}",
-              onChanged: (value) =>
-                  ref.read(configProvider.notifier).changeKeyword(value.trim()),
+            child: AppTextFieldWidget(
+              label: "${S.current.search} ${S.current.restaurant.toLowerCase()}",
+              onChanged: (value) => ref.read(configProvider.notifier).changeKeyword(value.trim()),
             ),
           ),
         ),
         const SliverToBoxAdapter(child: Gap(12)),
         SliverToBoxAdapter(
-          child: Padding(
-              padding: paddingHorizontal, child: const _RestaurantTagsWidget()),
+          child: Padding(padding: paddingHorizontal, child: const _RestaurantTagsWidget()),
         ),
         const SliverToBoxAdapter(child: Gap(12)),
         restaurants.when(
@@ -112,14 +109,11 @@ class _ChoseRestaurantWidgetState extends ConsumerState<ChoseRestaurantWidget> {
             List<RestaurantConfigModel> dataView = List.from(data);
             if (keyword.isNotEmpty) {
               dataView = dataView
-                  .where(
-                      (element) => element.name.toLowerCase().contains(keyword))
+                  .where((element) => element.name.toLowerCase().contains(keyword))
                   .toList();
             }
             if (tags.isNotEmpty) {
-              dataView = dataView
-                  .where((element) => tags.contains(element.tags))
-                  .toList();
+              dataView = dataView.where((element) => tags.contains(element.tags)).toList();
             }
             return dataView.isEmpty
                 ? SliverToBoxAdapter(
@@ -154,9 +148,7 @@ class _ChoseRestaurantWidgetState extends ConsumerState<ChoseRestaurantWidget> {
           },
           loading: () {
             return const SliverToBoxAdapter(
-              child: Padding(
-                  padding: EdgeInsets.only(top: 100),
-                  child: AppSimpleLoadingWidget()),
+              child: Padding(padding: EdgeInsets.only(top: 100), child: AppSimpleLoadingWidget()),
             );
           },
         ),
@@ -197,12 +189,9 @@ class _LineRestaurantConfigWidget extends ConsumerWidget {
 🌐 ${restaurant.orderOnline ? S.current.yes.toUpperCase() : S.current.no.toUpperCase()} ${S.current.orderOnline.toLowerCase()}
             ''',
             action: () async {
-              await ref
-                  .read(configProvider.notifier)
-                  .onConfirmRestaurantConfig(restaurant);
+              await ref.read(configProvider.notifier).onConfirmRestaurantConfig(restaurant);
               ref.refresh(styleAppProvider);
-              showDoneSnackBar(
-                  context: context, message: S.current.settings_saved);
+              showDoneSnackBar(context: context, message: S.current.settings_saved);
               Navigator.popUntil(context, (route) => route.isFirst);
             },
           );

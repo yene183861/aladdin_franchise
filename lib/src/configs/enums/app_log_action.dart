@@ -18,21 +18,25 @@ enum AppLogAction {
   /// printer
   getIpPrinterOrder,
   pingPrinter,
-  // order
+  print,
+
+  /// order
   getOrders,
   createAndUpdateOrder,
   checkStatusLockOrder,
   getStatusLockOrder,
   lockOrder,
 
-  // gọi món
+  /// gọi món
   processOrder,
   processOrderBill,
   cancelDishBill,
   cancelDish,
-  // get product checkout
+
+  /// get product checkout
   getProductCheckout,
-  // payment
+
+  /// payment
   completeBill,
   payment,
   updateTax,
@@ -79,6 +83,9 @@ enum AppLogAction {
   processO2oRequest,
   getChatMessages,
   getO2oCustomerInfo,
+
+  ///
+  webContentConverter,
 }
 
 extension ExtAppLogAction on AppLogAction {
@@ -88,28 +95,36 @@ extension ExtAppLogAction on AppLogAction {
         return "General";
       case AppLogAction.updateApp:
         return "updateApp";
-      // login
+
+      /// login
       case AppLogAction.login:
         return "Login";
       case AppLogAction.loginSuccess:
         return "loginSuccess";
-      // user
+
+      /// user
       case AppLogAction.closeShift:
         return "closeShift";
-      // category + product
+
+      /// category + product
       case AppLogAction.getCategory:
         return "getCategory";
       case AppLogAction.getProduct:
         return "getProduct";
-      // data bill
+
+      /// data bill
       case AppLogAction.getDataBill:
         return "getDataBill";
-      // printer
+
+      /// printer
       case AppLogAction.getIpPrinterOrder:
         return "getIpPrinterOrder";
       case AppLogAction.pingPrinter:
         return "pingPrinter";
-      // order
+      case AppLogAction.print:
+        return "print";
+
+      /// order
       case AppLogAction.getOrders:
         return "getOrders";
       case AppLogAction.createAndUpdateOrder:
@@ -124,7 +139,8 @@ extension ExtAppLogAction on AppLogAction {
         return "updateOrderInvoice";
       case AppLogAction.getOrderInvoice:
         return "getOrderInvoice";
-      // gọi món
+
+      /// gọi món
       case AppLogAction.processOrder:
         return "processOrder";
       case AppLogAction.processOrderBill:
@@ -136,7 +152,8 @@ extension ExtAppLogAction on AppLogAction {
       // get product checkout
       case AppLogAction.getProductCheckout:
         return "getProductCheckout";
-      // payment
+
+      /// payment
       case AppLogAction.completeBill:
         return "completeBill";
       case AppLogAction.payment:
@@ -147,17 +164,20 @@ extension ExtAppLogAction on AppLogAction {
         return "getPaymentGateway";
       case AppLogAction.posCallback:
         return "posCallback";
-      // customer
+
+      /// customer
       case AppLogAction.findCustomer:
         return "findCustomer";
       case AppLogAction.createCustomer:
         return "createCustomer";
       case AppLogAction.resetCustomer:
         return "resetCustomer";
-      // áp lại mã giảm giá
+
+      /// áp lại mã giảm giá
       case AppLogAction.applyPolicy:
         return "applyPolicy";
-      // restaurant
+
+      /// restaurant
       case AppLogAction.getBanks:
         return "getBanks";
       case AppLogAction.getPaymentMethod:
@@ -170,18 +190,22 @@ extension ExtAppLogAction on AppLogAction {
         return "getInfoByTaxCode";
       case AppLogAction.getEmployeeSales:
         return "getEmployeeSales";
-      // coupons
+
+      /// coupons
       case AppLogAction.addCoupon:
         return "addCoupon";
       case AppLogAction.deleteCoupon:
         return "deleteCoupon";
-      // ticket
+
+      /// ticket
       case AppLogAction.getTickets:
         return "getTickets";
       case AppLogAction.createTicket:
         return "createTicket";
       case AppLogAction.localStorage:
         return "localStorage";
+      case AppLogAction.webContentConverter:
+        return "webContentConverter";
       default:
         return toString();
     }
@@ -195,7 +219,7 @@ extension ExtAppLogAction on AppLogAction {
       case AppLogAction.login:
         return "https://discord.com/api/webhooks/1423122896431087690/06_pACI8CCkELFE6I9AHD-FL8wau01K3h5XbW1ghGrGhrF8jrP5xSWYTy8f5XXAYcH-r";
 
-      // user
+      /// user
       case AppLogAction.closeShift:
         return "https://discord.com/api/webhooks/1423486364652929054/ay0y8vLjIqcoqpWNuhARUZIEfoPNHQfXAmLoiJsXZiqT7FmPm-CvwOY4UnieOIUSnNHV";
 
@@ -210,13 +234,16 @@ extension ExtAppLogAction on AppLogAction {
         return "https://discord.com/api/webhooks/1423486782074257418/hgS2eh22kogXjrqNAzGJMdsSxNQqhciX_ckiDHtE2fyC9j68l_7zV2Nb7p3CGbbLI_zG";
       case AppLogAction.pingPrinter:
         return "https://discord.com/api/webhooks/1423486784473661511/zzKFIcSHLzJHmWhRXUBW_1k3H89Y5UBUtgg-GCV0T6G1aPrhfGmPhqRq5LXfBoS_SBzW";
+      case AppLogAction.print:
+        return "https://discord.com/api/webhooks/1430442863199653921/l2ZSs9nURSI_9x8nUjLL5BGSg1qE86QLdlzOT8QRFWUYqjJrUVZQiFwa2nru2gklNuUg";
 
       /// order
       case AppLogAction.getOrders:
         return "https://discord.com/api/webhooks/1423126226188501166/Bk7CX2nadlkZ2P6Qeni8WQrWN0szhUNiciNvDoaGpbqVeqPSECefCO1INSIlq4tEWiPE";
       case AppLogAction.createAndUpdateOrder:
         return "https://discord.com/api/webhooks/1423126229183234130/_a3rgNIqmDQMiXNvHUtfWzGOR9dIG2mGv5XD5J9EGA6fiSACBlLAWQYSsCmNCXFl72lM";
-      // data bill
+
+      /// data bill
       case AppLogAction.getDataBill:
         return "https://discord.com/api/webhooks/1423126729136013333/094su3H1AMaTTRkRt6UwYgIOW4elb3O7EXBZixFd2ahoRZ5GbHY44yuIi0RbdbBx_H1P";
       case AppLogAction.checkStatusLockOrder:
@@ -225,17 +252,19 @@ extension ExtAppLogAction on AppLogAction {
       case AppLogAction.lockOrder:
         return "https://discord.com/api/webhooks/1423126566069731369/wny7y1U5r8FAgcYBgX2dn4a3bWnz27XVOcSsrjshfGwiDcdBiSYw1shi9RUIarf0bvlZ";
 
-      // process-order
+      /// process-order
       case AppLogAction.processOrder:
       case AppLogAction.processOrderBill:
         return "https://discord.com/api/webhooks/1423126233423548496/tjSKTZoGQ6r6lh1pPC8pR1k5XNCLFyLuF5qjcb6W4hK4ClcXUBD3-kRSq8HWJFscO8MU";
       case AppLogAction.cancelDishBill:
       case AppLogAction.cancelDish:
         return "https://discord.com/api/webhooks/1423134620236513370/tGAd1nVsMZWn9qXhsaPjC1AYDlgT5xBp_zFPz4AH0iKwok8lDR4t5d3jYgsQnr1v1mDq";
-      // get product checkout
+
+      /// get product checkout
       case AppLogAction.getProductCheckout:
         return "https://discord.com/api/webhooks/1423126227106922597/q1tD17Ywas1HRWmfujXcAJW6p1I6Zh60T4w78yHfUW1k-JacTu-Z4rFaXy9UFGbg-WDK";
-      // payment
+
+      /// payment
       case AppLogAction.completeBill:
         return "https://discord.com/api/webhooks/1423126564702392430/w9TU_3QGFZFmYQf0zelew3KJhOikPOgG52Ojw1iVjCScpw25WDzgN6fa0qp5OXwBlwzg";
       case AppLogAction.payment:
@@ -310,6 +339,10 @@ extension ExtAppLogAction on AppLogAction {
 
       ///
       case AppLogAction.localStorage:
+        return "https://discord.com/api/webhooks/1430441912585683028/7NtlmkrYKX7Rm5yrhlQk8PufXv9iYAPKHQ1x4DdQaqKj9ej2zbNyZs0z8Vj_0pNUvZpG";
+      case AppLogAction.webContentConverter:
+        return "https://discord.com/api/webhooks/1430441054917754892/3yWBN09OSd4t3tib6rqwaetmtxTLGBc9wHjHKRS9TMgDPxIGyEiiRsGx683_otfhGzAF";
+
       default:
         return "https://discord.com/api/webhooks/1423122133457829979/444iMuTJBQJTQ7iIFeFC1j2XQVASkt2dp1-QbY7wx5kxEeSaHE7fWC9cr2815q7G7csI";
     }

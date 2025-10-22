@@ -6,7 +6,10 @@ import 'dart:io';
 import 'package:aladdin_franchise/firebase_options.dart';
 import 'package:aladdin_franchise/src/app.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
+import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
+import 'package:aladdin_franchise/src/core/services/send_log/discord_service.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/models/o2o/notification_model.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
@@ -27,12 +30,10 @@ import 'package:window_manager/window_manager.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
-
   if (args.firstOrNull == 'multi_window' && Platform.isWindows) {
     final windowId = int.parse(args[1]);
-    final argument = args[2].isEmpty
-        ? const <String, dynamic>{}
-        : jsonDecode(args[2]) as Map<String, dynamic>;
+    final argument =
+        args[2].isEmpty ? const <String, dynamic>{} : jsonDecode(args[2]) as Map<String, dynamic>;
     await LocalStorage.initialize();
     runApp(ProviderScope(
         child: MySecondApp(
@@ -153,31 +154,26 @@ Future<void> _initWebContentConverter() async {
   try {
     if (WebViewHelper.isDesktop) {
       await windowManager.ensureInitialized();
-      var executablePath =
-          await ChromeDesktopDirectoryHelper.saveChromeFromAssetToApp(
+      var executablePath = await ChromeDesktopDirectoryHelper.saveChromeFromAssetToApp(
         assetPath: 'assets/1056772_chrome-win.zip',
       );
       WebViewHelper.customBrowserPath = [executablePath];
-      try {
-        final file = File('web_content_converter_log.txt');
-        file.writeAsStringSync(
-          "${DateTime.now()} - executablePath done: $executablePath\n",
-          mode: FileMode.append,
-        );
-      } catch (e) {
-        //
-      }
-      await WebcontentConverter.ensureInitialized(
-          executablePath: executablePath);
+      await WebcontentConverter.ensureInitialized(executablePath: executablePath);
     }
   } catch (ex) {
     showLogs(ex.toString(), flags: '_initWebContentConverter');
     try {
-      final file = File('web_content_converter_log.txt');
-      file.writeAsStringSync(
-        "${DateTime.now()} - Lỗi khởi tạo chromium\n${ex.toString()}\n",
-        mode: FileMode.append,
+      var log = ErrorLogModel(
+        action: AppLogAction.webContentConverter,
+        createAt: DateTime.now(),
+        errorMessage: ex.toString(),
       );
+      DiscordService.sendLogs(log);
+      //   final file = File('web_content_converter_log.txt');
+      //   file.writeAsStringSync(
+      //     "${DateTime.now()} - Lỗi khởi tạo chromium\n${ex.toString()}\n",
+      //     mode: FileMode.append,
+      //   );
     } catch (e) {
       //
     }

@@ -7,8 +7,8 @@ import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ButtonFontScaleSetting extends ConsumerWidget {
-  const ButtonFontScaleSetting({super.key});
+class ButtonSettingFontScale extends ConsumerWidget {
+  const ButtonSettingFontScale({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,10 +20,8 @@ class ButtonFontScaleSetting extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
-            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
             title: Text(
               'Cỡ chữ hiện tại: ${(scale * 100).toInt()}%',
-              style: AppTextStyle.regular(),
             ),
             leading: const ResponsiveIconWidget(
               iconData: Icons.format_size_rounded,
@@ -65,7 +63,7 @@ class ButtonFontScaleSetting extends ConsumerWidget {
 }
 
 class _FontScaleDefault extends ConsumerWidget {
-  const _FontScaleDefault({super.key});
+  const _FontScaleDefault();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -75,37 +73,11 @@ class _FontScaleDefault extends ConsumerWidget {
         var setting = ref.read(appSettingProvider);
         try {
           await LocalStorage.setAppSetting(setting.copyWith(fontScale: 1.0));
-
           ref.refresh(appSettingProvider);
         } catch (ex) {
           //
         }
       },
-    );
-  }
-}
-
-class ButtonChangeUseFontScale extends ConsumerWidget {
-  const ButtonChangeUseFontScale({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var setting = ref.watch(appSettingProvider);
-    return ListTile(
-      title: Text(
-        'Sử dụng tăng giảm cỡ chữ',
-        style: AppTextStyle.regular(),
-      ),
-      leading: const ResponsiveIconWidget(
-        iconData: Icons.format_size_rounded,
-      ),
-      trailing: Switch(
-        value: setting.useFontScale,
-        onChanged: (value) async {
-          await LocalStorage.setAppSetting(setting.copyWith(useFontScale: !setting.useFontScale));
-          ref.refresh(appSettingProvider);
-        },
-      ),
     );
   }
 }

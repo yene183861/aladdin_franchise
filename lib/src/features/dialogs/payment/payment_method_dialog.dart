@@ -640,14 +640,14 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
 
           const GapH(12),
           if (paymentMethodSelect?.isCash ?? false) ...[
-            TextFieldSimpleWidget(
+            AppTextFieldWidget(
               label: '${S.current.amount_received} (đ)',
               textInputType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               textController: _receivedAmount,
             ),
             const Gap(12),
-            TextFieldSimpleWidget(
+            AppTextFieldWidget(
               label: '${S.current.money_return} (đ)',
               readOnly: true,
               textController: _remainingAmount,
@@ -661,48 +661,48 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
                 color: AppColors.redColor,
               ),
             ),
-          Consumer(
-            builder: (context, ref, child) {
-              var dataBillState = ref.watch(homeProvider.select((value) => value.dataBillState));
+          // Consumer(
+          //   builder: (context, ref, child) {
+          //     var dataBillState = ref.watch(homeProvider.select((value) => value.dataBillState));
 
-              switch (dataBillState.status) {
-                case PageCommonState.success:
-                  return const SizedBox.shrink();
-                case PageCommonState.loading:
-                  return Text('Thông tin thanh toán đang được cập nhật');
-                case PageCommonState.error:
-                  return Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          'Thông tin thanh toán chưa được cập nhật chính xác',
-                        ),
-                      ),
-                      SizedBox(
-                        width: 150,
-                        child: ButtonMainWidget(
-                          textAction: 'Tải lại',
-                          onPressed: () {
-                            var state = ref.read(homeProvider.notifier);
+          //     switch (dataBillState.status) {
+          //       case PageCommonState.success:
+          //         return const SizedBox.shrink();
+          //       case PageCommonState.loading:
+          //         return Text('Thông tin thanh toán đang được cập nhật');
+          //       case PageCommonState.error:
+          //         return Row(
+          //           children: [
+          //             Flexible(
+          //               child: Text(
+          //                 'Thông tin thanh toán chưa được cập nhật chính xác',
+          //               ),
+          //             ),
+          //             SizedBox(
+          //               width: 150,
+          //               child: ButtonMainWidget(
+          //                 textAction: 'Tải lại',
+          //                 onPressed: () {
+          //                   var state = ref.read(homeProvider.notifier);
 
-                            bool requireUpdateDefaultTax = state.requireUpdateDefaultTax;
-                            if (requireUpdateDefaultTax &&
-                                (state.getPaymentMethodSelected()?.requireEditTax ?? false)) {
-                              ref.read(homeProvider.notifier).onUpdateDefaultTax();
-                            } else {
-                              ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  );
+          //                   bool requireUpdateDefaultTax = state.requireUpdateDefaultTax;
+          //                   if (requireUpdateDefaultTax &&
+          //                       (state.getPaymentMethodSelected()?.requireEditTax ?? false)) {
+          //                     ref.read(homeProvider.notifier).onUpdateDefaultTax();
+          //                   } else {
+          //                     ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
+          //                   }
+          //                 },
+          //               ),
+          //             ),
+          //           ],
+          //         );
 
-                default:
-                  return const SizedBox.shrink();
-              }
-            },
-          ),
+          //       default:
+          //         return const SizedBox.shrink();
+          //     }
+          //   },
+          // ),
         ],
       ),
     );

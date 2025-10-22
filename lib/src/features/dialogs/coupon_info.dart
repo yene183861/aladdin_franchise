@@ -190,7 +190,7 @@ class CouponInfoWidget extends ConsumerWidget {
                     Text(
                       '- ${S.current.code_limit_payment_method}',
                       style: AppTextStyle.regular(
-                        rawFontSize: 13,
+                        rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                         color: Colors.orangeAccent,
                       ),
                     ),
@@ -198,7 +198,7 @@ class CouponInfoWidget extends ConsumerWidget {
                     Text(
                       '- ${S.current.apply_policy_after_change_adults}',
                       style: AppTextStyle.medium(
-                        rawFontSize: 13,
+                        rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                         color: Colors.orangeAccent,
                       ),
                     ),
@@ -224,7 +224,7 @@ class CouponInfoWidget extends ConsumerWidget {
                           Text(
                             S.current.conditions_and_products_apply,
                             style: AppTextStyle.bold(
-                              rawFontSize: 13,
+                              rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                               color: AppColors.mainColor,
                             ),
                           ),
@@ -248,7 +248,7 @@ class CouponInfoWidget extends ConsumerWidget {
                           child: Text(
                             "${S.current.select_up_to} ${coupon.maxNumberSelected} ${S.current.product.toLowerCase()}. ${S.current.selected} $totalNumberSelected/${coupon.maxNumberSelected}",
                             style: AppTextStyle.regular(
-                              rawFontSize: 13,
+                              rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                             ),
                           ),
                         )

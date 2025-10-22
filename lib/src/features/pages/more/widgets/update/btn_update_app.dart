@@ -9,24 +9,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
-import '../../../../../generated/l10n.dart';
+import '../../../../../../generated/l10n.dart';
 
-class ButtonUpdateAppWidget extends ConsumerWidget {
-  const ButtonUpdateAppWidget({
+class ButtonUpdateApp extends ConsumerWidget {
+  const ButtonUpdateApp({
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
-      visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Platform.isAndroid
-                ? const UpdateAppAndroidPage()
-                : const UpdateAppWindowsPage(),
+            builder: (context) =>
+                Platform.isAndroid ? const UpdateAppAndroidPage() : const UpdateAppWindowsPage(),
           ),
         );
       },
@@ -34,10 +32,7 @@ class ButtonUpdateAppWidget extends ConsumerWidget {
         iconData: Icons.get_app,
         color: AppColors.mainColor,
       ),
-      title: Text(
-        S.current.checkForUpdate,
-        style: AppTextStyle.regular(),
-      ),
+      title: Text(S.current.checkForUpdate),
     );
   }
 }

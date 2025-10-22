@@ -24,9 +24,9 @@ class _ReasonCancelItemDialogState extends ConsumerState<ReasonCancelItemDialog>
       shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
       title: Text(
         S.current.reasonForCancellation,
-        style: AppTextStyle.regular(
-          rawFontSize: 15,
-        ),
+        // style: AppTextStyle.regular(
+        //   rawFontSize: 15,
+        // ),
       ),
       content: SingleChildScrollView(
         child: Column(

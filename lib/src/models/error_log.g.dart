@@ -61,6 +61,7 @@ const _$AppLogActionEnumMap = {
   AppLogAction.getDataBill: 'getDataBill',
   AppLogAction.getIpPrinterOrder: 'getIpPrinterOrder',
   AppLogAction.pingPrinter: 'pingPrinter',
+  AppLogAction.print: 'print',
   AppLogAction.getOrders: 'getOrders',
   AppLogAction.createAndUpdateOrder: 'createAndUpdateOrder',
   AppLogAction.checkStatusLockOrder: 'checkStatusLockOrder',
@@ -100,4 +101,5 @@ const _$AppLogActionEnumMap = {
   AppLogAction.processO2oRequest: 'processO2oRequest',
   AppLogAction.getChatMessages: 'getChatMessages',
   AppLogAction.getO2oCustomerInfo: 'getO2oCustomerInfo',
+  AppLogAction.webContentConverter: 'webContentConverter',
 };

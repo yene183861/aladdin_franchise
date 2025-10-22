@@ -4,7 +4,6 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
-import 'package:aladdin_franchise/main.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/enums/windows_method.dart';
 import 'package:aladdin_franchise/src/configs/theme.dart';
@@ -22,7 +21,6 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:webcontent_converter/webcontent_converter.dart';
-import 'package:webcontent_converter/webview_helper.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'features/pages/home/view.dart';

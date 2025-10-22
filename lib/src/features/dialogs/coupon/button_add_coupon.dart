@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/coupon_info.dart';
@@ -11,7 +12,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinbox/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../../../../generated/l10n.dart';
 import '../error.dart';
@@ -87,7 +87,7 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: TextFieldSimpleWidget(
+                      child: AppTextFieldWidget(
                         hintText: S.current.inputCode,
                         prefixIcon: const Icon(Icons.keyboard_alt_outlined),
                         textController: _inputCtrl,
@@ -152,7 +152,8 @@ class _NumberOfAdultsWidget extends ConsumerWidget {
               Expanded(
                 child: Text(
                   message,
-                  style: AppTextStyle.regular(rawFontSize: 12, color: Colors.red),
+                  style: AppTextStyle.regular(
+                      rawFontSize: AppConfig.defaultRawTextSize - 1.5, color: Colors.red),
                 ),
               )
             ],

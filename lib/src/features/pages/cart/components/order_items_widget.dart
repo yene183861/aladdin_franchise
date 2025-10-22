@@ -85,8 +85,9 @@ class OrderItemsWidget extends ConsumerWidget {
                                   borderRadius: AppConfig.borderRadiusSecond),
                               child: Text(
                                 textProcessOrderItem ?? 'Gọi món\nngay',
-                                style:
-                                    AppTextStyle.regular(rawFontSize: 13, color: AppColors.white),
+                                style: AppTextStyle.regular(
+                                    rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                                    color: AppColors.white),
                                 textAlign: TextAlign.center,
                               ),
                             ),

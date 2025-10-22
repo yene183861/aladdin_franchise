@@ -23,7 +23,7 @@ class CheckoutNoteForWaiterWidget extends ConsumerWidget {
         TitleLineWidget(
           title: S.current.notes,
         ),
-        TextFieldSimpleWidget(
+        AppTextFieldWidget(
           label: null,
           multiLine: true,
           textInputAction: TextInputAction.newline,

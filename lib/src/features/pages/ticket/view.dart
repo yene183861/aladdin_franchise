@@ -47,7 +47,7 @@ class TicketPage extends ConsumerWidget {
                     style: AppTextStyle.bold(),
                   ),
                   const Gap(12),
-                  TextFieldSimpleWidget(
+                  AppTextFieldWidget(
                     hintText: 'Tìm ticket',
                     prefixIcon: const Icon(CupertinoIcons.search, size: 18),
                     onChanged: (value) {

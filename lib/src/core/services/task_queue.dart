@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
+import 'package:aladdin_franchise/src/core/services/send_log/discord_service.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
@@ -92,16 +95,19 @@ class PrinterTaskQueue {
       }
     } catch (ex) {
       error = "❌ Lỗi in: $ex";
+      showLogs(error, flags: '_processTask');
     }
 
     if (error != null) {
       try {
-        final file = File('print_error.txt');
-        file.writeAsStringSync(
-          "${DateTime.now()} - Lỗi in\n$error\n",
-          mode: FileMode.append,
+        var log = ErrorLogModel(
+          action: AppLogAction.print,
+          createAt: DateTime.now(),
+          errorMessage: error,
         );
-      } catch (ex) {
+        DiscordService.sendLogs(log);
+      } catch (e) {
+        showLogs(e, flags: '_processTask send log');
         //
       }
     }
