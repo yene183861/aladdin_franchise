@@ -7,7 +7,7 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/enums/windows_method.dart';
 import 'package:aladdin_franchise/src/configs/theme.dart';
-import 'package:aladdin_franchise/src/core/services/task_queue.dart';
+import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
@@ -46,7 +46,6 @@ class _MyAppState extends ConsumerState<MyApp> {
   var listener = CloseWindowsListener();
   @override
   void initState() {
-    PrinterTaskQueue().init();
     SubWindowMonitor.instance.init();
     if (WebViewHelper.isDesktop) {
       windowManager.addListener(listener);
@@ -57,7 +56,6 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void dispose() {
     try {
-      PrinterTaskQueue().dispose();
       if (WebViewHelper.isDesktop) {
         windowManager.removeListener(listener);
       }

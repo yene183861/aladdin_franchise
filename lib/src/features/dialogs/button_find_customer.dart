@@ -1,18 +1,13 @@
-import 'dart:io';
-
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
 import 'package:aladdin_franchise/src/features/dialogs/create_customer.dart';
-import 'package:aladdin_franchise/src/features/dialogs/create_customer_zalo_oa.dart';
-import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_with_icon.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/title_line.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -40,8 +35,7 @@ class _MenuFindCustomerWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     bool enable = !lockedOrder;
     return SingleChildScrollView(
       child: Column(
@@ -50,8 +44,7 @@ class _MenuFindCustomerWidget extends ConsumerWidget {
         children: [
           Consumer(
             builder: (context, ref, child) {
-              var customer =
-                  ref.watch(homeProvider.select((value) => value.customer));
+              var customer = ref.watch(homeProvider.select((value) => value.customer));
 
               if (customer == null) {
                 if (!enable) return Text(S.current.msg_locked_order);
@@ -63,34 +56,6 @@ class _MenuFindCustomerWidget extends ConsumerWidget {
                 child: CustomerInfoWidget(
                   canAction: enable,
                   customer: customer,
-                  // onCancelCustomer: () {
-                  //   showConfirmAction(
-                  //     context,
-                  //     action: () async {
-                  //       final result = await ref
-                  //           .read(homeProvider.notifier)
-                  //           .resetCustomer();
-                  //       if (result != null) {
-                  //         await showErrorDialog(
-                  //           context,
-                  //           message: result.toString(),
-                  //           isNotifier: true,
-                  //         );
-                  //         // showMessageDialog(
-                  //         //   context,
-                  //         //   message: result.toString(),
-                  //         // );
-                  //       } else {
-                  //         ref.read(homeProvider.notifier).syncInfoForCustomer();
-                  //         // xoá khách xong thì áp dụng lại giảm giá
-                  //         await ref
-                  //             .read(homeProvider.notifier)
-                  //             .applyCustomerPolicy();
-                  //       }
-                  //     },
-                  //     message: S.current.removeCustomer,
-                  //   );
-                  // },
                 ),
               );
             },
@@ -104,9 +69,6 @@ class _MenuFindCustomerWidget extends ConsumerWidget {
             const GapH(8),
             const Divider(),
             const _ButtonCreateNewCustomerWidget(),
-            // hiện ko dùng Zalo OA
-            // Divider(),
-            // _ButtonCreateCustomerFromQrZaloOAWidget(),
           ],
         ],
       ),
@@ -134,8 +96,7 @@ class _ButtonFindByPhoneWidget extends ConsumerWidget {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         );
         if (phone != null && phone.isNotEmpty) {
-          var result =
-              await ref.read(homeProvider.notifier).findCustomer(phone);
+          var result = await ref.read(homeProvider.notifier).findCustomer(phone);
           if (result != FindCustomerStatus.success) {
             var errorMessage = ref.read(homeProvider).messageError;
             // Hiển thị thông báo kèm theo nút tạo khách hàng mới
@@ -248,19 +209,3 @@ class _ButtonCreateNewCustomerWidget extends ConsumerWidget {
     );
   }
 }
-
-// class _ButtonCreateCustomerFromQrZaloOAWidget extends ConsumerWidget {
-//   const _ButtonCreateCustomerFromQrZaloOAWidget({super.key});
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     return ButtonWithIconWidget(
-//       icon: Icons.qr_code,
-//       color: const Color(0xff0168fe),
-//       textAction: S.current.create_new_customers_via_Zalo_OA,
-//       onPressed: () {
-//         showCreateCustomerZaloOADialog(context);
-//       },
-//     );
-//   }
-// }

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
@@ -10,25 +9,15 @@ import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 
-class PrinterTaskQueue {
-  static PrinterTaskQueue get instance => _instance;
-  static final PrinterTaskQueue _instance = PrinterTaskQueue._internal();
-  factory PrinterTaskQueue() => _instance;
-  PrinterTaskQueue._internal();
+class PrintQueue {
+  static PrintQueue get instance => _instance;
+  static final PrintQueue _instance = PrintQueue._internal();
+  factory PrintQueue() => _instance;
+  PrintQueue._internal();
 
-  List<_PrintTaskModel> _queue = [];
+  final List<_PrintTaskModel> _queue = [];
 
-  // final _queue = StreamController<_PrintTaskModel>();
   bool _isProcessing = false;
-
-  void init() {
-    // _queue.stream.asyncMap((task) => _processTask(task)).listen((_) {});
-    // _queue.stream.listen(_processTask);
-  }
-
-  Future<void> dispose() async {
-    // await _queue.close();
-  }
 
   void addTask({
     required String ip,
@@ -103,7 +92,7 @@ class PrinterTaskQueue {
         var log = ErrorLogModel(
           action: AppLogAction.print,
           createAt: DateTime.now(),
-          errorMessage: error,
+          errorMessage: '_processTask\n$error',
         );
         DiscordService.sendLogs(log);
       } catch (e) {

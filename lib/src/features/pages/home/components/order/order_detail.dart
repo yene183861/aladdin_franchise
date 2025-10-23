@@ -7,7 +7,7 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/core/services/task_queue.dart';
+import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 // import 'package:aladdin_franchise/src/features/dialogs/create_new_order.dart';
@@ -480,7 +480,7 @@ Future<void> onPressedCancelItem(
           for (var printer in result.printers) {
             if (printer.type == 2) {
               if (kitchenByteDatas.isNotEmpty) {
-                PrinterTaskQueue.instance.addTask(
+                PrintQueue.instance.addTask(
                   ip: printer.ip,
                   port: printer.port,
                   buildReceipt: (generator) async {
@@ -522,7 +522,7 @@ Future<void> onPressedCancelItem(
                         ),
                       );
 
-                PrinterTaskQueue.instance.addTask(
+                PrintQueue.instance.addTask(
                   ip: printer.ip,
                   port: printer.port,
                   buildReceipt: (generator) async {

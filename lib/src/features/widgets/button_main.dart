@@ -63,7 +63,7 @@ class AppButtonWidget extends StatelessWidget {
   const AppButtonWidget({
     super.key,
     this.textAction,
-    this.fontSize,
+    this.rawFontSize,
     this.textColor,
     this.onTap,
     this.onLongPress,
@@ -71,9 +71,10 @@ class AppButtonWidget extends StatelessWidget {
     this.padding,
     this.width,
     this.color,
+    this.child,
   });
   final String? textAction;
-  final double? fontSize;
+  final double? rawFontSize;
   final Color? textColor;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
@@ -83,6 +84,8 @@ class AppButtonWidget extends StatelessWidget {
 
   final Color? color;
 
+  final Widget? child;
+
   @override
   Widget build(BuildContext context) {
     var br = borderRadius ?? AppConfig.borderRadiusMain;
@@ -90,19 +93,34 @@ class AppButtonWidget extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       borderRadius: br,
-      child: Container(
-        width: width,
-        padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Ink(
         decoration: BoxDecoration(
           borderRadius: br,
           color: color ?? AppColors.mainColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade500,
+              offset: const Offset(2, 2),
+              blurRadius: 10,
+            )
+          ],
         ),
-        child: Text(
-          textAction ?? S.current.confirm,
-          style: AppTextStyle.semiBold(
-            rawFontSize: fontSize,
-            color: textColor ?? Colors.white,
+        child: Container(
+          width: width,
+          padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: br,
+            color: Colors.transparent,
           ),
+          child: child ??
+              Text(
+                textAction ?? S.current.confirm,
+                style: AppTextStyle.medium(
+                  rawFontSize: rawFontSize,
+                  color: textColor ?? Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
         ),
       ),
     );

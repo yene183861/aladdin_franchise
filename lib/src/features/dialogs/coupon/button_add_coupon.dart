@@ -3,15 +3,22 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/coupon_info.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinbox/material.dart';
+import 'package:intl/intl.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:rxdart/subjects.dart';
 
 import '../../../../../../generated/l10n.dart';
 import '../error.dart';
@@ -38,84 +45,187 @@ class _CouponDialogContent extends ConsumerStatefulWidget {
 }
 
 class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
-  late TextEditingController _inputCtrl;
+  late TextEditingController _couponCtrl, _percentCtrl;
+  late FocusNode _couponFocusNode, _percentFocusNode;
+
+  late ValueNotifier<bool> _percentNotifier;
+
+  final BehaviorSubject<String> _amountTextChange = BehaviorSubject<String>();
+
+  bool _isFormatting = false;
+
+  RegExp removeChars = RegExp(r'.,');
   @override
   void initState() {
     super.initState();
-    _inputCtrl = TextEditingController();
+    _couponCtrl = TextEditingController();
+    _percentCtrl = TextEditingController();
+    _couponFocusNode = FocusNode();
+    _percentFocusNode = FocusNode();
+    _percentNotifier = ValueNotifier<bool>(false);
+    _couponCtrl.addListener(
+      () {
+        _clearText();
+      },
+    );
+    _percentCtrl.addListener(
+      () {
+        _changePrefixIcon();
+        _clearText();
+        if (_isFormatting) return;
+        _amountTextChange.value = _percentCtrl.text.trim();
+      },
+    );
+
+    _amountTextChange.debounceTime(const Duration(milliseconds: 0)).distinct().listen((event) {
+      final digits = event.replaceAll(removeChars, '');
+      final number = int.tryParse(digits);
+      if (number == null) return;
+
+      final formatted = NumberFormat.currency(locale: 'vi', symbol: '').format(number);
+
+      _isFormatting = true;
+      _percentCtrl.value = TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(offset: formatted.length),
+      );
+      _isFormatting = false;
+    });
   }
 
   @override
   void dispose() {
-    _inputCtrl.dispose();
+    _couponFocusNode.dispose();
+    _percentFocusNode.dispose();
+    _couponCtrl.dispose();
+    _percentCtrl.dispose();
+    _percentNotifier.dispose();
     super.dispose();
   }
 
   void _addCoupon() async {
-    var coupon = _inputCtrl.text.trim();
-    if (_inputCtrl.text.trim().isEmpty) return;
-    var result = await ref.read(homeProvider.notifier).addCoupon(code: coupon);
-    if (result.error != null && context.mounted) {
-      await showErrorDialog(
-        context,
-        message: result.error.toString(),
-        isNotifier: true,
-        titleMessage: result.titleError,
-      );
-    } else {
-      _inputCtrl.text = '';
+    var coupon = _couponCtrl.text.trim();
+    var percent = _percentCtrl.text.trim();
+    if (coupon.isEmpty && percent.isEmpty) return;
+    ({String? error, String? titleError}) result = (error: null, titleError: null);
+    if (coupon.isNotEmpty) {
+      result = await ref.read(homeProvider.notifier).addCoupon(code: coupon);
+    } else if (percent.isNotEmpty) {
+      result = await ref.read(homeProvider.notifier).addPercentDiscount(value: _getAmountValue());
     }
+    if (result.error != null) {
+      if (context.mounted) {
+        await showErrorDialog(
+          context,
+          message: result.error.toString(),
+          isNotifier: true,
+          titleMessage: result.titleError,
+        );
+      }
+    } else {
+      _couponCtrl.text = '';
+      _percentCtrl.text = '';
+    }
+  }
+
+  void _clearText() {
+    if (_couponFocusNode.hasFocus && _percentCtrl.text.trim().isNotEmpty) {
+      _percentCtrl.text = '';
+    }
+    if (_percentFocusNode.hasFocus && _couponCtrl.text.trim().isNotEmpty) {
+      _couponCtrl.text = '';
+    }
+  }
+
+  void _changePrefixIcon() {
+    var text = _percentCtrl.text.trim();
+    if (text.isEmpty) return;
+    var value = _getAmountValue();
+    if (value == 0) return;
+    bool isPercent = _percentNotifier.value;
+    if (value > 100) {
+      if (isPercent) {
+        _percentNotifier.value = false;
+      }
+    }
+  }
+
+  double _getAmountValue() {
+    return double.tryParse(_percentCtrl.text.trim().replaceAll(removeChars, '')) ?? 0.0;
   }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 500,
+      width: 600,
       height: 500,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
           const _NumberOfAdultsWidget(),
-          Consumer(
-            builder: (context, ref, child) {
-              var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
-              if (lockedOrder) return const SizedBox.shrink();
-              return Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: AppTextFieldWidget(
-                        hintText: S.current.inputCode,
-                        prefixIcon: const Icon(Icons.keyboard_alt_outlined),
-                        textController: _inputCtrl,
-                        onTapOutside: _addCoupon,
-                        onEditingComplete: () async {
-                          FocusManager.instance.primaryFocus?.unfocus();
-                          _addCoupon();
-                        },
-                      ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: AppTextFieldWidget(
+                    textInputType: TextInputType.number,
+                    focusNode: _couponFocusNode,
+                    hintText: S.current.inputCode,
+                    prefixIcon: const ResponsiveIconWidget(
+                      iconData: Icons.keyboard_alt_outlined,
                     ),
-                    SizedBox(
-                      width: 140,
-                      child: ButtonMainWidget(
-                        textAction: S.current.confirm,
-                        color: AppColors.secondColor,
-                        onPressed: _addCoupon,
-                      ),
-                    ),
-                  ],
+                    textController: _couponCtrl,
+                    onTapOutside: _addCoupon,
+                    onEditingComplete: () async {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      _addCoupon();
+                    },
+                  ),
                 ),
-              );
-            },
+                const Gap(8),
+                Expanded(
+                  child: AppTextFieldWidget(
+                    focusNode: _percentFocusNode,
+                    hintText: 'Giảm theo số tiền (đ) hoặc %',
+                    prefixIcon: ValueListenableBuilder(
+                      valueListenable: _percentNotifier,
+                      builder: (context, value, child) {
+                        bool isPercent = value;
+
+                        return ResponsiveIconButtonWidget(
+                          iconData: value ? Icons.percent : CupertinoIcons.money_dollar,
+                          onPressed: () {
+                            if (_getAmountValue() > 100.0 && !isPercent) return;
+                            _percentNotifier.value = !value;
+                          },
+                        );
+                      },
+                    ),
+                    textController: _percentCtrl,
+                    // onTapOutside: _addCoupon,
+                    onEditingComplete: () async {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      // _addCoupon();
+                    },
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  ),
+                ),
+                const Gap(8),
+                AppButtonWidget(
+                  textAction: S.current.confirm,
+                  color: AppColors.secondColor,
+                  onTap: _addCoupon,
+                ),
+              ],
+            ),
           ),
           const Gap(8),
           const Expanded(
-            child: _ListCouponWidget(),
+            child: CouponInfoWidget(),
           ),
-          _CounponActionWidget()
+          const _CounponActionWidget()
         ],
       ),
     );
@@ -153,7 +263,9 @@ class _NumberOfAdultsWidget extends ConsumerWidget {
                 child: Text(
                   message,
                   style: AppTextStyle.regular(
-                      rawFontSize: AppConfig.defaultRawTextSize - 1.5, color: Colors.red),
+                    rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                    color: Colors.red,
+                  ),
                 ),
               )
             ],
@@ -206,85 +318,29 @@ class NumberOfAdultsWidget extends ConsumerWidget {
   }
 }
 
-class _ListCouponWidget extends ConsumerWidget {
-  const _ListCouponWidget({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var coupons = ref.watch(homeProvider.select((value) => value.coupons));
-    var productCheckout = ref.watch(homeProvider.select((value) => value.productCheckout));
-    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
-
-    return
-        // coupons.isEmpty
-        //     ? Padding(
-        //         padding: const EdgeInsets.only(bottom: 12),
-        //         child: Text(S.current.notDiscountApply),
-        //       )
-        //     :
-        CouponInfoWidget(
-      canAction: !lockedOrder,
-      // productCheckouts: productCheckout,
-      // coupons: coupons,
-      // onRemoveCoupon: (coupon) {
-      //   showConfirmAction(
-      //     context,
-      //     message: S.current.deleteDiscountCode,
-      //     action: () async {
-      //       var resultRemove = await ref
-      //           .read(homeProvider.notifier)
-      //           .removeCoupon(coupon, applyPolicy: true);
-      //       if (resultRemove != null) {
-      //         showErrorDialog(
-      //           context,
-      //           message: resultRemove,
-      //           isNotifier: true,
-      //         );
-      //         // showMessageDialog(context,
-      //         //     message: resultRemove);
-      //       }
-      //     },
-      //   );
-      // },
-    );
-  }
-}
-
 class _CounponActionWidget extends ConsumerWidget {
   const _CounponActionWidget();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // if (!lockedOrder) ...[
-        //   const _AddByInputCodeWidget(),
-        //   const Gap(12),
-        // ],
-        // if (Platform.isAndroid && !lockedOrder) ...[
-        //   _AddByScanQRBarcodeWidget(),
-        //   const Gap(12),
-        // ],
-        if (!lockedOrder) ...[
-          ButtonSimpleWidget(
-            textAction: S.current.apply_policy_again,
-            onPressed: () async {
-              var res = await ref.read(homeProvider.notifier).applyCustomerPolicy();
+        ButtonSimpleWidget(
+          textAction: S.current.apply_policy_again,
+          onPressed: () async {
+            var res = await ref.read(homeProvider.notifier).applyCustomerPolicy();
 
-              if (res != null && context.mounted) {
-                showErrorDialog(
-                  context,
-                  message: res,
-                  isNotifier: true,
-                );
-              }
-            },
-          ),
-          const Gap(12),
-        ],
+            if (res != null && context.mounted) {
+              showErrorDialog(
+                context,
+                message: res,
+                isNotifier: true,
+              );
+            }
+          },
+        ),
+        const Gap(12),
         ButtonCancelWidget(
           onPressed: () => Navigator.pop(context),
           textAction: S.current.close,
@@ -293,83 +349,3 @@ class _CounponActionWidget extends ConsumerWidget {
     );
   }
 }
-
-// class _AddByInputCodeWidget extends ConsumerWidget {
-//   const _AddByInputCodeWidget({super.key});
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     return ButtonWithIconWidget(
-//       color: AppColors.secondColor,
-//       icon: Icons.keyboard_alt_outlined,
-//       textAction: S.current.inputCode,
-//       onPressed: () async {
-//         var coupon = await showConfirmInputDialog(
-//           context,
-//           title: S.current.discountCode,
-//           hintText: S.current.inputCode,
-//           textAction: S.current.apply,
-//           textInputAction: TextInputAction.done,
-//         );
-//         if (coupon != null && coupon.trim().isNotEmpty) {
-//           var result =
-//               await ref.read(homeProvider.notifier).addCoupon(code: coupon);
-//           if (result.error != null && context.mounted) {
-//             await showErrorDialog(
-//               context,
-//               message: result.error.toString(),
-//               isNotifier: true,
-//               titleMessage: result.titleError,
-//             );
-//             // await showMessageDialog(
-//             //   context,
-//             //   message: result.error.toString(),
-//             //   titleMessage: result.titleError,
-//             // );
-//           }
-//         }
-//       },
-//     );
-//   }
-// }
-
-// class _AddByScanQRBarcodeWidget extends ConsumerWidget {
-//   const _AddByScanQRBarcodeWidget({super.key});
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     return ButtonWithIconWidget(
-//       color: AppColors.secondColor,
-//       icon: Icons.qr_code,
-//       textAction: S.current.scan_qr_code,
-//       onPressed: () async {
-//         if (Platform.isWindows) {
-//           showMessageDialog(
-//             context,
-//             message: S.current.only_available_on_the_Order_Tab,
-//           );
-//           return;
-//         }
-//         String barcodeRes = await FlutterBarcodeScanner.scanBarcode(
-//           "#000000",
-//           S.current.cancel,
-//           true,
-//           ScanMode.DEFAULT,
-//         );
-//         if (barcodeRes != '-1') {
-//           var result =
-//               await ref.read(homeProvider.notifier).addCoupon(code: barcodeRes);
-//           if (result.error != null && context.mounted) {
-//             showMessageDialog(
-//               context,
-//               message: result.error.toString(),
-//               titleMessage: result.titleError,
-//             );
-//           } else if (context.mounted) {
-//             Navigator.pop(context);
-//           }
-//         }
-//       },
-//     );
-//   }
-// }

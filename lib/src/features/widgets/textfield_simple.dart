@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class AppTextFieldWidget extends StatelessWidget {
 
   final Function? onTapOutside;
   final Function()? onEditingComplete;
+  final FocusNode? focusNode;
 
   const AppTextFieldWidget({
     Key? key,
@@ -54,11 +56,13 @@ class AppTextFieldWidget extends StatelessWidget {
     this.onTapOutside,
     this.onEditingComplete,
     this.hintText,
+    this.focusNode,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      focusNode: focusNode,
       inputFormatters: inputFormatters,
       validator: (value) {
         return validator?.call(value);
@@ -83,24 +87,34 @@ class AppTextFieldWidget extends StatelessWidget {
             ? null
             : required
                 ? Text.rich(
-                    style: AppTextStyle.regular(color: AppColors.tcHintText, rawFontSize: 13.5),
+                    style: AppTextStyle.regular(
+                      color: AppColors.tcHintText,
+                      rawFontSize: AppConfig.defaultRawTextSize - 0.5,
+                    ),
                     TextSpan(
                       text: label ?? "Input",
                       children: [
                         TextSpan(
                           text: " *",
-                          style: AppTextStyle.regular(color: AppColors.redColor, rawFontSize: 13.5),
+                          style: AppTextStyle.regular(
+                            color: AppColors.redColor,
+                            rawFontSize: AppConfig.defaultRawTextSize - 0.5,
+                          ),
                         )
                       ],
                     ),
                   )
                 : Text(
                     label ?? "Input",
-                    style: AppTextStyle.regular(color: AppColors.tcHintText, rawFontSize: 13.5),
+                    style: AppTextStyle.regular(
+                      color: AppColors.tcHintText,
+                      rawFontSize: AppConfig.defaultRawTextSize - 0.5,
+                    ),
                   ),
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
-        hintStyle: AppTextStyle.regular(rawFontSize: 12, color: AppColors.tcHintText),
+        hintStyle: AppTextStyle.regular(
+            rawFontSize: AppConfig.defaultRawTextSize - 1.5, color: AppColors.tcHintText),
       ),
       onChanged: (value) {
         onChanged?.call(value);

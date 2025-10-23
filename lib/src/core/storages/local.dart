@@ -8,12 +8,9 @@ import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/network/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/responses/login.dart';
 import 'package:aladdin_franchise/src/core/services/send_log/log_service.dart';
-import 'package:aladdin_franchise/src/models/check_food.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
-import 'package:aladdin_franchise/src/models/customer/customer_rating.dart';
 import 'package:aladdin_franchise/src/models/employee_sale.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
-import 'package:aladdin_franchise/src/models/image_order/image_order.dart';
 import 'package:aladdin_franchise/src/models/info_policy_checkout.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
@@ -38,7 +35,7 @@ class LocalStorage {
     );
     try {
       _prefs = await SharedPreferences.getInstance();
-    } catch (e, s) {
+    } catch (e) {
       LogService.sendLogs(log.copyWith(
           errorMessage: 'Prefs init failed, resetting... $e', createAt: DateTime.now()));
       showLogs('Prefs init failed, resetting... $e');

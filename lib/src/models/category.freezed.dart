@@ -20,7 +20,7 @@ CategoryModel _$CategoryModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$CategoryModel {
-  int get id => throw _privateConstructorUsedError;
+  dynamic get id => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String? get slug => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
@@ -42,7 +42,7 @@ abstract class $CategoryModelCopyWith<$Res> {
       _$CategoryModelCopyWithImpl<$Res, CategoryModel>;
   @useResult
   $Res call(
-      {int id,
+      {dynamic id,
       String title,
       String? slug,
       String? description,
@@ -65,7 +65,7 @@ class _$CategoryModelCopyWithImpl<$Res, $Val extends CategoryModel>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? id = freezed,
     Object? title = null,
     Object? slug = freezed,
     Object? description = freezed,
@@ -75,10 +75,10 @@ class _$CategoryModelCopyWithImpl<$Res, $Val extends CategoryModel>
     Object? language = null,
   }) {
     return _then(_value.copyWith(
-      id: null == id
+      id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as int,
+              as dynamic,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -120,7 +120,7 @@ abstract class _$$CategoryModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
+      {dynamic id,
       String title,
       String? slug,
       String? description,
@@ -141,7 +141,7 @@ class __$$CategoryModelImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
+    Object? id = freezed,
     Object? title = null,
     Object? slug = freezed,
     Object? description = freezed,
@@ -151,10 +151,10 @@ class __$$CategoryModelImplCopyWithImpl<$Res>
     Object? language = null,
   }) {
     return _then(_$CategoryModelImpl(
-      id: null == id
+      id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as int,
+              as dynamic,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -192,7 +192,7 @@ class __$$CategoryModelImplCopyWithImpl<$Res>
 @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
 class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
   const _$CategoryModelImpl(
-      {required this.id,
+      {this.id,
       required this.title,
       this.slug,
       this.description,
@@ -208,7 +208,7 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
       _$$CategoryModelImplFromJson(json);
 
   @override
-  final int id;
+  final dynamic id;
   @override
   final String title;
   @override
@@ -264,7 +264,7 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$CategoryModelImpl &&
-            (identical(other.id, id) || other.id == id) &&
+            const DeepCollectionEquality().equals(other.id, id) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.slug, slug) || other.slug == slug) &&
             (identical(other.description, description) ||
@@ -279,7 +279,7 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      id,
+      const DeepCollectionEquality().hash(id),
       title,
       slug,
       description,
@@ -304,7 +304,7 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
 
 abstract class _CategoryModel extends CategoryModel {
   const factory _CategoryModel(
-      {required final int id,
+      {final dynamic id,
       required final String title,
       final String? slug,
       final String? description,
@@ -318,7 +318,7 @@ abstract class _CategoryModel extends CategoryModel {
       _$CategoryModelImpl.fromJson;
 
   @override
-  int get id;
+  dynamic get id;
   @override
   String get title;
   @override

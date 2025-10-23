@@ -11,7 +11,7 @@ part 'category.g.dart';
 class CategoryModel with _$CategoryModel {
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory CategoryModel({
-    required int id,
+    dynamic id,
     required String title,
     String? slug,
     String? description,
@@ -21,11 +21,10 @@ class CategoryModel with _$CategoryModel {
     @Default({}) Map<String, dynamic> language,
   }) = _CategoryModel;
 
-  factory CategoryModel.fromJson(Map<String, dynamic> json) =>
-      _$CategoryModelFromJson(json);
+  factory CategoryModel.fromJson(Map<String, dynamic> json) => _$CategoryModelFromJson(json);
 
   static String getModelInterface() {
-    return '''required int id,
+    return '''dynamic id,
     required String title,
     String? slug,
     String? description,
@@ -60,8 +59,7 @@ class SubCategoryModel with _$SubCategoryModel {
     @Default({}) Map<String, dynamic> language,
   }) = _SubCategoryModel;
 
-  factory SubCategoryModel.fromJson(Map<String, dynamic> json) =>
-      _$SubCategoryModelFromJson(json);
+  factory SubCategoryModel.fromJson(Map<String, dynamic> json) => _$SubCategoryModelFromJson(json);
 
   const SubCategoryModel._();
 

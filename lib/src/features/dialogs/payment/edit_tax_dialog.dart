@@ -4,11 +4,9 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:collection/collection.dart';
@@ -100,8 +98,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
   Widget build(BuildContext context) {
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation =
-        AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool smallDevice = (isMobile || (isTablet && portraitOrientation));
     double maxWidth = MediaQuery.of(context).size.width;
@@ -133,8 +130,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
                     },
                     defaultTax: defaultTax,
                     widthBtn: TextUtil.getTextSize(
-                                text: S.current.default_1,
-                                textStyle: AppTextStyle.regular())
+                                text: S.current.default_1, textStyle: AppTextStyle.regular())
                             .width +
                         22 +
                         16 * 2,
@@ -161,8 +157,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
                 },
                 defaultTax: defaultTax,
                 widthBtn: TextUtil.getTextSize(
-                            text: S.current.default_1,
-                            textStyle: AppTextStyle.regular())
+                            text: S.current.default_1, textStyle: AppTextStyle.regular())
                         .width +
                     22 +
                     16 * 2,
@@ -232,8 +227,8 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
     }
   }
 
-  TableViewCell _buildCell(BuildContext context, TableVicinity vicinity,
-      List<ProductCheckoutModel> productCheckout,
+  TableViewCell _buildCell(
+      BuildContext context, TableVicinity vicinity, List<ProductCheckoutModel> productCheckout,
       {bool smallDevice = false}) {
     if (vicinity.yIndex == 0) {
       String colTitle = '';
@@ -319,8 +314,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
     double? size = colSettings[index]['size'] as double?;
     if (isTax) {
       return TableSpan(
-          extent: FixedTableSpanExtent(
-              (colSettings[index]['size'] as double?) ?? 100.0));
+          extent: FixedTableSpanExtent((colSettings[index]['size'] as double?) ?? 100.0));
     }
     if (smallDevice) {
       return TableSpan(extent: FixedTableSpanExtent(size ?? 250));
@@ -331,9 +325,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
     double w = 0.0;
     for (var e in colSettings) {
       bool isTax = colSettings[index]['is_tax'] as bool? ?? false;
-      w += isTax
-          ? 100
-          : max((e['percent'] as double? ?? 0) / 100 * maxWidth, 60);
+      w += isTax ? 100 : max((e['percent'] as double? ?? 0) / 100 * maxWidth, 60);
     }
 
     width = percent == null ? max(maxWidth - w, 120.0) : width;
@@ -428,9 +420,7 @@ class _DropdownTaxWidget extends StatelessWidget {
               height: double.maxFinite,
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: yIndex % 2 == 0
-                      ? Colors.white
-                      : (oddRowColor ?? Colors.white),
+                  color: yIndex % 2 == 0 ? Colors.white : (oddRowColor ?? Colors.white),
                 ),
                 borderRadius: AppConfig.borderRadiusSecond,
                 color: yIndex % 2 == 0 ? Colors.white : null,
@@ -447,9 +437,7 @@ class _DropdownTaxWidget extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyle.regular(
-                        color: notAllowTaxs.contains(value)
-                            ? AppColors.redColor
-                            : null,
+                        color: notAllowTaxs.contains(value) ? AppColors.redColor : null,
                       ),
                     ),
                   ),

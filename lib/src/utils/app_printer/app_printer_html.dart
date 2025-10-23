@@ -77,108 +77,108 @@ class AppPrinterHtmlUtils {
   }
 
   /// in hóa đơn
-  Future<String?> printReceipt({
-    required OrderModel order,
-    List<LineItemDataBill> orderLineItems = const [],
-    required PriceDataBill price,
-    String? note,
-    PaymentMethod? paymentMethod,
-    List<HistoryPolicyResultModel> vouchers = const [],
-    required ReceiptTypeEnum receiptType,
-    required List<IpOrderModel> printers,
-    bool printNumberOfPeople = false,
-    String customerPhone = '',
-    int numberOfPeople = 1,
-    double paymentAmount = 0.0,
-    int numberPrintCompleted = 1,
-    int numberPrintTemporary = 1,
-    String cashierCompleted = '',
-    DateTime? timeCompleted,
-    DateTime? timeCreatedAt,
-    String cashierPrint = '',
-  }) async {
-    try {
-      var htmlData = paymentBillContent(
-        order: order,
-        orderLineItems: orderLineItems,
-        price: price,
-        receiptType: receiptType,
-        note: note ?? '',
-        customerPhone: customerPhone,
-        numberOfPeople: numberOfPeople,
-        paymentAmount: paymentAmount,
-        paymentMethod: paymentMethod,
-        printNumberOfPeople: printNumberOfPeople,
-        vouchers: vouchers,
-        numberPrintCompleted: numberPrintCompleted,
-        numberPrintTemporary: numberPrintTemporary,
-        cashierCompleted: cashierCompleted,
-        timeCompleted: timeCompleted,
-        timeCreatedAt: timeCreatedAt,
-        cashierPrint: cashierPrint,
-      );
-      var bytes = await generateImageBill(htmlData);
+  // Future<String?> printReceipt({
+  //   required OrderModel order,
+  //   List<LineItemDataBill> orderLineItems = const [],
+  //   required PriceDataBill price,
+  //   String? note,
+  //   PaymentMethod? paymentMethod,
+  //   List<HistoryPolicyResultModel> vouchers = const [],
+  //   required ReceiptTypeEnum receiptType,
+  //   required List<IpOrderModel> printers,
+  //   bool printNumberOfPeople = false,
+  //   String customerPhone = '',
+  //   int numberOfPeople = 1,
+  //   double paymentAmount = 0.0,
+  //   int numberPrintCompleted = 1,
+  //   int numberPrintTemporary = 1,
+  //   String cashierCompleted = '',
+  //   DateTime? timeCompleted,
+  //   DateTime? timeCreatedAt,
+  //   String cashierPrint = '',
+  // }) async {
+  //   try {
+  //     var htmlData = paymentBillContent(
+  //       order: order,
+  //       orderLineItems: orderLineItems,
+  //       price: price,
+  //       receiptType: receiptType,
+  //       note: note ?? '',
+  //       customerPhone: customerPhone,
+  //       numberOfPeople: numberOfPeople,
+  //       paymentAmount: paymentAmount,
+  //       paymentMethod: paymentMethod,
+  //       printNumberOfPeople: printNumberOfPeople,
+  //       vouchers: vouchers,
+  //       numberPrintCompleted: numberPrintCompleted,
+  //       numberPrintTemporary: numberPrintTemporary,
+  //       cashierCompleted: cashierCompleted,
+  //       timeCompleted: timeCompleted,
+  //       timeCreatedAt: timeCreatedAt,
+  //       cashierPrint: cashierPrint,
+  //     );
+  //     var bytes = await generateImageBill(htmlData);
 
-      try {
-        for (var printer in printers) {
-          final xPrinter = PrinterNetworkManager(
-            printer.ip,
-            port: printer.port,
-          );
+  //     try {
+  //       for (var printer in printers) {
+  //         final xPrinter = PrinterNetworkManager(
+  //           printer.ip,
+  //           port: printer.port,
+  //         );
 
-          int retry = 2;
-          while (retry < 3) {
-            retry++;
-            final PosPrintResult connectResult =
-                await xPrinter.connect(timeout: const Duration(seconds: 10));
-            if (connectResult == PosPrintResult.success) {
-              try {
-                final billStatus = await xPrinter.printTicket(bytes);
-                await xPrinter.disconnect();
-                // try {
-                // await xPrinter.disconnect();
-                // } catch (ex) {
-                //   showLogs(ex.toString(), flags: 'xPrinter disconnect 1');
-                //   rethrow;
-                // }
-                showLogs(billStatus.msg, flags: 'KQ in');
-                if (billStatus != PosPrintResult.success) {
-                  throw billStatus.msg;
-                }
-              } catch (ex) {
-                showLogs(ex.toString(), flags: 'xPrinter disconnect');
-                rethrow;
-              }
-            } else {
-              // try {
-              //   await xPrinter.disconnect();
-              // } catch (ex) {
-              //   showLogs(ex.toString(), flags: 'xPrinter disconnect 2');
-              // }
-              if (connectResult == PosPrintResult.timeout) {
-                retry++;
-                if (retry > 2) {
-                  showLogs(connectResult.msg, flags: 'xPrinter connect ex');
-                  throw connectResult.msg;
-                }
-              } else {
-                showLogs(connectResult.msg, flags: 'xPrinter connect ex');
-                throw connectResult.msg;
-              }
-            }
-          }
-        }
-      } catch (ex) {
-        showLogs(ex.toString(), flags: 'Lỗi in hóa đơn');
-        return ex.toString();
-      }
+  //         int retry = 2;
+  //         while (retry < 3) {
+  //           retry++;
+  //           final PosPrintResult connectResult =
+  //               await xPrinter.connect(timeout: const Duration(seconds: 10));
+  //           if (connectResult == PosPrintResult.success) {
+  //             try {
+  //               final billStatus = await xPrinter.printTicket(bytes);
+  //               await xPrinter.disconnect();
+  //               // try {
+  //               // await xPrinter.disconnect();
+  //               // } catch (ex) {
+  //               //   showLogs(ex.toString(), flags: 'xPrinter disconnect 1');
+  //               //   rethrow;
+  //               // }
+  //               showLogs(billStatus.msg, flags: 'KQ in');
+  //               if (billStatus != PosPrintResult.success) {
+  //                 throw billStatus.msg;
+  //               }
+  //             } catch (ex) {
+  //               showLogs(ex.toString(), flags: 'xPrinter disconnect');
+  //               rethrow;
+  //             }
+  //           } else {
+  //             // try {
+  //             //   await xPrinter.disconnect();
+  //             // } catch (ex) {
+  //             //   showLogs(ex.toString(), flags: 'xPrinter disconnect 2');
+  //             // }
+  //             if (connectResult == PosPrintResult.timeout) {
+  //               retry++;
+  //               if (retry > 2) {
+  //                 showLogs(connectResult.msg, flags: 'xPrinter connect ex');
+  //                 throw connectResult.msg;
+  //               }
+  //             } else {
+  //               showLogs(connectResult.msg, flags: 'xPrinter connect ex');
+  //               throw connectResult.msg;
+  //             }
+  //           }
+  //         }
+  //       }
+  //     } catch (ex) {
+  //       showLogs(ex.toString(), flags: 'Lỗi in hóa đơn');
+  //       return ex.toString();
+  //     }
 
-      return null;
-    } catch (ex) {
-      showLogs(ex.toString(), flags: 'Lỗi gen ảnh hóa đơn');
-      return ex.toString();
-    }
-  }
+  //     return null;
+  //   } catch (ex) {
+  //     showLogs(ex.toString(), flags: 'Lỗi gen ảnh hóa đơn');
+  //     return ex.toString();
+  //   }
+  // }
 
   /// in bill xuống bếp
   Future<String?> printKitchenBill({
@@ -200,8 +200,7 @@ class AppPrinterHtmlUtils {
         // combo
         List<ComboItemModel> comboItemPrint = [];
         if (comboItem != null) {
-          comboItemPrint =
-              comboItem.where((e) => e.printerType == printer.type).toList();
+          comboItemPrint = comboItem.where((e) => e.printerType == printer.type).toList();
           if (comboItemPrint.isNotEmpty) {
             String? description = p.description;
             try {
@@ -244,18 +243,14 @@ class AppPrinterHtmlUtils {
         throw printer.messageConnectFail();
       }
       if (res == PosPrintResult.success) {
-        var billStatus =
-            await printerManager.printTicket(bytes, isDisconnect: false);
+        var billStatus = await printerManager.printTicket(bytes, isDisconnect: false);
         if (billStatus != PosPrintResult.success) {
           return cancel
               ? "In bill tổng thất bại!\n${billStatus.msg}"
               : 'In bill hủy đồ thất bại\n${billStatus.msg}';
         }
         // chỉ in bill lẻ với bếp
-        if (!cancel &&
-            printEachItem &&
-            productPrinter.length > 1 &&
-            printer.type == 2) {
+        if (!cancel && printEachItem && productPrinter.length > 1 && printer.type == 2) {
           for (var p in productPrinter) {
             List<int> byteDatas;
             var oddHtmlBill = kitchenBillContent(
@@ -267,8 +262,7 @@ class AppPrinterHtmlUtils {
               cancel: cancel,
             );
             byteDatas = await generateImageBill(oddHtmlBill);
-            billStatus = await printerManager.printTicket(byteDatas,
-                isDisconnect: false);
+            billStatus = await printerManager.printTicket(byteDatas, isDisconnect: false);
             if (billStatus != PosPrintResult.success) {
               return "In bill lẻ xuống bếp thất bại!\n${billStatus.msg}";
             }
@@ -325,8 +319,7 @@ class AppPrinterHtmlUtils {
     String dishTable = "";
 
     var finalNote = note;
-    if (!totalBill &&
-        (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
+    if (!totalBill && (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
       finalNote = (product.firstOrNull?.noteForProcessOrder ?? '');
     }
     if (cancel) {
@@ -344,8 +337,7 @@ class AppPrinterHtmlUtils {
         </tr>
       ''';
       }
-      List<ComboItemModel>? comboItems =
-          ProductHelper().getComboDescription(pc);
+      List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(pc);
       // showLogs(comboItems, flags: 'comboItems');
       if (comboItems != null) {
         // check xem có cần nhân số lượng combo với món trong combo k
@@ -745,8 +737,7 @@ class AppPrinterHtmlUtils {
   }
 
   String _printDateTime(DateTime? value) {
-    return DateTimeUtils.formatToString(
-        time: value, newPattern: DateTimePatterns.dateTime1);
+    return DateTimeUtils.formatToString(time: value, newPattern: DateTimePatterns.dateTime1);
   }
 }
 

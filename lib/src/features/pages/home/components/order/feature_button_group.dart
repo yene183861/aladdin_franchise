@@ -13,11 +13,15 @@ import 'package:aladdin_franchise/src/features/dialogs/coupon/button_add_coupon.
 import 'package:aladdin_franchise/src/features/dialogs/create_invoice_order_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/layout/table_layout.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
+import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:aladdin_franchise/src/utils/subwindows_moniter.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
@@ -278,20 +282,22 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
         Expanded(
           child: Consumer(builder: (context, ref, child) {
             var coupons = ref.watch(homeProvider.select((value) => value.coupons));
-            return ButtonSimpleWidget(
-              textAction: '',
+            return AppButtonWidget(
               padding: defaultPaddingFeatureBtn,
-              onPressed: () async {
+              onTap: () async {
                 if (!_hasSelectedOrder(context, ref)) {
                   return;
                 }
                 await showCouponDialog(context);
               },
-              textWidget: Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (coupons.isNotEmpty) ...[
-                    const Icon(Icons.bookmark, size: 18),
+                    const ResponsiveIconWidget(
+                      iconData: Icons.bookmark,
+                    ),
+                    // const Icon(Icons.bookmark, size: 18),
                     const Gap(2),
                   ],
                   Flexible(
@@ -302,11 +308,40 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style: AppTextStyle.regular(color: AppColors.white),
+                    style: AppTextStyle.medium(color: AppColors.white),
                   )),
                 ],
               ),
             );
+            // return ButtonSimpleWidget(
+            //   textAction: '',
+            //   padding: defaultPaddingFeatureBtn,
+            //   onPressed: () async {
+            //     if (!_hasSelectedOrder(context, ref)) {
+            //       return;
+            //     }
+            //     await showCouponDialog(context);
+            //   },
+            //   textWidget: Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       if (coupons.isNotEmpty) ...[
+            //         const Icon(Icons.bookmark, size: 18),
+            //         const Gap(2),
+            //       ],
+            //       Flexible(
+            //           child: Text(
+            //         coupons.isEmpty
+            //             ? S.of(context).endow
+            //             : coupons.map((e) => e.name).toList().join(', '),
+            //         maxLines: 1,
+            //         overflow: TextOverflow.ellipsis,
+            //         textAlign: TextAlign.center,
+            //         style: AppTextStyle.regular(color: AppColors.white),
+            //       )),
+            //     ],
+            //   ),
+            // );
           }),
         ),
         const Gap(8),
@@ -337,13 +372,14 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
             padding: defaultPaddingFeatureBtn,
             color: const Color(0xFF2FA7E7),
             onPressed: () async {
-              final res = await ref.read(homeProvider.notifier).closeShift();
+              push(context, TableLayoutPage());
+              // final res = await ref.read(homeProvider.notifier).closeShift();
 
-              if (res != null) {
-                showMessageDialog(context, message: res);
-                return;
-              }
-              showDoneSnackBar(context: context, message: S.current.closing_shift_success);
+              // if (res != null) {
+              //   showMessageDialog(context, message: res);
+              //   return;
+              // }
+              // showDoneSnackBar(context: context, message: S.current.closing_shift_success);
             },
           ),
         ),

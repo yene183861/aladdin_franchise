@@ -14,8 +14,7 @@ class CheckoutCustomerPortraitSelectWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final portraitSelect =
-        ref.watch(homeProvider.select((value) => value.customerPortraitSelect));
+    final portraitSelect = ref.watch(homeProvider.select((value) => value.customerPortraitSelect));
     final portraits = ref.read(homeProvider.notifier).getCustomerPortrait();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,15 +23,7 @@ class CheckoutCustomerPortraitSelectWidget extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Text.rich(
             style: AppTextStyle.bold(),
-            TextSpan(
-              text: S.current.customer_portrait,
-              children: [
-                TextSpan(
-                  text: " *",
-                  style: AppTextStyle.bold(color: Colors.red),
-                ),
-              ],
-            ),
+            TextSpan(text: S.current.customer_portrait),
           ),
         ),
         portraits.isEmpty
@@ -50,9 +41,7 @@ class CheckoutCustomerPortraitSelectWidget extends ConsumerWidget {
                     )
                     .toList(),
                 onChanged: (value) {
-                  ref
-                      .read(homeProvider.notifier)
-                      .onChangeCustomerPortraitSelect(value!);
+                  ref.read(homeProvider.notifier).onChangeCustomerPortraitSelect(value!);
                 },
               ),
       ],

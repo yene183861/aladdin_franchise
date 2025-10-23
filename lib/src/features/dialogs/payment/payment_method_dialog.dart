@@ -265,13 +265,13 @@ Future<void> showConfirmCompleteBillDialog(
     closeDialog: false,
     onCheckAction: () {
       var state = ref.read(homeProvider);
-      if (ref.read(homeProvider.notifier).getCustomerPortraitSelect() == null) {
-        showMessageDialog(
-          context,
-          message: S.current.customer_portrait_has_not_been_selected,
-        );
-        return false;
-      }
+      // if (ref.read(homeProvider.notifier).getCustomerPortraitSelect() == null) {
+      //   showMessageDialog(
+      //     context,
+      //     message: S.current.customer_portrait_has_not_been_selected,
+      //   );
+      //   return false;
+      // }
       if (state.numberOfAdults < 1) {
         showMessageDialog(
           context,
