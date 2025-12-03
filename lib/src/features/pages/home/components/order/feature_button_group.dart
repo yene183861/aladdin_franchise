@@ -372,14 +372,13 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
             padding: defaultPaddingFeatureBtn,
             color: const Color(0xFF2FA7E7),
             onPressed: () async {
-              push(context, TableLayoutPage());
-              // final res = await ref.read(homeProvider.notifier).closeShift();
+              final res = await ref.read(homeProvider.notifier).closeShift();
 
-              // if (res != null) {
-              //   showMessageDialog(context, message: res);
-              //   return;
-              // }
-              // showDoneSnackBar(context: context, message: S.current.closing_shift_success);
+              if (res != null) {
+                showMessageDialog(context, message: res);
+                return;
+              }
+              showDoneSnackBar(context: context, message: S.current.closing_shift_success);
             },
           ),
         ),
