@@ -33,7 +33,7 @@ class _InputSearchBillWidgetState extends ConsumerState<InputSearchBillWidget> {
     return SizedBox(
       height: 40,
       width: 300,
-      child: AppTextFieldWidget(
+      child: AppTextFormField(
         hintText: S.current.search_order_history,
         textController: _controller,
         contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),

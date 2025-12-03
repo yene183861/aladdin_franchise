@@ -169,7 +169,7 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
-                  child: AppTextFieldWidget(
+                  child: AppTextFormField(
                     textInputType: TextInputType.number,
                     focusNode: _couponFocusNode,
                     hintText: S.current.inputCode,
@@ -186,7 +186,7 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                 ),
                 const Gap(8),
                 Expanded(
-                  child: AppTextFieldWidget(
+                  child: AppTextFormField(
                     focusNode: _percentFocusNode,
                     hintText: 'Giảm theo số tiền (đ) hoặc %',
                     prefixIcon: ValueListenableBuilder(

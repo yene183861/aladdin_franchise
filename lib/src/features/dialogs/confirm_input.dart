@@ -22,6 +22,8 @@ class ConfirmInputDialog extends ConsumerStatefulWidget {
   final bool obscureText;
   final int? maxLength;
   final List<TextInputFormatter> inputFormatters;
+  final String? initText;
+  final String? Function(String?)? validator;
   const ConfirmInputDialog({
     Key? key,
     this.textAction,
@@ -35,6 +37,8 @@ class ConfirmInputDialog extends ConsumerStatefulWidget {
     this.obscureText = false,
     this.maxLength,
     this.inputFormatters = const [],
+    this.initText,
+    this.validator,
   }) : super(key: key);
 
   @override
@@ -43,10 +47,11 @@ class ConfirmInputDialog extends ConsumerStatefulWidget {
 
 class _ConfirmInputDialogState extends ConsumerState<ConfirmInputDialog> {
   late TextEditingController ctrlInput;
+  final _formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
-    ctrlInput = TextEditingController();
+    ctrlInput = TextEditingController(text: (widget.initText ?? '').trim());
   }
 
   @override
@@ -57,52 +62,56 @@ class _ConfirmInputDialogState extends ConsumerState<ConfirmInputDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
-      title: Text(
-        widget.title,
-        // style: AppTextStyle.regular(rawFontSize: 15),
+    return Form(
+      key: _formKey,
+      child: AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
+        title: Text(
+          widget.title,
+          // style: AppTextStyle.regular(rawFontSize: 15),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              widget.message == null
+                  ? Container()
+                  : Text(widget.message ?? "", style: AppTextStyle.regular()),
+              AppTextFormField(
+                textController: ctrlInput,
+                minLines: widget.maxLineInput,
+                textInputType: widget.keyboardType,
+                textInputAction: widget.textInputAction,
+                hintText: widget.hintText,
+                label: widget.labelInput == null ? null : widget.labelInput ?? "",
+                maxLength: widget.maxLength,
+                obscureText: widget.obscureText,
+                inputFormatters: widget.inputFormatters,
+                maxLines: widget.maxLineInput,
+              ),
+            ],
+          ),
+        ),
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
+        actions: [
+          ButtonCancelWidget(
+            onPressed: () {
+              Navigator.pop(context, null);
+            },
+          ),
+          const SizedBox(width: 8),
+          ButtonSimpleWidget(
+            color: AppColors.bgButtonMain,
+            textColor: AppColors.tcButtonMain,
+            textAction: widget.textAction ?? S.current.confirm,
+            onPressed: () {
+              String data = ctrlInput.text.trim();
+              Navigator.pop(context, data);
+            },
+          ),
+        ],
       ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            widget.message == null
-                ? Container()
-                : Text(widget.message ?? "", style: AppTextStyle.regular()),
-            AppTextFieldWidget(
-              textController: ctrlInput,
-              minLines: widget.maxLineInput,
-              textInputType: widget.keyboardType,
-              textInputAction: widget.textInputAction,
-              hintText: widget.hintText,
-              label: widget.labelInput == null ? null : widget.labelInput ?? "",
-              maxLength: widget.maxLength,
-              obscureText: widget.obscureText,
-              inputFormatters: widget.inputFormatters,
-            ),
-          ],
-        ),
-      ),
-      actionsAlignment: MainAxisAlignment.spaceEvenly,
-      actions: [
-        ButtonCancelWidget(
-          onPressed: () {
-            Navigator.pop(context, null);
-          },
-        ),
-        const SizedBox(width: 8),
-        ButtonSimpleWidget(
-          color: AppColors.bgButtonMain,
-          textColor: AppColors.tcButtonMain,
-          textAction: widget.textAction ?? S.current.confirm,
-          onPressed: () {
-            String data = ctrlInput.text.trim();
-            Navigator.pop(context, data);
-          },
-        ),
-      ],
     );
   }
 }
@@ -120,6 +129,8 @@ Future<String?> showConfirmInputDialog(
   bool obscureText = false,
   int? maxLengthInput,
   List<TextInputFormatter> inputFormatters = const [],
+  String? initText,
+  String? Function(String?)? validator,
 }) async {
   var result = await showDialog(
     context: context,
@@ -137,6 +148,8 @@ Future<String?> showConfirmInputDialog(
       obscureText: obscureText,
       maxLength: maxLengthInput,
       inputFormatters: inputFormatters,
+      initText: initText,
+      validator: validator,
     ),
   );
   return result;

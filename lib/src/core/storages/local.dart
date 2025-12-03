@@ -8,6 +8,9 @@ import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/network/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/responses/login.dart';
 import 'package:aladdin_franchise/src/core/services/send_log/log_service.dart';
+import 'package:aladdin_franchise/src/data/model/floor.dart';
+import 'package:aladdin_franchise/src/data/model/table_layout_item.dart';
+import 'package:aladdin_franchise/src/data/model/table_layout_setting.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
 import 'package:aladdin_franchise/src/models/employee_sale.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
@@ -78,6 +81,10 @@ class LocalStorage {
   static const String _applyAgainOnlyCoupon = "apply_again_only_coupon";
   static const String printSetting = "print_setting";
   static const String appSetting = "app_setting";
+
+  static const String tableLayout = "table_layout";
+  static const String floors = "floors";
+  static const String tableLayoutSetting = "table_layout_setting";
 
   static String getToken() {
     return _prefs.getString(_tokenKey) ?? "";
@@ -1000,5 +1007,58 @@ class LocalStorage {
 
   static Future<void> setAppSetting(AppSettingModel setting) async {
     await _prefs.setString(appSetting, jsonEncode(setting));
+  }
+
+  /// layout bàn NH
+  static Future<bool> setTableLayout(List<TableLayoutItemModel> items) async {
+    try {
+      if (items.isEmpty) {
+        return _prefs.remove(tableLayout);
+      }
+      return await _prefs.setString(tableLayout, jsonEncode(items));
+    } catch (ex) {
+      return false;
+    }
+  }
+
+  static List<TableLayoutItemModel> getTableLayout() {
+    var json = _prefs.getString(tableLayout) ?? "[]";
+    return List<TableLayoutItemModel>.from(
+        jsonDecode(json).map<TableLayoutItemModel>((e) => TableLayoutItemModel.fromJson(e)));
+  }
+
+  /// Ds tầng
+  static List<FloorModel> getFloors() {
+    var json = _prefs.getString(floors) ?? "[]";
+    return List<FloorModel>.from(jsonDecode(json).map<FloorModel>((e) => FloorModel.fromJson(e)));
+  }
+
+  static Future<bool> setFloors(List<FloorModel> items) async {
+    try {
+      if (items.isEmpty) {
+        return _prefs.remove(floors);
+      }
+      return await _prefs.setString(floors, jsonEncode(items));
+    } catch (ex) {
+      return false;
+    }
+  }
+
+  /// cấu hình mỗi item layout bàn
+  static List<TableLayoutSettingModel> getTableLayoutSetting() {
+    var json = _prefs.getString(tableLayoutSetting) ?? "[]";
+    return List<TableLayoutSettingModel>.from(
+        jsonDecode(json).map<TableLayoutSettingModel>((e) => TableLayoutSettingModel.fromJson(e)));
+  }
+
+  static Future<bool> setTableLayoutSetting(List<TableLayoutSettingModel> items) async {
+    try {
+      if (items.isEmpty) {
+        return _prefs.remove(tableLayoutSetting);
+      }
+      return await _prefs.setString(tableLayoutSetting, jsonEncode(items));
+    } catch (ex) {
+      return false;
+    }
   }
 }

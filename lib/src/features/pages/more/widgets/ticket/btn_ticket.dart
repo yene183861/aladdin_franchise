@@ -100,7 +100,7 @@ class __TicketFormState extends State<_TicketForm> {
                   title: 'Vấn đề',
                   isRequired: true,
                 ),
-                AppTextFieldWidget(
+                AppTextFormField(
                   required: true,
                   multiLine: false,
                   textController: titleCtrl,
@@ -118,7 +118,7 @@ class __TicketFormState extends State<_TicketForm> {
                   isRequired: true,
                 ),
                 const Gap(8),
-                AppTextFieldWidget(
+                AppTextFormField(
                   required: true,
                   multiLine: true,
                   minLines: 3,

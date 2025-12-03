@@ -16,7 +16,7 @@ class CheckoutNoteForWaiterWidget extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TitleLineWidget(title: S.current.notes),
-        AppTextFieldWidget(
+        AppTextFormField(
           label: null,
           multiLine: true,
           textInputAction: TextInputAction.newline,

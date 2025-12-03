@@ -2,20 +2,15 @@
 class Assets {
   Assets._();
 
-  static const String iconsCancelRequestO2o =
-      'assets/icons/cancel_request_o2o.svg';
+  static const String iconsCancelRequestO2o = 'assets/icons/cancel_request_o2o.svg';
   static const String iconsComputer = 'assets/icons/computer.svg';
-  static const String iconsConfirmRequestO2o =
-      'assets/icons/confirm_request_o2o.svg';
+  static const String iconsConfirmRequestO2o = 'assets/icons/confirm_request_o2o.svg';
   static const String iconsDocumentText = 'assets/icons/document_text.svg';
-  static const String iconsFindCustomterCode =
-      'assets/icons/find_customter_code.png';
+  static const String iconsFindCustomterCode = 'assets/icons/find_customter_code.png';
   static const String iconsGenderUnknow = 'assets/icons/gender_unknow.png';
   static const String iconsIcChat = 'assets/icons/ic_chat.svg';
-  static const String iconsIcSortAscending =
-      'assets/icons/ic_sort_ascending.svg';
-  static const String iconsIcSortDescending =
-      'assets/icons/ic_sort_descending.svg';
+  static const String iconsIcSortAscending = 'assets/icons/ic_sort_ascending.svg';
+  static const String iconsIcSortDescending = 'assets/icons/ic_sort_descending.svg';
   static const String iconsIcTableBar = 'assets/icons/ic_table_bar.svg';
   static const String iconsLateTime = 'assets/icons/late_time.svg';
   static const String iconsMan = 'assets/icons/man.png';
@@ -25,6 +20,9 @@ class Assets {
   static const String iconsSupport = 'assets/icons/support.svg';
   static const String iconsTime = 'assets/icons/time.svg';
   static const String iconsWoman = 'assets/icons/woman.png';
+  static const String iconsRotate3d = 'assets/icons/rotate_3d.svg';
+  static const String iconsRotateCcwSquare = 'assets/icons/rotate_ccw_square.svg';
+  static const String iconsRotateCwSquare = 'assets/icons/rotate_cw_square.svg';
   static const String imagesAladdinLogo = 'assets/images/aladdin_logo.png';
   static const String imagesError = 'assets/images/error.png';
   static const String imagesImageDefault = 'assets/images/image_default.png';
@@ -33,10 +31,8 @@ class Assets {
   static const String imagesLogoH = 'assets/images/logo_h.png';
   static const String imagesProductEmpty = 'assets/images/product_empty.png';
   static const String imagesRequestOrder = 'assets/images/request_order.png';
-  static const String imagesRequestService =
-      'assets/images/request_service.png';
-  static const String soundsBellNotification =
-      'assets/sounds/bell_notification.wav';
+  static const String imagesRequestService = 'assets/images/request_service.png';
+  static const String soundsBellNotification = 'assets/sounds/bell_notification.wav';
   static const String imagesBill1 = 'assets/images/bill_1.png';
   static const String imagesBill2 = 'assets/images/bill_2.png';
   static const String imagesBill3 = 'assets/images/bill_3.png';

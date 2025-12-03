@@ -309,7 +309,7 @@ class __SearchReservationState extends State<_SearchReservation> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AppTextFieldWidget(
+        AppTextFormField(
           textController: widget.controller,
           hintText: S.current.search_reservation,
           prefixIcon: const ResponsiveIconWidget(

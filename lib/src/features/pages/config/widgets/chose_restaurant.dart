@@ -92,7 +92,7 @@ class _ChoseRestaurantWidgetState extends ConsumerState<ChoseRestaurantWidget> {
         SliverToBoxAdapter(
           child: Padding(
             padding: paddingHorizontal,
-            child: AppTextFieldWidget(
+            child: AppTextFormField(
               label: "${S.current.search} ${S.current.restaurant.toLowerCase()}",
               onChanged: (value) => ref.read(configProvider.notifier).changeKeyword(value.trim()),
             ),

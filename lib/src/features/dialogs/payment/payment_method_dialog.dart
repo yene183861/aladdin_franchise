@@ -640,14 +640,14 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
 
           const GapH(12),
           if (paymentMethodSelect?.isCash ?? false) ...[
-            AppTextFieldWidget(
+            AppTextFormField(
               label: '${S.current.amount_received} (đ)',
               textInputType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               textController: _receivedAmount,
             ),
             const Gap(12),
-            AppTextFieldWidget(
+            AppTextFormField(
               label: '${S.current.money_return} (đ)',
               readOnly: true,
               textController: _remainingAmount,

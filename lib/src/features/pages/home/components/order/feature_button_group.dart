@@ -13,9 +13,9 @@ import 'package:aladdin_franchise/src/features/dialogs/coupon/button_add_coupon.
 import 'package:aladdin_franchise/src/features/dialogs/create_invoice_order_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/layout/table_layout.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
+import 'package:aladdin_franchise/src/features/pages/table_layout/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
@@ -372,6 +372,8 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
             padding: defaultPaddingFeatureBtn,
             color: const Color(0xFF2FA7E7),
             onPressed: () async {
+              push(context, TableLayoutPage());
+              return;
               final res = await ref.read(homeProvider.notifier).closeShift();
 
               if (res != null) {

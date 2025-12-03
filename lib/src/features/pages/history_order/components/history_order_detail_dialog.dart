@@ -447,7 +447,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                       children: [
                         SizedBox(
                           width: 300,
-                          child: AppTextFieldWidget(
+                          child: AppTextFormField(
                             label: S.current.payment_method,
                             enabled: false,
                             readOnly: true,
@@ -456,7 +456,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                         ),
                         SizedBox(
                           width: 250,
-                          child: AppTextFieldWidget(
+                          child: AppTextFormField(
                             label: S.current.payment_amount,
                             enabled: false,
                             readOnly: true,
@@ -504,7 +504,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                         if ((amountAdult + amountChildren) != 0)
                           SizedBox(
                             width: 200,
-                            child: AppTextFieldWidget(
+                            child: AppTextFormField(
                               label: S.current.number_of_people,
                               enabled: false,
                               readOnly: true,
@@ -513,7 +513,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                           ),
                         SizedBox(
                           width: 200,
-                          child: AppTextFieldWidget(
+                          child: AppTextFormField(
                             label: S.current.number_of_adults,
                             enabled: false,
                             readOnly: true,
@@ -522,7 +522,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                         ),
                         SizedBox(
                           width: 200,
-                          child: AppTextFieldWidget(
+                          child: AppTextFormField(
                             label: S.current.number_of_children,
                             enabled: false,
                             readOnly: true,
@@ -531,7 +531,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                         ),
                         SizedBox(
                           width: 300,
-                          child: AppTextFieldWidget(
+                          child: AppTextFormField(
                             label: S.current.note,
                             enabled: false,
                             readOnly: true,
@@ -574,7 +574,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                     ),
                     SizedBox(
                       width: 400,
-                      child: AppTextFieldWidget(
+                      child: AppTextFormField(
                         label: '',
                         enabled: false,
                         readOnly: true,

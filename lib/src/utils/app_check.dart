@@ -9,6 +9,7 @@ import 'package:aladdin_franchise/src/features/pages/config/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/update_app/android/view.dart';
 import 'package:aladdin_franchise/src/features/pages/update_app/windows/view.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -128,4 +129,29 @@ Future<void> checkTypeOrder(WidgetRef ref, BuildContext context) async {
       }
     },
   );
+}
+
+/// [removeStringEmpty] bỏ qua chuỗi rỗng (nếu là List<String>
+/// do có những case  ''.split(',') => ['']
+bool compareTwoList(List<dynamic> a, List<dynamic> b, {bool removeStringEmpty = true}) {
+  // showLogs(
+  //     'a.runtimeType ${a.runtimeType}, b.runtimeType ${b.runtimeType}, removeStringEmpty: ${removeStringEmpty}',
+  //     flags: 'checkDataSet');
+  // showLog('a: $a, length: ${a.length}', flags: 'a');
+  // showLog('b: $b, length: ${b.length}', flags: 'b');
+  List<dynamic> firstList = List<dynamic>.from(a);
+  List<dynamic> secondList = List<dynamic>.from(b);
+  if (removeStringEmpty) {
+    if (a is List<String>) {
+      firstList = a.map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    }
+    if (b is List<String>) {
+      secondList = b.map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    }
+  }
+  // showLog('firstList: $firstList, length: ${firstList.length}', flags: 'firstList');
+  // showLog('secondList: $secondList, length: ${secondList.length}', flags: 'secondList');
+  var res = const SetEquality().equals(Set<dynamic>.from(firstList), Set<dynamic>.from(secondList));
+  // showLog(res, flags: 'res');
+  return res;
 }

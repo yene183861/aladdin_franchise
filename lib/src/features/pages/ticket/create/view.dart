@@ -153,7 +153,7 @@ class _TicketCreateWidgetState extends ConsumerState<TicketCreateWidget> {
                       padding: const EdgeInsets.all(24),
                       child: Column(
                         children: [
-                          AppTextFieldWidget(
+                          AppTextFormField(
                             label: S.current.problem,
                             required: true,
                             textController: titleCtrl,
@@ -166,7 +166,7 @@ class _TicketCreateWidgetState extends ConsumerState<TicketCreateWidget> {
                             },
                           ),
                           const Gap(26),
-                          AppTextFieldWidget(
+                          AppTextFormField(
                             label: S.current.description,
                             textController: contentCtrl,
                             validator: (value) => FieldValidationUtils.checkRequired(value),

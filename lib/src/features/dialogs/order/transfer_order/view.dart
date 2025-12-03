@@ -406,7 +406,7 @@ class _ListWaiterWidget extends ConsumerWidget {
             ],
           ),
         ),
-        AppTextFieldWidget(
+        AppTextFormField(
           onChanged: (value) {
             ref.read(transferOrderProvider.notifier).changeSearch(value);
           },

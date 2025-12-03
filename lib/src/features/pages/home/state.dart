@@ -25,6 +25,34 @@ import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
 
 part 'state.freezed.dart';
 
+enum HomeTabEnum {
+  dashboard,
+  order,
+  table,
+  reservation,
+  history,
+  o2o,
+}
+
+extension HomeTabEnumEx on HomeTabEnum {
+  String get title {
+    switch (this) {
+      case HomeTabEnum.dashboard:
+        return 'Dashboard';
+      case HomeTabEnum.order:
+        return 'Order';
+      case HomeTabEnum.table:
+        return 'Table';
+      case HomeTabEnum.reservation:
+        return 'Reservation';
+      case HomeTabEnum.history:
+        return 'History';
+      case HomeTabEnum.o2o:
+        return 'Order to online';
+    }
+  }
+}
+
 enum HomeEvent {
   normal,
   checkCode,
@@ -133,8 +161,7 @@ class HomeState with _$HomeState {
     @Default(false) bool reconnectRedis,
 
     /// danh mục, món
-    @Default(PageState(status: PageCommonState.loading))
-    PageState productsState,
+    @Default(PageState(status: PageCommonState.loading)) PageState productsState,
     @Default([]) List<CategoryModel> categories,
     @Default([]) List<ProductModel> products,
     @Default([]) List<TagProductModel> tags,
@@ -173,8 +200,7 @@ class HomeState with _$HomeState {
 
     /// các mã only cần xóa đi áp dụng lại
     @Default([]) List<CustomerPolicyModel> needApplyAgainOnlyCoupons,
-    @Default(PageState(status: PageCommonState.success))
-    PageState applyPolicyState,
+    @Default(PageState(status: PageCommonState.success)) PageState applyPolicyState,
 
     /// phương thức thanh toán
     @Default([]) List<PaymentMethod> paymentMethods,
@@ -235,8 +261,7 @@ class HomeState with _$HomeState {
     int? changedProductId,
     @Default(false) bool pinnedOrder,
     @Default(OrderTabEnum.ordered) OrderTabEnum orderTabSelect,
-    @Default([OrderTabEnum.ordering, OrderTabEnum.ordered])
-    List<OrderTabEnum> orderTabs,
+    @Default([OrderTabEnum.ordering, OrderTabEnum.ordered]) List<OrderTabEnum> orderTabs,
     @Default(false) bool displayOrderHistory,
     // @Default(false) bool cancelOrderItem,
     @Default([]) List<OrderHistory> orderHistory,
@@ -244,11 +269,12 @@ class HomeState with _$HomeState {
     // @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
     // @Default(PageState()) PageState getO2ODataState,
     @Default([]) List<ChatMessageModel> chatMessages,
-    @Default(PageState(status: PageCommonState.loading))
-    PageState getChatMessageState,
+    @Default(PageState(status: PageCommonState.loading)) PageState getChatMessageState,
 
     /// reservation
     // @Default(PageState()) PageState getReservationsState,
     // @Default([]) List<ReservationModel> reservations,
+    @Default([]) List<HomeTabEnum> homeTabs,
+    @Default(HomeTabEnum.dashboard) HomeTabEnum homeTabSelect,
   }) = _HomeState;
 }

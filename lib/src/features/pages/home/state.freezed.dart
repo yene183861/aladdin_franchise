@@ -276,6 +276,12 @@ mixin _$HomeState {
   List<ChatMessageModel> get chatMessages => throw _privateConstructorUsedError;
   PageState get getChatMessageState => throw _privateConstructorUsedError;
 
+  /// reservation
+// @Default(PageState()) PageState getReservationsState,
+// @Default([]) List<ReservationModel> reservations,
+  List<HomeTabEnum> get homeTabs => throw _privateConstructorUsedError;
+  HomeTabEnum get homeTabSelect => throw _privateConstructorUsedError;
+
   @JsonKey(ignore: true)
   $HomeStateCopyWith<HomeState> get copyWith =>
       throw _privateConstructorUsedError;
@@ -347,7 +353,9 @@ abstract class $HomeStateCopyWith<$Res> {
       bool displayOrderHistory,
       List<OrderHistory> orderHistory,
       List<ChatMessageModel> chatMessages,
-      PageState getChatMessageState});
+      PageState getChatMessageState,
+      List<HomeTabEnum> homeTabs,
+      HomeTabEnum homeTabSelect});
 
   $PageStateCopyWith<$Res> get productsState;
   $CategoryModelCopyWith<$Res>? get categorySelect;
@@ -446,6 +454,8 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? orderHistory = null,
     Object? chatMessages = null,
     Object? getChatMessageState = null,
+    Object? homeTabs = null,
+    Object? homeTabSelect = null,
   }) {
     return _then(_value.copyWith(
       event: null == event
@@ -692,6 +702,14 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.getChatMessageState
           : getChatMessageState // ignore: cast_nullable_to_non_nullable
               as PageState,
+      homeTabs: null == homeTabs
+          ? _value.homeTabs
+          : homeTabs // ignore: cast_nullable_to_non_nullable
+              as List<HomeTabEnum>,
+      homeTabSelect: null == homeTabSelect
+          ? _value.homeTabSelect
+          : homeTabSelect // ignore: cast_nullable_to_non_nullable
+              as HomeTabEnum,
     ) as $Val);
   }
 
@@ -979,7 +997,9 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       bool displayOrderHistory,
       List<OrderHistory> orderHistory,
       List<ChatMessageModel> chatMessages,
-      PageState getChatMessageState});
+      PageState getChatMessageState,
+      List<HomeTabEnum> homeTabs,
+      HomeTabEnum homeTabSelect});
 
   @override
   $PageStateCopyWith<$Res> get productsState;
@@ -1097,6 +1117,8 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? orderHistory = null,
     Object? chatMessages = null,
     Object? getChatMessageState = null,
+    Object? homeTabs = null,
+    Object? homeTabSelect = null,
   }) {
     return _then(_$HomeStateImpl(
       event: null == event
@@ -1343,6 +1365,14 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.getChatMessageState
           : getChatMessageState // ignore: cast_nullable_to_non_nullable
               as PageState,
+      homeTabs: null == homeTabs
+          ? _value._homeTabs
+          : homeTabs // ignore: cast_nullable_to_non_nullable
+              as List<HomeTabEnum>,
+      homeTabSelect: null == homeTabSelect
+          ? _value.homeTabSelect
+          : homeTabSelect // ignore: cast_nullable_to_non_nullable
+              as HomeTabEnum,
     ));
   }
 }
@@ -1415,7 +1445,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       final List<OrderHistory> orderHistory = const [],
       final List<ChatMessageModel> chatMessages = const [],
       this.getChatMessageState =
-          const PageState(status: PageCommonState.loading)})
+          const PageState(status: PageCommonState.loading),
+      final List<HomeTabEnum> homeTabs = const [],
+      this.homeTabSelect = HomeTabEnum.dashboard})
       : _categories = categories,
         _products = products,
         _tags = tags,
@@ -1433,7 +1465,8 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         _customerPortraits = customerPortraits,
         _orderTabs = orderTabs,
         _orderHistory = orderHistory,
-        _chatMessages = chatMessages;
+        _chatMessages = chatMessages,
+        _homeTabs = homeTabs;
 
   @override
   @JsonKey()
@@ -1789,9 +1822,29 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @JsonKey()
   final PageState getChatMessageState;
 
+  /// reservation
+// @Default(PageState()) PageState getReservationsState,
+// @Default([]) List<ReservationModel> reservations,
+  final List<HomeTabEnum> _homeTabs;
+
+  /// reservation
+// @Default(PageState()) PageState getReservationsState,
+// @Default([]) List<ReservationModel> reservations,
+  @override
+  @JsonKey()
+  List<HomeTabEnum> get homeTabs {
+    if (_homeTabs is EqualUnmodifiableListView) return _homeTabs;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_homeTabs);
+  }
+
+  @override
+  @JsonKey()
+  final HomeTabEnum homeTabSelect;
+
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, productsState: $productsState, categories: $categories, products: $products, tags: $tags, menuCategoryItem: $menuCategoryItem, categorySelect: $categorySelect, subCategorySelect: $subCategorySelect, tagSelect: $tagSelect, search: $search, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productsSelecting: $productsSelecting, productsSelected: $productsSelected, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, needApplyAgainOnlyCoupons: $needApplyAgainOnlyCoupons, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, checkReloadWhenHiddenApp: $checkReloadWhenHiddenApp, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, customerPortraits: $customerPortraits, completeNote: $completeNote, employeeSaleSelect: $employeeSaleSelect, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, displayOrderHistory: $displayOrderHistory, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState)';
+    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, productsState: $productsState, categories: $categories, products: $products, tags: $tags, menuCategoryItem: $menuCategoryItem, categorySelect: $categorySelect, subCategorySelect: $subCategorySelect, tagSelect: $tagSelect, search: $search, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productsSelecting: $productsSelecting, productsSelected: $productsSelected, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, needApplyAgainOnlyCoupons: $needApplyAgainOnlyCoupons, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, checkReloadWhenHiddenApp: $checkReloadWhenHiddenApp, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, customerPortraits: $customerPortraits, completeNote: $completeNote, employeeSaleSelect: $employeeSaleSelect, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, displayOrderHistory: $displayOrderHistory, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, homeTabs: $homeTabs, homeTabSelect: $homeTabSelect)';
   }
 
   @override
@@ -1862,7 +1915,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       ..add(DiagnosticsProperty('displayOrderHistory', displayOrderHistory))
       ..add(DiagnosticsProperty('orderHistory', orderHistory))
       ..add(DiagnosticsProperty('chatMessages', chatMessages))
-      ..add(DiagnosticsProperty('getChatMessageState', getChatMessageState));
+      ..add(DiagnosticsProperty('getChatMessageState', getChatMessageState))
+      ..add(DiagnosticsProperty('homeTabs', homeTabs))
+      ..add(DiagnosticsProperty('homeTabSelect', homeTabSelect));
   }
 
   @override
@@ -1971,7 +2026,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
             (identical(other.displayOrderHistory, displayOrderHistory) || other.displayOrderHistory == displayOrderHistory) &&
             const DeepCollectionEquality().equals(other._orderHistory, _orderHistory) &&
             const DeepCollectionEquality().equals(other._chatMessages, _chatMessages) &&
-            (identical(other.getChatMessageState, getChatMessageState) || other.getChatMessageState == getChatMessageState));
+            (identical(other.getChatMessageState, getChatMessageState) || other.getChatMessageState == getChatMessageState) &&
+            const DeepCollectionEquality().equals(other._homeTabs, _homeTabs) &&
+            (identical(other.homeTabSelect, homeTabSelect) || other.homeTabSelect == homeTabSelect));
   }
 
   @override
@@ -2037,7 +2094,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         displayOrderHistory,
         const DeepCollectionEquality().hash(_orderHistory),
         const DeepCollectionEquality().hash(_chatMessages),
-        getChatMessageState
+        getChatMessageState,
+        const DeepCollectionEquality().hash(_homeTabs),
+        homeTabSelect
       ]);
 
   @JsonKey(ignore: true)
@@ -2109,7 +2168,9 @@ abstract class _HomeState implements HomeState {
       final bool displayOrderHistory,
       final List<OrderHistory> orderHistory,
       final List<ChatMessageModel> chatMessages,
-      final PageState getChatMessageState}) = _$HomeStateImpl;
+      final PageState getChatMessageState,
+      final List<HomeTabEnum> homeTabs,
+      final HomeTabEnum homeTabSelect}) = _$HomeStateImpl;
 
   @override
   HomeEvent get event;
@@ -2269,6 +2330,14 @@ abstract class _HomeState implements HomeState {
   List<ChatMessageModel> get chatMessages;
   @override
   PageState get getChatMessageState;
+  @override
+
+  /// reservation
+// @Default(PageState()) PageState getReservationsState,
+// @Default([]) List<ReservationModel> reservations,
+  List<HomeTabEnum> get homeTabs;
+  @override
+  HomeTabEnum get homeTabSelect;
   @override
   @JsonKey(ignore: true)
   _$$HomeStateImplCopyWith<_$HomeStateImpl> get copyWith =>

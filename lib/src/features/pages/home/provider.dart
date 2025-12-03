@@ -97,7 +97,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
     this._productRepository,
     this._o2oRepository,
     this._invoiceRepository,
-  ) : super(const HomeState()) {
+  ) : super(HomeState(
+          homeTabs: HomeTabEnum.values,
+          homeTabSelect: HomeTabEnum.dashboard,
+        )) {
     AppConfig.initHomeProvider = true;
     ctrlSearch = TextEditingController();
     // confirm dùng redis hay không?
@@ -2949,5 +2952,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
       updateEvent(null);
       return ex.toString();
     }
+  }
+
+  void onChangeHomeTabSelect(HomeTabEnum value) {
+    state = state.copyWith(homeTabSelect: value);
   }
 }

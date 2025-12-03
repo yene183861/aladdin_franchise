@@ -79,7 +79,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AppTextFieldWidget(
+                  AppTextFormField(
                     label: S.current.phone,
                     textController: ctrlPhone,
                     textInputAction: TextInputAction.next,
@@ -102,7 +102,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                   Row(
                     children: [
                       Expanded(
-                        child: AppTextFieldWidget(
+                        child: AppTextFormField(
                           label: S.current.firstName,
                           textController: ctrlFirstName,
                           textInputAction: TextInputAction.next,
@@ -112,7 +112,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: AppTextFieldWidget(
+                        child: AppTextFormField(
                           label: S.current.lastName,
                           textController: ctrlLastName,
                           textInputAction: TextInputAction.next,
@@ -170,7 +170,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  AppTextFieldWidget(
+                  AppTextFormField(
                     label: S.current.bod,
                     hintText: "dd/MM/yyyy",
                     enabled: !_noBOD && enable,

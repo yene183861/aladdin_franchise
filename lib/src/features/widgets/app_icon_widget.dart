@@ -43,25 +43,31 @@ class ResponsiveIconWidget extends ConsumerWidget {
 class ResponsiveIconButtonWidget extends StatelessWidget {
   const ResponsiveIconButtonWidget({
     super.key,
-    required this.iconData,
+    this.iconData,
     this.color,
     this.onPressed,
     this.iconSize = 22,
+    this.buttonStyle,
+    this.svgPath,
   });
-  final IconData iconData;
+  final IconData? iconData;
   final Color? color;
   final VoidCallback? onPressed;
   final double iconSize;
+  final ButtonStyle? buttonStyle;
+  final String? svgPath;
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+      style: buttonStyle,
+      // visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
       onPressed: onPressed,
       icon: ResponsiveIconWidget(
         iconData: iconData,
         color: color,
         iconSize: iconSize,
+        svgPath: svgPath,
       ),
     );
   }

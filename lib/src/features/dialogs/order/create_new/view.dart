@@ -583,7 +583,7 @@ class __ReservationWidgetState extends ConsumerState<_ReservationWidget> {
             Row(
               children: [
                 Expanded(
-                  child: AppTextFieldWidget(
+                  child: AppTextFormField(
                     textController: _controller,
                     hintText: S.current.search_reservation,
                     prefixIcon: const Icon(

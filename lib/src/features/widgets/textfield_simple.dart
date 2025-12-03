@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class AppTextFieldWidget extends StatelessWidget {
+class AppTextFormField extends StatelessWidget {
   final String? label;
   final bool required;
   final String? hintText;
@@ -31,8 +31,10 @@ class AppTextFieldWidget extends StatelessWidget {
   final Function? onTapOutside;
   final Function()? onEditingComplete;
   final FocusNode? focusNode;
+  final int? maxLines;
+  final TextAlign textAlign;
 
-  const AppTextFieldWidget({
+  const AppTextFormField({
     Key? key,
     this.label,
     this.onChanged,
@@ -57,6 +59,8 @@ class AppTextFieldWidget extends StatelessWidget {
     this.onEditingComplete,
     this.hintText,
     this.focusNode,
+    this.maxLines,
+    this.textAlign = TextAlign.start,
   }) : super(key: key);
 
   @override
@@ -68,7 +72,6 @@ class AppTextFieldWidget extends StatelessWidget {
         return validator?.call(value);
       },
       minLines: minLines,
-      maxLines: multiLine ? null : 1,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       key: textFieldKey,
       enabled: enabled,
@@ -78,6 +81,7 @@ class AppTextFieldWidget extends StatelessWidget {
       textInputAction: textInputAction,
       keyboardType: textInputType,
       maxLength: maxLength,
+      textAlign: textAlign,
       decoration: InputDecoration(
         counter: const SizedBox.shrink(),
         contentPadding: contentPadding,
@@ -126,6 +130,7 @@ class AppTextFieldWidget extends StatelessWidget {
       },
       obscureText: obscureText,
       onEditingComplete: onEditingComplete,
+      maxLines: maxLines,
     );
   }
 }
