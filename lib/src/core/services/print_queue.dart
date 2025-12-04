@@ -74,17 +74,28 @@ class PrintQueue {
           await Future.delayed(const Duration(seconds: 1));
         } else {
           error = "⚠️ Không in được: ${res.msg}";
-          showLogs(error, flags: '_processTask');
+          showLogs(error, flags: '_processTask 1');
         }
       } catch (e) {
-        error = "❌ Lỗi in: $e";
-        showLogs(error, flags: '_processTask');
+        if (e.toString().contains('Printer connection timeout')) {
+          error = "Không kết nối được máy in ${task.ip}\n"
+              "${"Vui lòng kiểm tra & đảm bảo".toUpperCase()}\n"
+              "- Máy in đã bật và không bị kẹt giấy\n"
+              "- Dây mạng kết nối với máy in đã sáng";
+        } else {
+          error = "❌ Lỗi in: $e";
+        }
+        showLogs(error, flags: '_processTask 2');
       } finally {
-        await printerManager.disconnect();
+        try {
+          await printerManager.disconnect();
+        } catch (ex) {
+          //
+        }
       }
     } catch (ex) {
       error = "❌ Lỗi in: $ex";
-      showLogs(error, flags: '_processTask');
+      showLogs(error, flags: '_processTask 3');
     }
 
     if (error != null) {

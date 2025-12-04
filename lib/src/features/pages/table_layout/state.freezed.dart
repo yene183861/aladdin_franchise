@@ -29,6 +29,11 @@ mixin _$TableLayoutPageState {
   bool get enableDragLayout => throw _privateConstructorUsedError;
   List<TableLayoutItemModel> get itemDelete =>
       throw _privateConstructorUsedError;
+  DateTime get fromDate => throw _privateConstructorUsedError;
+  DateTime get toDate => throw _privateConstructorUsedError;
+  List<HistoryOrderModel> get historyOrder =>
+      throw _privateConstructorUsedError;
+  ProcessState get historyOrderState => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $TableLayoutPageStateCopyWith<TableLayoutPageState> get copyWith =>
@@ -53,10 +58,15 @@ abstract class $TableLayoutPageStateCopyWith<$Res> {
       TimeOfDay fromTime,
       TimeOfDay toTime,
       bool enableDragLayout,
-      List<TableLayoutItemModel> itemDelete});
+      List<TableLayoutItemModel> itemDelete,
+      DateTime fromDate,
+      DateTime toDate,
+      List<HistoryOrderModel> historyOrder,
+      ProcessState historyOrderState});
 
   $TableLayoutSettingModelCopyWith<$Res> get itemSetting;
   $FloorModelCopyWith<$Res>? get floorSelect;
+  $ProcessStateCopyWith<$Res> get historyOrderState;
 }
 
 /// @nodoc
@@ -85,6 +95,10 @@ class _$TableLayoutPageStateCopyWithImpl<$Res,
     Object? toTime = null,
     Object? enableDragLayout = null,
     Object? itemDelete = null,
+    Object? fromDate = null,
+    Object? toDate = null,
+    Object? historyOrder = null,
+    Object? historyOrderState = null,
   }) {
     return _then(_value.copyWith(
       items: null == items
@@ -135,6 +149,22 @@ class _$TableLayoutPageStateCopyWithImpl<$Res,
           ? _value.itemDelete
           : itemDelete // ignore: cast_nullable_to_non_nullable
               as List<TableLayoutItemModel>,
+      fromDate: null == fromDate
+          ? _value.fromDate
+          : fromDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      toDate: null == toDate
+          ? _value.toDate
+          : toDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      historyOrder: null == historyOrder
+          ? _value.historyOrder
+          : historyOrder // ignore: cast_nullable_to_non_nullable
+              as List<HistoryOrderModel>,
+      historyOrderState: null == historyOrderState
+          ? _value.historyOrderState
+          : historyOrderState // ignore: cast_nullable_to_non_nullable
+              as ProcessState,
     ) as $Val);
   }
 
@@ -155,6 +185,14 @@ class _$TableLayoutPageStateCopyWithImpl<$Res,
 
     return $FloorModelCopyWith<$Res>(_value.floorSelect!, (value) {
       return _then(_value.copyWith(floorSelect: value) as $Val);
+    });
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $ProcessStateCopyWith<$Res> get historyOrderState {
+    return $ProcessStateCopyWith<$Res>(_value.historyOrderState, (value) {
+      return _then(_value.copyWith(historyOrderState: value) as $Val);
     });
   }
 }
@@ -179,12 +217,18 @@ abstract class _$$TableLayoutPageStateImplCopyWith<$Res>
       TimeOfDay fromTime,
       TimeOfDay toTime,
       bool enableDragLayout,
-      List<TableLayoutItemModel> itemDelete});
+      List<TableLayoutItemModel> itemDelete,
+      DateTime fromDate,
+      DateTime toDate,
+      List<HistoryOrderModel> historyOrder,
+      ProcessState historyOrderState});
 
   @override
   $TableLayoutSettingModelCopyWith<$Res> get itemSetting;
   @override
   $FloorModelCopyWith<$Res>? get floorSelect;
+  @override
+  $ProcessStateCopyWith<$Res> get historyOrderState;
 }
 
 /// @nodoc
@@ -210,6 +254,10 @@ class __$$TableLayoutPageStateImplCopyWithImpl<$Res>
     Object? toTime = null,
     Object? enableDragLayout = null,
     Object? itemDelete = null,
+    Object? fromDate = null,
+    Object? toDate = null,
+    Object? historyOrder = null,
+    Object? historyOrderState = null,
   }) {
     return _then(_$TableLayoutPageStateImpl(
       items: null == items
@@ -260,6 +308,22 @@ class __$$TableLayoutPageStateImplCopyWithImpl<$Res>
           ? _value._itemDelete
           : itemDelete // ignore: cast_nullable_to_non_nullable
               as List<TableLayoutItemModel>,
+      fromDate: null == fromDate
+          ? _value.fromDate
+          : fromDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      toDate: null == toDate
+          ? _value.toDate
+          : toDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      historyOrder: null == historyOrder
+          ? _value._historyOrder
+          : historyOrder // ignore: cast_nullable_to_non_nullable
+              as List<HistoryOrderModel>,
+      historyOrderState: null == historyOrderState
+          ? _value.historyOrderState
+          : historyOrderState // ignore: cast_nullable_to_non_nullable
+              as ProcessState,
     ));
   }
 }
@@ -279,10 +343,15 @@ class _$TableLayoutPageStateImpl implements _TableLayoutPageState {
       required this.fromTime,
       required this.toTime,
       this.enableDragLayout = false,
-      final List<TableLayoutItemModel> itemDelete = const []})
+      final List<TableLayoutItemModel> itemDelete = const [],
+      required this.fromDate,
+      required this.toDate,
+      final List<HistoryOrderModel> historyOrder = const [],
+      this.historyOrderState = const ProcessState()})
       : _items = items,
         _floors = floors,
-        _itemDelete = itemDelete;
+        _itemDelete = itemDelete,
+        _historyOrder = historyOrder;
 
   final List<TableLayoutItemModel> _items;
   @override
@@ -335,8 +404,25 @@ class _$TableLayoutPageStateImpl implements _TableLayoutPageState {
   }
 
   @override
+  final DateTime fromDate;
+  @override
+  final DateTime toDate;
+  final List<HistoryOrderModel> _historyOrder;
+  @override
+  @JsonKey()
+  List<HistoryOrderModel> get historyOrder {
+    if (_historyOrder is EqualUnmodifiableListView) return _historyOrder;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_historyOrder);
+  }
+
+  @override
+  @JsonKey()
+  final ProcessState historyOrderState;
+
+  @override
   String toString() {
-    return 'TableLayoutPageState(items: $items, message: $message, status: $status, itemSetting: $itemSetting, floors: $floors, floorSelect: $floorSelect, reservationTimeCheck: $reservationTimeCheck, date: $date, fromTime: $fromTime, toTime: $toTime, enableDragLayout: $enableDragLayout, itemDelete: $itemDelete)';
+    return 'TableLayoutPageState(items: $items, message: $message, status: $status, itemSetting: $itemSetting, floors: $floors, floorSelect: $floorSelect, reservationTimeCheck: $reservationTimeCheck, date: $date, fromTime: $fromTime, toTime: $toTime, enableDragLayout: $enableDragLayout, itemDelete: $itemDelete, fromDate: $fromDate, toDate: $toDate, historyOrder: $historyOrder, historyOrderState: $historyOrderState)';
   }
 
   @override
@@ -361,7 +447,14 @@ class _$TableLayoutPageStateImpl implements _TableLayoutPageState {
             (identical(other.enableDragLayout, enableDragLayout) ||
                 other.enableDragLayout == enableDragLayout) &&
             const DeepCollectionEquality()
-                .equals(other._itemDelete, _itemDelete));
+                .equals(other._itemDelete, _itemDelete) &&
+            (identical(other.fromDate, fromDate) ||
+                other.fromDate == fromDate) &&
+            (identical(other.toDate, toDate) || other.toDate == toDate) &&
+            const DeepCollectionEquality()
+                .equals(other._historyOrder, _historyOrder) &&
+            (identical(other.historyOrderState, historyOrderState) ||
+                other.historyOrderState == historyOrderState));
   }
 
   @override
@@ -378,7 +471,11 @@ class _$TableLayoutPageStateImpl implements _TableLayoutPageState {
       fromTime,
       toTime,
       enableDragLayout,
-      const DeepCollectionEquality().hash(_itemDelete));
+      const DeepCollectionEquality().hash(_itemDelete),
+      fromDate,
+      toDate,
+      const DeepCollectionEquality().hash(_historyOrder),
+      historyOrderState);
 
   @JsonKey(ignore: true)
   @override
@@ -391,19 +488,22 @@ class _$TableLayoutPageStateImpl implements _TableLayoutPageState {
 
 abstract class _TableLayoutPageState implements TableLayoutPageState {
   const factory _TableLayoutPageState(
-          {final List<TableLayoutItemModel> items,
-          final String message,
-          final StatusEnum status,
-          final TableLayoutSettingModel itemSetting,
-          final List<FloorModel> floors,
-          final FloorModel? floorSelect,
-          final int reservationTimeCheck,
-          required final DateTime date,
-          required final TimeOfDay fromTime,
-          required final TimeOfDay toTime,
-          final bool enableDragLayout,
-          final List<TableLayoutItemModel> itemDelete}) =
-      _$TableLayoutPageStateImpl;
+      {final List<TableLayoutItemModel> items,
+      final String message,
+      final StatusEnum status,
+      final TableLayoutSettingModel itemSetting,
+      final List<FloorModel> floors,
+      final FloorModel? floorSelect,
+      final int reservationTimeCheck,
+      required final DateTime date,
+      required final TimeOfDay fromTime,
+      required final TimeOfDay toTime,
+      final bool enableDragLayout,
+      final List<TableLayoutItemModel> itemDelete,
+      required final DateTime fromDate,
+      required final DateTime toDate,
+      final List<HistoryOrderModel> historyOrder,
+      final ProcessState historyOrderState}) = _$TableLayoutPageStateImpl;
 
   @override
   List<TableLayoutItemModel> get items;
@@ -429,6 +529,14 @@ abstract class _TableLayoutPageState implements TableLayoutPageState {
   bool get enableDragLayout;
   @override
   List<TableLayoutItemModel> get itemDelete;
+  @override
+  DateTime get fromDate;
+  @override
+  DateTime get toDate;
+  @override
+  List<HistoryOrderModel> get historyOrder;
+  @override
+  ProcessState get historyOrderState;
   @override
   @JsonKey(ignore: true)
   _$$TableLayoutPageStateImplCopyWith<_$TableLayoutPageStateImpl>

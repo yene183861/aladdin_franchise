@@ -28,9 +28,6 @@ String kDeviceId = '';
 final appConfig = AppConfig();
 
 class AppConfig {
-  static bool useFranchise = true;
-
-  /// bỏ qua việc in bill gọi món/ hủy món từ app nếu sử dụng kDS
   static bool useKds = false;
   static bool initHomeProvider = false;
   static const String companyName = "Aladdin.,JSC";

@@ -56,6 +56,7 @@ class AppPrinterCommon {
     if (Platform.isAndroid) {
       try {
         final bool result = await _channel.invokeMethod('ping', {'ip': printer.ip});
+        showLogs(result, flags: 'result ping printer');
         if (result) {
           return null;
         }

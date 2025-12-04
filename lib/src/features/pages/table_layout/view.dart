@@ -11,6 +11,7 @@ import 'package:aladdin_franchise/src/data/model/table_layout_item.dart';
 import 'package:aladdin_franchise/src/data/model/table_layout_setting.dart';
 import 'package:aladdin_franchise/src/features/common/process_state.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/components/order_items_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/custom_checkbox.dart';
@@ -29,6 +30,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:vector_math/vector_math_64.dart' as vm;
 
 import 'provider.dart';
@@ -60,7 +62,7 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
   List<TableModel> allTables = [];
   List<TableModel> usingTables = [];
   List<OrderModel> orders = [];
-  List<HistoryOrderModel> history = [];
+  // List<HistoryOrderModel> history = [];
 
   @override
   void initState() {
@@ -171,23 +173,37 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
     bool enableDragLayout =
         ref.watch(tableLayoutPageProvider.select((value) => value.enableDragLayout));
     var table = ref.watch(tablesAndOrdersProvider);
-    // var reservationsData = ref.watch(homeProvider.select((value) => value.reservations));
-
-    // ProcessState reservationState = const ProcessState(status: StatusEnum.normal);
     ProcessState tableState;
-    ProcessState historyState;
     tableState = table.when(
+      skipError: false,
+      skipLoadingOnRefresh: false,
+      skipLoadingOnReload: false,
       data: (data) {
         usingTables =
             (kTypeOrder == TypeOrderEnum.offline.type ? data.offline : data.online)?.using ?? [];
-        orders =
+        orders = List.from(
             (kTypeOrder == TypeOrderEnum.offline.type ? data.offline : data.online)?.userUsing ??
-                [];
+                []);
         allTables = [
           ...((kTypeOrder == TypeOrderEnum.offline.type ? data.offline : data.online)?.notUse ??
               []),
           ...usingTables,
         ];
+        orders.sort((a, b) {
+          if (a.createdAt == null || b.createdAt == null) return 0;
+          return a.createdAt!.compareTo(b.createdAt!);
+        });
+
+        final earliest = orders.firstWhereOrNull((e) => e.createdAt != null); // ngày nhỏ nhất
+        final latest = orders.lastWhereOrNull((e) => e.createdAt != null);
+        WidgetsBinding.instance.addPostFrameCallback(
+          (timeStamp) {
+            // ref.read(tableLayoutPageProvider.notifier).getHistoryOrder();
+            ref
+                .read(tableLayoutPageProvider.notifier)
+                .onChangeDateHistory(earliest: earliest?.createdAt, latest: latest?.createdAt);
+          },
+        );
         return const ProcessState(status: StatusEnum.success);
       },
       error: (error, stackTrace) {
@@ -197,18 +213,18 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
         return const ProcessState(status: StatusEnum.loading);
       },
     );
-    var historyData = ref.watch(todayHistoryOrderProvider);
-    historyState = historyData.when(
-      data: (data) {
-        history = List<HistoryOrderModel>.from(data);
-        return const ProcessState(status: StatusEnum.success);
-      },
-      error: (error, stackTrace) =>
-          ProcessState(status: StatusEnum.error, message: error.toString()),
-      loading: () => const ProcessState(status: StatusEnum.loading),
-    );
+    // var historyData = ref.watch(todayHistoryOrderProvider);
+    // historyState = historyData.when(
+    //   data: (data) {
+    //     history = List<HistoryOrderModel>.from(data);
+    //     return const ProcessState(status: StatusEnum.success);
+    //   },
+    //   error: (error, stackTrace) =>
+    //       ProcessState(status: StatusEnum.error, message: error.toString()),
+    //   loading: () => const ProcessState(status: StatusEnum.loading),
+    // );
 
-    showLogs(history, flags: 'history');
+    // showLogs(history, flags: 'history');
 
     // var reservations = ((reservationsData[date]?['data'] ?? []) as List)
     //     .map((e) => e as ReservationModel)
@@ -396,68 +412,93 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                         },
                                         onDragEnd: (details) {},
                                         childWhenDragging: const SizedBox.shrink(),
-                                        child: DraggerTableWidget(
-                                          history: history,
-                                          order: item.table?.id != null
-                                              ? orders.firstWhereOrNull((e) {
-                                                  return e.getTableIds.contains(item.table?.id);
-                                                })
-                                              : null,
-                                          onTap: (p0) async {
-                                            var res = await showModalBottomSheet<
-                                                ({
-                                                  TableLayoutSettingModel? setting,
-                                                  TableModel? table,
-                                                  FloorModel? floor,
-                                                })?>(
-                                              context: context,
-                                              backgroundColor: Colors.white,
-                                              isScrollControlled: true,
-                                              useSafeArea: true,
-                                              builder: (context) {
-                                                showLogs(item, flags: 'item');
-                                                return ItemSettingBottomSheet(
-                                                  initSetting:
-                                                      ref.read(tableLayoutPageProvider).itemSetting,
-                                                  title: 'Thiết lập',
-                                                  item: item,
-                                                );
-                                              },
-                                            );
-                                            if (res != null) {
-                                              ref
-                                                  .read(tableLayoutPageProvider.notifier)
-                                                  .onChangeLayoutItem(
-                                                    item: item,
-                                                    floor: res.floor,
-                                                    table: res.table,
-                                                    setting: res.setting,
+                                        child: Consumer(
+                                          builder: (context, ref, child) {
+                                            var history = ref.watch(tableLayoutPageProvider
+                                                .select((value) => value.historyOrder));
+
+                                            showLogs(history, flags: 'history');
+                                            return DraggerTableWidget(
+                                              history: history,
+                                              order: item.table?.id != null
+                                                  ? orders.firstWhereOrNull((e) {
+                                                      return e.getTableIds.contains(item.table?.id);
+                                                    })
+                                                  : null,
+                                              onTap: (p0) async {
+                                                if (!enableDragLayout) {
+                                                  var order = orders.firstWhereOrNull((e) {
+                                                    return e.getTableIds.contains(item.table?.id);
+                                                  });
+                                                  if (order == null) return;
+                                                  ref
+                                                      .read(homeProvider.notifier)
+                                                      .changeOrderSelect(order);
+                                                  showModalBottomSheet(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return DetailOrderBottomSheet();
+                                                    },
                                                   );
-                                            }
-                                          },
-                                          onLongPress: enableDragLayout
-                                              ? (p0) {
+                                                  return;
+                                                }
+                                                var res = await showModalBottomSheet<
+                                                    ({
+                                                      TableLayoutSettingModel? setting,
+                                                      TableModel? table,
+                                                      FloorModel? floor,
+                                                    })?>(
+                                                  context: context,
+                                                  backgroundColor: Colors.white,
+                                                  isScrollControlled: true,
+                                                  useSafeArea: true,
+                                                  builder: (context) {
+                                                    showLogs(item, flags: 'item');
+                                                    return ItemSettingBottomSheet(
+                                                      initSetting: ref
+                                                          .read(tableLayoutPageProvider)
+                                                          .itemSetting,
+                                                      title: 'Thiết lập',
+                                                      item: item,
+                                                    );
+                                                  },
+                                                );
+                                                if (res != null) {
                                                   ref
                                                       .read(tableLayoutPageProvider.notifier)
-                                                      .addDeleteItem(p0);
+                                                      .onChangeLayoutItem(
+                                                        item: item,
+                                                        floor: res.floor,
+                                                        table: res.table,
+                                                        setting: res.setting,
+                                                      );
                                                 }
-                                              : null,
-                                          item: item,
-                                          itemSetting: itemSetting,
-                                          reservations: ref
-                                              .read(tableLayoutPageProvider.notifier)
-                                              .getReservationsOfTable(
-                                            // reservations: reservations,
-                                            reservations: [],
-                                            table: item.table,
-                                            reservationTimeCheck: reservationTimeCheck,
-                                            fromTime: fromTime,
-                                            toTime: toTime,
-                                            date: date,
-                                          ),
-                                          isSelect:
-                                              itemDelete.firstWhereOrNull((e) => e.id == item.id) !=
+                                              },
+                                              onLongPress: enableDragLayout
+                                                  ? (p0) {
+                                                      ref
+                                                          .read(tableLayoutPageProvider.notifier)
+                                                          .addDeleteItem(p0);
+                                                    }
+                                                  : null,
+                                              item: item,
+                                              itemSetting: itemSetting,
+                                              reservations: ref
+                                                  .read(tableLayoutPageProvider.notifier)
+                                                  .getReservationsOfTable(
+                                                // reservations: reservations,
+                                                reservations: [],
+                                                table: item.table,
+                                                reservationTimeCheck: reservationTimeCheck,
+                                                fromTime: fromTime,
+                                                toTime: toTime,
+                                                date: date,
+                                              ),
+                                              isSelect: itemDelete
+                                                      .firstWhereOrNull((e) => e.id == item.id) !=
                                                   null,
+                                            );
+                                          },
                                         ),
                                       ),
                                     ),
@@ -592,7 +633,7 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                               .read(tableLayoutPageProvider.notifier)
                                               .generateDefaultTable(
                                                 tables: remainTables,
-                                                viewportWidth: max(size.width - 120, 1000),
+                                                viewportWidth: 4000,
                                                 viewportHeight: size.height,
                                               );
                                         },
@@ -781,119 +822,120 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                         const Gap(12),
                         Row(
                           children: [
-                            Consumer(
-                              builder: (context, ref, child) {
-                                var date = ref
-                                    .watch(tableLayoutPageProvider.select((value) => value.date));
+                            // Consumer(
+                            //   builder: (context, ref, child) {
+                            //     var date = ref
+                            //         .watch(tableLayoutPageProvider.select((value) => value.date));
 
-                                return GestureDetector(
-                                  onTap: () async {
-                                    var dateChange = await showDatePickerDialog(
-                                      context,
-                                      calendarType: CalendarDatePicker2Type.single,
-                                      value: [date],
-                                      dialogSize: const Size(500, 450),
-                                    );
-                                    if ((dateChange ?? []).isNotEmpty &&
-                                        dateChange!.first != null) {
-                                      ref
-                                          .read(tableLayoutPageProvider.notifier)
-                                          .onChangeDate(dateChange.first!);
-                                    }
-                                  },
-                                  child: Container(
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const ResponsiveIconWidget(
-                                            iconData: Icons.calendar_month,
-                                            color: AppColors.textColor),
-                                        const Gap(4),
-                                        Text(
-                                          DateTimeUtils.formatToString(
-                                              time: date, newPattern: DateTimePatterns.date),
-                                          style: AppTextStyle.regular(),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            const Gap(8),
-                            Consumer(
-                              builder: (context, ref, child) {
-                                var fromTime = ref.watch(
-                                    tableLayoutPageProvider.select((value) => value.fromTime));
-                                var toTime = ref
-                                    .watch(tableLayoutPageProvider.select((value) => value.toTime));
+                            //     return GestureDetector(
+                            //       onTap: () async {
+                            //         var dateChange = await showDatePickerDialog(
+                            //           context,
+                            //           calendarType: CalendarDatePicker2Type.single,
+                            //           value: [date],
+                            //           dialogSize: const Size(500, 450),
+                            //         );
+                            //         if ((dateChange ?? []).isNotEmpty &&
+                            //             dateChange!.first != null) {
+                            //           ref
+                            //               .read(tableLayoutPageProvider.notifier)
+                            //               .onChangeDate(dateChange.first!);
+                            //         }
+                            //       },
+                            //       child: Container(
+                            //         padding:
+                            //             const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            //         decoration: BoxDecoration(
+                            //           color: Colors.white,
+                            //           borderRadius: BorderRadius.circular(4),
+                            //         ),
+                            //         child: Row(
+                            //           children: [
+                            //             const ResponsiveIconWidget(
+                            //                 iconData: Icons.calendar_month,
+                            //                 color: AppColors.textColor),
+                            //             const Gap(4),
+                            //             Text(
+                            //               DateTimeUtils.formatToString(
+                            //                   time: date, newPattern: DateTimePatterns.date),
+                            //               style: AppTextStyle.regular(),
+                            //             ),
+                            //           ],
+                            //         ),
+                            //       ),
+                            //     );
+                            //   },
+                            // ),
+                            // const Gap(8),
+                            // Consumer(
+                            //   builder: (context, ref, child) {
+                            //     var fromTime = ref.watch(
+                            //         tableLayoutPageProvider.select((value) => value.fromTime));
+                            //     var toTime = ref
+                            //         .watch(tableLayoutPageProvider.select((value) => value.toTime));
 
-                                return GestureDetector(
-                                  onTap: () async {
-                                    var from = await showTimePicker(
-                                      context: context,
-                                      initialTime: fromTime,
-                                      helpText: 'Bắt đầu',
-                                    );
-                                    if (from != null) {
-                                      var to = await showTimePicker(
-                                        context: context,
-                                        initialTime: toTime,
-                                        helpText: 'Kết thúc',
-                                      );
-                                      if (to != null) {
-                                        var today = DateTime.now().date;
-                                        var fromDateTime = DateTimeUtils.parseDateTimeFromTimeOfDay(
-                                            date: today, timeOfDay: from);
-                                        var toDateTime = DateTimeUtils.parseDateTimeFromTimeOfDay(
-                                            date: today, timeOfDay: to);
-                                        if (!toDateTime.isAfter(fromDateTime)) {
-                                          toDateTime =
-                                              fromDateTime.add(const Duration(minutes: 120));
-                                          var endDate =
-                                              today.add(const Duration(hours: 23, minutes: 59));
-                                          if (toDateTime.isAfter(endDate)) {
-                                            toDateTime = endDate;
-                                          }
-                                        }
+                            //     return GestureDetector(
+                            //       onTap: () async {
+                            //         var from = await showTimePicker(
+                            //           context: context,
+                            //           initialTime: fromTime,
+                            //           helpText: 'Bắt đầu',
+                            //         );
+                            //         if (from != null) {
+                            //           var to = await showTimePicker(
+                            //             context: context,
+                            //             initialTime: toTime,
+                            //             helpText: 'Kết thúc',
+                            //           );
+                            //           if (to != null) {
+                            //             var today = DateTime.now().date;
+                            //             var fromDateTime = DateTimeUtils.parseDateTimeFromTimeOfDay(
+                            //                 date: today, timeOfDay: from);
+                            //             var toDateTime = DateTimeUtils.parseDateTimeFromTimeOfDay(
+                            //                 date: today, timeOfDay: to);
+                            //             if (!toDateTime.isAfter(fromDateTime)) {
+                            //               toDateTime =
+                            //                   fromDateTime.add(const Duration(minutes: 120));
+                            //               var endDate =
+                            //                   today.add(const Duration(hours: 23, minutes: 59));
+                            //               if (toDateTime.isAfter(endDate)) {
+                            //                 toDateTime = endDate;
+                            //               }
+                            //             }
 
-                                        to = TimeOfDay(
-                                            hour: toDateTime.hour, minute: toDateTime.minute);
+                            //             to = TimeOfDay(
+                            //                 hour: toDateTime.hour, minute: toDateTime.minute);
 
-                                        ref
-                                            .read(tableLayoutPageProvider.notifier)
-                                            .onChangeTime(from: from, to: to);
-                                      }
-                                    }
-                                  },
-                                  child: Container(
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const ResponsiveIconWidget(
-                                            iconData: Icons.access_time_sharp,
-                                            color: AppColors.textColor),
-                                        const Gap(4),
-                                        Text(
-                                          '${fromTime.format(context)} - ${toTime.format(context)}',
-                                          style: AppTextStyle.regular(),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
+                            //             ref
+                            //                 .read(tableLayoutPageProvider.notifier)
+                            //                 .onChangeTime(from: from, to: to);
+                            //           }
+                            //         }
+                            //       },
+                            //       child: Container(
+                            //         padding:
+                            //             const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            //         decoration: BoxDecoration(
+                            //           color: Colors.white,
+                            //           borderRadius: BorderRadius.circular(4),
+                            //         ),
+                            //         child: Row(
+                            //           children: [
+                            //             const ResponsiveIconWidget(
+                            //                 iconData: Icons.access_time_sharp,
+                            //                 color: AppColors.textColor),
+                            //             const Gap(4),
+                            //             Text(
+                            //               '${fromTime.format(context)} - ${toTime.format(context)}',
+                            //               style: AppTextStyle.regular(),
+                            //             ),
+                            //           ],
+                            //         ),
+                            //       ),
+                            //     );
+                            //   },
+                            // ),
+
                             const Gap(8),
                             Consumer(builder: (context, ref, child) {
                               var setting = ref.watch(
@@ -1059,6 +1101,41 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
         _canvasHeight += _expandStep;
       }
     });
+  }
+}
+
+class DetailOrderBottomSheet extends ConsumerStatefulWidget {
+  const DetailOrderBottomSheet({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _DetailOrderBottomSheetState();
+}
+
+class _DetailOrderBottomSheetState extends ConsumerState<DetailOrderBottomSheet> {
+  ItemScrollController? itemScrollController;
+  ItemPositionsListener? itemPositionsListener;
+
+  ItemScrollController? itemSelectingScrollController;
+  ItemPositionsListener? itemSelectingPositionsListener;
+
+  @override
+  void initState() {
+    super.initState();
+    itemScrollController = ItemScrollController();
+    itemPositionsListener = ItemPositionsListener.create();
+    itemSelectingScrollController = ItemScrollController();
+    itemSelectingPositionsListener = ItemPositionsListener.create();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return OrderItemsWidget(
+      priceSidebar: true,
+      itemPositionsListener: itemPositionsListener,
+      itemScrollController: itemScrollController,
+      itemSelectingPositionsListener: itemSelectingPositionsListener,
+      itemSelectingScrollController: itemSelectingScrollController,
+    );
   }
 }
 

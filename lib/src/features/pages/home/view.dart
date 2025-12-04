@@ -35,6 +35,7 @@ import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/utils/app_check.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:collection/collection.dart';
@@ -533,7 +534,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
 
     bool showOrderInfo = !(isMobile || (isTablet && portraitOrientation));
     bool emptyTags = tags.isEmpty;
-    var homeTabSelect = ref.watch(homeProvider.select((value) => value.homeTabSelect));
+    // var homeTabSelect = ref.watch(homeProvider.select((value) => value.homeTabSelect));
 
     /// test UI mới
     // return PopScope(
@@ -681,297 +682,301 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     //   ),
     // );
 
-    return PopScope(
-      canPop: false,
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        drawer: const HomeDrawerWidget(),
-        body: Stack(
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(viewPadding.left, 0, 0, 0),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      children: [
-                        Container(
-                          height: 48,
-                          width: double.maxFinite,
-                          alignment: Alignment.center,
-                          child: Row(
-                            children: [
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      drawer: const HomeDrawerWidget(),
+      body: Stack(
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(viewPadding.left, 0, 0, 0),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 48,
+                        width: double.maxFinite,
+                        alignment: Alignment.center,
+                        child: Row(
+                          children: [
+                            const Gap(8),
+                            Builder(
+                              builder: (context) {
+                                return InkWell(
+                                  onTap: Scaffold.of(context).openDrawer,
+                                  child: const ResponsiveIconWidget(
+                                    iconData: CupertinoIcons.home,
+                                  ),
+                                );
+                              },
+                            ),
+                            const Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                child: _SearchDishWidget(),
+                              ),
+                            ),
+                            if (!isMobile) ...[
+                              const ButtonHistoryOrderWidget(),
                               const Gap(8),
-                              Builder(
-                                builder: (context) {
-                                  return InkWell(
-                                    onTap: Scaffold.of(context).openDrawer,
-                                    child: const ResponsiveIconWidget(
-                                      iconData: CupertinoIcons.home,
-                                    ),
-                                  );
+                            ] else ...[
+                              const ButtonO2oData(),
+                              Consumer(
+                                builder: (context, ref, child) {
+                                  ref.watch(typeOrderWaiterProvider);
+                                  var useO2O =
+                                      LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+                                  if (useO2O || portraitOrientation) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  if (emptyTags) {
+                                    return const TypeOrderWidget();
+                                  }
+                                  return const ButtonHistoryOrderWidget();
                                 },
                               ),
-                              const Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                  child: _SearchDishWidget(),
-                                ),
-                              ),
-                              if (!isMobile) ...[
-                                const ButtonHistoryOrderWidget(),
-                                const Gap(8),
-                              ] else ...[
-                                const ButtonO2oData(),
-                                Consumer(
-                                  builder: (context, ref, child) {
-                                    ref.watch(typeOrderWaiterProvider);
-                                    var useO2O =
-                                        LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-                                    if (useO2O || portraitOrientation) {
-                                      return const SizedBox.shrink();
-                                    }
-                                    if (emptyTags) {
-                                      return const TypeOrderWidget();
-                                    }
-                                    return const ButtonHistoryOrderWidget();
-                                  },
-                                ),
-                                const ButtonRefreshData(),
-                              ],
+                              const ButtonRefreshData(),
                             ],
-                          ),
+                          ],
                         ),
-                        Consumer(
-                          builder: (context, ref, child) {
-                            var tags = ref.watch(homeProvider.select((value) => value.tags));
-                            if (tags.isEmpty && isMobile) {
-                              return const SizedBox.shrink();
-                            }
+                      ),
+                      Consumer(
+                        builder: (context, ref, child) {
+                          // var tags = ref.watch(homeProvider.select((value) => value.tags));
+                          // if (tags.isEmpty && isMobile) {
+                          //   return const SizedBox.shrink();
+                          // }
 
-                            return SizedBox(
-                              height: 48,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          child: Row(
-                                            children: [
-                                              const Expanded(
-                                                child: ListTagsWidget(),
-                                              ),
-                                              if (!isMobile) ...const [
-                                                Gap(8),
-                                                ButtonRefreshData(),
-                                                ButtonO2oData(),
-                                              ],
-                                              const Gap(8),
-                                              const TypeOrderWidget(),
+                          return SizedBox(
+                            height: 48,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Row(
+                                          children: [
+                                            const Gap(8),
+                                            AppButtonWidget(
+                                              textAction: 'Layout nhà hàng',
+                                              onTap: () {
+                                                push(context, const TableLayoutPage());
+                                              },
+                                              color: AppColors.secondColor,
+                                            ),
+                                            const Expanded(
+                                              child: ListTagsWidget(),
+                                            ),
+                                            if (!isMobile) ...const [
+                                              Gap(8),
+                                              ButtonRefreshData(),
+                                              ButtonO2oData(),
                                             ],
-                                          ),
+                                            const Gap(8),
+                                            const TypeOrderWidget(),
+                                          ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                        Container(
-                          height: 42.px,
-                          padding: const EdgeInsets.fromLTRB(0, 4, 8, 4),
-                          alignment: Alignment.center,
-                          child: ListCategoryWidget(
-                              categoryScrollController: _categoryScrollController,
-                              onTap: (category) async {
-                                _scrollToCategory(category);
-                                await Future.delayed(const Duration(milliseconds: 350));
-                                // ref.read(homeProvider.notifier).ctrlSearch.text = '';
-                                if (category is CategoryModel) {
-                                  ref.read(homeProvider.notifier).changeCategorySelect(category);
-                                  return;
-                                }
-                                ref.read(homeProvider.notifier).changeSubCategorySelect(category);
-                              }),
-                        ),
-                        Expanded(
-                          child: Consumer(builder: (context, ref, child) {
-                            var productsState =
-                                ref.watch(homeProvider.select((value) => value.productsState));
-
-                            switch (productsState.status) {
-                              case PageCommonState.normal:
-                              case PageCommonState.loading:
-                                return GridView.builder(
-                                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                                    maxCrossAxisExtent: 200,
-                                    mainAxisSpacing: 10,
-                                    crossAxisSpacing: 10,
-                                    childAspectRatio: 0.7,
-                                  ),
-                                  itemBuilder: (BuildContext context, int index) {
-                                    return const ProductBoxLoadingWidget();
-                                  },
-                                  itemCount: 12,
-                                );
-                              case PageCommonState.error:
-                                return AppErrorSimpleWidget(
-                                  onTryAgain: () {
-                                    ref.read(homeProvider.notifier).getProducts();
-                                  },
-                                  message: productsState.messageError,
-                                );
-                              case PageCommonState.success:
-                            }
-                            return CustomScrollView(
-                              controller: _productScrollController,
-                              slivers: [
-                                ...dataView,
-                                const SliverToBoxAdapter(child: Gap(50)),
+                                ),
                               ],
-                            );
-                          }),
-                        ),
-                      ],
-                    ),
-                  ),
-                  !showOrderInfo
-                      ? const SizedBox.shrink()
-                      : Container(
-                          constraints: const BoxConstraints(maxWidth: 500),
-                          child: const OrderPanelWidget(),
-                        ),
-                ],
-              ),
-            ),
-            Consumer(
-              builder: (context, ref, child) {
-                bool useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-                // useO2o = true;
-                final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
-
-                bool isMobile = Device.screenType == ScreenType.mobile;
-                bool isSmallDevice = isMobile;
-
-                return orderSelect == null
-                    ? const SizedBox.shrink()
-                    : !(kTypeOrder == AppConfig.orderOfflineValue && useO2o)
-                        ? const SizedBox.shrink()
-                        : FloatBubble(
-                            show: true,
-                            initialAlignment: isSmallDevice
-                                ? Alignment(1, (140 / 100.w) - 1)
-                                : Alignment.topRight,
-                            child: GestureDetector(
-                              onTap: () {
-                                _showChatPopup(ref);
-                              },
-                              child: Container(
-                                key: _floatingBtnKey,
-                                height: isSmallDevice ? 48 : 60,
-                                width: isSmallDevice ? 48 : 60,
-                                padding: EdgeInsets.all(isSmallDevice ? 12 : 12),
-                                decoration: const BoxDecoration(
-                                  color: AppColors.bgBoxProduct,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: SvgPicture.asset(
-                                  AppIcons.icChat,
-                                  color: AppColors.secondColor,
-                                ),
-                              ),
                             ),
                           );
-              },
-            ),
-          ],
-        ),
-        bottomNavigationBar: Builder(
-          builder: (context) {
-            return showOrderInfo
-                ? const SizedBox.shrink()
-                : Container(
-                    height: 56,
-                    decoration: BoxDecoration(color: Colors.grey.shade900),
-                    alignment: Alignment.center,
-                    child: Consumer(
-                      builder: (context, ref, child) {
-                        var orderSelect =
-                            ref.watch(homeProvider.select((value) => value.orderSelect));
-                        if (orderSelect == null) {
-                          return GestureDetector(
-                            onTap: () {
-                              showOrderOptionDialog(context);
-                              // showConfirmCodeDialog(context, ref, action: () async {
-                              //   showOrderOptionDialog(context);
-                              // });
-                            },
-                            child: Text(
-                              'Chọn đơn bàn thao tác',
-                              style: AppTextStyle.bold(color: Colors.white),
-                            ),
-                          );
-                        }
-
-                        return Row(children: [
-                          const CartInfoWidget(),
-                          const VerticalDivider(
-                            indent: 20,
-                            endIndent: 20,
-                          ),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                showOrderOptionDialog(context);
-                              },
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      "${S.current.table} ${orderSelect.getNameView()}",
-                                      style: AppTextStyle.bold(color: Colors.white),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  const Gap(4),
-                                  const ResponsiveIconWidget(
-                                    iconData: Icons.change_circle_outlined,
-                                    color: Colors.white,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const Gap(8),
-                          AppButtonWidget(
-                            textAction: 'Thanh toán',
-                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                            borderRadius: BorderRadius.circular(8),
-                            onTap: () async {
-                              if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
-                                showMessageDialog(context, message: S.current.noOrderSelect);
+                        },
+                      ),
+                      Container(
+                        height: 42.px,
+                        padding: const EdgeInsets.fromLTRB(0, 4, 8, 4),
+                        alignment: Alignment.center,
+                        child: ListCategoryWidget(
+                            categoryScrollController: _categoryScrollController,
+                            onTap: (category) async {
+                              _scrollToCategory(category);
+                              await Future.delayed(const Duration(milliseconds: 350));
+                              // ref.read(homeProvider.notifier).ctrlSearch.text = '';
+                              if (category is CategoryModel) {
+                                ref.read(homeProvider.notifier).changeCategorySelect(category);
                                 return;
                               }
+                              ref.read(homeProvider.notifier).changeSubCategorySelect(category);
+                            }),
+                      ),
+                      Expanded(
+                        child: Consumer(builder: (context, ref, child) {
+                          var productsState =
+                              ref.watch(homeProvider.select((value) => value.productsState));
 
-                              final OrderModel? order = await Navigator.of(context)
-                                  .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
+                          switch (productsState.status) {
+                            case PageCommonState.normal:
+                            case PageCommonState.loading:
+                              return GridView.builder(
+                                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                                  maxCrossAxisExtent: 200,
+                                  mainAxisSpacing: 10,
+                                  crossAxisSpacing: 10,
+                                  childAspectRatio: 0.7,
+                                ),
+                                itemBuilder: (BuildContext context, int index) {
+                                  return const ProductBoxLoadingWidget();
+                                },
+                                itemCount: 12,
+                              );
+                            case PageCommonState.error:
+                              return AppErrorSimpleWidget(
+                                onTryAgain: () {
+                                  ref.read(homeProvider.notifier).getProducts();
+                                },
+                                message: productsState.messageError,
+                              );
+                            case PageCommonState.success:
+                          }
+                          return CustomScrollView(
+                            controller: _productScrollController,
+                            slivers: [
+                              ...dataView,
+                              const SliverToBoxAdapter(child: Gap(50)),
+                            ],
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+                !showOrderInfo
+                    ? const SizedBox.shrink()
+                    : Container(
+                        constraints: const BoxConstraints(maxWidth: 500),
+                        child: const OrderPanelWidget(),
+                      ),
+              ],
+            ),
+          ),
+          Consumer(
+            builder: (context, ref, child) {
+              bool useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+              // useO2o = true;
+              final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
+
+              bool isMobile = Device.screenType == ScreenType.mobile;
+              bool isSmallDevice = isMobile;
+
+              return orderSelect == null
+                  ? const SizedBox.shrink()
+                  : !(kTypeOrder == AppConfig.orderOfflineValue && useO2o)
+                      ? const SizedBox.shrink()
+                      : FloatBubble(
+                          show: true,
+                          initialAlignment:
+                              isSmallDevice ? Alignment(1, (140 / 100.w) - 1) : Alignment.topRight,
+                          child: GestureDetector(
+                            onTap: () {
+                              _showChatPopup(ref);
                             },
+                            child: Container(
+                              key: _floatingBtnKey,
+                              height: isSmallDevice ? 48 : 60,
+                              width: isSmallDevice ? 48 : 60,
+                              padding: EdgeInsets.all(isSmallDevice ? 12 : 12),
+                              decoration: const BoxDecoration(
+                                color: AppColors.bgBoxProduct,
+                                shape: BoxShape.circle,
+                              ),
+                              child: SvgPicture.asset(
+                                AppIcons.icChat,
+                                color: AppColors.secondColor,
+                              ),
+                            ),
                           ),
-                          const Gap(8),
-                        ]);
-                      },
-                    ),
-                  );
-          },
-        ),
+                        );
+            },
+          ),
+        ],
+      ),
+      bottomNavigationBar: Builder(
+        builder: (context) {
+          return showOrderInfo
+              ? const SizedBox.shrink()
+              : Container(
+                  height: 56,
+                  decoration: BoxDecoration(color: Colors.grey.shade900),
+                  alignment: Alignment.center,
+                  child: Consumer(
+                    builder: (context, ref, child) {
+                      var orderSelect =
+                          ref.watch(homeProvider.select((value) => value.orderSelect));
+                      if (orderSelect == null) {
+                        return GestureDetector(
+                          onTap: () {
+                            showOrderOptionDialog(context);
+                            // showConfirmCodeDialog(context, ref, action: () async {
+                            //   showOrderOptionDialog(context);
+                            // });
+                          },
+                          child: Text(
+                            'Chọn đơn bàn thao tác',
+                            style: AppTextStyle.bold(color: Colors.white),
+                          ),
+                        );
+                      }
+
+                      return Row(children: [
+                        const CartInfoWidget(),
+                        const VerticalDivider(
+                          indent: 20,
+                          endIndent: 20,
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              showOrderOptionDialog(context);
+                            },
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    "${S.current.table} ${orderSelect.getNameView()}",
+                                    style: AppTextStyle.bold(color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                const Gap(4),
+                                const ResponsiveIconWidget(
+                                  iconData: Icons.change_circle_outlined,
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const Gap(8),
+                        AppButtonWidget(
+                          textAction: 'Thanh toán',
+                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: () async {
+                            if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
+                              showMessageDialog(context, message: S.current.noOrderSelect);
+                              return;
+                            }
+
+                            final OrderModel? order = await Navigator.of(context)
+                                .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
+                          },
+                        ),
+                        const Gap(8),
+                      ]);
+                    },
+                  ),
+                );
+        },
       ),
     );
   }

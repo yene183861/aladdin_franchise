@@ -295,7 +295,13 @@ class __NotePerItemWidgetState extends ConsumerState<_NotePerItemWidget> {
 
 ///  tab đã gọi
 class OrderedItemsSelectedWidget extends ConsumerWidget {
-  const OrderedItemsSelectedWidget({super.key});
+  const OrderedItemsSelectedWidget({
+    super.key,
+    this.itemScrollController,
+    this.itemPositionsListener,
+  });
+  final ItemScrollController? itemScrollController;
+  final ItemPositionsListener? itemPositionsListener;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -445,8 +451,9 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                 child: Container(
                   color: Colors.grey.shade50,
                   child: ScrollablePositionedList.separated(
-                    itemScrollController: notifier.selectedItemsScrollCtrl,
-                    itemPositionsListener: notifier.selectedItemsPositionsListener,
+                    itemScrollController: itemScrollController ?? notifier.selectedItemsScrollCtrl,
+                    itemPositionsListener:
+                        itemPositionsListener ?? notifier.selectedItemsPositionsListener,
                     padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                     itemBuilder: (context, index) {
                       var p = items[index];
@@ -707,16 +714,21 @@ class _ProductInfoAndHistoryDialog extends ConsumerWidget {
 
 ///  tab đang chọn
 class OrderItemsSelectingWidget extends ConsumerWidget {
-  const OrderItemsSelectingWidget({super.key});
-
+  const OrderItemsSelectingWidget({
+    super.key,
+    this.itemScrollController,
+    this.itemPositionsListener,
+  });
+  final ItemScrollController? itemScrollController;
+  final ItemPositionsListener? itemPositionsListener;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var notifier = ref.read(homeProvider.notifier);
     var items = ref.watch(homeProvider.select((value) => value.productsSelecting));
     return _ListItemWidget(
       items: items,
-      scrollController: notifier.selectingItemsScrollCtrl,
-      positionsListener: notifier.selectingItemsPositionsListener,
+      scrollController: itemScrollController ?? notifier.selectingItemsScrollCtrl,
+      positionsListener: itemPositionsListener ?? notifier.selectingItemsPositionsListener,
       allowEnterNote: true,
       allowExtraItem: true,
     );

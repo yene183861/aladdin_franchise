@@ -1,10 +1,13 @@
 import 'dart:math';
 
 import 'package:aladdin_franchise/src/configs/app.dart';
+import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/status.dart';
 import 'package:aladdin_franchise/src/data/model/floor.dart';
 import 'package:aladdin_franchise/src/data/model/table_layout_item.dart';
 import 'package:aladdin_franchise/src/data/model/table_layout_setting.dart';
+import 'package:aladdin_franchise/src/features/common/process_state.dart';
 import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/restaurant.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
@@ -28,6 +31,8 @@ class TableLayoutPageNotifier extends StateNotifier<TableLayoutPageState> {
           date: DateTime.now().onlyDate(),
           fromTime: const TimeOfDay(hour: 10, minute: 0),
           toTime: const TimeOfDay(hour: 12, minute: 0),
+          fromDate: DateTime.now().onlyDate(),
+          toDate: DateTime.now().onlyDate(),
         )) {
     var now = DateTime.now();
     var today = now.onlyDate();
@@ -413,5 +418,37 @@ class TableLayoutPageNotifier extends StateNotifier<TableLayoutPageState> {
       items: [],
     );
     saveLayout();
+  }
+
+  void getHistoryOrder() async {
+    state = state.copyWith(historyOrderState: const ProcessState(status: StatusEnum.loading));
+    int retry = 0;
+    String? error;
+    while (retry < 3) {
+      try {
+        var result = await ref
+            .read(restaurantRepositoryProvider)
+            .getOrderHistoryList(startDate: state.fromDate, endDate: state.toDate);
+        state = state.copyWith(
+          historyOrderState: const ProcessState(status: StatusEnum.success),
+          historyOrder: result,
+        );
+        return;
+      } catch (ex) {
+        retry++;
+        error = ex.toString();
+      }
+    }
+    state = state.copyWith(
+      historyOrderState: ProcessState(status: StatusEnum.error, message: error ?? ''),
+    );
+  }
+
+  void onChangeDateHistory({DateTime? earliest, DateTime? latest}) {
+    state = state.copyWith(
+      fromDate: earliest ?? state.fromDate,
+      toDate: latest ?? state.toDate,
+    );
+    getHistoryOrder();
   }
 }

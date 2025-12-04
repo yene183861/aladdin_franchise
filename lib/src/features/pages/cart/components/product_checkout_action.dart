@@ -23,7 +23,8 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
     var productCheckout = ref.watch(homeProvider.select((value) => value.productCheckout));
 
     var displayOrderHistory = ref.watch(homeProvider.select((value) => value.displayOrderHistory));
-    return Padding(
+    return Container(
+      color: Colors.white,
       padding: padding ?? const EdgeInsets.all(8.0),
       child: Row(children: [
         InkWell(

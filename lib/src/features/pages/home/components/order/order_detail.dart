@@ -22,6 +22,7 @@ import 'package:aladdin_franchise/src/models/combo_item.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_html.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_normal.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
@@ -409,6 +410,7 @@ Future<void> onPressedCancelItem(
     if (reason == null) {
       return;
     }
+
     var result = await ref.read(homeProvider.notifier).cancelProductOrder(
           listProductCancel,
           contentCancelOrder: reason,
@@ -420,6 +422,7 @@ Future<void> onPressedCancelItem(
       if (result.errorGetPrinter) {
         var confirm = await showConfirmAction(context,
             message: 'Không thể lấy danh sách máy in\n'
+                'Sự cố: ${result.error!}\n'
                 'Bạn có muốn tiếp tục hủy món mà không in bill hủy (xuống bếp, bar)?');
         if (confirm ?? false) {
           result = await ref.read(homeProvider.notifier).cancelProductOrder(
@@ -443,109 +446,121 @@ Future<void> onPressedCancelItem(
 
       setStateFunc?.call();
     }
-    if (AppConfig.useFranchise) {
-      if (result.printers.isNotEmpty) {
-        try {
-          for (var item in listProductCancel) {
-            if (item.printerType != null) {}
-          }
 
-          List<ProductModel> kitchenProductPrint = productMapPrinter[2] ?? [];
-          List<int> kitchenByteDatas = [];
-          bool printNormal =
-              LocalStorage.getPrintSetting().appPrinterType == AppPrinterSettingTypeEnum.normal;
-          // bỏ qua in bếp nếu sử dụng KDS
-          if (!AppConfig.useKds && kitchenProductPrint.isNotEmpty) {
-            kitchenByteDatas = printNormal
-                ? await AppPrinterNormalUtils.instance.generateBill(
-                    order: state.orderSelect!,
-                    billSingle: false,
-                    cancel: true,
-                    products: kitchenProductPrint,
-                    timeOrder: 1,
-                    title: 'HUY DO',
-                    totalNote: reason,
-                  )
-                : await AppPrinterHtmlUtils.instance
-                    .generateImageBill(AppPrinterHtmlUtils.instance.kitchenBillContent(
-                    product: kitchenProductPrint,
-                    totalBill: true,
-                    order: state.orderSelect!,
-                    note: reason,
-                    timeOrders: 1,
-                    cancel: true,
-                  ));
-          }
-
-          for (var printer in result.printers) {
-            if (printer.type == 2) {
-              if (kitchenByteDatas.isNotEmpty) {
-                PrintQueue.instance.addTask(
-                  ip: printer.ip,
-                  port: printer.port,
-                  buildReceipt: (generator) async {
-                    return kitchenByteDatas;
-                  },
-                  onComplete: (success, error) {
-                    if (success == false) {
-                      showMessageDialog(
-                        context,
-                        message:
-                            'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
-                            '$error',
-                      );
-                    }
-                  },
-                );
-              }
-            } else {
-              List<ProductModel> productPrint = productMapPrinter[printer.type] ?? [];
-              if (productPrint.isNotEmpty) {
-                var byteDatas = printNormal
-                    ? await AppPrinterNormalUtils.instance.generateBill(
+    var check = await AppPrinterCommon.checkPrinters(result.printers);
+    if (check != null) {
+      showMessageDialog(
+        context,
+        message: 'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
+            '$check',
+      );
+      return;
+    }
+    if (result.printers.isNotEmpty) {
+      try {
+        List<ProductModel> kitchenProductPrint = productMapPrinter[2] ?? [];
+        List<int> kitchenByteDatas = [];
+        bool printNormal =
+            LocalStorage.getPrintSetting().appPrinterType == AppPrinterSettingTypeEnum.normal;
+        // bỏ qua in bếp nếu sử dụng KDS
+        if (!AppConfig.useKds && kitchenProductPrint.isNotEmpty) {
+          kitchenByteDatas = printNormal
+              ? await AppPrinterNormalUtils.instance.generateBill(
+                  order: state.orderSelect!,
+                  billSingle: false,
+                  cancel: true,
+                  products: kitchenProductPrint,
+                  timeOrder: 1,
+                  title: 'HUY DO',
+                  totalNote: reason,
+                )
+              : await AppPrinterHtmlUtils.instance
+                  .generateImageBill(AppPrinterHtmlUtils.instance.kitchenBillContent(
+                  product: kitchenProductPrint,
+                  totalBill: true,
+                  order: state.orderSelect!,
+                  note: reason,
+                  timeOrders: 1,
+                  cancel: true,
+                ));
+        }
+        // var check = await AppPrinterCommon.checkPrinters(result.printers);
+        // if (check != null) {
+        //   showMessageDialog(
+        //     context,
+        //     message: 'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
+        //         '$check',
+        //   );
+        //   return;
+        // }
+        for (var printer in result.printers) {
+          if (printer.type == 2) {
+            if (kitchenByteDatas.isNotEmpty) {
+              PrintQueue.instance.addTask(
+                ip: printer.ip,
+                port: printer.port,
+                buildReceipt: (generator) async {
+                  return kitchenByteDatas;
+                },
+                onComplete: (success, error) {
+                  if (success == false) {
+                    showMessageDialog(
+                      context,
+                      message: 'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
+                          '$error',
+                    );
+                  }
+                },
+              );
+            }
+          } else {
+            List<ProductModel> productPrint = productMapPrinter[printer.type] ?? [];
+            if (productPrint.isNotEmpty) {
+              var byteDatas = printNormal
+                  ? await AppPrinterNormalUtils.instance.generateBill(
+                      order: state.orderSelect!,
+                      billSingle: false,
+                      cancel: true,
+                      products: productPrint,
+                      timeOrder: 1,
+                      title: 'HUY DO',
+                      totalNote: reason,
+                    )
+                  : await AppPrinterHtmlUtils.instance.generateImageBill(
+                      AppPrinterHtmlUtils.instance.kitchenBillContent(
+                        product: productPrint,
+                        totalBill: true,
                         order: state.orderSelect!,
-                        billSingle: false,
+                        note: reason,
+                        timeOrders: 1,
                         cancel: true,
-                        products: productPrint,
-                        timeOrder: 1,
-                        title: 'HUY DO',
-                        totalNote: reason,
-                      )
-                    : await AppPrinterHtmlUtils.instance.generateImageBill(
-                        AppPrinterHtmlUtils.instance.kitchenBillContent(
-                          product: productPrint,
-                          totalBill: true,
-                          order: state.orderSelect!,
-                          note: reason,
-                          timeOrders: 1,
-                          cancel: true,
-                        ),
-                      );
+                      ),
+                    );
 
-                PrintQueue.instance.addTask(
-                  ip: printer.ip,
-                  port: printer.port,
-                  buildReceipt: (generator) async {
-                    return byteDatas;
-                  },
-                  onComplete: (success, error) {
-                    if (success == false) {
-                      showMessageDialog(
-                        context,
-                        message: 'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ\n'
-                            '$error',
-                      );
-                    }
-                  },
-                );
-              }
+              PrintQueue.instance.addTask(
+                ip: printer.ip,
+                port: printer.port,
+                buildReceipt: (generator) async {
+                  return byteDatas;
+                },
+                onComplete: (success, error) {
+                  if (success == false) {
+                    showMessageDialog(
+                      context,
+                      message: 'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ\n'
+                          '$error',
+                    );
+                  }
+                },
+              );
             }
           }
-        } catch (ex) {
-          //
         }
+      } catch (ex) {
+        //
       }
     }
+
     if (checkDishInCouponOnly) {
       for (var coupon in state.coupons) {
         bool checkFoodCancelInCoupon = false;

@@ -86,6 +86,8 @@ class LocalStorage {
   static const String floors = "floors";
   static const String tableLayoutSetting = "table_layout_setting";
 
+  static const String orderItemSelecting = "order_item_selecting";
+
   static String getToken() {
     return _prefs.getString(_tokenKey) ?? "";
   }
@@ -269,6 +271,7 @@ class LocalStorage {
     await clearPrinters();
     await clearNotePerOrderItem();
     await clearApplyAgainOnlyCoupon();
+    await clearOrderItemSelecting();
   }
 
   static void changeStyle(int styleId) async {
@@ -1059,6 +1062,53 @@ class LocalStorage {
       return await _prefs.setString(tableLayoutSetting, jsonEncode(items));
     } catch (ex) {
       return false;
+    }
+  }
+
+  static Map<String, Map<String, int>> getOrderItemSelecting() {
+    try {
+      var raw = _prefs.getString(orderItemSelecting) ?? '{}';
+      var decode = jsonDecode(raw);
+      Map<String, Map<String, int>> result = {};
+      (decode as Map).forEach(
+        (key, value) {
+          result[key] = Map<String, int>.from(value);
+        },
+      );
+      return result;
+    } catch (ex) {
+      showLogs(ex, flags: 'getOrderItemSelecting');
+      return {};
+    }
+  }
+
+  static Map<String, int> getOrderItemSelectingForOrder(int orderId) {
+    var data = getOrderItemSelecting();
+    return data[orderId.toString()] ?? {};
+  }
+
+  static Future<bool> setOrderItemSelectingForOrder(
+      {required int orderId, required Map<String, int> data}) async {
+    try {
+      var allData = Map<String, Map<String, int>>.from(getOrderItemSelecting());
+      if (data.isEmpty) {
+        allData.remove(orderId.toString());
+      } else {
+        allData[orderId.toString()] = data;
+      }
+      await _prefs.setString(orderItemSelecting, jsonEncode(allData));
+      return true;
+    } catch (ex) {
+      showLogs(ex, flags: 'setOrderItemSelectingForOrder');
+      return false;
+    }
+  }
+
+  static Future<void> clearOrderItemSelecting() async {
+    try {
+      await _prefs.remove(orderItemSelecting);
+    } catch (ex) {
+      //
     }
   }
 }

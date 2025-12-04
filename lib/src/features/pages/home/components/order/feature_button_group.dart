@@ -117,15 +117,21 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
                             ? Color(0xFF2FA7E7)
                             : AppColors.secondColor,
                     prefixIcon: !hasWindows
-                        ? SvgPicture.asset(
-                            Assets.iconsPlatform,
-                            width: 18,
+                        ? const ResponsiveIconWidget(
+                            svgPath: Assets.iconsPlatform,
+                            color: Colors.white,
+                            iconSize: 18,
                           )
                         : pinned
-                            ? const Icon(Icons.push_pin)
-                            : SvgPicture.asset(
-                                Assets.iconsPlatform,
-                                width: 18,
+                            ? const ResponsiveIconWidget(
+                                iconData: Icons.push_pin,
+                                color: Colors.white,
+                                iconSize: 18,
+                              )
+                            : const ResponsiveIconWidget(
+                                svgPath: Assets.iconsPlatform,
+                                color: Colors.white,
+                                iconSize: 18,
                               ),
                     onPressed: () async {
                       var state = ref.read(homeProvider);
@@ -182,7 +188,9 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
               return Tooltip(
                 message: customer == null ? '' : '${customer.name} - ${customer.phoneNumber}',
                 child: ButtonSimpleWidget(
-                  textAction: '',
+                  textAction: customer == null
+                      ? S.of(context).customers
+                      : '${customer.name} - ${customer.phoneNumber}',
                   onPressed: () {
                     if (!_hasSelectedOrder(context, ref)) {
                       return;
@@ -190,29 +198,13 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
 
                     onChooseCustomerOption(context);
                   },
-                  textWidget: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (customer != null) ...[
-                        const Icon(
-                          Icons.person,
-                          size: 18,
-                        ),
-                        const Gap(2),
-                      ],
-                      Flexible(
-                        child: Text(
-                          customer == null
-                              ? S.of(context).customers
-                              : '${customer.name} - ${customer.phoneNumber}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: AppTextStyle.regular(color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
+                  prefixIcon: customer != null
+                      ? const ResponsiveIconWidget(
+                          iconData: Icons.person,
+                          color: Colors.white,
+                          iconSize: 18,
+                        )
+                      : null,
                 ),
               );
             }),
@@ -229,7 +221,11 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
                 return ButtonSimpleWidget(
                   textAction: S.of(context).invoice,
                   prefixIcon: (invoice != null && !invoice.isEmpty())
-                      ? const Icon(Icons.file_present)
+                      ? const ResponsiveIconWidget(
+                          iconData: Icons.file_present,
+                          color: Colors.white,
+                          iconSize: 20,
+                        )
                       : null,
                   padding: widget.defaultPaddingFeatureBtn,
                   onPressed: () async {
@@ -282,86 +278,39 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
         Expanded(
           child: Consumer(builder: (context, ref, child) {
             var coupons = ref.watch(homeProvider.select((value) => value.coupons));
-            return AppButtonWidget(
+            return ButtonSimpleWidget(
               padding: defaultPaddingFeatureBtn,
-              onTap: () async {
+              onPressed: () async {
                 if (!_hasSelectedOrder(context, ref)) {
                   return;
                 }
                 await showCouponDialog(context);
               },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (coupons.isNotEmpty) ...[
-                    const ResponsiveIconWidget(
+              textAction: coupons.isEmpty
+                  ? S.of(context).endow
+                  : coupons.map((e) => e.name).toList().join(', '),
+              prefixIcon: coupons.isNotEmpty
+                  ? const ResponsiveIconWidget(
                       iconData: Icons.bookmark,
-                    ),
-                    // const Icon(Icons.bookmark, size: 18),
-                    const Gap(2),
-                  ],
-                  Flexible(
-                      child: Text(
-                    coupons.isEmpty
-                        ? S.of(context).endow
-                        : coupons.map((e) => e.name).toList().join(', '),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyle.medium(color: AppColors.white),
-                  )),
-                ],
-              ),
+                      color: Colors.white,
+                    )
+                  : null,
             );
-            // return ButtonSimpleWidget(
-            //   textAction: '',
-            //   padding: defaultPaddingFeatureBtn,
-            //   onPressed: () async {
-            //     if (!_hasSelectedOrder(context, ref)) {
-            //       return;
-            //     }
-            //     await showCouponDialog(context);
-            //   },
-            //   textWidget: Row(
-            //     mainAxisAlignment: MainAxisAlignment.center,
-            //     children: [
-            //       if (coupons.isNotEmpty) ...[
-            //         const Icon(Icons.bookmark, size: 18),
-            //         const Gap(2),
-            //       ],
-            //       Flexible(
-            //           child: Text(
-            //         coupons.isEmpty
-            //             ? S.of(context).endow
-            //             : coupons.map((e) => e.name).toList().join(', '),
-            //         maxLines: 1,
-            //         overflow: TextOverflow.ellipsis,
-            //         textAlign: TextAlign.center,
-            //         style: AppTextStyle.regular(color: AppColors.white),
-            //       )),
-            //     ],
-            //   ),
-            // );
           }),
         ),
         const Gap(8),
         Expanded(
           flex: 1,
-          child: Row(
-            children: [
-              Expanded(
-                child: ButtonSimpleWidget(
-                    textAction: S.of(context).payment,
-                    padding: defaultPaddingFeatureBtn,
-                    color: const Color(0xFF2FA7E7),
-                    onPressed: () {
-                      paymentBtnCallback(
-                        ref: ref,
-                        context: context,
-                      );
-                    }),
-              ),
-            ],
+          child: ButtonSimpleWidget(
+            textAction: S.of(context).payment,
+            padding: defaultPaddingFeatureBtn,
+            color: const Color(0xFF2FA7E7),
+            onPressed: () {
+              paymentBtnCallback(
+                ref: ref,
+                context: context,
+              );
+            },
           ),
         ),
         const Gap(8),
@@ -372,8 +321,6 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
             padding: defaultPaddingFeatureBtn,
             color: const Color(0xFF2FA7E7),
             onPressed: () async {
-              push(context, TableLayoutPage());
-              return;
               final res = await ref.read(homeProvider.notifier).closeShift();
 
               if (res != null) {
@@ -452,7 +399,6 @@ void paymentBtnCallback({
     String? errorMsg;
     showLogs(null, flags: 'Cập nhật ds món đã gọi');
     await ref.read(homeProvider.notifier).getOrderProductCheckout(
-          changeSelecting: true,
           applyPolicy: false,
           loadingHome: true,
           ignoreGetDataBill: true,

@@ -2,6 +2,8 @@ import 'package:aladdin_franchise/src/data/enum/status.dart';
 import 'package:aladdin_franchise/src/data/model/floor.dart';
 import 'package:aladdin_franchise/src/data/model/table_layout_item.dart';
 import 'package:aladdin_franchise/src/data/model/table_layout_setting.dart';
+import 'package:aladdin_franchise/src/features/common/process_state.dart';
+import 'package:aladdin_franchise/src/models/history_order.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -124,5 +126,9 @@ class TableLayoutPageState with _$TableLayoutPageState {
     required TimeOfDay toTime,
     @Default(false) bool enableDragLayout,
     @Default([]) List<TableLayoutItemModel> itemDelete,
+    required DateTime fromDate,
+    required DateTime toDate,
+    @Default([]) List<HistoryOrderModel> historyOrder,
+    @Default(ProcessState()) ProcessState historyOrderState,
   }) = _TableLayoutPageState;
 }

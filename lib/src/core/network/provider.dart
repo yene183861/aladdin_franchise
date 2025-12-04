@@ -105,7 +105,6 @@ final FutureProvider<({OrdersResponseData offline, OrdersResponseData? online})>
   }
 
   final orderCurrent = ref.read(homeProvider.notifier).getOrderSelect();
-  showLogs(orderCurrent, flags: 'orderCurrent');
   // Kiểm tra nếu đơn bàn đang chọn không tồn tại nữa thì xoá bỏ trong home state
   if (orderCurrent != null) {
     OrderModel? orderCheck = (orderCurrent.typeOrder == TypeOrderEnum.offline.type
