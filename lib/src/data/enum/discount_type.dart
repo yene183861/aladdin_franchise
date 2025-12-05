@@ -1,26 +1,26 @@
-enum DiscoundTypeEnum {
+enum DiscountTypeEnum {
   vnd,
   percent,
 }
 
-extension DiscoundTypeEnumEx on DiscoundTypeEnum {
+extension DiscountTypeEnumEx on DiscountTypeEnum {
   String get title {
     switch (this) {
-      case DiscoundTypeEnum.vnd:
+      case DiscountTypeEnum.vnd:
         return 'VND';
-      case DiscoundTypeEnum.percent:
+      case DiscountTypeEnum.percent:
         return '%';
       default:
         return '';
     }
   }
 
-  String get key {
+  dynamic get key {
     switch (this) {
-      case DiscoundTypeEnum.vnd:
-        return 'vnd';
-      case DiscoundTypeEnum.percent:
-        return '%';
+      case DiscountTypeEnum.vnd:
+        return 1;
+      case DiscountTypeEnum.percent:
+        return 2;
       default:
         return '';
     }

@@ -8,6 +8,7 @@ import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/network/responses/data_bill.dart';
 import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/edit_tax_dialog.dart';
@@ -436,6 +437,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                     cashierPrint: orderPrint?.cashierPrint ?? '',
                     timeCompleted: orderPrint?.timeCompleted,
                     timeCreatedAt: orderPrint?.createdAt,
+                    invoiceQr: AppConfig.useInvoiceQr ? 'https://google.com' : '',
                   );
                   if (bytes.isEmpty) {
                     return <int>[];

@@ -1593,7 +1593,6 @@ class _OrderPageTestState extends ConsumerState<OrderPageTest> with WidgetsBindi
 
     bool showOrderInfo = !(isMobile || (isTablet && portraitOrientation));
     bool emptyTags = tags.isEmpty;
-    var homeTabSelect = ref.watch(homeProvider.select((value) => value.homeTabSelect));
 
     return Padding(
       padding: EdgeInsets.fromLTRB(viewPadding.left, 0, 0, 0),

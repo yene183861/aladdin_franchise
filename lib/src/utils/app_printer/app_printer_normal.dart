@@ -1,8 +1,10 @@
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/response/close_shift.dart';
 import 'package:aladdin_franchise/src/models/combo_item.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
+import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
@@ -398,8 +400,8 @@ class AppPrinterNormalUtils {
     if (printNote) {
       bytes += generator.hr();
       bytes += generator.text(TiengViet.parse('Ghi chú: '));
-      bytes +=
-          generator.text(TiengViet.parse((item.noteForProcessOrder ?? totalNote ?? '').trim()));
+      bytes += generator.text(TiengViet.parse(
+          (item.noteForProcessOrder ?? totalNote ?? '').trim()));
     }
     return bytes;
   }
@@ -466,8 +468,8 @@ class AppPrinterNormalUtils {
     if (printNote) {
       bytes += generator.hr();
       bytes += generator.text(TiengViet.parse("Ghi chú:"));
-      bytes +=
-          generator.text(TiengViet.parse((combo?.noteForProcessOrder ?? totalNote ?? '').trim()));
+      bytes += generator.text(TiengViet.parse(
+          (combo?.noteForProcessOrder ?? totalNote ?? '').trim()));
     }
     return bytes;
   }
@@ -510,6 +512,157 @@ class AppPrinterNormalUtils {
       ],
     );
 
+    return bytes;
+  }
+
+  Future<List<int>> getCloseShift(CloseShiftResponseModel data) async {
+    List<int> bytes = [];
+
+    try {
+      final profile = await CapabilityProfile.load();
+      final generator = Generator(PaperSize.mm80, profile);
+      RestaurantModel? restaurant = (LocalStorage.getDataLogin())?.restaurant;
+      // header
+      bytes += generator.text(
+        TiengViet.parse(restaurant?.name ?? AppConfig.appName),
+        styles: const PosStyles(
+          bold: true,
+          height: PosTextSize.size1,
+          width: PosTextSize.size1,
+          align: PosAlign.center,
+        ),
+      );
+      bytes += generator.text(
+        TiengViet.parse(restaurant?.address ?? "========="),
+        styles: const PosStyles(
+          align: PosAlign.center,
+        ),
+      );
+      bytes += generator.emptyLines(1);
+      // title bill
+      // if (title != null) {
+      //   bytes += generator.text(
+      //     TiengViet.parse(title),
+      //     styles: const PosStyles(
+      //       bold: true,
+      //       // height: PosTextSize.size2,
+      //       // width: PosTextSize.size2,
+      //       align: PosAlign.center,
+      //     ),
+      //   );
+      // }
+      bytes += generator.text(
+        TiengViet.parse(
+          "Mở: ${data.openShift == null ? '' : DateFormat("yyyy-MM-dd HH:mm").format(data.openShift!)}",
+        ),
+        styles: const PosStyles(
+          bold: true,
+          align: PosAlign.center,
+        ),
+      );
+      bytes += generator.text(
+        TiengViet.parse(
+          "Đóng: ${data.lockShift == null ? '' : DateFormat("yyyy-MM-dd HH:mm").format(data.lockShift!)}",
+        ),
+        styles: const PosStyles(
+          bold: true,
+          align: PosAlign.center,
+        ),
+      );
+      bytes += generator.emptyLines(1);
+      // body
+      bytes += generator.row(
+        [
+          PosColumn(
+            text: TiengViet.parse('Ca'),
+            width: 4,
+            styles: const PosStyles(
+              align: PosAlign.left,
+            ),
+          ),
+          PosColumn(
+            text: TiengViet.parse(data.shiftName),
+            width: 8,
+            styles: const PosStyles(
+              bold: true,
+              align: PosAlign.left,
+            ),
+          ),
+        ],
+      );
+      bytes += generator.row(
+        [
+          PosColumn(
+            text: TiengViet.parse('Thu ngân'),
+            width: 4,
+            styles: const PosStyles(
+              align: PosAlign.left,
+            ),
+          ),
+          PosColumn(
+            text: TiengViet.parse(data.cashierName),
+            width: 8,
+            styles: const PosStyles(
+              bold: true,
+              align: PosAlign.left,
+            ),
+          ),
+        ],
+      );
+
+      bytes += generator.emptyLines(1);
+      bytes += generator.text(
+        TiengViet.parse('SỐ LIỆU CHỐT'),
+        styles: const PosStyles(
+          align: PosAlign.center,
+          bold: true,
+        ),
+      );
+      bytes += generator.emptyLines(1);
+      try {
+        for (var e in (data.totalPayment as Map).values) {
+          bytes += generator.row(
+            [
+              PosColumn(
+                text: TiengViet.parse(e['label'] ?? ''),
+                width: 4,
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                ),
+              ),
+              PosColumn(
+                text: AppHelper.parseToPrice((e['value'] ?? '').toString()),
+                width: 8,
+                styles: const PosStyles(
+                  align: PosAlign.left,
+                ),
+              ),
+            ],
+          );
+        }
+      } catch (ex) {
+        //
+      }
+
+      bytes += generator.emptyLines(1);
+
+      bytes += generator.text(
+        "Powered by Aladdin.,JSC",
+        styles: const PosStyles(
+          align: PosAlign.center,
+        ),
+      );
+      bytes += generator.text(
+        DateFormat("dd/MM/yyyy HH:mm:ss").format(DateTime.now()),
+        styles: const PosStyles(
+          align: PosAlign.center,
+        ),
+      );
+      bytes += generator.cut();
+    } catch (ex) {
+      showLogs(ex, flags: 'ex image');
+      rethrow;
+    }
     return bytes;
   }
 }

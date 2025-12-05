@@ -58,6 +58,8 @@ enum AppLogAction {
   /// coupons
   addCoupon,
   deleteCoupon,
+  addVoucher,
+  deleteVoucher,
   // áp lại mã giảm giá
   applyPolicy,
 
@@ -89,7 +91,7 @@ enum AppLogAction {
 }
 
 extension ExtAppLogAction on AppLogAction {
-  String get name {
+  String get title {
     switch (this) {
       case AppLogAction.general:
         return "General";
@@ -196,6 +198,10 @@ extension ExtAppLogAction on AppLogAction {
         return "addCoupon";
       case AppLogAction.deleteCoupon:
         return "deleteCoupon";
+      case AppLogAction.addVoucher:
+        return "addVoucher";
+      case AppLogAction.deleteVoucher:
+        return "deleteVoucher";
 
       /// ticket
       case AppLogAction.getTickets:
@@ -306,8 +312,10 @@ extension ExtAppLogAction on AppLogAction {
 
       /// coupons
       case AppLogAction.addCoupon:
+      case AppLogAction.addVoucher:
         return "https://discord.com/api/webhooks/1423124288935952394/B9smrxNw9b-mEaLudEOfcb1TktHkQq9GFhuWsZlCVixw9qdzEXs0uhn4cbmPMh_km0jF";
       case AppLogAction.deleteCoupon:
+      case AppLogAction.deleteVoucher:
         return "https://discord.com/api/webhooks/1423124397266567211/PX80PaVmiuLsCxtNDpTgvMOEkt891mE5QPmQTCBJQAyhbOuNX6svcQVnR5rywHfBSG2I";
       // áp lại mã giảm giá
       case AppLogAction.applyPolicy:

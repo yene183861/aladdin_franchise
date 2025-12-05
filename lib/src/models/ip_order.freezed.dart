@@ -134,7 +134,7 @@ class _$IpOrderModelImpl extends _IpOrderModel with DiagnosticableTreeMixin {
   const _$IpOrderModelImpl(
       {required this.ip,
       required this.port,
-      required this.type,
+      this.type = 1,
       this.name = 'Máy in'})
       : super._();
 
@@ -146,6 +146,7 @@ class _$IpOrderModelImpl extends _IpOrderModel with DiagnosticableTreeMixin {
   @override
   final int port;
   @override
+  @JsonKey()
   final int type;
   @override
   @JsonKey()
@@ -200,7 +201,7 @@ abstract class _IpOrderModel extends IpOrderModel {
   const factory _IpOrderModel(
       {required final String ip,
       required final int port,
-      required final int type,
+      final int type,
       final String name}) = _$IpOrderModelImpl;
   const _IpOrderModel._() : super._();
 

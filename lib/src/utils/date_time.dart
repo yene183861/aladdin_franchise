@@ -5,12 +5,15 @@ import 'package:intl/intl.dart';
 
 extension AppDateTimeExtension on DateTime {
   bool compareToWithoutTime(DateTime otherDate) {
-    return (year == otherDate.year && month == otherDate.month && day == otherDate.day);
+    return (year == otherDate.year &&
+        month == otherDate.month &&
+        day == otherDate.day);
   }
 
   DateTime onlyDate() => DateTime(year, month, day);
   DateTime get date => DateTime(year, month, day);
-  DateTime get nextDate => DateTime(year, month, day).add(const Duration(days: 1));
+  DateTime get nextDate =>
+      DateTime(year, month, day).add(const Duration(days: 1));
 
   /// kiểm tra thời gian trong [start, end]
   bool checkInRangeTime({
@@ -20,7 +23,8 @@ extension AppDateTimeExtension on DateTime {
     bool showDebugLog = false,
   }) {
     var startDate = onlyDate ? start.onlyDate() : start;
-    var endDate = onlyDate ? end.nextDate.subtract(const Duration(milliseconds: 1)) : end;
+    var endDate =
+        onlyDate ? end.nextDate.subtract(const Duration(milliseconds: 1)) : end;
     if (showDebugLog) {
       showLogs(onlyDate, flags: 'checkInRangeTime onlyDate');
       showLog('time check: $this, start: $start, end: $end', flags: 'input');
@@ -57,13 +61,16 @@ class DateTimeUtils {
     return DateFormat(newPattern ?? 'dd/MM/yyyy').format(time);
   }
 
-  static DateTime parseToDateTimeFromHour({required String timeStr, DateTime? date}) {
+  static DateTime parseToDateTimeFromHour(
+      {required String timeStr, DateTime? date}) {
     List<String> parts = timeStr.split(':');
 
     int hours = int.parse(parts[0]);
     int minutes = int.parse(parts[1]);
 
-    return (date ?? DateTime.now()).onlyDate().copyWith(hour: hours, minute: minutes);
+    return (date ?? DateTime.now())
+        .onlyDate()
+        .copyWith(hour: hours, minute: minutes);
   }
 
   /// kiểm tra lịch đặt thuộc ca sáng (8h - 14h59) hay ca tối (15h -23h)
@@ -74,11 +81,13 @@ class DateTimeUtils {
     final dateCheck = date.onlyDate();
     var startEveningTimeShift = dateCheck.copyWith(hour: 15);
     if (DateTime.now().isBefore(startEveningTimeShift)) {
-      return dateTimeCheck.isAfter(dateCheck.copyWith(hour: 7, minute: 59, second: 59)) &&
+      return dateTimeCheck
+              .isAfter(dateCheck.copyWith(hour: 7, minute: 59, second: 59)) &&
           dateTimeCheck.isBefore(startEveningTimeShift);
     }
     return !dateTimeCheck.isBefore(startEveningTimeShift) &&
-        dateTimeCheck.isBefore(dateCheck.copyWith(hour: 23, minute: 0, second: 1));
+        dateTimeCheck
+            .isBefore(dateCheck.copyWith(hour: 23, minute: 0, second: 1));
   }
 
   static String calcElapsedTime(DateTime time) {
@@ -112,7 +121,11 @@ class DateTimeUtils {
   static DateTime parseDateTimeFromTimeOfDay(
       {required DateTime date, required TimeOfDay timeOfDay}) {
     return date.copyWith(
-        hour: timeOfDay.hour, minute: timeOfDay.minute, second: 0, microsecond: 0, millisecond: 0);
+        hour: timeOfDay.hour,
+        minute: timeOfDay.minute,
+        second: 0,
+        microsecond: 0,
+        millisecond: 0);
   }
 }
 

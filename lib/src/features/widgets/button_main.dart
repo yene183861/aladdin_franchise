@@ -101,7 +101,7 @@ class AppButtonWidget extends StatelessWidget {
             BoxShadow(
               color: Colors.grey.shade500,
               offset: const Offset(2, 2),
-              blurRadius: 10,
+              blurRadius: 5,
             )
           ],
         ),

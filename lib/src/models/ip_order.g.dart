@@ -10,7 +10,7 @@ _$IpOrderModelImpl _$$IpOrderModelImplFromJson(Map<String, dynamic> json) =>
     _$IpOrderModelImpl(
       ip: json['ip'] as String,
       port: (json['port'] as num).toInt(),
-      type: (json['type'] as num).toInt(),
+      type: (json['type'] as num?)?.toInt() ?? 1,
       name: json['name'] as String? ?? 'Máy in',
     );
 

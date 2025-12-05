@@ -72,7 +72,7 @@ class HomeDrawerWidget extends ConsumerWidget {
                 ListTile(
                   onTap: () async {
                     pop(context);
-                    final res = await ref.read(homeProvider.notifier).closeShift();
+                    final res = await ref.read(homeProvider.notifier).closeShift(context);
 
                     if (res != null) {
                       if (homeKey.currentContext != null) {

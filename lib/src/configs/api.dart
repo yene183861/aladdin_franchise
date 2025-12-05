@@ -57,6 +57,10 @@ class ApiConfig {
   static String updateReservation = "";
   static String getO2oCustomerInfo = "";
 
+  // voucher
+   static String addVoucher = "";
+   static String deleteVoucher = "";
+
   void changeApi(String newApiUrl) {
     // v1
     apiUrl = '$newApiUrl/api';
@@ -97,7 +101,7 @@ class ApiConfig {
     getListAtmPos = '$apiUrl/v2/list-pos';
     atmPosCallback = '$apiUrl/v2/pos-callback';
     // chốt ca
-    closeShift = '$apiUrl/v2/close-shift-waiter';
+    closeShift = '$apiUrl/v2/get-close-shift-waiter';
     updateTax = '$apiUrl/v2/update-tax-waiter';
 
     getEmployeeSales = '$apiUrl/v2/get-employee-sale';
@@ -114,5 +118,9 @@ class ApiConfig {
     getReservations = "$apiUrl/v1/reservation";
     updateReservation = "$apiUrl/v1/reservation/status";
     getO2oCustomerInfo = "$apiUrl/v1/get-customer-info";
+
+    /// voucher
+    addVoucher = '$apiUrl/v1/calculate-discount-code';
+    deleteVoucher = '$apiUrl/v1/delete-voucher';
   }
 }

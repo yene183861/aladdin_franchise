@@ -10,7 +10,7 @@ class IpOrderModel with _$IpOrderModel {
   const factory IpOrderModel({
     required String ip,
     required int port,
-    required int type,
+    @Default(1) int type,
     @Default('Máy in') String name,
   }) = _IpOrderModel;
 

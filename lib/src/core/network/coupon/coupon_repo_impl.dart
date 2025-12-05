@@ -11,6 +11,8 @@ import 'package:aladdin_franchise/src/core/network/responses/coupon.dart';
 import 'package:aladdin_franchise/src/core/network/rest_client.dart';
 import 'package:aladdin_franchise/src/core/services/send_log/log_service.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
+import 'package:aladdin_franchise/src/data/response/add_voucher.dart';
 import 'package:aladdin_franchise/src/models/customer/customer.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
@@ -71,7 +73,8 @@ class CouponRepositoryImpl extends CouponRepository {
       }
     } catch (ex) {
       showLog(ex, flags: "addCoupon ex");
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -79,7 +82,8 @@ class CouponRepositoryImpl extends CouponRepository {
   }
 
   @override
-  Future<bool> deleteCoupon({required String idCode, required OrderModel order}) async {
+  Future<bool> deleteCoupon(
+      {required String idCode, required OrderModel order}) async {
     final apiUrl = ApiConfig.deleteCoupon;
     var log = ErrorLogModel(
       action: AppLogAction.deleteCoupon,
@@ -111,7 +115,8 @@ class CouponRepositoryImpl extends CouponRepository {
       }
     } catch (ex) {
       showLog(ex, flags: "deleteCoupon ex");
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -195,7 +200,97 @@ class CouponRepositoryImpl extends CouponRepository {
       }
     } catch (ex) {
       showLogs(ex, flags: "error applyPolicy");
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      if (ex is AppException) rethrow;
+      throw AppException(message: ex.toString());
+    }
+  }
+
+  @override
+  Future<VoucherResponse> addVoucher({
+    required OrderModel order,
+    required double amount,
+    required double totalBill,
+    required DiscountTypeEnum type,
+  }) async {
+    var apiUrl = ApiConfig.addVoucher;
+    var log = ErrorLogModel(
+      action: AppLogAction.addVoucher,
+      api: apiUrl,
+      modelInterface: CouponResponse.getModelInterface(),
+      order: order,
+    );
+    try {
+      final loginData = LocalStorage.getDataLogin();
+      final body = jsonEncode(<String, dynamic>{
+        "restaurant_id": loginData?.restaurant?.id,
+        "order_id": order.id,
+        "amount": type == DiscountTypeEnum.percent ? amount.toInt() : amount,
+        "total_bill": totalBill,
+        "type": type.key,
+      });
+      log = log.copyWith(request: body);
+      final response = await restClient.post(
+        Uri.parse(apiUrl),
+        body: body,
+      );
+      log = log.copyWith(
+        response: [response.statusCode, response.body],
+      );
+      if (response.statusCode == NetworkCodeConfig.ok) {
+        final jsonRes = jsonDecode(response.body);
+        showLogs(jsonRes, flags: 'add voucher');
+        final result = VoucherResponse.fromJson(jsonRes);
+        if (result.status != 'success') {
+          throw AppException.fromMessage(result.message);
+        }
+        return result;
+      } else {
+        checkLockedOrder(response);
+        throw AppException.fromHttpResponse(response);
+      }
+    } catch (ex) {
+      showLog(ex, flags: "addVoucher ex");
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+
+      if (ex is AppException) rethrow;
+      throw AppException(message: ex.toString());
+    }
+  }
+
+  @override
+  Future<void> deleteVoucher(dynamic id) async {
+    var apiUrl = ApiConfig.deleteVoucher;
+    var log = ErrorLogModel(
+      action: AppLogAction.deleteVoucher,
+      api: apiUrl,
+      modelInterface: CouponResponse.getModelInterface(),
+    );
+    try {
+      final body = jsonEncode(<String, dynamic>{"voucher_id": id});
+      log = log.copyWith(request: body);
+      final response = await restClient.post(
+        Uri.parse(apiUrl),
+        body: body,
+      );
+      log = log.copyWith(
+        response: [response.statusCode, response.body],
+      );
+      if (response.statusCode == NetworkCodeConfig.ok) {
+        final jsonRes = jsonDecode(response.body);
+        showLogs(jsonRes, flags: 'delete voucher');
+        return;
+      } else {
+        checkLockedOrder(response);
+        throw AppException.fromHttpResponse(response);
+      }
+    } catch (ex) {
+      showLog(ex, flags: "deleteVoucher ex");
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
     }

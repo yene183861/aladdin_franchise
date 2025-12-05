@@ -9,6 +9,7 @@ import 'package:aladdin_franchise/src/core/network/rest_client.dart';
 import 'package:aladdin_franchise/src/core/network/user/user_repository.dart';
 import 'package:aladdin_franchise/src/core/services/send_log/log_service.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/response/close_shift.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 
@@ -21,8 +22,8 @@ class UserRepositoryImpl extends UserRepository {
       modelInterface: LoginResponse.getModelInterface(),
     );
     try {
-      final bodyRequest =
-          jsonEncode(<String, dynamic>{"email": email, "password": password, "role": 5});
+      final bodyRequest = jsonEncode(
+          <String, dynamic>{"email": email, "password": password, "role": 5});
       log = log.copyWith(request: bodyRequest);
       final response = await restClient.post(
         Uri.parse(ApiConfig.login),
@@ -51,40 +52,42 @@ class UserRepositoryImpl extends UserRepository {
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'login ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
     }
   }
 
   @override
-  Future<void> closeShift() async {
-    var api = ApiConfig.closeShift;
+  Future<CloseShiftResponseModel> closeShift() async {
     var waiterId = LocalStorage.getDataLogin()?.user?.id;
-    var bodyRequest = jsonEncode({'waiter_id': waiterId});
+    var api = '${ApiConfig.closeShift}?waiter_id=$waiterId';
     var log = ErrorLogModel(
       action: AppLogAction.closeShift,
       api: api,
-      request: bodyRequest,
     );
     try {
-      final response = await restClient.post(Uri.parse(api), body: bodyRequest);
+      final response = await restClient.get(Uri.parse(api));
       log = log.copyWith(response: [response.statusCode, response.body]);
       if (response.statusCode == NetworkCodeConfig.ok) {
         var body = jsonDecode(response.body);
+
+        showLogs(body, flags: 'closeShift res');
         if (body['status'] != NetworkCodeConfig.ok) {
           throw body['message'] != null
               ? AppException.fromMessage(body['message'])
               : AppException.fromStatusCode(body['status']);
         }
 
-        return;
+        return CloseShiftResponseModel.fromJson(body['data']);
       } else {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'closeShift ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:aladdin_franchise/src/core/network/responses/data_bill.dart';
+import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/models/atm_pos.dart';
 import 'package:aladdin_franchise/src/models/category.dart';
 import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
@@ -274,7 +275,6 @@ class HomeState with _$HomeState {
     /// reservation
     // @Default(PageState()) PageState getReservationsState,
     // @Default([]) List<ReservationModel> reservations,
-    @Default([]) List<HomeTabEnum> homeTabs,
-    @Default(HomeTabEnum.dashboard) HomeTabEnum homeTabSelect,
+    @Default(DiscountTypeEnum.vnd) DiscountTypeEnum discountTypeSelect,
   }) = _HomeState;
 }

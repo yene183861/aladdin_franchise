@@ -87,6 +87,8 @@ const _$AppLogActionEnumMap = {
   AppLogAction.getEmployeeSales: 'getEmployeeSales',
   AppLogAction.addCoupon: 'addCoupon',
   AppLogAction.deleteCoupon: 'deleteCoupon',
+  AppLogAction.addVoucher: 'addVoucher',
+  AppLogAction.deleteVoucher: 'deleteVoucher',
   AppLogAction.applyPolicy: 'applyPolicy',
   AppLogAction.getInfoByTaxCode: 'getInfoByTaxCode',
   AppLogAction.updateOrderInvoice: 'updateOrderInvoice',
