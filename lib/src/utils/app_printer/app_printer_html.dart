@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
 import 'package:aladdin_franchise/src/models/combo_item.dart';
 import 'package:aladdin_franchise/src/models/data_bill.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
@@ -12,6 +12,7 @@ import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart'
 import 'package:aladdin_franchise/src/models/policy_result.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/restaurant.dart';
+import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
@@ -19,8 +20,6 @@ import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:image/image.dart' as image_lib;
-import 'package:intl/intl.dart';
-import 'package:path/path.dart';
 import 'package:webcontent_converter/webcontent_converter.dart';
 
 class AppPrinterHtmlUtils {
@@ -75,110 +74,6 @@ class AppPrinterHtmlUtils {
     var bytes = await generateImageBill(htmlData);
     return bytes;
   }
-
-  /// in hóa đơn
-  // Future<String?> printReceipt({
-  //   required OrderModel order,
-  //   List<LineItemDataBill> orderLineItems = const [],
-  //   required PriceDataBill price,
-  //   String? note,
-  //   PaymentMethod? paymentMethod,
-  //   List<HistoryPolicyResultModel> vouchers = const [],
-  //   required ReceiptTypeEnum receiptType,
-  //   required List<IpOrderModel> printers,
-  //   bool printNumberOfPeople = false,
-  //   String customerPhone = '',
-  //   int numberOfPeople = 1,
-  //   double paymentAmount = 0.0,
-  //   int numberPrintCompleted = 1,
-  //   int numberPrintTemporary = 1,
-  //   String cashierCompleted = '',
-  //   DateTime? timeCompleted,
-  //   DateTime? timeCreatedAt,
-  //   String cashierPrint = '',
-  // }) async {
-  //   try {
-  //     var htmlData = paymentBillContent(
-  //       order: order,
-  //       orderLineItems: orderLineItems,
-  //       price: price,
-  //       receiptType: receiptType,
-  //       note: note ?? '',
-  //       customerPhone: customerPhone,
-  //       numberOfPeople: numberOfPeople,
-  //       paymentAmount: paymentAmount,
-  //       paymentMethod: paymentMethod,
-  //       printNumberOfPeople: printNumberOfPeople,
-  //       vouchers: vouchers,
-  //       numberPrintCompleted: numberPrintCompleted,
-  //       numberPrintTemporary: numberPrintTemporary,
-  //       cashierCompleted: cashierCompleted,
-  //       timeCompleted: timeCompleted,
-  //       timeCreatedAt: timeCreatedAt,
-  //       cashierPrint: cashierPrint,
-  //     );
-  //     var bytes = await generateImageBill(htmlData);
-
-  //     try {
-  //       for (var printer in printers) {
-  //         final xPrinter = PrinterNetworkManager(
-  //           printer.ip,
-  //           port: printer.port,
-  //         );
-
-  //         int retry = 2;
-  //         while (retry < 3) {
-  //           retry++;
-  //           final PosPrintResult connectResult =
-  //               await xPrinter.connect(timeout: const Duration(seconds: 10));
-  //           if (connectResult == PosPrintResult.success) {
-  //             try {
-  //               final billStatus = await xPrinter.printTicket(bytes);
-  //               await xPrinter.disconnect();
-  //               // try {
-  //               // await xPrinter.disconnect();
-  //               // } catch (ex) {
-  //               //   showLogs(ex.toString(), flags: 'xPrinter disconnect 1');
-  //               //   rethrow;
-  //               // }
-  //               showLogs(billStatus.msg, flags: 'KQ in');
-  //               if (billStatus != PosPrintResult.success) {
-  //                 throw billStatus.msg;
-  //               }
-  //             } catch (ex) {
-  //               showLogs(ex.toString(), flags: 'xPrinter disconnect');
-  //               rethrow;
-  //             }
-  //           } else {
-  //             // try {
-  //             //   await xPrinter.disconnect();
-  //             // } catch (ex) {
-  //             //   showLogs(ex.toString(), flags: 'xPrinter disconnect 2');
-  //             // }
-  //             if (connectResult == PosPrintResult.timeout) {
-  //               retry++;
-  //               if (retry > 2) {
-  //                 showLogs(connectResult.msg, flags: 'xPrinter connect ex');
-  //                 throw connectResult.msg;
-  //               }
-  //             } else {
-  //               showLogs(connectResult.msg, flags: 'xPrinter connect ex');
-  //               throw connectResult.msg;
-  //             }
-  //           }
-  //         }
-  //       }
-  //     } catch (ex) {
-  //       showLogs(ex.toString(), flags: 'Lỗi in hóa đơn');
-  //       return ex.toString();
-  //     }
-
-  //     return null;
-  //   } catch (ex) {
-  //     showLogs(ex.toString(), flags: 'Lỗi gen ảnh hóa đơn');
-  //     return ex.toString();
-  //   }
-  // }
 
   /// in bill xuống bếp
   Future<String?> printKitchenBill({
@@ -423,9 +318,7 @@ class AppPrinterHtmlUtils {
 </head>
 
 <body style="margin: 0px;padding: 0px;">
-    <p style="text-align: center">
-    <h2 style="text-align: center">${restaurant?.name ?? ''}</h2>
-    <h5 style="text-align: center; font-size:14px;">${restaurant?.address ?? ''}</h5>
+${_getRestaurantInfo()}
     <h2 style="text-align: center;word-wrap: break-word;">${cancel ? 'HỦY ĐỒ - ' : ''}${order.getOrderMisc()} - Bàn ${order.name}</h2>
     <table class="items">
         <tr>
@@ -442,16 +335,7 @@ class AppPrinterHtmlUtils {
 
     </span>
     <p></p>
-
-
-
-    <p style="text-align: center">
-        Powered by Aladdin.,JSC <br>
-        ${DateTimeUtils.formatToString(time: DateTime.now(), newPattern: 'dd/MM/yyyy HH:mm:ss')}
-    </p>
-    <p style="text-align: center">
-    ''
-    </p>
+${_getTime()}
 </body>
 
 </html>
@@ -478,7 +362,6 @@ class AppPrinterHtmlUtils {
     String cashierPrint = '',
     String invoiceQr = '',
   }) {
-    RestaurantModel? restaurant = LocalStorage.getDataLogin()?.restaurant;
     var user = LocalStorage.getDataLogin()?.user;
     String dishTable = "";
 
@@ -617,9 +500,7 @@ class AppPrinterHtmlUtils {
 </head>
 
 <body style="margin: 0px;padding: 0px;">
-    <p style="text-align: center">
-    <h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">${restaurant?.name ?? ''}</h2>
-    <h5 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">${restaurant?.address ?? ''}</h5>
+${_getRestaurantInfo()}
     <h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">${receiptType.title}</h2>
     <h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">Bill ${order.getOrderMisc()} Bàn ${order.name}</h2>
     <h3 style="text-align: center;word-wrap: break-word;">${receiptType.note}</h3>
@@ -709,10 +590,7 @@ class AppPrinterHtmlUtils {
             'Trường hợp khách hàng không cung cấp thông tin xuất hóa đơn GTGT thì công ty'
             'sẽ xuất hóa đơn Khách Lẻ và không xuất lại hóa đơn trong mọi trường hợp sau đó.'}
         ${invoiceQr.trim().isNotEmpty ? '<div id="qrcode"></div>' : ''}
-    <p style="text-align: center">
-        Powered by Aladdin.,JSC <br>
-        Thời gian in: ${_printDateTime(DateTime.now())}
-    </p>
+${_getTime()}
     <p style="text-align: center">
         ${isPaymentReceipt ? '' : 'Lần in tạm tính: $numberPrintTemporary<br>'}
         ${isPaymentReceipt ? 'Lần in hoàn thành: $numberPrintCompleted' : ''}
@@ -739,21 +617,191 @@ class AppPrinterHtmlUtils {
   String _printDateTime(DateTime? value) {
     return DateTimeUtils.formatToString(time: value, newPattern: DateTimePatterns.dateTime1);
   }
-}
 
-class AppHelper {
-  static double parseToDoubleValue(dynamic value) {
-    double data =
-        // (value is double || value is int)
-        value is num ? (value * 1.0) : (double.tryParse(value) ?? 0.0);
-    return data;
+  Future<List<int>> getCloseShiftContent() async {
+    var htmlData = _closeShiftContent();
+    var bytes = await generateImageBill(htmlData);
+    return bytes;
   }
 
-  static String parseToPrice(
-    dynamic value, {
-    String symbol = '',
-  }) {
-    var price = parseToDoubleValue(value);
-    return NumberFormat.currency(locale: 'vi', symbol: symbol).format(price);
+  String _closeShiftContent() {
+    return '''
+<!DOCTYPE HTML>
+<html style="margin: 0px;padding: 0px;">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <style type="text/css">
+        body {
+            width: 302.36px;
+        }
+
+        h2,
+        h3 {
+            font-size: 16px;
+        }
+
+        p {
+            margin-bottom: 0.25cm;
+            line-height: 120%;
+        }
+
+        .items {
+            width: 100%;
+            word-wrap: break-word;
+            border-collapse: collapse;
+        }
+
+        .infobill {
+            width: 100%;
+            word-wrap: break-word;
+            border-collapse: collapse;
+        }
+
+        .infobill th,
+        .infobill td {
+            word-wrap: break-word;
+        }
+
+        .items th,
+        .items td {
+            word-wrap: break-word;
+            border: 1px solid black;
+        }
+
+        th {
+            text-align: left;
+        }
+
+        .tax {
+            text-align: center;
+        }
+
+        .total {
+            width: 100%;
+            word-wrap: break-word;
+            border-collapse: collapse;
+        }
+
+        .total td {
+            padding-top: 10px;
+        }
+
+        hr {
+            border: 1px solid black;
+        }
+
+        #qrcode_block {
+            text-align: center;
+        }
+
+        .qrcode {
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body style="margin: 0px;padding: 0px;">
+${_getRestaurantInfo()}
+    <h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">MỞ: 2025-12-04 07:30</h2>
+    <h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">ĐÓNG: 2025-12-04 11:24</h2>
+
+
+    <table class="items">
+        <tr>
+            <td width="40%">Ca</td>
+            <th width="60%">SÁNG</th>
+
+        </tr>
+        <tr>
+            <td width="40%">Thu ngân</td>
+            <th width="60%">CNTT Thu Ngân</th>
+
+        </tr>
+    </table>
+
+    <h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">SỐ LIỆU CHỐT</h2>
+    <table class="items">
+        <tr>
+            <td width="60%">Số dư đầu</td>
+            <td width="40%">0</td>
+
+        </tr>
+        <tr>
+            <td width="60%">Tổng tiền bán</td>
+            <td width="40%">298.944</td>
+
+        </tr>
+        <tr>
+            <td width="60%">Tiền mặt</td>
+            <td width="40%">298.944</td>
+
+        </tr>
+        <tr>
+            <td width="60%">Chuyển khoản</td>
+            <td width="40%">0</td>
+
+        </tr>
+        <tr>
+            <td width="60%">Shopee</td>
+            <td width="40%">0</td>
+
+        </tr>
+        <tr>
+            <td width="60%">Grab</td>
+            <td width="40%">0</td>
+
+        </tr>
+        <tr>
+            <td width="60%">Tổng giảm giá</td>
+            <td width="40%">19.200</td>
+
+        </tr>
+        <tr>
+            <td width="60%">Tổng chiết khấu</td>
+            <td width="40%">0</td>
+
+        </tr>
+        <tr>
+            <td width="60%">Tổng hoá đơn</td>
+            <td width="40%">2</td>
+
+        </tr>
+        <tr>
+            <td width="60%">Dư cuối ca</td>
+            <td width="40%">298.944</td>
+
+        </tr>
+    </table>
+    <p></p>
+
+
+
+
+    <hr>
+${_getTime()}
+</body>
+
+</html>
+''';
+  }
+
+  String _getRestaurantInfo() {
+    RestaurantModel? restaurant = LocalStorage.getDataLogin()?.restaurant;
+    return '''
+<p style="text-align: center">
+<h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">${restaurant?.name ?? ''}</h2>
+<h5 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">${restaurant?.address ?? ''}</h5>
+''';
+  }
+
+  String _getTime() {
+    return '''
+<p style="text-align: center">
+    Powered by Aladdin.,JSC <br>
+    Thời gian in: ${_printDateTime(DateTime.now())}
+</p>
+ <p style="text-align: center">
+''';
   }
 }

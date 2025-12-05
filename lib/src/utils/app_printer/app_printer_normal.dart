@@ -512,4 +512,131 @@ class AppPrinterNormalUtils {
 
     return bytes;
   }
+
+  Future<List<int>> getCloseShift() async {
+    List<int> bytes = [];
+
+    try {
+      final profile = await CapabilityProfile.load();
+      final generator = Generator(PaperSize.mm80, profile);
+      RestaurantModel? restaurant = (LocalStorage.getDataLogin())?.restaurant;
+      // header
+      bytes += generator.text(
+        TiengViet.parse(restaurant?.name ?? AppConfig.appName),
+        styles: const PosStyles(
+          bold: true,
+          height: PosTextSize.size1,
+          width: PosTextSize.size1,
+          align: PosAlign.center,
+        ),
+      );
+      bytes += generator.text(
+        TiengViet.parse(restaurant?.address ?? "========="),
+        styles: const PosStyles(
+          align: PosAlign.center,
+        ),
+      );
+      bytes += generator.emptyLines(1);
+      // title bill
+      // if (title != null) {
+      //   bytes += generator.text(
+      //     TiengViet.parse(title),
+      //     styles: const PosStyles(
+      //       bold: true,
+      //       // height: PosTextSize.size2,
+      //       // width: PosTextSize.size2,
+      //       align: PosAlign.center,
+      //     ),
+      //   );
+      // }
+      bytes += generator.text(
+        TiengViet.parse(
+          "Mở: 2025-12-04 07:30",
+        ),
+        styles: const PosStyles(
+          bold: true,
+          align: PosAlign.center,
+        ),
+      );
+      bytes += generator.text(
+        TiengViet.parse(
+          "Đóng: 2025-12-04 11:30",
+        ),
+        styles: const PosStyles(
+          bold: true,
+          align: PosAlign.center,
+        ),
+      );
+      bytes += generator.emptyLines(1);
+      // body
+      bytes += generator.row(
+        [
+          PosColumn(
+            text: "Ca",
+            width: 4,
+            styles: const PosStyles(
+              align: PosAlign.left,
+            ),
+          ),
+          PosColumn(
+            text: "Sang",
+            width: 8,
+            styles: const PosStyles(
+              bold: true,
+              align: PosAlign.left,
+            ),
+          ),
+        ],
+      );
+      bytes += generator.row(
+        [
+          PosColumn(
+            text: "Thu ngan",
+            width: 4,
+            styles: const PosStyles(
+              align: PosAlign.left,
+            ),
+          ),
+          PosColumn(
+            text: "CNTT Thu ngan",
+            width: 8,
+            styles: const PosStyles(
+              bold: true,
+              align: PosAlign.left,
+            ),
+          ),
+        ],
+      );
+
+      bytes += generator.emptyLines(1);
+      bytes += generator.text(
+        TiengViet.parse('SỐ LIỆU CHỐT'),
+        styles: const PosStyles(
+          align: PosAlign.center,
+          bold: true,
+        ),
+      );
+      // thêm code ở đây
+
+      bytes += generator.emptyLines(1);
+
+      bytes += generator.text(
+        "Powered by Aladdin.,JSC",
+        styles: const PosStyles(
+          align: PosAlign.center,
+        ),
+      );
+      bytes += generator.text(
+        DateFormat("dd/MM/yyyy HH:mm:ss").format(DateTime.now()),
+        styles: const PosStyles(
+          align: PosAlign.center,
+        ),
+      );
+      bytes += generator.cut();
+    } catch (ex) {
+      showLogs(ex, flags: 'ex image');
+      rethrow;
+    }
+    return bytes;
+  }
 }

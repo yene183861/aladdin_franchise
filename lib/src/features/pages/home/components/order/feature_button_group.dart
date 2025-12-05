@@ -5,7 +5,9 @@ import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
+import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/dialogs/button_find_customer.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
@@ -21,10 +23,13 @@ import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/app_printer/app_printer_html.dart';
+import 'package:aladdin_franchise/src/utils/app_printer/app_printer_normal.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:aladdin_franchise/src/utils/subwindows_moniter.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -321,6 +326,33 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
             padding: defaultPaddingFeatureBtn,
             color: const Color(0xFF2FA7E7),
             onPressed: () async {
+              if (kDebugMode) {
+                var setting = LocalStorage.getPrintSetting();
+                bool printNormal = setting.appPrinterType == AppPrinterSettingTypeEnum.normal;
+                var bytes = printNormal
+                    ? await AppPrinterNormalUtils.instance.getCloseShift()
+                    : await AppPrinterHtmlUtils.instance.getCloseShiftContent();
+                PrintQueue.instance.addTask(
+                  ip: '192.168.10.89',
+                  port: 9100,
+                  buildReceipt: (generator) async {
+                    return bytes;
+                  },
+                  onComplete: (success, error) {
+                    if (success) {
+                      showLogs("✅ In thành công");
+                    } else {
+                      showLogs("❌ In thất bại");
+
+                      if (error != null) {
+                        showMessageDialog(context, message: error);
+                      }
+                    }
+                  },
+                );
+
+                return;
+              }
               final res = await ref.read(homeProvider.notifier).closeShift();
 
               if (res != null) {

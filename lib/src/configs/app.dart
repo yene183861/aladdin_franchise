@@ -37,8 +37,7 @@ class AppConfig {
   static const String appVersion = "V1.0.0";
   static const int versionCode = 1;
   static const String appUpdateFileName = "apos-franchise-update.apk";
-  final String urlHelp =
-      "https://sites.google.com/aladdin-jsc.com/aladdin-pos-docs?usp=sharing";
+  final String urlHelp = "https://sites.google.com/aladdin-jsc.com/aladdin-pos-docs?usp=sharing";
 
   static const double defaultRawTextSize = 13.0;
 
@@ -127,6 +126,8 @@ class AppConfig {
       RoundedRectangleBorder(borderRadius: BorderRadius.circular(12));
   static ShapeBorder shapeBorderSecond =
       RoundedRectangleBorder(borderRadius: BorderRadius.circular(8));
+
+  static bool useInvoiceQr = false;
 }
 
 class NetworkMessageConfig {

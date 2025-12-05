@@ -11,6 +11,7 @@ import 'package:aladdin_franchise/src/data/model/table_layout_item.dart';
 import 'package:aladdin_franchise/src/data/model/table_layout_setting.dart';
 import 'package:aladdin_franchise/src/features/common/process_state.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
+import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/components/order_items_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -310,7 +311,175 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
       body: SafeArea(
         child: Column(
           children: [
-            const Divider(height: 2),
+            Consumer(
+              builder: (context, ref, child) {
+                var floors = ref.watch(tableLayoutPageProvider.select((value) => value.floors));
+                var floorSelect =
+                    ref.watch(tableLayoutPageProvider.select((value) => value.floorSelect));
+                return Container(
+                  height: 56,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ListView.separated(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            if (index == 0 && enableDragLayout) {
+                              return InkWell(
+                                onTap: () async {
+                                  var res = await showConfirmInputDialog(
+                                    context,
+                                    title: 'Thêm tầng',
+                                    hintText: '',
+                                    textAction: 'Thêm mới',
+                                  );
+
+                                  if ((res ?? '').trim().isNotEmpty) {
+                                    await ref
+                                        .read(tableLayoutPageProvider.notifier)
+                                        .addFloor((res ?? '').trim());
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const ResponsiveIconWidget(iconData: Icons.add),
+                                      Text(
+                                        'Thêm tầng',
+                                        style: AppTextStyle.regular(
+                                            rawFontSize: AppConfig.defaultRawTextSize - 0.5),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+
+                            var item = floors[index - (enableDragLayout ? 1 : 0)];
+                            bool selected = floorSelect == item;
+                            return InkWell(
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: () {
+                                ref
+                                    .read(tableLayoutPageProvider.notifier)
+                                    .onChangeFloorSelect(item);
+                              },
+                              onLongPress: () async {
+                                if (item.isDefault || !enableDragLayout) return;
+                                var res = await showConfirmInputDialog(
+                                  context,
+                                  title: 'Thay đổi tên từ ${item.name} thành',
+                                  hintText: '',
+                                  textAction: 'Lưu',
+                                  initText: item.name,
+                                  validator: (p0) {
+                                    if ((p0 ?? '').trim().isEmpty) {
+                                      return 'Vui lòng nhập tên để dễ phân biệt';
+                                    }
+                                    return null;
+                                  },
+                                );
+                                if ((res ?? '').trim().isNotEmpty) {
+                                  var fl =
+                                      await ref.read(tableLayoutPageProvider.notifier).updateFloor(
+                                            item: item,
+                                            name: (res ?? '').trim(),
+                                            delete: false,
+                                          );
+                                  if (item == floorSelect) {
+                                    ref
+                                        .read(tableLayoutPageProvider.notifier)
+                                        .onChangeFloorSelect(fl);
+                                  }
+                                }
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: selected ? Colors.blue : null,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: selected ? Colors.blue : Colors.grey),
+                                ),
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      item.name,
+                                      style: selected
+                                          ? AppTextStyle.bold(
+                                              color: Colors.white,
+                                              rawFontSize: AppConfig.defaultRawTextSize - 0.5)
+                                          : AppTextStyle.regular(
+                                              rawFontSize: AppConfig.defaultRawTextSize - 0.5),
+                                    ),
+                                    if (!item.isDefault && enableDragLayout) ...[
+                                      const Gap(4),
+                                      const ResponsiveIconWidget(
+                                        iconData: Icons.edit,
+                                        iconSize: 18,
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          separatorBuilder: (context, index) => const Gap(8),
+                          itemCount: floors.length + (enableDragLayout ? 1 : 0),
+                        ),
+                      ),
+                      Consumer(builder: (context, ref, child) {
+                        var setting =
+                            ref.watch(tableLayoutPageProvider.select((value) => value.itemSetting));
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: TableColorEnum.values.map(
+                            (e) {
+                              var color = setting.colorMap[e];
+
+                              return Row(
+                                children: [
+                                  const Gap(20),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: color ?? e.color,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: color ?? e.borderColor),
+                                    ),
+                                    height: 12,
+                                    width: 12,
+                                  ),
+                                  const Gap(8),
+                                  Text(
+                                    e.title,
+                                    style: AppTextStyle.regular(
+                                      rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              );
+                            },
+                          ).toList(),
+                        );
+                      }),
+                      const Gap(8),
+                    ],
+                  ),
+                );
+              },
+            ),
             Expanded(
               child: Container(
                 color: const Color(0xFFf9fafc),
@@ -565,517 +734,517 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                 ),
               ),
             ),
-            const Divider(height: 2),
-            Container(
-              height: 110,
-              color: Colors.grey.shade200,
-              child: Row(
-                children: [
-                  if (enableDragLayout) ...[
-                    Draggable<String>(
-                      data: 'chair',
-                      feedback: const Opacity(opacity: 0.7, child: DraggerTableWidget()),
-                      childWhenDragging: const Opacity(opacity: 0.3, child: DraggerTableWidget()),
-                      child: DraggerTableWidget(
-                        item: TableLayoutItemModel(
-                          topChair: 0,
-                          bottomChair: 0,
-                          leftChair: 0,
-                          rightChair: 0,
-                          table: TableModel(id: 0, name: 'Bàn'),
-                          typeOrder: kTypeOrder,
-                        ),
-                      ),
-                    ),
-                    Flexible(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Gap(4),
-                            Row(
-                              children: [
-                                Consumer(
-                                  builder: (context, ref, child) {
-                                    var items = ref.watch(
-                                        tableLayoutPageProvider.select((value) => value.items));
-                                    var exists = items
-                                        .where((e) => e.table != null)
-                                        .map((e) => e.table!.id)
-                                        .toList();
-                                    // bool enable = items.isEmpty && allTables.isNotEmpty;
-                                    var size = MediaQuery.of(context).size;
+            // const Divider(height: 2),
+            // Container(
+            //   height: 110,
+            //   color: Colors.grey.shade200,
+            //   child: Row(
+            //     children: [
+            //       if (enableDragLayout) ...[
+            //         Draggable<String>(
+            //           data: 'chair',
+            //           feedback: const Opacity(opacity: 0.7, child: DraggerTableWidget()),
+            //           childWhenDragging: const Opacity(opacity: 0.3, child: DraggerTableWidget()),
+            //           child: DraggerTableWidget(
+            //             item: TableLayoutItemModel(
+            //               topChair: 0,
+            //               bottomChair: 0,
+            //               leftChair: 0,
+            //               rightChair: 0,
+            //               table: TableModel(id: 0, name: 'Bàn'),
+            //               typeOrder: kTypeOrder,
+            //             ),
+            //           ),
+            //         ),
+            //         Flexible(
+            //           child: SingleChildScrollView(
+            //             child: Column(
+            //               crossAxisAlignment: CrossAxisAlignment.start,
+            //               mainAxisSize: MainAxisSize.min,
+            //               mainAxisAlignment: MainAxisAlignment.center,
+            //               children: [
+            //                 const Gap(4),
+            //                 Row(
+            //                   children: [
+            //                     Consumer(
+            //                       builder: (context, ref, child) {
+            //                         var items = ref.watch(
+            //                             tableLayoutPageProvider.select((value) => value.items));
+            //                         var exists = items
+            //                             .where((e) => e.table != null)
+            //                             .map((e) => e.table!.id)
+            //                             .toList();
+            //                         // bool enable = items.isEmpty && allTables.isNotEmpty;
+            //                         var size = MediaQuery.of(context).size;
 
-                                    var remainTables =
-                                        allTables.where((e) => !exists.contains(e.id)).toList();
-                                    bool enable = remainTables.isNotEmpty;
-                                    return Tooltip(
-                                      message: 'Sắp xếp mặc định',
-                                      child: ResponsiveIconButtonWidget(
-                                        buttonStyle: ButtonStyle(
-                                          backgroundColor: WidgetStatePropertyAll(
-                                              enable ? Colors.white : Colors.grey.shade100),
-                                          padding: const WidgetStatePropertyAll(EdgeInsets.all(16)),
-                                          shape: WidgetStatePropertyAll(
-                                            RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                          ),
-                                        ),
-                                        iconData: Icons.auto_awesome_motion_outlined,
-                                        iconSize: 28,
-                                        color: enable ? Colors.black87 : Colors.grey.shade400,
-                                        onPressed: () {
-                                          if (!enable) return;
-                                          ref
-                                              .read(tableLayoutPageProvider.notifier)
-                                              .generateDefaultTable(
-                                                tables: remainTables,
-                                                viewportWidth: 4000,
-                                                viewportHeight: size.height,
-                                              );
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
-                                const Gap(12),
-                                Consumer(
-                                  builder: (context, ref, child) {
-                                    var items = ref.watch(
-                                        tableLayoutPageProvider.select((value) => value.items));
-                                    var enableDragLayout = ref.watch(tableLayoutPageProvider
-                                        .select((value) => value.enableDragLayout));
-                                    if (!enableDragLayout) return const SizedBox.shrink();
-                                    bool disable = items.isEmpty;
+            //                         var remainTables =
+            //                             allTables.where((e) => !exists.contains(e.id)).toList();
+            //                         bool enable = remainTables.isNotEmpty;
+            //                         return Tooltip(
+            //                           message: 'Sắp xếp mặc định',
+            //                           child: ResponsiveIconButtonWidget(
+            //                             buttonStyle: ButtonStyle(
+            //                               backgroundColor: WidgetStatePropertyAll(
+            //                                   enable ? Colors.white : Colors.grey.shade100),
+            //                               padding: const WidgetStatePropertyAll(EdgeInsets.all(16)),
+            //                               shape: WidgetStatePropertyAll(
+            //                                 RoundedRectangleBorder(
+            //                                   borderRadius: BorderRadius.circular(12),
+            //                                 ),
+            //                               ),
+            //                             ),
+            //                             iconData: Icons.auto_awesome_motion_outlined,
+            //                             iconSize: 28,
+            //                             color: enable ? Colors.black87 : Colors.grey.shade400,
+            //                             onPressed: () {
+            //                               if (!enable) return;
+            //                               ref
+            //                                   .read(tableLayoutPageProvider.notifier)
+            //                                   .generateDefaultTable(
+            //                                     tables: remainTables,
+            //                                     viewportWidth: 4000,
+            //                                     viewportHeight: size.height,
+            //                                   );
+            //                             },
+            //                           ),
+            //                         );
+            //                       },
+            //                     ),
+            //                     const Gap(12),
+            //                     Consumer(
+            //                       builder: (context, ref, child) {
+            //                         var items = ref.watch(
+            //                             tableLayoutPageProvider.select((value) => value.items));
+            //                         var enableDragLayout = ref.watch(tableLayoutPageProvider
+            //                             .select((value) => value.enableDragLayout));
+            //                         if (!enableDragLayout) return const SizedBox.shrink();
+            //                         bool disable = items.isEmpty;
 
-                                    return DragTarget<TableLayoutItemModel>(
-                                      onAcceptWithDetails: (details) {
-                                        if (disable) return;
-                                        ref
-                                            .read(tableLayoutPageProvider.notifier)
-                                            .removeItem(details.data);
-                                      },
-                                      builder: (_, __, ___) => Tooltip(
-                                        message: 'Kéo bàn muốn xoá vào đây',
-                                        child: ResponsiveIconButtonWidget(
-                                          buttonStyle: ButtonStyle(
-                                            backgroundColor: WidgetStatePropertyAll(
-                                                disable ? Colors.grey.shade100 : Colors.white),
-                                            padding:
-                                                const WidgetStatePropertyAll(EdgeInsets.all(16)),
-                                            shape: WidgetStatePropertyAll(
-                                              RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                              ),
-                                            ),
-                                          ),
-                                          iconData: Icons.delete,
-                                          iconSize: 28,
-                                          color: disable ? Colors.grey.shade400 : Colors.black87,
-                                          onPressed: () {
-                                            showConfirmAction(
-                                              context,
-                                              message: 'Bạn có chắc chắn muốn xoá các bàn đã chọn?',
-                                              action: () {
-                                                ref
-                                                    .read(tableLayoutPageProvider.notifier)
-                                                    .onDeleteMulti();
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                const Gap(20),
-                                Consumer(
-                                  builder: (context, ref, child) {
-                                    var floorSelect = ref.watch(tableLayoutPageProvider
-                                        .select((value) => value.floorSelect));
-                                    return Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'Tầng',
-                                          style: AppTextStyle.bold(
-                                            rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                                          ),
-                                        ),
-                                        const Gap(12),
-                                        SizedBox(
-                                          width: 200,
-                                          child: FloorDropdownWidget(
-                                            backgroundColor: Colors.white,
-                                            floorInit: floorSelect,
-                                            onChangeFloor: ref
-                                                .read(tableLayoutPageProvider.notifier)
-                                                .onChangeFloorSelect,
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                                const Gap(12),
-                                Consumer(
-                                  builder: (context, ref, child) {
-                                    var items = ref.watch(
-                                        tableLayoutPageProvider.select((value) => value.items));
-                                    if (items.isEmpty) return const SizedBox.shrink();
-                                    return AppCheckbox(
-                                      onChange: () {
-                                        showConfirmAction(
-                                          context,
-                                          message: 'Bạn có chắc chắn muốn xoá tất cả các bàn?',
-                                          action: () {
-                                            ref
-                                                .read(tableLayoutPageProvider.notifier)
-                                                .onDeleteAll();
-                                          },
-                                        );
-                                      },
-                                      text: 'Xoá tất cả',
-                                    );
-                                  },
-                                )
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  'Lưu ý: Với nút "Sắp xếp mặc định"',
-                                  style: AppTextStyle.regular(
-                                    rawFontSize: AppConfig.defaultRawTextSize - 1.5,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                ResponsiveIconButtonWidget(
-                                  buttonStyle: ButtonStyle(
-                                    backgroundColor: const WidgetStatePropertyAll(Colors.white),
-                                    padding: const WidgetStatePropertyAll(EdgeInsets.all(2)),
-                                    shape: WidgetStatePropertyAll(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
-                                  ),
-                                  iconData: Icons.auto_awesome_motion_outlined,
-                                  iconSize: 12,
-                                  color: Colors.black87,
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    ' sẽ chỉ thêm những bàn chưa có trong bố cục, các bàn thêm có thể sẽ ghi đè lên vị trí các bàn đã có!',
-                                    style: AppTextStyle.regular(
-                                      rawFontSize: AppConfig.defaultRawTextSize - 1.5,
-                                      color: Colors.blue,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Gap(2),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (!enableDragLayout) ...[
-                    const Gap(20),
-                    Consumer(
-                      builder: (context, ref, child) {
-                        var floorSelect =
-                            ref.watch(tableLayoutPageProvider.select((value) => value.floorSelect));
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Tầng',
-                              style: AppTextStyle.bold(
-                                rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 200,
-                              child: FloorDropdownWidget(
-                                backgroundColor: Colors.white,
-                                floorInit: floorSelect,
-                                onChangeFloor:
-                                    ref.read(tableLayoutPageProvider.notifier).onChangeFloorSelect,
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                    const Gap(12),
-                    const Spacer(),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Gap(12),
-                        Row(
-                          children: [
-                            // Consumer(
-                            //   builder: (context, ref, child) {
-                            //     var date = ref
-                            //         .watch(tableLayoutPageProvider.select((value) => value.date));
+            //                         return DragTarget<TableLayoutItemModel>(
+            //                           onAcceptWithDetails: (details) {
+            //                             if (disable) return;
+            //                             ref
+            //                                 .read(tableLayoutPageProvider.notifier)
+            //                                 .removeItem(details.data);
+            //                           },
+            //                           builder: (_, __, ___) => Tooltip(
+            //                             message: 'Kéo bàn muốn xoá vào đây',
+            //                             child: ResponsiveIconButtonWidget(
+            //                               buttonStyle: ButtonStyle(
+            //                                 backgroundColor: WidgetStatePropertyAll(
+            //                                     disable ? Colors.grey.shade100 : Colors.white),
+            //                                 padding:
+            //                                     const WidgetStatePropertyAll(EdgeInsets.all(16)),
+            //                                 shape: WidgetStatePropertyAll(
+            //                                   RoundedRectangleBorder(
+            //                                     borderRadius: BorderRadius.circular(12),
+            //                                   ),
+            //                                 ),
+            //                               ),
+            //                               iconData: Icons.delete,
+            //                               iconSize: 28,
+            //                               color: disable ? Colors.grey.shade400 : Colors.black87,
+            //                               onPressed: () {
+            //                                 showConfirmAction(
+            //                                   context,
+            //                                   message: 'Bạn có chắc chắn muốn xoá các bàn đã chọn?',
+            //                                   action: () {
+            //                                     ref
+            //                                         .read(tableLayoutPageProvider.notifier)
+            //                                         .onDeleteMulti();
+            //                                   },
+            //                                 );
+            //                               },
+            //                             ),
+            //                           ),
+            //                         );
+            //                       },
+            //                     ),
+            //                     const Gap(20),
+            //                     Consumer(
+            //                       builder: (context, ref, child) {
+            //                         var floorSelect = ref.watch(tableLayoutPageProvider
+            //                             .select((value) => value.floorSelect));
+            //                         return Row(
+            //                           mainAxisSize: MainAxisSize.min,
+            //                           children: [
+            //                             Text(
+            //                               'Tầng',
+            //                               style: AppTextStyle.bold(
+            //                                 rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+            //                               ),
+            //                             ),
+            //                             const Gap(12),
+            //                             SizedBox(
+            //                               width: 200,
+            //                               child: FloorDropdownWidget(
+            //                                 backgroundColor: Colors.white,
+            //                                 floorInit: floorSelect,
+            //                                 onChangeFloor: ref
+            //                                     .read(tableLayoutPageProvider.notifier)
+            //                                     .onChangeFloorSelect,
+            //                               ),
+            //                             ),
+            //                           ],
+            //                         );
+            //                       },
+            //                     ),
+            //                     const Gap(12),
+            //                     Consumer(
+            //                       builder: (context, ref, child) {
+            //                         var items = ref.watch(
+            //                             tableLayoutPageProvider.select((value) => value.items));
+            //                         if (items.isEmpty) return const SizedBox.shrink();
+            //                         return AppCheckbox(
+            //                           onChange: () {
+            //                             showConfirmAction(
+            //                               context,
+            //                               message: 'Bạn có chắc chắn muốn xoá tất cả các bàn?',
+            //                               action: () {
+            //                                 ref
+            //                                     .read(tableLayoutPageProvider.notifier)
+            //                                     .onDeleteAll();
+            //                               },
+            //                             );
+            //                           },
+            //                           text: 'Xoá tất cả',
+            //                         );
+            //                       },
+            //                     )
+            //                   ],
+            //                 ),
+            //                 Row(
+            //                   children: [
+            //                     Text(
+            //                       'Lưu ý: Với nút "Sắp xếp mặc định"',
+            //                       style: AppTextStyle.regular(
+            //                         rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+            //                         color: Colors.blue,
+            //                       ),
+            //                     ),
+            //                     ResponsiveIconButtonWidget(
+            //                       buttonStyle: ButtonStyle(
+            //                         backgroundColor: const WidgetStatePropertyAll(Colors.white),
+            //                         padding: const WidgetStatePropertyAll(EdgeInsets.all(2)),
+            //                         shape: WidgetStatePropertyAll(
+            //                           RoundedRectangleBorder(
+            //                             borderRadius: BorderRadius.circular(12),
+            //                           ),
+            //                         ),
+            //                       ),
+            //                       iconData: Icons.auto_awesome_motion_outlined,
+            //                       iconSize: 12,
+            //                       color: Colors.black87,
+            //                     ),
+            //                     Expanded(
+            //                       child: Text(
+            //                         ' sẽ chỉ thêm những bàn chưa có trong bố cục, các bàn thêm có thể sẽ ghi đè lên vị trí các bàn đã có!',
+            //                         style: AppTextStyle.regular(
+            //                           rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+            //                           color: Colors.blue,
+            //                         ),
+            //                       ),
+            //                     ),
+            //                   ],
+            //                 ),
+            //                 const Gap(2),
+            //               ],
+            //             ),
+            //           ),
+            //         ),
+            //       ],
+            //       if (!enableDragLayout) ...[
+            //         const Gap(20),
+            //         Consumer(
+            //           builder: (context, ref, child) {
+            //             var floorSelect =
+            //                 ref.watch(tableLayoutPageProvider.select((value) => value.floorSelect));
+            //             return Column(
+            //               mainAxisSize: MainAxisSize.min,
+            //               crossAxisAlignment: CrossAxisAlignment.start,
+            //               children: [
+            //                 Text(
+            //                   'Tầng',
+            //                   style: AppTextStyle.bold(
+            //                     rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+            //                   ),
+            //                 ),
+            //                 SizedBox(
+            //                   width: 200,
+            //                   child: FloorDropdownWidget(
+            //                     backgroundColor: Colors.white,
+            //                     floorInit: floorSelect,
+            //                     onChangeFloor:
+            //                         ref.read(tableLayoutPageProvider.notifier).onChangeFloorSelect,
+            //                   ),
+            //                 ),
+            //               ],
+            //             );
+            //           },
+            //         ),
+            //         const Gap(12),
+            //         const Spacer(),
+            //         Column(
+            //           crossAxisAlignment: CrossAxisAlignment.end,
+            //           mainAxisAlignment: MainAxisAlignment.center,
+            //           children: [
+            //             const Gap(12),
+            //             Row(
+            //               children: [
+            //                 // Consumer(
+            //                 //   builder: (context, ref, child) {
+            //                 //     var date = ref
+            //                 //         .watch(tableLayoutPageProvider.select((value) => value.date));
 
-                            //     return GestureDetector(
-                            //       onTap: () async {
-                            //         var dateChange = await showDatePickerDialog(
-                            //           context,
-                            //           calendarType: CalendarDatePicker2Type.single,
-                            //           value: [date],
-                            //           dialogSize: const Size(500, 450),
-                            //         );
-                            //         if ((dateChange ?? []).isNotEmpty &&
-                            //             dateChange!.first != null) {
-                            //           ref
-                            //               .read(tableLayoutPageProvider.notifier)
-                            //               .onChangeDate(dateChange.first!);
-                            //         }
-                            //       },
-                            //       child: Container(
-                            //         padding:
-                            //             const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            //         decoration: BoxDecoration(
-                            //           color: Colors.white,
-                            //           borderRadius: BorderRadius.circular(4),
-                            //         ),
-                            //         child: Row(
-                            //           children: [
-                            //             const ResponsiveIconWidget(
-                            //                 iconData: Icons.calendar_month,
-                            //                 color: AppColors.textColor),
-                            //             const Gap(4),
-                            //             Text(
-                            //               DateTimeUtils.formatToString(
-                            //                   time: date, newPattern: DateTimePatterns.date),
-                            //               style: AppTextStyle.regular(),
-                            //             ),
-                            //           ],
-                            //         ),
-                            //       ),
-                            //     );
-                            //   },
-                            // ),
-                            // const Gap(8),
-                            // Consumer(
-                            //   builder: (context, ref, child) {
-                            //     var fromTime = ref.watch(
-                            //         tableLayoutPageProvider.select((value) => value.fromTime));
-                            //     var toTime = ref
-                            //         .watch(tableLayoutPageProvider.select((value) => value.toTime));
+            //                 //     return GestureDetector(
+            //                 //       onTap: () async {
+            //                 //         var dateChange = await showDatePickerDialog(
+            //                 //           context,
+            //                 //           calendarType: CalendarDatePicker2Type.single,
+            //                 //           value: [date],
+            //                 //           dialogSize: const Size(500, 450),
+            //                 //         );
+            //                 //         if ((dateChange ?? []).isNotEmpty &&
+            //                 //             dateChange!.first != null) {
+            //                 //           ref
+            //                 //               .read(tableLayoutPageProvider.notifier)
+            //                 //               .onChangeDate(dateChange.first!);
+            //                 //         }
+            //                 //       },
+            //                 //       child: Container(
+            //                 //         padding:
+            //                 //             const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            //                 //         decoration: BoxDecoration(
+            //                 //           color: Colors.white,
+            //                 //           borderRadius: BorderRadius.circular(4),
+            //                 //         ),
+            //                 //         child: Row(
+            //                 //           children: [
+            //                 //             const ResponsiveIconWidget(
+            //                 //                 iconData: Icons.calendar_month,
+            //                 //                 color: AppColors.textColor),
+            //                 //             const Gap(4),
+            //                 //             Text(
+            //                 //               DateTimeUtils.formatToString(
+            //                 //                   time: date, newPattern: DateTimePatterns.date),
+            //                 //               style: AppTextStyle.regular(),
+            //                 //             ),
+            //                 //           ],
+            //                 //         ),
+            //                 //       ),
+            //                 //     );
+            //                 //   },
+            //                 // ),
+            //                 // const Gap(8),
+            //                 // Consumer(
+            //                 //   builder: (context, ref, child) {
+            //                 //     var fromTime = ref.watch(
+            //                 //         tableLayoutPageProvider.select((value) => value.fromTime));
+            //                 //     var toTime = ref
+            //                 //         .watch(tableLayoutPageProvider.select((value) => value.toTime));
 
-                            //     return GestureDetector(
-                            //       onTap: () async {
-                            //         var from = await showTimePicker(
-                            //           context: context,
-                            //           initialTime: fromTime,
-                            //           helpText: 'Bắt đầu',
-                            //         );
-                            //         if (from != null) {
-                            //           var to = await showTimePicker(
-                            //             context: context,
-                            //             initialTime: toTime,
-                            //             helpText: 'Kết thúc',
-                            //           );
-                            //           if (to != null) {
-                            //             var today = DateTime.now().date;
-                            //             var fromDateTime = DateTimeUtils.parseDateTimeFromTimeOfDay(
-                            //                 date: today, timeOfDay: from);
-                            //             var toDateTime = DateTimeUtils.parseDateTimeFromTimeOfDay(
-                            //                 date: today, timeOfDay: to);
-                            //             if (!toDateTime.isAfter(fromDateTime)) {
-                            //               toDateTime =
-                            //                   fromDateTime.add(const Duration(minutes: 120));
-                            //               var endDate =
-                            //                   today.add(const Duration(hours: 23, minutes: 59));
-                            //               if (toDateTime.isAfter(endDate)) {
-                            //                 toDateTime = endDate;
-                            //               }
-                            //             }
+            //                 //     return GestureDetector(
+            //                 //       onTap: () async {
+            //                 //         var from = await showTimePicker(
+            //                 //           context: context,
+            //                 //           initialTime: fromTime,
+            //                 //           helpText: 'Bắt đầu',
+            //                 //         );
+            //                 //         if (from != null) {
+            //                 //           var to = await showTimePicker(
+            //                 //             context: context,
+            //                 //             initialTime: toTime,
+            //                 //             helpText: 'Kết thúc',
+            //                 //           );
+            //                 //           if (to != null) {
+            //                 //             var today = DateTime.now().date;
+            //                 //             var fromDateTime = DateTimeUtils.parseDateTimeFromTimeOfDay(
+            //                 //                 date: today, timeOfDay: from);
+            //                 //             var toDateTime = DateTimeUtils.parseDateTimeFromTimeOfDay(
+            //                 //                 date: today, timeOfDay: to);
+            //                 //             if (!toDateTime.isAfter(fromDateTime)) {
+            //                 //               toDateTime =
+            //                 //                   fromDateTime.add(const Duration(minutes: 120));
+            //                 //               var endDate =
+            //                 //                   today.add(const Duration(hours: 23, minutes: 59));
+            //                 //               if (toDateTime.isAfter(endDate)) {
+            //                 //                 toDateTime = endDate;
+            //                 //               }
+            //                 //             }
 
-                            //             to = TimeOfDay(
-                            //                 hour: toDateTime.hour, minute: toDateTime.minute);
+            //                 //             to = TimeOfDay(
+            //                 //                 hour: toDateTime.hour, minute: toDateTime.minute);
 
-                            //             ref
-                            //                 .read(tableLayoutPageProvider.notifier)
-                            //                 .onChangeTime(from: from, to: to);
-                            //           }
-                            //         }
-                            //       },
-                            //       child: Container(
-                            //         padding:
-                            //             const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            //         decoration: BoxDecoration(
-                            //           color: Colors.white,
-                            //           borderRadius: BorderRadius.circular(4),
-                            //         ),
-                            //         child: Row(
-                            //           children: [
-                            //             const ResponsiveIconWidget(
-                            //                 iconData: Icons.access_time_sharp,
-                            //                 color: AppColors.textColor),
-                            //             const Gap(4),
-                            //             Text(
-                            //               '${fromTime.format(context)} - ${toTime.format(context)}',
-                            //               style: AppTextStyle.regular(),
-                            //             ),
-                            //           ],
-                            //         ),
-                            //       ),
-                            //     );
-                            //   },
-                            // ),
+            //                 //             ref
+            //                 //                 .read(tableLayoutPageProvider.notifier)
+            //                 //                 .onChangeTime(from: from, to: to);
+            //                 //           }
+            //                 //         }
+            //                 //       },
+            //                 //       child: Container(
+            //                 //         padding:
+            //                 //             const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            //                 //         decoration: BoxDecoration(
+            //                 //           color: Colors.white,
+            //                 //           borderRadius: BorderRadius.circular(4),
+            //                 //         ),
+            //                 //         child: Row(
+            //                 //           children: [
+            //                 //             const ResponsiveIconWidget(
+            //                 //                 iconData: Icons.access_time_sharp,
+            //                 //                 color: AppColors.textColor),
+            //                 //             const Gap(4),
+            //                 //             Text(
+            //                 //               '${fromTime.format(context)} - ${toTime.format(context)}',
+            //                 //               style: AppTextStyle.regular(),
+            //                 //             ),
+            //                 //           ],
+            //                 //         ),
+            //                 //       ),
+            //                 //     );
+            //                 //   },
+            //                 // ),
 
-                            const Gap(8),
-                            Consumer(builder: (context, ref, child) {
-                              var setting = ref.watch(
-                                  tableLayoutPageProvider.select((value) => value.itemSetting));
-                              return Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: TableColorEnum.values.map(
-                                  (e) {
-                                    var color = setting.colorMap[e];
+            //                 const Gap(8),
+            //                 Consumer(builder: (context, ref, child) {
+            //                   var setting = ref.watch(
+            //                       tableLayoutPageProvider.select((value) => value.itemSetting));
+            //                   return Row(
+            //                     mainAxisSize: MainAxisSize.min,
+            //                     children: TableColorEnum.values.map(
+            //                       (e) {
+            //                         var color = setting.colorMap[e];
 
-                                    return Row(
-                                      children: [
-                                        const Gap(20),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: color ?? e.color,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(color: color ?? e.borderColor),
-                                          ),
-                                          height: 12,
-                                          width: 12,
-                                        ),
-                                        const Gap(8),
-                                        Text(
-                                          e.title,
-                                          style: AppTextStyle.regular(
-                                            rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ).toList(),
-                              );
-                            }),
-                            const Gap(8),
-                          ],
-                        ),
-                        const Gap(12),
-                        // if ([
-                        //   StatusEnum.loading,
-                        //   StatusEnum.error,
-                        // ].contains(reservationState.status)) ...[
-                        //   switch (reservationState.status) {
-                        //     StatusEnum.normal => const SizedBox.shrink(),
-                        //     StatusEnum.success => const SizedBox.shrink(),
-                        //     StatusEnum.loading => Row(
-                        //         children: [
-                        //           CupertinoActivityIndicator(color: AppColors.blue),
-                        //           const Gap(4),
-                        //           Text(
-                        //             'Đang làm mới dữ liệu đặt bàn...',
-                        //             style: AppTextStyle.regular(
-                        //               color: AppColors.blue,
-                        //               rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                        //             ),
-                        //           ),
-                        //         ],
-                        //       ),
-                        //     StatusEnum.error => GestureDetector(
-                        //         onTap: () {
-                        //           // ref
-                        //           //     .read(homeProvider.notifier)
-                        //           //     .fetchReservations(fromDate: date, toDate: date);
-                        //         },
-                        //         child: Row(
-                        //           children: [
-                        //             ResponsiveIconWidget(
-                        //               iconData: Icons.info_outline,
-                        //               color: AppColors.redColor,
-                        //             ),
-                        //             const Gap(4),
-                        //             Text(
-                        //               'Thông tin bàn đặt không được cập nhật. Sự cố: ${reservationState.message}',
-                        //               style: AppTextStyle.regular(
-                        //                 color: AppColors.redColor,
-                        //                 rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                        //               ),
-                        //               maxLines: 2,
-                        //               overflow: TextOverflow.ellipsis,
-                        //             ),
-                        //           ],
-                        //         ),
-                        //       ),
-                        //   }
-                        // ],
-                        if ([
-                          StatusEnum.loading,
-                          StatusEnum.error,
-                        ].contains(tableState.status)) ...[
-                          switch (tableState.status) {
-                            StatusEnum.normal => const SizedBox.shrink(),
-                            StatusEnum.success => const SizedBox.shrink(),
-                            StatusEnum.loading => allTables.isEmpty
-                                ? Row(
-                                    children: [
-                                      CupertinoActivityIndicator(color: AppColors.blue),
-                                      const Gap(4),
-                                      Text(
-                                        'Đang làm mới dữ liệu bàn...',
-                                        style: AppTextStyle.regular(
-                                          color: AppColors.blue,
-                                          rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : const SizedBox.shrink(),
-                            StatusEnum.error => GestureDetector(
-                                onTap: () {
-                                  ref.refresh(tablesAndOrdersProvider);
-                                },
-                                child: Row(
-                                  children: [
-                                    const ResponsiveIconWidget(
-                                      iconData: Icons.info_outline,
-                                      color: AppColors.redColor,
-                                    ),
-                                    const Gap(4),
-                                    Text(
-                                      'Trạng thái bàn không được cập nhật.\nSự cố: ${tableState.message}',
-                                      style: AppTextStyle.regular(
-                                        color: AppColors.redColor,
-                                        rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          }
-                        ],
-                      ],
-                    ),
-                  ] else
-                    const Gap(20),
-                ],
-              ),
-            ),
+            //                         return Row(
+            //                           children: [
+            //                             const Gap(20),
+            //                             Container(
+            //                               decoration: BoxDecoration(
+            //                                 color: color ?? e.color,
+            //                                 shape: BoxShape.circle,
+            //                                 border: Border.all(color: color ?? e.borderColor),
+            //                               ),
+            //                               height: 12,
+            //                               width: 12,
+            //                             ),
+            //                             const Gap(8),
+            //                             Text(
+            //                               e.title,
+            //                               style: AppTextStyle.regular(
+            //                                 rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+            //                               ),
+            //                               maxLines: 1,
+            //                               overflow: TextOverflow.ellipsis,
+            //                             ),
+            //                           ],
+            //                         );
+            //                       },
+            //                     ).toList(),
+            //                   );
+            //                 }),
+            //                 const Gap(8),
+            //               ],
+            //             ),
+            //             const Gap(12),
+            //             // if ([
+            //             //   StatusEnum.loading,
+            //             //   StatusEnum.error,
+            //             // ].contains(reservationState.status)) ...[
+            //             //   switch (reservationState.status) {
+            //             //     StatusEnum.normal => const SizedBox.shrink(),
+            //             //     StatusEnum.success => const SizedBox.shrink(),
+            //             //     StatusEnum.loading => Row(
+            //             //         children: [
+            //             //           CupertinoActivityIndicator(color: AppColors.blue),
+            //             //           const Gap(4),
+            //             //           Text(
+            //             //             'Đang làm mới dữ liệu đặt bàn...',
+            //             //             style: AppTextStyle.regular(
+            //             //               color: AppColors.blue,
+            //             //               rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+            //             //             ),
+            //             //           ),
+            //             //         ],
+            //             //       ),
+            //             //     StatusEnum.error => GestureDetector(
+            //             //         onTap: () {
+            //             //           // ref
+            //             //           //     .read(homeProvider.notifier)
+            //             //           //     .fetchReservations(fromDate: date, toDate: date);
+            //             //         },
+            //             //         child: Row(
+            //             //           children: [
+            //             //             ResponsiveIconWidget(
+            //             //               iconData: Icons.info_outline,
+            //             //               color: AppColors.redColor,
+            //             //             ),
+            //             //             const Gap(4),
+            //             //             Text(
+            //             //               'Thông tin bàn đặt không được cập nhật. Sự cố: ${reservationState.message}',
+            //             //               style: AppTextStyle.regular(
+            //             //                 color: AppColors.redColor,
+            //             //                 rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+            //             //               ),
+            //             //               maxLines: 2,
+            //             //               overflow: TextOverflow.ellipsis,
+            //             //             ),
+            //             //           ],
+            //             //         ),
+            //             //       ),
+            //             //   }
+            //             // ],
+            //             if ([
+            //               StatusEnum.loading,
+            //               StatusEnum.error,
+            //             ].contains(tableState.status)) ...[
+            //               switch (tableState.status) {
+            //                 StatusEnum.normal => const SizedBox.shrink(),
+            //                 StatusEnum.success => const SizedBox.shrink(),
+            //                 StatusEnum.loading => allTables.isEmpty
+            //                     ? Row(
+            //                         children: [
+            //                           CupertinoActivityIndicator(color: AppColors.blue),
+            //                           const Gap(4),
+            //                           Text(
+            //                             'Đang làm mới dữ liệu bàn...',
+            //                             style: AppTextStyle.regular(
+            //                               color: AppColors.blue,
+            //                               rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+            //                             ),
+            //                           ),
+            //                         ],
+            //                       )
+            //                     : const SizedBox.shrink(),
+            //                 StatusEnum.error => GestureDetector(
+            //                     onTap: () {
+            //                       ref.refresh(tablesAndOrdersProvider);
+            //                     },
+            //                     child: Row(
+            //                       children: [
+            //                         const ResponsiveIconWidget(
+            //                           iconData: Icons.info_outline,
+            //                           color: AppColors.redColor,
+            //                         ),
+            //                         const Gap(4),
+            //                         Text(
+            //                           'Trạng thái bàn không được cập nhật.\nSự cố: ${tableState.message}',
+            //                           style: AppTextStyle.regular(
+            //                             color: AppColors.redColor,
+            //                             rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+            //                           ),
+            //                         ),
+            //                       ],
+            //                     ),
+            //                   ),
+            //               }
+            //             ],
+            //           ],
+            //         ),
+            //       ] else
+            //         const Gap(20),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),

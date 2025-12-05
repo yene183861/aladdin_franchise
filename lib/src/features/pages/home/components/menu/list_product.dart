@@ -40,13 +40,9 @@ class ProductBoxWidget extends ConsumerWidget {
       onTap: () async {
         if (product.outOfStock == true) return;
         if (ref.read(homeProvider).orderSelect != null) {
-          if (ref.read(homeProvider).lockedOrder) return;
-          var result = await ref
+          ref
               .read(homeProvider.notifier)
               .addProductToCart(product: product.copyWith(numberSelecting: 1));
-          if (result != null) {
-            showMessageDialog(context, message: result);
-          }
         }
       },
       onLongPress: () {

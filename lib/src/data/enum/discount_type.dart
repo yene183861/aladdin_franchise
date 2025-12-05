@@ -1,14 +1,14 @@
-enum DiscoundTypeEnum {
+enum DiscountTypeEnum {
   vnd,
   percent,
 }
 
-extension DiscoundTypeEnumEx on DiscoundTypeEnum {
+extension DiscountTypeEnumEx on DiscountTypeEnum {
   String get title {
     switch (this) {
-      case DiscoundTypeEnum.vnd:
+      case DiscountTypeEnum.vnd:
         return 'VND';
-      case DiscoundTypeEnum.percent:
+      case DiscountTypeEnum.percent:
         return '%';
       default:
         return '';
@@ -17,9 +17,9 @@ extension DiscoundTypeEnumEx on DiscoundTypeEnum {
 
   String get key {
     switch (this) {
-      case DiscoundTypeEnum.vnd:
+      case DiscountTypeEnum.vnd:
         return 'vnd';
-      case DiscoundTypeEnum.percent:
+      case DiscountTypeEnum.percent:
         return '%';
       default:
         return '';

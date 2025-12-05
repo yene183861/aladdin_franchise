@@ -21,6 +21,8 @@ import 'package:aladdin_franchise/src/core/network/restaurant/restaurant_reposit
 import 'package:aladdin_franchise/src/core/network/user/user_repository.dart';
 import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
+import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/order/order_option_dialog.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
@@ -97,10 +99,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     this._productRepository,
     this._o2oRepository,
     this._invoiceRepository,
-  ) : super(HomeState(
-          homeTabs: HomeTabEnum.values,
-          homeTabSelect: HomeTabEnum.dashboard,
-        )) {
+  ) : super(const HomeState()) {
     AppConfig.initHomeProvider = true;
     ctrlSearch = TextEditingController();
     // confirm dùng redis hay không?
@@ -442,10 +441,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }
 
   /// thêm sp vào giỏ hàng (số lượng 1)
-  Future<String?> addProductToCart({required ProductModel product}) async {
-    if (state.orderSelect == null) {
-      return S.current.noOrderSelect;
-    }
+  void addProductToCart({required ProductModel product}) async {
+    var orderSelect = state.orderSelect;
+    if (orderSelect == null) return;
     var productsSelecting = List<ProductModel>.from(state.productsSelecting);
 
     var index = productsSelecting.indexWhere((e) => e.id == product.id);
@@ -469,83 +467,43 @@ class HomeNotifier extends StateNotifier<HomeState> {
       data[e.id.toString()] = e.numberSelecting;
     }
     try {
-      await LocalStorage.setOrderItemSelectingForOrder(orderId: state.orderSelect!.id, data: data);
+      await LocalStorage.setOrderItemSelectingForOrder(orderId: orderSelect.id, data: data);
     } catch (ex) {
-      //
+      showLogs(ex, flags: 'addProductToCart - K lưu được món đang chọn');
     }
     return null;
   }
 
-  /// giảm số lượng 1 của sp trong giỏ hàng
-  // Future<String?> removeProductInOrder(ProductModel productModel) async {
-  //   try {
-  //     if (state.orderSelect == null) {
-  //       return S.current.noOrderSelect;
-  //     }
-  // _updateOrderItemTimer?.cancel();
-  // state = state.copyWith(isOrderSaved: false);
-  // var currentOrderItems = List<ProductModel>.from(state.currentOrderItems);
-  // var item =
-  //     currentOrderItems.firstWhereOrNull((e) => e.id == productModel.id);
-  // if (item != null) {
-  //   var count = item.numberSelecting - 1;
-  //   if (count < 1) {
-  //     currentOrderItems.remove(item);
-  //   } else {
-  //     var index = currentOrderItems.indexOf(item);
-  //     if (index != -1) {
-  //       currentOrderItems[index] =
-  //           productModel.copyWith(numberSelecting: count);
-  //     }
-  //   }
-  // }
-
-  //     state = state.copyWith(
-  //       // currentOrderItems: currentOrderItems,
-  //       changedProductId: productModel.id,
-  //     );
-  //     onChangeAutoScrollProducts(true);
-  //     // _startUpdateOrderItemTimer();
-  //     return null;
-  //   } catch (ex) {
-  //     return S.current.an_error_occurred;
-  //   }
-  // }
-  /// thay đổi số lượng 1 sp trong cart
+  /// thay đổi số lượng sp trong cart
   void changeProductInCart(ProductModel productModel, int count) async {
-    try {
-      if (state.orderSelect == null) return;
-      var productsSelecting = List<ProductModel>.from(state.productsSelecting);
-
-      var item = productsSelecting.firstWhereOrNull((e) => e.id == productModel.id);
-      if (item != null) {
-        if (count > 0) {
-          var index = productsSelecting.indexOf(item);
-          if (index != -1) {
-            productsSelecting[index] = productModel.copyWith(numberSelecting: count);
-          }
-        } else {
-          productsSelecting.remove(item);
+    var orderSelect = state.orderSelect;
+    if (orderSelect == null) return;
+    var productsSelecting = List<ProductModel>.from(state.productsSelecting);
+    var item = productsSelecting.firstWhereOrNull((e) => e.id == productModel.id);
+    if (item != null) {
+      if (count > 0) {
+        var index = productsSelecting.indexOf(item);
+        if (index != -1) {
+          productsSelecting[index] = productModel.copyWith(numberSelecting: count);
         }
+      } else {
+        productsSelecting.remove(item);
       }
-      productsSelecting.remove((e) => e.numberSelecting < 1);
-      state = state.copyWith(
-        productsSelecting: productsSelecting,
-        changedProductId: productModel.id,
-      );
-      onChangeAutoScrollProducts(true);
-      Map<String, int> data = {};
-      for (var e in productsSelecting) {
-        data[e.id.toString()] = e.numberSelecting;
-      }
-      try {
-        await LocalStorage.setOrderItemSelectingForOrder(
-            orderId: state.orderSelect!.id, data: data);
-      } catch (ex) {
-        //
-      }
+    }
+    productsSelecting.removeWhere((e) => e.numberSelecting < 1);
+    state = state.copyWith(
+      productsSelecting: productsSelecting,
+      changedProductId: productModel.id,
+    );
+    onChangeAutoScrollProducts(true);
+    Map<String, int> data = {};
+    for (var e in productsSelecting) {
+      data[e.id.toString()] = e.numberSelecting;
+    }
+    try {
+      await LocalStorage.setOrderItemSelectingForOrder(orderId: orderSelect.id, data: data);
     } catch (ex) {
-      //
+      showLogs(ex, flags: 'changeProductInCart - K lưu được món đang chọn');
     }
   }
 
@@ -982,7 +940,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       //   coupons: [...coupons, ...state.coupons],
       //   customer: state.customer ?? customerCoupon,
       // );
-      if (applyPolicy) await applyCustomerPolicy();
+      // if (applyPolicy) await applyCustomerPolicy();
 
       return (error: null, titleError: null);
     } catch (ex) {
@@ -2038,6 +1996,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                     cashierPrint: '',
                     timeCompleted: null,
                     timeCreatedAt: null,
+                    invoiceQr: AppConfig.useInvoiceQr ? 'https://google.com' : '',
                   );
                   return bytes;
                 },
@@ -2999,7 +2958,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void onChangeHomeTabSelect(HomeTabEnum value) {
-    state = state.copyWith(homeTabSelect: value);
+  void onChangeDiscountTypeSelect(DiscountTypeEnum value) {
+    state = state.copyWith(discountTypeSelect: value);
   }
 }
