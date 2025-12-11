@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:aladdin_franchise/src/configs/const.dart';
 import 'package:aladdin_franchise/src/models/customer/customer.dart';
 import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart';
 import 'package:aladdin_franchise/src/models/promotion_item.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/language.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -17,7 +20,7 @@ class CustomerPolicyModel with _$CustomerPolicyModel {
     required String name,
     int? type,
     @Default(false) bool only,
-    @Default([]) List<DiscountPolicy> discount,
+    @Default([]) @JsonKey(fromJson: parseDiscountPolicyFromJsonData) List<DiscountPolicy> discount,
     dynamic conditionApply,
     @Default([]) List<String> conditionApplyMessage,
     @JsonKey(fromJson: parseCustomerFromJsonData) CustomerModel? customer,
@@ -91,6 +94,24 @@ CustomerModel? parseCustomerFromJsonData(dynamic customerData) {
   }
 }
 
+List<DiscountPolicy> parseDiscountPolicyFromJsonData(dynamic data) {
+  try {
+    if (data == null) return [];
+    if (data is List) {
+      return data.map((e) => DiscountPolicy.fromJson(e)).toList();
+    }
+
+    if (data is String) {
+      var json = jsonDecode(data);
+      return (json as List).map((e) => DiscountPolicy.fromJson(e)).toList();
+    }
+    return [];
+  } catch (ex) {
+    showLogs(ex, flags: 'parseDiscountPolicyFromJsonData ex');
+    return [];
+  }
+}
+
 @freezed
 class DiscountPolicy with _$DiscountPolicy {
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
@@ -99,8 +120,8 @@ class DiscountPolicy with _$DiscountPolicy {
     // name == null: áp dụng cho tổng bill
     // khác null => áp dụng cho sp (theo tên)
     String? name,
-    required int type,
-    required int amount,
+    int? type,
+    @Default(0) double amount,
     @Default(0) int maxNumber,
     @Default('') String namePromotion,
     @Default('') String nameEnPromotion,
@@ -108,8 +129,7 @@ class DiscountPolicy with _$DiscountPolicy {
     @Default(0) int numberSelect,
   }) = _DiscountPolicy;
 
-  factory DiscountPolicy.fromJson(Map<String, dynamic> json) =>
-      _$DiscountPolicyFromJson(json);
+  factory DiscountPolicy.fromJson(Map<String, dynamic> json) => _$DiscountPolicyFromJson(json);
 
   static String getModelInterface() {
     return '''dynamic id,

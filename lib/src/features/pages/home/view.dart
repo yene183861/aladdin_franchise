@@ -959,6 +959,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                         const Gap(8),
                         AppButtonWidget(
                           textAction: 'Thanh toán',
+                          color: AppColors.mainColor,
                           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                           borderRadius: BorderRadius.circular(8),
                           onTap: () async {

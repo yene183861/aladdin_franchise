@@ -11,6 +11,7 @@ import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/models/param/get_reservation_param.dart';
 import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:flutter/foundation.dart';
 
 import 'reservation_repository.dart';
 
@@ -24,6 +25,7 @@ class ReservationRepositoryImpl extends ReservationRepository {
       modelInterface: 'bool',
     );
     try {
+      if (kDebugMode) return true;
       var bodyRequest = jsonEncode(param.toJson());
       log = log.copyWith(request: bodyRequest);
       var response = await restClient.post(
@@ -69,6 +71,7 @@ class ReservationRepositoryImpl extends ReservationRepository {
     );
     try {
       await syncReservation(param);
+      if (kDebugMode) return [];
       var response = await restClient.get(Uri.parse(apiUrl));
       log = log.copyWith(
         response: [response.statusCode, response.body],

@@ -74,6 +74,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
+    var viewPadding = MediaQuery.of(context).viewPadding;
     var tabWidget = Row(
       children: CheckoutTabEnum.values.map(
         (e) {
@@ -93,8 +94,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                     e.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTextStyle.bold(
-                        color: selected ? Colors.white : Colors.grey),
+                    style: AppTextStyle.bold(color: selected ? Colors.white : Colors.grey),
                   ),
                 ),
               ),
@@ -126,83 +126,85 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           style: AppTextStyle.bold(color: Colors.white),
         ),
       ),
-      body: OrientationBuilder(
-        builder: (context, orientation) {
-          if (orientation == Orientation.portrait) {
-            return Column(
+      body: Padding(
+        padding: EdgeInsets.fromLTRB(viewPadding.left, 0, 0, 0),
+        child: OrientationBuilder(
+          builder: (context, orientation) {
+            if (orientation == Orientation.portrait) {
+              return Column(
+                children: [
+                  tabWidget,
+                  Expanded(
+                    child: switch (tabSelect) {
+                      CheckoutTabEnum.receipt => Column(
+                          children: [
+                            const Expanded(
+                              child: OrderedItemsSelectedWidget(),
+                            ),
+                            priceWidget,
+                            continueBtn,
+                            const Gap(8),
+                          ],
+                        ),
+                      CheckoutTabEnum.endow => TabCustomerPayment(
+                          onApplyCallback: () {
+                            _changeTabSelect(CheckoutTabEnum.receipt);
+                          },
+                        ),
+                    },
+                  ),
+                ],
+              );
+            }
+
+            return Row(
               children: [
-                tabWidget,
-                Expanded(
-                  child: switch (tabSelect) {
-                    CheckoutTabEnum.receipt => Column(
-                        children: [
-                          const Expanded(
-                            child: OrderedItemsSelectedWidget(),
-                          ),
-                          priceWidget,
-                          continueBtn,
-                          const Gap(8),
-                        ],
+                const Expanded(
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: OrderedItemsSelectedWidget(),
                       ),
-                    CheckoutTabEnum.endow => TabCustomerPayment(
-                        onApplyCallback: () {
-                          _changeTabSelect(CheckoutTabEnum.receipt);
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: ProductCheckoutActionWidget(),
+                      ),
+                    ],
+                  ),
+                ),
+                const VerticalDivider(width: 1),
+                Expanded(
+                  flex: 1,
+                  child: Column(
+                    children: [
+                      tabWidget,
+                      Expanded(
+                        child: switch (tabSelect) {
+                          CheckoutTabEnum.receipt => Column(
+                              children: [
+                                Expanded(
+                                  child: priceWidget,
+                                ),
+                                continueBtn,
+                                const Gap(8),
+                              ],
+                            ),
+                          CheckoutTabEnum.endow => TabCustomerPayment(
+                              onApplyCallback: () {
+                                _changeTabSelect(CheckoutTabEnum.receipt);
+                              },
+                            ),
                         },
                       ),
-                  },
+                    ],
+                  ),
                 ),
               ],
             );
-          }
-
-          return Row(
-            children: [
-              const Expanded(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: OrderedItemsSelectedWidget(),
-                    ),
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: ProductCheckoutActionWidget(),
-                    ),
-                  ],
-                ),
-              ),
-              const VerticalDivider(width: 1),
-              Expanded(
-                flex: 1,
-                child: Column(
-                  children: [
-                    tabWidget,
-                    Expanded(
-                      child: switch (tabSelect) {
-                        CheckoutTabEnum.receipt => Column(
-                            children: [
-                              Expanded(
-                                child: priceWidget,
-                              ),
-                              continueBtn,
-                              const Gap(8),
-                            ],
-                          ),
-                        CheckoutTabEnum.endow => TabCustomerPayment(
-                            onApplyCallback: () {
-                              _changeTabSelect(CheckoutTabEnum.receipt);
-                            },
-                          ),
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
+          },
+        ),
       ),
     );
   }
@@ -241,8 +243,7 @@ class TabCustomerPayment extends ConsumerWidget {
                         if (canAction)
                           ButtonSquareMenuWidget(
                             onPressed: () => onChooseCustomerOption(context),
-                            child: const ResponsiveIconWidget(
-                                iconData: Icons.person_search),
+                            child: const ResponsiveIconWidget(iconData: Icons.person_search),
                           ),
                       ],
                     ),
@@ -267,9 +268,7 @@ class TabCustomerPayment extends ConsumerWidget {
                   style: AppTextStyle.bold(),
                 ),
                 const Gap(12),
-                const NumberOfAdultsWidget(
-                  labelText: '',
-                ),
+                const NumberOfAdultsWidget(labelText: ''),
                 const Divider(),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,8 +306,7 @@ class TabCustomerPayment extends ConsumerWidget {
                                     }
                                   }
                                 },
-                                child: const ResponsiveIconWidget(
-                                    iconData: CupertinoIcons.tickets),
+                                child: const ResponsiveIconWidget(iconData: CupertinoIcons.tickets),
                               ),
                               if (Platform.isAndroid) ...[
                                 // Gap(16),
@@ -323,8 +321,7 @@ class TabCustomerPayment extends ConsumerWidget {
                 ),
                 const Divider(),
                 Consumer(builder: (context, ref, child) {
-                  var invoice =
-                      ref.watch(homeProvider.select((value) => value.invoice));
+                  var invoice = ref.watch(homeProvider.select((value) => value.invoice));
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -344,9 +341,8 @@ class TabCustomerPayment extends ConsumerWidget {
                                 );
                               },
                               child: ResponsiveIconWidget(
-                                iconData: (invoice == null || invoice.isEmpty())
-                                    ? Icons.add
-                                    : Icons.edit,
+                                iconData:
+                                    (invoice == null || invoice.isEmpty()) ? Icons.add : Icons.edit,
                               ),
                             ),
                         ],
@@ -359,8 +355,7 @@ class TabCustomerPayment extends ConsumerWidget {
                                   child: Text(S.current.noInfo),
                                 )
                               : Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
                                   child: Row(
                                     children: [
                                       const ResponsiveIconWidget(
@@ -401,35 +396,33 @@ class TabCustomerPayment extends ConsumerWidget {
             ),
           ),
         ),
-        if (canAction)
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: ButtonMainWidget(
-                widthFactor: 0.5,
-                onPressed: () {
-                  showConfirmAction(
-                    context,
-                    message: S.current.messageApplyDiscount,
-                    action: () async {
-                      final result = await ref
-                          .read(homeProvider.notifier)
-                          .applyCustomerPolicy();
-                      if (result == null) {
-                        await showMessageDialog(
-                          context,
-                          title: S.current.congratulations,
-                          message: S.current.messageApplyDiscountResult,
-                        );
-                        onApplyCallback?.call();
-                      }
-                    },
-                  );
-                },
-                textAction: S.current.apply,
-              ),
-            ),
-          ),
+        // if (canAction)
+        //   Center(
+        //     child: Padding(
+        //       padding: const EdgeInsets.symmetric(vertical: 8),
+        //       child: ButtonMainWidget(
+        //         widthFactor: 0.5,
+        //         onPressed: () {
+        //           showConfirmAction(
+        //             context,
+        //             message: S.current.messageApplyDiscount,
+        //             action: () async {
+        //               final result = await ref.read(homeProvider.notifier).applyCustomerPolicy();
+        //               if (result == null) {
+        //                 await showMessageDialog(
+        //                   context,
+        //                   title: S.current.congratulations,
+        //                   message: S.current.messageApplyDiscountResult,
+        //                 );
+        //                 onApplyCallback?.call();
+        //               }
+        //             },
+        //           );
+        //         },
+        //         textAction: S.current.apply,
+        //       ),
+        //     ),
+        //   ),
       ],
     );
   }

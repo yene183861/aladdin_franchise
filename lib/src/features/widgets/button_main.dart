@@ -110,7 +110,7 @@ class AppButtonWidget extends StatelessWidget {
           padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             borderRadius: br,
-            color: Colors.transparent,
+            color: color ?? AppColors.mainColor,
           ),
           child: child ??
               Text(

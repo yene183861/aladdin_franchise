@@ -73,8 +73,7 @@ class CouponRepositoryImpl extends CouponRepository {
       }
     } catch (ex) {
       showLog(ex, flags: "addCoupon ex");
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -82,8 +81,7 @@ class CouponRepositoryImpl extends CouponRepository {
   }
 
   @override
-  Future<bool> deleteCoupon(
-      {required String idCode, required OrderModel order}) async {
+  Future<bool> deleteCoupon({required String idCode, required OrderModel order}) async {
     final apiUrl = ApiConfig.deleteCoupon;
     var log = ErrorLogModel(
       action: AppLogAction.deleteCoupon,
@@ -115,8 +113,7 @@ class CouponRepositoryImpl extends CouponRepository {
       }
     } catch (ex) {
       showLog(ex, flags: "deleteCoupon ex");
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -164,7 +161,7 @@ class CouponRepositoryImpl extends CouponRepository {
                   discount: [
                     DiscountPolicy(
                       type: 2,
-                      amount: pointUseToMoney,
+                      amount: pointUseToMoney * 1.0,
                     ),
                   ],
                 ),
@@ -200,8 +197,7 @@ class CouponRepositoryImpl extends CouponRepository {
       }
     } catch (ex) {
       showLogs(ex, flags: "error applyPolicy");
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
     }
@@ -252,8 +248,7 @@ class CouponRepositoryImpl extends CouponRepository {
       }
     } catch (ex) {
       showLog(ex, flags: "addVoucher ex");
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -280,7 +275,6 @@ class CouponRepositoryImpl extends CouponRepository {
       );
       if (response.statusCode == NetworkCodeConfig.ok) {
         final jsonRes = jsonDecode(response.body);
-        showLogs(jsonRes, flags: 'delete voucher');
         return;
       } else {
         checkLockedOrder(response);
@@ -288,8 +282,7 @@ class CouponRepositoryImpl extends CouponRepository {
       }
     } catch (ex) {
       showLog(ex, flags: "deleteVoucher ex");
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());

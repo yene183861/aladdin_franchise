@@ -1,9 +1,10 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
-import 'package:aladdin_franchise/src/features/dialogs/view_list_discount.dart';
+import 'package:aladdin_franchise/src/features/dialogs/detail_coupon.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -12,6 +13,7 @@ import 'package:aladdin_franchise/src/models/combo_item.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
+import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:collection/collection.dart';
@@ -19,6 +21,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
+import 'package:intl/intl.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../../../generated/l10n.dart';
@@ -73,7 +76,7 @@ class CouponInfoWidget extends ConsumerWidget {
                 if (pCheckout.id.toString() == discount.id) {
                   productDiscount = product.copyWith(
                     quantityDiscount: pCheckout.quantity,
-                    unitPriceDiscount: discount.amount,
+                    unitPriceDiscount: discount.amount.toInt(),
                   );
                 } else if (coupon.applyComboItem) {
                   List<ComboItemModel> comboItems =
@@ -85,7 +88,7 @@ class CouponInfoWidget extends ConsumerWidget {
                           allProduct.firstWhereOrNull((element) => element.id == cbi.id)?.copyWith(
                                 withComboDiscount: cbiQuantity,
                                 quantityDiscount: cbiQuantity,
-                                unitPriceDiscount: discount.amount,
+                                unitPriceDiscount: discount.amount.toInt(),
                               );
                     }
                   }
@@ -180,107 +183,107 @@ class CouponInfoWidget extends ConsumerWidget {
           );
         }
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ListTile(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("${coupon.name} ", style: AppTextStyle.bold()),
-                  if (coupon.paymentNotAllowed.isNotEmpty)
-                    Text(
-                      '- ${S.current.code_limit_payment_method}',
-                      style: AppTextStyle.regular(
-                        rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                        color: Colors.orangeAccent,
-                      ),
-                    ),
-                  if (coupon.isType == 6)
-                    Text(
-                      '- ${S.current.apply_policy_after_change_adults}',
-                      style: AppTextStyle.medium(
-                        rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                        color: Colors.orangeAccent,
-                      ),
-                    ),
-                  const GapH(8),
-                  InkWell(
-                    onTap: () {
-                      showCouponDetailDialog(context, coupon);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            CupertinoIcons.doc_text_search,
-                            size: 20,
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("${coupon.name} ", style: AppTextStyle.bold()),
+                      if (coupon.paymentNotAllowed.isNotEmpty)
+                        Text(
+                          '- ${S.current.code_limit_payment_method}',
+                          style: AppTextStyle.regular(
+                            rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                            color: Colors.orangeAccent,
                           ),
-                          const GapW(6),
-                          Text(
-                            S.current.conditions_and_products_apply,
-                            style: AppTextStyle.bold(
-                              rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                              color: AppColors.mainColor,
-                            ),
+                        ),
+                      if (coupon.isType == 6)
+                        Text(
+                          '- ${S.current.apply_policy_after_change_adults}',
+                          style: AppTextStyle.medium(
+                            rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                            color: Colors.orangeAccent,
                           ),
-                        ],
+                        ),
+                      const GapH(8),
+                      InkWell(
+                        onTap: () {
+                          showCouponDetailDialog(context, coupon);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                CupertinoIcons.doc_text_search,
+                                size: 20,
+                              ),
+                              const GapW(6),
+                              Text(
+                                S.current.conditions_and_products_apply,
+                                style: AppTextStyle.bold(
+                                  rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                                  color: AppColors.mainColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
+                      (discountView.isEmpty && productForXPeople.isEmpty)
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                S.current.messageAddCouponNoProducts,
+                                style: AppTextStyle.regular(),
+                              ),
+                            )
+                          : coupon.isType == 5 // Chọn món được khuyến mại
+                              ? Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Text(
+                                    "${S.current.select_up_to} ${coupon.maxNumberSelected} ${S.current.product.toLowerCase()}. ${S.current.selected} $totalNumberSelected/${coupon.maxNumberSelected}",
+                                    style: AppTextStyle.regular(
+                                      rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                    ],
                   ),
-                ],
-              ),
-              subtitle: (discountView.isEmpty && productForXPeople.isEmpty)
-                  ? Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        S.current.messageAddCouponNoProducts,
-                        style: AppTextStyle.regular(),
-                      ),
-                    )
-                  : coupon.isType == 5 // Chọn món được khuyến mại
-                      ? Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            "${S.current.select_up_to} ${coupon.maxNumberSelected} ${S.current.product.toLowerCase()}. ${S.current.selected} $totalNumberSelected/${coupon.maxNumberSelected}",
-                            style: AppTextStyle.regular(
-                              rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                            ),
-                          ),
-                        )
-                      : null,
-              trailing: canAction
-                  ? IconButton(
+                ),
+                if (canAction)
+                  IconButton(
                       onPressed: () {
                         showConfirmAction(
                           context,
                           message: S.current.deleteDiscountCode,
                           action: () async {
-                            var resultRemove = await ref
-                                .read(homeProvider.notifier)
-                                .removeCoupon(coupon, applyPolicy: true);
-                            if (resultRemove != null) {
+                            var result =
+                                await ref.read(homeProvider.notifier).removeVoucher(coupon: coupon);
+                            if (result != null) {
                               showErrorDialog(
                                 context,
-                                message: resultRemove,
+                                message: result,
                                 isNotifier: true,
                               );
-                              // showMessageDialog(context,
-                              //     message: resultRemove);
                             }
                           },
                         );
-                        // onRemoveCoupon.call(coupon);
                       },
                       icon: const ResponsiveIconWidget(
                         iconData: CupertinoIcons.delete,
                         color: AppColors.redColor,
-                      ))
-                  : null,
+                      )),
+              ],
             ),
             (discountView.isEmpty && productForXPeople.isEmpty)
                 ? const SizedBox()
@@ -408,65 +411,78 @@ class CouponInfoWidget extends ConsumerWidget {
                         : Column(
                             children: discountView.map((e) {
                               String amountView = "???";
-                              if (e.type == 1) {
-                                // giảm %
-                                amountView = "${e.amount}%";
+                              if (coupon.type == null) {
+                                if (e.type == DiscountTypeEnum.percent.key) {
+                                  amountView =
+                                      '${e.amount.toInt() == e.amount ? e.amount.toInt() : e.amount}%';
+                                } else {
+                                  amountView = AppHelper.parseToPrice(e.amount);
+                                }
                               } else {
-                                // giảm tiền
-                                switch (coupon.isType) {
-                                  // giảm luỹ kế
-                                  case 3:
-                                    // showLogs(null, flags: '====Giảm lũy kế');
-                                    int xQuantity = 0;
-                                    for (final pCheckout in productCheckouts) {
-                                      final product = allProduct.firstWhereOrNull(
-                                          (element) => element.id == pCheckout.id);
+                                if (e.type == 1) {
+                                  // giảm %
+                                  amountView = "${e.amount}%";
+                                } else {
+                                  // giảm tiền
+                                  switch (coupon.isType) {
+                                    // giảm luỹ kế
+                                    case 3:
+                                      // showLogs(null, flags: '====Giảm lũy kế');
+                                      int xQuantity = 0;
+                                      for (final pCheckout in productCheckouts) {
+                                        final product = allProduct.firstWhereOrNull(
+                                            (element) => element.id == pCheckout.id);
 
-                                      if (product == null) continue;
-                                      if (product.id.toString() == e.id) {
-                                        xQuantity += pCheckout.getQuantityFinal();
-                                      } else if (coupon.applyComboItem) {
-                                        List<ComboItemModel>? comboItems =
-                                            ProductHelper().getComboDescription(product);
-                                        if (comboItems != null) {
-                                          // kiểm tra danh sách món trong combo với món discount
-                                          for (final cbi in comboItems) {
-                                            if (cbi.id.toString() == e.id) {
-                                              xQuantity += cbi.quantity;
+                                        if (product == null) continue;
+                                        if (product.id.toString() == e.id) {
+                                          xQuantity += pCheckout.getQuantityFinal();
+                                        } else if (coupon.applyComboItem) {
+                                          List<ComboItemModel>? comboItems =
+                                              ProductHelper().getComboDescription(product);
+                                          if (comboItems != null) {
+                                            // kiểm tra danh sách món trong combo với món discount
+                                            for (final cbi in comboItems) {
+                                              if (cbi.id.toString() == e.id) {
+                                                xQuantity += cbi.quantity;
+                                              }
                                             }
                                           }
                                         }
                                       }
-                                    }
-                                    amountView = xQuantity > 0
-                                        ? "${AppConfig.formatCurrency().format(e.amount)} x $xQuantity"
-                                        : "";
-                                    break;
-                                  default:
-                                    "${amountView = AppConfig.formatCurrency().format(e.amount)} x 1";
-                                    break;
+                                      amountView = xQuantity > 0
+                                          ? "${AppConfig.formatCurrency().format(e.amount)} x $xQuantity"
+                                          : "";
+                                      break;
+                                    default:
+                                      "${amountView = AppConfig.formatCurrency().format(e.amount)} x 1";
+                                      break;
+                                  }
                                 }
                               }
+
                               if (amountView.isEmpty) {
                                 return const SizedBox.shrink();
                               }
 
                               return Padding(
-                                padding: const EdgeInsets.only(left: 16),
-                                child: ListTile(
-                                  dense: true,
-                                  title: Text(
-                                    e.name ?? S.current.billTotal,
-                                    style: AppTextStyle.regular(),
-                                  ),
-                                  trailing: Text(
-                                    "-$amountView",
-                                    style: AppTextStyle.regular(),
-                                  ),
+                                padding: const EdgeInsets.only(left: 16, top: 12, right: 16),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        e.name ?? S.current.billTotal,
+                                        style: AppTextStyle.regular(),
+                                      ),
+                                    ),
+                                    Text(
+                                      "-$amountView",
+                                      style: AppTextStyle.regular(),
+                                    )
+                                  ],
                                 ),
                               );
                             }).toList(),
-                          )
+                          ),
           ],
         );
       },

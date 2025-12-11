@@ -3,9 +3,9 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../generated/l10n.dart';
 
@@ -24,9 +24,6 @@ void showCouponDetailDialog(
           Text(
             "${S.current.discountCode}: ${coupon.name}",
             style: Theme.of(context).dialogTheme.titleTextStyle,
-            // style: AppTextStyle.regular(
-            //   rawFontSize: 15,
-            // ),
           ),
           const CloseButton(color: AppColors.redColor),
         ],
@@ -71,7 +68,7 @@ class _CouponInfoWidget extends ConsumerWidget {
                   ),
           ),
           const Divider(),
-          const GapH(12),
+          const Gap(12),
           Text(
             "${S.current.payment_method_does_not_apply} (${coupon.paymentNotAllowed.length})",
             style: AppTextStyle.bold(),
@@ -86,7 +83,6 @@ class _CouponInfoWidget extends ConsumerWidget {
                   children: [
                     ...coupon.paymentNotAllowed.map(
                       (e) => Chip(
-                        //backgroundColor: Colors.white,
                         label: Text(
                           e.getNameView(),
                           style: AppTextStyle.regular(),
@@ -96,7 +92,7 @@ class _CouponInfoWidget extends ConsumerWidget {
                   ],
                 ),
           const Divider(),
-          const GapH(12),
+          const Gap(12),
           ExpansionTile(
             tilePadding: EdgeInsets.zero,
             title: Text(
@@ -117,7 +113,7 @@ class _CouponInfoWidget extends ConsumerWidget {
                   ),
                   trailing: e.type == 1
                       ? Text(
-                          "-${e.amount}%",
+                          "-${AppUtils.getPercentValue(e.amount)}",
                           style: AppTextStyle.regular(),
                         )
                       : Text(

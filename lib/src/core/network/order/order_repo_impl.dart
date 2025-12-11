@@ -844,6 +844,7 @@ class OrderRepositoryImpl extends OrderRepository {
         "isPrintPeople": isPrintPeople.toString(),
       });
       final response = await restClient.post(Uri.parse(api), body: body);
+      showLogs(response.body, flags: 'response completeBill');
       log = log.copyWith(
         response: [response.statusCode, response.body],
         request: body,

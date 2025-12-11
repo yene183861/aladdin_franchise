@@ -31,8 +31,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'transfer_order/view.dart';
 import 'update_order_dialog.dart';
 
-bool createNewOrderSuccess = false;
-
 Future<void> showOrderOptionDialog(BuildContext context) async {
   if (context.mounted) {
     showDialog(
@@ -48,8 +46,7 @@ Future<void> showOrderOptionDialog(BuildContext context) async {
             showOtherOption: true,
             isExpanded: true,
           ),
-          shape:
-              RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
+          shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
           actionsAlignment: MainAxisAlignment.center,
         );
       },
@@ -67,13 +64,11 @@ class DropdownOrderWidget extends ConsumerStatefulWidget {
   final bool showOtherOption;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _DropdownOrderWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _DropdownOrderWidgetState();
 }
 
 class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
-  bool useReservation =
-      LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
+  bool useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
 
   @override
   void initState() {
@@ -88,8 +83,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var orderSelect =
-        ref.watch(homeProvider.select((value) => value.orderSelect));
+    var orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
     ref.watch(typeOrderWaiterProvider);
     var tablesAndOrders = ref.watch(tablesAndOrdersProvider);
     var reservations = ref.watch(reservationsProvider);
@@ -111,11 +105,8 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
       data: (data) {
         var orderOffline = List<OrderModel>.from(data.offline.userUsing);
         var orderOnline = List<OrderModel>.from(data.online?.userUsing ?? []);
-        var typeOrder =
-            convertToTypeOrderEnum(orderSelect?.typeOrder ?? kTypeOrder);
-        if (orderOffline.isEmpty &&
-            orderOnline.isEmpty &&
-            !widget.showOtherOption) {
+        var typeOrder = convertToTypeOrderEnum(orderSelect?.typeOrder ?? kTypeOrder);
+        if (orderOffline.isEmpty && orderOnline.isEmpty && !widget.showOtherOption) {
           return const SizedBox.shrink();
         }
         List<dynamic> orders = [
@@ -137,9 +128,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
           default:
         }
 
-        orders = orders
-            .where((e) => e != null && (e is OrderModel || e is TypeOrderEnum))
-            .toList();
+        orders = orders.where((e) => e != null && (e is OrderModel || e is TypeOrderEnum)).toList();
         return SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -165,20 +154,14 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                           isExpanded: widget.isExpanded,
                           key: UniqueKey(),
                           underline: const SizedBox.shrink(),
-                          value: orders.any((item) => item == orderSelect)
-                              ? orderSelect
-                              : null,
+                          value: orders.any((item) => item == orderSelect) ? orderSelect : null,
                           padding: EdgeInsets.zero,
                           hint: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text(
-                              orders.isEmpty
-                                  ? S.current.empty_orders
-                                  : S.of(context).noOrderSelect,
+                              orders.isEmpty ? S.current.empty_orders : S.of(context).noOrderSelect,
                               style: AppTextStyle.regular(
-                                  color: widget.showOtherOption
-                                      ? null
-                                      : AppColors.white),
+                                  color: widget.showOtherOption ? null : AppColors.white),
                             ),
                           ),
                           items: orders.map(
@@ -193,8 +176,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                           alignment: Alignment.centerLeft,
                                           child: Text(
                                             e.title,
-                                            style: AppTextStyle.bold(
-                                                color: e.color),
+                                            style: AppTextStyle.bold(color: e.color),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                             textAlign: TextAlign.start,
@@ -203,8 +185,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                       )
                                     : e is OrderModel
                                         ? Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 12),
+                                            padding: const EdgeInsets.symmetric(horizontal: 12),
                                             alignment: Alignment.centerLeft,
                                             child: Text(
                                               "${S.current.table} ${e.getNameView()}",
@@ -220,20 +201,14 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                           ).toList(),
                           onChanged: (value) async {
                             if (widget.showOtherOption) pop(context);
-                            if (value is OrderModel &&
-                                value.typeOrder != kTypeOrder) {
-                              await LocalStorage.setTypeOrderWaiter(
-                                  (value.typeOrder));
+                            if (value is OrderModel && value.typeOrder != kTypeOrder) {
+                              await LocalStorage.setTypeOrderWaiter((value.typeOrder));
                               ref.refresh(typeOrderWaiterProvider);
-                              ref
-                                  .read(homeProvider.notifier)
-                                  .initialize(order: value);
+                              ref.read(homeProvider.notifier).initialize(order: value);
                               return;
                             }
                             if (value is OrderModel) {
-                              ref
-                                  .read(homeProvider.notifier)
-                                  .changeOrderSelect(value);
+                              ref.read(homeProvider.notifier).changeOrderSelect(value);
                             }
                           },
                           selectedItemBuilder: (context) {
@@ -241,8 +216,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                 .map(
                                   (e) => Container(
                                     alignment: Alignment.center,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12),
                                     child: Text(
                                       e is OrderModel
                                           ? "${S.current.table} ${e.getNameView()}"
@@ -250,9 +224,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                               ? e.title
                                               : '',
                                       style: AppTextStyle.bold(
-                                          color: widget.showOtherOption
-                                              ? null
-                                              : AppColors.white),
+                                          color: widget.showOtherOption ? null : AppColors.white),
                                       textAlign: TextAlign.start,
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
@@ -265,9 +237,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                               ? const SizedBox.shrink()
                               : Icon(
                                   Icons.keyboard_arrow_down_outlined,
-                                  color: widget.showOtherOption
-                                      ? null
-                                      : AppColors.white,
+                                  color: widget.showOtherOption ? null : AppColors.white,
                                 )),
                     ),
                   ),
@@ -293,19 +263,14 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                   textAction: S.current.createNewOrder,
                   onPressed: () async {
                     final result = await showCreateNewOrderDialog(context);
-                    createNewOrderSuccess = true;
 
                     if (result.orderId != null) {
                       Navigator.pop(context);
-                      createNewOrderSuccess = true;
-                      if ((result.typeOrder ?? kTypeOrder) ==
-                          AppConfig.orderOfflineValue) {
+                      if ((result.typeOrder ?? kTypeOrder) == AppConfig.orderOfflineValue) {
                         ref.refresh(orderToOnlineProvider);
                       }
                       try {
-                        await ref
-                            .read(homeProvider.notifier)
-                            .loadingChangeOrderSelect(
+                        await ref.read(homeProvider.notifier).loadingChangeOrderSelect(
                               result.orderId!,
                               reservationCrmId: result.reservation?.id,
                               typeOrder: result.typeOrder ?? kTypeOrder,
@@ -346,15 +311,12 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                               const Gap(8),
                               TextButton(
                                 onPressed: () {
-                                  ref
-                                      .read(homeProvider.notifier)
-                                      .changeOrderSelect(null);
+                                  ref.read(homeProvider.notifier).changeOrderSelect(null);
                                 },
                                 child: Text(
                                   'Bỏ chọn',
                                   style: AppTextStyle.regular(
-                                    rawFontSize:
-                                        AppConfig.defaultRawTextSize - 1,
+                                    rawFontSize: AppConfig.defaultRawTextSize - 1,
                                     color: AppColors.redColor,
                                   ),
                                 ),
@@ -367,35 +329,26 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                             color: AppColors.secondColor,
                             textAction: S.current.updateOrderCurrent,
                             onPressed: () async {
-                              if (ref
-                                      .read(homeProvider.notifier)
-                                      .getOrderSelect() ==
-                                  null) {
+                              if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
                                 showMessageDialog(context,
                                     message: S.current.pleaseSelectOrderFirst);
                                 return;
                               }
-                              final result =
-                                  await showUpdateOrderDialog(context);
+                              final result = await showUpdateOrderDialog(context);
                               showLogs(
                                   'result: orderId: ${result.orderId}\nreservation: ${result.reservation}\requireUpdateReservation:${result.requireUpdateReservation}',
                                   flags: 'Cập nhập đơn bàn dialog');
                               Navigator.pop(context);
                               if (result.orderId != null) {
-                                if (result.requireUpdateReservation &&
-                                    result.reservation != null) {
+                                if (result.requireUpdateReservation && result.reservation != null) {
                                   ref
                                       .read(homeProvider.notifier)
-                                      .updateReservationModel(
-                                          result.reservation);
+                                      .updateReservationModel(result.reservation);
                                 }
                                 try {
-                                  await ref
-                                      .read(homeProvider.notifier)
-                                      .loadingChangeOrderSelect(
+                                  await ref.read(homeProvider.notifier).loadingChangeOrderSelect(
                                         result.orderId!,
-                                        reservationCrmId:
-                                            result.reservation?.id,
+                                        reservationCrmId: result.reservation?.id,
                                       );
                                 } catch (ex) {
                                   //
@@ -409,16 +362,12 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                             color: AppColors.secondColor,
                             textAction: S.current.transferOrderCurrent,
                             onPressed: () async {
-                              if (ref
-                                      .read(homeProvider.notifier)
-                                      .getOrderSelect() ==
-                                  null) {
+                              if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
                                 showMessageDialog(context,
                                     message: S.current.pleaseSelectOrderFirst);
                                 return;
                               }
-                              var result =
-                                  await showTransferOrderDialog(context);
+                              var result = await showTransferOrderDialog(context);
                               // showLogs(
                               //     'result: reservation: ${result.reservation}\requireUpdateReservation:${result.requireUpdateReservation}',
                               //     flags: 'Chuyển giao đơn bàn dialog');
@@ -439,18 +388,14 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                               color: Colors.blueGrey,
                               textAction: 'Cập nhật lịch đặt bàn',
                               onPressed: () async {
-                                var orderSelect = ref
-                                    .read(homeProvider.notifier)
-                                    .getOrderSelect();
+                                var orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
                                 if (orderSelect == null) {
                                   showMessageDialog(context,
-                                      message:
-                                          S.current.pleaseSelectOrderFirst);
+                                      message: S.current.pleaseSelectOrderFirst);
                                   return;
                                 }
 
-                                final result =
-                                    await showSelectReservationDialog(
+                                final result = await showSelectReservationDialog(
                                   context: context,
                                   showProcessReservation: true,
                                   initReserCRMId: orderSelect.reservationCrmId,
@@ -461,8 +406,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                 //     'reservation: ${result.reservation}',
                                 //     flags: 'cập nhật lịch đặt bàn');
                                 Navigator.pop(context);
-                                if (orderSelect.reservationCrmId !=
-                                    result.reservation?.id) {
+                                if (orderSelect.reservationCrmId != result.reservation?.id) {
                                   var tableNames = orderSelect.name;
 
                                   var tableIds = orderSelect.getTableIds;
@@ -477,41 +421,32 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                   if (error == null) {
                                     // cập nhật lịch đặt bàn mới sang trạng thái Process
                                     if (result.reservation != null) {
-                                      final model =
-                                          result.reservation!.copyWith(
+                                      final model = result.reservation!.copyWith(
                                         rejectReason: '',
                                         status: ReservationStatus.process.type,
-                                        statusName:
-                                            ReservationStatus.process.name,
+                                        statusName: ReservationStatus.process.name,
                                         isUpdate: false,
                                         tableId: tableIds,
                                         table: tableNames,
                                       );
 
-                                      ref
-                                          .read(homeProvider.notifier)
-                                          .updateReservationModel(model);
+                                      ref.read(homeProvider.notifier).updateReservationModel(model);
                                     }
                                     if (result.initReservation != null) {
                                       // cập nhật lịch đặt bàn cũ sang trạng thái Accept
-                                      final model =
-                                          result.initReservation?.copyWith(
+                                      final model = result.initReservation?.copyWith(
                                         rejectReason: '',
                                         status: ReservationStatus.accept.type,
-                                        statusName:
-                                            ReservationStatus.accept.name,
+                                        statusName: ReservationStatus.accept.name,
                                         isUpdate: false,
                                         tableId: tableIds,
                                         table: tableNames,
                                       );
-                                      ref
-                                          .read(homeProvider.notifier)
-                                          .updateReservationModel(model);
+                                      ref.read(homeProvider.notifier).updateReservationModel(model);
                                     }
                                   } else {
                                     if (context.mounted) {
-                                      showMessageDialog(context,
-                                          message: error);
+                                      showMessageDialog(context, message: error);
                                     }
                                   }
                                 }
@@ -548,8 +483,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
             onTryAgain: () {
               ref.refresh(tablesAndOrdersProvider);
             },
-            message:
-                "${S.current.canNotLoadTables}\n${S.current.ex_problem}: ${error.toString()}",
+            message: "${S.current.canNotLoadTables}\n${S.current.ex_problem}: ${error.toString()}",
           );
         }
         return InkWell(
@@ -566,8 +500,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                 ),
               ),
               const Gap(3),
-              const ResponsiveIconWidget(
-                  iconData: Icons.refresh, color: AppColors.white),
+              const ResponsiveIconWidget(iconData: Icons.refresh, color: AppColors.white),
             ],
           ),
         );
@@ -582,8 +515,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(S.current.loading_list,
-                style: AppTextStyle.regular(color: AppColors.white)),
+            Text(S.current.loading_list, style: AppTextStyle.regular(color: AppColors.white)),
             const Gap(6),
             const SizedBox(
               height: 24,
@@ -617,13 +549,12 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
       if (orderSelect == null) return;
       var tableIds = orderSelect.getTableIds;
       if (useReservation && orderSelect.reservationCrmId != null) {
-        reservation = reservations
-            .firstWhereOrNull((e) => e.id == orderSelect.reservationCrmId);
+        reservation = reservations.firstWhereOrNull((e) => e.id == orderSelect.reservationCrmId);
 
         if (reservation != null &&
             (reservation.reservationStatus != ReservationStatus.cancel ||
-                !const SetEquality().equals(
-                    (reservation.tableId ?? []).toSet(), tableIds.toSet()))) {
+                !const SetEquality()
+                    .equals((reservation.tableId ?? []).toSet(), tableIds.toSet()))) {
           requireUpdateReservation = true;
         }
         reservation ??= ReservationModel(
@@ -645,19 +576,14 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
       );
       if (result.error == null) {
         if (context.mounted) {
-          showDoneSnackBar(
-              context: context, message: S.current.cancelOrderSuccess);
+          showDoneSnackBar(context: context, message: S.current.cancelOrderSuccess);
         }
         ref.read(homeProvider.notifier).changeOrderSelect(null);
 
         ref.refresh(tablesAndOrdersProvider);
         Navigator.pop(context);
-        if (useReservation &&
-            orderSelect.reservationCrmId != null &&
-            requireUpdateReservation) {
-          ref
-              .read(homeProvider.notifier)
-              .updateReservationModel(reservation?.copyWith(
+        if (useReservation && orderSelect.reservationCrmId != null && requireUpdateReservation) {
+          ref.read(homeProvider.notifier).updateReservationModel(reservation?.copyWith(
                 isUpdate: false,
                 rejectReason: '',
                 status: ReservationStatus.cancel.type,

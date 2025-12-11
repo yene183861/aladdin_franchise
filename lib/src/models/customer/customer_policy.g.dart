@@ -13,10 +13,9 @@ _$CustomerPolicyModelImpl _$$CustomerPolicyModelImplFromJson(
       name: json['name'] as String,
       type: (json['type'] as num?)?.toInt(),
       only: json['only'] as bool? ?? false,
-      discount: (json['discount'] as List<dynamic>?)
-              ?.map((e) => DiscountPolicy.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      discount: json['discount'] == null
+          ? const []
+          : parseDiscountPolicyFromJsonData(json['discount']),
       conditionApply: json['condition_apply'],
       conditionApplyMessage: (json['condition_apply_message'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -67,8 +66,8 @@ _$DiscountPolicyImpl _$$DiscountPolicyImplFromJson(Map<String, dynamic> json) =>
     _$DiscountPolicyImpl(
       id: json['id'],
       name: json['name'] as String?,
-      type: (json['type'] as num).toInt(),
-      amount: (json['amount'] as num).toInt(),
+      type: (json['type'] as num?)?.toInt(),
+      amount: (json['amount'] as num?)?.toDouble() ?? 0,
       maxNumber: (json['max_number'] as num?)?.toInt() ?? 0,
       namePromotion: json['name_promotion'] as String? ?? '',
       nameEnPromotion: json['name_en_promotion'] as String? ?? '',

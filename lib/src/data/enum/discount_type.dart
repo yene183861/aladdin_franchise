@@ -18,9 +18,9 @@ extension DiscountTypeEnumEx on DiscountTypeEnum {
   dynamic get key {
     switch (this) {
       case DiscountTypeEnum.vnd:
-        return 1;
-      case DiscountTypeEnum.percent:
         return 2;
+      case DiscountTypeEnum.percent:
+        return 1;
       default:
         return '';
     }

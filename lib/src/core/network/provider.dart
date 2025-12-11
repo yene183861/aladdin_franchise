@@ -95,6 +95,7 @@ final FutureProvider<({OrdersResponseData offline, OrdersResponseData? online})>
     tablesAndOrdersProvider =
     FutureProvider<({OrdersResponseData offline, OrdersResponseData? online})>(
         (FutureProviderRef<({OrdersResponseData offline, OrdersResponseData? online})> ref) async {
+  showLogs(null, flags: 'tablesAndOrdersProvider');
   final orderOffRepo = await ref.read(orderRepositoryProvider).getOrders(
         typeOrder: TypeOrderEnum.offline.type,
       );
@@ -111,8 +112,6 @@ final FutureProvider<({OrdersResponseData offline, OrdersResponseData? online})>
             ? orderOffRepo.data.userUsing
             : (orderOnRepo?.data.userUsing ?? []))
         .firstWhereOrNull((e) => e.id == orderCurrent.id);
-
-    showLogs(orderCheck, flags: 'orderCheck');
     ref.read(homeProvider.notifier).changeOrderSelect(orderCheck);
   }
   return (offline: orderOffRepo.data, online: orderOnRepo?.data);

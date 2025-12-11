@@ -24,6 +24,7 @@ mixin _$CustomerPolicyModel {
   String get name => throw _privateConstructorUsedError;
   int? get type => throw _privateConstructorUsedError;
   bool get only => throw _privateConstructorUsedError;
+  @JsonKey(fromJson: parseDiscountPolicyFromJsonData)
   List<DiscountPolicy> get discount => throw _privateConstructorUsedError;
   dynamic get conditionApply => throw _privateConstructorUsedError;
   List<String> get conditionApplyMessage => throw _privateConstructorUsedError;
@@ -61,6 +62,7 @@ abstract class $CustomerPolicyModelCopyWith<$Res> {
       String name,
       int? type,
       bool only,
+      @JsonKey(fromJson: parseDiscountPolicyFromJsonData)
       List<DiscountPolicy> discount,
       dynamic conditionApply,
       List<String> conditionApplyMessage,
@@ -195,6 +197,7 @@ abstract class _$$CustomerPolicyModelImplCopyWith<$Res>
       String name,
       int? type,
       bool only,
+      @JsonKey(fromJson: parseDiscountPolicyFromJsonData)
       List<DiscountPolicy> discount,
       dynamic conditionApply,
       List<String> conditionApplyMessage,
@@ -313,6 +316,7 @@ class _$CustomerPolicyModelImpl extends _CustomerPolicyModel
       required this.name,
       this.type,
       this.only = false,
+      @JsonKey(fromJson: parseDiscountPolicyFromJsonData)
       final List<DiscountPolicy> discount = const [],
       this.conditionApply,
       final List<String> conditionApplyMessage = const [],
@@ -345,7 +349,7 @@ class _$CustomerPolicyModelImpl extends _CustomerPolicyModel
   final bool only;
   final List<DiscountPolicy> _discount;
   @override
-  @JsonKey()
+  @JsonKey(fromJson: parseDiscountPolicyFromJsonData)
   List<DiscountPolicy> get discount {
     if (_discount is EqualUnmodifiableListView) return _discount;
     // ignore: implicit_dynamic_type
@@ -511,6 +515,7 @@ abstract class _CustomerPolicyModel extends CustomerPolicyModel {
       required final String name,
       final int? type,
       final bool only,
+      @JsonKey(fromJson: parseDiscountPolicyFromJsonData)
       final List<DiscountPolicy> discount,
       final dynamic conditionApply,
       final List<String> conditionApplyMessage,
@@ -537,6 +542,7 @@ abstract class _CustomerPolicyModel extends CustomerPolicyModel {
   @override
   bool get only;
   @override
+  @JsonKey(fromJson: parseDiscountPolicyFromJsonData)
   List<DiscountPolicy> get discount;
   @override
   dynamic get conditionApply;
@@ -581,8 +587,8 @@ mixin _$DiscountPolicy {
       throw _privateConstructorUsedError; // name == null: áp dụng cho tổng bill
 // khác null => áp dụng cho sp (theo tên)
   String? get name => throw _privateConstructorUsedError;
-  int get type => throw _privateConstructorUsedError;
-  int get amount => throw _privateConstructorUsedError;
+  int? get type => throw _privateConstructorUsedError;
+  double get amount => throw _privateConstructorUsedError;
   int get maxNumber => throw _privateConstructorUsedError;
   String get namePromotion => throw _privateConstructorUsedError;
   String get nameEnPromotion => throw _privateConstructorUsedError;
@@ -604,8 +610,8 @@ abstract class $DiscountPolicyCopyWith<$Res> {
   $Res call(
       {dynamic id,
       String? name,
-      int type,
-      int amount,
+      int? type,
+      double amount,
       int maxNumber,
       String namePromotion,
       String nameEnPromotion,
@@ -628,7 +634,7 @@ class _$DiscountPolicyCopyWithImpl<$Res, $Val extends DiscountPolicy>
   $Res call({
     Object? id = freezed,
     Object? name = freezed,
-    Object? type = null,
+    Object? type = freezed,
     Object? amount = null,
     Object? maxNumber = null,
     Object? namePromotion = null,
@@ -645,14 +651,14 @@ class _$DiscountPolicyCopyWithImpl<$Res, $Val extends DiscountPolicy>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String?,
-      type: null == type
+      type: freezed == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       amount: null == amount
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
-              as int,
+              as double,
       maxNumber: null == maxNumber
           ? _value.maxNumber
           : maxNumber // ignore: cast_nullable_to_non_nullable
@@ -688,8 +694,8 @@ abstract class _$$DiscountPolicyImplCopyWith<$Res>
   $Res call(
       {dynamic id,
       String? name,
-      int type,
-      int amount,
+      int? type,
+      double amount,
       int maxNumber,
       String namePromotion,
       String nameEnPromotion,
@@ -710,7 +716,7 @@ class __$$DiscountPolicyImplCopyWithImpl<$Res>
   $Res call({
     Object? id = freezed,
     Object? name = freezed,
-    Object? type = null,
+    Object? type = freezed,
     Object? amount = null,
     Object? maxNumber = null,
     Object? namePromotion = null,
@@ -727,14 +733,14 @@ class __$$DiscountPolicyImplCopyWithImpl<$Res>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String?,
-      type: null == type
+      type: freezed == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       amount: null == amount
           ? _value.amount
           : amount // ignore: cast_nullable_to_non_nullable
-              as int,
+              as double,
       maxNumber: null == maxNumber
           ? _value.maxNumber
           : maxNumber // ignore: cast_nullable_to_non_nullable
@@ -767,8 +773,8 @@ class _$DiscountPolicyImpl extends _DiscountPolicy
   const _$DiscountPolicyImpl(
       {this.id,
       this.name,
-      required this.type,
-      required this.amount,
+      this.type,
+      this.amount = 0,
       this.maxNumber = 0,
       this.namePromotion = '',
       this.nameEnPromotion = '',
@@ -786,9 +792,10 @@ class _$DiscountPolicyImpl extends _DiscountPolicy
   @override
   final String? name;
   @override
-  final int type;
+  final int? type;
   @override
-  final int amount;
+  @JsonKey()
+  final double amount;
   @override
   @JsonKey()
   final int maxNumber;
@@ -880,8 +887,8 @@ abstract class _DiscountPolicy extends DiscountPolicy {
   const factory _DiscountPolicy(
       {final dynamic id,
       final String? name,
-      required final int type,
-      required final int amount,
+      final int? type,
+      final double amount,
       final int maxNumber,
       final String namePromotion,
       final String nameEnPromotion,
@@ -898,9 +905,9 @@ abstract class _DiscountPolicy extends DiscountPolicy {
 // khác null => áp dụng cho sp (theo tên)
   String? get name;
   @override
-  int get type;
+  int? get type;
   @override
-  int get amount;
+  double get amount;
   @override
   int get maxNumber;
   @override

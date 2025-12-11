@@ -190,8 +190,6 @@ String? checkItemBeforeCompleteBill({
   required List<LineItemDataBill> orderLineItems,
   required PaymentMethod paymentMethodSelect,
 }) {
-  return null;
-
   /// ktra điều kiện in bill
   /// - Grab, Shopee: có món thuế = 0 thì k được in bill
   /// - các PTTT khác
@@ -203,6 +201,7 @@ String? checkItemBeforeCompleteBill({
   Set<LineItemDataBill> notZeroTaxs = {};
 
   for (var item in orderLineItems) {
+    showLogs(item, flags: 'item');
     if (item.isChangeTax == 1) {
       allowChangeTaxs.add(item);
     }
