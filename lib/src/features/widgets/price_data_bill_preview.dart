@@ -4,6 +4,7 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/list_product.dart';
 import 'package:aladdin_franchise/src/models/data_bill.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:flutter/material.dart';
 
@@ -116,14 +117,17 @@ class LineInfoPaymentQRWidget extends StatelessWidget {
         ),
         SizedBox(
           height: TextUtil.getTextSize(
-            text: AppConfig.formatCurrency(isCustomerPage: isCustomerPage).format(100000),
+            text: AppUtils.formatCurrency(value: 100000),
+            // AppConfig.formatCurrency(isCustomerPage: isCustomerPage).format(100000),
             textStyle: textStyleValue ?? AppTextStyle.bold(),
           ).height,
           child: isLoading
               ? const AppShimmerLoading(width: 100)
               : Text(
-                  AppConfig.formatCurrency(isCustomerPage: isCustomerPage)
-                      .format(number * ((isDiscount && number > 0) ? -1.0 : 1.0)),
+                  AppUtils.formatCurrency(
+                      value: number * ((isDiscount && number > 0) ? -1.0 : 1.0)),
+                  // AppConfig.formatCurrency(isCustomerPage: isCustomerPage)
+                  //     .format(number * ((isDiscount && number > 0) ? -1.0 : 1.0)),
                   style: textStyleValue ?? AppTextStyle.bold(),
                 ),
         ),

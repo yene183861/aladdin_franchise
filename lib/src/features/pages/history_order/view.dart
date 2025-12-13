@@ -15,6 +15,7 @@ import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
@@ -322,7 +323,8 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                               totalMoney += element.price?.getTotalPriceFinal() ?? 0.0;
                             }
 
-                            return AppConfig.formatCurrency().format(totalMoney);
+                            return AppUtils.formatCurrency(value: totalMoney);
+                            // AppConfig.formatCurrency().format(totalMoney);
                           },
                           error: (error, stackTrace) => '********* đ',
                           loading: () => '********* đ',
@@ -676,8 +678,9 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                                 ? ''
                                 : '${(item.customer?.name ?? '').trim()} - ${(item.customer?.phoneNumber ?? '').trim()}',
                             item.coupons.map((e) => e.name).toList().join(', '),
-                            AppConfig.formatCurrency()
-                                .format(item.price?.getTotalPriceFinal() ?? 0.0),
+                            AppUtils.formatCurrency(value: item.price?.getTotalPriceFinal()),
+                            // AppConfig.formatCurrency()
+                            //     .format(item.price?.getTotalPriceFinal() ?? 0.0),
                             '',
                             item.timeCreated == null
                                 ? ''
@@ -820,8 +823,9 @@ class _LinePriceWidget extends StatelessWidget {
         ),
         Expanded(
           child: Text(
-            NumberFormat.currency(symbol: 'đ', locale: 'vi')
-                .format(value is String ? (double.tryParse(value) ?? 0.0) : (value * 1.0)),
+            AppUtils.formatCurrency(value: value, symbol: 'đ'),
+            // NumberFormat.currency(symbol: 'đ', locale: 'vi')
+            //     .format(value is String ? (double.tryParse(value) ?? 0.0) : (value * 1.0)),
             textAlign: TextAlign.right,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

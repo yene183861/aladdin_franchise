@@ -76,9 +76,9 @@ class LocalStorage {
   static const String _firebaseStatus = "firebase_status";
   static const String _notePerOrderItem = "note_per_order_item";
   static const String _customerLanguageLocal = "customer_language_local";
-  static const String _employeeSaleForOrder = "employee_sale_for_order";
+  // static const String _employeeSaleForOrder = "employee_sale_for_order";
   static const String _printers = "printers";
-  static const String _applyAgainOnlyCoupon = "apply_again_only_coupon";
+  // static const String _applyAgainOnlyCoupon = "apply_again_only_coupon";
   static const String printSetting = "print_setting";
   static const String appSetting = "app_setting";
 
@@ -270,7 +270,7 @@ class LocalStorage {
     await LocalStorage.setToken("");
     await clearPrinters();
     await clearNotePerOrderItem();
-    await clearApplyAgainOnlyCoupon();
+    // await clearApplyAgainOnlyCoupon();
     await clearOrderItemSelecting();
   }
 
@@ -719,85 +719,85 @@ class LocalStorage {
     await _prefs.setString(_customerLanguageLocal, key);
   }
 
-  static Future<void> saveEmployeeSaleForOrder({
-    required OrderModel order,
-    required EmployeeSaleModel sale,
-  }) async {
-    Map<String, dynamic> data = {};
-    try {
-      var raw = _prefs.getString(_employeeSaleForOrder);
+  // static Future<void> saveEmployeeSaleForOrder({
+  //   required OrderModel order,
+  //   required EmployeeSaleModel sale,
+  // }) async {
+  //   Map<String, dynamic> data = {};
+  //   try {
+  //     var raw = _prefs.getString(_employeeSaleForOrder);
 
-      data = raw == null || raw.trim().isEmpty ? {} : jsonDecode(raw);
-      Map<String, EmployeeSaleModel> result = {};
-      data.forEach(
-        (key, value) {
-          result[key] = EmployeeSaleModel.fromJson(value);
-        },
-      );
+  //     data = raw == null || raw.trim().isEmpty ? {} : jsonDecode(raw);
+  //     Map<String, EmployeeSaleModel> result = {};
+  //     data.forEach(
+  //       (key, value) {
+  //         result[key] = EmployeeSaleModel.fromJson(value);
+  //       },
+  //     );
 
-      result[order.getOrderMisc().toString()] = sale;
+  //     result[order.getOrderMisc().toString()] = sale;
 
-      final res = await _prefs.setString(_employeeSaleForOrder, jsonEncode(result));
-      showLogs(res, flags: 'res saveEmployeeSaleForOrder');
-    } catch (ex) {
-      _sendLog(
-        title: 'saveEmployeeSaleForOrder',
-        ex: ex,
-      );
-      showLogs(ex.toString(), flags: 'error save saveEmployeeSaleForOrder');
-      //
-    }
-  }
+  //     final res = await _prefs.setString(_employeeSaleForOrder, jsonEncode(result));
+  //     showLogs(res, flags: 'res saveEmployeeSaleForOrder');
+  //   } catch (ex) {
+  //     _sendLog(
+  //       title: 'saveEmployeeSaleForOrder',
+  //       ex: ex,
+  //     );
+  //     showLogs(ex.toString(), flags: 'error save saveEmployeeSaleForOrder');
+  //     //
+  //   }
+  // }
 
-  static EmployeeSaleModel? getEmployeeSaleForOrder({required OrderModel order}) {
-    Map<String, dynamic> data = {};
-    try {
-      var raw = _prefs.getString(_employeeSaleForOrder);
-      data = raw == null || raw.isEmpty ? {} : jsonDecode(raw);
-      return data[order.getOrderMisc()] == null
-          ? null
-          : EmployeeSaleModel.fromJson(data[order.getOrderMisc()]);
-    } catch (ex) {
-      _sendLog(
-        title: 'getEmployeeSaleForOrder',
-        ex: ex,
-      );
-      showLogs(ex, flags: 'getEmployeeSaleForOrder');
-      //
-      return null;
-    }
-  }
+  // static EmployeeSaleModel? getEmployeeSaleForOrder({required OrderModel order}) {
+  //   Map<String, dynamic> data = {};
+  //   try {
+  //     var raw = _prefs.getString(_employeeSaleForOrder);
+  //     data = raw == null || raw.isEmpty ? {} : jsonDecode(raw);
+  //     return data[order.getOrderMisc()] == null
+  //         ? null
+  //         : EmployeeSaleModel.fromJson(data[order.getOrderMisc()]);
+  //   } catch (ex) {
+  //     _sendLog(
+  //       title: 'getEmployeeSaleForOrder',
+  //       ex: ex,
+  //     );
+  //     showLogs(ex, flags: 'getEmployeeSaleForOrder');
+  //     //
+  //     return null;
+  //   }
+  // }
 
-  static Future<void> deleteEmployeeSaleForOrder({required OrderModel order}) async {
-    Map<String, dynamic> data = {};
-    try {
-      var raw = _prefs.getString(_employeeSaleForOrder);
-      data = raw == null || raw.isEmpty ? {} : jsonDecode(raw);
+  // static Future<void> deleteEmployeeSaleForOrder({required OrderModel order}) async {
+  //   Map<String, dynamic> data = {};
+  //   try {
+  //     var raw = _prefs.getString(_employeeSaleForOrder);
+  //     data = raw == null || raw.isEmpty ? {} : jsonDecode(raw);
 
-      data.remove(order.getOrderMisc());
-      await _prefs.setString(_employeeSaleForOrder, jsonEncode(data));
-      return;
-    } catch (ex) {
-      _sendLog(
-        title: 'deleteEmployeeSaleForOrder',
-        ex: ex,
-      );
-      showLogs(ex, flags: 'deleteEmployeeSaleForOrder');
-      //
-    }
-  }
+  //     data.remove(order.getOrderMisc());
+  //     await _prefs.setString(_employeeSaleForOrder, jsonEncode(data));
+  //     return;
+  //   } catch (ex) {
+  //     _sendLog(
+  //       title: 'deleteEmployeeSaleForOrder',
+  //       ex: ex,
+  //     );
+  //     showLogs(ex, flags: 'deleteEmployeeSaleForOrder');
+  //     //
+  //   }
+  // }
 
-  static Future<void> clearEmployeeSaleForOrder() async {
-    try {
-      await _prefs.remove(_employeeSaleForOrder);
-    } catch (ex) {
-      _sendLog(
-        title: 'clearEmployeeSaleForOrder',
-        ex: ex,
-      );
-      //
-    }
-  }
+  // static Future<void> clearEmployeeSaleForOrder() async {
+  //   try {
+  //     await _prefs.remove(_employeeSaleForOrder);
+  //   } catch (ex) {
+  //     _sendLog(
+  //       title: 'clearEmployeeSaleForOrder',
+  //       ex: ex,
+  //     );
+  //     //
+  //   }
+  // }
 
   static List<IpOrderModel> getPrinters() {
     try {
@@ -883,100 +883,100 @@ class LocalStorage {
     }
   }
 
-  static Future<Map<String, List<CustomerPolicyModel>>> _getApplyAgainOnlyCoupon() async {
-    Map<String, dynamic> data = {};
-    try {
-      var raw = _prefs.getString(_applyAgainOnlyCoupon);
-      data = raw == null || raw.trim().isEmpty ? {} : jsonDecode(raw);
-      Map<String, List<CustomerPolicyModel>> result = {};
-      data.forEach(
-        (key, value) {
-          var res = (value as List).map((e) => CustomerPolicyModel.fromJson(e)).toList();
-          if (res.isNotEmpty) {
-            result[key] = res;
-          }
-        },
-      );
+  // static Future<Map<String, List<CustomerPolicyModel>>> _getApplyAgainOnlyCoupon() async {
+  //   Map<String, dynamic> data = {};
+  //   try {
+  //     var raw = _prefs.getString(_applyAgainOnlyCoupon);
+  //     data = raw == null || raw.trim().isEmpty ? {} : jsonDecode(raw);
+  //     Map<String, List<CustomerPolicyModel>> result = {};
+  //     data.forEach(
+  //       (key, value) {
+  //         var res = (value as List).map((e) => CustomerPolicyModel.fromJson(e)).toList();
+  //         if (res.isNotEmpty) {
+  //           result[key] = res;
+  //         }
+  //       },
+  //     );
 
-      return result;
-    } catch (ex) {
-      _sendLog(
-        title: '_getApplyAgainOnlyCoupon - GET ds mã giảm only cần xóa đi áp dụng lại',
-        ex: ex,
-      );
-      showLogs(ex.toString(), flags: 'error _getApplyAgainOnlyCoupon');
-      //
-      return {};
-    }
-  }
+  //     return result;
+  //   } catch (ex) {
+  //     _sendLog(
+  //       title: '_getApplyAgainOnlyCoupon - GET ds mã giảm only cần xóa đi áp dụng lại',
+  //       ex: ex,
+  //     );
+  //     showLogs(ex.toString(), flags: 'error _getApplyAgainOnlyCoupon');
+  //     //
+  //     return {};
+  //   }
+  // }
 
-  static Future<void> saveApplyAgainOnlyCoupon({
-    required OrderModel order,
-    List<CustomerPolicyModel> coupons = const [],
-  }) async {
-    try {
-      Map<String, List<CustomerPolicyModel>> result = await _getApplyAgainOnlyCoupon();
-      result[order.id.toString()] = coupons;
+  // static Future<void> saveApplyAgainOnlyCoupon({
+  //   required OrderModel order,
+  //   List<CustomerPolicyModel> coupons = const [],
+  // }) async {
+  //   try {
+  //     Map<String, List<CustomerPolicyModel>> result = await _getApplyAgainOnlyCoupon();
+  //     result[order.id.toString()] = coupons;
 
-      await _prefs.setString(_applyAgainOnlyCoupon, jsonEncode(result));
-    } catch (ex) {
-      _sendLog(
-        title:
-            'saveApplyAgainOnlyCoupon - SAVE ds mã giảm only cần xóa đi áp dụng lại (đối với order)',
-        ex: ex,
-      );
-      showLogs(ex.toString(), flags: 'error saveApplyAgainOnlyCoupon');
-      //
-    }
-  }
+  //     await _prefs.setString(_applyAgainOnlyCoupon, jsonEncode(result));
+  //   } catch (ex) {
+  //     _sendLog(
+  //       title:
+  //           'saveApplyAgainOnlyCoupon - SAVE ds mã giảm only cần xóa đi áp dụng lại (đối với order)',
+  //       ex: ex,
+  //     );
+  //     showLogs(ex.toString(), flags: 'error saveApplyAgainOnlyCoupon');
+  //     //
+  //   }
+  // }
 
-  static Future<List<CustomerPolicyModel>> getApplyAgainOnlyCouponForOrder(
-      {required OrderModel order}) async {
-    try {
-      Map<String, List<CustomerPolicyModel>> result = await _getApplyAgainOnlyCoupon();
+  // static Future<List<CustomerPolicyModel>> getApplyAgainOnlyCouponForOrder(
+  //     {required OrderModel order}) async {
+  //   try {
+  //     Map<String, List<CustomerPolicyModel>> result = await _getApplyAgainOnlyCoupon();
 
-      return result[order.id.toString()] ?? [];
-    } catch (ex) {
-      _sendLog(
-        title:
-            'getApplyAgainOnlyCouponForOrder - GET ds mã giảm only cần xóa đi áp dụng lại (đối với order)',
-        ex: ex,
-      );
-      showLogs(ex, flags: 'getApplyAgainOnlyCouponForOrder');
-      //
-      return [];
-    }
-  }
+  //     return result[order.id.toString()] ?? [];
+  //   } catch (ex) {
+  //     _sendLog(
+  //       title:
+  //           'getApplyAgainOnlyCouponForOrder - GET ds mã giảm only cần xóa đi áp dụng lại (đối với order)',
+  //       ex: ex,
+  //     );
+  //     showLogs(ex, flags: 'getApplyAgainOnlyCouponForOrder');
+  //     //
+  //     return [];
+  //   }
+  // }
 
-  static Future<void> deleteApplyAgainOnlyCouponForOrder({required OrderModel order}) async {
-    try {
-      Map<String, List<CustomerPolicyModel>> result = await _getApplyAgainOnlyCoupon();
+  // static Future<void> deleteApplyAgainOnlyCouponForOrder({required OrderModel order}) async {
+  //   try {
+  //     Map<String, List<CustomerPolicyModel>> result = await _getApplyAgainOnlyCoupon();
 
-      result.remove(order.id.toString());
-      await _prefs.setString(_applyAgainOnlyCoupon, jsonEncode(result));
-      return;
-    } catch (ex) {
-      _sendLog(
-        title:
-            'deleteApplyAgainOnlyCouponForOrder - DELETE các mã giảm only cần xóa đi áp dụng lại (đối với order)',
-        ex: ex,
-      );
-      showLogs(ex, flags: 'deleteApplyAgainOnlyCouponForOrder');
-      //
-    }
-  }
+  //     result.remove(order.id.toString());
+  //     await _prefs.setString(_applyAgainOnlyCoupon, jsonEncode(result));
+  //     return;
+  //   } catch (ex) {
+  //     _sendLog(
+  //       title:
+  //           'deleteApplyAgainOnlyCouponForOrder - DELETE các mã giảm only cần xóa đi áp dụng lại (đối với order)',
+  //       ex: ex,
+  //     );
+  //     showLogs(ex, flags: 'deleteApplyAgainOnlyCouponForOrder');
+  //     //
+  //   }
+  // }
 
-  static Future<void> clearApplyAgainOnlyCoupon() async {
-    try {
-      await _prefs.remove(_applyAgainOnlyCoupon);
-      return;
-    } catch (ex) {
-      _sendLog(
-        title: 'clearApplyAgainOnlyCoupon - CLEAR các mã giảm only cần xóa đi áp dụng lại',
-        ex: ex,
-      );
-    }
-  }
+  // static Future<void> clearApplyAgainOnlyCoupon() async {
+  //   try {
+  //     await _prefs.remove(_applyAgainOnlyCoupon);
+  //     return;
+  //   } catch (ex) {
+  //     _sendLog(
+  //       title: 'clearApplyAgainOnlyCoupon - CLEAR các mã giảm only cần xóa đi áp dụng lại',
+  //       ex: ex,
+  //     );
+  //   }
+  // }
 
   static void _sendLog({
     required String title,

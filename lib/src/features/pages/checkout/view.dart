@@ -285,33 +285,14 @@ class TabCustomerPayment extends ConsumerWidget {
                             children: [
                               ButtonSquareMenuWidget(
                                 onPressed: () async {
-                                  final ticket = await showConfirmInputDialog(
-                                    context,
-                                    title: S.current.discountCode,
-                                    hintText: S.current.inputCode,
-                                    textAction: S.current.apply,
-                                    textInputAction: TextInputAction.done,
-                                  );
-                                  if (ticket != null) {
-                                    final result = await ref
-                                        .read(homeProvider.notifier)
-                                        .addCoupon(code: ticket);
-                                    if (result.error != null) {
-                                      showErrorDialog(
-                                        context,
-                                        message: result.error.toString(),
-                                        titleMessage: result.titleError,
-                                        isNotifier: true,
-                                      );
-                                    }
-                                  }
+                                  await showCouponDialog(context);
                                 },
                                 child: const ResponsiveIconWidget(iconData: CupertinoIcons.tickets),
                               ),
-                              if (Platform.isAndroid) ...[
-                                // Gap(16),
-                                // const ButtonScanCouponWidget(),
-                              ],
+                              // if (Platform.isAndroid) ...[
+                              //   // Gap(16),
+                              //   // const ButtonScanCouponWidget(),
+                              // ],
                             ],
                           )
                       ],

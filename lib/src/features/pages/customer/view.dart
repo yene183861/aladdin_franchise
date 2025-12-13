@@ -41,6 +41,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:webview_windows/webview_windows.dart';
 
 import 'components/barrel_component.dart';
+import 'components/title_section.dart';
 
 enum PaymentStatus {
   loading,
@@ -593,8 +594,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _TitleSection(
-                                  defaultPaddingHorizontalPage: 12,
+                                TitleSection(
+                                  paddingHorizontal: 12,
                                   title: S.current.customer_information,
                                 ),
                                 Container(
@@ -622,8 +623,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            _TitleSection(
-                              defaultPaddingHorizontalPage: defaultPaddingHorizontalPage,
+                            TitleSection(
+                              paddingHorizontal: defaultPaddingHorizontalPage,
                               title: S.current.payment_info,
                             ),
                             ValueListenableBuilder(
@@ -657,8 +658,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _TitleSection(
-                                defaultPaddingHorizontalPage: defaultPaddingHorizontalPage,
+                              TitleSection(
+                                paddingHorizontal: defaultPaddingHorizontalPage,
                                 title: S.current.payment_method,
                               ),
                               Expanded(
@@ -683,28 +684,28 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
     );
   }
 
-  Future<WebviewPermissionDecision> _onPermissionRequested(
-      String url, WebviewPermissionKind kind, bool isUserInitiated, BuildContext context) async {
-    final decision = await showDialog<WebviewPermissionDecision>(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text(S.current.webview_permission_request),
-        content: Text('${S.current.webview_permission_request_1} \'$kind\''),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(context, WebviewPermissionDecision.deny),
-            child: Text(S.current.deny),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, WebviewPermissionDecision.allow),
-            child: Text(S.current.allow),
-          ),
-        ],
-      ),
-    );
+  // Future<WebviewPermissionDecision> _onPermissionRequested(
+  //     String url, WebviewPermissionKind kind, bool isUserInitiated, BuildContext context) async {
+  //   final decision = await showDialog<WebviewPermissionDecision>(
+  //     context: context,
+  //     builder: (BuildContext context) => AlertDialog(
+  //       title: Text(S.current.webview_permission_request),
+  //       content: Text('${S.current.webview_permission_request_1} \'$kind\''),
+  //       actions: <Widget>[
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context, WebviewPermissionDecision.deny),
+  //           child: Text(S.current.deny),
+  //         ),
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context, WebviewPermissionDecision.allow),
+  //           child: Text(S.current.allow),
+  //         ),
+  //       ],
+  //     ),
+  //   );
 
-    return decision ?? WebviewPermissionDecision.none;
-  }
+  //   return decision ?? WebviewPermissionDecision.none;
+  // }
 }
 
 class _PaymentSection extends StatelessWidget {
@@ -1011,35 +1012,6 @@ class _AvatarCustomerWidget extends StatelessWidget {
     return Image.asset(
       assetsIcon,
       width: 24,
-    );
-  }
-}
-
-class _TitleSection extends StatelessWidget {
-  const _TitleSection({
-    super.key,
-    required this.defaultPaddingHorizontalPage,
-    required this.title,
-    this.height = 50,
-  });
-
-  final double defaultPaddingHorizontalPage;
-  final String title;
-
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      padding: EdgeInsets.symmetric(
-        horizontal: defaultPaddingHorizontalPage,
-        vertical: 4,
-      ),
-      alignment: Alignment.centerLeft,
-      width: double.maxFinite,
-      color: Color(0xff292929),
-      child: Text(title, style: AppTextStyle.bold(color: AppColors.white)),
     );
   }
 }

@@ -11,6 +11,7 @@ import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
@@ -176,7 +177,9 @@ class DraggerTableWidget extends StatelessWidget {
                               )
                             : null,
                         child: Text(
-                          'T.tiền: ${AppConfig.formatCurrency().format(totalPriceFinal)}',
+                          'T.tiền: ${AppUtils.formatCurrency(value: totalPriceFinal)
+                          // AppConfig.formatCurrency().format(totalPriceFinal)
+                          }',
                           style: AppTextStyle.bold(
                             color: tableNameColor,
                           ),

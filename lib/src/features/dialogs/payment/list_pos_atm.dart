@@ -7,6 +7,7 @@ import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -59,7 +60,8 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
                 const Gap(4),
                 _TitleLine(
                   title: '${S.current.total_amount}: ',
-                  content: AppConfig.formatCurrency().format(dataBill.price.totalPriceFinal),
+                  content: AppUtils.formatCurrency(value: dataBill.price.totalPriceFinal),
+                  // AppConfig.formatCurrency().format(dataBill.price.totalPriceFinal),
                 ),
                 if (atmPosSelect != null) ...[
                   const Gap(4),
@@ -99,7 +101,8 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
                           children: [
                             Text(
                               S.current.select_pos_to_continue,
-                              style: AppTextStyle.regular(rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                              style: AppTextStyle.regular(
+                                rawFontSize: AppConfig.defaultRawTextSize - 1.5,
                               ),
                             ),
                             const Gap(12),

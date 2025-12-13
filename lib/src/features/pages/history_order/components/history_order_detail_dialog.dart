@@ -19,6 +19,7 @@ import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
@@ -335,7 +336,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                   dataView.add({
                     'number_order': (i + 1).toString(),
                     'title': v.name,
-                    'amount': AppConfig.formatCurrency().format(v.total),
+                    'amount': AppUtils.formatCurrency(value: v.total),
+                    // AppConfig.formatCurrency().format(v.total),
                   });
                 }
                 return Column(
@@ -460,8 +462,10 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                             label: S.current.payment_amount,
                             enabled: false,
                             readOnly: true,
-                            initialValue: AppConfig.formatCurrency()
-                                .format(paymentMethods.first.paymentAmount.toDouble()),
+                            initialValue: AppUtils.formatCurrency(
+                                value: paymentMethods.first.paymentAmount.toDouble()),
+                            // AppConfig.formatCurrency()
+                            //     .format(paymentMethods.first.paymentAmount.toDouble()),
                           ),
                         ),
                       ],
@@ -661,10 +665,12 @@ class _OrderDetailContentDialog extends ConsumerWidget {
       vicinity.yIndex.toString(),
       i.getNameView(),
       i.codeProduct,
-      AppConfig.formatCurrency().format(double.tryParse(i.price) ?? 0.0),
+      AppUtils.formatCurrency(value: i.price),
+      // AppConfig.formatCurrency().format(double.tryParse(i.price) ?? 0.0),
       i.count.toString(),
       '${tax == tax.toInt() ? tax.toInt() : tax}%',
-      AppConfig.formatCurrency().format(i.totalPrice),
+      AppUtils.formatCurrency(value: i.totalPrice),
+      // AppConfig.formatCurrency().format(i.totalPrice),
     ];
     return TableViewCell(
         child: Align(
@@ -847,7 +853,8 @@ class _PriceItem extends StatelessWidget {
         Container(
           constraints: const BoxConstraints(minWidth: 100),
           child: Text(
-            AppConfig.formatCurrency().format(value),
+            AppUtils.formatCurrency(value: value),
+            // AppConfig.formatCurrency().format(value),
             style: AppTextStyle.bold(),
             textAlign: TextAlign.end,
             maxLines: 1,

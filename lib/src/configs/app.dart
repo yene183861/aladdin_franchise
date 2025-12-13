@@ -66,9 +66,9 @@ class AppConfig {
   final String codeSecurity = kDebugMode ? "1" : "400501";
   final String keyConfig = "config";
 
-  static NumberFormat formatCurrency({bool isCustomerPage = false}) {
-    return NumberFormat.simpleCurrency(locale: 'vi');
-  }
+  // static NumberFormat formatCurrency({bool isCustomerPage = false}) {
+  //   return NumberFormat.simpleCurrency(locale: 'vi');
+  // }
 
   final allCategory = const CategoryModel(id: -1, title: "TẤT CẢ");
   final dateFormatYYYYMMDD = DateFormat("yyyy-MM-dd");

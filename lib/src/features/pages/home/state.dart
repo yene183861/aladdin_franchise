@@ -71,7 +71,6 @@ enum HomeEvent {
   switchAccount,
   switchAccountError,
   switchAccountSuccess,
-  updateReservation,
 
   findingCustomer,
   createCustomer,
@@ -111,6 +110,13 @@ enum HomeEvent {
   /// lock order
   lockOrder,
   unlockOrder,
+
+  /// reservation
+  updateReservation,
+  updateOrderReservation,
+
+  // coupon, voucher
+  addCoupon,
 }
 
 enum PageCommonState {
@@ -198,20 +204,17 @@ class HomeState with _$HomeState {
     // danh sách vourcher sau khi áp mã giảm giá
     @Default([]) List<PolicyResultModel> vouchers,
     dynamic createVouchers,
-
-    /// các mã only cần xóa đi áp dụng lại
-    @Default([]) List<CustomerPolicyModel> needApplyAgainOnlyCoupons,
     @Default(PageState(status: PageCommonState.success)) PageState applyPolicyState,
 
     /// phương thức thanh toán
     @Default([]) List<PaymentMethod> paymentMethods,
     @Default(PageState()) PageState paymentMethodState,
     PaymentMethod? paymentMethodSelected,
-    // trạng thái thanh toán payoo
+    // trạng thái thanh toán gateway
     @Default(false) bool statusPaymentGateway,
 
-    // tiền nhận được từ payoo
-    @Default(0.0) double totalPaymentGateway,
+    // tiền nhận được từ gateway
+    dynamic totalPaymentGateway,
 
     // bank
     @Default([]) List<UserBankModel> banks,
@@ -236,9 +239,6 @@ class HomeState with _$HomeState {
     @Default(DataBillResponseData()) DataBillResponseData dataBill,
     @Default(PageState(status: PageCommonState.normal)) PageState dataBillState,
 
-    /// pc sau khi phân bổ lại thuế
-    // @Default([]) List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax,
-
     /// hoàn thành bill
     @Default([]) List<File> imageBills,
     @Default(1) int numberOfAdults,
@@ -249,9 +249,7 @@ class HomeState with _$HomeState {
     @Default([]) List<CustomerPortrait> customerPortraits,
     @Default('') String completeNote,
     // nv sale
-    EmployeeSaleModel? employeeSaleSelect,
-    // @Default([]) List<EmployeeSaleModel> employeeSales,
-    // @Default(PageState()) PageState employeeSaleState,
+    // EmployeeSaleModel? employeeSaleSelect,
     @Default(false) bool printNumberOfPeople,
 
     ///

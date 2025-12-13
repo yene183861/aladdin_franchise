@@ -19,6 +19,7 @@ import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/order_history.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:collection/collection.dart';
@@ -78,8 +79,8 @@ class _OrderProductItem extends ConsumerWidget {
                         text: '( ',
                         children: [
                           TextSpan(
-                            text: AppConfig.formatCurrency()
-                                .format(double.tryParse(item.unitPrice) ?? 0),
+                            text: AppUtils.formatCurrency(value: item.unitPrice),
+                            // AppConfig.formatCurrency().format(double.tryParse(item.unitPrice) ?? 0),
                             style: AppTextStyle.bold(
                               color: AppColors.redColor,
                               fontStyle: FontStyle.italic,
@@ -201,8 +202,11 @@ class _OrderProductItem extends ConsumerWidget {
                   ),
                   const Gap(50),
                   Text(
-                    AppConfig.formatCurrency().format((double.tryParse(item.unitPrice) ?? 0) *
-                        (item.numberSelecting - item.quantityPromotion)),
+                    AppUtils.formatCurrency(
+                        value: (double.tryParse(item.unitPrice) ?? 0) *
+                            (item.numberSelecting - item.quantityPromotion)),
+                    // AppConfig.formatCurrency().format((double.tryParse(item.unitPrice) ?? 0) *
+                    //     (item.numberSelecting - item.quantityPromotion)),
                     style: AppTextStyle.bold(),
                   ),
                 ],
@@ -482,7 +486,9 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                                       children: [
                                         TextSpan(
                                           text:
-                                              '  (${NumberFormat.currency(locale: 'vi', symbol: 'đ').format(double.tryParse(p.unitPrice) ?? 0)}/${p.unit.trim()})',
+                                              '  (${AppUtils.formatCurrency(value: p.unitPrice, symbol: 'đ')
+                                              // NumberFormat.currency(locale: 'vi', symbol: 'đ').format(double.tryParse(p.unitPrice) ?? 0)
+                                              }/${p.unit.trim()})',
                                           style: AppTextStyle.medium(
                                               rawFontSize: AppConfig.defaultRawTextSize - 1.5,
                                               color: Colors.grey.shade400),
@@ -613,8 +619,12 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                                 ),
                                 const Gap(4),
                                 Text(
-                                  NumberFormat.currency(locale: 'vi', symbol: 'đ').format(
-                                      (double.tryParse(p.unitPrice) ?? 0) * p.numberSelecting),
+                                  AppUtils.formatCurrency(
+                                      value:
+                                          (double.tryParse(p.unitPrice) ?? 0) * p.numberSelecting,
+                                      symbol: 'đ'),
+                                  // NumberFormat.currency(locale: 'vi', symbol: 'đ').format(
+                                  //     (double.tryParse(p.unitPrice) ?? 0) * p.numberSelecting),
                                   style: AppTextStyle.bold(),
                                 ),
                               ],

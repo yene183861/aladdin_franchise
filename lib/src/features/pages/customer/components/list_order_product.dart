@@ -13,6 +13,7 @@ import 'package:aladdin_franchise/src/features/widgets/image.dart';
 
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 
 import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:collection/collection.dart';
@@ -245,7 +246,9 @@ class _ProductItemWidget extends StatelessWidget {
                             TextSpan(text: item.getNameView(), children: [
                               TextSpan(
                                 text:
-                                    ' ( ${AppConfig.formatCurrency(isCustomerPage: true).format(freeGiftCount > 0 ? 0.0 : double.tryParse(item.unitPrice))} / ${item.unit} )',
+                                    ' ( ${AppUtils.formatCurrency(value: freeGiftCount > 0 ? 0.0 : double.tryParse(item.unitPrice))
+                                    // AppConfig.formatCurrency(isCustomerPage: true).format(freeGiftCount > 0 ? 0.0 : double.tryParse(item.unitPrice))
+                                    } / ${item.unit} )',
                                 style: AppTextStyle.regular(
                                   rawFontSize: AppConfig.defaultRawTextSize - 1.5,
                                   color: AppColors.redColor,
@@ -287,10 +290,14 @@ class _ProductItemWidget extends StatelessWidget {
               width: TextUtil.getTextSize(text: '   1,000,000 đ').width,
               child: Text(
                 freeGiftCount > 0
-                    ? AppConfig.formatCurrency().format(0.0)
-                    : AppConfig.formatCurrency().format(
-                        (double.tryParse(item.unitPrice) ?? 0) * item.quantity,
-                      ),
+                    ? AppUtils.formatCurrency(value: 0.0)
+                    // AppConfig.formatCurrency().format(0.0)
+                    : AppUtils.formatCurrency(
+                        value: (double.tryParse(item.unitPrice) ?? 0) * item.quantity)
+                // AppConfig.formatCurrency().format(
+                //     (double.tryParse(item.unitPrice) ?? 0) * item.quantity,
+                //   ),
+                ,
                 style: AppTextStyle.bold(),
                 textAlign: TextAlign.end,
                 maxLines: 1,

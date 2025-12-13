@@ -15,7 +15,7 @@ import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/restaurant.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
-import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
@@ -30,155 +30,6 @@ class AppPrinterHtmlUtils {
 
   static AppPrinterHtmlUtils get instance => _instance;
   factory AppPrinterHtmlUtils() => _instance;
-
-  Future<List<int>> getReceptBillContent({
-    required OrderModel order,
-    List<LineItemDataBill> orderLineItems = const [],
-    required PriceDataBill price,
-    String? note,
-    PaymentMethod? paymentMethod,
-    List<HistoryPolicyResultModel> vouchers = const [],
-    required ReceiptTypeEnum receiptType,
-    required List<IpOrderModel> printers,
-    bool printNumberOfPeople = false,
-    String customerPhone = '',
-    int numberOfPeople = 1,
-    double paymentAmount = 0.0,
-    int numberPrintCompleted = 1,
-    int numberPrintTemporary = 1,
-    String cashierCompleted = '',
-    DateTime? timeCompleted,
-    DateTime? timeCreatedAt,
-    String cashierPrint = '',
-    String invoiceQr = '',
-  }) async {
-    var htmlData = paymentBillContent(
-      order: order,
-      orderLineItems: orderLineItems,
-      price: price,
-      receiptType: receiptType,
-      note: note ?? '',
-      customerPhone: customerPhone,
-      numberOfPeople: numberOfPeople,
-      paymentAmount: paymentAmount,
-      paymentMethod: paymentMethod,
-      printNumberOfPeople: printNumberOfPeople,
-      vouchers: vouchers,
-      numberPrintCompleted: numberPrintCompleted,
-      numberPrintTemporary: numberPrintTemporary,
-      cashierCompleted: cashierCompleted,
-      timeCompleted: timeCompleted,
-      timeCreatedAt: timeCreatedAt,
-      cashierPrint: cashierPrint,
-      invoiceQr: invoiceQr,
-    );
-    var bytes = await generateImageBill(htmlData);
-    return bytes;
-  }
-
-  /// in bill xuống bếp
-  Future<String?> printKitchenBill({
-    required OrderModel order,
-    List<ProductModel> product = const [],
-    String note = '',
-    required List<IpOrderModel> printers,
-    bool printEachItem = false,
-    int timeOrders = 1,
-    bool cancel = false,
-  }) async {
-    List<int> bytes = [];
-
-    String? error;
-    for (var printer in printers) {
-      List<ProductModel> productPrinter = [];
-      for (var p in product) {
-        var comboItem = ProductHelper().getComboDescription(p);
-        // combo
-        List<ComboItemModel> comboItemPrint = [];
-        if (comboItem != null) {
-          comboItemPrint =
-              comboItem.where((e) => e.printerType == printer.type).toList();
-          if (comboItemPrint.isNotEmpty) {
-            String? description = p.description;
-            try {
-              description = jsonEncode(comboItemPrint);
-            } catch (ex) {
-              showLogs(ex.toString(), flags: 'encode món trong combo');
-              //
-            }
-            productPrinter.add(p.copyWith(description: description));
-          } else if (printer.type == p.printerType) {
-            productPrinter.add(p.copyWith(description: ''));
-          }
-        } else {
-          if (printer.type == p.printerType) {
-            productPrinter.add(p);
-          }
-        }
-      }
-      // var productPrinter =
-      //     product.where((e) => e.printerType == item.type).toList();
-
-      if (productPrinter.isEmpty) {
-        continue;
-      }
-      var htmlData = kitchenBillContent(
-        order: order,
-        product: productPrinter,
-        note: note,
-        timeOrders: timeOrders,
-        cancel: cancel,
-      );
-
-      bytes = await generateImageBill(htmlData);
-      final printerManager = PrinterNetworkManager(
-        printer.ip,
-        port: printer.port,
-      );
-      final PosPrintResult res = await printerManager.connect();
-      if (res != PosPrintResult.success) {
-        throw printer.messageConnectFail();
-      }
-      if (res == PosPrintResult.success) {
-        var billStatus =
-            await printerManager.printTicket(bytes, isDisconnect: false);
-        if (billStatus != PosPrintResult.success) {
-          return cancel
-              ? "In bill tổng thất bại!\n${billStatus.msg}"
-              : 'In bill hủy đồ thất bại\n${billStatus.msg}';
-        }
-        // chỉ in bill lẻ với bếp
-        if (!cancel &&
-            printEachItem &&
-            productPrinter.length > 1 &&
-            printer.type == 2) {
-          for (var p in productPrinter) {
-            List<int> byteDatas;
-            var oddHtmlBill = kitchenBillContent(
-              order: order,
-              product: [p],
-              note: note,
-              timeOrders: timeOrders,
-              totalBill: false,
-              cancel: cancel,
-            );
-            byteDatas = await generateImageBill(oddHtmlBill);
-            billStatus = await printerManager.printTicket(byteDatas,
-                isDisconnect: false);
-            if (billStatus != PosPrintResult.success) {
-              return "In bill lẻ xuống bếp thất bại!\n${billStatus.msg}";
-            }
-          }
-        }
-        printerManager.disconnect();
-        showLog(billStatus.msg, flags: 'billStatus');
-      } else {
-        error = res.msg;
-      }
-    }
-
-    return error;
-  }
 
   Future<List<int>> generateImageBill(String data) async {
     final billHtmlSetting = LocalStorage.getPrintSetting().billHtmlSetting;
@@ -209,6 +60,50 @@ class AppPrinterHtmlUtils {
     return bytes;
   }
 
+  Future<List<int>> getReceptBillContent({
+    required OrderModel order,
+    List<LineItemDataBill> orderLineItems = const [],
+    required PriceDataBill price,
+    String? note,
+    PaymentMethod? paymentMethod,
+    List<HistoryPolicyResultModel> vouchers = const [],
+    required ReceiptTypeEnum receiptType,
+    bool printNumberOfPeople = false,
+    String customerPhone = '',
+    int numberOfPeople = 1,
+    double paymentAmount = 0.0,
+    int numberPrintCompleted = 1,
+    int numberPrintTemporary = 1,
+    String cashierCompleted = '',
+    DateTime? timeCompleted,
+    DateTime? timeCreatedAt,
+    String cashierPrint = '',
+    String invoiceQr = '',
+  }) async {
+    var htmlData = _receiptBillContent(
+      order: order,
+      orderLineItems: orderLineItems,
+      price: price,
+      receiptType: receiptType,
+      note: note ?? '',
+      customerPhone: customerPhone,
+      numberOfPeople: numberOfPeople,
+      paymentAmount: paymentAmount,
+      paymentMethod: paymentMethod,
+      printNumberOfPeople: printNumberOfPeople,
+      vouchers: vouchers,
+      numberPrintCompleted: numberPrintCompleted,
+      numberPrintTemporary: numberPrintTemporary,
+      cashierCompleted: cashierCompleted,
+      timeCompleted: timeCompleted,
+      timeCreatedAt: timeCreatedAt,
+      cashierPrint: cashierPrint,
+      invoiceQr: invoiceQr,
+    );
+    var bytes = await generateImageBill(htmlData);
+    return bytes;
+  }
+
   String kitchenBillContent({
     List<ProductModel> product = const [],
     required OrderModel order,
@@ -221,8 +116,7 @@ class AppPrinterHtmlUtils {
     String dishTable = "";
 
     var finalNote = note;
-    if (!totalBill &&
-        (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
+    if (!totalBill && (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
       finalNote = (product.firstOrNull?.noteForProcessOrder ?? '');
     }
     if (cancel) {
@@ -240,8 +134,7 @@ class AppPrinterHtmlUtils {
         </tr>
       ''';
       }
-      List<ComboItemModel>? comboItems =
-          ProductHelper().getComboDescription(pc);
+      List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(pc);
       // showLogs(comboItems, flags: 'comboItems');
       if (comboItems != null) {
         // check xem có cần nhân số lượng combo với món trong combo k
@@ -351,7 +244,7 @@ ${_getTime()}
 ''';
   }
 
-  String paymentBillContent({
+  String _receiptBillContent({
     List<LineItemDataBill> orderLineItems = const [],
     List<HistoryPolicyResultModel> vouchers = const [],
     required OrderModel order,
@@ -383,17 +276,17 @@ ${_getTime()}
       if (tax > 0) {
         mapTax[tax] = (mapTax[tax] ?? 0.0) +
             pc.count *
-                AppHelper.parseToDoubleValue(pc.price) *
-                AppHelper.parseToDoubleValue(pc.tax);
+                (AppUtils.convertToDouble(pc.price) ?? 0.0) *
+                (AppUtils.convertToDouble(pc.tax) ?? 0.0);
       }
 
       dishTable += '''
           <tr>
             <td width="46%">${pc.name}</td>
             <td width="7%">${pc.count}</td>
-            <td width="20%">${AppHelper.parseToPrice(pc.price)}</td>
+            <td width="20%">${AppUtils.formatCurrency(value: pc.price)}</td>
             <td class="tax" width="7%">${pc.getTaxView() == pc.getTaxView().toInt() ? pc.getTaxView().toInt() : pc.getTaxView()}%</td>
-            <td width="20%" style="text-align: right">${AppHelper.parseToPrice(pc.count * AppHelper.parseToDoubleValue(pc.price))}</td>
+            <td width="20%" style="text-align: right">${AppUtils.formatCurrency(value: pc.count * (AppUtils.convertToDouble(pc.price) ?? 0.0))}</td>
           </tr>
           ''';
 
@@ -409,7 +302,7 @@ ${_getTime()}
         voucherDetail += '''
           <tr>
             <td colspan="4">${v.name}</td>
-            <td style="text-align: right">${AppHelper.parseToPrice(amount)}</td>
+            <td style="text-align: right">${AppUtils.formatCurrency(value: amount)}</td>
           </tr>
         ''';
       }
@@ -422,7 +315,7 @@ ${_getTime()}
             taxDetail += '''
               <tr>
                 <td colspan="4">Tiền thuế (${key == key.toInt() ? key.toInt() : key}%)</td>
-                <td style="text-align: right">${AppHelper.parseToPrice(value)}</td>
+                <td style="text-align: right">${AppUtils.formatCurrency(value: value)}</td>
               </tr>
             ''';
           }
@@ -553,17 +446,17 @@ ${_getRestaurantInfo()}
     <table class="total" style="margin-top: 10px;">
         <tr>
             <td style="font-weight: bold" width="80%" colspan="4">T.Tiền trước thuế</td>
-            <td width="20%" style="text-align: right">${AppHelper.parseToPrice(price.totalPrice)}</td>
+            <td width="20%" style="text-align: right">${AppUtils.formatCurrency(value: price.totalPrice)}</td>
         </tr>
         <tr>
             <td style="font-weight: bold" colspan="4">Giảm tiền trước thuế</td>
-            <td style="text-align: right">${AppHelper.parseToPrice(price.totalPriceVoucher)}</td>
+            <td style="text-align: right">${AppUtils.formatCurrency(value: price.totalPriceVoucher)}</td>
         </tr>
         $voucherDetail
 
         <tr>
             <td colspan="4" style="font-weight: bold">Tổng tiền thuế</td>
-            <td style="text-align: right">${AppHelper.parseToPrice(price.totalPriceTax)}</td>
+            <td style="text-align: right">${AppUtils.formatCurrency(value: price.totalPriceTax)}</td>
         </tr>
         $taxDetail
 
@@ -574,7 +467,7 @@ ${_getRestaurantInfo()}
 
         <tr>
             <td style="font-weight: bold" colspan="4">Tiền thanh toán</td>
-            <td style="text-align: right">${AppHelper.parseToPrice(price.totalPriceFinal)}</td>
+            <td style="text-align: right">${AppUtils.formatCurrency(value: price.totalPriceFinal)}</td>
         </tr>
     </table>
     <hr>
@@ -587,7 +480,7 @@ ${_getRestaurantInfo()}
     <br>
     <span>
         <b>Hình thức thanh toán</b>:<br>
-        ${receiptType.showPaymentMethod ? '${paymentMethod?.name ?? ''}:${AppHelper.parseToPrice(paymentAmount)}' : ''}<br>
+        ${receiptType.showPaymentMethod ? '${paymentMethod?.name ?? ''}:${AppUtils.formatCurrency(value: paymentAmount)}' : ''}<br>
     </span>
 
     <hr>
@@ -624,8 +517,7 @@ ${_getTime()}
   }
 
   String _printDateTime(DateTime? value) {
-    return DateTimeUtils.formatToString(
-        time: value, newPattern: DateTimePatterns.dateTime1);
+    return DateTimeUtils.formatToString(time: value, newPattern: DateTimePatterns.dateTime1);
   }
 
   Future<List<int>> getCloseShiftContent(CloseShiftResponseModel data) async {
@@ -641,7 +533,7 @@ ${_getTime()}
         paymentMethod += '''
           <tr>
               <td width="60%">${e['label'] ?? ''}</td>
-              <td width="40%">${AppHelper.parseToPrice((e['value'] ?? '').toString())}</td>
+              <td width="40%">${AppUtils.formatCurrency(value: (e['value'] ?? '').toString())}</td>
           </tr>
         ''';
       }
@@ -750,23 +642,23 @@ ${_getRestaurantInfo()}
     <table class="items">
         <tr>
             <td width="60%">Số dư đầu</td>
-            <td width="40%">${AppHelper.parseToPrice(data.openingBalances)}</td>
+            <td width="40%">${AppUtils.formatCurrency(value: data.openingBalances)}</td>
 
         </tr>
         <tr>
             <td width="60%">Tổng tiền bán</td>
-            <td width="40%">${AppHelper.parseToPrice(data.totalAmount)}</td>
+            <td width="40%">${AppUtils.formatCurrency(value: data.totalAmount)}</td>
 
         </tr>
         $paymentMethod
         <tr>
             <td width="60%">Tổng giảm giá</td>
-            <td width="40%">${AppHelper.parseToPrice(data.discountMoney)}</td>
+            <td width="40%">${AppUtils.formatCurrency(value: data.discountMoney)}</td>
 
         </tr>
         <tr>
             <td width="60%">Tổng chiết khấu</td>
-            <td width="40%">${AppHelper.parseToPrice(data.percentBill)}</td>
+            <td width="40%">${AppUtils.formatCurrency(value: data.percentBill)}</td>
 
         </tr>
         <tr>
@@ -776,7 +668,7 @@ ${_getRestaurantInfo()}
         </tr>
         <tr>
             <td width="60%">Dư cuối ca</td>
-            <td width="40%">${AppHelper.parseToPrice(data.endofshiftBalance)}</td>
+            <td width="40%">${AppUtils.formatCurrency(value: data.endofshiftBalance)}</td>
 
         </tr>
     </table>

@@ -15,6 +15,7 @@ import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
@@ -391,7 +392,9 @@ class CouponInfoWidget extends ConsumerWidget {
                         ? Column(
                             children: productForXPeople.map((e) {
                               final amountView =
-                                  "${AppConfig.formatCurrency().format((e.getUnitPriceNum() - e.unitPriceDiscount))} x ${e.quantityDiscount}";
+                                  "${AppUtils.formatCurrency(value: (e.getUnitPriceNum() - e.unitPriceDiscount))
+                                  // AppConfig.formatCurrency().format((e.getUnitPriceNum() - e.unitPriceDiscount))
+                                  } x ${e.quantityDiscount}";
                               return Padding(
                                 padding: const EdgeInsets.only(left: 16),
                                 child: ListTile(
@@ -416,7 +419,8 @@ class CouponInfoWidget extends ConsumerWidget {
                                   amountView =
                                       '${e.amount.toInt() == e.amount ? e.amount.toInt() : e.amount}%';
                                 } else {
-                                  amountView = AppHelper.parseToPrice(e.amount);
+                                  amountView = AppUtils.formatCurrency(value: e.amount);
+                                  // amountView = AppHelper.parseToPrice(e.amount);
                                 }
                               } else {
                                 if (e.type == 1) {
@@ -450,11 +454,15 @@ class CouponInfoWidget extends ConsumerWidget {
                                         }
                                       }
                                       amountView = xQuantity > 0
-                                          ? "${AppConfig.formatCurrency().format(e.amount)} x $xQuantity"
+                                          ? "${AppUtils.formatCurrency(value: e.amount)
+                                              // AppConfig.formatCurrency().format(e.amount)
+                                              } x $xQuantity"
                                           : "";
                                       break;
                                     default:
-                                      "${amountView = AppConfig.formatCurrency().format(e.amount)} x 1";
+                                      "${amountView = AppUtils.formatCurrency(value: e.amount)
+                                          // AppConfig.formatCurrency().format(e.amount)
+                                          } x 1";
                                       break;
                                   }
                                 }

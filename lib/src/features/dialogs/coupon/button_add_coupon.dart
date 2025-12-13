@@ -11,6 +11,7 @@ import 'package:aladdin_franchise/src/features/widgets/custom_dropdown_button.da
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -74,9 +75,8 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
     final number = int.tryParse(digits);
     if (number == null) return;
 
-    final formatted = type == DiscountTypeEnum.percent
-        ? digits
-        : NumberFormat.currency(locale: 'vi', symbol: '').format(number);
+    final formatted =
+        type == DiscountTypeEnum.percent ? digits : AppUtils.formatCurrency(value: number);
     showLogs(formatted, flags: 'formatted');
     _isFormatting = true;
     _percentCtrl.value = TextEditingValue(
@@ -167,11 +167,16 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                         ),
                       ),
                       const Gap(8),
-                      AppButtonWidget(
-                        textAction: S.current.confirm,
-                        color: AppColors.secondColor,
-                        onTap: _addCoupon,
-                      ),
+                      Consumer(
+                        builder: (context, ref, child) {
+                          var coupons = ref.watch(homeProvider.select((value) => value.coupons));
+                          return AppButtonWidget(
+                            textAction: S.current.confirm,
+                            color: coupons.isNotEmpty ? Colors.grey : AppColors.secondColor,
+                            onTap: coupons.isNotEmpty ? null : _addCoupon,
+                          );
+                        },
+                      )
                     ],
                   );
                 }),

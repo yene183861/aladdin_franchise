@@ -6,6 +6,7 @@ import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
@@ -400,8 +401,8 @@ class AppPrinterNormalUtils {
     if (printNote) {
       bytes += generator.hr();
       bytes += generator.text(TiengViet.parse('Ghi chú: '));
-      bytes += generator.text(TiengViet.parse(
-          (item.noteForProcessOrder ?? totalNote ?? '').trim()));
+      bytes +=
+          generator.text(TiengViet.parse((item.noteForProcessOrder ?? totalNote ?? '').trim()));
     }
     return bytes;
   }
@@ -468,8 +469,8 @@ class AppPrinterNormalUtils {
     if (printNote) {
       bytes += generator.hr();
       bytes += generator.text(TiengViet.parse("Ghi chú:"));
-      bytes += generator.text(TiengViet.parse(
-          (combo?.noteForProcessOrder ?? totalNote ?? '').trim()));
+      bytes +=
+          generator.text(TiengViet.parse((combo?.noteForProcessOrder ?? totalNote ?? '').trim()));
     }
     return bytes;
   }
@@ -631,7 +632,7 @@ class AppPrinterNormalUtils {
                 ),
               ),
               PosColumn(
-                text: AppHelper.parseToPrice((e['value'] ?? '').toString()),
+                text: AppUtils.formatCurrency(value: (e['value'] ?? '').toString()),
                 width: 8,
                 styles: const PosStyles(
                   align: PosAlign.left,

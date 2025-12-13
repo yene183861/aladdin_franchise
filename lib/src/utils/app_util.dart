@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class AppUtils {
   static double? convertToDouble(dynamic value) {
     if (value == null) return null;
@@ -10,5 +12,14 @@ class AppUtils {
     var value = data is double ? data : convertToDouble(data);
     if (value == null) return null;
     return '${value.toInt()}${showSymbol ? '%' : ''}';
+  }
+
+  static String formatCurrency({String symbol = '', String locale = 'vi', dynamic value}) {
+    try {
+      var data = convertToDouble(value);
+      return NumberFormat.currency(locale: locale, symbol: '').format(data ?? 0.0);
+    } catch (ex) {
+      return '';
+    }
   }
 }

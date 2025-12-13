@@ -281,9 +281,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                 loadingHome: false,
                               );
 
-                          ref
-                              .read(homeProvider.notifier)
-                              .updateReservationModel(result.reservation);
+                          ref.read(homeProvider.notifier).updateReservation(result.reservation);
                         }
                       } catch (ex) {
                         //
@@ -343,7 +341,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                 if (result.requireUpdateReservation && result.reservation != null) {
                                   ref
                                       .read(homeProvider.notifier)
-                                      .updateReservationModel(result.reservation);
+                                      .updateReservation(result.reservation);
                                 }
                                 try {
                                   await ref.read(homeProvider.notifier).loadingChangeOrderSelect(
@@ -377,7 +375,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                   result.reservation != null) {
                                 ref
                                     .read(homeProvider.notifier)
-                                    .updateReservationModel(result.reservation);
+                                    .updateReservation(result.reservation);
                               }
                             },
                           ),
@@ -411,13 +409,12 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
 
                                   var tableIds = orderSelect.getTableIds;
 
-                                  final error = await ref
-                                      .read(homeProvider.notifier)
-                                      .updateReservationForOrder(
-                                        tableIds: tableIds,
-                                        // tableNames: tableNames,
-                                        newReservation: result.reservation,
-                                      );
+                                  final error =
+                                      await ref.read(homeProvider.notifier).updateOrderReservation(
+                                            tableIds: tableIds,
+                                            // tableNames: tableNames,
+                                            newReservation: result.reservation,
+                                          );
                                   if (error == null) {
                                     // cập nhật lịch đặt bàn mới sang trạng thái Process
                                     if (result.reservation != null) {
@@ -430,7 +427,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                         table: tableNames,
                                       );
 
-                                      ref.read(homeProvider.notifier).updateReservationModel(model);
+                                      ref.read(homeProvider.notifier).updateReservation(model);
                                     }
                                     if (result.initReservation != null) {
                                       // cập nhật lịch đặt bàn cũ sang trạng thái Accept
@@ -442,7 +439,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                                         tableId: tableIds,
                                         table: tableNames,
                                       );
-                                      ref.read(homeProvider.notifier).updateReservationModel(model);
+                                      ref.read(homeProvider.notifier).updateReservation(model);
                                     }
                                   } else {
                                     if (context.mounted) {
@@ -583,7 +580,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
         ref.refresh(tablesAndOrdersProvider);
         Navigator.pop(context);
         if (useReservation && orderSelect.reservationCrmId != null && requireUpdateReservation) {
-          ref.read(homeProvider.notifier).updateReservationModel(reservation?.copyWith(
+          ref.read(homeProvider.notifier).updateReservation(reservation?.copyWith(
                 isUpdate: false,
                 rejectReason: '',
                 status: ReservationStatus.cancel.type,

@@ -7,6 +7,7 @@ import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/models/combo_item.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/material.dart';
@@ -123,8 +124,9 @@ class ProductDetailWidget extends StatelessWidget {
                       const GapW(8),
                       Text.rich(
                         TextSpan(
-                          text: AppConfig.formatCurrency()
-                              .format(double.tryParse(product.unitPrice ?? "0")),
+                          text: AppUtils.formatCurrency(value: product.unitPrice),
+                          // AppConfig.formatCurrency()
+                          //     .format(double.tryParse(product.unitPrice ?? "0")),
                           style: AppTextStyle.bold(
                             color: AppColors.redColor,
                             fontWeight: FontWeight.w600,

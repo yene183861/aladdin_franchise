@@ -11,17 +11,15 @@ import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_simple_loading.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
-import 'package:aladdin_franchise/src/features/widgets/custom_dropdown_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
 import 'package:aladdin_franchise/src/models/data_bill.dart';
 import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart';
-import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
@@ -201,7 +199,6 @@ String? checkItemBeforeCompleteBill({
   Set<LineItemDataBill> notZeroTaxs = {};
 
   for (var item in orderLineItems) {
-    showLogs(item, flags: 'item');
     if (item.isChangeTax == 1) {
       allowChangeTaxs.add(item);
     }
@@ -303,7 +300,9 @@ Future<void> showConfirmCompleteBillDialog(
             context,
             message: 'Nhấn “Tiếp tục” để chuẩn bị cà thẻ.\n'
                 'Khi máy sẵn sàng, vui lòng đưa thẻ vào POS.\n'
-                'Số tiền thanh toán là: ${AppConfig.formatCurrency().format(ref.read(homeProvider).dataBill.price.totalPriceFinal)}',
+                'Số tiền thanh toán là: ${AppUtils.formatCurrency(value: ref.read(homeProvider).dataBill.price.totalPriceFinal)
+                // AppConfig.formatCurrency().format(ref.read(homeProvider).dataBill.price.totalPriceFinal)
+                }',
             actionTitle: S.current.continue_text,
           );
           if (action != true) {
@@ -386,7 +385,7 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
       final number = int.tryParse(digits);
       if (number == null) return;
 
-      final formatted = NumberFormat.currency(locale: 'vi', symbol: '').format(number);
+      final formatted = AppUtils.formatCurrency(value: number);
 
       _isFormatting = true;
       _receivedAmount.value = TextEditingValue(
@@ -398,8 +397,7 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
       _isFormatting = false;
       final price = ref.read(homeProvider.notifier).getFinalPaymentPrice;
       var remaining = number - price.totalPriceFinal;
-      _remainingAmount.text =
-          remaining < 0 ? '0' : NumberFormat.currency(locale: 'vi', symbol: '').format(remaining);
+      _remainingAmount.text = remaining < 0 ? '0' : AppUtils.formatCurrency(value: remaining);
     });
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {

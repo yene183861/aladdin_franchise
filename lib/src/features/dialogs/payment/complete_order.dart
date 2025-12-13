@@ -97,30 +97,21 @@ void onConfirmCompleteAgain({
         '\nMã đơn: ${ref.read(homeProvider).orderSelect?.getOrderMisc()}'
         '${(errorMessage ?? '').trim().isNotEmpty ? '\n\nSự cố: $errorMessage' : ''}',
     actionTitle: S.current.completed,
-    notCancel: true,
+    notCancel: false,
     action: () async {
       var res = await ref.read(homeProvider.notifier).completeBill(
             context: context,
+            printKitchenBill: true,
             printers: printers,
           );
       if (res != null) {
-        onConfirmCompleteAgain(
-          ref: ref,
-          context: context,
-          errorMessage: res,
-          printers: printers,
-        );
+        onConfirmCompleteAgain(ref: ref, context: context, errorMessage: res);
         return;
       }
       for (var i = 0; i < 2 + (openCheckoutPage ? 1 : 0); i++) {
         pop(context);
       }
-      // pop(context);
-      // pop(context);
-      // showLogs(openCheckoutPage, flags: 'openCheckoutPage 2');
-      // if (openCheckoutPage) {
-      //   pop(context);
-      // }
+
       ref.invalidate(tablesAndOrdersProvider);
 
       ref.read(homeProvider.notifier).changeOrderSelect(null);
@@ -129,9 +120,6 @@ void onConfirmCompleteAgain({
       for (var i = 0; i < 2 + (openCheckoutPage ? 1 : 0); i++) {
         pop(context);
       }
-      // pop(context);
-      // pop(context);
-      // pop(context);
       ref.invalidate(tablesAndOrdersProvider);
 
       ref.read(homeProvider.notifier).changeOrderSelect(null);

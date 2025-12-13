@@ -8,6 +8,7 @@ import 'package:aladdin_franchise/src/features/widgets/price_data_bill_preview.d
 import 'package:aladdin_franchise/src/models/data_bill.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -49,12 +50,10 @@ class _PreviewProductCheckoutWidget extends ConsumerStatefulWidget {
   const _PreviewProductCheckoutWidget();
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __PreviewProductCheckoutWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __PreviewProductCheckoutWidgetState();
 }
 
-class __PreviewProductCheckoutWidgetState
-    extends ConsumerState<_PreviewProductCheckoutWidget> {
+class __PreviewProductCheckoutWidgetState extends ConsumerState<_PreviewProductCheckoutWidget> {
   final titleRowColor = Colors.grey.shade200;
   final colSettings = [
     {
@@ -88,15 +87,14 @@ class __PreviewProductCheckoutWidgetState
   List<ProductCheckoutModel> productCheckouts = [];
   List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax = [];
 
-  String formatPrice(dynamic value) {
-    return NumberFormat.currency(locale: 'vi', symbol: '')
-        .format(value is double ? value : (double.tryParse(value) ?? 0.0));
-  }
+  // String formatPrice(dynamic value) {
+  //   return NumberFormat.currency(locale: 'vi', symbol: '')
+  //       .format(value is double ? value : (double.tryParse(value) ?? 0.0));
+  // }
 
   @override
   Widget build(BuildContext context) {
-    productCheckouts =
-        ref.watch(homeProvider.select((value) => value.productCheckout));
+    productCheckouts = ref.watch(homeProvider.select((value) => value.productCheckout));
     // productCheckoutUpdateTax = ref
     //     .watch(homeProvider.select((value) => value.productCheckoutUpdateTax));
     requireUpdateTax = ref.read(homeProvider.notifier).requireUpdateTax;
@@ -121,17 +119,15 @@ class __PreviewProductCheckoutWidgetState
             return _buildColumnSpan(index, maxWidth);
           },
           rowBuilder: _buildRowSpan,
-          cellBuilder: (context, vicinity) =>
-              _buildCell(context, vicinity, productCheckouts),
+          cellBuilder: (context, vicinity) => _buildCell(context, vicinity, productCheckouts),
         ),
       );
     });
   }
 
-  TableViewCell _buildCell(BuildContext context, TableVicinity vicinity,
-      List<ProductCheckoutModel> productCheckout) {
-    var decoration =
-        BoxDecoration(border: Border.all(color: Colors.grey, width: 0.5));
+  TableViewCell _buildCell(
+      BuildContext context, TableVicinity vicinity, List<ProductCheckoutModel> productCheckout) {
+    var decoration = BoxDecoration(border: Border.all(color: Colors.grey, width: 0.5));
     if (vicinity.yIndex == 0) {
       String colTitle = '';
       try {
@@ -158,27 +154,29 @@ class __PreviewProductCheckoutWidgetState
     var xIndex = vicinity.xIndex;
 
     List<String> contents = [];
-    var i = (requireUpdateTax
-        ? productCheckoutUpdateTax
-        : productCheckouts)[vicinity.yIndex - 1];
+    var i = (requireUpdateTax ? productCheckoutUpdateTax : productCheckouts)[vicinity.yIndex - 1];
 
     if (requireUpdateTax) {
       var item = i as ProductCheckoutUpdateTaxModel;
       contents = [
         item.name,
         item.quantity,
-        formatPrice(item.priceNew),
+        AppUtils.formatCurrency(value: item.priceNew),
+        // formatPrice(item.priceNew),
         '${item.taxView}%',
-        formatPrice(item.total),
+        AppUtils.formatCurrency(value: item.total),
+        // formatPrice(item.total),
       ];
     } else {
       var item = i as ProductCheckoutModel;
       contents = [
         item.name,
         item.quantity.toString(),
-        formatPrice(item.unitPrice),
+        AppUtils.formatCurrency(value: item.unitPrice),
+        // formatPrice(item.unitPrice),
         '${item.taxView}%',
-        formatPrice(item.totalOrdered),
+        AppUtils.formatCurrency(value: item.totalOrdered),
+        // formatPrice(item.totalOrdered),
       ];
     }
 
@@ -208,9 +206,7 @@ class __PreviewProductCheckoutWidgetState
       remain = max(remain - (size ?? 0), 200);
     }
     return TableSpan(
-      extent: maxValue == null
-          ? FixedTableSpanExtent(remain)
-          : FixedTableSpanExtent(maxValue),
+      extent: maxValue == null ? FixedTableSpanExtent(remain) : FixedTableSpanExtent(maxValue),
     );
   }
 

@@ -207,20 +207,16 @@ mixin _$HomeState {
       throw _privateConstructorUsedError; // danh sách vourcher sau khi áp mã giảm giá
   List<PolicyResultModel> get vouchers => throw _privateConstructorUsedError;
   dynamic get createVouchers => throw _privateConstructorUsedError;
-
-  /// các mã only cần xóa đi áp dụng lại
-  List<CustomerPolicyModel> get needApplyAgainOnlyCoupons =>
-      throw _privateConstructorUsedError;
   PageState get applyPolicyState => throw _privateConstructorUsedError;
 
   /// phương thức thanh toán
   List<PaymentMethod> get paymentMethods => throw _privateConstructorUsedError;
   PageState get paymentMethodState => throw _privateConstructorUsedError;
   PaymentMethod? get paymentMethodSelected =>
-      throw _privateConstructorUsedError; // trạng thái thanh toán payoo
+      throw _privateConstructorUsedError; // trạng thái thanh toán gateway
   bool get statusPaymentGateway =>
-      throw _privateConstructorUsedError; // tiền nhận được từ payoo
-  double get totalPaymentGateway => throw _privateConstructorUsedError; // bank
+      throw _privateConstructorUsedError; // tiền nhận được từ gateway
+  dynamic get totalPaymentGateway => throw _privateConstructorUsedError; // bank
   List<UserBankModel> get banks => throw _privateConstructorUsedError;
   PageState get banksState => throw _privateConstructorUsedError;
   UserBankModel? get bankSelect =>
@@ -240,8 +236,6 @@ mixin _$HomeState {
   DataBillResponseData get dataBill => throw _privateConstructorUsedError;
   PageState get dataBillState => throw _privateConstructorUsedError;
 
-  /// pc sau khi phân bổ lại thuế
-// @Default([]) List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax,
   /// hoàn thành bill
   List<File> get imageBills => throw _privateConstructorUsedError;
   int get numberOfAdults => throw _privateConstructorUsedError;
@@ -253,9 +247,7 @@ mixin _$HomeState {
   List<CustomerPortrait> get customerPortraits =>
       throw _privateConstructorUsedError;
   String get completeNote => throw _privateConstructorUsedError; // nv sale
-  EmployeeSaleModel? get employeeSaleSelect =>
-      throw _privateConstructorUsedError; // @Default([]) List<EmployeeSaleModel> employeeSales,
-// @Default(PageState()) PageState employeeSaleState,
+// EmployeeSaleModel? employeeSaleSelect,
   bool get printNumberOfPeople => throw _privateConstructorUsedError;
 
   ///
@@ -316,13 +308,12 @@ abstract class $HomeStateCopyWith<$Res> {
       List<CustomerPolicyModel> coupons,
       List<PolicyResultModel> vouchers,
       dynamic createVouchers,
-      List<CustomerPolicyModel> needApplyAgainOnlyCoupons,
       PageState applyPolicyState,
       List<PaymentMethod> paymentMethods,
       PageState paymentMethodState,
       PaymentMethod? paymentMethodSelected,
       bool statusPaymentGateway,
-      double totalPaymentGateway,
+      dynamic totalPaymentGateway,
       List<UserBankModel> banks,
       PageState banksState,
       UserBankModel? bankSelect,
@@ -342,7 +333,6 @@ abstract class $HomeStateCopyWith<$Res> {
       CustomerPortrait? customerPortraitSelect,
       List<CustomerPortrait> customerPortraits,
       String completeNote,
-      EmployeeSaleModel? employeeSaleSelect,
       bool printNumberOfPeople,
       bool autoScrollProducts,
       int? changedProductId,
@@ -374,7 +364,6 @@ abstract class $HomeStateCopyWith<$Res> {
   $DataBillResponseDataCopyWith<$Res> get dataBill;
   $PageStateCopyWith<$Res> get dataBillState;
   $CustomerPortraitCopyWith<$Res>? get customerPortraitSelect;
-  $EmployeeSaleModelCopyWith<$Res>? get employeeSaleSelect;
   $PageStateCopyWith<$Res> get getChatMessageState;
 }
 
@@ -415,13 +404,12 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? coupons = null,
     Object? vouchers = null,
     Object? createVouchers = freezed,
-    Object? needApplyAgainOnlyCoupons = null,
     Object? applyPolicyState = null,
     Object? paymentMethods = null,
     Object? paymentMethodState = null,
     Object? paymentMethodSelected = freezed,
     Object? statusPaymentGateway = null,
-    Object? totalPaymentGateway = null,
+    Object? totalPaymentGateway = freezed,
     Object? banks = null,
     Object? banksState = null,
     Object? bankSelect = freezed,
@@ -441,7 +429,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? customerPortraitSelect = freezed,
     Object? customerPortraits = null,
     Object? completeNote = null,
-    Object? employeeSaleSelect = freezed,
     Object? printNumberOfPeople = null,
     Object? autoScrollProducts = null,
     Object? changedProductId = freezed,
@@ -551,10 +538,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.createVouchers
           : createVouchers // ignore: cast_nullable_to_non_nullable
               as dynamic,
-      needApplyAgainOnlyCoupons: null == needApplyAgainOnlyCoupons
-          ? _value.needApplyAgainOnlyCoupons
-          : needApplyAgainOnlyCoupons // ignore: cast_nullable_to_non_nullable
-              as List<CustomerPolicyModel>,
       applyPolicyState: null == applyPolicyState
           ? _value.applyPolicyState
           : applyPolicyState // ignore: cast_nullable_to_non_nullable
@@ -575,10 +558,10 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.statusPaymentGateway
           : statusPaymentGateway // ignore: cast_nullable_to_non_nullable
               as bool,
-      totalPaymentGateway: null == totalPaymentGateway
+      totalPaymentGateway: freezed == totalPaymentGateway
           ? _value.totalPaymentGateway
           : totalPaymentGateway // ignore: cast_nullable_to_non_nullable
-              as double,
+              as dynamic,
       banks: null == banks
           ? _value.banks
           : banks // ignore: cast_nullable_to_non_nullable
@@ -655,10 +638,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.completeNote
           : completeNote // ignore: cast_nullable_to_non_nullable
               as String,
-      employeeSaleSelect: freezed == employeeSaleSelect
-          ? _value.employeeSaleSelect
-          : employeeSaleSelect // ignore: cast_nullable_to_non_nullable
-              as EmployeeSaleModel?,
       printNumberOfPeople: null == printNumberOfPeople
           ? _value.printNumberOfPeople
           : printNumberOfPeople // ignore: cast_nullable_to_non_nullable
@@ -901,19 +880,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
 
   @override
   @pragma('vm:prefer-inline')
-  $EmployeeSaleModelCopyWith<$Res>? get employeeSaleSelect {
-    if (_value.employeeSaleSelect == null) {
-      return null;
-    }
-
-    return $EmployeeSaleModelCopyWith<$Res>(_value.employeeSaleSelect!,
-        (value) {
-      return _then(_value.copyWith(employeeSaleSelect: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
   $PageStateCopyWith<$Res> get getChatMessageState {
     return $PageStateCopyWith<$Res>(_value.getChatMessageState, (value) {
       return _then(_value.copyWith(getChatMessageState: value) as $Val);
@@ -954,13 +920,12 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       List<CustomerPolicyModel> coupons,
       List<PolicyResultModel> vouchers,
       dynamic createVouchers,
-      List<CustomerPolicyModel> needApplyAgainOnlyCoupons,
       PageState applyPolicyState,
       List<PaymentMethod> paymentMethods,
       PageState paymentMethodState,
       PaymentMethod? paymentMethodSelected,
       bool statusPaymentGateway,
-      double totalPaymentGateway,
+      dynamic totalPaymentGateway,
       List<UserBankModel> banks,
       PageState banksState,
       UserBankModel? bankSelect,
@@ -980,7 +945,6 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       CustomerPortrait? customerPortraitSelect,
       List<CustomerPortrait> customerPortraits,
       String completeNote,
-      EmployeeSaleModel? employeeSaleSelect,
       bool printNumberOfPeople,
       bool autoScrollProducts,
       int? changedProductId,
@@ -1032,8 +996,6 @@ abstract class _$$HomeStateImplCopyWith<$Res>
   @override
   $CustomerPortraitCopyWith<$Res>? get customerPortraitSelect;
   @override
-  $EmployeeSaleModelCopyWith<$Res>? get employeeSaleSelect;
-  @override
   $PageStateCopyWith<$Res> get getChatMessageState;
 }
 
@@ -1072,13 +1034,12 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? coupons = null,
     Object? vouchers = null,
     Object? createVouchers = freezed,
-    Object? needApplyAgainOnlyCoupons = null,
     Object? applyPolicyState = null,
     Object? paymentMethods = null,
     Object? paymentMethodState = null,
     Object? paymentMethodSelected = freezed,
     Object? statusPaymentGateway = null,
-    Object? totalPaymentGateway = null,
+    Object? totalPaymentGateway = freezed,
     Object? banks = null,
     Object? banksState = null,
     Object? bankSelect = freezed,
@@ -1098,7 +1059,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? customerPortraitSelect = freezed,
     Object? customerPortraits = null,
     Object? completeNote = null,
-    Object? employeeSaleSelect = freezed,
     Object? printNumberOfPeople = null,
     Object? autoScrollProducts = null,
     Object? changedProductId = freezed,
@@ -1208,10 +1168,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.createVouchers
           : createVouchers // ignore: cast_nullable_to_non_nullable
               as dynamic,
-      needApplyAgainOnlyCoupons: null == needApplyAgainOnlyCoupons
-          ? _value._needApplyAgainOnlyCoupons
-          : needApplyAgainOnlyCoupons // ignore: cast_nullable_to_non_nullable
-              as List<CustomerPolicyModel>,
       applyPolicyState: null == applyPolicyState
           ? _value.applyPolicyState
           : applyPolicyState // ignore: cast_nullable_to_non_nullable
@@ -1232,10 +1188,10 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.statusPaymentGateway
           : statusPaymentGateway // ignore: cast_nullable_to_non_nullable
               as bool,
-      totalPaymentGateway: null == totalPaymentGateway
+      totalPaymentGateway: freezed == totalPaymentGateway
           ? _value.totalPaymentGateway
           : totalPaymentGateway // ignore: cast_nullable_to_non_nullable
-              as double,
+              as dynamic,
       banks: null == banks
           ? _value._banks
           : banks // ignore: cast_nullable_to_non_nullable
@@ -1312,10 +1268,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.completeNote
           : completeNote // ignore: cast_nullable_to_non_nullable
               as String,
-      employeeSaleSelect: freezed == employeeSaleSelect
-          ? _value.employeeSaleSelect
-          : employeeSaleSelect // ignore: cast_nullable_to_non_nullable
-              as EmployeeSaleModel?,
       printNumberOfPeople: null == printNumberOfPeople
           ? _value.printNumberOfPeople
           : printNumberOfPeople // ignore: cast_nullable_to_non_nullable
@@ -1392,13 +1344,12 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       final List<CustomerPolicyModel> coupons = const [],
       final List<PolicyResultModel> vouchers = const [],
       this.createVouchers,
-      final List<CustomerPolicyModel> needApplyAgainOnlyCoupons = const [],
       this.applyPolicyState = const PageState(status: PageCommonState.success),
       final List<PaymentMethod> paymentMethods = const [],
       this.paymentMethodState = const PageState(),
       this.paymentMethodSelected,
       this.statusPaymentGateway = false,
-      this.totalPaymentGateway = 0.0,
+      this.totalPaymentGateway,
       final List<UserBankModel> banks = const [],
       this.banksState = const PageState(),
       this.bankSelect,
@@ -1418,7 +1369,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       this.customerPortraitSelect,
       final List<CustomerPortrait> customerPortraits = const [],
       this.completeNote = '',
-      this.employeeSaleSelect,
       this.printNumberOfPeople = false,
       this.autoScrollProducts = true,
       this.changedProductId,
@@ -1443,7 +1393,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         _productCheckout = productCheckout,
         _coupons = coupons,
         _vouchers = vouchers,
-        _needApplyAgainOnlyCoupons = needApplyAgainOnlyCoupons,
         _paymentMethods = paymentMethods,
         _banks = banks,
         _listAtmPos = listAtmPos,
@@ -1602,20 +1551,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
 
   @override
   final dynamic createVouchers;
-
-  /// các mã only cần xóa đi áp dụng lại
-  final List<CustomerPolicyModel> _needApplyAgainOnlyCoupons;
-
-  /// các mã only cần xóa đi áp dụng lại
-  @override
-  @JsonKey()
-  List<CustomerPolicyModel> get needApplyAgainOnlyCoupons {
-    if (_needApplyAgainOnlyCoupons is EqualUnmodifiableListView)
-      return _needApplyAgainOnlyCoupons;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_needApplyAgainOnlyCoupons);
-  }
-
   @override
   @JsonKey()
   final PageState applyPolicyState;
@@ -1637,14 +1572,13 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   final PageState paymentMethodState;
   @override
   final PaymentMethod? paymentMethodSelected;
-// trạng thái thanh toán payoo
+// trạng thái thanh toán gateway
   @override
   @JsonKey()
   final bool statusPaymentGateway;
-// tiền nhận được từ payoo
+// tiền nhận được từ gateway
   @override
-  @JsonKey()
-  final double totalPaymentGateway;
+  final dynamic totalPaymentGateway;
 // bank
   final List<UserBankModel> _banks;
 // bank
@@ -1700,13 +1634,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @JsonKey()
   final PageState dataBillState;
 
-  /// pc sau khi phân bổ lại thuế
-// @Default([]) List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax,
   /// hoàn thành bill
   final List<File> _imageBills;
 
-  /// pc sau khi phân bổ lại thuế
-// @Default([]) List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax,
   /// hoàn thành bill
   @override
   @JsonKey()
@@ -1742,10 +1672,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @JsonKey()
   final String completeNote;
 // nv sale
-  @override
-  final EmployeeSaleModel? employeeSaleSelect;
-// @Default([]) List<EmployeeSaleModel> employeeSales,
-// @Default(PageState()) PageState employeeSaleState,
+// EmployeeSaleModel? employeeSaleSelect,
   @override
   @JsonKey()
   final bool printNumberOfPeople;
@@ -1816,7 +1743,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, productsState: $productsState, categories: $categories, products: $products, tags: $tags, menuCategoryItem: $menuCategoryItem, categorySelect: $categorySelect, subCategorySelect: $subCategorySelect, tagSelect: $tagSelect, search: $search, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productsSelecting: $productsSelecting, productsSelected: $productsSelected, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, needApplyAgainOnlyCoupons: $needApplyAgainOnlyCoupons, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, checkReloadWhenHiddenApp: $checkReloadWhenHiddenApp, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, customerPortraits: $customerPortraits, completeNote: $completeNote, employeeSaleSelect: $employeeSaleSelect, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, displayOrderHistory: $displayOrderHistory, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, discountTypeSelect: $discountTypeSelect)';
+    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, productsState: $productsState, categories: $categories, products: $products, tags: $tags, menuCategoryItem: $menuCategoryItem, categorySelect: $categorySelect, subCategorySelect: $subCategorySelect, tagSelect: $tagSelect, search: $search, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productsSelecting: $productsSelecting, productsSelected: $productsSelected, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, checkReloadWhenHiddenApp: $checkReloadWhenHiddenApp, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, customerPortraits: $customerPortraits, completeNote: $completeNote, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, displayOrderHistory: $displayOrderHistory, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, discountTypeSelect: $discountTypeSelect)';
   }
 
   @override
@@ -1848,8 +1775,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       ..add(DiagnosticsProperty('coupons', coupons))
       ..add(DiagnosticsProperty('vouchers', vouchers))
       ..add(DiagnosticsProperty('createVouchers', createVouchers))
-      ..add(DiagnosticsProperty(
-          'needApplyAgainOnlyCoupons', needApplyAgainOnlyCoupons))
       ..add(DiagnosticsProperty('applyPolicyState', applyPolicyState))
       ..add(DiagnosticsProperty('paymentMethods', paymentMethods))
       ..add(DiagnosticsProperty('paymentMethodState', paymentMethodState))
@@ -1877,7 +1802,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
           DiagnosticsProperty('customerPortraitSelect', customerPortraitSelect))
       ..add(DiagnosticsProperty('customerPortraits', customerPortraits))
       ..add(DiagnosticsProperty('completeNote', completeNote))
-      ..add(DiagnosticsProperty('employeeSaleSelect', employeeSaleSelect))
       ..add(DiagnosticsProperty('printNumberOfPeople', printNumberOfPeople))
       ..add(DiagnosticsProperty('autoScrollProducts', autoScrollProducts))
       ..add(DiagnosticsProperty('changedProductId', changedProductId))
@@ -1938,8 +1862,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
             const DeepCollectionEquality().equals(other._vouchers, _vouchers) &&
             const DeepCollectionEquality()
                 .equals(other.createVouchers, createVouchers) &&
-            const DeepCollectionEquality().equals(
-                other._needApplyAgainOnlyCoupons, _needApplyAgainOnlyCoupons) &&
             (identical(other.applyPolicyState, applyPolicyState) ||
                 other.applyPolicyState == applyPolicyState) &&
             const DeepCollectionEquality()
@@ -1950,8 +1872,8 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
                 other.paymentMethodSelected == paymentMethodSelected) &&
             (identical(other.statusPaymentGateway, statusPaymentGateway) ||
                 other.statusPaymentGateway == statusPaymentGateway) &&
-            (identical(other.totalPaymentGateway, totalPaymentGateway) ||
-                other.totalPaymentGateway == totalPaymentGateway) &&
+            const DeepCollectionEquality()
+                .equals(other.totalPaymentGateway, totalPaymentGateway) &&
             const DeepCollectionEquality().equals(other._banks, _banks) &&
             (identical(other.banksState, banksState) ||
                 other.banksState == banksState) &&
@@ -1986,9 +1908,10 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
                 other.customerPortraitSelect == customerPortraitSelect) &&
             const DeepCollectionEquality()
                 .equals(other._customerPortraits, _customerPortraits) &&
-            (identical(other.completeNote, completeNote) || other.completeNote == completeNote) &&
-            (identical(other.employeeSaleSelect, employeeSaleSelect) || other.employeeSaleSelect == employeeSaleSelect) &&
-            (identical(other.printNumberOfPeople, printNumberOfPeople) || other.printNumberOfPeople == printNumberOfPeople) &&
+            (identical(other.completeNote, completeNote) ||
+                other.completeNote == completeNote) &&
+            (identical(other.printNumberOfPeople, printNumberOfPeople) ||
+                other.printNumberOfPeople == printNumberOfPeople) &&
             (identical(other.autoScrollProducts, autoScrollProducts) || other.autoScrollProducts == autoScrollProducts) &&
             (identical(other.changedProductId, changedProductId) || other.changedProductId == changedProductId) &&
             (identical(other.pinnedOrder, pinnedOrder) || other.pinnedOrder == pinnedOrder) &&
@@ -2028,13 +1951,12 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         const DeepCollectionEquality().hash(_coupons),
         const DeepCollectionEquality().hash(_vouchers),
         const DeepCollectionEquality().hash(createVouchers),
-        const DeepCollectionEquality().hash(_needApplyAgainOnlyCoupons),
         applyPolicyState,
         const DeepCollectionEquality().hash(_paymentMethods),
         paymentMethodState,
         paymentMethodSelected,
         statusPaymentGateway,
-        totalPaymentGateway,
+        const DeepCollectionEquality().hash(totalPaymentGateway),
         const DeepCollectionEquality().hash(_banks),
         banksState,
         bankSelect,
@@ -2054,7 +1976,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         customerPortraitSelect,
         const DeepCollectionEquality().hash(_customerPortraits),
         completeNote,
-        employeeSaleSelect,
         printNumberOfPeople,
         autoScrollProducts,
         changedProductId,
@@ -2101,13 +2022,12 @@ abstract class _HomeState implements HomeState {
       final List<CustomerPolicyModel> coupons,
       final List<PolicyResultModel> vouchers,
       final dynamic createVouchers,
-      final List<CustomerPolicyModel> needApplyAgainOnlyCoupons,
       final PageState applyPolicyState,
       final List<PaymentMethod> paymentMethods,
       final PageState paymentMethodState,
       final PaymentMethod? paymentMethodSelected,
       final bool statusPaymentGateway,
-      final double totalPaymentGateway,
+      final dynamic totalPaymentGateway,
       final List<UserBankModel> banks,
       final PageState banksState,
       final UserBankModel? bankSelect,
@@ -2127,7 +2047,6 @@ abstract class _HomeState implements HomeState {
       final CustomerPortrait? customerPortraitSelect,
       final List<CustomerPortrait> customerPortraits,
       final String completeNote,
-      final EmployeeSaleModel? employeeSaleSelect,
       final bool printNumberOfPeople,
       final bool autoScrollProducts,
       final int? changedProductId,
@@ -2205,10 +2124,6 @@ abstract class _HomeState implements HomeState {
   @override
   dynamic get createVouchers;
   @override
-
-  /// các mã only cần xóa đi áp dụng lại
-  List<CustomerPolicyModel> get needApplyAgainOnlyCoupons;
-  @override
   PageState get applyPolicyState;
   @override
 
@@ -2218,10 +2133,10 @@ abstract class _HomeState implements HomeState {
   PageState get paymentMethodState;
   @override
   PaymentMethod? get paymentMethodSelected;
-  @override // trạng thái thanh toán payoo
+  @override // trạng thái thanh toán gateway
   bool get statusPaymentGateway;
-  @override // tiền nhận được từ payoo
-  double get totalPaymentGateway;
+  @override // tiền nhận được từ gateway
+  dynamic get totalPaymentGateway;
   @override // bank
   List<UserBankModel> get banks;
   @override
@@ -2252,8 +2167,6 @@ abstract class _HomeState implements HomeState {
   PageState get dataBillState;
   @override
 
-  /// pc sau khi phân bổ lại thuế
-// @Default([]) List<ProductCheckoutUpdateTaxModel> productCheckoutUpdateTax,
   /// hoàn thành bill
   List<File> get imageBills;
   @override
@@ -2269,9 +2182,7 @@ abstract class _HomeState implements HomeState {
   @override
   String get completeNote;
   @override // nv sale
-  EmployeeSaleModel? get employeeSaleSelect;
-  @override // @Default([]) List<EmployeeSaleModel> employeeSales,
-// @Default(PageState()) PageState employeeSaleState,
+// EmployeeSaleModel? employeeSaleSelect,
   bool get printNumberOfPeople;
   @override
 

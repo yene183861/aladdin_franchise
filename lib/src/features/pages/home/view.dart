@@ -35,6 +35,7 @@ import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/utils/app_check.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
@@ -265,6 +266,15 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             break;
           case HomeEvent.lockOrder:
             showProcessingDialog(context, message: 'Đang khóa thao tác đơn bàn...');
+            break;
+          case HomeEvent.updateReservation:
+            showProcessingDialog(context, message: 'Đang cập nhật lịch đặt bàn...');
+            break;
+          case HomeEvent.updateOrderReservation:
+            showProcessingDialog(context, message: 'Đang thay đổi lịch đặt bàn của đơn...');
+            break;
+          case HomeEvent.addCoupon:
+            showProcessingDialog(context, message: S.current.checking);
             break;
           default:
             break;
@@ -1151,7 +1161,8 @@ class CartInfoWidget extends ConsumerWidget {
       case PageCommonState.success:
         totalOrder += price.totalPriceFinal;
         priceView = Text(
-          NumberFormat.currency(symbol: 'đ', locale: 'vi').format(totalOrder),
+          AppUtils.formatCurrency(value: totalOrder, symbol: 'đ'),
+          // NumberFormat.currency(symbol: 'đ', locale: 'vi').format(totalOrder),
           textAlign: TextAlign.left,
           overflow: TextOverflow.fade,
           style: AppTextStyle.bold(

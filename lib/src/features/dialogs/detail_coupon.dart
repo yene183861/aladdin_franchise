@@ -117,7 +117,9 @@ class _CouponInfoWidget extends ConsumerWidget {
                           style: AppTextStyle.regular(),
                         )
                       : Text(
-                          "-${AppConfig.formatCurrency().format(e.amount)}",
+                          "-${AppUtils.formatCurrency(value: e.amount)
+                          // AppConfig.formatCurrency().format(e.amount)
+                          }",
                           style: AppTextStyle.regular(),
                         ),
                 ),

@@ -6,6 +6,7 @@ import 'package:aladdin_franchise/src/core/services/send_log/discord_service.dar
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 
@@ -50,6 +51,7 @@ class PrintQueue {
   }
 
   Future<void> _processTask(_PrintTaskModel task) async {
+    if (kDebugMode) return;
     String? error;
     bool success = false;
     PrinterNetworkManager? printerManager;

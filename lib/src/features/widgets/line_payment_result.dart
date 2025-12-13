@@ -1,6 +1,7 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -26,7 +27,9 @@ class LinePaymentResultWidget extends StatelessWidget {
         style: AppTextStyle.regular(fontWeight: FontWeight.bold),
       ),
       trailing: Text(
-        "${isNegative ? number <= 0 ? "" : "-" : ""}${AppConfig.formatCurrency().format(number)}",
+        "${isNegative ? number <= 0 ? "" : "-" : ""}${AppUtils.formatCurrency(value: number)
+        // AppConfig.formatCurrency().format(number)
+        }",
         style:
             AppTextStyle.regular(color: colorNumber, rawFontSize: 15, fontWeight: FontWeight.w500),
       ),

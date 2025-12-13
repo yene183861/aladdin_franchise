@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:aladdin_franchise/src/models/ip_order.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
 
@@ -17,18 +18,20 @@ class AppPrinterCommon {
   static Future<String?> checkPrinter(IpOrderModel printer) async {
     final commonError = "Không kết nối được máy in\n${printer.name}\n"
         "${"Vui lòng kiểm tra & đảm bảo".toUpperCase()}\n"
+        "- Thiết bị và máy in kết nối cùng mạng\n"
         "- Máy in đã bật và không bị kẹt giấy\n"
         "- Dây mạng kết nối với máy in đã sáng";
+    if (kDebugMode) return null;
     if (Platform.isAndroid) {
       try {
         final bool result = await _channel.invokeMethod('ping', {'ip': printer.ip});
-        showLogs(result, flags: 'result ping printer');
         if (result) {
           return null;
         }
 
         throw Exception();
       } catch (ex) {
+        showLog(ex, flags: 'checkPrinter pingAndroid');
         return commonError;
       }
     } else if (Platform.isWindows) {
@@ -51,7 +54,7 @@ class AppPrinterCommon {
       final stdoutLines = process.stdout.transform(utf8.decoder).transform(const LineSplitter());
 
       await for (final line in stdoutLines) {
-        if (line.toLowerCase().contains('reply from')) {
+        if (line.toLowerCase().contains('reply from') && line.toLowerCase().contains("ttl=")) {
           hasReply = true;
           break;
         }
@@ -71,6 +74,7 @@ class AppPrinterCommon {
   /// False => message - máy in lỗi
   static Future<String?> checkPrinters(List<IpOrderModel> printers) async {
     List<IpOrderModel> printerChecks = [];
+    if (kDebugMode) return null;
     for (var printer in printers) {
       final check = await checkPrinter(printer);
       if (check != null) {
@@ -85,7 +89,7 @@ class AppPrinterCommon {
         ? null
         : "Không kết nối được máy in\n$infoPrinterError\n"
             "${"Vui lòng kiểm tra & đảm bảo".toUpperCase()}\n"
-            "- KDS đã cắm dây mạng hoặc đã kết nối mạng Order\n"
+            "- Thiết bị và máy in kết nối cùng mạng\n"
             "- Máy in đã bật và không bị kẹt giấy\n"
             "- Dây mạng kết nối với máy in đã sáng";
   }
@@ -116,17 +120,29 @@ class AppPrinterCommon {
 
   static String? posPrintResultMessage(PosPrintResult result) {
     switch (result) {
-      // 'Error. Printer connection timeout'
+      case PosPrintResult.success:
+        return null;
+
+      /// 'Error. Printer connection timeout'
       case PosPrintResult.timeout:
-        return 'Không kết nối được với máy in!';
-      // 'Error. Printer not connected'
+        return 'Không thể kết nối máy in do quá thời gian chờ!';
+
+      /// 'Error. Printer not connected'
       case PosPrintResult.printerConnected:
         return 'Không kết nối được với máy in!';
       // 'Error. Ticket is empty'
       case PosPrintResult.ticketEmpty:
-        return 'Error. Ticket is empty';
+        return 'Phiếu in chưa có thông tin';
+
+      /// Error. Another print in progress
+      case PosPrintResult.printInProgress:
+        return 'Máy in đang bận, vui lòng chờ';
+
+      /// Error. Printer scanning in progress
+      case PosPrintResult.scanInProgress:
+        return 'Máy in đang trong quá trình quét';
       default:
-        return null;
+        return 'Không xác định được lỗi';
     }
   }
 }

@@ -418,10 +418,6 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                   bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(
                     order: order,
                     price: price,
-                    printers: [
-                      IpOrderModel(
-                          ip: infoPrinter?.ip ?? '', port: infoPrinter?.port ?? 9100, type: 1),
-                    ],
                     receiptType: ReceiptTypeEnum.paymentReceipt,
                     paymentMethod: paymentMethodSelect,
                     paymentAmount: paymentAmount,
@@ -475,11 +471,11 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
               refreshData: refreshData
             );
           }
-          try {
-            await LocalStorage.deleteEmployeeSaleForOrder(order: order);
-          } catch (ex) {
-            //
-          }
+          // try {
+          //   await LocalStorage.deleteEmployeeSaleForOrder(order: order);
+          // } catch (ex) {
+          //   //
+          // }
           printBillResult = true;
           error = null;
           break;

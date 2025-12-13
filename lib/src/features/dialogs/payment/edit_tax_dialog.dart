@@ -7,6 +7,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:collection/collection.dart';
@@ -261,10 +262,12 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
     var contents = [
       i.getNameView(),
       i.codeProduct,
-      AppConfig.formatCurrency().format(double.tryParse(i.unitPrice) ?? 0.0),
+      AppUtils.formatCurrency(value: i.unitPrice),
+      // AppConfig.formatCurrency().format(double.tryParse(i.unitPrice) ?? 0.0),
       i.quantity.toString(),
       '${i.getTax()}%',
-      AppConfig.formatCurrency().format(i.totalOrdered),
+      AppUtils.formatCurrency(value: i.totalOrdered),
+      // AppConfig.formatCurrency().format(i.totalOrdered),
     ];
     if (xIndex == 4) {
       return TableViewCell(

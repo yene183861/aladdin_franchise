@@ -372,16 +372,16 @@ final orderToOnlineProvider =
 
   return orders;
 });
-final employeeSalesProvider = FutureProvider.autoDispose<List<EmployeeSaleModel>>((ref) async {
-  final result = await ref.read(restaurantRepositoryProvider).getEmployeeSales();
-  if (ref.read(homeProvider.notifier).mounted) {
-    var sale = ref.read(homeProvider).employeeSaleSelect;
-    if (sale != null && !result.contains(sale)) {
-      ref.read(homeProvider.notifier).onChangeEmployeeSaleSelect(null);
-    }
-  }
-  return result;
-});
+// final employeeSalesProvider = FutureProvider.autoDispose<List<EmployeeSaleModel>>((ref) async {
+//   final result = await ref.read(restaurantRepositoryProvider).getEmployeeSales();
+//   if (ref.read(homeProvider.notifier).mounted) {
+//     var sale = ref.read(homeProvider).employeeSaleSelect;
+//     if (sale != null && !result.contains(sale)) {
+//       ref.read(homeProvider.notifier).onChangeEmployeeSaleSelect(null);
+//     }
+//   }
+//   return result;
+// });
 
 final todayHistoryOrderProvider = FutureProvider.autoDispose<List<HistoryOrderModel>>((ref) async {
   var today = DateTime.now().date;

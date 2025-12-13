@@ -23,18 +23,18 @@ class AppHelper {
     }
   }
 
-  static double parseToDoubleValue(dynamic value) {
-    double data =
-        // (value is double || value is int)
-        value is num ? (value * 1.0) : (double.tryParse(value) ?? 0.0);
-    return data;
-  }
+  // static double parseToDoubleValue(dynamic value) {
+  //   double data =
+  //       // (value is double || value is int)
+  //       value is num ? (value * 1.0) : (double.tryParse(value) ?? 0.0);
+  //   return data;
+  // }
 
-  static String parseToPrice(
-    dynamic value, {
-    String symbol = '',
-  }) {
-    var price = parseToDoubleValue(value);
-    return NumberFormat.currency(locale: 'vi', symbol: symbol).format(price);
-  }
+  // static String parseToPrice(
+  //   dynamic value, {
+  //   String symbol = '',
+  // }) {
+  //   var price = parseToDoubleValue(value);
+  //   return NumberFormat.currency(locale: 'vi', symbol: symbol).format(price);
+  // }
 }
