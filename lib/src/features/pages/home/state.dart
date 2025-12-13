@@ -71,7 +71,6 @@ enum HomeEvent {
   switchAccount,
   switchAccountError,
   switchAccountSuccess,
-  updateReservation,
 
   findingCustomer,
   createCustomer,
@@ -111,6 +110,10 @@ enum HomeEvent {
   /// lock order
   lockOrder,
   unlockOrder,
+
+  /// reservation
+  updateReservation,
+  updateOrderReservation,
 }
 
 enum PageCommonState {

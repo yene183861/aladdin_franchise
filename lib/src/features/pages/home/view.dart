@@ -266,6 +266,12 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
           case HomeEvent.lockOrder:
             showProcessingDialog(context, message: 'Đang khóa thao tác đơn bàn...');
             break;
+          case HomeEvent.updateReservation:
+            showProcessingDialog(context, message: 'Đang cập nhật lịch đặt bàn...');
+            break;
+          case HomeEvent.updateOrderReservation:
+            showProcessingDialog(context, message: 'Đang thay đổi lịch đặt bàn của đơn...');
+            break;
           default:
             break;
         }

@@ -23,6 +23,7 @@ import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
+import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
 import 'package:aladdin_franchise/src/data/response/add_voucher.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/order/order_option_dialog.dart';
@@ -137,6 +138,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   final selectingItemsScrollCtrl = ItemScrollController();
   final selectingItemsPositionsListener = ItemPositionsListener.create();
 
+  /// uncheck
   @override
   void dispose() {
     AppConfig.initHomeProvider = false;
@@ -157,12 +159,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  // Future<void> _checkLockedOrder() async {
-  //   await _checkOrderSelect();
-  //   if (state.lockedOrder) throw S.current.msg_locked_order;
-  //   return;
-  // }
-
+  /// uncheck
   void initialize({
     bool loadProducts = true,
     OrderModel? order,
@@ -197,6 +194,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(event: event ?? HomeEvent.normal);
   }
 
+  /// uncheck
   void changeOrderSelect(OrderModel? orderModel) async {
     showLogs(orderModel, flags: 'changeOrderSelect');
     if (state.orderSelect != null) {
@@ -228,6 +226,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   ///
   /// [loadingProductCheckout] = true - hiện loading khi lấy dữ liệu ở danh sách món đã gọi
   ///
@@ -299,12 +298,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
           // thì cần apply lại tất cả các mã giảm only
           // thay vì những mã lưu local
           List<CustomerPolicyModel> needApplyAgainOnlyCoupons = [];
-          try {
-            needApplyAgainOnlyCoupons =
-                await LocalStorage.getApplyAgainOnlyCouponForOrder(order: orderSelect);
-          } catch (ex) {
-            //
-          }
+          // try {
+          //   needApplyAgainOnlyCoupons =
+          //       await LocalStorage.getApplyAgainOnlyCouponForOrder(order: orderSelect);
+          // } catch (ex) {
+          //   //
+          // }
 
           for (final c in coupons) {
             /// cập nhật số lượng món 0 đồng
@@ -409,6 +408,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   void changeCategorySelect(CategoryModel? categoryModel) {
     state = state.copyWith(categorySelect: categoryModel);
 
@@ -425,10 +425,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   void changeSubCategorySelect(SubCategoryModel? subCategoryModel) {
     state = state.copyWith(subCategorySelect: subCategoryModel);
   }
 
+  /// uncheck
   /// thêm sp vào giỏ hàng (số lượng 1)
   void addProductToCart({required ProductModel product}) async {
     var orderSelect = state.orderSelect;
@@ -463,6 +465,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     return null;
   }
 
+  /// uncheck
   /// thay đổi số lượng sp trong cart
   void changeProductInCart(ProductModel productModel, int count) async {
     var orderSelect = state.orderSelect;
@@ -496,6 +499,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   /// Tạo đơn hàng mới
   /// [0]: orderId, -1 là lỗi tạo đơn mới
   /// [1]: Message
@@ -521,6 +525,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   /// Cập nhật đơn hàng
   ///
   /// Khi yêu cầu huỷ đơn: tableIds = []
@@ -546,17 +551,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
           //
         }
 
-        try {
-          LocalStorage.deleteEmployeeSaleForOrder(order: state.orderSelect!);
-        } catch (ex) {
-          //
-        }
+        // try {
+        //   LocalStorage.deleteEmployeeSaleForOrder(order: state.orderSelect!);
+        // } catch (ex) {
+        //   //
+        // }
 
-        try {
-          await LocalStorage.deleteApplyAgainOnlyCouponForOrder(order: state.orderSelect!);
-        } catch (ex) {
-          //
-        }
+        // try {
+        //   await LocalStorage.deleteApplyAgainOnlyCouponForOrder(order: state.orderSelect!);
+        // } catch (ex) {
+        //   //
+        // }
       }
       updateEvent(null);
       return (error: null, orderId: updateOrderRepo.orderId);
@@ -569,6 +574,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   OrderModel? getOrderSelect() => state.orderSelect;
 
+  /// uncheck
   Future<void> logout() async {
     try {
       await LocalStorage.logout();
@@ -578,6 +584,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     ref.invalidate(checkLoginProvider);
   }
 
+  /// uncheck
   void _resetOrder() {
     state = state.copyWith(
       lockedOrder: false,
@@ -618,22 +625,23 @@ class HomeNotifier extends StateNotifier<HomeState> {
     syncInfoForCustomer();
   }
 
+  /// uncheck
   Future<void> loadingChangeOrderSelect(
     int orderId, {
     int? typeOrder,
     dynamic reservationCrmId,
   }) async {
     try {
-      if (state.orderSelect != null) {
-        try {
-          await LocalStorage.saveApplyAgainOnlyCoupon(
-            order: state.orderSelect!,
-            coupons: state.needApplyAgainOnlyCoupons,
-          );
-        } catch (ex) {
-          //
-        }
-      }
+      // if (state.orderSelect != null) {
+      //   try {
+      //     await LocalStorage.saveApplyAgainOnlyCoupon(
+      //       order: state.orderSelect!,
+      //       coupons: state.needApplyAgainOnlyCoupons,
+      //     );
+      //   } catch (ex) {
+      //     //
+      //   }
+      // }
       updateEvent(HomeEvent.loadingChangeOrderCurrent);
       state = state.copyWith(
           orderSelect: OrderModel(
@@ -656,10 +664,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  String getMessageError() {
-    return state.messageError;
-  }
+  String getMessageError() => state.messageError;
 
+  /// uncheck
   void listenRedisChannel() async {
     StreamSubscription<dynamic>? streamSubscription;
     try {
@@ -724,6 +731,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   Future<void> _reconnectRedis({RedisConnection? redisConnection}) async {
     state = state.copyWith(
       reconnectRedis: true,
@@ -738,6 +746,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     );
   }
 
+  /// uncheck
   void checkReloadMenu() {
     final lastTime = LocalStorage.getLastReloadMenu();
     final now = DateTime.now();
@@ -746,6 +755,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   Future<FindCustomerStatus> findCustomer(
     String phone, {
     bool loadingHome = true,
@@ -778,6 +788,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   Future<String?> createCustomer({
     required String phone,
     required String firstName,
@@ -818,6 +829,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   /// nhập mã giảm
   Future<({String? error, String? titleError})> addCoupon({
     required String code,
@@ -893,6 +905,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   /// nhập tiền giảm hoặc % giảm
   Future<({String? error, String? titleError})> addVoucher({
     double value = 0,
@@ -939,7 +952,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         ],
       );
       // await applyCustomerPolicy();
-      // getOrderProductCheckout();
+      getOrderProductCheckout();
       // await getDataBill();
       // await applyCustomerPolicy();
       return (error: null, titleError: null);
@@ -953,6 +966,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   /// xoá mã nhập tiền giảm hoặc % giảm
   Future<String?> removeVoucher({
     required CustomerPolicyModel coupon,
@@ -978,6 +992,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   Future<({String? error, List<IpOrderModel> printers, bool errorGetPrinter})> cancelProductOrder(
     List<ProductCheckoutModel> cancelProductCheckouts, {
     String contentCancelOrder = 'Khách chọn nhầm',
@@ -1098,6 +1113,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   void loadPaymentMethods() async {
     try {
       state = state.copyWith(
@@ -1124,10 +1140,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  PaymentMethod? getPaymentMethodSelected() {
-    return state.paymentMethodSelected;
-  }
+  PaymentMethod? getPaymentMethodSelected() => state.paymentMethodSelected;
 
+  /// uncheck
   Future<String?> removeCoupon(
     CustomerPolicyModel coupon, {
     bool applyPolicy = true,
@@ -1160,12 +1175,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
         needApplyAgainOnlyCoupons.removeWhere((e) => e.id == coupon.id);
         state = state.copyWith(needApplyAgainOnlyCoupons: needApplyAgainOnlyCoupons);
 
-        try {
-          await LocalStorage.saveApplyAgainOnlyCoupon(
-              order: state.orderSelect!, coupons: needApplyAgainOnlyCoupons);
-        } catch (ex) {
-          //
-        }
+        // try {
+        //   await LocalStorage.saveApplyAgainOnlyCoupon(
+        //       order: state.orderSelect!, coupons: needApplyAgainOnlyCoupons);
+        // } catch (ex) {
+        //   //
+        // }
 
         if (applyPolicy) {
           try {
@@ -1184,6 +1199,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   Future<void> getProducts() async {
     try {
       state = state.copyWith(productsState: const PageState(status: PageCommonState.loading));
@@ -1248,6 +1264,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   void changeSearch(String text) {
     state = state.copyWith(search: text);
     if (ctrlSearch.text != text) {
@@ -1269,6 +1286,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   bool getCheckReloadWhenHiddenApp() => state.checkReloadWhenHiddenApp;
 
+  /// uncheck
   Future<(MInvoiceInfo? mInvoiceInfo, String? error)> searchTaxCodeInfo(String taxCode) async {
     try {
       updateEvent(HomeEvent.findingTaxCode);
@@ -1281,6 +1299,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   Future<bool> onUpdateOrderInvoice(
     OrderInvoice invoice, {
     bool isUpdate = false,
@@ -1307,6 +1326,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   Future<void> getOrderInvoice() async {
     try {
       state = state.copyWith(
@@ -1336,6 +1356,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   void changePaymentMethod(PaymentMethod? paymentMethod) {
     state = state.copyWith(
       paymentMethodSelected: paymentMethod,
@@ -1348,6 +1369,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     syncInfoForCustomer();
   }
 
+  /// uncheck
   Future<bool> unlockOrder({bool loadingHome = true}) async {
     try {
       state = state.copyWith(lockedOrder: true);
@@ -1387,6 +1409,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   Future<bool> lockOrder({bool loadingHome = true}) async {
     try {
       if (loadingHome) updateEvent(HomeEvent.lockOrder);
@@ -1423,6 +1446,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   ({List<CustomerPolicyModel> coupons, String? error}) checkPaymentMethodSelect(
       PaymentMethod method) {
     try {
@@ -1458,11 +1482,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   void changeBankSelect(UserBankModel? bank) {
     state = state.copyWith(bankSelect: bank);
     syncInfoForCustomer();
   }
 
+  /// uncheck
   Future<void> loadBanksInfo() async {
     try {
       state = state.copyWith(
@@ -1498,6 +1524,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   void resetPaymentAndBank() {
     state = state.copyWith(
       imageBills: [],
@@ -1511,6 +1538,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     syncInfoForCustomer();
   }
 
+  /// uncheck
   // update trùng sẽ xoá
   void updateImageBill(File image) {
     if (state.orderSelect == null) return;
@@ -1524,6 +1552,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(imageBills: images);
   }
 
+  /// uncheck
   void clearImageBill({List<File>? files}) {
     try {
       if (Platform.isWindows) return;
@@ -1541,6 +1570,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   void changeNumberOfPeople({
     int? numberOfAdults,
     int? numberOfChildren,
@@ -1569,6 +1599,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(customerPortraitSelect: customerPortrait);
   }
 
+  /// uncheck
+
   Future<String?> resetCustomer() async {
     try {
       if (state.orderSelect == null) return S.current.noOrderSelect;
@@ -1582,6 +1614,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       return "${S.current.error_remove_customer_order}\n${ex.toString()}";
     }
   }
+
+  /// uncheck
 
   /// áp dụng ưu đãi
   ///
@@ -1725,6 +1759,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   /// tạm tính
   Future<({HomePaymentError? errorType, String msg, List<IpOrderModel> tmpPrinters})> onPayment(
       BuildContext context) async {
@@ -1802,15 +1837,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
               LocalStorage.deleteNotePerOrderItem(
                 order: state.orderSelect!,
               );
-              if (state.employeeSaleSelect != null) {
-                LocalStorage.saveEmployeeSaleForOrder(
-                  order: state.orderSelect!,
-                  sale: state.employeeSaleSelect!,
-                );
-              }
-              LocalStorage.deleteApplyAgainOnlyCouponForOrder(
-                order: state.orderSelect!,
-              );
+              // if (state.employeeSaleSelect != null) {
+              //   LocalStorage.saveEmployeeSaleForOrder(
+              //     order: state.orderSelect!,
+              //     sale: state.employeeSaleSelect!,
+              //   );
+              // }
+              // LocalStorage.deleteApplyAgainOnlyCouponForOrder(
+              //   order: state.orderSelect!,
+              // );
             }
           } catch (ex) {
             //
@@ -1872,16 +1907,19 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   void onChangeKitchenNote(String note) {
     state = state.copyWith(kitchenNote: note);
     syncInfoForCustomer();
   }
 
+  /// uncheck
   void onChangeCompleteNote(String note) {
     state = state.copyWith(completeNote: note);
     syncInfoForCustomer();
   }
 
+  /// uncheck
   void updatePaymentGatewayInfo({
     bool? status,
     dynamic amount,
@@ -1895,6 +1933,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     );
   }
 
+  /// uncheck
   Future<void> syncInfoForCustomer({
     WindowsMethod method = WindowsMethod.data,
     dynamic arguments,
@@ -1925,12 +1964,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   Future<String?> completeBill({
     required BuildContext context,
     bool loadingHome = true,
     List<IpOrderModel> printers = const [],
+    bool printKitchenBill = false,
   }) async {
-    showLogs(null, flags: 'completeBill');
     try {
       if (loadingHome) updateEvent(HomeEvent.completeBillAgain);
 
@@ -1960,14 +2000,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
             eSaleCode: state.employeeSaleSelect?.employeeCode ?? '',
             eSaleName: state.employeeSaleSelect?.fullName ?? '',
             isPrintPeople: state.printNumberOfPeople ? 1 : 0,
+            // providerCode: state.bankSelect?.code,
           );
 
-          try {
-            LocalStorage.deleteEmployeeSaleForOrder(order: state.orderSelect!);
-          } catch (ex) {
-            //
-          }
-          showLogs(printers, flags: 'printer');
+          // try {
+          //   LocalStorage.deleteEmployeeSaleForOrder(order: state.orderSelect!);
+          // } catch (ex) {
+          //   //
+          // }
           for (var printer in printers) {
             try {
               var check = await AppPrinterCommon.checkPrinter(
@@ -2059,16 +2099,16 @@ class HomeNotifier extends StateNotifier<HomeState> {
           }
           break;
         } catch (ex) {
-          if (state.employeeSaleSelect != null) {
-            try {
-              await LocalStorage.saveEmployeeSaleForOrder(
-                order: state.orderSelect!,
-                sale: state.employeeSaleSelect!,
-              );
-            } catch (ex) {
-              //
-            }
-          }
+          // if (state.employeeSaleSelect != null) {
+          //   try {
+          //     await LocalStorage.saveEmployeeSaleForOrder(
+          //       order: state.orderSelect!,
+          //       sale: state.employeeSaleSelect!,
+          //     );
+          //   } catch (ex) {
+          //     //
+          //   }
+          // }
           retry++;
           if (retry >= 3) {
             rethrow;
@@ -2083,6 +2123,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   Future<String?> sendTicket({
     required String title,
     required String desc,
@@ -2091,6 +2132,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     return 'Chưa triển khai';
   }
 
+  /// uncheck
   Future<({String? url, String? qr, int? expiryMin, String? error, int? statusCode})>
       getPaymentGateway() async {
     String? url, qr, error;
@@ -2126,6 +2168,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     );
   }
 
+  /// uncheck
   void getListAtmPos() async {
     try {
       state = state.copyWith(
@@ -2152,6 +2195,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(atmPosSelect: pos);
   }
 
+  /// uncheck
   /// cà thẻ động
   Future<String?> dynamicAtmPosCallback() async {
     try {
@@ -2171,11 +2215,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   void onChangeCashReceivedAmount(double amount) {
     state = state.copyWith(cashReceivedAmount: max(0.0, amount));
     syncInfoForCustomer();
   }
 
+  /// uncheck
   Future<String?> closeShift(BuildContext context) async {
     try {
       updateEvent(HomeEvent.closingShift);
@@ -2216,6 +2262,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   void onChangeAutoScrollProducts(bool value) {
     state = state.copyWith(autoScrollProducts: value);
     syncInfoForCustomer(
@@ -2227,6 +2274,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     );
   }
 
+  /// uncheck
   void onChangeChangedProductId(int? id) {
     state = state.copyWith(changedProductId: id);
     syncInfoForCustomer(
@@ -2238,6 +2286,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     );
   }
 
+  /// uncheck
   Future<String?> onUpdateTax(
     List<ProductCheckoutModel> pc, {
     PaymentMethod? paymentMethod,
@@ -2266,6 +2315,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   Future<String?> getDataBill({bool loadingHome = false}) async {
     try {
       if (loadingHome) updateEvent(HomeEvent.getDataBill);
@@ -2333,7 +2383,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
       LocalStorage.saveNotePerOrderItem(order: order, notes: notes);
     } catch (ex) {
       //
-      showLogs(ex.toString(), flags: 'onChangeNotePerItem ex');
     }
   }
 
@@ -2341,7 +2390,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(lockedOrder: false);
   }
 
-  // uncheck
+  /// uncheck
   // promotion
   void changeSelectDiscountPromotion(
     CustomerPolicyModel coupon,
@@ -2363,6 +2412,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     applyCustomerPolicy();
   }
 
+  /// uncheck
   void onChangeCustomerLanguage() {
     syncInfoForCustomer(
       method: WindowsMethod.language,
@@ -2374,50 +2424,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(employeeSaleSelect: value);
   }
 
-  // void getEmployeeSales() async {
-  //   try {
-  //     state = state.copyWith(
-  //       employeeSaleState: const PageState(status: PageCommonState.loading),
-  //       employeeSaleSelect: null,
-  //     );
-  //     final result =
-  //         await ref.read(restaurantRepositoryProvider).getEmployeeSales();
-  //     state = state.copyWith(
-  //       employeeSales: result,
-  //       employeeSaleState: const PageState(status: PageCommonState.success),
-  //     );
-  //   } catch (ex) {
-  //     state = state.copyWith(
-  //         employeeSaleState: PageState(
-  //       status: PageCommonState.error,
-  //       messageError: ex.toString(),
-  //     ));
-  //   }
-  // }
-
   Future<String?> checkPrinter(List<IpOrderModel> printers) async {
     try {
-      List<IpOrderModel> failed = [];
       updateEvent(HomeEvent.checkPrinter);
-      for (var ipPrinter in printers) {
-        // var resultCheck = await LocalNetworkService.checkPrinter(ipPrinter.ip, ipPrinter.port);
-        var resultCheck = await AppPrinterCommon.checkPrinter(ipPrinter);
-        if (resultCheck != null) {
-          failed.add(ipPrinter);
-        }
-      }
+      var resultCheck = await AppPrinterCommon.checkPrinters(printers);
       updateEvent(null);
-
-      if (failed.isEmpty) return null;
-
-      var error = failed.map((e) => '- ${e.name} (${e.ip}:${e.port})\n').toList().join('');
-
-      return "Không kết nối được máy in\n"
-          '$error'
-          "${"Vui lòng kiểm tra & đảm bảo".toUpperCase()}\n"
-          "- Tablet và máy tính đã kết nối mạng Order\n"
-          "- Máy in đã bật và không bị kẹt giấy\n"
-          "- Dây mạng kết nối với máy in đã sáng";
+      return resultCheck;
     } catch (ex) {
       updateEvent(null);
       return ex.toString();
@@ -2428,6 +2440,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(printNumberOfPeople: !state.printNumberOfPeople);
   }
 
+  /// uncheck
   /// phân bổ lại thuế mặc định nếu đã phân bổ thuế cho đơn Grab, Shopee trước đó
   Future<String?> onUpdateDefaultTax() async {
     if (!requireUpdateDefaultTax) return null;
@@ -2482,13 +2495,16 @@ class HomeNotifier extends StateNotifier<HomeState> {
     return error;
   }
 
+  /// uncheck
   bool get requireUpdateTax {
     return kTypeOrder == AppConfig.orderOnlineValue &&
         (state.paymentMethodSelected?.requireEditTax ?? false);
   }
 
+  /// uncheck
   PriceDataBill get getFinalPaymentPrice => state.dataBill.price;
 
+  /// uncheck
   /// xóa và add lại các mã only
   Future<String?> applyAgainOnlyCounpon() async {
     try {
@@ -2514,12 +2530,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
             // requireGetDataBill = true;
             coupons.removeWhere((element) => element.id == c.id);
             needApplyAgainOnlyCoupons.removeWhere((element) => element.id == c.id);
-            try {
-              await LocalStorage.saveApplyAgainOnlyCoupon(
-                  order: state.orderSelect!, coupons: needApplyAgainOnlyCoupons);
-            } catch (ex) {
-              //
-            }
+            // try {
+            //   await LocalStorage.saveApplyAgainOnlyCoupon(
+            //       order: state.orderSelect!, coupons: needApplyAgainOnlyCoupons);
+            // } catch (ex) {
+            //   //
+            // }
 
             state = state.copyWith(
               coupons: coupons,
@@ -2592,6 +2608,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(displayOrderHistory: value ?? !state.displayOrderHistory);
   }
 
+  /// uncheck
   /// gọi món
   Future<String?> addItemsToOrder(BuildContext context) async {
     var note = LocalStorage.getNotePerOrderItem(order: state.orderSelect ?? const OrderModel());
@@ -2872,6 +2889,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// uncheck
   void cancelProductCheckout(ProductModel p, int count) {
     try {
       var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
@@ -2893,7 +2911,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
   void getO2OChatMessages() async {
     try {
       var useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-      if (!useO2o) return;
+      if (!useO2o) {
+        state = state.copyWith(
+          getChatMessageState: const PageState(status: PageCommonState.success),
+          chatMessages: [],
+        );
+        return;
+      }
       state = state.copyWith(
         getChatMessageState: const PageState(status: PageCommonState.loading),
       );
@@ -2926,7 +2950,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  // /// thêm thông tin khách từ đơn đặt bàn vào order
   // void addCustomerToOrder({
   //   required int orderId,
   //   required String phoneNumber,
@@ -2949,9 +2972,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
   //   }
   // }
 
-  void updateReservationModel(ReservationModel? reservation) async {
+  void updateReservation(
+    ReservationModel? reservation, {
+    bool showLoading = false,
+  }) async {
     if (reservation == null) return;
-
+    if (showLoading) updateEvent(HomeEvent.updateReservation);
     int retry = 0;
     while (retry < 3) {
       try {
@@ -2963,6 +2989,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         retry++;
       }
     }
+    if (showLoading) updateEvent(null);
   }
 
   /// Chuyển giao đơn bàn
@@ -2990,14 +3017,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }
 
   /// Cập nhật lịch đặt bàn cho đơn bàn
-  Future<String?> updateReservationForOrder({
+  Future<String?> updateOrderReservation({
     required List<int> tableIds,
     ReservationModel? newReservation,
   }) async {
     try {
       var orderSelect = state.orderSelect;
       if (orderSelect == null) return null;
-      updateEvent(HomeEvent.updateOrder);
+      updateEvent(HomeEvent.updateOrderReservation);
       await _orderRepository.createAndUpdateOrder(
         tableIds,
         orderSelect,
@@ -3017,5 +3044,56 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   void onChangeDiscountTypeSelect(DiscountTypeEnum value) {
     state = state.copyWith(discountTypeSelect: value);
+  }
+
+  Future<void> syncInfoCustomerPage({
+    WindowsMethodEnum method = WindowsMethodEnum.data,
+    dynamic arguments,
+  }) async {
+    if (!Platform.isWindows || state.pinnedOrder) return;
+
+    var args = arguments ??
+        {
+          'all_products': state.products,
+          'order': state.orderSelect,
+          'products': state.productCheckout,
+          'customer': state.customer,
+          'data_bill': getFinalPaymentPrice.copyWith(
+              receivedAmount:
+                  (state.paymentMethodSelected?.isCash ?? false) ? state.cashReceivedAmount : 0),
+          'note': state.kitchenNote,
+          'payment_method': state.paymentMethodSelected,
+          'detail_payment': {
+            'bank_select': state.bankSelect,
+            'gateway_qr': '',
+          },
+        };
+
+    final subWindows = await DesktopMultiWindow.getAllSubWindowIds();
+    for (final id in subWindows) {
+      DesktopMultiWindow.invokeMethod(id, method.key, jsonEncode(args));
+    }
+  }
+
+  dynamic _tranferDataToCustomerPage({WindowsMethodEnum method = WindowsMethodEnum.data}) {
+    switch (method) {
+      case WindowsMethodEnum.customer:
+        return state.customer;
+      case WindowsMethodEnum.price:
+        return state.dataBill.price.copyWith(
+          receivedAmount:
+              (state.paymentMethodSelected?.isCash ?? false) ? state.cashReceivedAmount : 0,
+        );
+      case WindowsMethodEnum.paymentMethod:
+        return state.paymentMethodSelected;
+      case WindowsMethodEnum.productCheckout:
+        return state.productsSelected;
+      case WindowsMethodEnum.completeNote:
+        return state.completeNote;
+      case WindowsMethodEnum.kitchenNote:
+        return state.kitchenNote;
+      default:
+        return null;
+    }
   }
 }

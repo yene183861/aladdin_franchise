@@ -15,7 +15,6 @@ import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/restaurant.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
-import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
@@ -30,155 +29,6 @@ class AppPrinterHtmlUtils {
 
   static AppPrinterHtmlUtils get instance => _instance;
   factory AppPrinterHtmlUtils() => _instance;
-
-  Future<List<int>> getReceptBillContent({
-    required OrderModel order,
-    List<LineItemDataBill> orderLineItems = const [],
-    required PriceDataBill price,
-    String? note,
-    PaymentMethod? paymentMethod,
-    List<HistoryPolicyResultModel> vouchers = const [],
-    required ReceiptTypeEnum receiptType,
-    required List<IpOrderModel> printers,
-    bool printNumberOfPeople = false,
-    String customerPhone = '',
-    int numberOfPeople = 1,
-    double paymentAmount = 0.0,
-    int numberPrintCompleted = 1,
-    int numberPrintTemporary = 1,
-    String cashierCompleted = '',
-    DateTime? timeCompleted,
-    DateTime? timeCreatedAt,
-    String cashierPrint = '',
-    String invoiceQr = '',
-  }) async {
-    var htmlData = paymentBillContent(
-      order: order,
-      orderLineItems: orderLineItems,
-      price: price,
-      receiptType: receiptType,
-      note: note ?? '',
-      customerPhone: customerPhone,
-      numberOfPeople: numberOfPeople,
-      paymentAmount: paymentAmount,
-      paymentMethod: paymentMethod,
-      printNumberOfPeople: printNumberOfPeople,
-      vouchers: vouchers,
-      numberPrintCompleted: numberPrintCompleted,
-      numberPrintTemporary: numberPrintTemporary,
-      cashierCompleted: cashierCompleted,
-      timeCompleted: timeCompleted,
-      timeCreatedAt: timeCreatedAt,
-      cashierPrint: cashierPrint,
-      invoiceQr: invoiceQr,
-    );
-    var bytes = await generateImageBill(htmlData);
-    return bytes;
-  }
-
-  /// in bill xuống bếp
-  Future<String?> printKitchenBill({
-    required OrderModel order,
-    List<ProductModel> product = const [],
-    String note = '',
-    required List<IpOrderModel> printers,
-    bool printEachItem = false,
-    int timeOrders = 1,
-    bool cancel = false,
-  }) async {
-    List<int> bytes = [];
-
-    String? error;
-    for (var printer in printers) {
-      List<ProductModel> productPrinter = [];
-      for (var p in product) {
-        var comboItem = ProductHelper().getComboDescription(p);
-        // combo
-        List<ComboItemModel> comboItemPrint = [];
-        if (comboItem != null) {
-          comboItemPrint =
-              comboItem.where((e) => e.printerType == printer.type).toList();
-          if (comboItemPrint.isNotEmpty) {
-            String? description = p.description;
-            try {
-              description = jsonEncode(comboItemPrint);
-            } catch (ex) {
-              showLogs(ex.toString(), flags: 'encode món trong combo');
-              //
-            }
-            productPrinter.add(p.copyWith(description: description));
-          } else if (printer.type == p.printerType) {
-            productPrinter.add(p.copyWith(description: ''));
-          }
-        } else {
-          if (printer.type == p.printerType) {
-            productPrinter.add(p);
-          }
-        }
-      }
-      // var productPrinter =
-      //     product.where((e) => e.printerType == item.type).toList();
-
-      if (productPrinter.isEmpty) {
-        continue;
-      }
-      var htmlData = kitchenBillContent(
-        order: order,
-        product: productPrinter,
-        note: note,
-        timeOrders: timeOrders,
-        cancel: cancel,
-      );
-
-      bytes = await generateImageBill(htmlData);
-      final printerManager = PrinterNetworkManager(
-        printer.ip,
-        port: printer.port,
-      );
-      final PosPrintResult res = await printerManager.connect();
-      if (res != PosPrintResult.success) {
-        throw printer.messageConnectFail();
-      }
-      if (res == PosPrintResult.success) {
-        var billStatus =
-            await printerManager.printTicket(bytes, isDisconnect: false);
-        if (billStatus != PosPrintResult.success) {
-          return cancel
-              ? "In bill tổng thất bại!\n${billStatus.msg}"
-              : 'In bill hủy đồ thất bại\n${billStatus.msg}';
-        }
-        // chỉ in bill lẻ với bếp
-        if (!cancel &&
-            printEachItem &&
-            productPrinter.length > 1 &&
-            printer.type == 2) {
-          for (var p in productPrinter) {
-            List<int> byteDatas;
-            var oddHtmlBill = kitchenBillContent(
-              order: order,
-              product: [p],
-              note: note,
-              timeOrders: timeOrders,
-              totalBill: false,
-              cancel: cancel,
-            );
-            byteDatas = await generateImageBill(oddHtmlBill);
-            billStatus = await printerManager.printTicket(byteDatas,
-                isDisconnect: false);
-            if (billStatus != PosPrintResult.success) {
-              return "In bill lẻ xuống bếp thất bại!\n${billStatus.msg}";
-            }
-          }
-        }
-        printerManager.disconnect();
-        showLog(billStatus.msg, flags: 'billStatus');
-      } else {
-        error = res.msg;
-      }
-    }
-
-    return error;
-  }
 
   Future<List<int>> generateImageBill(String data) async {
     final billHtmlSetting = LocalStorage.getPrintSetting().billHtmlSetting;
@@ -209,6 +59,51 @@ class AppPrinterHtmlUtils {
     return bytes;
   }
 
+  Future<List<int>> getReceptBillContent({
+    required OrderModel order,
+    List<LineItemDataBill> orderLineItems = const [],
+    required PriceDataBill price,
+    String? note,
+    PaymentMethod? paymentMethod,
+    List<HistoryPolicyResultModel> vouchers = const [],
+    required ReceiptTypeEnum receiptType,
+    required List<IpOrderModel> printers,
+    bool printNumberOfPeople = false,
+    String customerPhone = '',
+    int numberOfPeople = 1,
+    double paymentAmount = 0.0,
+    int numberPrintCompleted = 1,
+    int numberPrintTemporary = 1,
+    String cashierCompleted = '',
+    DateTime? timeCompleted,
+    DateTime? timeCreatedAt,
+    String cashierPrint = '',
+    String invoiceQr = '',
+  }) async {
+    var htmlData = _receiptBillContent(
+      order: order,
+      orderLineItems: orderLineItems,
+      price: price,
+      receiptType: receiptType,
+      note: note ?? '',
+      customerPhone: customerPhone,
+      numberOfPeople: numberOfPeople,
+      paymentAmount: paymentAmount,
+      paymentMethod: paymentMethod,
+      printNumberOfPeople: printNumberOfPeople,
+      vouchers: vouchers,
+      numberPrintCompleted: numberPrintCompleted,
+      numberPrintTemporary: numberPrintTemporary,
+      cashierCompleted: cashierCompleted,
+      timeCompleted: timeCompleted,
+      timeCreatedAt: timeCreatedAt,
+      cashierPrint: cashierPrint,
+      invoiceQr: invoiceQr,
+    );
+    var bytes = await generateImageBill(htmlData);
+    return bytes;
+  }
+
   String kitchenBillContent({
     List<ProductModel> product = const [],
     required OrderModel order,
@@ -221,8 +116,7 @@ class AppPrinterHtmlUtils {
     String dishTable = "";
 
     var finalNote = note;
-    if (!totalBill &&
-        (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
+    if (!totalBill && (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
       finalNote = (product.firstOrNull?.noteForProcessOrder ?? '');
     }
     if (cancel) {
@@ -240,8 +134,7 @@ class AppPrinterHtmlUtils {
         </tr>
       ''';
       }
-      List<ComboItemModel>? comboItems =
-          ProductHelper().getComboDescription(pc);
+      List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(pc);
       // showLogs(comboItems, flags: 'comboItems');
       if (comboItems != null) {
         // check xem có cần nhân số lượng combo với món trong combo k
@@ -351,7 +244,7 @@ ${_getTime()}
 ''';
   }
 
-  String paymentBillContent({
+  String _receiptBillContent({
     List<LineItemDataBill> orderLineItems = const [],
     List<HistoryPolicyResultModel> vouchers = const [],
     required OrderModel order,
@@ -624,8 +517,7 @@ ${_getTime()}
   }
 
   String _printDateTime(DateTime? value) {
-    return DateTimeUtils.formatToString(
-        time: value, newPattern: DateTimePatterns.dateTime1);
+    return DateTimeUtils.formatToString(time: value, newPattern: DateTimePatterns.dateTime1);
   }
 
   Future<List<int>> getCloseShiftContent(CloseShiftResponseModel data) async {

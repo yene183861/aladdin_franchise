@@ -27,4 +27,8 @@ extension WindowsMethodEx on WindowsMethod {
         return 'language';
     }
   }
+
+  dynamic data() {
+    return;
+  }
 }

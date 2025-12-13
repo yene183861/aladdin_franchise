@@ -167,11 +167,16 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                         ),
                       ),
                       const Gap(8),
-                      AppButtonWidget(
-                        textAction: S.current.confirm,
-                        color: AppColors.secondColor,
-                        onTap: _addCoupon,
-                      ),
+                      Consumer(
+                        builder: (context, ref, child) {
+                          var coupons = ref.watch(homeProvider.select((value) => value.coupons));
+                          return AppButtonWidget(
+                            textAction: S.current.confirm,
+                            color: coupons.isNotEmpty ? Colors.grey : AppColors.secondColor,
+                            onTap: coupons.isNotEmpty ? null : _addCoupon,
+                          );
+                        },
+                      )
                     ],
                   );
                 }),

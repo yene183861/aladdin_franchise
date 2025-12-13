@@ -475,11 +475,11 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
               refreshData: refreshData
             );
           }
-          try {
-            await LocalStorage.deleteEmployeeSaleForOrder(order: order);
-          } catch (ex) {
-            //
-          }
+          // try {
+          //   await LocalStorage.deleteEmployeeSaleForOrder(order: order);
+          // } catch (ex) {
+          //   //
+          // }
           printBillResult = true;
           error = null;
           break;
