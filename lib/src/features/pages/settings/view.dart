@@ -1,22 +1,10 @@
-import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
-import 'package:aladdin_franchise/src/configs/string.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/pages/settings/bill/view.dart';
 import 'package:aladdin_franchise/src/features/pages/settings/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/settings/widgets/color.dart';
-import 'package:aladdin_franchise/src/features/pages/settings/widgets/menu.dart';
-import 'package:aladdin_franchise/src/features/widgets/gap.dart';
-import 'package:aladdin_franchise/src/models/setting/print_setting.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:aladdin_franchise/src/configs/text_style.dart';
-
-import 'widgets/audio_notice.dart';
-import 'widgets/box_col_size_view.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});

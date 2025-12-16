@@ -32,10 +32,7 @@ class RestClient extends http.BaseClient {
   // Có thể loại bỏ nếu không cần
   @override
   Future<Response> post(Uri url,
-      {Map<String, String>? headers,
-      Object? body,
-      Encoding? encoding,
-      int? typeOrder}) async {
+      {Map<String, String>? headers, Object? body, Encoding? encoding, int? typeOrder}) async {
     await AppHelper.initTokenAndTypeOrder();
     var defaultHeaders = <String, String>{
       'Content-Type': 'application/json',
@@ -62,8 +59,7 @@ class RestClient extends http.BaseClient {
   }
 
   @override
-  Future<Response> get(Uri url,
-      {Map<String, String>? headers, int? typeOrder}) async {
+  Future<Response> get(Uri url, {Map<String, String>? headers, int? typeOrder}) async {
     await AppHelper.initTokenAndTypeOrder();
     var defaultHeaders = <String, String>{
       'Content-Type': 'application/json',

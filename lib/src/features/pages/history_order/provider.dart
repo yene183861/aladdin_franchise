@@ -165,7 +165,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                   while (retry < 3) {
                     try {
                       var res = await ref
-                          .read(productRepositoryProvider)
+                          .read(menuRepositoryProvider)
                           .getProduct(null, typeOrder: AppConfig.orderOnlineValue);
                       onlineProducts = List<ProductModel>.from(res.data.data ?? []);
                       break;
@@ -190,7 +190,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                   while (retry < 3) {
                     try {
                       var res = await ref
-                          .read(productRepositoryProvider)
+                          .read(menuRepositoryProvider)
                           .getProduct(null, typeOrder: AppConfig.orderOfflineValue);
                       offlineProducts = List<ProductModel>.from(res.data.data ?? []);
                       break;

@@ -96,7 +96,7 @@ class ReservationItem extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SvgPicture.asset(
-                          'assets/icons/ic_table_bar.svg',
+                          Assets.iconsTableBar,
                           width: iconSize,
                           height: iconSize,
                           color: Colors.grey.shade600,

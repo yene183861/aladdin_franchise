@@ -1,6 +1,4 @@
 import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
-import 'package:aladdin_franchise/src/core/network/category/category_repo_impl.dart';
-import 'package:aladdin_franchise/src/core/network/category/category_repository.dart';
 import 'package:aladdin_franchise/src/core/network/coupon/coupon_repo_impl.dart';
 import 'package:aladdin_franchise/src/core/network/coupon/coupon_repository.dart';
 import 'package:aladdin_franchise/src/core/network/customer/customer_repo_impl.dart';
@@ -8,12 +6,12 @@ import 'package:aladdin_franchise/src/core/network/customer/customer_repository.
 import 'package:aladdin_franchise/src/core/network/invoice/invoice_repo_impl.dart'
     show InvoiceRepositoryImpl;
 import 'package:aladdin_franchise/src/core/network/invoice/invoice_repository.dart';
+import 'package:aladdin_franchise/src/core/network/menu/menu_repo_impl.dart';
+import 'package:aladdin_franchise/src/core/network/menu/menu_repository.dart';
 import 'package:aladdin_franchise/src/core/network/o2o/o2o_repo_impl.dart';
 import 'package:aladdin_franchise/src/core/network/o2o/o2o_repository.dart';
 import 'package:aladdin_franchise/src/core/network/order/order_repo_impl.dart';
 import 'package:aladdin_franchise/src/core/network/order/order_repository.dart';
-import 'package:aladdin_franchise/src/core/network/product/product_repo_impl.dart';
-import 'package:aladdin_franchise/src/core/network/product/product_repository.dart';
 import 'package:aladdin_franchise/src/core/network/responses/order.dart';
 import 'package:aladdin_franchise/src/core/network/responses/product_checkout.dart';
 import 'package:aladdin_franchise/src/core/network/restaurant/restaurant_repository.dart';
@@ -51,12 +49,8 @@ final userRepositoryProvider = Provider<UserRepository>((ref) {
   return UserRepositoryImpl();
 });
 
-final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
-  return CategoryRepositoryImpl();
-});
-
-final productRepositoryProvider = Provider<ProductRepository>((ref) {
-  return ProductRepositoryImpl();
+final menuRepositoryProvider = Provider<MenuRepository>((ref) {
+  return MenuRepositoryImpl();
 });
 
 final couponRepositoryProvider = Provider<CouponRepository>((ref) {

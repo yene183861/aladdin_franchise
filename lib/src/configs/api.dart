@@ -20,7 +20,6 @@ class ApiConfig {
   static String processOrderAndPrinter = "";
   static String getDataBillOrder = "";
   static String confirmCancelLineItem = '';
-  static String inLocal = "http://192.168.1.136/print/in-cook.php";
   static String getBankPayment = "";
   static String getInfoByTaxCode = "";
   static String getOrderInvoice = "";
@@ -58,8 +57,8 @@ class ApiConfig {
   static String getO2oCustomerInfo = "";
 
   // voucher
-   static String addVoucher = "";
-   static String deleteVoucher = "";
+  static String addVoucher = "";
+  static String deleteVoucher = "";
 
   void changeApi(String newApiUrl) {
     // v1

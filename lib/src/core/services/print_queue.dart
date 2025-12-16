@@ -6,6 +6,7 @@ import 'package:aladdin_franchise/src/core/services/send_log/discord_service.dar
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_esc_pos_network/flutter_esc_pos_network.dart';
 import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
@@ -66,7 +67,7 @@ class PrintQueue {
       try {
         var connectResult = await printerManager.connect();
         if (connectResult != PosPrintResult.success) {
-          throw connectResult.msg;
+          throw AppPrinterCommon.posPrintResultMessage(connectResult) ?? '';
         }
 
         final res = await printerManager.printTicket(data, isDisconnect: false);
@@ -75,18 +76,11 @@ class PrintQueue {
           success = true;
           await Future.delayed(const Duration(seconds: 1));
         } else {
-          error = "⚠️ Không in được: ${res.msg}";
+          error = "⚠️ Không in được: ${AppPrinterCommon.posPrintResultMessage(res) ?? ''}";
           showLogs(error, flags: '_processTask 1');
         }
       } catch (e) {
-        if (e.toString().contains('Printer connection timeout')) {
-          error = "Không kết nối được máy in ${task.ip}\n"
-              "${"Vui lòng kiểm tra & đảm bảo".toUpperCase()}\n"
-              "- Máy in đã bật và không bị kẹt giấy\n"
-              "- Dây mạng kết nối với máy in đã sáng";
-        } else {
-          error = "❌ Lỗi in: $e";
-        }
+        error = "❌ Lỗi in: $e";
         showLogs(error, flags: '_processTask 2');
       } finally {
         try {

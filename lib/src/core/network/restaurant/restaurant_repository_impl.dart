@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
-import 'package:aladdin_franchise/src/configs/data_fake.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/network/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/responses/payment_method.dart';
@@ -50,8 +49,7 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'getBanks ex');
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -84,8 +82,7 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'getPaymentMethod ex');
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -93,14 +90,8 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
   }
 
   @override
-  Future<
-      ({
-        String? url,
-        String? qr,
-        int? expiryMin,
-        String? message,
-        int? status
-      })> getPaymentGateway({
+  Future<({String? url, String? qr, int? expiryMin, String? message, int? status})>
+      getPaymentGateway({
     required ApiBankParam apiBankParam,
     required int keyPaymentMethod,
   }) async {
@@ -131,20 +122,13 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         final int? expiryMin = data['data']?['expiry_min'];
         final String? message = data['message'];
         final int? status = data['status'];
-        return (
-          url: url,
-          qr: qr,
-          expiryMin: expiryMin,
-          message: message,
-          status: status
-        );
+        return (url: url, qr: qr, expiryMin: expiryMin, message: message, status: status);
       } else {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
       showLog(ex, flags: 'Error getPaymentGateway');
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -165,24 +149,20 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         'total_bill': totalBill,
       });
       log = log.copyWith(api: apiUrl, request: bodyRequest);
-      final response =
-          await restClient.post(Uri.parse(apiUrl), body: bodyRequest);
+      final response = await restClient.post(Uri.parse(apiUrl), body: bodyRequest);
 
       log = log.copyWith(
         response: [response.statusCode, response.body],
       );
       if (response.statusCode == NetworkCodeConfig.ok) {
         final data = jsonDecode(response.body);
-        return (data['data'] as List)
-            .map((e) => AtmPosModel.fromJson(e))
-            .toList();
+        return (data['data'] as List).map((e) => AtmPosModel.fromJson(e)).toList();
       } else {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'getListAtmPos ex');
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -213,8 +193,8 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         'x-device-id': kDeviceId,
       };
 
-      var response = await http.Client()
-          .post(Uri.parse(apiUrl), headers: defaultHeaders, body: bodyRequest);
+      var response =
+          await http.Client().post(Uri.parse(apiUrl), headers: defaultHeaders, body: bodyRequest);
 
       log = log.copyWith(response: [response.statusCode, response.body]);
       if (response.statusCode == NetworkCodeConfig.ok) {
@@ -230,8 +210,7 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'atmPosCallback ex');
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -264,8 +243,7 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'getEmployeeSales ex');
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -294,16 +272,13 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
 
       if (response.statusCode == NetworkCodeConfig.ok) {
         var data = jsonDecode(response.body)['data']['data_histories'];
-        return (data as List)
-            .map((e) => HistoryOrderModel.fromJson(e))
-            .toList();
+        return (data as List).map((e) => HistoryOrderModel.fromJson(e)).toList();
       } else {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'getOrderHistoryList ex');
-      LogService.sendLogs(
-          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());

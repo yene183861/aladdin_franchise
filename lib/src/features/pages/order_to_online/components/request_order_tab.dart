@@ -1,5 +1,4 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
-import 'package:aladdin_franchise/src/configs/image_const.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
 // import 'package:aladdin_franchise/src/features/dialogs/detail_product_checkout.dart';
 // import 'package:aladdin_franchise/src/features/dialogs/payment_cancel.dart';
