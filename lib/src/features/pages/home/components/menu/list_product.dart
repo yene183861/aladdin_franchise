@@ -22,14 +22,20 @@ class ProductBoxWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var productsSelected = ref.watch(homeProvider.select((value) => value.productsSelected));
-    var productsSelecting = ref.watch(homeProvider.select((value) => value.productsSelecting));
+    var productsSelected =
+        ref.watch(homeProvider.select((value) => value.productsSelected));
+    var productsSelecting =
+        ref.watch(homeProvider.select((value) => value.productsSelecting));
 
-    int ordered =
-        (productsSelected.firstWhereOrNull((e) => e.id == product.id)?.numberSelecting ?? 0);
+    int ordered = (productsSelected
+            .firstWhereOrNull((e) => e.id == product.id)
+            ?.numberSelecting ??
+        0);
 
-    int ordering =
-        productsSelecting.firstWhereOrNull((e) => e.id == product.id)?.numberSelecting ?? 0;
+    int ordering = productsSelecting
+            .firstWhereOrNull((e) => e.id == product.id)
+            ?.numberSelecting ??
+        0;
     var listTags = ref.watch(homeProvider.select((value) => value.tags));
     List<TagProductModel> tags = [];
     for (var element in listTags) {
@@ -47,14 +53,15 @@ class ProductBoxWidget extends ConsumerWidget {
         }
       },
       onLongPress: () {
-        showDetailProductWidget(context: context, product: product);
+        showDetailProductWidget(context: context, product: product, ref: ref);
       },
       child: Stack(
         children: [
           Container(
             clipBehavior: Clip.hardEdge,
-            decoration:
-                BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.grey.shade100),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey.shade100),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -77,9 +84,8 @@ class ProductBoxWidget extends ConsumerWidget {
                 ),
                 Text.rich(
                   TextSpan(
-                    text: AppUtils.formatCurrency(value: product.unitPrice),
-                    //  AppConfig.formatCurrency()
-                    //     .format(double.tryParse(product.unitPrice) ?? 0.0),
+                    text: AppUtils.formatCurrency(
+                        value: product.unitPrice, symbol: 'đ'),
                     style: AppTextStyle.bold(
                       color: AppColors.redColor,
                       fontWeight: FontWeight.w600,
@@ -108,7 +114,9 @@ class ProductBoxWidget extends ConsumerWidget {
                             text: 'Đã gọi: ',
                             children: [
                               TextSpan(
-                                text: ordered > 1000 ? '1000+' : ordered.toString(),
+                                text: ordered > 1000
+                                    ? '1000+'
+                                    : ordered.toString(),
                               ),
                             ],
                           ),
@@ -122,7 +130,9 @@ class ProductBoxWidget extends ConsumerWidget {
                         child: Text.rich(
                           textAlign: TextAlign.end,
                           TextSpan(
-                            text: ordering > 0 ? '${S.current.quantityCut}: ' : '',
+                            text: ordering > 0
+                                ? '${S.current.quantityCut}: '
+                                : '',
                             children: [
                               TextSpan(
                                 text: ordering < 1
@@ -131,7 +141,8 @@ class ProductBoxWidget extends ConsumerWidget {
                                         ? '1000+'
                                         : ordering.toString(),
                                 style: AppTextStyle.bold(
-                                  rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                                  rawFontSize:
+                                      AppConfig.defaultRawTextSize - 1.0,
                                 ),
                               ),
                             ],

@@ -4,14 +4,14 @@ import 'dart:io';
 
 import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
-import 'package:aladdin_franchise/src/app.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
-import 'package:aladdin_franchise/src/configs/enums/windows_method.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/payment_status.dart';
 import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
+import 'package:aladdin_franchise/src/features/dialogs/detail_product.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
@@ -27,7 +27,6 @@ import 'package:aladdin_franchise/src/models/data_bill.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
-import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:aladdin_franchise/src/models/user_bank.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
@@ -37,54 +36,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:webview_windows/webview_windows.dart';
 
 import 'components/barrel_component.dart';
-import 'components/title_section.dart';
-
-enum PaymentStatus {
-  loading,
-  success,
-  fail,
-  cancel,
-  close,
-}
-
-extension PaymentStatusEx on PaymentStatus {
-  int get type {
-    switch (this) {
-      case PaymentStatus.loading:
-        return 1;
-      case PaymentStatus.success:
-        return 2;
-      case PaymentStatus.fail:
-        return 3;
-      case PaymentStatus.cancel:
-        return 4;
-      case PaymentStatus.close:
-        return 5;
-    }
-  }
-}
-
-PaymentStatus convertPaymentStatus(int type) {
-  switch (type) {
-    case 1:
-      return PaymentStatus.loading;
-    case 2:
-      return PaymentStatus.success;
-    case 3:
-      return PaymentStatus.fail;
-    case 4:
-      return PaymentStatus.cancel;
-    case 5:
-      return PaymentStatus.close;
-    default:
-      return PaymentStatus.close;
-  }
-}
 
 class CustomerPage extends ConsumerStatefulWidget {
   CustomerPage({
@@ -101,47 +54,30 @@ class CustomerPage extends ConsumerStatefulWidget {
 }
 
 class _CustomerPageState extends ConsumerState<CustomerPage> {
-  // late ValueNotifier<List<ProductCheckoutModel>> productsNotifier;
-  // late ValueNotifier<CustomerModel?> customerNotifier;
-  // late ValueNotifier<PriceDataBill> dataBillNotifier;
-  // late ValueNotifier<PaymentMethod?> paymentMethodNotifier;
-  // late ValueNotifier<Map<String, dynamic>> detailPaymentNotifier;
-  // late ValueNotifier<OrderModel?> orderNotifier;
-  // late ValueNotifier<List<ProductModel>> allProductsNotifier;
-  // late ValueNotifier<String> linkOANotifier;
-  late ValueNotifier<PaymentStatus?> paymentStatusNotifier;
-  // late ValueNotifier<String> noteNotifier;
-
-  // late ValueNotifier<bool> gatewayNotifier;
-  // late ValueNotifier<String> languageNotifier;
+  late ValueNotifier<PaymentStatusEnum?> paymentStatusNotifier;
+  late ValueNotifier<ProductModel?> detailProductNotifier;
 
   BuildContext? rootContext;
 
-  // late TextEditingController _noteTextController;
+  bool showPaymentStatus = false;
+
+  bool showProductDetail = false;
+
+  Timer? _paymentTimer;
+
+  int paymentSuccessDuration = 15;
 
   @override
   void initState() {
     super.initState();
-    // _noteTextController = TextEditingController();
-    // allProductsNotifier = ValueNotifier<List<ProductModel>>([]);
-    // orderNotifier = ValueNotifier<OrderModel?>(null);
-    // productsNotifier = ValueNotifier<List<ProductCheckoutModel>>([]);
-    // customerNotifier = ValueNotifier<CustomerModel?>(null);
-    // dataBillNotifier = ValueNotifier<PriceDataBill>(const PriceDataBill());
-    // paymentMethodNotifier = ValueNotifier<PaymentMethod?>(null);
-    // detailPaymentNotifier = ValueNotifier<Map<String, dynamic>>({});
-    // linkOANotifier = ValueNotifier<String>('');
-    paymentStatusNotifier = ValueNotifier<PaymentStatus?>(null);
-    // noteNotifier = ValueNotifier<String>('');
-    // gatewayNotifier = ValueNotifier<bool>(false);
-    // languageNotifier =
+    paymentStatusNotifier = ValueNotifier<PaymentStatusEnum?>(null);
+    detailProductNotifier = ValueNotifier<ProductModel?>(null);
     ValueNotifier<String>(LocalStorage.getCustomerLanguageLocal());
     if (Platform.isWindows) {
       DesktopMultiWindow.setMethodHandler(_handleMethodCallback);
     }
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) async {
-        // _convertData(widget.args);
         ref.read(customerPageProvider.notifier).init(widget.args);
         setState(() {
           rootContext = context;
@@ -150,148 +86,34 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
     );
   }
 
-  // void _convertData(Map<String, dynamic> data) {
-  //   try {
-  //     allProductsNotifier.value = (data['all_products'] as List)
-  //         .map((item) => ProductModel.fromJson(item))
-  //         .toList();
-  //   } catch (ex) {
-  //     //
-  //   }
-  //   try {
-  //     var orderId = orderNotifier.value?.id;
-  //     orderNotifier.value =
-  //         data['order'] == null ? null : OrderModel.fromJson(data['order']);
-  //     if (orderNotifier.value?.id != null &&
-  //         orderId != orderNotifier.value?.id) {
-  //       _paymentTimer?.cancel();
-  //       paymentStatusNotifier.value = PaymentStatus.close;
-  //     }
-  //   } catch (ex) {
-  //     //
-  //   }
-  //   try {
-  //     productsNotifier.value = (data['products'] as List)
-  //         .map((item) => ProductCheckoutModel.fromJson(item))
-  //         .toList();
-  //   } catch (ex) {
-  //     //
-  //   }
-
-  //   try {
-  //     customerNotifier.value = data['customer'] == null
-  //         ? null
-  //         : CustomerModel.fromJson(data['customer']);
-  //   } catch (ex) {
-  //     //
-  //   }
-
-  //   try {
-  //     var value = data['note'] as String;
-  //     _noteTextController.text =
-  //         value.trim().isNotEmpty ? '${S.current.note}: $value' : '';
-  //     noteNotifier.value =
-  //         value.trim().isNotEmpty ? '${S.current.note}: $value' : '';
-  //   } catch (ex) {
-  //     //
-  //   }
-  //   try {
-  //     paymentMethodNotifier.value = data['payment_method'] == null
-  //         ? null
-  //         : PaymentMethod.fromJson(data['payment_method']);
-  //   } catch (ex) {
-  //     //
-  //   }
-
-  //   try {
-  //     dataBillNotifier.value = PriceDataBill.fromJson(data['data_bill']);
-  //   } catch (ex) {
-  //     //
-  //   }
-
-  //   try {
-  //     detailPaymentNotifier.value =
-  //         data['detail_payment'] ?? <String, dynamic>{};
-  //     _startPayooTimer(Duration(seconds: data['detail_payment']['expiry_min']));
-  //   } catch (ex) {
-  //     //
-  //   }
-  //   try {
-  //     var orderProduct = data['order_product'];
-  //     if (orderProduct != null) {
-  //       ref.read(customerPageProvider.notifier).onChangeChangedProductId(
-  //           orderProduct['changed_product_id'] is int?
-  //               ? orderProduct['changed_product_id']
-  //               : null);
-  //     }
-  //   } catch (ex) {
-  //     //
-  //   }
-  // }
-
-  bool isShowLinkZaloOA = false;
-  bool isShowPaymentInfo = false;
-
-  Timer? _paymentTimer;
-
-  int paymentSuccessDuration = 15;
-
   void _startTimer() {
     _paymentTimer = Timer.periodic(
       Duration(seconds: paymentSuccessDuration),
       (timer) {
         _paymentTimer?.cancel();
-        paymentStatusNotifier.value = PaymentStatus.close;
+        paymentStatusNotifier.value = PaymentStatusEnum.close;
       },
     );
   }
 
-  // void _startPayooTimer(Duration duration) {
-  //   var seconds = duration.inSeconds;
-  //   // gatewayNotifier.value = true;
-  //   // showLogs(seconds, flags: 'seconds check 1233');
-  //   // if (seconds == 0) {
-  //   //   gatewayNotifier.value = false;
-  //   //   _payooTimer?.cancel();
-  //   //   return;
-  //   // }
-  //   // gatewayNotifier.value = true;
-  //   // _payooTimer = Timer.periodic(
-  //   //   Duration(seconds: max(0, seconds)),
-  //   //   (timer) {
-  //   //     _payooTimer?.cancel();
-  //   //     gatewayNotifier.value = false;
-  //   //   },
-  //   // );
-  // }
-
-  void showPaymentInfo({
-    bool isGateway = false,
-    String gatewayUrl = '',
-    PaymentStatus paymentStatus = PaymentStatus.loading,
-  }) async {
+  void handlePaymentStatus(
+      {PaymentStatusEnum paymentStatus = PaymentStatusEnum.loading}) async {
     // if (rootContext != null && rootContext!.mounted) {
     switch (paymentStatus) {
-      case PaymentStatus.loading:
-        if (isGateway && gatewayUrl.trim().isNotEmpty) {
-          // setState(() {
-          //   _gatewayUrl = gatewayUrl;
-          // });
-          return;
+      case PaymentStatusEnum.loading:
+        if (!showPaymentStatus) {
+          showPaymentStatus = true;
+          showMessageDialog(
+            context,
+            message: S.current.completing_payment_verification,
+            showAction: false,
+          );
         }
-        showLogs(context, flags: 'context');
-        if (!isShowPaymentInfo) {
-          isShowPaymentInfo = true;
-          showMessageDialog(context,
-              message: S.current.completing_payment_verification,
-              showAction: false);
-        }
-
         break;
-      case PaymentStatus.success:
+      case PaymentStatusEnum.success:
         // đóng cửa sổ loading
-        showLogs(isShowPaymentInfo, flags: 'isShowPaymentInfo 1');
-        if (isShowPaymentInfo) {
+        showLogs(showPaymentStatus, flags: 'isShowPaymentInfo 1');
+        if (showPaymentStatus) {
           ref.read(customerPageProvider.notifier).resetState();
           pop(context);
         }
@@ -312,9 +134,9 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                       ValueListenableBuilder(
                         valueListenable: paymentStatusNotifier,
                         builder: (ctx, value, child) {
-                          if (value == PaymentStatus.close) {
+                          if (value == PaymentStatusEnum.close) {
                             Navigator.of(context).pop();
-                            isShowPaymentInfo = false;
+                            showPaymentStatus = false;
                           }
                           var restaurant =
                               LocalStorage.getDataLogin()?.restaurant;
@@ -340,16 +162,16 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
         );
 
         break;
-      case PaymentStatus.fail:
+      case PaymentStatusEnum.fail:
         // faild
         break;
-      case PaymentStatus.cancel:
+      case PaymentStatusEnum.cancel:
         // đóng cửa sổ loading
 
-        showLogs(isShowPaymentInfo, flags: 'isShowPaymentInfo 1');
-        if (!isShowPaymentInfo) {
+        showLogs(showPaymentStatus, flags: 'isShowPaymentInfo 1');
+        if (!showPaymentStatus) {
           pop(context);
-          isShowPaymentInfo = false;
+          showPaymentStatus = false;
         }
         paymentStatusNotifier.value = null;
         break;
@@ -358,64 +180,38 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
     // }
   }
 
-  // void showLinkZaloOA() async {
-  //   if (rootContext != null && rootContext!.mounted) {
-  //     isShowLinkZaloOA = true;
-
-  //     await showDialog(
-  //       context: rootContext!,
-  //       barrierDismissible: false,
-  //       builder: (context) {
-  //         return PopScope(
-  //           canPop: false,
-  //           child: AlertDialog(
-  //             title: Text(
-  //               S.current.register_customers_via_zalo_oa,
-  //               style: AppTextStyle.bold(),
-  //             ),
-  //             content: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 ValueListenableBuilder(
-  //                   valueListenable: linkOANotifier,
-  //                   builder: (context, value, child) {
-  //                     if (value.isEmpty) {
-  //                       Navigator.of(context).pop();
-  //                       isShowLinkZaloOA = false;
-  //                       return Container();
-  //                     }
-  //                     return SizedBox(
-  //                       width: 256,
-  //                       height: 256,
-  //                       child: QrImageView(
-  //                         data: value,
-  //                         eyeStyle: const QrEyeStyle(
-  //                           color: AppColors.mainColor,
-  //                           eyeShape: QrEyeShape.square,
-  //                         ),
-  //                       ),
-  //                     );
-  //                   },
-  //                 ),
-  //                 const GapH(8),
-  //                 Text(S.current.use_camera_zalo_to_scan_the_code),
-  //               ],
-  //             ),
-  //           ),
-  //         );
-  //       },
-  //     );
-  //   } else {
-  //     isShowLinkZaloOA = false;
-  //   }
-  // }
+  void _showDetailProduct() async {
+    if (rootContext != null && rootContext!.mounted) {
+      showProductDetail = true;
+      await showDialog(
+        context: rootContext!,
+        barrierDismissible: false,
+        builder: (context) {
+          return ValueListenableBuilder(
+              valueListenable: detailProductNotifier,
+              builder: (context, value, child) {
+                showLogs(value, flags: 'value');
+                if (value == null) {
+                  Navigator.of(context).pop();
+                  showProductDetail = false;
+                  return Container();
+                }
+                return PopScope(
+                  canPop: false,
+                  child: DetailProductDialog(product: value, notClose: true),
+                );
+              });
+        },
+      );
+    } else {
+      showProductDetail = false;
+    }
+  }
 
   Future<dynamic> _handleMethodCallback(
       MethodCall call, int fromWindowId) async {
     var data = jsonDecode(call.arguments);
 
-    // showLogs(data, flags: 'data _handleMethodCallback');
-    // showLogs(call.method, flags: 'call.method');
     try {
       switch (WindowsMethodEnum.values.byName(call.method)) {
         case WindowsMethodEnum.closeApp:
@@ -424,7 +220,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
         case WindowsMethodEnum.order:
           var value = data == null ? null : OrderModel.fromJson(data);
           var oldOrder = ref.read(customerPageProvider).order;
-          if (oldOrder?.id != value?.id && isShowPaymentInfo) {
+          if (oldOrder?.id != value?.id && showPaymentStatus) {
             pop(context);
           }
           ref.read(customerPageProvider.notifier).onChangeOrder(value);
@@ -479,76 +275,31 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
         case WindowsMethodEnum.changeOrderProduct:
           ref.read(customerPageProvider.notifier).onChangeScrollProduct(data);
         case WindowsMethodEnum.payment:
-          var paymentStatus = convertPaymentStatus(data);
+          var paymentStatus = PaymentStatusEnum.values.byName(data);
 
           if (paymentStatus == paymentStatusNotifier.value) {
             return;
           }
           paymentStatusNotifier.value = paymentStatus;
 
-          showPaymentInfo(
-            paymentStatus: paymentStatus,
-          );
+          handlePaymentStatus(paymentStatus: paymentStatus);
+          break;
+        case WindowsMethodEnum.detailProduct:
+          ProductModel? product =
+              data == null ? null : ProductModel.fromJson(data);
+          showLogs(product, flags: 'detailProduct');
+          detailProductNotifier.value = product;
+
+          if (!showProductDetail && product != null) {
+            _showDetailProduct();
+          }
+          break;
         default:
       }
     } catch (ex) {
       showLogs(ex, flags: 'data _handleMethodCallback ex');
     }
     return;
-    // if (call.method == WindowsMethod.closeApp.value) {
-    //   widget.windowController?.close();
-    //   return;
-    // } else if (call.method == WindowsMethod.language.value) {
-    //   if (rootContext?.mounted ?? false) {
-    //     setCustomerLocale(data);
-    //   }
-    //   return;
-    // }
-    // if (call.method == WindowsMethod.payment.value) {
-    //   var isGateway = data['is_gateway'] ?? false;
-    //   var gatewayUrl = data['gateway_url'] ?? '';
-    //   var paymentStatus = convertPaymentStatus(data['status']);
-    //   var qrCode = data['qr_code'] ?? '';
-
-    //   showLogs(isGateway, flags: 'isGateway');
-    //   showLogs(gatewayUrl, flags: 'gatewayUrl');
-    //   if (paymentStatus == paymentStatusNotifier.value) {
-    //     return;
-    //   }
-    //   paymentStatusNotifier.value = paymentStatus;
-
-    //   showPaymentInfo(
-    //     isGateway: isGateway,
-    //     gatewayUrl: gatewayUrl,
-    //     paymentStatus: paymentStatus,
-    //   );
-    //   return;
-    // }
-
-    // if (call.method == WindowsMethod.linkZaloOA.value) {
-    //   linkOANotifier.value = data;
-    //   if (!isShowLinkZaloOA) {
-    //     // showLinkZaloOA();
-    //   }
-    //   return;
-    // }
-    // if (call.method == WindowsMethod.changeOrderProduct.value) {
-    //   var autoScroll = data['auto_scroll_order_product'] ?? true;
-    //   var changedProductId = data['changed_product_id'];
-
-    //   ref
-    //       .read(customerPageProvider.notifier)
-    //       .onChangeAutoScrollProducts(autoScroll);
-    //   WidgetsBinding.instance.addPostFrameCallback(
-    //     (timeStamp) {
-    //       ref
-    //           .read(customerPageProvider.notifier)
-    //           .onChangeChangedProductId(changedProductId);
-    //     },
-    //   );
-    //   return;
-    // }
-    // _convertData(data);
   }
 
   @override
@@ -556,29 +307,16 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
     if (Platform.isWindows) {
       DesktopMultiWindow.setMethodHandler(null);
     }
-    // allProductsNotifier.dispose();
-    // orderNotifier.dispose();
-    // productsNotifier.dispose();
-    // customerNotifier.dispose();
-    // dataBillNotifier.dispose();
-    // paymentMethodNotifier.dispose();
-    // detailPaymentNotifier.dispose();
-    // linkOANotifier.dispose();
     _paymentTimer?.cancel();
     paymentStatusNotifier.dispose();
-    // noteNotifier.dispose();
-    // gatewayNotifier.dispose();
-
-    // _noteTextController.dispose();
-    // languageNotifier.dispose();
+    detailProductNotifier.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     var order = ref.watch(customerPageProvider.select((value) => value.order));
-    showLogs(order, flags: 'order customer pgae');
-    double defaultPaddingHorizontalPage = 12;
+    double paddingHorizontal = 12;
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       body: order == null
@@ -603,7 +341,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                         height: 50,
                         color: Color(0xff292929),
                         padding: EdgeInsets.symmetric(
-                          horizontal: defaultPaddingHorizontalPage,
+                          horizontal: paddingHorizontal,
                           vertical: 4,
                         ),
                         child: Row(
@@ -629,8 +367,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                           ],
                         ),
                       ),
-                      Expanded(
-                        child: ListOrderProductTest(),
+                      const Expanded(
+                        child: CustomerOrderedItemsList(),
                       ),
                     ],
                   ),
@@ -680,7 +418,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                           );
                         }),
                         TitleSection(
-                          paddingHorizontal: 12,
+                          paddingHorizontal: paddingHorizontal,
                           title: S.current.payment_method,
                         ),
                         Expanded(child: Consumer(
@@ -849,407 +587,6 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                 ),
               ],
             ),
-      // ValueListenableBuilder(
-      //   valueListenable: orderNotifier,
-      //   builder: (context, value, child) {
-      //     if (value == null) {
-      //       return AppImageCacheNetworkWidget(
-      //         imageUrl: "https://haisu.vn/Upload/Banner/310525104657.jpg",
-      //         fit: BoxFit.cover,
-      //         width: double.maxFinite,
-      //         height: double.maxFinite,
-      //         errorWidget: Image.asset(
-      //           Assets.imagesLogoH,
-      //           height: 100,
-      //           fit: BoxFit.cover,
-      //         ),
-      //       );
-      //     }
-      //     return Row(
-      //       children: [
-      //         Consumer(
-      //           builder: (context, ref, child) {
-      //             ref.watch(customerPageProvider);
-      //             return const SizedBox.shrink();
-      //           },
-      //         ),
-      //         Expanded(
-      //           flex: 2,
-      //           child: Column(
-      //             children: [
-      //               Container(
-      //                 height: 50,
-      //                 padding: EdgeInsets.symmetric(
-      //                   horizontal: defaultPaddingHorizontalPage,
-      //                   vertical: 4,
-      //                 ),
-      //                 color: Color(0xff292929),
-      //                 child: Row(
-      //                   mainAxisSize: MainAxisSize.max,
-      //                   children: [
-      //                     Expanded(
-      //                       child: Row(
-      //                         children: [
-      //                           Expanded(
-      //                             child: ValueListenableBuilder(
-      //                               valueListenable: orderNotifier,
-      //                               builder: (context, value, child) {
-      //                                 if (value == null) {
-      //                                   return const SizedBox.shrink();
-      //                                 }
-      //                                 return Text(
-      //                                   '${S.current.table_served}: ${S.current.table} ${value.getNameView()}',
-      //                                   style: AppTextStyle.bold(
-      //                                       color: AppColors.white),
-      //                                 );
-      //                               },
-      //                             ),
-      //                           ),
-      //                         ],
-      //                       ),
-      //                     ),
-      //                     FittedBox(
-      //                       child: Chip(
-      //                         label: Text(
-      //                           S.current.infoVAT,
-      //                           style: AppTextStyle.regular(
-      //                             rawFontSize:
-      //                                 AppConfig.defaultRawTextSize - 1.5,
-      //                           ),
-      //                         ),
-      //                       ),
-      //                     ),
-      //                   ],
-      //                 ),
-      //               ),
-      //               Expanded(
-      //                 child: Column(
-      //                   children: [
-      //                     Expanded(
-      //                         child: ValueListenableBuilder(
-      //                       valueListenable: allProductsNotifier,
-      //                       builder: (context, allProducts, child) {
-      //                         return ValueListenableBuilder(
-      //                           valueListenable: noteNotifier,
-      //                           builder: (context, note, child) =>
-      //                               ValueListenableBuilder(
-      //                             valueListenable: productsNotifier,
-      //                             builder: (context, value, child) {
-      //                               return ListOrderProduct(
-      //                                 data: [
-      //                                   ...value,
-      //                                   if (note.trim().isNotEmpty) note.trim(),
-      //                                 ],
-      //                                 allProducts: allProducts,
-      //                                 horizontalPadding:
-      //                                     defaultPaddingHorizontalPage,
-      //                                 noteTextEditingController:
-      //                                     _noteTextController,
-      //                               );
-      //                             },
-      //                           ),
-      //                         );
-      //                       },
-      //                     )),
-      //                   ],
-      //                 ),
-      //               ),
-      //             ],
-      //           ),
-      //         ),
-      //         Expanded(
-      //           flex: 1,
-      //           child: Container(
-      //             padding: const EdgeInsets.only(left: 2),
-      //             color: AppColors.white,
-      //             child: Column(
-      //               children: [
-      //                 SizedBox(
-      //                   width: double.maxFinite,
-      //                   child: ValueListenableBuilder(
-      //                     valueListenable: customerNotifier,
-      //                     builder: (context, value, child) {
-      //                       return Column(
-      //                         mainAxisSize: MainAxisSize.min,
-      //                         crossAxisAlignment: CrossAxisAlignment.start,
-      //                         children: [
-      //                           TitleSection(
-      //                             paddingHorizontal: 12,
-      //                             title: S.current.customer_information,
-      //                           ),
-      //                           Container(
-      //                             padding: EdgeInsets.symmetric(
-      //                               horizontal: defaultPaddingHorizontalPage,
-      //                               vertical: 4,
-      //                             ),
-      //                             child: value == null
-      //                                 ? Container(height: 100)
-      //                                 : Center(
-      //                                     child: CustomerInfoWidget(
-      //                                       canAction: false,
-      //                                       customer: value,
-      //                                     ),
-      //                                   ),
-      //                           ),
-      //                         ],
-      //                       );
-      //                     },
-      //                   ),
-      //                 ),
-      //                 Container(
-      //                   color: Colors.white,
-      //                   width: double.maxFinite,
-      //                   child: Column(
-      //                     mainAxisSize: MainAxisSize.min,
-      //                     children: [
-      //                       TitleSection(
-      //                         paddingHorizontal: defaultPaddingHorizontalPage,
-      //                         title: S.current.payment_info,
-      //                       ),
-      //                       ValueListenableBuilder(
-      //                         valueListenable: dataBillNotifier,
-      //                         builder: (context, value, child) {
-      //                           return Container(
-      //                             margin: const EdgeInsets.symmetric(
-      //                                 horizontal: 12, vertical: 12),
-      //                             padding: const EdgeInsets.symmetric(
-      //                                 horizontal: 16, vertical: 4),
-      //                             alignment: Alignment.center,
-      //                             decoration: BoxDecoration(
-      //                                 color: Colors.grey.shade200,
-      //                                 borderRadius: BorderRadius.circular(
-      //                                     AppConfig.sizeBorderRadiusMain)),
-      //                             child: Builder(builder: (context) {
-      //                               return PriceDataBillPreviewWidget(
-      //                                 dataBill: value,
-      //                                 showCashReceivedAmount: true,
-      //                                 isCustomerPage: true,
-      //                               );
-      //                             }),
-      //                           );
-      //                         },
-      //                       ),
-      //                     ],
-      //                   ),
-      //                 ),
-      //                 Expanded(
-      //                   child: SizedBox(
-      //                     width: double.maxFinite,
-      //                     child: Column(
-      //                       mainAxisSize: MainAxisSize.min,
-      //                       crossAxisAlignment: CrossAxisAlignment.start,
-      //                       children: [
-      //                         TitleSection(
-      //                           paddingHorizontal: defaultPaddingHorizontalPage,
-      //                           title: S.current.payment_method,
-      //                         ),
-      //                         Expanded(
-      //                           child: _PaymentSection(
-      //                               paymentMethodNotifier:
-      //                                   paymentMethodNotifier,
-      //                               defaultHorizontalPadding:
-      //                                   defaultPaddingHorizontalPage,
-      //                               detailPaymentNotifier:
-      //                                   detailPaymentNotifier,
-      //                               gatewayNotifier: gatewayNotifier),
-      //                         ),
-      //                       ],
-      //                     ),
-      //                   ),
-      //                 ),
-      //               ],
-      //             ),
-      //           ),
-      //         ),
-      //       ],
-      //     );
-      //   },
-      // ),
-    );
-  }
-
-  // Future<WebviewPermissionDecision> _onPermissionRequested(
-  //     String url, WebviewPermissionKind kind, bool isUserInitiated, BuildContext context) async {
-  //   final decision = await showDialog<WebviewPermissionDecision>(
-  //     context: context,
-  //     builder: (BuildContext context) => AlertDialog(
-  //       title: Text(S.current.webview_permission_request),
-  //       content: Text('${S.current.webview_permission_request_1} \'$kind\''),
-  //       actions: <Widget>[
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context, WebviewPermissionDecision.deny),
-  //           child: Text(S.current.deny),
-  //         ),
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context, WebviewPermissionDecision.allow),
-  //           child: Text(S.current.allow),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-
-  //   return decision ?? WebviewPermissionDecision.none;
-  // }
-}
-
-class _PaymentSection extends StatelessWidget {
-  const _PaymentSection({
-    super.key,
-    required this.paymentMethodNotifier,
-    required this.defaultHorizontalPadding,
-    required this.detailPaymentNotifier,
-    required this.gatewayNotifier,
-  });
-
-  final ValueNotifier<PaymentMethod?> paymentMethodNotifier;
-  final double defaultHorizontalPadding;
-  final ValueNotifier<Map<String, dynamic>> detailPaymentNotifier;
-  final ValueNotifier<bool> gatewayNotifier;
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: paymentMethodNotifier,
-      builder: (context, paymentMethod, child) {
-        if (paymentMethod == null) {
-          return const SizedBox.shrink();
-        }
-        return Container(
-          width: double.maxFinite,
-          padding: EdgeInsets.symmetric(
-            horizontal: defaultHorizontalPadding,
-            vertical: 8,
-          ),
-          child: Column(
-            children: [
-              Text(
-                paymentMethod.getNameView(),
-                style: AppTextStyle.medium(),
-              ),
-              const Gap(4),
-              Expanded(
-                child: ValueListenableBuilder(
-                  valueListenable: detailPaymentNotifier,
-                  builder: (context, detail, child) {
-                    if (detail.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    if (paymentMethod.isBank) {
-                      var bankSelect = detail['bank_select'] == null
-                          ? null
-                          : UserBankModel.fromJson(detail['bank_select']);
-                      if ((bankSelect?.qrCode ?? '').isNotEmpty) {
-                        return FittedBox(
-                          child: Column(
-                            children: [
-                              Text(
-                                bankSelect?.bankNumber ?? '',
-                                style: AppTextStyle.bold(),
-                              ),
-                              Text(
-                                bankSelect?.bankName ?? '',
-                                style: AppTextStyle.bold(),
-                              ),
-                              ImageQRWidget(imgUrl: bankSelect?.qrCode ?? ''),
-                            ],
-                          ),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    } else if (paymentMethod.isGateway) {
-                      if ((detail['gateway_qr'] ?? '').trim().isNotEmpty) {
-                        return FutureBuilder<Uint8List?>(
-                          future: loadImageBypassingSSL(
-                              (detail['gateway_qr'] ?? '')),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(
-                                  child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const CircularProgressIndicator(),
-                                  const Gap(4),
-                                  Text(
-                                    S.current.loading_qr_code,
-                                    style: AppTextStyle.regular(
-                                      rawFontSize:
-                                          AppConfig.defaultRawTextSize - 1.5,
-                                    ),
-                                  ),
-                                ],
-                              ));
-                            } else if (snapshot.hasError ||
-                                snapshot.data == null) {
-                              return Center(
-                                  child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.error,
-                                    color: AppColors.redColor,
-                                  ),
-                                  const Gap(4),
-                                  Text(
-                                    S.current.error_loading_qr_code,
-                                    style: AppTextStyle.regular(
-                                      rawFontSize:
-                                          AppConfig.defaultRawTextSize - 1.5,
-                                      color: AppColors.redColor,
-                                    ),
-                                  ),
-                                ],
-                              ));
-                            } else {
-                              return ValueListenableBuilder(
-                                valueListenable: gatewayNotifier,
-                                builder: (context, value, child) {
-                                  return FittedBox(
-                                    child: Column(
-                                      children: [
-                                        if (gatewayNotifier.value)
-                                          CountDownPayooTimer(
-                                            initDuration: Duration(
-                                                seconds:
-                                                    detail['expiry_min'] ?? 0),
-                                            onDone: () {
-                                              var value =
-                                                  Map<String, dynamic>.from(
-                                                      detail);
-                                              value['expiry_min'] = 0;
-
-                                              detailPaymentNotifier.value =
-                                                  value;
-                                              gatewayNotifier.value = false;
-                                            },
-                                          ),
-                                        const Gap(4),
-                                        SizedBox(
-                                          child: Image.memory(
-                                            snapshot.data!,
-                                            fit: BoxFit.contain,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              );
-                            }
-                          },
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    }
-
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

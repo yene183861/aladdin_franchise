@@ -8,11 +8,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'state.freezed.dart';
 
-enum PaymentStatus {
-  init,
-  success,
-}
-
 @freezed
 class CustomerPageState with _$CustomerPageState {
   const factory CustomerPageState({

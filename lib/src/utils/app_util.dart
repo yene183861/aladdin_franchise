@@ -18,7 +18,7 @@ class AppUtils {
       {String symbol = '', String locale = 'vi', dynamic value}) {
     try {
       var data = convertToDouble(value);
-      return NumberFormat.currency(locale: locale, symbol: '')
+      return NumberFormat.currency(locale: locale, symbol: symbol)
           .format(data ?? 0.0)
           .trim();
     } catch (ex) {

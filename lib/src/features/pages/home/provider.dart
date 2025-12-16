@@ -6,7 +6,6 @@ import 'dart:math';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/const.dart';
 import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
-import 'package:aladdin_franchise/src/configs/enums/windows_method.dart';
 import 'package:aladdin_franchise/src/core/network/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/category/category_repository.dart';
 import 'package:aladdin_franchise/src/core/network/coupon/coupon_repository.dart';
@@ -22,12 +21,10 @@ import 'package:aladdin_franchise/src/core/network/user/user_repository.dart';
 import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
+import 'package:aladdin_franchise/src/data/enum/payment_status.dart';
 import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
 import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
-import 'package:aladdin_franchise/src/data/response/add_voucher.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
-import 'package:aladdin_franchise/src/features/dialogs/order/order_option_dialog.dart';
-import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/home/view.dart';
 import 'package:aladdin_franchise/src/models/atm_pos.dart';
@@ -37,7 +34,6 @@ import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
 import 'package:aladdin_franchise/src/models/customer/customer.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
 import 'package:aladdin_franchise/src/models/data_bill.dart';
-import 'package:aladdin_franchise/src/models/employee_sale.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
 import 'package:aladdin_franchise/src/models/minvoice/minvoice.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
@@ -50,7 +46,6 @@ import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/tag_product.dart';
 import 'package:aladdin_franchise/src/models/user_bank.dart';
 import 'package:aladdin_franchise/src/models/waiter.dart';
-import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_html.dart';
@@ -62,7 +57,6 @@ import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:redis/redis.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -1734,7 +1728,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       updateEvent(HomeEvent.paymentProcess);
       syncInfoCustomerPage(
         method: WindowsMethodEnum.payment,
-        arguments: PaymentStatus.loading.type,
+        arguments: PaymentStatusEnum.loading.name,
       );
       // syncInfoForCustomer(
       //   method: WindowsMethod.payment,
@@ -1836,17 +1830,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       );
       syncInfoCustomerPage(
         method: WindowsMethodEnum.payment,
-        arguments: PaymentStatus.success.type,
+        arguments: PaymentStatusEnum.success.name,
       );
-      // syncInfoForCustomer(
-      //   method: WindowsMethod.payment,
-      //   arguments: {
-      //     'is_gateway': false,
-      //     'gateway_url': '',
-      //     'status': PaymentStatus.success.type,
-      //     'qr_code': '',
-      //   },
-      // );
 
       if (completeStatus != null) {
         updateEvent(null);
@@ -2975,7 +2960,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     if (!Platform.isWindows || state.pinnedOrder) return;
 
     var args = arguments ?? _tranferDataToCustomerPage(method: method);
-    if (args == null) return;
     final subWindows = await DesktopMultiWindow.getAllSubWindowIds();
     for (final id in subWindows) {
       DesktopMultiWindow.invokeMethod(id, method.name, jsonEncode(args));
@@ -3024,6 +3008,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
         return state.kitchenNote;
       case WindowsMethodEnum.bank:
         return state.bankSelect;
+      case WindowsMethodEnum.detailProduct:
+        return null;
       case WindowsMethodEnum.changeOrderProduct:
         return {
           'auto_scroll': state.autoScrollProducts,

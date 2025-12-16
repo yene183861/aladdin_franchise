@@ -5,11 +5,10 @@ import 'dart:ui';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
-import 'package:aladdin_franchise/src/configs/enums/windows_method.dart';
 import 'package:aladdin_franchise/src/configs/theme.dart';
-import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
+import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
 import 'package:aladdin_franchise/src/utils/subwindows_moniter.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
@@ -68,8 +67,10 @@ class _MyAppState extends ConsumerState<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final useFontScale = ref.watch(appSettingProvider.select((value) => value.useFontScale));
-    final fontScale = ref.watch(appSettingProvider.select((value) => value.fontScale));
+    final useFontScale =
+        ref.watch(appSettingProvider.select((value) => value.useFontScale));
+    final fontScale =
+        ref.watch(appSettingProvider.select((value) => value.fontScale));
     final isLogin = ref.watch(checkLoginProvider);
     final languageLocal = ref.watch(languageLocalProvider);
     return ResponsiveSizer(
@@ -121,7 +122,8 @@ class _MyAppState extends ConsumerState<MyApp> {
             DevicePreview.appBuilder(context, child);
             return ResponsiveBreakpoints.builder(
               child: MediaQuery(
-                data: mediaQuery.copyWith(textScaleFactor: useFontScale ? max(0, fontScale) : 1.0),
+                data: mediaQuery.copyWith(
+                    textScaleFactor: useFontScale ? max(0, fontScale) : 1.0),
                 child: child!,
               ),
               breakpoints: [
@@ -150,7 +152,7 @@ class CloseWindowsListener extends WindowListener {
       for (final id in subWindows)
         DesktopMultiWindow.invokeMethod(
           id,
-          WindowsMethod.closeApp.value,
+          WindowsMethodEnum.closeApp.name,
           jsonEncode({}),
         ),
     ]);
@@ -212,7 +214,8 @@ class MySecondApp extends ConsumerWidget {
                   const Breakpoint(start: 0, end: 450, name: MOBILE),
                   const Breakpoint(start: 451, end: 800, name: TABLET),
                   const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-                  const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+                  const Breakpoint(
+                      start: 1921, end: double.infinity, name: '4K'),
                 ],
               );
             },

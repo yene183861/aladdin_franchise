@@ -1,7 +1,9 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
 import 'package:aladdin_franchise/src/features/dialogs/view_image.dart';
+import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cir_icon_menu.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
@@ -12,35 +14,47 @@ import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../generated/l10n.dart';
 
 void showDetailProductWidget({
   required BuildContext context,
+  required WidgetRef ref,
   required ProductModel product,
-}) {
-  showDialog(
+}) async {
+  ref.read(homeProvider.notifier).syncInfoCustomerPage(
+        method: WindowsMethodEnum.detailProduct,
+        arguments: product,
+      );
+  await showDialog(
     context: context,
     useRootNavigator: false,
     barrierDismissible: true,
-    builder: (context) => _DetailProductWidget(
-      product: product,
-    ),
+    builder: (context) => DetailProductDialog(product: product),
   );
+
+  ref.read(homeProvider.notifier).syncInfoCustomerPage(
+        method: WindowsMethodEnum.detailProduct,
+        arguments: null,
+      );
 }
 
-class _DetailProductWidget extends StatelessWidget {
+class DetailProductDialog extends StatelessWidget {
   final ProductModel product;
-  const _DetailProductWidget({
+  final bool notClose;
+  const DetailProductDialog({
     Key? key,
     required this.product,
+    this.notClose = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     const double valueRadius = 12;
-    List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(product);
+    List<ComboItemModel>? comboItems =
+        ProductHelper().getComboDescription(product);
     bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
 
     return FractionallySizedBox(
@@ -58,16 +72,17 @@ class _DetailProductWidget extends StatelessWidget {
               product: product,
               valueRadius: valueRadius,
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ButtonCirMenuWidget(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: Icons.close,
-                color: Colors.black54,
-              ),
-            )
+            if (!notClose)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ButtonCirMenuWidget(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: Icons.close,
+                  color: Colors.black54,
+                ),
+              )
           ],
         ),
       ),
@@ -87,7 +102,8 @@ class ProductDetailWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(product);
+    List<ComboItemModel>? comboItems =
+        ProductHelper().getComboDescription(product);
     return SingleChildScrollView(
       child: SizedBox(
         width: double.maxFinite,
@@ -124,9 +140,10 @@ class ProductDetailWidget extends StatelessWidget {
                       const GapW(8),
                       Text.rich(
                         TextSpan(
-                          text: AppUtils.formatCurrency(value: product.unitPrice),
-                          // AppConfig.formatCurrency()
-                          //     .format(double.tryParse(product.unitPrice ?? "0")),
+                          text: AppUtils.formatCurrency(
+                            value: product.unitPrice,
+                            symbol: 'đ',
+                          ),
                           style: AppTextStyle.bold(
                             color: AppColors.redColor,
                             fontWeight: FontWeight.w600,
@@ -134,14 +151,16 @@ class ProductDetailWidget extends StatelessWidget {
                           ),
                           children: [
                             WidgetSpan(
-                              alignment: PlaceholderAlignment.middle, // dùng middle thôi
+                              alignment: PlaceholderAlignment
+                                  .middle, // dùng middle thôi
                               child: Baseline(
                                 baseline: 20,
                                 baselineType: TextBaseline.alphabetic,
                                 child: Text(" / ${product.unit}",
                                     style: AppTextStyle.regular(
                                       color: Colors.grey,
-                                      rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                                      rawFontSize:
+                                          AppConfig.defaultRawTextSize - 1.0,
                                     )),
                               ),
                             ),

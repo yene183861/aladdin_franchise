@@ -37,7 +37,8 @@ class AppConfig {
   static const String appVersion = "V1.0.0";
   static const int versionCode = 1;
   static const String appUpdateFileName = "apos-franchise-update.apk";
-  final String urlHelp = "https://sites.google.com/aladdin-jsc.com/aladdin-pos-docs?usp=sharing";
+  final String urlHelp =
+      "https://sites.google.com/aladdin-jsc.com/aladdin-pos-docs?usp=sharing";
 
   static const double defaultRawTextSize = 13.0;
 
@@ -65,10 +66,6 @@ class AppConfig {
 
   final String codeSecurity = kDebugMode ? "1" : "400501";
   final String keyConfig = "config";
-
-  // static NumberFormat formatCurrency({bool isCustomerPage = false}) {
-  //   return NumberFormat.simpleCurrency(locale: 'vi');
-  // }
 
   final allCategory = const CategoryModel(id: -1, title: "TẤT CẢ");
   final dateFormatYYYYMMDD = DateFormat("yyyy-MM-dd");
