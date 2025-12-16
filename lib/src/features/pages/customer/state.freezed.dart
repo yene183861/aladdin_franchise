@@ -16,20 +16,16 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$CustomerPageState {
-  PaymentMethod? get paymentMethodSelect => throw _privateConstructorUsedError;
-  String get gatewayUrl => throw _privateConstructorUsedError;
+  PaymentMethod? get paymentMethod => throw _privateConstructorUsedError;
   bool get autoScrollProducts => throw _privateConstructorUsedError;
-
-  /// id của sản phẩm được thay đổi gần nhất
   int? get changedProductId => throw _privateConstructorUsedError;
   CustomerModel? get customer => throw _privateConstructorUsedError;
   List<ProductModel> get products => throw _privateConstructorUsedError;
   PriceDataBill? get price => throw _privateConstructorUsedError;
   OrderModel? get order => throw _privateConstructorUsedError;
-  String get completeNote => throw _privateConstructorUsedError;
-  String get kitchenNote => throw _privateConstructorUsedError;
   UserBankModel? get bankSelect => throw _privateConstructorUsedError;
   String get payooGatewayUrl => throw _privateConstructorUsedError;
+  int get payooExpirationSeconds => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $CustomerPageStateCopyWith<CustomerPageState> get copyWith =>
@@ -43,20 +39,18 @@ abstract class $CustomerPageStateCopyWith<$Res> {
       _$CustomerPageStateCopyWithImpl<$Res, CustomerPageState>;
   @useResult
   $Res call(
-      {PaymentMethod? paymentMethodSelect,
-      String gatewayUrl,
+      {PaymentMethod? paymentMethod,
       bool autoScrollProducts,
       int? changedProductId,
       CustomerModel? customer,
       List<ProductModel> products,
       PriceDataBill? price,
       OrderModel? order,
-      String completeNote,
-      String kitchenNote,
       UserBankModel? bankSelect,
-      String payooGatewayUrl});
+      String payooGatewayUrl,
+      int payooExpirationSeconds});
 
-  $PaymentMethodCopyWith<$Res>? get paymentMethodSelect;
+  $PaymentMethodCopyWith<$Res>? get paymentMethod;
   $CustomerModelCopyWith<$Res>? get customer;
   $PriceDataBillCopyWith<$Res>? get price;
   $OrderModelCopyWith<$Res>? get order;
@@ -76,28 +70,22 @@ class _$CustomerPageStateCopyWithImpl<$Res, $Val extends CustomerPageState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? paymentMethodSelect = freezed,
-    Object? gatewayUrl = null,
+    Object? paymentMethod = freezed,
     Object? autoScrollProducts = null,
     Object? changedProductId = freezed,
     Object? customer = freezed,
     Object? products = null,
     Object? price = freezed,
     Object? order = freezed,
-    Object? completeNote = null,
-    Object? kitchenNote = null,
     Object? bankSelect = freezed,
     Object? payooGatewayUrl = null,
+    Object? payooExpirationSeconds = null,
   }) {
     return _then(_value.copyWith(
-      paymentMethodSelect: freezed == paymentMethodSelect
-          ? _value.paymentMethodSelect
-          : paymentMethodSelect // ignore: cast_nullable_to_non_nullable
+      paymentMethod: freezed == paymentMethod
+          ? _value.paymentMethod
+          : paymentMethod // ignore: cast_nullable_to_non_nullable
               as PaymentMethod?,
-      gatewayUrl: null == gatewayUrl
-          ? _value.gatewayUrl
-          : gatewayUrl // ignore: cast_nullable_to_non_nullable
-              as String,
       autoScrollProducts: null == autoScrollProducts
           ? _value.autoScrollProducts
           : autoScrollProducts // ignore: cast_nullable_to_non_nullable
@@ -122,14 +110,6 @@ class _$CustomerPageStateCopyWithImpl<$Res, $Val extends CustomerPageState>
           ? _value.order
           : order // ignore: cast_nullable_to_non_nullable
               as OrderModel?,
-      completeNote: null == completeNote
-          ? _value.completeNote
-          : completeNote // ignore: cast_nullable_to_non_nullable
-              as String,
-      kitchenNote: null == kitchenNote
-          ? _value.kitchenNote
-          : kitchenNote // ignore: cast_nullable_to_non_nullable
-              as String,
       bankSelect: freezed == bankSelect
           ? _value.bankSelect
           : bankSelect // ignore: cast_nullable_to_non_nullable
@@ -138,18 +118,22 @@ class _$CustomerPageStateCopyWithImpl<$Res, $Val extends CustomerPageState>
           ? _value.payooGatewayUrl
           : payooGatewayUrl // ignore: cast_nullable_to_non_nullable
               as String,
+      payooExpirationSeconds: null == payooExpirationSeconds
+          ? _value.payooExpirationSeconds
+          : payooExpirationSeconds // ignore: cast_nullable_to_non_nullable
+              as int,
     ) as $Val);
   }
 
   @override
   @pragma('vm:prefer-inline')
-  $PaymentMethodCopyWith<$Res>? get paymentMethodSelect {
-    if (_value.paymentMethodSelect == null) {
+  $PaymentMethodCopyWith<$Res>? get paymentMethod {
+    if (_value.paymentMethod == null) {
       return null;
     }
 
-    return $PaymentMethodCopyWith<$Res>(_value.paymentMethodSelect!, (value) {
-      return _then(_value.copyWith(paymentMethodSelect: value) as $Val);
+    return $PaymentMethodCopyWith<$Res>(_value.paymentMethod!, (value) {
+      return _then(_value.copyWith(paymentMethod: value) as $Val);
     });
   }
 
@@ -211,21 +195,19 @@ abstract class _$$CustomerPageStateImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {PaymentMethod? paymentMethodSelect,
-      String gatewayUrl,
+      {PaymentMethod? paymentMethod,
       bool autoScrollProducts,
       int? changedProductId,
       CustomerModel? customer,
       List<ProductModel> products,
       PriceDataBill? price,
       OrderModel? order,
-      String completeNote,
-      String kitchenNote,
       UserBankModel? bankSelect,
-      String payooGatewayUrl});
+      String payooGatewayUrl,
+      int payooExpirationSeconds});
 
   @override
-  $PaymentMethodCopyWith<$Res>? get paymentMethodSelect;
+  $PaymentMethodCopyWith<$Res>? get paymentMethod;
   @override
   $CustomerModelCopyWith<$Res>? get customer;
   @override
@@ -247,28 +229,22 @@ class __$$CustomerPageStateImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? paymentMethodSelect = freezed,
-    Object? gatewayUrl = null,
+    Object? paymentMethod = freezed,
     Object? autoScrollProducts = null,
     Object? changedProductId = freezed,
     Object? customer = freezed,
     Object? products = null,
     Object? price = freezed,
     Object? order = freezed,
-    Object? completeNote = null,
-    Object? kitchenNote = null,
     Object? bankSelect = freezed,
     Object? payooGatewayUrl = null,
+    Object? payooExpirationSeconds = null,
   }) {
     return _then(_$CustomerPageStateImpl(
-      paymentMethodSelect: freezed == paymentMethodSelect
-          ? _value.paymentMethodSelect
-          : paymentMethodSelect // ignore: cast_nullable_to_non_nullable
+      paymentMethod: freezed == paymentMethod
+          ? _value.paymentMethod
+          : paymentMethod // ignore: cast_nullable_to_non_nullable
               as PaymentMethod?,
-      gatewayUrl: null == gatewayUrl
-          ? _value.gatewayUrl
-          : gatewayUrl // ignore: cast_nullable_to_non_nullable
-              as String,
       autoScrollProducts: null == autoScrollProducts
           ? _value.autoScrollProducts
           : autoScrollProducts // ignore: cast_nullable_to_non_nullable
@@ -293,14 +269,6 @@ class __$$CustomerPageStateImplCopyWithImpl<$Res>
           ? _value.order
           : order // ignore: cast_nullable_to_non_nullable
               as OrderModel?,
-      completeNote: null == completeNote
-          ? _value.completeNote
-          : completeNote // ignore: cast_nullable_to_non_nullable
-              as String,
-      kitchenNote: null == kitchenNote
-          ? _value.kitchenNote
-          : kitchenNote // ignore: cast_nullable_to_non_nullable
-              as String,
       bankSelect: freezed == bankSelect
           ? _value.bankSelect
           : bankSelect // ignore: cast_nullable_to_non_nullable
@@ -309,6 +277,10 @@ class __$$CustomerPageStateImplCopyWithImpl<$Res>
           ? _value.payooGatewayUrl
           : payooGatewayUrl // ignore: cast_nullable_to_non_nullable
               as String,
+      payooExpirationSeconds: null == payooExpirationSeconds
+          ? _value.payooExpirationSeconds
+          : payooExpirationSeconds // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -317,30 +289,23 @@ class __$$CustomerPageStateImplCopyWithImpl<$Res>
 
 class _$CustomerPageStateImpl implements _CustomerPageState {
   const _$CustomerPageStateImpl(
-      {this.paymentMethodSelect,
-      this.gatewayUrl = '',
+      {this.paymentMethod,
       this.autoScrollProducts = true,
       this.changedProductId,
       this.customer,
       final List<ProductModel> products = const [],
       this.price,
       this.order,
-      this.completeNote = '',
-      this.kitchenNote = '',
       this.bankSelect,
-      this.payooGatewayUrl = ''})
+      this.payooGatewayUrl = '',
+      this.payooExpirationSeconds = 0})
       : _products = products;
 
   @override
-  final PaymentMethod? paymentMethodSelect;
-  @override
-  @JsonKey()
-  final String gatewayUrl;
+  final PaymentMethod? paymentMethod;
   @override
   @JsonKey()
   final bool autoScrollProducts;
-
-  /// id của sản phẩm được thay đổi gần nhất
   @override
   final int? changedProductId;
   @override
@@ -359,20 +324,17 @@ class _$CustomerPageStateImpl implements _CustomerPageState {
   @override
   final OrderModel? order;
   @override
-  @JsonKey()
-  final String completeNote;
-  @override
-  @JsonKey()
-  final String kitchenNote;
-  @override
   final UserBankModel? bankSelect;
   @override
   @JsonKey()
   final String payooGatewayUrl;
+  @override
+  @JsonKey()
+  final int payooExpirationSeconds;
 
   @override
   String toString() {
-    return 'CustomerPageState(paymentMethodSelect: $paymentMethodSelect, gatewayUrl: $gatewayUrl, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, customer: $customer, products: $products, price: $price, order: $order, completeNote: $completeNote, kitchenNote: $kitchenNote, bankSelect: $bankSelect, payooGatewayUrl: $payooGatewayUrl)';
+    return 'CustomerPageState(paymentMethod: $paymentMethod, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, customer: $customer, products: $products, price: $price, order: $order, bankSelect: $bankSelect, payooGatewayUrl: $payooGatewayUrl, payooExpirationSeconds: $payooExpirationSeconds)';
   }
 
   @override
@@ -380,10 +342,8 @@ class _$CustomerPageStateImpl implements _CustomerPageState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$CustomerPageStateImpl &&
-            (identical(other.paymentMethodSelect, paymentMethodSelect) ||
-                other.paymentMethodSelect == paymentMethodSelect) &&
-            (identical(other.gatewayUrl, gatewayUrl) ||
-                other.gatewayUrl == gatewayUrl) &&
+            (identical(other.paymentMethod, paymentMethod) ||
+                other.paymentMethod == paymentMethod) &&
             (identical(other.autoScrollProducts, autoScrollProducts) ||
                 other.autoScrollProducts == autoScrollProducts) &&
             (identical(other.changedProductId, changedProductId) ||
@@ -393,31 +353,27 @@ class _$CustomerPageStateImpl implements _CustomerPageState {
             const DeepCollectionEquality().equals(other._products, _products) &&
             (identical(other.price, price) || other.price == price) &&
             (identical(other.order, order) || other.order == order) &&
-            (identical(other.completeNote, completeNote) ||
-                other.completeNote == completeNote) &&
-            (identical(other.kitchenNote, kitchenNote) ||
-                other.kitchenNote == kitchenNote) &&
             (identical(other.bankSelect, bankSelect) ||
                 other.bankSelect == bankSelect) &&
             (identical(other.payooGatewayUrl, payooGatewayUrl) ||
-                other.payooGatewayUrl == payooGatewayUrl));
+                other.payooGatewayUrl == payooGatewayUrl) &&
+            (identical(other.payooExpirationSeconds, payooExpirationSeconds) ||
+                other.payooExpirationSeconds == payooExpirationSeconds));
   }
 
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      paymentMethodSelect,
-      gatewayUrl,
+      paymentMethod,
       autoScrollProducts,
       changedProductId,
       customer,
       const DeepCollectionEquality().hash(_products),
       price,
       order,
-      completeNote,
-      kitchenNote,
       bankSelect,
-      payooGatewayUrl);
+      payooGatewayUrl,
+      payooExpirationSeconds);
 
   @JsonKey(ignore: true)
   @override
@@ -429,28 +385,22 @@ class _$CustomerPageStateImpl implements _CustomerPageState {
 
 abstract class _CustomerPageState implements CustomerPageState {
   const factory _CustomerPageState(
-      {final PaymentMethod? paymentMethodSelect,
-      final String gatewayUrl,
+      {final PaymentMethod? paymentMethod,
       final bool autoScrollProducts,
       final int? changedProductId,
       final CustomerModel? customer,
       final List<ProductModel> products,
       final PriceDataBill? price,
       final OrderModel? order,
-      final String completeNote,
-      final String kitchenNote,
       final UserBankModel? bankSelect,
-      final String payooGatewayUrl}) = _$CustomerPageStateImpl;
+      final String payooGatewayUrl,
+      final int payooExpirationSeconds}) = _$CustomerPageStateImpl;
 
   @override
-  PaymentMethod? get paymentMethodSelect;
-  @override
-  String get gatewayUrl;
+  PaymentMethod? get paymentMethod;
   @override
   bool get autoScrollProducts;
   @override
-
-  /// id của sản phẩm được thay đổi gần nhất
   int? get changedProductId;
   @override
   CustomerModel? get customer;
@@ -461,13 +411,11 @@ abstract class _CustomerPageState implements CustomerPageState {
   @override
   OrderModel? get order;
   @override
-  String get completeNote;
-  @override
-  String get kitchenNote;
-  @override
   UserBankModel? get bankSelect;
   @override
   String get payooGatewayUrl;
+  @override
+  int get payooExpirationSeconds;
   @override
   @JsonKey(ignore: true)
   _$$CustomerPageStateImplCopyWith<_$CustomerPageStateImpl> get copyWith =>

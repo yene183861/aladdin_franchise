@@ -16,19 +16,15 @@ enum PaymentStatus {
 @freezed
 class CustomerPageState with _$CustomerPageState {
   const factory CustomerPageState({
-    PaymentMethod? paymentMethodSelect,
-    @Default('') String gatewayUrl,
+    PaymentMethod? paymentMethod,
     @Default(true) bool autoScrollProducts,
-
-    /// id của sản phẩm được thay đổi gần nhất
     int? changedProductId,
     CustomerModel? customer,
     @Default([]) List<ProductModel> products,
     PriceDataBill? price,
     OrderModel? order,
-    @Default('') String completeNote,
-    @Default('') String kitchenNote,
     UserBankModel? bankSelect,
     @Default('') String payooGatewayUrl,
+    @Default(0) int payooExpirationSeconds,
   }) = _CustomerPageState;
 }

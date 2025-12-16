@@ -2,6 +2,7 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/enums/windows_method.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
+import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
@@ -48,15 +49,25 @@ void onConfirmPayment({
           break;
         }
         await showMessageDialog(context, message: result.msg);
-        ref.read(homeProvider.notifier).syncInfoForCustomer(
-          method: WindowsMethod.payment,
-          arguments: {
-            'is_gateway': false,
-            'gateway_url': '',
-            'status': PaymentStatus.cancel.type,
-            'qr_code': '',
-          },
-        );
+        ref.read(homeProvider.notifier).syncInfoCustomerPage(
+              method: WindowsMethodEnum.payment,
+              arguments: PaymentStatus.cancel.type,
+              // arguments: {
+              //   'is_gateway': false,
+              //   'gateway_url': '',
+              //   'status': PaymentStatus.cancel.type,
+              //   'qr_code': '',
+              // },
+            );
+        // ref.read(homeProvider.notifier).syncInfoForCustomer(
+        //   method: WindowsMethod.payment,
+        //   arguments: {
+        //     'is_gateway': false,
+        //     'gateway_url': '',
+        //     'status': PaymentStatus.cancel.type,
+        //     'qr_code': '',
+        //   },
+        // );
         break;
       case HomePaymentError.complete:
         onConfirmCompleteAgain(

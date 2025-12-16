@@ -39,12 +39,14 @@ class OrderFeatureButtonGroupWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var defaultPaddingFeatureBtn = const EdgeInsets.symmetric(horizontal: 2, vertical: 12);
+    var defaultPaddingFeatureBtn =
+        const EdgeInsets.symmetric(horizontal: 2, vertical: 12);
     return Column(
       children: [
         _FeatureGroupWidget(defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
         const Gap(4),
-        _BottomFeatureGroupWidget(defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
+        _BottomFeatureGroupWidget(
+            defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
       ],
     );
   }
@@ -55,7 +57,8 @@ class _FeatureGroupWidget extends ConsumerStatefulWidget {
   final EdgeInsets defaultPaddingFeatureBtn;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => __FeatureGroupWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      __FeatureGroupWidgetState();
 }
 
 class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
@@ -111,7 +114,8 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
               valueListenable: _hasSubWindows,
               builder: (context, hasWindows, child) {
                 return Consumer(builder: (context, ref, child) {
-                  var pinned = ref.watch(homeProvider.select((value) => value.pinnedOrder));
+                  var pinned = ref
+                      .watch(homeProvider.select((value) => value.pinnedOrder));
 
                   return ButtonSimpleWidget(
                     textAction: S.of(context).customer_screen,
@@ -139,39 +143,53 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
                                 iconSize: 18,
                               ),
                     onPressed: () async {
-                      var state = ref.read(homeProvider);
-                      var args = {
-                        'all_products': state.products,
-                        'order': state.orderSelect,
-                        'products': state.productCheckout,
-                        'customer': state.customer,
-                        'data_bill': state.dataBill.price.copyWith(
-                            receivedAmount: (state.paymentMethodSelected?.isCash ?? false)
-                                ? state.cashReceivedAmount
-                                : 0),
-                        'note': state.kitchenNote,
-                        'payment_method': state.paymentMethodSelected,
-                        'detail_payment': {
-                          'bank_select': state.bankSelect,
-                          'gateway_qr': '',
-                        },
-                        'order_product': {'changed_product_id': state.changedProductId},
-                      };
+                      // var state = ref.read(homeProvider);
+                      // // var args = {
+                      // //   'all_products': state.products,
+                      // //   'order': state.orderSelect,
+                      // //   'products': state.productCheckout,
+                      // //   'customer': state.customer,
+                      // //   'data_bill': state.dataBill.price.copyWith(
+                      // //       receivedAmount:
+                      // //           (state.paymentMethodSelected?.isCash ?? false)
+                      // //               ? state.cashReceivedAmount
+                      // //               : 0),
+                      // //   'note': state.kitchenNote,
+                      // //   'payment_method': state.paymentMethodSelected,
+                      // //   'detail_payment': {
+                      // //     'bank_select': state.bankSelect,
+                      // //     'gateway_qr': '',
+                      // //   },
+                      // //   'order_product': {
+                      // //     'changed_product_id': state.changedProductId
+                      // //   },
+                      // // };
                       if (Platform.isWindows) {
-                        final subWindows = await DesktopMultiWindow.getAllSubWindowIds();
+                        final subWindows =
+                            await DesktopMultiWindow.getAllSubWindowIds();
 
                         if (subWindows.isNotEmpty) {
                           // pin/ unpin màn hình KH
-                          ref.read(homeProvider.notifier).onChangePinnedOrder(!pinned);
+                          ref
+                              .read(homeProvider.notifier)
+                              .onChangePinnedOrder(!pinned);
                           if (pinned) {
-                            ref.read(homeProvider.notifier).syncInfoForCustomer();
+                            ref
+                                .read(homeProvider.notifier)
+                                .syncInfoCustomerPage();
                           }
                           return;
                         }
 
-                        ref.read(homeProvider.notifier).onChangePinnedOrder(false);
-                        var restaurant = LocalStorage.getDataLogin()?.restaurant;
-                        final window = await DesktopMultiWindow.createWindow(jsonEncode(args));
+                        ref
+                            .read(homeProvider.notifier)
+                            .onChangePinnedOrder(false);
+                        var restaurant =
+                            LocalStorage.getDataLogin()?.restaurant;
+                        final window = await DesktopMultiWindow.createWindow(
+                            jsonEncode(ref
+                                .read(homeProvider.notifier)
+                                .getAllDataToCustomerPage()));
                         window
                           ..setFrame(Offset(1920, 0) & const Size(1920, 1080))
                           ..center()
@@ -188,10 +206,13 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
           Expanded(
             flex: 1,
             child: Consumer(builder: (context, ref, child) {
-              var customer = ref.watch(homeProvider.select((value) => value.customer));
+              var customer =
+                  ref.watch(homeProvider.select((value) => value.customer));
 
               return Tooltip(
-                message: customer == null ? '' : '${customer.name} - ${customer.phoneNumber}',
+                message: customer == null
+                    ? ''
+                    : '${customer.name} - ${customer.phoneNumber}',
                 child: ButtonSimpleWidget(
                   textAction: customer == null
                       ? S.of(context).customers
@@ -219,9 +240,11 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
             flex: 1,
             child: Consumer(
               builder: (context, ref, child) {
-                var invoice = ref.watch(homeProvider.select((value) => value.invoice));
+                var invoice =
+                    ref.watch(homeProvider.select((value) => value.invoice));
 
-                var state = ref.watch(homeProvider.select((value) => value.orderInvoiceState));
+                var state = ref.watch(
+                    homeProvider.select((value) => value.orderInvoiceState));
 
                 return ButtonSimpleWidget(
                   textAction: S.of(context).invoice,
@@ -282,7 +305,8 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
         const Gap(8),
         Expanded(
           child: Consumer(builder: (context, ref, child) {
-            var coupons = ref.watch(homeProvider.select((value) => value.coupons));
+            var coupons =
+                ref.watch(homeProvider.select((value) => value.coupons));
             return ButtonSimpleWidget(
               padding: defaultPaddingFeatureBtn,
               onPressed: () async {
@@ -326,13 +350,15 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
             padding: defaultPaddingFeatureBtn,
             color: const Color(0xFF2FA7E7),
             onPressed: () async {
-              final res = await ref.read(homeProvider.notifier).closeShift(context);
+              final res =
+                  await ref.read(homeProvider.notifier).closeShift(context);
 
               if (res != null) {
                 showMessageDialog(context, message: res);
                 return;
               }
-              showDoneSnackBar(context: context, message: S.current.closing_shift_success);
+              showDoneSnackBar(
+                  context: context, message: S.current.closing_shift_success);
             },
           ),
         ),
@@ -368,7 +394,8 @@ void paymentBtnCallback({
   var customer = ref.read(homeProvider).customer;
   if (customer == null) {
     var res = await showConfirmAction(context,
-        message: S.current.noti_enter_customer_info, title: S.current.notification);
+        message: S.current.noti_enter_customer_info,
+        title: S.current.notification);
     if (res == false) {
       return;
     }
@@ -492,7 +519,8 @@ void paymentBtnCallback({
   }
   switch (state.applyPolicyState.status) {
     case PageCommonState.loading:
-      errorApplyPolicy = 'Đang tiến hành áp dụng lại mã giảm giá, vui lòng chờ trong giây lát.';
+      errorApplyPolicy =
+          'Đang tiến hành áp dụng lại mã giảm giá, vui lòng chờ trong giây lát.';
       break;
     case PageCommonState.error:
       errorApplyPolicy =
@@ -514,7 +542,8 @@ void paymentBtnCallback({
           'Hệ thống đang cập nhật thông tin thanh toán, vui lòng đợi trong giây lát.';
       break;
     case PageCommonState.error:
-      errorGetDataBill = 'Hệ thống hiện chưa thể lấy thông tin thanh toán. Vui lòng thử lại sau.';
+      errorGetDataBill =
+          'Hệ thống hiện chưa thể lấy thông tin thanh toán. Vui lòng thử lại sau.';
       break;
     default:
   }

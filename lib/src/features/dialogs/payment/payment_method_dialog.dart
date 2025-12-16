@@ -48,12 +48,14 @@ Future<void> onSelectPaymentMethod({
     action: () async {
       var paymentMethodSelect = ref.read(homeProvider).paymentMethodSelected;
       if (paymentMethodSelect == null) {
-        showMessageDialog(context, message: S.current.payment_method_not_select);
+        showMessageDialog(context,
+            message: S.current.payment_method_not_select);
         return;
       }
       var productCheckout = ref.read(homeProvider).productCheckout;
       if (productCheckout.isEmpty) {
-        showMessageDialog(context, message: 'Vui lòng chọn món trước khi thanh toán');
+        showMessageDialog(context,
+            message: 'Vui lòng chọn món trước khi thanh toán');
         return;
       }
 
@@ -87,8 +89,10 @@ Future<void> onSelectPaymentMethod({
                 }),
           ),
           onCheckAction: () {
-            if (paymentMethodSelect.requireEditTax && pc.any((e) => e.tax == 0)) {
-              showMessageDialog(context, canPop: false, message: S.current.error_edit_tax);
+            if (paymentMethodSelect.requireEditTax &&
+                pc.any((e) => e.tax == 0)) {
+              showMessageDialog(context,
+                  canPop: false, message: S.current.error_edit_tax);
               return false;
             }
             return true;
@@ -107,7 +111,9 @@ Future<void> onSelectPaymentMethod({
         if (!isChangedTax) {
           return;
         }
-        final result = await ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
+        final result = await ref
+            .read(homeProvider.notifier)
+            .getDataBill(loadingHome: true);
         if (result != null) {
           showMessageDialog(context, message: result);
           return;
@@ -197,8 +203,9 @@ String? checkItemBeforeCompleteBill({
   Set<LineItemDataBill> zeroTaxs = {};
   Set<LineItemDataBill> allowChangeTaxs = {};
   Set<LineItemDataBill> notZeroTaxs = {};
-
+  showLogs(null, flags: 'checkItemBeforeCompleteBill');
   for (var item in orderLineItems) {
+    showLog(item, flags: 'orderLineItems');
     if (item.isChangeTax == 1) {
       allowChangeTaxs.add(item);
     }
@@ -294,7 +301,8 @@ Future<void> showConfirmCompleteBillDialog(
         );
       } else {
         // máy pos động
-        if (paymentMethodSelect.isAtm && ref.read(homeProvider).atmPosSelect?.setting == 2) {
+        if (paymentMethodSelect.isAtm &&
+            ref.read(homeProvider).atmPosSelect?.setting == 2) {
           showLogs(null, flags: 'Cà máy pos động');
           var action = await showConfirmAction(
             context,
@@ -308,7 +316,8 @@ Future<void> showConfirmCompleteBillDialog(
           if (action != true) {
             return;
           }
-          var resultPos = await ref.read(homeProvider.notifier).dynamicAtmPosCallback();
+          var resultPos =
+              await ref.read(homeProvider.notifier).dynamicAtmPosCallback();
           if (resultPos != null) {
             showMessageDialog(context, message: resultPos);
             return;
@@ -353,13 +362,16 @@ class SelectPaymentMethodWidget extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _SelectPaymentMethodWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _SelectPaymentMethodWidgetState();
 }
 
-class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodWidget> {
+class _SelectPaymentMethodWidgetState
+    extends ConsumerState<SelectPaymentMethodWidget> {
   late TextEditingController _receivedAmount, _remainingAmount;
 
-  final BehaviorSubject<String> _receivedAmountTextChange = BehaviorSubject<String>();
+  final BehaviorSubject<String> _receivedAmountTextChange =
+      BehaviorSubject<String>();
 
   bool _isFormatting = false;
   @override
@@ -397,7 +409,8 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
       _isFormatting = false;
       final price = ref.read(homeProvider.notifier).getFinalPaymentPrice;
       var remaining = number - price.totalPriceFinal;
-      _remainingAmount.text = remaining < 0 ? '0' : AppUtils.formatCurrency(value: remaining);
+      _remainingAmount.text =
+          remaining < 0 ? '0' : AppUtils.formatCurrency(value: remaining);
     });
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
@@ -415,8 +428,10 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
 
   @override
   Widget build(BuildContext context) {
-    final paymentMethods = ref.watch(homeProvider.select((value) => value.paymentMethods));
-    final paymentMethodState = ref.watch(homeProvider.select((value) => value.paymentMethodState));
+    final paymentMethods =
+        ref.watch(homeProvider.select((value) => value.paymentMethods));
+    final paymentMethodState =
+        ref.watch(homeProvider.select((value) => value.paymentMethodState));
     final paymentMethodSelect =
         ref.watch(homeProvider.select((value) => value.paymentMethodSelected));
     final invoice = ref.watch(homeProvider.select((value) => value.invoice));
@@ -437,8 +452,10 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
       default:
     }
     // Lọc phương thức thanh toán hợp lệ với invoice
-    final List<PaymentMethod> paymentMethodView = paymentMethods.where((element) {
-      return element.isVat == null || element.isVat == (invoice != null && !invoice.isEmpty());
+    final List<PaymentMethod> paymentMethodView =
+        paymentMethods.where((element) {
+      return element.isVat == null ||
+          element.isVat == (invoice != null && !invoice.isEmpty());
     }).toList();
     final coupons = ref.watch(homeProvider.select((value) => value.coupons));
     return SingleChildScrollView(
@@ -543,8 +560,8 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
                 style: AppTextStyle.regular(color: Colors.black),
                 items: paymentMethodView.map(
                   (e) {
-                    bool isNotAllowed =
-                        coupons.any((c) => c.paymentNotAllowed.any((p) => p.key == e.key));
+                    bool isNotAllowed = coupons.any(
+                        (c) => c.paymentNotAllowed.any((p) => p.key == e.key));
                     return DropdownMenuItem<PaymentMethod>(
                       value: e,
                       child: Text(
@@ -559,10 +576,12 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
                 onChanged: (method) async {
                   if (method == null) return;
                   bool isChangeMethod = true;
-                  final resultCouponCheck =
-                      ref.read(homeProvider.notifier).checkPaymentMethodSelect(method);
+                  final resultCouponCheck = ref
+                      .read(homeProvider.notifier)
+                      .checkPaymentMethodSelect(method);
                   if (resultCouponCheck.error != null) {
-                    final confirmCheckInvalid = await showConfirmActionWithChild(
+                    final confirmCheckInvalid =
+                        await showConfirmActionWithChild(
                       context,
                       child: _MessageCheckPaymentMethodInvalidWidget(
                         coupons: resultCouponCheck.coupons,
@@ -576,10 +595,11 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
                       // Xoá các mã giảm giá không hợp lệ
                       List<CustomerPolicyModel> removeCouponFails = [];
                       for (final c in resultCouponCheck.coupons) {
-                        final resRemove = await ref.read(homeProvider.notifier).removeCoupon(
-                              c,
-                              applyPolicy: false,
-                            );
+                        final resRemove =
+                            await ref.read(homeProvider.notifier).removeCoupon(
+                                  c,
+                                  applyPolicy: false,
+                                );
                         if (resRemove != null) {
                           removeCouponFails.add(c);
                         }
@@ -594,8 +614,9 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
                         );
                       } else {
                         // áp dụng lại mã giảm giá
-                        final resApplyPolicy =
-                            await ref.read(homeProvider.notifier).applyCustomerPolicy(retry: false);
+                        final resApplyPolicy = await ref
+                            .read(homeProvider.notifier)
+                            .applyCustomerPolicy(retry: false);
                         if (resApplyPolicy == null) {
                           ref.read(homeProvider.notifier).getDataBill();
                           // ref.refresh(dataBillOrderPreviewProvider);
@@ -604,9 +625,12 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
                           showConfirmAction(
                             context,
                             title: S.current.discount_apply_failed,
-                            message: S.current.close_payment_slip_reapply_coupons,
+                            message:
+                                S.current.close_payment_slip_reapply_coupons,
                             action: () async {
-                              final result = await ref.read(homeProvider.notifier).unlockOrder();
+                              final result = await ref
+                                  .read(homeProvider.notifier)
+                                  .unlockOrder();
                               if (result) {
                                 Navigator.pop(context);
                                 Navigator.pop(context);
@@ -652,7 +676,8 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
               textController: _remainingAmount,
             ),
           ],
-          if (paymentMethodSelect?.isBank == true) const PQCBankSelectAutoWidget(),
+          if (paymentMethodSelect?.isBank == true)
+            const PQCBankSelectAutoWidget(),
           if (paymentMethodSelect?.isGateway == true)
             Text(
               S.current.payment_method_open_gateway,
@@ -716,17 +741,21 @@ class PQCBankSelectAutoWidget extends ConsumerStatefulWidget {
   ConsumerState createState() => _PQCBankSelectWidgetNewState();
 }
 
-class _PQCBankSelectWidgetNewState extends ConsumerState<PQCBankSelectAutoWidget> {
+class _PQCBankSelectWidgetNewState
+    extends ConsumerState<PQCBankSelectAutoWidget> {
   bool check = true;
   @override
   Widget build(BuildContext context) {
-    final bankState = ref.watch(homeProvider.select((value) => value.banksState));
+    final bankState =
+        ref.watch(homeProvider.select((value) => value.banksState));
     final banks = ref.watch(homeProvider.select((value) => value.banks));
-    final bankSelect = ref.watch(homeProvider.select((value) => value.bankSelect));
+    final bankSelect =
+        ref.watch(homeProvider.select((value) => value.bankSelect));
     final invoice = ref.watch(homeProvider.select((value) => value.invoice));
     bool flagInvoice = invoice != null && !invoice.isEmpty();
     var banksView = banks
-        .where((element) => (element.useInvoice == null || element.useInvoice == flagInvoice))
+        .where((element) =>
+            (element.useInvoice == null || element.useInvoice == flagInvoice))
         .toList();
 
     WidgetsBinding.instance.addPostFrameCallback(
@@ -774,7 +803,9 @@ class _PQCBankSelectWidgetNewState extends ConsumerState<PQCBankSelectAutoWidget
                           child: ListTile(
                             shape: AppConfig.shapeBorderMain,
                             onTap: () {
-                              ref.read(homeProvider.notifier).changeBankSelect(e);
+                              ref
+                                  .read(homeProvider.notifier)
+                                  .changeBankSelect(e);
                             },
                             title: e.title.isEmpty
                                 ? null
@@ -787,7 +818,8 @@ class _PQCBankSelectWidgetNewState extends ConsumerState<PQCBankSelectAutoWidget
                               children: [
                                 Text(
                                   e.bankName,
-                                  style: AppTextStyle.regular(color: Colors.black),
+                                  style:
+                                      AppTextStyle.regular(color: Colors.black),
                                 ),
                                 Text(
                                   e.bankNumber,

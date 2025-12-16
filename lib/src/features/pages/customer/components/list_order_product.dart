@@ -13,16 +13,258 @@ import 'package:aladdin_franchise/src/features/widgets/image.dart';
 
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
 
 import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+
+class ListOrderProductTest extends ConsumerStatefulWidget {
+  const ListOrderProductTest({
+    super.key,
+    this.paddingHorizontal = 16.0,
+  });
+
+  final double paddingHorizontal;
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _ListOrderProductTestState();
+}
+
+class _ListOrderProductTestState extends ConsumerState<ListOrderProductTest> {
+  // final int loopMultiplier = 1000;
+  late ScrollController _scrollCtrl;
+  late Timer _timer;
+  // final double itemHeight = 80;
+  // late int middleIndex;
+  // double scrollSpeed = 0.5; // pixel mỗi lần cuộn (càng nhỏ càng mượt)
+  // List<dynamic> data = [];
+
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
+
+  @override
+  void initState() {
+    super.initState();
+    // middleIndex = (data.length * loopMultiplier) ~/ 2;
+
+    // _scrollCtrl =
+    //     ScrollController(initialScrollOffset: middleIndex * itemHeight);
+
+    _scrollCtrl = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      startAutoScroll();
+    });
+  }
+
+  // @override
+  // void didUpdateWidget(covariant ListOrderProduct oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   if (widget.data != oldWidget.data ||
+  //       widget.allProducts != oldWidget.allProducts) {
+  //     setState(() {
+  //       data = widget.data;
+  //       // middleIndex = (data.length * loopMultiplier) ~/ 2;
+  //     });
+  //   }
+  // }
+
+  void startAutoScroll() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (time) {
+      var data = ref.read(customerPageProvider).products;
+      if (data.isEmpty) return;
+
+      // khác APOS Lite chút
+      // với APOS Lite thì là cuộn xuống dưới, còn đây sẽ là cuộn lên đầu tiên
+      int? changedProductId = ref.read(customerPageProvider).changedProductId;
+      ProductModel? product = data.firstWhereOrNull((e) {
+        if (changedProductId == null) return true;
+        return e.id == changedProductId;
+      });
+      int index = max(0, data.length - 1);
+      if (product != null) {
+        index = data.indexOf(product);
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (itemScrollController.isAttached && index != -1) {
+          itemScrollController.scrollTo(
+              index: index,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.linear);
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    _scrollCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var data =
+        ref.watch(customerPageProvider.select((value) => value.products));
+    if (data.isEmpty) return const SizedBox.shrink();
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (notification is UserScrollNotification) {
+          // ref
+          //     .read(customerPageProvider.notifier)
+          //     .onChangeAutoScrollProducts(false);
+        }
+
+        return true;
+      },
+      child: ScrollablePositionedList.separated(
+        itemScrollController: itemScrollController,
+        itemPositionsListener: itemPositionsListener,
+        itemCount: data.length,
+        padding: EdgeInsets.symmetric(
+            horizontal: widget.paddingHorizontal, vertical: 8),
+        itemBuilder: (context, index) {
+          var item = data[index];
+          // showLogs(item, flags: 'item');
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (item.numberSelecting - item.quantityPromotion > 0)
+                _ProductItem(
+                  item: item.copyWith(
+                      numberSelecting:
+                          item.numberSelecting - item.quantityPromotion),
+                ),
+              if (item.quantityPromotion > 0) ...[
+                const Gap(2),
+                _ProductItem(
+                  item: item,
+                  freeGiftCount: item.quantityPromotion,
+                ),
+              ],
+            ],
+          );
+        },
+        separatorBuilder: (context, index) => const Gap(2),
+      ),
+    );
+  }
+}
+
+class _ProductItem extends StatelessWidget {
+  const _ProductItem({
+    required this.item,
+    this.freeGiftCount = 0,
+  });
+
+  final ProductModel item;
+  final int freeGiftCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        children: [
+          AppImageCacheNetworkWidget(
+            imageUrl: item.image ?? '',
+            width: 50,
+            fit: BoxFit.cover,
+            height: 50,
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text.rich(
+                            TextSpan(
+                                text: (kDebugMode ? '${item.id} ' : '') +
+                                    item.getNameView(),
+                                children: [
+                                  if (freeGiftCount < 1)
+                                    TextSpan(
+                                      text:
+                                          ' (${AppUtils.formatCurrency(value: item.unitPrice)}/${item.unit})',
+                                      style: AppTextStyle.regular(
+                                        rawFontSize:
+                                            AppConfig.defaultRawTextSize - 1.5,
+                                        color: AppColors.redColor,
+                                      ),
+                                    )
+                                ]),
+                            style: AppTextStyle.bold(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          'x${max(0, freeGiftCount > 1 ? freeGiftCount : item.numberSelecting)}',
+                          style: AppTextStyle.bold(),
+                        ),
+                      ],
+                    ),
+                    if (freeGiftCount > 1)
+                      Text(
+                        S.current.complimentary_item,
+                        style: AppTextStyle.regular(
+                          rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                          color: const Color(0xff0168fe),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const VerticalDivider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
+            child: SizedBox(
+              width: TextUtil.getTextSize(text: '   1,000,000 đ').width,
+              child: Text(
+                AppUtils.formatCurrency(
+                  value: freeGiftCount > 1
+                      ? 0
+                      : (double.tryParse(item.unitPrice) ?? 0) *
+                          item.numberSelecting,
+                ),
+                style: AppTextStyle.bold(),
+                textAlign: TextAlign.end,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class ListOrderProduct extends ConsumerStatefulWidget {
   const ListOrderProduct({
@@ -41,7 +283,8 @@ class ListOrderProduct extends ConsumerStatefulWidget {
   final TextEditingController noteTextEditingController;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _ListOrderProductState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _ListOrderProductState();
 }
 
 class _ListOrderProductState extends ConsumerState<ListOrderProduct> {
@@ -54,7 +297,8 @@ class _ListOrderProductState extends ConsumerState<ListOrderProduct> {
   List<dynamic> data = [];
 
   final ItemScrollController itemScrollController = ItemScrollController();
-  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
 
   @override
   void initState() {
@@ -74,7 +318,8 @@ class _ListOrderProductState extends ConsumerState<ListOrderProduct> {
   @override
   void didUpdateWidget(covariant ListOrderProduct oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.data != oldWidget.data || widget.allProducts != oldWidget.allProducts) {
+    if (widget.data != oldWidget.data ||
+        widget.allProducts != oldWidget.allProducts) {
       setState(() {
         data = widget.data;
         // middleIndex = (data.length * loopMultiplier) ~/ 2;
@@ -85,7 +330,8 @@ class _ListOrderProductState extends ConsumerState<ListOrderProduct> {
   void startAutoScroll() {
     _timer = Timer.periodic(const Duration(seconds: 1), (time) {
       // if (_scrollCtrl.hasClients) {
-      bool autoScrollProduct = ref.read(customerPageProvider).autoScrollProducts;
+      bool autoScrollProduct =
+          ref.read(customerPageProvider).autoScrollProducts;
       int? changedProductId = ref.read(customerPageProvider).changedProductId;
       // if (!autoScrollProduct) return;
       dynamic product = data.firstWhereOrNull((e) {
@@ -115,7 +361,9 @@ class _ListOrderProductState extends ConsumerState<ListOrderProduct> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (itemScrollController.isAttached && index != -1) {
           itemScrollController.scrollTo(
-              index: index, duration: const Duration(milliseconds: 300), curve: Curves.linear);
+              index: index,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.linear);
         }
       });
       // _scrollCtrl.animateTo(_scrollCtrl.position.maxScrollExtent,
@@ -148,7 +396,8 @@ class _ListOrderProductState extends ConsumerState<ListOrderProduct> {
         itemPositionsListener: itemPositionsListener,
         // itemExtent: itemHeight,
         itemCount: data.length,
-        padding: EdgeInsets.symmetric(horizontal: widget.horizontalPadding, vertical: 8),
+        padding: EdgeInsets.symmetric(
+            horizontal: widget.horizontalPadding, vertical: 8),
         itemBuilder: (context, index) {
           if (data.isEmpty) return const SizedBox.shrink();
           var item = data[index];
@@ -176,8 +425,8 @@ class _ListOrderProductState extends ConsumerState<ListOrderProduct> {
             children: [
               if (item.quantity - item.quantityPromotion > 0)
                 _ProductItemWidget(
-                  item: (item as ProductCheckoutModel)
-                      .copyWith(quantity: item.quantity - item.quantityPromotion),
+                  item: (item as ProductCheckoutModel).copyWith(
+                      quantity: item.quantity - item.quantityPromotion),
                   image: img?.image ?? '',
                 ),
               if (item.quantityPromotion > 0) ...[
@@ -250,7 +499,8 @@ class _ProductItemWidget extends StatelessWidget {
                                     // AppConfig.formatCurrency(isCustomerPage: true).format(freeGiftCount > 0 ? 0.0 : double.tryParse(item.unitPrice))
                                     } / ${item.unit} )',
                                 style: AppTextStyle.regular(
-                                  rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                                  rawFontSize:
+                                      AppConfig.defaultRawTextSize - 1.5,
                                   color: AppColors.redColor,
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -293,7 +543,8 @@ class _ProductItemWidget extends StatelessWidget {
                     ? AppUtils.formatCurrency(value: 0.0)
                     // AppConfig.formatCurrency().format(0.0)
                     : AppUtils.formatCurrency(
-                        value: (double.tryParse(item.unitPrice) ?? 0) * item.quantity)
+                        value: (double.tryParse(item.unitPrice) ?? 0) *
+                            item.quantity)
                 // AppConfig.formatCurrency().format(
                 //     (double.tryParse(item.unitPrice) ?? 0) * item.quantity,
                 //   ),

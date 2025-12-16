@@ -25,10 +25,12 @@ _$ProductModelImpl _$$ProductModelImplFromJson(Map<String, dynamic> json) =>
       currencyCode: json['currency_code'] as String?,
       image: json['image'] as String?,
       description: json['description'] as String?,
+      numberSelecting: (json['number_selecting'] as num?)?.toInt() ?? 0,
       noteForProcessOrder: json['note_for_process_order'] as String?,
       tags: (json['tags'] as List<dynamic>?)
           ?.map((e) => (e as num).toInt())
           .toList(),
+      quantityPromotion: (json['quantity_promotion'] as num?)?.toInt() ?? 0,
       unitPriceDiscount: (json['unit_price_discount'] as num?)?.toInt() ?? 0,
       quantityDiscount: (json['quantity_discount'] as num?)?.toInt() ?? 0,
       withComboDiscount: (json['with_combo_discount'] as num?)?.toInt() ?? 0,
@@ -53,6 +55,11 @@ Map<String, dynamic> _$$ProductModelImplToJson(_$ProductModelImpl instance) =>
       'currency_code': instance.currencyCode,
       'image': instance.image,
       'description': instance.description,
+      'number_selecting': instance.numberSelecting,
       'note_for_process_order': instance.noteForProcessOrder,
       'tags': instance.tags,
+      'quantity_promotion': instance.quantityPromotion,
+      'unit_price_discount': instance.unitPriceDiscount,
+      'quantity_discount': instance.quantityDiscount,
+      'with_combo_discount': instance.withComboDiscount,
     };

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
+import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -24,25 +25,34 @@ Future<void> onLoadPaymentGateway({
   if (result.url != null) {
     final state = ref.read(homeProvider);
 
-    ref.read(homeProvider.notifier).syncInfoForCustomer(arguments: {
-      'all_products': state.products,
-      'order': state.orderSelect,
-      'products': state.productCheckout,
-      'customer': state.customer,
-      'data_bill': state.dataBill.price.copyWith(receivedAmount: 0),
-      'note': state.kitchenNote,
-      'payment_method': state.paymentMethodSelected,
-      'detail_payment': {
-        'bank_select': null,
-        'gateway_qr': result.qr,
-        // thời gian hết hạn payoo
-        'expiry_min': max(0, (((result.expiryMin ?? 0) * 60).toInt()) - 5),
+    ref.read(homeProvider.notifier).syncInfoCustomerPage(
+      method: WindowsMethodEnum.payoo,
+      arguments: {
+        'expire_time': max(0, (((result.expiryMin ?? 0) * 60).toInt()) - 5),
+        'url': result.qr,
       },
-    });
+    );
+
+    // ref.read(homeProvider.notifier).syncInfoForCustomer(arguments: {
+    //   'all_products': state.products,
+    //   'order': state.orderSelect,
+    //   'products': state.productCheckout,
+    //   'customer': state.customer,
+    //   'data_bill': state.dataBill.price.copyWith(receivedAmount: 0),
+    //   'note': state.kitchenNote,
+    //   'payment_method': state.paymentMethodSelected,
+    //   'detail_payment': {
+    //     'bank_select': null,
+    //     'gateway_qr': result.qr,
+    //     // thời gian hết hạn payoo
+    //     'expiry_min': max(0, (((result.expiryMin ?? 0) * 60).toInt()) - 5),
+    //   },
+    // });
     final paymentResult = await push(
       context,
       PaymentGatewayPage(
-        paymentMethod: ref.read(homeProvider.notifier).getPaymentMethodSelected()!,
+        paymentMethod:
+            ref.read(homeProvider.notifier).getPaymentMethodSelected()!,
         gatewayUrl: result.url!,
         qr: result.qr!,
         order: ref.read(homeProvider).orderSelect!,
@@ -56,21 +66,28 @@ Future<void> onLoadPaymentGateway({
             status: paymentResult.status,
             amount: paymentResult.amount,
           );
-      ref.read(homeProvider.notifier).syncInfoForCustomer(arguments: {
-        'all_products': state.products,
-        'order': state.orderSelect,
-        'products': state.productCheckout,
-        'customer': state.customer,
-        'data_bill': state.dataBill.price.copyWith(receivedAmount: 0),
-        'note': state.kitchenNote,
-        'payment_method': state.paymentMethodSelected,
-        'detail_payment': {
-          'bank_select': null,
-          'gateway_qr': '',
-          // thời gian hết hạn payoo
-          'expiry_min': 0,
+      ref.read(homeProvider.notifier).syncInfoCustomerPage(
+        method: WindowsMethodEnum.payoo,
+        arguments: {
+          'expire_time': 0,
+          'url': '',
         },
-      });
+      );
+      // ref.read(homeProvider.notifier).syncInfoForCustomer(arguments: {
+      //   'all_products': state.products,
+      //   'order': state.orderSelect,
+      //   'products': state.productCheckout,
+      //   'customer': state.customer,
+      //   'data_bill': state.dataBill.price.copyWith(receivedAmount: 0),
+      //   'note': state.kitchenNote,
+      //   'payment_method': state.paymentMethodSelected,
+      //   'detail_payment': {
+      //     'bank_select': null,
+      //     'gateway_qr': '',
+      //     // thời gian hết hạn payoo
+      //     'expiry_min': 0,
+      //   },
+      // });
       await showMessageDialog(
         context,
         message: S.current.paid_order,

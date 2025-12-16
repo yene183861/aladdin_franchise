@@ -25,7 +25,7 @@ class ReservationRepositoryImpl extends ReservationRepository {
       modelInterface: 'bool',
     );
     try {
-      if (kDebugMode) return true;
+      // if (kDebugMode) return true;
       var bodyRequest = jsonEncode(param.toJson());
       log = log.copyWith(request: bodyRequest);
       var response = await restClient.post(
@@ -48,7 +48,8 @@ class ReservationRepositoryImpl extends ReservationRepository {
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'syncReservation ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -71,22 +72,24 @@ class ReservationRepositoryImpl extends ReservationRepository {
     );
     try {
       await syncReservation(param);
-      if (kDebugMode) return [];
+      // if (kDebugMode) return [];
       var response = await restClient.get(Uri.parse(apiUrl));
       log = log.copyWith(
         response: [response.statusCode, response.body],
       );
       if (response.statusCode == NetworkCodeConfig.ok) {
         final bodyJson = jsonDecode(response.body);
-        final result =
-            (bodyJson['data']['data'] as List).map((e) => ReservationModel.fromJson(e)).toList();
+        final result = (bodyJson['data']['data'] as List)
+            .map((e) => ReservationModel.fromJson(e))
+            .toList();
         return result;
       } else {
         throw AppException.fromStatusCode(response.statusCode);
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'getReservations ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());
@@ -94,7 +97,8 @@ class ReservationRepositoryImpl extends ReservationRepository {
   }
 
   @override
-  Future<ReservationModel> updateReservation(dynamic id, ReservationModel model) async {
+  Future<ReservationModel> updateReservation(
+      dynamic id, ReservationModel model) async {
     final url = '${ApiConfig.updateReservation}/$id';
     var log = ErrorLogModel(
       action: AppLogAction.updateReservation,
@@ -118,7 +122,8 @@ class ReservationRepositoryImpl extends ReservationRepository {
       }
     } catch (ex) {
       showLog(ex.toString(), flags: 'updateReservation ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+      LogService.sendLogs(
+          log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
       if (ex is AppException) rethrow;
       throw AppException(message: ex.toString());

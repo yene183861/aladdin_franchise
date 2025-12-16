@@ -14,10 +14,13 @@ class AppUtils {
     return '${value.toInt()}${showSymbol ? '%' : ''}';
   }
 
-  static String formatCurrency({String symbol = '', String locale = 'vi', dynamic value}) {
+  static String formatCurrency(
+      {String symbol = '', String locale = 'vi', dynamic value}) {
     try {
       var data = convertToDouble(value);
-      return NumberFormat.currency(locale: locale, symbol: '').format(data ?? 0.0);
+      return NumberFormat.currency(locale: locale, symbol: '')
+          .format(data ?? 0.0)
+          .trim();
     } catch (ex) {
       return '';
     }

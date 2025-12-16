@@ -32,9 +32,7 @@ class ProductModel with _$ProductModel {
     String? description,
 
     /// dùng nội bộ
-    @Default(0)
-    @JsonKey(includeToJson: false, includeFromJson: false)
-    int numberSelecting,
+    @Default(0) int numberSelecting,
 
     ///
     /// dùng nội bộ
@@ -43,14 +41,12 @@ class ProductModel with _$ProductModel {
     // @Default(true) bool active,
 
     /// chỉ dùng nội bộ
-    @Default(0)
-    @JsonKey(includeToJson: false, includeFromJson: false)
-    int quantityPromotion,
+    @Default(0) int quantityPromotion,
 
     // for discount
-    @Default(0) @JsonKey(includeToJson: false) int unitPriceDiscount,
-    @Default(0) @JsonKey(includeToJson: false) int quantityDiscount,
-    @Default(0) @JsonKey(includeToJson: false) int withComboDiscount,
+    @Default(0) int unitPriceDiscount,
+    @Default(0) int quantityDiscount,
+    @Default(0) int withComboDiscount,
   }) = _ProductModel;
 
   factory ProductModel.fromJson(Map<String, dynamic> json) =>

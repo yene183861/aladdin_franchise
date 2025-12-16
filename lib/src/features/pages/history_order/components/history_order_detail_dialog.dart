@@ -19,6 +19,7 @@ import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
@@ -40,10 +41,12 @@ class HistoryOrderDetailDialog extends ConsumerStatefulWidget {
 
   final Future<bool> Function()? completeBillAction;
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _HistoryOrderDetailDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _HistoryOrderDetailDialogState();
 }
 
-class _HistoryOrderDetailDialogState extends ConsumerState<HistoryOrderDetailDialog> {
+class _HistoryOrderDetailDialogState
+    extends ConsumerState<HistoryOrderDetailDialog> {
   @override
   void initState() {
     super.initState();
@@ -93,8 +96,8 @@ class _HistoryOrderDetailDialogState extends ConsumerState<HistoryOrderDetailDia
         ),
         if (widget.item.status == OrderStatusEnum.waiting)
           Consumer(builder: (context, ref, child) {
-            var statusLoading =
-                ref.watch(historyOrderPageProvider.select((value) => value.getOrderDetailState));
+            var statusLoading = ref.watch(historyOrderPageProvider
+                .select((value) => value.getOrderDetailState));
             if (statusLoading.status == PageCommonState.success) {
               return ButtonSimpleWidget(
                 textAction: S.current.complete_order,
@@ -156,44 +159,40 @@ class _OrderDetailContentDialog extends ConsumerWidget {
   final colSettings = [
     {
       'title': '#',
-      'size': 70.0,
+      // 'size': 70.0,
       'align': Alignment.center,
       'percent': 7.0,
     },
     {
       'title': S.current.item,
-      'size': null,
+      // 'size': null,
       'align': Alignment.centerLeft,
       'percent': null,
     },
     {
       'title': S.current.code,
-      'size': 120.0,
       'align': Alignment.center,
       'percent': 10.0,
     },
     {
       'title': S.current.price,
-      'size': 250.0,
-      'align': Alignment.centerRight,
-      // 'title_align': Alignment.center,
+      'align': Alignment.centerLeft,
       'percent': 15.0,
     },
     {
       'title': S.current.quantity,
-      'size': 100.0,
       'align': Alignment.center,
       'percent': 7.0,
     },
     {
       'title': S.current.tax,
-      'size': 100.0,
+      // 'size': 100.0,
       'align': Alignment.center,
       'percent': 10.0,
     },
     {
       'title': S.current.total,
-      'size': 180.0,
+      // 'size': 180.0,
       'align': Alignment.centerRight,
       'percent': 15.0,
     },
@@ -221,22 +220,24 @@ class _OrderDetailContentDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var state = ref.watch(historyOrderPageProvider.select((value) => value.getOrderDetailState));
-    var vouchers = ref
-        .watch(historyOrderPageProvider.select((value) => value.dataBill?.print?.vouchers ?? []));
-    var orderLineItems =
-        ref.watch(historyOrderPageProvider.select((value) => value.dataBill?.orderLineItems ?? []));
+    var state = ref.watch(
+        historyOrderPageProvider.select((value) => value.getOrderDetailState));
+    var vouchers = ref.watch(historyOrderPageProvider
+        .select((value) => value.dataBill?.print?.vouchers ?? []));
+    var orderLineItems = ref.watch(historyOrderPageProvider
+        .select((value) => value.dataBill?.orderLineItems ?? []));
     List<ProductCheckoutHistoryModel> products = List.from(item.orderItems);
     List<ProductCheckoutHistoryModel> productsView = [];
 
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation =
+        AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool useTab = (isMobile || (isTablet && portraitOrientation));
 
-    var promotionVouchers =
-        vouchers.where((element) => element.isType == 5 && element.listUse.isNotEmpty);
+    var promotionVouchers = vouchers
+        .where((element) => element.isType == 5 && element.listUse.isNotEmpty);
     for (var e in products) {
       var quantity = e.count;
       var promotion = 0;
@@ -251,14 +252,15 @@ class _OrderDetailContentDialog extends ConsumerWidget {
         }
       }
       if (quantity - promotion > 0) {
-        var pc = orderLineItems.firstWhereOrNull((element) => element.id == e.id);
+        var pc =
+            orderLineItems.firstWhereOrNull((element) => element.id == e.id);
 
         productsView.add(
           e.copyWith(
             count: quantity - promotion,
             price: pc?.price ?? e.price ?? '0',
-            totalPrice:
-                (double.tryParse(pc?.price ?? e.price ?? 0.0) ?? 0) * (quantity - promotion),
+            totalPrice: (double.tryParse(pc?.price ?? e.price ?? 0.0) ?? 0) *
+                (quantity - promotion),
           ),
         );
       }
@@ -268,7 +270,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
               count: promotion,
               price: '0',
               totalPrice: 0.0,
-              name: '${e.name}${promotionName.trim().isNotEmpty ? '\n$promotionName' : ''}'),
+              name:
+                  '${e.name}${promotionName.trim().isNotEmpty ? '\n$promotionName' : ''}'),
         );
       }
     }
@@ -287,7 +290,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
       default:
     }
     return LayoutBuilder(builder: (context, constraint) {
-      // maxWidth = constraint.maxWidth;
+      maxWidth = constraint.maxWidth;
       return SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -304,7 +307,6 @@ class _OrderDetailContentDialog extends ConsumerWidget {
               title: S.current.list_dish,
             ),
             SizedBox(
-              width: double.maxFinite,
               height: (productsView.length + 1) * 50,
               child: TableView.builder(
                 pinnedRowCount: 1,
@@ -315,7 +317,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                   return _buildColumnSpan(index, maxWidth);
                 },
                 rowBuilder: _buildRowSpan,
-                cellBuilder: (context, vicinity) => _buildCell(context, vicinity, productsView),
+                cellBuilder: (context, vicinity) =>
+                    _buildCell(context, vicinity, productsView),
               ),
             ),
             if (item.orderItems.isEmpty)
@@ -350,7 +353,6 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                       title: S.current.list_voucher,
                     ),
                     SizedBox(
-                      width: double.maxFinite,
                       height: (dataView.length + 1) * 50,
                       child: TableView.builder(
                         pinnedRowCount: 1,
@@ -384,15 +386,21 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                     children: [
                       _PriceItem(
                         title: S.current.total_amount,
-                        value: double.tryParse((billInfo.totalPrice.toString())) ?? 0.0,
+                        value:
+                            double.tryParse((billInfo.totalPrice.toString())) ??
+                                0.0,
                       ),
                       _PriceItem(
                         title: S.current.tax_money,
-                        value: double.tryParse((billInfo.totalPriceTax.toString())) ?? 0.0,
+                        value: double.tryParse(
+                                (billInfo.totalPriceTax.toString())) ??
+                            0.0,
                       ),
                       _PriceItem(
                         title: S.current.discount_money,
-                        value: double.tryParse((billInfo.totalPriceVoucher.toString())) ?? 0.0,
+                        value: double.tryParse(
+                                (billInfo.totalPriceVoucher.toString())) ??
+                            0.0,
                       ),
                       _PriceItem(
                         title: S.current.totalAmountPayment,
@@ -405,8 +413,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
             }),
             Consumer(
               builder: (context, ref, child) {
-                var customer =
-                    ref.watch(historyOrderPageProvider.select((value) => value.customer));
+                var customer = ref.watch(
+                    historyOrderPageProvider.select((value) => value.customer));
                 if (customer == null) return const SizedBox.shrink();
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,10 +435,11 @@ class _OrderDetailContentDialog extends ConsumerWidget {
               builder: (context, ref, child) {
                 // var paymentMethods = ref.watch(historyOrderPageProvider
                 //     .select((value) => value.paymentMethods));
-                var paymentMethods = ref.watch(historyOrderPageProvider
-                        .select((value) => value.dataBill?.order.listPaymentMethod)) ??
+                var paymentMethods = ref.watch(historyOrderPageProvider.select(
+                        (value) => value.dataBill?.order.listPaymentMethod)) ??
                     [];
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status)) {
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
+                    .contains(item.status)) {
                   return const SizedBox.shrink();
                 }
                 if (paymentMethods.isEmpty) return const SizedBox.shrink();
@@ -463,7 +472,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                             enabled: false,
                             readOnly: true,
                             initialValue: AppUtils.formatCurrency(
-                                value: paymentMethods.first.paymentAmount.toDouble()),
+                                value: paymentMethods.first.paymentAmount
+                                    .toDouble()),
                             // AppConfig.formatCurrency()
                             //     .format(paymentMethods.first.paymentAmount.toDouble()),
                           ),
@@ -477,19 +487,22 @@ class _OrderDetailContentDialog extends ConsumerWidget {
             const Gap(12),
             Consumer(
               builder: (context, ref, child) {
-                var amountAdult = ref.watch(historyOrderPageProvider
-                        .select((value) => value.dataBill?.order.amountAdult)) ??
+                var amountAdult = ref.watch(historyOrderPageProvider.select(
+                        (value) => value.dataBill?.order.amountAdult)) ??
                     0;
-                var amountChildren = ref.watch(historyOrderPageProvider
-                        .select((value) => value.dataBill?.order.amountChildren)) ??
+                var amountChildren = ref.watch(historyOrderPageProvider.select(
+                        (value) => value.dataBill?.order.amountChildren)) ??
                     0;
-                var description = ref.watch(
-                        historyOrderPageProvider.select((value) => value.dataBill?.description)) ??
+                var description = ref.watch(historyOrderPageProvider
+                        .select((value) => value.dataBill?.description)) ??
                     '';
-                if (amountAdult <= 0 && amountChildren <= 0 && description.trim().isEmpty) {
+                if (amountAdult <= 0 &&
+                    amountChildren <= 0 &&
+                    description.trim().isEmpty) {
                   return const SizedBox.shrink();
                 }
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status)) {
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
+                    .contains(item.status)) {
                   return const SizedBox.shrink();
                 }
                 return Column(
@@ -512,7 +525,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                               label: S.current.number_of_people,
                               enabled: false,
                               readOnly: true,
-                              initialValue: (amountAdult + amountChildren).toString(),
+                              initialValue:
+                                  (amountAdult + amountChildren).toString(),
                             ),
                           ),
                         SizedBox(
@@ -557,15 +571,16 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                 var portrait = ref.watch(historyOrderPageProvider
                         .select((value) => value.dataBill?.order.portrait)) ??
                     '';
-                var customerPortraits =
-                    ref.watch(homeProvider.select((value) => value.customerPortraits));
+                var customerPortraits = ref.watch(
+                    homeProvider.select((value) => value.customerPortraits));
                 CustomerPortrait? portraitSelect = portrait.trim().isEmpty
                     ? null
                     : customerPortraits.firstWhereOrNull(
                         (element) => element.key.trim() == portrait.trim(),
                       );
 
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status)) {
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
+                    .contains(item.status)) {
                   return const SizedBox.shrink();
                 }
                 return Column(
@@ -595,10 +610,11 @@ class _OrderDetailContentDialog extends ConsumerWidget {
               builder: (context, ref, child) {
                 // var imageConfirms = ref.watch(historyOrderPageProvider
                 //     .select((value) => value.imageConfirms));
-                var imageConfirms = ref.watch(historyOrderPageProvider
-                        .select((value) => value.dataBill?.order.imageConfirms)) ??
+                var imageConfirms = ref.watch(historyOrderPageProvider.select(
+                        (value) => value.dataBill?.order.imageConfirms)) ??
                     [];
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status) ||
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
+                        .contains(item.status) ||
                     imageConfirms.isEmpty) {
                   return const SizedBox.shrink();
                 }
@@ -631,8 +647,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
     });
   }
 
-  TableViewCell _buildCell(
-      BuildContext context, TableVicinity vicinity, List<ProductCheckoutHistoryModel> products) {
+  TableViewCell _buildCell(BuildContext context, TableVicinity vicinity,
+      List<ProductCheckoutHistoryModel> products) {
     if (vicinity.yIndex == 0) {
       String colTitle = '';
       try {
@@ -648,7 +664,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
             ? titleAlign
             : colSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
         child: Padding(
-          padding: EdgeInsets.only(right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
+          padding: EdgeInsets.only(
+              right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
           child: Text(
             colTitle,
             maxLines: 2,
@@ -661,6 +678,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
     var xIndex = vicinity.xIndex;
     var i = products[vicinity.yIndex - 1];
     var tax = i.getTax() * 100;
+
     var contents = [
       vicinity.yIndex.toString(),
       i.getNameView(),
@@ -676,7 +694,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
         child: Align(
       alignment: colSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
       child: Padding(
-        padding: EdgeInsets.only(right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
+        padding: EdgeInsets.only(
+            right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
         child: Text(
           contents[xIndex],
           maxLines: 2,
@@ -687,34 +706,16 @@ class _OrderDetailContentDialog extends ConsumerWidget {
   }
 
   TableSpan _buildColumnSpan(int index, double maxWidth) {
-    // double? maxValue = colSettings[index]['size'] as double?;
-    // double remain = maxWidth;
-    // colSettings.forEach((e) {
-    //   var size = e['size'] as double?;
-    //   remain = remain - (size ?? 0);
-    // });
-
-    // return TableSpan(
-    //   extent: maxValue == null
-    //       ? FixedTableSpanExtent(remain)
-    //       : FixedTableSpanExtent(maxValue),
-    //       double width = max((percent ?? 0) / 100 * maxWidth, 60);
-
     double? percent = colSettings[index]['percent'] as double?;
-    double? size = colSettings[index]['size'] as double?;
-    double width = max((percent ?? 0) / 100 * maxWidth, 60);
+    double width = maxWidth * (percent ?? 0) / 100;
 
     double w = 0.0;
     for (var e in colSettings) {
-      bool isTax = colSettings[index]['is_tax'] as bool? ?? false;
-      w += isTax ? 100 : max((e['percent'] as double? ?? 0) / 100 * maxWidth, 60);
+      w += maxWidth * (e['percent'] as double? ?? 0) / 100;
     }
 
-    width = percent == null ? max(maxWidth - w, 120.0) : width;
-
+    width = percent == null ? maxWidth - w : width;
     return TableSpan(extent: FixedTableSpanExtent(width));
-
-    // );
   }
 
   TableSpan _buildRowSpan(int index) {
@@ -742,9 +743,11 @@ class _OrderDetailContentDialog extends ConsumerWidget {
       }
       return TableViewCell(
           child: Align(
-        alignment: couponSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
+        alignment:
+            couponSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
         child: Padding(
-          padding: EdgeInsets.only(right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
+          padding: EdgeInsets.only(
+              right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
           child: Text(
             colTitle,
             maxLines: 2,
@@ -767,7 +770,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
         child: Align(
       alignment: couponSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
       child: Padding(
-        padding: EdgeInsets.only(right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
+        padding: EdgeInsets.only(
+            right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
         child: Text(
           contents[xIndex],
           maxLines: 2,
@@ -778,16 +782,16 @@ class _OrderDetailContentDialog extends ConsumerWidget {
   }
 
   TableSpan _buildColumnSpanCoupon(int index, double maxWidth) {
-    double? maxValue = couponSettings[index]['size'] as double?;
-    double remain = maxWidth;
+    double? percent = couponSettings[index]['percent'] as double?;
+    double width = maxWidth * (percent ?? 0) / 100;
+
+    double w = 0.0;
     for (var e in couponSettings) {
-      var size = e['size'] as double?;
-      remain = remain - (size ?? 0);
+      w += maxWidth * (e['percent'] as double? ?? 0) / 100;
     }
 
-    return TableSpan(
-      extent: maxValue == null ? FixedTableSpanExtent(remain) : FixedTableSpanExtent(maxValue),
-    );
+    width = percent == null ? maxWidth - w : width;
+    return TableSpan(extent: FixedTableSpanExtent(width));
   }
 }
 

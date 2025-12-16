@@ -39,7 +39,6 @@ mixin _$ProductModel {
   String? get description => throw _privateConstructorUsedError;
 
   /// dùng nội bộ
-  @JsonKey(includeToJson: false, includeFromJson: false)
   int get numberSelecting => throw _privateConstructorUsedError;
 
   ///
@@ -48,14 +47,10 @@ mixin _$ProductModel {
   List<int>? get tags =>
       throw _privateConstructorUsedError; // @Default(true) bool active,
   /// chỉ dùng nội bộ
-  @JsonKey(includeToJson: false, includeFromJson: false)
   int get quantityPromotion =>
       throw _privateConstructorUsedError; // for discount
-  @JsonKey(includeToJson: false)
   int get unitPriceDiscount => throw _privateConstructorUsedError;
-  @JsonKey(includeToJson: false)
   int get quantityDiscount => throw _privateConstructorUsedError;
-  @JsonKey(includeToJson: false)
   int get withComboDiscount => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -88,15 +83,13 @@ abstract class $ProductModelCopyWith<$Res> {
       String? currencyCode,
       String? image,
       String? description,
-      @JsonKey(includeToJson: false, includeFromJson: false)
       int numberSelecting,
       String? noteForProcessOrder,
       List<int>? tags,
-      @JsonKey(includeToJson: false, includeFromJson: false)
       int quantityPromotion,
-      @JsonKey(includeToJson: false) int unitPriceDiscount,
-      @JsonKey(includeToJson: false) int quantityDiscount,
-      @JsonKey(includeToJson: false) int withComboDiscount});
+      int unitPriceDiscount,
+      int quantityDiscount,
+      int withComboDiscount});
 }
 
 /// @nodoc
@@ -264,15 +257,13 @@ abstract class _$$ProductModelImplCopyWith<$Res>
       String? currencyCode,
       String? image,
       String? description,
-      @JsonKey(includeToJson: false, includeFromJson: false)
       int numberSelecting,
       String? noteForProcessOrder,
       List<int>? tags,
-      @JsonKey(includeToJson: false, includeFromJson: false)
       int quantityPromotion,
-      @JsonKey(includeToJson: false) int unitPriceDiscount,
-      @JsonKey(includeToJson: false) int quantityDiscount,
-      @JsonKey(includeToJson: false) int withComboDiscount});
+      int unitPriceDiscount,
+      int quantityDiscount,
+      int withComboDiscount});
 }
 
 /// @nodoc
@@ -434,15 +425,13 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
       this.currencyCode,
       this.image,
       this.description,
-      @JsonKey(includeToJson: false, includeFromJson: false)
       this.numberSelecting = 0,
       this.noteForProcessOrder,
       final List<int>? tags,
-      @JsonKey(includeToJson: false, includeFromJson: false)
       this.quantityPromotion = 0,
-      @JsonKey(includeToJson: false) this.unitPriceDiscount = 0,
-      @JsonKey(includeToJson: false) this.quantityDiscount = 0,
-      @JsonKey(includeToJson: false) this.withComboDiscount = 0})
+      this.unitPriceDiscount = 0,
+      this.quantityDiscount = 0,
+      this.withComboDiscount = 0})
       : _language = language,
         _tags = tags,
         super._();
@@ -502,7 +491,7 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
 
   /// dùng nội bộ
   @override
-  @JsonKey(includeToJson: false, includeFromJson: false)
+  @JsonKey()
   final int numberSelecting;
 
   ///
@@ -522,17 +511,17 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
 // @Default(true) bool active,
   /// chỉ dùng nội bộ
   @override
-  @JsonKey(includeToJson: false, includeFromJson: false)
+  @JsonKey()
   final int quantityPromotion;
 // for discount
   @override
-  @JsonKey(includeToJson: false)
+  @JsonKey()
   final int unitPriceDiscount;
   @override
-  @JsonKey(includeToJson: false)
+  @JsonKey()
   final int quantityDiscount;
   @override
-  @JsonKey(includeToJson: false)
+  @JsonKey()
   final int withComboDiscount;
 
   @override
@@ -663,33 +652,30 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
 
 abstract class _ProductModel extends ProductModel {
   const factory _ProductModel(
-          {required final int id,
-          final int categoryId,
-          final String name,
-          final String nameEn,
-          final Map<String, dynamic> language,
-          final int? printerType,
-          final String? slug,
-          final int? menuNumber,
-          final String unitPrice,
-          final bool outOfStock,
-          final bool internalUse,
-          final String? discountPrice,
-          final String unit,
-          final double tax,
-          final String? currencyCode,
-          final String? image,
-          final String? description,
-          @JsonKey(includeToJson: false, includeFromJson: false)
-          final int numberSelecting,
-          final String? noteForProcessOrder,
-          final List<int>? tags,
-          @JsonKey(includeToJson: false, includeFromJson: false)
-          final int quantityPromotion,
-          @JsonKey(includeToJson: false) final int unitPriceDiscount,
-          @JsonKey(includeToJson: false) final int quantityDiscount,
-          @JsonKey(includeToJson: false) final int withComboDiscount}) =
-      _$ProductModelImpl;
+      {required final int id,
+      final int categoryId,
+      final String name,
+      final String nameEn,
+      final Map<String, dynamic> language,
+      final int? printerType,
+      final String? slug,
+      final int? menuNumber,
+      final String unitPrice,
+      final bool outOfStock,
+      final bool internalUse,
+      final String? discountPrice,
+      final String unit,
+      final double tax,
+      final String? currencyCode,
+      final String? image,
+      final String? description,
+      final int numberSelecting,
+      final String? noteForProcessOrder,
+      final List<int>? tags,
+      final int quantityPromotion,
+      final int unitPriceDiscount,
+      final int quantityDiscount,
+      final int withComboDiscount}) = _$ProductModelImpl;
   const _ProductModel._() : super._();
 
   factory _ProductModel.fromJson(Map<String, dynamic> json) =
@@ -732,7 +718,6 @@ abstract class _ProductModel extends ProductModel {
   @override
 
   /// dùng nội bộ
-  @JsonKey(includeToJson: false, includeFromJson: false)
   int get numberSelecting;
   @override
 
@@ -743,16 +728,12 @@ abstract class _ProductModel extends ProductModel {
   List<int>? get tags;
   @override // @Default(true) bool active,
   /// chỉ dùng nội bộ
-  @JsonKey(includeToJson: false, includeFromJson: false)
   int get quantityPromotion;
   @override // for discount
-  @JsonKey(includeToJson: false)
   int get unitPriceDiscount;
   @override
-  @JsonKey(includeToJson: false)
   int get quantityDiscount;
   @override
-  @JsonKey(includeToJson: false)
   int get withComboDiscount;
   @override
   @JsonKey(ignore: true)

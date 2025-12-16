@@ -7,6 +7,7 @@ import 'package:aladdin_franchise/src/core/network/responses/process_order.dart'
 import 'package:aladdin_franchise/src/core/network/responses/product_checkout.dart';
 import 'package:aladdin_franchise/src/models/comment.dart';
 import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
+import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_rating.dart';
 import 'package:aladdin_franchise/src/models/data_bill.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
@@ -87,7 +88,8 @@ abstract class OrderRepository {
     required OrderModel order,
     required List<IpOrderModel> infoPrint,
     required List<ProductCheckoutModel> products,
-    required List<PolicyResultModel> vouchers,
+    required List<CustomerPolicyModel> vouchers,
+    // required List<PolicyResultModel> vouchers,
     required dynamic createVouchers,
     CommentModel? comment,
     required int numberOfAdults,
