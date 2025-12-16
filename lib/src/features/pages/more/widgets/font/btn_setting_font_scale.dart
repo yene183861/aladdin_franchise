@@ -12,8 +12,10 @@ class ButtonSettingFontScale extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final useFontScale = ref.watch(appSettingProvider.select((value) => value.useFontScale));
-    final scale = ref.watch(appSettingProvider.select((value) => value.fontScale));
+    final useFontScale =
+        ref.watch(appSettingProvider.select((value) => value.useFontScale));
+    final scale =
+        ref.watch(appSettingProvider.select((value) => value.fontScale));
     bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
     if (!useFontScale) return const SizedBox.shrink();
     return Column(
@@ -22,6 +24,7 @@ class ButtonSettingFontScale extends ConsumerWidget {
         ListTile(
             title: Text(
               'Cỡ chữ hiện tại: ${(scale * 100).toInt()}%',
+              style: AppTextStyle.medium(),
             ),
             leading: const ResponsiveIconWidget(
               iconData: Icons.format_size_rounded,
@@ -41,7 +44,8 @@ class ButtonSettingFontScale extends ConsumerWidget {
                         onChanged: (v) async {
                           var setting = ref.read(appSettingProvider);
                           try {
-                            await LocalStorage.setAppSetting(setting.copyWith(fontScale: v));
+                            await LocalStorage.setAppSetting(
+                                setting.copyWith(fontScale: v));
 
                             ref.refresh(appSettingProvider);
                           } catch (ex) {

@@ -13,6 +13,7 @@ import 'package:aladdin_franchise/src/features/pages/more/widgets/button_check_p
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_logout.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/button_type_order.dart';
 import 'package:aladdin_franchise/src/features/pages/more/widgets/font/btn_use_font_scale.dart';
+import 'package:aladdin_franchise/src/features/pages/more/widgets/update/btn_update_data.dart';
 import 'package:aladdin_franchise/src/features/pages/settings/view.dart';
 import 'package:aladdin_franchise/src/features/pages/ticket/components/dialog.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
@@ -50,7 +51,7 @@ class HomeDrawerWidget extends ConsumerWidget {
                   ),
                   title: Text(
                     S.current.send_ticket,
-                    style: AppTextStyle.regular(),
+                    style: AppTextStyle.medium(),
                   ),
                 ),
                 const Divider(height: 1),
@@ -65,23 +66,28 @@ class HomeDrawerWidget extends ConsumerWidget {
                   ),
                   title: Text(
                     S.current.table_order_history,
-                    style: AppTextStyle.regular(),
+                    style: AppTextStyle.medium(),
                   ),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   onTap: () async {
                     pop(context);
-                    final res = await ref.read(homeProvider.notifier).closeShift(context);
+                    final res = await ref
+                        .read(homeProvider.notifier)
+                        .closeShift(context);
 
                     if (res != null) {
                       if (homeKey.currentContext != null) {
-                        showMessageDialog(homeKey.currentContext!, message: res);
+                        showMessageDialog(homeKey.currentContext!,
+                            message: res);
                         return;
                       }
                     }
                     if (context.mounted) {
-                      showDoneSnackBar(context: context, message: S.current.closing_shift_success);
+                      showDoneSnackBar(
+                          context: context,
+                          message: S.current.closing_shift_success);
                     }
                   },
                   leading: const ResponsiveIconWidget(
@@ -90,11 +96,12 @@ class HomeDrawerWidget extends ConsumerWidget {
                   ),
                   title: Text(
                     S.current.shift_closing,
-                    style: AppTextStyle.regular(),
+                    style: AppTextStyle.medium(),
                   ),
                 ),
                 const Divider(height: 1),
                 const ButtonTypeOrderWidget(canPop: true),
+                const ButtonUpdateData(),
                 const ButtonCheckPrinterWidget(canPop: true),
                 ListTile(
                   onTap: () {
@@ -106,7 +113,7 @@ class HomeDrawerWidget extends ConsumerWidget {
                   ),
                   title: Text(
                     'Cài đặt in',
-                    style: AppTextStyle.regular(),
+                    style: AppTextStyle.medium(),
                   ),
                 ),
                 const ButtonUseFontScale(),

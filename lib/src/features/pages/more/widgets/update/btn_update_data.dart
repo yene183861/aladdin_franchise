@@ -29,7 +29,10 @@ class ButtonUpdateData extends ConsumerWidget {
         iconData: CupertinoIcons.cloud_download,
         color: AppColors.secondColor,
       ),
-      title: Text(S.current.updateData),
+      title: Text(
+        S.current.updateData,
+        style: AppTextStyle.medium(),
+      ),
       subtitle: Text(S.current.updateDataInfo),
     );
   }

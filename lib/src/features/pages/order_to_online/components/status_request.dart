@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/icon_const.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
@@ -23,7 +24,9 @@ class StatusRequestWidget extends StatelessWidget {
       // width:
       //     6 * 2 + 20 + 4 + TextUtil.getTextSize(text: '60 phút trước', textStyle: textStyle).width,
       decoration: BoxDecoration(
-        color: acceptedStatus ? Colors.green.withOpacity(0.2) : Colors.grey.shade300,
+        color: acceptedStatus
+            ? Colors.green.withOpacity(0.2)
+            : Colors.grey.shade300,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -31,15 +34,20 @@ class StatusRequestWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SvgPicture.asset(
-            acceptedStatus ? AppIcons.icConfirmRequestO2O : AppIcons.icCancelRequestO2O,
+            acceptedStatus
+                ? Assets.iconsConfirmRequestO2O
+                : Assets.iconsCancelRequestO2O,
             width: 20,
             height: 20,
             colorFilter: ColorFilter.mode(
-                acceptedStatus ? Colors.green : Colors.grey.shade700, BlendMode.srcIn),
+                acceptedStatus ? Colors.green : Colors.grey.shade700,
+                BlendMode.srcIn),
           ),
           const Gap(4),
           Text(
-            acceptedStatus ? (acceptedTitle ?? S.current.accepted) : S.current.canceled,
+            acceptedStatus
+                ? (acceptedTitle ?? S.current.accepted)
+                : S.current.canceled,
             style: AppTextStyle.bold(
               color: acceptedStatus ? Colors.green : Colors.grey.shade700,
               rawFontSize: 12,

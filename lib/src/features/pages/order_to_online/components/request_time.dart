@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/src/configs/icon_const.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/o2o/request_order.dart';
@@ -70,16 +71,16 @@ class _RequestTimeWidgetState extends State<RequestTimeWidget> {
     switch (widget.requestProcessingStatus) {
       case RequestProcessingStatus.waiting:
         color = Colors.green;
-        icon = AppIcons.icTime;
+        icon = Assets.iconsTime;
         if (isLate) {
           color = Colors.red;
-          icon = AppIcons.icLateTime;
+          icon = Assets.iconsLateTime;
         }
         break;
 
       default:
         color = Colors.grey.shade800;
-        icon = AppIcons.icOnTime;
+        icon = Assets.iconsOnTime;
     }
     final textStyle = AppTextStyle.medium(color: color, rawFontSize: 12);
 

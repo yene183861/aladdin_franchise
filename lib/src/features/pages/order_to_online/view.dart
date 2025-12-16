@@ -162,7 +162,7 @@ class _BodyPage extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Image.asset(
-                      AppImages.imgProductEmpty,
+                      Assets.imagesProductEmpty,
                       width: isMobile ? 100 : 300,
                       height: isMobile ? 100 : 300,
                     ),

@@ -10,9 +10,13 @@ class ButtonUseFontScale extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final useFontScale = ref.watch(appSettingProvider.select((value) => value.useFontScale));
+    final useFontScale =
+        ref.watch(appSettingProvider.select((value) => value.useFontScale));
     return ListTile(
-      title: const Text('Sử dụng tăng giảm cỡ chữ'),
+      title: Text(
+        'Sử dụng tăng giảm cỡ chữ',
+        style: AppTextStyle.medium(),
+      ),
       leading: const ResponsiveIconWidget(
         iconData: Icons.format_size_rounded,
       ),
@@ -20,7 +24,8 @@ class ButtonUseFontScale extends ConsumerWidget {
         value: useFontScale,
         onChanged: (value) async {
           var setting = ref.read(appSettingProvider);
-          await LocalStorage.setAppSetting(setting.copyWith(useFontScale: !setting.useFontScale));
+          await LocalStorage.setAppSetting(
+              setting.copyWith(useFontScale: !setting.useFontScale));
           ref.refresh(appSettingProvider);
         },
       ),

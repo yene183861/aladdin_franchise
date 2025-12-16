@@ -35,7 +35,7 @@ class ButtonLogoutWidget extends ConsumerWidget {
       ),
       title: Text(
         S.current.logout,
-        style: AppTextStyle.regular(),
+        style: AppTextStyle.medium(),
       ),
     );
   }
