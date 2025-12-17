@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/core/network/app_exception.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/pages/settings/bill/use_bill_odd.dart';
 import 'package:aladdin_franchise/src/features/pages/settings/provider.dart';

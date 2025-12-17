@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:aladdin_franchise/src/core/network/app_exception.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/models/order_offline/order_offline.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';

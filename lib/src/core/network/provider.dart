@@ -1,25 +1,27 @@
 import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
-import 'package:aladdin_franchise/src/core/network/coupon/coupon_repo_impl.dart';
-import 'package:aladdin_franchise/src/core/network/coupon/coupon_repository.dart';
-import 'package:aladdin_franchise/src/core/network/customer/customer_repo_impl.dart';
-import 'package:aladdin_franchise/src/core/network/customer/customer_repository.dart';
-import 'package:aladdin_franchise/src/core/network/invoice/invoice_repo_impl.dart'
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
+import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
+import 'package:aladdin_franchise/src/core/network/repository/coupon/coupon_repo_impl.dart';
+import 'package:aladdin_franchise/src/core/network/repository/coupon/coupon_repository.dart';
+import 'package:aladdin_franchise/src/core/network/repository/customer/customer_repo_impl.dart';
+import 'package:aladdin_franchise/src/core/network/repository/customer/customer_repository.dart';
+import 'package:aladdin_franchise/src/core/network/repository/invoice/invoice_repo_impl.dart'
     show InvoiceRepositoryImpl;
-import 'package:aladdin_franchise/src/core/network/invoice/invoice_repository.dart';
-import 'package:aladdin_franchise/src/core/network/menu/menu_repo_impl.dart';
-import 'package:aladdin_franchise/src/core/network/menu/menu_repository.dart';
-import 'package:aladdin_franchise/src/core/network/o2o/o2o_repo_impl.dart';
-import 'package:aladdin_franchise/src/core/network/o2o/o2o_repository.dart';
-import 'package:aladdin_franchise/src/core/network/order/order_repo_impl.dart';
-import 'package:aladdin_franchise/src/core/network/order/order_repository.dart';
-import 'package:aladdin_franchise/src/core/network/responses/order.dart';
-import 'package:aladdin_franchise/src/core/network/responses/product_checkout.dart';
-import 'package:aladdin_franchise/src/core/network/restaurant/restaurant_repository.dart';
-import 'package:aladdin_franchise/src/core/network/restaurant/restaurant_repository_impl.dart';
-import 'package:aladdin_franchise/src/core/network/ticket/ticket_repo_impl.dart';
-import 'package:aladdin_franchise/src/core/network/ticket/ticket_repository.dart';
-import 'package:aladdin_franchise/src/core/network/user/user_repo_impl.dart';
-import 'package:aladdin_franchise/src/core/network/user/user_repository.dart';
+import 'package:aladdin_franchise/src/core/network/repository/invoice/invoice_repository.dart';
+import 'package:aladdin_franchise/src/core/network/repository/menu/menu_repo_impl.dart';
+import 'package:aladdin_franchise/src/core/network/repository/menu/menu_repository.dart';
+import 'package:aladdin_franchise/src/core/network/repository/o2o/o2o_repo_impl.dart';
+import 'package:aladdin_franchise/src/core/network/repository/o2o/o2o_repository.dart';
+import 'package:aladdin_franchise/src/core/network/repository/order/order_repo_impl.dart';
+import 'package:aladdin_franchise/src/core/network/repository/order/order_repository.dart';
+import 'package:aladdin_franchise/src/core/network/repository/responses/order.dart';
+import 'package:aladdin_franchise/src/core/network/repository/responses/product_checkout.dart';
+import 'package:aladdin_franchise/src/core/network/repository/restaurant/restaurant_repository.dart';
+import 'package:aladdin_franchise/src/core/network/repository/restaurant/restaurant_repository_impl.dart';
+import 'package:aladdin_franchise/src/core/network/repository/ticket/ticket_repo_impl.dart';
+import 'package:aladdin_franchise/src/core/network/repository/ticket/ticket_repository.dart';
+import 'package:aladdin_franchise/src/core/network/repository/user/user_repo_impl.dart';
+import 'package:aladdin_franchise/src/core/network/repository/user/user_repository.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/history_order/provider.dart';
@@ -38,77 +40,107 @@ import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'reservation/reservation_repo_impl.dart';
-import 'reservation/reservation_repository.dart';
+import 'repository/reservation/reservation_repo_impl.dart';
+import 'repository/reservation/reservation_repository.dart';
+
+import 'package:http/http.dart' as http;
 
 void _logEvent(dynamic event) {
   showLogs(event, flags: 'provider check');
 }
 
+final restClientProvider = Provider<RestClient>((ref) {
+  final httpClient = http.Client();
+  // Dispose đúng lúc
+  ref.onDispose(() {
+    httpClient.close();
+  });
+
+  return RestClient(httpClient);
+});
 final userRepositoryProvider = Provider<UserRepository>((ref) {
-  return UserRepositoryImpl();
+  final client = ref.read(restClientProvider);
+  return UserRepositoryImpl(client);
 });
 
 final menuRepositoryProvider = Provider<MenuRepository>((ref) {
-  return MenuRepositoryImpl();
+  final client = ref.read(restClientProvider);
+  return MenuRepositoryImpl(client);
 });
 
 final couponRepositoryProvider = Provider<CouponRepository>((ref) {
-  return CouponRepositoryImpl();
+  final client = ref.read(restClientProvider);
+  return CouponRepositoryImpl(client);
 });
 
 final customerRepositoryProvider = Provider<CustomerRepository>((ref) {
-  return CustomerRepositoryImpl();
+  final client = ref.read(restClientProvider);
+  return CustomerRepositoryImpl(client);
 });
 
 final orderRepositoryProvider = Provider<OrderRepository>((ref) {
-  return OrderRepositoryImpl();
+  final client = ref.read(restClientProvider);
+  return OrderRepositoryImpl(client);
 });
 
 final restaurantRepositoryProvider = Provider<RestaurantRepository>((ref) {
-  return RestaurantRepositoryImpl();
+  final client = ref.read(restClientProvider);
+  return RestaurantRepositoryImpl(client);
 });
 final ticketRepositoryProvider = Provider<TicketRepository>((ref) {
-  return TicketRepositoryImpl();
+  final client = ref.read(restClientProvider);
+  return TicketRepositoryImpl(client);
 });
 
 final reservationRepositoryProvider = Provider<ReservationRepository>((ref) {
-  return ReservationRepositoryImpl();
+  final client = ref.read(restClientProvider);
+  return ReservationRepositoryImpl(client);
 });
 
 final o2oRepositoryProvider = Provider<OrderToOnlineRepository>((ref) {
-  return OrderToOnlineRepositoryImpl();
+  final client = ref.read(restClientProvider);
+  return OrderToOnlineRepositoryImpl(client);
 });
 
 final invoiceRepositoryProvider = Provider<InvoiceRepository>((ref) {
-  return InvoiceRepositoryImpl();
+  final client = ref.read(restClientProvider);
+  return InvoiceRepositoryImpl(client);
 });
 
 /// lấy danh sách bàn của cả 2 kiểu
-final FutureProvider<({OrdersResponseData offline, OrdersResponseData? online})>
+final FutureProvider<({OrdersResponseData? offline, OrdersResponseData? online})>
     tablesAndOrdersProvider =
-    FutureProvider<({OrdersResponseData offline, OrdersResponseData? online})>(
-        (FutureProviderRef<({OrdersResponseData offline, OrdersResponseData? online})> ref) async {
-  showLogs(null, flags: 'tablesAndOrdersProvider');
-  final orderOffRepo = await ref.read(orderRepositoryProvider).getOrders(
-        typeOrder: TypeOrderEnum.offline.type,
-      );
-  OrdersResponse? orderOnRepo;
+    FutureProvider<({OrdersResponseData? offline, OrdersResponseData? online})>(
+        (FutureProviderRef<({OrdersResponseData? offline, OrdersResponseData? online})> ref) async {
+  OrdersResponseData? offData;
+  var resultOff =
+      await ref.read(orderRepositoryProvider).getOrders(typeOrder: TypeOrderEnum.offline.type);
+  if (resultOff.isSuccess) {
+    offData = resultOff.data;
+  } else {
+    throw AppException.fromMessage(resultOff.error);
+  }
+  OrdersResponseData? onData;
   if (ref.read(enableOrderOnlineProvider)) {
-    orderOnRepo =
+    var result =
         await ref.read(orderRepositoryProvider).getOrders(typeOrder: TypeOrderEnum.online.type);
+    if (result.isSuccess) {
+      onData = result.data;
+    } else {
+      throw AppException.fromMessage(result.error);
+    }
   }
 
   final orderCurrent = ref.read(homeProvider.notifier).getOrderSelect();
   // Kiểm tra nếu đơn bàn đang chọn không tồn tại nữa thì xoá bỏ trong home state
   if (orderCurrent != null) {
     OrderModel? orderCheck = (orderCurrent.typeOrder == TypeOrderEnum.offline.type
-            ? orderOffRepo.data.userUsing
-            : (orderOnRepo?.data.userUsing ?? []))
+            ? (offData?.userUsing ?? [])
+            : (onData?.userUsing ?? []))
         .firstWhereOrNull((e) => e.id == orderCurrent.id);
     ref.read(homeProvider.notifier).changeOrderSelect(orderCheck);
   }
-  return (offline: orderOffRepo.data, online: orderOnRepo?.data);
+  return (offline: offData, online: onData);
 });
 
 /// lấy danh sách bàn chưa sử dụng kèm bàn theo đơn đang chọn
@@ -121,52 +153,54 @@ final FutureProvider<
         (FutureProviderRef<
                 ({List<TableModel> notUse, List<TableModel> tableSelect, List<TableModel> using})>
             ref) async {
-  var orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
-  if (orderSelect != null) {
-    final orderRepo = await ref.read(orderRepositoryProvider).getOrders();
-    var result = List<TableModel>.from(orderRepo.data.notUse);
-    // các bàn đang sử dụng
-    final tableUse = orderRepo.data.using;
-    // các bàn mà đơn hàng này đang giữ
-    var tableSelectRaw = orderSelect.name.split(',');
-    List<TableModel> tableSelect = [];
-    for (var tableName in tableSelectRaw) {
-      var tableTemp = tableUse.firstWhere((element) => element.name == tableName);
-      tableSelect.add(tableTemp);
-    }
-    result.insertAll(0, tableSelect);
-    return (notUse: result, tableSelect: tableSelect, using: tableUse);
-    // return [tableSelect, result, orderRepo.data.using];
-  }
   return (notUse: <TableModel>[], tableSelect: <TableModel>[], using: <TableModel>[]);
-});
+//   var orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
+//   if (orderSelect != null) {
+//     final orderRepo = await ref.read(orderRepositoryProvider).getOrders();
+//     var result = List<TableModel>.from(orderRepo.data.notUse);
+//     // các bàn đang sử dụng
+//     final tableUse = orderRepo.data.using;
+//     // các bàn mà đơn hàng này đang giữ
+//     var tableSelectRaw = orderSelect.name.split(',');
+//     List<TableModel> tableSelect = [];
+//     for (var tableName in tableSelectRaw) {
+//       var tableTemp = tableUse.firstWhere((element) => element.name == tableName);
+//       tableSelect.add(tableTemp);
+//     }
+//     result.insertAll(0, tableSelect);
+//     return (notUse: result, tableSelect: tableSelect, using: tableUse);
+//     // return [tableSelect, result, orderRepo.data.using];
+//   }
+//   return (notUse: <TableModel>[], tableSelect: <TableModel>[], using: <TableModel>[]);
+// });
 
-/// lấy danh sách món đã gọi + lịch sử gọi món
-final FutureProvider<ProductCheckoutResponseData?> productCheckoutProvider =
-    FutureProvider<ProductCheckoutResponseData?>(
-        (FutureProviderRef<ProductCheckoutResponseData?> ref) async {
-  _logEvent('productCheckoutProvider');
-  final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
-  final productRepo = await ref.read(orderRepositoryProvider).getProductCheckout(orderSelect);
-  return productRepo.data?.first;
+// /// lấy danh sách món đã gọi + lịch sử gọi món
+// final FutureProvider<ProductCheckoutResponseData?> productCheckoutProvider =
+//     FutureProvider<ProductCheckoutResponseData?>(
+//         (FutureProviderRef<ProductCheckoutResponseData?> ref) async {
+//   _logEvent('productCheckoutProvider');
+//   final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
+//   final data = await ref.read(orderRepositoryProvider).getProductCheckout(orderSelect);
+//   return productRepo.data?.first;
 });
 
 /// Lấy tổng tiền hoá đơn hiện tại
 final FutureProvider<double> priceProductCheckoutProvider =
     FutureProvider<double>((FutureProviderRef<double> ref) async {
-  _logEvent('priceProductCheckoutProvider');
-  var productCheckout = ref.watch(productCheckoutProvider);
-  return productCheckout.when(data: (data) {
-    var totalOrder = 0.0;
-    for (var product in data?.orderItem ?? []) {
-      totalOrder += product.totalOrdered;
-    }
-    return totalOrder;
-  }, error: (_, __) {
-    throw Exception();
-  }, loading: () {
-    return 0;
-  });
+  return 0.0;
+  // _logEvent('priceProductCheckoutProvider');
+  // var productCheckout = ref.watch(productCheckoutProvider);
+  // return productCheckout.when(data: (data) {
+  //   var totalOrder = 0.0;
+  //   for (var product in data?.orderItem ?? []) {
+  //     totalOrder += product.totalOrdered;
+  //   }
+  //   return totalOrder;
+  // }, error: (_, __) {
+  //   throw Exception();
+  // }, loading: () {
+  //   return 0;
+  // });
 });
 
 /// Dành cho chuyển giao đơn bàn
@@ -178,31 +212,32 @@ final FutureProvider<double> priceProductCheckoutProvider =
 /// [[2]] - Danh sách waiter
 final FutureProvider<List<List<dynamic>>> tableAvailableAndWaiterTransferOrderProvider =
     FutureProvider<List<List<dynamic>>>((FutureProviderRef<List<List<dynamic>>> ref) async {
-  _logEvent('tableAvailableAndWaiterTransferOrderProvider');
-  var orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
-  if (orderSelect != null) {
-    final orderRepo = await ref.read(orderRepositoryProvider).getOrders();
-    var tableAvailable = List<TableModel>.from(orderRepo.data.notUse);
-    // các bàn đang sử dụng
-    final tableUse = orderRepo.data.using;
-    // các bàn mà đơn hàng này đang giữ
-    var tableSelectRaw = orderSelect.name.split(',');
-    List<TableModel> tableCurrentSelect = [];
-    for (var tableName in tableSelectRaw) {
-      var tableTemp = tableUse.firstWhere((element) => element.name == tableName);
-      tableCurrentSelect.add(tableTemp);
-    }
-    tableAvailable.insertAll(0, tableCurrentSelect);
-    return [tableCurrentSelect, tableAvailable, orderRepo.data.waiters ?? [], tableUse];
-  }
+  // _logEvent('tableAvailableAndWaiterTransferOrderProvider');
+  // var orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
+  // if (orderSelect != null) {
+  //   final orderRepo = await ref.read(orderRepositoryProvider).getOrders();
+  //   var tableAvailable = List<TableModel>.from(orderRepo.data.notUse);
+  //   // các bàn đang sử dụng
+  //   final tableUse = orderRepo.data.using;
+  //   // các bàn mà đơn hàng này đang giữ
+  //   var tableSelectRaw = orderSelect.name.split(',');
+  //   List<TableModel> tableCurrentSelect = [];
+  //   for (var tableName in tableSelectRaw) {
+  //     var tableTemp = tableUse.firstWhere((element) => element.name == tableName);
+  //     tableCurrentSelect.add(tableTemp);
+  //   }
+  //   tableAvailable.insertAll(0, tableCurrentSelect);
+  //   return [tableCurrentSelect, tableAvailable, orderRepo.data.waiters ?? [], tableUse];
+  // }
   return [];
 });
 
 /// Lấy danh sách phục vụ tại nhà hàng
 
 final waitersProvider = FutureProvider.autoDispose<List<WaiterModel>>((ref) async {
-  final orderRepo = await ref.read(orderRepositoryProvider).getOrders();
-  return orderRepo.data.waiters ?? [];
+  return [];
+  // final orderRepo = await ref.read(orderRepositoryProvider).getOrders();
+  // return orderRepo.data.waiters ?? [];
 });
 
 final historyOrderProvider = FutureProvider.autoDispose<List<HistoryOrderModel>>((ref) async {
@@ -223,7 +258,8 @@ final reservationsProvider = FutureProvider.autoDispose<List<ReservationModel>>(
   var useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
   if (!useReservation) return [];
   var result = await ref.read(reservationRepositoryProvider).getReservations();
-  return result;
+  if (!result.isSuccess) throw result.error;
+  return result.data ?? [];
 });
 
 final orderToOnlineProvider =

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:aladdin_franchise/src/core/network/responses/data_bill.dart';
+import 'package:aladdin_franchise/src/core/network/repository/responses/data_bill.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/models/atm_pos.dart';
 import 'package:aladdin_franchise/src/models/category.dart';

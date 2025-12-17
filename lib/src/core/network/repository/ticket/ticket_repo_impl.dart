@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
-import 'package:aladdin_franchise/src/core/network/app_exception.dart';
-import 'package:aladdin_franchise/src/core/network/rest_client.dart';
-import 'package:aladdin_franchise/src/core/network/ticket/ticket_repository.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
+import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
+import 'package:aladdin_franchise/src/core/network/repository/ticket/ticket_repository.dart';
 import 'package:aladdin_franchise/src/core/services/send_log/log_service.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
@@ -16,33 +16,37 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
 class TicketRepositoryImpl extends TicketRepository {
+  final RestClient _client;
+
+  TicketRepositoryImpl(this._client);
   @override
   Future<List<TicketModel>> getTickets() async {
-    var apiUrl = ApiConfig.getTickets;
-    var log = ErrorLogModel(
-      action: AppLogAction.getTickets,
-      api: apiUrl,
-      modelInterface: [TicketModel.getModelInterface()],
-    );
-    try {
-      var response = await restClient.get(Uri.parse(apiUrl));
-      log = log.copyWith(
-        response: [response.statusCode, response.body],
-      );
-      if (response.statusCode == NetworkCodeConfig.ok) {
-        var jsonRes = jsonDecode(response.body);
-        var result = (jsonRes['data'] as List).map((e) => TicketModel.fromJson(e)).toList();
-        return result;
-      } else {
-        throw AppException.fromStatusCode(response.statusCode);
-      }
-    } catch (ex) {
-      showLog(ex.toString(), flags: 'getTickets ex');
-      LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+    return [];
+    // var apiUrl = ApiConfig.getTickets;
+    // var log = ErrorLogModel(
+    //   action: AppLogAction.getTickets,
+    //   api: apiUrl,
+    //   modelInterface: [TicketModel.getModelInterface()],
+    // );
+    // try {
+    //   var response = await restClient.get(Uri.parse(apiUrl));
+    //   log = log.copyWith(
+    //     response: [response.statusCode, response.body],
+    //   );
+    //   if (response.statusCode == NetworkCodeConfig.ok) {
+    //     var jsonRes = jsonDecode(response.body);
+    //     var result = (jsonRes['data'] as List).map((e) => TicketModel.fromJson(e)).toList();
+    //     return result;
+    //   } else {
+    //     throw AppException.fromStatusCode(response.statusCode);
+    //   }
+    // } catch (ex) {
+    //   showLog(ex.toString(), flags: 'getTickets ex');
+    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
-      if (ex is AppException) rethrow;
-      throw AppException(message: ex.toString());
-    }
+    //   if (ex is AppException) rethrow;
+    //   throw AppException(message: ex.toString());
+    // }
   }
 
   @override

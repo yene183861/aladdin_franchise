@@ -317,8 +317,8 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                                                           skipError: false,
                                                           data: (data) {
                                                             allTables = [
-                                                              ...data.offline.notUse,
-                                                              ...data.offline.using
+                                                              ...(data.offline?.notUse ?? []),
+                                                              ...(data.offline?.using ?? [])
                                                             ];
                                                             return StatusEnum.success;
                                                           },

@@ -3,9 +3,9 @@ import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../models/customer/customer.dart';
-import '../../../models/customer/customer_policy.dart';
-import '../../../models/product_cancel.dart';
+import '../../../../models/customer/customer.dart';
+import '../../../../models/customer/customer_policy.dart';
+import '../../../../models/product_cancel.dart';
 
 part 'product_checkout.freezed.dart';
 part 'product_checkout.g.dart';

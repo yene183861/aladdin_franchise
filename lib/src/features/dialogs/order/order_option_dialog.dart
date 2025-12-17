@@ -103,7 +103,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
       skipError: false,
       skipLoadingOnRefresh: false,
       data: (data) {
-        var orderOffline = List<OrderModel>.from(data.offline.userUsing);
+        var orderOffline = List<OrderModel>.from(data.offline?.userUsing ?? []);
         var orderOnline = List<OrderModel>.from(data.online?.userUsing ?? []);
         var typeOrder = convertToTypeOrderEnum(orderSelect?.typeOrder ?? kTypeOrder);
         if (orderOffline.isEmpty && orderOnline.isEmpty && !widget.showOtherOption) {

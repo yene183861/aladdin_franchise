@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
-import 'package:aladdin_franchise/src/core/network/o2o/o2o_repository.dart';
-import 'package:aladdin_franchise/src/core/network/order/order_repository.dart';
+import 'package:aladdin_franchise/src/core/network/repository/o2o/o2o_repository.dart';
+import 'package:aladdin_franchise/src/core/network/repository/order/order_repository.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -22,8 +22,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'state.dart';
 
-final orderToOnlinePageProvider = StateNotifierProvider.autoDispose<
-    OrderToOnlinePageNotifier, OrderToOnlineState>((ref) {
+final orderToOnlinePageProvider =
+    StateNotifierProvider.autoDispose<OrderToOnlinePageNotifier, OrderToOnlineState>((ref) {
   return OrderToOnlinePageNotifier(
     ref,
     ref.read(orderRepositoryProvider),
@@ -32,8 +32,7 @@ final orderToOnlinePageProvider = StateNotifierProvider.autoDispose<
 });
 
 class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
-  OrderToOnlinePageNotifier(
-      this.ref, this._orderRepository, this._o2oRepository)
+  OrderToOnlinePageNotifier(this.ref, this._orderRepository, this._o2oRepository)
       : super(const OrderToOnlineState()) {
     // _listenChangeO2OData();
   }
@@ -54,8 +53,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     state = state.copyWith(showLoadingGetData: value);
   }
 
-  Future<void> _getO2OData(
-      Map<O2OOrderModel, Map<String, dynamic>> value) async {
+  Future<void> _getO2OData(Map<O2OOrderModel, Map<String, dynamic>> value) async {
     try {
       Map<O2OOrderModel, Map<String, dynamic>> orders = Map.from(value);
       // sort theo value
@@ -101,12 +99,9 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
       await Hive.openBox('notifications');
     }
     var box = Hive.box<NotificationModel>('notifications');
-    List<NotificationModel> data = box.values
-        .toList()
-        .where((e) => e.orderId == orderSelect.orderId)
-        .toList();
-    data.sort((a, b) => (b.datetime ?? DateTime.now())
-        .compareTo((a.datetime ?? DateTime.now())));
+    List<NotificationModel> data =
+        box.values.toList().where((e) => e.orderId == orderSelect.orderId).toList();
+    data.sort((a, b) => (b.datetime ?? DateTime.now()).compareTo((a.datetime ?? DateTime.now())));
     if (mounted) {
       data = data.where((e) => e.title.trim().isNotEmpty).toList();
       state = state.copyWith(notifications: data);
@@ -117,8 +112,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     state = state.copyWith(
       orderSelect: order,
       chatMessages: [],
-      getChatMessageState:
-          const PageState(status: PageCommonState.success, messageError: ''),
+      getChatMessageState: const PageState(status: PageCommonState.success, messageError: ''),
       notifications: [],
     );
 
@@ -141,9 +135,8 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
       if (orderSelect == null || requestSelect == null || listItem.isEmpty) {
         return;
       }
-      state = state.copyWith(
-          event: OrderToOnlineEvent.loading,
-          message: S.current.canceling_request);
+      state =
+          state.copyWith(event: OrderToOnlineEvent.loading, message: S.current.canceling_request);
       await onChangeLockedOrderId(orderId: orderSelect.orderId);
 
       await _o2oRepository.processO2oRequest(
@@ -166,8 +159,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     }
   }
 
-  void acceptRequest(
-      {required String note, required BuildContext context}) async {
+  void acceptRequest({required String note, required BuildContext context}) async {
     try {
       var orderSelect = state.orderSelect;
       var requestSelect = state.requestSelect;
@@ -191,8 +183,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
           name: orderSelect.tableName,
           misc: '{"order_code":"${orderSelect.orderCode}"}');
 
-      state = state.copyWith(
-          event: OrderToOnlineEvent.loading, message: S.current.processing);
+      state = state.copyWith(event: OrderToOnlineEvent.loading, message: S.current.processing);
       var listPrinters = await _orderRepository.getIpPrinterOrder(
         order,
         printerCheck.toList(),
@@ -302,13 +293,11 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     }
   }
 
-  Future<void> onChangeLockedOrderId(
-      {required int orderId, bool showLoading = false}) async {
+  Future<void> onChangeLockedOrderId({required int orderId, bool showLoading = false}) async {
     try {
       if (showLoading) {
         state = state.copyWith(
-            event: OrderToOnlineEvent.loading,
-            message: 'Đang kiểm tra trạng thái đơn bàn');
+            event: OrderToOnlineEvent.loading, message: 'Đang kiểm tra trạng thái đơn bàn');
       }
       final locked = await _checkStatusLockOrder(orderId);
       if (showLoading) {
@@ -336,8 +325,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
 
   Future<bool> _checkStatusLockOrder(int orderId) async {
     try {
-      final locked =
-          await _orderRepository.checkStatusLockOrder(orderId: orderId);
+      final locked = await _orderRepository.checkStatusLockOrder(orderId: orderId);
       return locked;
     } catch (ex) {
       return false;
@@ -366,8 +354,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
         itemsSelect.removeAt(index);
       }
     }
-    state =
-        state.copyWith(requestSelect: request.copyWith(listItem: itemsSelect));
+    state = state.copyWith(requestSelect: request.copyWith(listItem: itemsSelect));
   }
 
   void changeNoteRestaurantItem({
@@ -412,8 +399,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
         Map<O2OOrderModel, Map<String, dynamic>>.from(state.orders);
     List<O2OOrderModel> tables = List<O2OOrderModel>.from(state.orders.keys);
     if (orders.isEmpty) return;
-    var orderChange =
-        tables.firstWhereOrNull((e) => e.orderId == model.orderId);
+    var orderChange = tables.firstWhereOrNull((e) => e.orderId == model.orderId);
     if (orderChange == null) return;
     var orderSelect = state.orderSelect;
     final status = model.orderStatus;
@@ -473,8 +459,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     if (orderSelect == null || state.printerSelect == null) return;
     try {
       state = state.copyWith(
-          event: OrderToOnlineEvent.loading,
-          message: '${S.current.printing_QR_code}...');
+          event: OrderToOnlineEvent.loading, message: '${S.current.printing_QR_code}...');
 
       var message = await AppPrinterUtils.instance.printQrO2O(
           order: OrderModel(
@@ -500,56 +485,58 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
   }
 
   Future<String?> getPrinters() async {
-    var orderSelect = state.orderSelect;
-    if (orderSelect == null) {
-      state = state.copyWith(printers: [], printerSelect: null);
-      return null;
-    }
-    try {
-      state = state.copyWith(
-          event: OrderToOnlineEvent.loading,
-          message: S.current.retrieving_printer_list);
-      final result = await _orderRepository.getIpPrinterOrder(
-          OrderModel(
-              id: orderSelect.orderId,
-              name: orderSelect.tableName,
-              qrO2O: orderSelect.qrOrderO2o,
-              misc: '{"order_code": "${orderSelect.orderCode}"}'),
-          [0, 1, 3]);
-      var printers = result.printers;
-      var error = result.error;
-      if (error != null) {
-        throw error;
-      }
+    return null;
+    // var orderSelect = state.orderSelect;
+    // if (orderSelect == null) {
+    //   state = state.copyWith(printers: [], printerSelect: null);
+    //   return null;
+    // }
+    // try {
+    //   state = state.copyWith(
+    //       event: OrderToOnlineEvent.loading, message: S.current.retrieving_printer_list);
+    //   final result = await _orderRepository.getIpPrinterOrder(
+    //       OrderModel(
+    //           id: orderSelect.orderId,
+    //           name: orderSelect.tableName,
+    //           qrO2O: orderSelect.qrOrderO2o,
+    //           misc: '{"order_code": "${orderSelect.orderCode}"}'),
+    //       [0, 1, 3]);
+    //   if (!result.isSuccess) {
+    //     throw result.error;
+    //   }
+    //   var printers = result.data?.printers ?? [];
+    //   var error = result.data?.error;
+    //   if (error != null) {
+    //     throw error;
+    //   }
 
-      Set<String> listIps = {};
-      final listPrinters = <IpOrderModel>[];
+    //   Set<String> listIps = {};
+    //   final listPrinters = <IpOrderModel>[];
 
-      for (final item in printers) {
-        final key = '${item.ip}:${item.port}';
-        if (!listIps.contains(key)) {
-          listIps.add(key);
-          listPrinters.add(item);
-        }
-      }
-      state = state.copyWith(
-        event: OrderToOnlineEvent.success,
-        message: '',
-        printers: listPrinters,
-        printerSelect: printers.isNotEmpty ? printers.first : null,
-      );
-      return null;
-    } catch (ex) {
-      state = state.copyWith(
-        event: OrderToOnlineEvent.error,
-        message: ex.toString(),
-      );
-      return ex.toString();
-    }
+    //   for (final item in printers) {
+    //     final key = '${item.ip}:${item.port}';
+    //     if (!listIps.contains(key)) {
+    //       listIps.add(key);
+    //       listPrinters.add(item);
+    //     }
+    //   }
+    //   state = state.copyWith(
+    //     event: OrderToOnlineEvent.success,
+    //     message: '',
+    //     printers: listPrinters,
+    //     printerSelect: printers.isNotEmpty ? printers.first : null,
+    //   );
+    //   return null;
+    // } catch (ex) {
+    //   state = state.copyWith(
+    //     event: OrderToOnlineEvent.error,
+    //     message: ex.toString(),
+    //   );
+    //   return ex.toString();
+    // }
   }
 
-  void selectAllRequestItem(
-      {required RequestOrderModel request, required bool selectAll}) {
+  void selectAllRequestItem({required RequestOrderModel request, required bool selectAll}) {
     if (!selectAll) {
       state = state.copyWith(requestSelect: null);
       return;
@@ -568,8 +555,8 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     if (restaurantId == null || orderSelect == null) {
       state = state.copyWith(
         chatMessages: [],
-        getChatMessageState: PageState(
-            status: PageCommonState.success, messageError: S.current.no_data),
+        getChatMessageState:
+            PageState(status: PageCommonState.success, messageError: S.current.no_data),
       );
       return;
     }
@@ -580,14 +567,12 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
         orderId: orderSelect.orderId,
       );
       state = state.copyWith(
-        getChatMessageState:
-            const PageState(status: PageCommonState.success, messageError: ''),
+        getChatMessageState: const PageState(status: PageCommonState.success, messageError: ''),
         chatMessages: messages,
       );
     } catch (ex) {
       state = state.copyWith(
-        getChatMessageState: PageState(
-            status: PageCommonState.error, messageError: ex.toString()),
+        getChatMessageState: PageState(status: PageCommonState.error, messageError: ex.toString()),
       );
     }
   }

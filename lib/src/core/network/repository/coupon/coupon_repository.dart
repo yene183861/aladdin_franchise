@@ -1,5 +1,6 @@
-import 'package:aladdin_franchise/src/core/network/responses/apply_policy.dart';
-import 'package:aladdin_franchise/src/core/network/responses/coupon.dart';
+import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
+import 'package:aladdin_franchise/src/core/network/repository/responses/apply_policy.dart';
+import 'package:aladdin_franchise/src/core/network/repository/responses/coupon.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/models/customer/customer.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
@@ -8,7 +9,7 @@ import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:aladdin_franchise/src/data/response/add_voucher.dart';
 
 abstract class CouponRepository {
-  Future<CouponResponse> addCoupon({
+  Future<ApiResult<CouponResponseData>> addCoupon({
     required String code,
     required OrderModel order,
     required double totalOrder,

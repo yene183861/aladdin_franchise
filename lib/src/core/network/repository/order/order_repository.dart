@@ -1,10 +1,11 @@
 import 'dart:io';
 
-import 'package:aladdin_franchise/src/core/network/responses/create_order.dart';
-import 'package:aladdin_franchise/src/core/network/responses/data_bill.dart';
-import 'package:aladdin_franchise/src/core/network/responses/order.dart';
-import 'package:aladdin_franchise/src/core/network/responses/process_order.dart';
-import 'package:aladdin_franchise/src/core/network/responses/product_checkout.dart';
+import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
+import 'package:aladdin_franchise/src/core/network/repository/responses/create_order.dart';
+import 'package:aladdin_franchise/src/core/network/repository/responses/data_bill.dart';
+import 'package:aladdin_franchise/src/core/network/repository/responses/order.dart';
+import 'package:aladdin_franchise/src/core/network/repository/responses/process_order.dart';
+import 'package:aladdin_franchise/src/core/network/repository/responses/product_checkout.dart';
 import 'package:aladdin_franchise/src/models/comment.dart';
 import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
@@ -23,12 +24,12 @@ abstract class OrderRepository {
   /// Success => OrdersRepository
   ///
   /// Error => Exception
-  Future<OrdersResponse> getOrders({int? typeOrder});
+  Future<ApiResult<OrdersResponseData>> getOrders({int? typeOrder});
 
   /// Success => CreateOrderRepository
   ///
   /// Error => Exception
-  Future<CreateOrderResponse> createAndUpdateOrder(
+  Future<ApiResult<CreateOrderResponse>> createAndUpdateOrder(
     List<int> tableIds,
     OrderModel order, {
     WaiterModel? waiterTransfer,
@@ -41,7 +42,7 @@ abstract class OrderRepository {
   /// Success => ProcessOrderRepository
   ///
   /// Error => Exception
-  Future<ProcessOrderResponse> processOrder({
+  Future<ApiResult<ProcessOrderResponse>> processOrder({
     required OrderModel order,
     required List<ProductModel> products,
     required double total,
@@ -53,21 +54,21 @@ abstract class OrderRepository {
   /// Success => ProductCheckoutRepository
   ///
   /// Error => Exception
-  Future<ProductCheckoutResponse> getProductCheckout(OrderModel? order);
+  Future<ApiResult<ProductCheckoutResponse>> getProductCheckout(OrderModel? order);
 
   /// Huỷ món
   ///
   /// Success => ProcessOrderRepository
   ///
   /// Error => Exception
-  Future<ProcessOrderResponse> cancelDishInOrder({
+  Future<ApiResult<ProcessOrderResponse>> cancelDishInOrder({
     required OrderModel order,
     required List<ProductCheckoutModel> products,
     required double total,
     required String contentCancelOrder,
   });
 // cả thêm, cả huỷ
-  Future<ProcessOrderResponse> updateProductInOrder({
+  Future<ApiResult<ProcessOrderResponse>> updateProductInOrder({
     required OrderModel order,
     required List<ProductModel> products,
     required double total,
@@ -78,8 +79,7 @@ abstract class OrderRepository {
   /// Lấy ip máy in
   ///
   /// printerType: [1] in thanh toán, [2,4] in bếp & bar
-  Future<({List<IpOrderModel> printers, String? error})> getIpPrinterOrder(
-      OrderModel order, List<int> printerType);
+  Future<ApiResult<List<IpOrderModel>>> getIpPrinterOrder(OrderModel order, List<int> printerType);
 
   /// Success => true
   ///
@@ -126,11 +126,7 @@ abstract class OrderRepository {
   /// Kiểm tra tình trạng máy in dành cho gọi món, huỷ món
   ///
   /// Kiểm tra tuỳ thuộc vào loại món ăn được yêu cầu (printerCheck)
-  ///
-  /// @param printerCheck: Loại máy in cần check tuỳ theo danh sách món ăn
-  ///
-  /// @return (List<IpOrderModel>, String? error)
-  Future<({List<IpOrderModel> printers, String? error})> getPrinterBill(
+  Future<ApiResult<List<IpOrderModel>>> getPrinterBill(
     OrderModel order,
     List<int> printerCheck,
   );

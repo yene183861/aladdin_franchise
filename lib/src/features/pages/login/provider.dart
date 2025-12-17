@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
-import 'package:aladdin_franchise/src/core/network/user/user_repository.dart';
+import 'package:aladdin_franchise/src/core/network/repository/responses/login.dart';
+import 'package:aladdin_franchise/src/core/network/repository/user/user_repository.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/pages/login/state.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final loginProvider =
-    StateNotifierProvider.autoDispose<LoginNotifier, LoginState>((ref) {
+final loginProvider = StateNotifierProvider.autoDispose<LoginNotifier, LoginState>((ref) {
   return LoginNotifier(ref.read(userRepositoryProvider));
 });
 
@@ -59,8 +59,11 @@ class LoginNotifier extends StateNotifier<LoginState> {
           email: state.email,
           password: state.password,
         );
-        await LocalStorage.setToken(loginRepo.token ?? "");
-        await LocalStorage.setDataLogin(loginRepo);
+        if (!loginRepo.isSuccess) {
+          throw loginRepo.error;
+        }
+        await LocalStorage.setToken(loginRepo.data?.token ?? "");
+        await LocalStorage.setDataLogin(loginRepo.data ?? const LoginResponse(status: 200));
         await AppHelper.initTokenAndTypeOrder(refreshTypeOrder: true);
         state = state.copyWith(event: LoginEvent.success);
       }

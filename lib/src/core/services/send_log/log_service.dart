@@ -3,6 +3,7 @@ import 'package:aladdin_franchise/src/models/error_log.dart';
 
 class LogService {
   static void sendLogs(ErrorLogModel errorLog) async {
+    // return;
     try {
       DiscordService.sendLogs(errorLog);
     } catch (ex) {

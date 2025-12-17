@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/enums/enums.dart';
-import 'package:aladdin_franchise/src/core/network/app_exception.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/features/pages/update_app/windows/state.dart';
 import 'package:aladdin_franchise/src/models/app_update.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';

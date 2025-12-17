@@ -3,9 +3,9 @@ import 'dart:math';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
-import 'package:aladdin_franchise/src/core/network/order/order_repository.dart';
+import 'package:aladdin_franchise/src/core/network/repository/order/order_repository.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
-import 'package:aladdin_franchise/src/core/network/responses/data_bill.dart';
+import 'package:aladdin_franchise/src/core/network/repository/responses/data_bill.dart';
 import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
@@ -167,7 +167,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                       var res = await ref
                           .read(menuRepositoryProvider)
                           .getProduct(null, typeOrder: AppConfig.orderOnlineValue);
-                      onlineProducts = List<ProductModel>.from(res.data.data ?? []);
+                      onlineProducts = List<ProductModel>.from(res.data ?? []);
                       break;
                     } catch (ex) {
                       retry++;
@@ -192,7 +192,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                       var res = await ref
                           .read(menuRepositoryProvider)
                           .getProduct(null, typeOrder: AppConfig.orderOfflineValue);
-                      offlineProducts = List<ProductModel>.from(res.data.data ?? []);
+                      offlineProducts = List<ProductModel>.from(res.data ?? []);
                       break;
                     } catch (ex) {
                       retry++;
@@ -598,40 +598,40 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
   }
 
   void getDetailOrder() async {
-    try {
-      state = state.copyWith(getOrderDetailState: const PageState(status: PageCommonState.loading));
-      var historyOrderSelect = state.historyOrderSelect;
-      if (historyOrderSelect == null) {
-        return;
-      }
-      var order = OrderModel(
-        id: historyOrderSelect.orderExcute.order,
-        // orderCode: historyOrderSelect.orderCode,
-        name: historyOrderSelect.tableName,
-        misc: '{"order_code":"${historyOrderSelect.orderCode}","remarks":""}',
-      );
-      final result = await _orderRepository.getProductCheckout(order);
-      final productCheckout = result.data?.first.orderItem ?? [];
-      final coupons = result.coupons;
-      final customer = result.customer;
-      DataBillResponse? billInfo;
-      if (historyOrderSelect.orderItems.isNotEmpty) {
-        billInfo = await _orderRepository.getDataBill(orderId: order.id);
-      }
-      state = state.copyWith(
-        getOrderDetailState: const PageState(status: PageCommonState.success),
-        customer: customer,
-        coupons: coupons ?? [],
-        productCheckout: productCheckout,
-        dataBill: billInfo?.data,
-      );
-    } catch (ex) {
-      state = state.copyWith(
-          getOrderDetailState: PageState(
-        status: PageCommonState.error,
-        messageError: ex.toString(),
-      ));
-    }
+    // try {
+    //   state = state.copyWith(getOrderDetailState: const PageState(status: PageCommonState.loading));
+    //   var historyOrderSelect = state.historyOrderSelect;
+    //   if (historyOrderSelect == null) {
+    //     return;
+    //   }
+    //   var order = OrderModel(
+    //     id: historyOrderSelect.orderExcute.order,
+    //     // orderCode: historyOrderSelect.orderCode,
+    //     name: historyOrderSelect.tableName,
+    //     misc: '{"order_code":"${historyOrderSelect.orderCode}","remarks":""}',
+    //   );
+    //   final result = await _orderRepository.getProductCheckout(order);
+    //   final productCheckout = result.data?.first.orderItem ?? [];
+    //   final coupons = result.coupons;
+    //   final customer = result.customer;
+    //   DataBillResponse? billInfo;
+    //   if (historyOrderSelect.orderItems.isNotEmpty) {
+    //     billInfo = await _orderRepository.getDataBill(orderId: order.id);
+    //   }
+    //   state = state.copyWith(
+    //     getOrderDetailState: const PageState(status: PageCommonState.success),
+    //     customer: customer,
+    //     coupons: coupons ?? [],
+    //     productCheckout: productCheckout,
+    //     dataBill: billInfo?.data,
+    //   );
+    // } catch (ex) {
+    //   state = state.copyWith(
+    //       getOrderDetailState: PageState(
+    //     status: PageCommonState.error,
+    //     messageError: ex.toString(),
+    //   ));
+    // }
   }
 
   void onChangeDate({

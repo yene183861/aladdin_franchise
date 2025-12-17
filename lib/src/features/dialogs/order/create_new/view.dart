@@ -129,7 +129,7 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
           skipLoadingOnRefresh: false,
           data: (data) {
             bool enableOnline = ref.read(enableOrderOnlineProvider);
-            var notUseOffline = List<TableModel>.from(data.offline.notUse);
+            var notUseOffline = List<TableModel>.from(data.offline?.notUse ?? []);
             var notUseOnline = List<TableModel>.from(data.online?.notUse ?? []);
             if ([...notUseOffline, ...notUseOnline].isEmpty) {
               return Center(

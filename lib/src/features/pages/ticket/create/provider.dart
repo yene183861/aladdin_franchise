@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:aladdin_franchise/src/core/network/provider.dart';
-import 'package:aladdin_franchise/src/core/network/ticket/ticket_repository.dart';
+import 'package:aladdin_franchise/src/core/network/repository/ticket/ticket_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../utils/app_log.dart';

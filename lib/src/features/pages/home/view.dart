@@ -992,39 +992,40 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
   }
 
   void _showChatPopup(WidgetRef ref) {
-    ref.read(homeProvider.notifier).getO2OChatMessages();
-    if (_overlayEntry != null) {
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-    }
-    RenderBox renderBox = _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
-    var buttonPosition = renderBox.localToGlobal(Offset.zero);
-    var buttonSize = renderBox.size;
+    return;
+    // ref.read(homeProvider.notifier).getO2OChatMessages();
+    // if (_overlayEntry != null) {
+    //   _overlayEntry?.remove();
+    //   _overlayEntry = null;
+    // }
+    // RenderBox renderBox = _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
+    // var buttonPosition = renderBox.localToGlobal(Offset.zero);
+    // var buttonSize = renderBox.size;
 
-    var mediaQuery = MediaQuery.of(context);
-    var screenSize = mediaQuery.size;
-    double screenWidth = screenSize.width;
-    double screenHeight = screenSize.height;
+    // var mediaQuery = MediaQuery.of(context);
+    // var screenSize = mediaQuery.size;
+    // double screenWidth = screenSize.width;
+    // double screenHeight = screenSize.height;
 
-    double popupLeft = buttonPosition.dx;
-    double popupTop = buttonPosition.dy + buttonSize.height / 2;
+    // double popupLeft = buttonPosition.dx;
+    // double popupTop = buttonPosition.dy + buttonSize.height / 2;
 
-    if (popupTop + chatPopupHeight > screenHeight) {
-      popupTop = buttonPosition.dy - chatPopupHeight;
-    }
-    if (popupTop < 0) {
-      popupTop = 10;
-    }
+    // if (popupTop + chatPopupHeight > screenHeight) {
+    //   popupTop = buttonPosition.dy - chatPopupHeight;
+    // }
+    // if (popupTop < 0) {
+    //   popupTop = 10;
+    // }
 
-    if (buttonPosition.dx + buttonSize.width / 2 + 5 < screenWidth / 2) {
-      popupLeft = buttonPosition.dx + buttonSize.width + 5;
-    } else {
-      popupLeft = buttonPosition.dx - chatPopupWidth - 5;
-    }
+    // if (buttonPosition.dx + buttonSize.width / 2 + 5 < screenWidth / 2) {
+    //   popupLeft = buttonPosition.dx + buttonSize.width + 5;
+    // } else {
+    //   popupLeft = buttonPosition.dx - chatPopupWidth - 5;
+    // }
 
-    _overlayEntry = _createOverlayEntry(popupLeft, popupTop);
+    // _overlayEntry = _createOverlayEntry(popupLeft, popupTop);
 
-    Overlay.of(context).insert(_overlayEntry!);
+    // Overlay.of(context).insert(_overlayEntry!);
   }
 
   OverlayEntry _createOverlayEntry(double left, double top) {
@@ -1093,20 +1094,20 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                           ],
                         ),
                       ),
-                      Expanded(
-                        child: Consumer(builder: (context, ref, child) {
-                          final getChatMessageState =
-                              ref.watch(homeProvider.select((value) => value.getChatMessageState));
+                      // Expanded(
+                      //   child: Consumer(builder: (context, ref, child) {
+                      //     final getChatMessageState =
+                      //         ref.watch(homeProvider.select((value) => value.getChatMessageState));
 
-                          final chatMessages =
-                              ref.watch(homeProvider.select((value) => value.chatMessages));
-                          return ListChatWidget(
-                            state: getChatMessageState,
-                            chatMessages: chatMessages,
-                            onReload: ref.read(homeProvider.notifier).getO2OChatMessages,
-                          );
-                        }),
-                      ),
+                      //     final chatMessages =
+                      //         ref.watch(homeProvider.select((value) => value.chatMessages));
+                      //     return ListChatWidget(
+                      //       state: getChatMessageState,
+                      //       chatMessages: chatMessages,
+                      //       onReload: ref.read(homeProvider.notifier).getO2OChatMessages,
+                      //     );
+                      //   }),
+                      // ),
                     ],
                   ),
                 ),
@@ -1872,41 +1873,41 @@ class _OrderPageTestState extends ConsumerState<OrderPageTest> with WidgetsBindi
     );
   }
 
-  void _showChatPopup(WidgetRef ref) {
-    ref.read(homeProvider.notifier).getO2OChatMessages();
-    if (_overlayEntry != null) {
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-    }
-    RenderBox renderBox = _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
-    var buttonPosition = renderBox.localToGlobal(Offset.zero);
-    var buttonSize = renderBox.size;
+  // void _showChatPopup(WidgetRef ref) {
+  //   ref.read(homeProvider.notifier).getO2OChatMessages();
+  //   if (_overlayEntry != null) {
+  //     _overlayEntry?.remove();
+  //     _overlayEntry = null;
+  //   }
+  //   RenderBox renderBox = _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
+  //   var buttonPosition = renderBox.localToGlobal(Offset.zero);
+  //   var buttonSize = renderBox.size;
 
-    var mediaQuery = MediaQuery.of(context);
-    var screenSize = mediaQuery.size;
-    double screenWidth = screenSize.width;
-    double screenHeight = screenSize.height;
+  //   var mediaQuery = MediaQuery.of(context);
+  //   var screenSize = mediaQuery.size;
+  //   double screenWidth = screenSize.width;
+  //   double screenHeight = screenSize.height;
 
-    double popupLeft = buttonPosition.dx;
-    double popupTop = buttonPosition.dy + buttonSize.height / 2;
+  //   double popupLeft = buttonPosition.dx;
+  //   double popupTop = buttonPosition.dy + buttonSize.height / 2;
 
-    if (popupTop + chatPopupHeight > screenHeight) {
-      popupTop = buttonPosition.dy - chatPopupHeight;
-    }
-    if (popupTop < 0) {
-      popupTop = 10;
-    }
+  //   if (popupTop + chatPopupHeight > screenHeight) {
+  //     popupTop = buttonPosition.dy - chatPopupHeight;
+  //   }
+  //   if (popupTop < 0) {
+  //     popupTop = 10;
+  //   }
 
-    if (buttonPosition.dx + buttonSize.width / 2 + 5 < screenWidth / 2) {
-      popupLeft = buttonPosition.dx + buttonSize.width + 5;
-    } else {
-      popupLeft = buttonPosition.dx - chatPopupWidth - 5;
-    }
+  //   if (buttonPosition.dx + buttonSize.width / 2 + 5 < screenWidth / 2) {
+  //     popupLeft = buttonPosition.dx + buttonSize.width + 5;
+  //   } else {
+  //     popupLeft = buttonPosition.dx - chatPopupWidth - 5;
+  //   }
 
-    _overlayEntry = _createOverlayEntry(popupLeft, popupTop);
+  //   _overlayEntry = _createOverlayEntry(popupLeft, popupTop);
 
-    Overlay.of(context).insert(_overlayEntry!);
-  }
+  //   Overlay.of(context).insert(_overlayEntry!);
+  // }
 
   OverlayEntry _createOverlayEntry(double left, double top) {
     bool canReply = true;
@@ -1974,20 +1975,20 @@ class _OrderPageTestState extends ConsumerState<OrderPageTest> with WidgetsBindi
                           ],
                         ),
                       ),
-                      Expanded(
-                        child: Consumer(builder: (context, ref, child) {
-                          final getChatMessageState =
-                              ref.watch(homeProvider.select((value) => value.getChatMessageState));
+                      // Expanded(
+                      //   child: Consumer(builder: (context, ref, child) {
+                      //     final getChatMessageState =
+                      //         ref.watch(homeProvider.select((value) => value.getChatMessageState));
 
-                          final chatMessages =
-                              ref.watch(homeProvider.select((value) => value.chatMessages));
-                          return ListChatWidget(
-                            state: getChatMessageState,
-                            chatMessages: chatMessages,
-                            onReload: ref.read(homeProvider.notifier).getO2OChatMessages,
-                          );
-                        }),
-                      ),
+                      //     final chatMessages =
+                      //         ref.watch(homeProvider.select((value) => value.chatMessages));
+                      //     return ListChatWidget(
+                      //       state: getChatMessageState,
+                      //       chatMessages: chatMessages,
+                      //       onReload: ref.read(homeProvider.notifier).getO2OChatMessages,
+                      //     );
+                      //   }),
+                      // ),
                     ],
                   ),
                 ),

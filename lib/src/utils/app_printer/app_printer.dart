@@ -1,5 +1,5 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
-import 'package:aladdin_franchise/src/core/network/app_exception.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';

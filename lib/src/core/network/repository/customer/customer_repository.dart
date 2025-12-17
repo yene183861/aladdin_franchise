@@ -1,4 +1,4 @@
-import 'package:aladdin_franchise/src/core/network/responses/customer.dart';
+import 'package:aladdin_franchise/src/core/network/repository/responses/customer.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 
 abstract class CustomerRepository {

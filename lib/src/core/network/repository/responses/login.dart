@@ -5,7 +5,7 @@ import 'package:aladdin_franchise/src/models/restaurant.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../models/user.dart';
+import '../../../../models/user.dart';
 
 part 'login.freezed.dart';
 part 'login.g.dart';

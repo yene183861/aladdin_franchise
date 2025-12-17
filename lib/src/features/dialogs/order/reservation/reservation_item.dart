@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
@@ -24,8 +25,7 @@ class ReservationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isMobile = Device.screenType == ScreenType.mobile;
-    bool isPortraitOrientation =
-        MediaQuery.of(context).orientation == Orientation.portrait;
+    bool isPortraitOrientation = MediaQuery.of(context).orientation == Orientation.portrait;
     bool isSmallDevice = isMobile && isPortraitOrientation;
 
     double iconSize = isSmallDevice ? 18 : 24;
@@ -37,9 +37,7 @@ class ReservationItem extends StatelessWidget {
         color: Colors.grey[200],
         shape: RoundedRectangleBorder(
           borderRadius: AppConfig.borderRadiusMain,
-          side: selected
-              ? BorderSide(color: AppColors.mainColor)
-              : BorderSide.none,
+          side: selected ? BorderSide(color: AppColors.mainColor) : BorderSide.none,
         ),
         child: Stack(
           children: [
