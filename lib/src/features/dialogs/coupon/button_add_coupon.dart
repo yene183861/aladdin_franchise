@@ -3,6 +3,7 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/features/dialogs/coupon_info.dart';
+import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
@@ -39,8 +40,7 @@ class _CouponDialogContent extends ConsumerStatefulWidget {
   const _CouponDialogContent();
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __CouponDialogContentState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __CouponDialogContentState();
 }
 
 class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
@@ -66,10 +66,7 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
       },
     );
 
-    _amountTextChange
-        .debounceTime(const Duration(milliseconds: 0))
-        .distinct()
-        .listen((event) {
+    _amountTextChange.debounceTime(const Duration(milliseconds: 0)).distinct().listen((event) {
       _formatValue(event);
     });
   }
@@ -81,9 +78,8 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
     final number = int.tryParse(digits);
     if (number == null) return;
 
-    final formatted = type == DiscountTypeEnum.percent
-        ? digits
-        : AppUtils.formatCurrency(value: number);
+    final formatted =
+        type == DiscountTypeEnum.percent ? digits : AppUtils.formatCurrency(value: number);
     _isFormatting = true;
     _percentCtrl.value = TextEditingValue(
       text: formatted,
@@ -104,19 +100,17 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
     if (_formKey.currentState?.validate() ?? false) {
       var percent = _percentCtrl.text.trim();
       if (percent.isEmpty) return;
-      ({String? error, String? titleError}) result =
-          (error: null, titleError: null);
-      result = await ref
-          .read(homeProvider.notifier)
-          .addVoucher(value: _getAmountValue());
+      ({String? error, String? titleError}) result = (error: null, titleError: null);
+      result = await ref.read(homeProvider.notifier).addVoucher(value: _getAmountValue());
       if (result.error != null) {
         if (context.mounted) {
-          await showErrorDialog(
-            context,
-            message: result.error.toString(),
-            isNotifier: true,
-            titleMessage: result.titleError,
-          );
+          showMessageDialog(context, message: result.error.toString());
+          // await showErrorDialog(
+          //   context,
+          //   message: result.error.toString(),
+          //   isNotifier: true,
+          //   titleMessage: result.titleError,
+          // );
         }
       } else {
         _percentCtrl.text = '';
@@ -125,9 +119,7 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
   }
 
   double _getAmountValue() {
-    return double.tryParse(
-            _percentCtrl.text.trim().replaceAll(removeChars, '')) ??
-        0.0;
+    return double.tryParse(_percentCtrl.text.trim().replaceAll(removeChars, '')) ?? 0.0;
   }
 
   @override
@@ -151,8 +143,8 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                   const Text('Giảm giá VND/%'),
                   const Gap(4),
                   Consumer(builder: (context, ref, child) {
-                    var discoundType = ref.watch(homeProvider
-                        .select((value) => value.discountTypeSelect));
+                    var discoundType =
+                        ref.watch(homeProvider.select((value) => value.discountTypeSelect));
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -163,13 +155,10 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                             onEditingComplete: () async {
                               FocusManager.instance.primaryFocus?.unfocus();
                             },
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly
-                            ],
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                             validator: (value) {
                               var data = AppUtils.convertToDouble(value) ?? 0;
-                              if (discoundType == DiscountTypeEnum.percent &&
-                                  data > 100.0) {
+                              if (discoundType == DiscountTypeEnum.percent && data > 100.0) {
                                 return 'Phần trăm không được vượt quá 100%';
                               }
                               return null;
@@ -185,12 +174,8 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                             buildTextDisplay: (data) => data.title,
                             onChangeData: (p0) {
                               if (p0.isEmpty) return;
-                              ref
-                                  .read(homeProvider.notifier)
-                                  .onChangeDiscountTypeSelect(p0.first);
-                              final digits = _percentCtrl.text
-                                  .trim()
-                                  .replaceAll(removeChars, '');
+                              ref.read(homeProvider.notifier).onChangeDiscountTypeSelect(p0.first);
+                              final digits = _percentCtrl.text.trim().replaceAll(removeChars, '');
                               _formatValue(digits);
                             },
                           ),
@@ -198,13 +183,10 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                         const Gap(8),
                         Consumer(
                           builder: (context, ref, child) {
-                            var coupons = ref.watch(
-                                homeProvider.select((value) => value.coupons));
+                            var coupons = ref.watch(homeProvider.select((value) => value.coupons));
                             return AppButtonWidget(
                               textAction: S.current.confirm,
-                              color: coupons.isNotEmpty
-                                  ? Colors.grey
-                                  : AppColors.secondColor,
+                              color: coupons.isNotEmpty ? Colors.grey : AppColors.secondColor,
                               onTap: coupons.isNotEmpty ? null : _addCoupon,
                             );
                           },
@@ -232,8 +214,7 @@ class _NumberOfAdultsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     var coupons = ref.watch(homeProvider.select((value) => value.coupons));
     bool enable = !lockedOrder;
     String message = '';
@@ -278,8 +259,7 @@ class NumberOfAdultsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     bool enable = !lockedOrder;
     return SpinBox(
       min: 1,
@@ -288,9 +268,7 @@ class NumberOfAdultsWidget extends ConsumerWidget {
       incrementIcon: const Icon(CupertinoIcons.add),
       decrementIcon: const Icon(CupertinoIcons.minus),
       textStyle: AppTextStyle.bold(),
-      value: ref
-          .watch(homeProvider.select((value) => value.numberOfAdults))
-          .toDouble(),
+      value: ref.watch(homeProvider.select((value) => value.numberOfAdults)).toDouble(),
       decoration: InputDecoration(
         label: Text.rich(
           TextSpan(
@@ -307,8 +285,7 @@ class NumberOfAdultsWidget extends ConsumerWidget {
         ),
       ),
       onChanged: (value) {
-        bool requiredApplyPolicy =
-            ref.read(homeProvider).coupons.any((e) => e.isType == 6);
+        bool requiredApplyPolicy = ref.read(homeProvider).coupons.any((e) => e.isType == 6);
         ref.read(homeProvider.notifier).changeNumberOfPeople(
               numberOfAdults: value.toInt(),
               //  applyPolicy: false

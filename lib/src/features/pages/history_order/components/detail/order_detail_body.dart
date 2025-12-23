@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
-import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/pages/history_order/provider.dart';
@@ -11,19 +9,13 @@ import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
-import 'package:aladdin_franchise/src/features/widgets/custom_checkbox.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
-import 'package:aladdin_franchise/src/utils/navigator.dart';
-import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -31,130 +23,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 
-class HistoryOrderDetailDialog extends ConsumerStatefulWidget {
-  const HistoryOrderDetailDialog({
-    super.key,
-    required this.item,
-    this.completeBillAction,
-  });
-  final HistoryOrderModel item;
-
-  final Future<bool> Function()? completeBillAction;
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _HistoryOrderDetailDialogState();
-}
-
-class _HistoryOrderDetailDialogState
-    extends ConsumerState<HistoryOrderDetailDialog> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.read(historyOrderPageProvider.notifier).getDetailOrder();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
-    return AlertDialog(
-      title: Row(
-        children: [
-          Expanded(
-            child: Text(
-              '${S.current.order_detail} - ${widget.item.orderCode}',
-              // style: AppTextStyle.bold(rawFontSize: 15),
-              style: Theme.of(context).dialogTheme.titleTextStyle,
-            ),
-          ),
-          const Gap(20),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-            decoration: BoxDecoration(
-              borderRadius: AppConfig.borderRadiusMain,
-              color: widget.item.status.color,
-            ),
-            child: Text(
-              widget.item.status.title,
-              style: AppTextStyle.regular(color: AppColors.white),
-            ),
-          )
-        ],
-      ),
-      content: SizedBox(
-        width: size.width,
-        height: size.height,
-        child: _OrderDetailContentDialog(item: widget.item),
-      ),
-      actions: [
-        ButtonCancelWidget(
-          textAction: S.current.close,
-          onPressed: () {
-            pop(context);
-          },
-        ),
-        if (widget.item.status == OrderStatusEnum.waiting)
-          Consumer(builder: (context, ref, child) {
-            var statusLoading = ref.watch(historyOrderPageProvider
-                .select((value) => value.getOrderDetailState));
-            if (statusLoading.status == PageCommonState.success) {
-              return ButtonSimpleWidget(
-                textAction: S.current.complete_order,
-                onPressed: () async {
-                  var refreshData = await widget.completeBillAction?.call();
-                  if (refreshData ?? false) {
-                    pop(context);
-                  }
-                },
-              );
-            }
-            return const SizedBox.shrink();
-          })
-      ],
-    );
-  }
-}
-
-class ConfirmPrintBillAgain extends StatefulWidget {
-  const ConfirmPrintBillAgain({super.key, this.onSave});
-
-  final Function(bool)? onSave;
-
-  @override
-  State<ConfirmPrintBillAgain> createState() => _ConfirmPrintBillAgainState();
-}
-
-class _ConfirmPrintBillAgainState extends State<ConfirmPrintBillAgain> {
-  bool printNumberOfPeople = false;
-
-  void _onChange() {
-    setState(() {
-      printNumberOfPeople = !printNumberOfPeople;
-      widget.onSave?.call(printNumberOfPeople);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _onChange,
-      child: Row(
-        children: [
-          CustomCheckbox(
-            onChange: _onChange,
-            checked: printNumberOfPeople,
-          ),
-          const Gap(4),
-          Flexible(child: Text(S.current.print_number_of_people)),
-        ],
-      ),
-    );
-  }
-}
-
-class _OrderDetailContentDialog extends ConsumerWidget {
-  _OrderDetailContentDialog({super.key, required this.item});
+class HistoryOrderDetailBody extends ConsumerWidget {
+  HistoryOrderDetailBody({super.key, required this.item});
   final HistoryOrderModel item;
   final colSettings = [
     {
@@ -220,24 +90,16 @@ class _OrderDetailContentDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var state = ref.watch(
-        historyOrderPageProvider.select((value) => value.getOrderDetailState));
-    var vouchers = ref.watch(historyOrderPageProvider
-        .select((value) => value.dataBill?.print?.vouchers ?? []));
-    var orderLineItems = ref.watch(historyOrderPageProvider
-        .select((value) => value.dataBill?.orderLineItems ?? []));
+    var state = ref.watch(historyOrderPageProvider.select((value) => value.getOrderDetailState));
+    var vouchers = ref
+        .watch(historyOrderPageProvider.select((value) => value.dataBill?.print?.vouchers ?? []));
+    var orderLineItems =
+        ref.watch(historyOrderPageProvider.select((value) => value.dataBill?.orderLineItems ?? []));
     List<ProductCheckoutHistoryModel> products = List.from(item.orderItems);
     List<ProductCheckoutHistoryModel> productsView = [];
 
-    bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
-    bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation =
-        AppDeviceSizeUtil.checkPortraitOrientation(context);
-
-    bool useTab = (isMobile || (isTablet && portraitOrientation));
-
-    var promotionVouchers = vouchers
-        .where((element) => element.isType == 5 && element.listUse.isNotEmpty);
+    var promotionVouchers =
+        vouchers.where((element) => element.isType == 5 && element.listUse.isNotEmpty);
     for (var e in products) {
       var quantity = e.count;
       var promotion = 0;
@@ -252,15 +114,14 @@ class _OrderDetailContentDialog extends ConsumerWidget {
         }
       }
       if (quantity - promotion > 0) {
-        var pc =
-            orderLineItems.firstWhereOrNull((element) => element.id == e.id);
+        var pc = orderLineItems.firstWhereOrNull((element) => element.id == e.id);
 
         productsView.add(
           e.copyWith(
             count: quantity - promotion,
             price: pc?.price ?? e.price ?? '0',
-            totalPrice: (double.tryParse(pc?.price ?? e.price ?? 0.0) ?? 0) *
-                (quantity - promotion),
+            totalPrice:
+                (double.tryParse(pc?.price ?? e.price ?? 0.0) ?? 0) * (quantity - promotion),
           ),
         );
       }
@@ -270,8 +131,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
               count: promotion,
               price: '0',
               totalPrice: 0.0,
-              name:
-                  '${e.name}${promotionName.trim().isNotEmpty ? '\n$promotionName' : ''}'),
+              name: '${e.name}${promotionName.trim().isNotEmpty ? '\n$promotionName' : ''}'),
         );
       }
     }
@@ -317,8 +177,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                   return _buildColumnSpan(index, maxWidth);
                 },
                 rowBuilder: _buildRowSpan,
-                cellBuilder: (context, vicinity) =>
-                    _buildCell(context, vicinity, productsView),
+                cellBuilder: (context, vicinity) => _buildCell(context, vicinity, productsView),
               ),
             ),
             if (item.orderItems.isEmpty)
@@ -340,7 +199,6 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                     'number_order': (i + 1).toString(),
                     'title': v.name,
                     'amount': AppUtils.formatCurrency(value: v.total),
-                    // AppConfig.formatCurrency().format(v.total),
                   });
                 }
                 return Column(
@@ -386,21 +244,15 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                     children: [
                       _PriceItem(
                         title: S.current.total_amount,
-                        value:
-                            double.tryParse((billInfo.totalPrice.toString())) ??
-                                0.0,
+                        value: double.tryParse((billInfo.totalPrice.toString())) ?? 0.0,
                       ),
                       _PriceItem(
                         title: S.current.tax_money,
-                        value: double.tryParse(
-                                (billInfo.totalPriceTax.toString())) ??
-                            0.0,
+                        value: double.tryParse((billInfo.totalPriceTax.toString())) ?? 0.0,
                       ),
                       _PriceItem(
                         title: S.current.discount_money,
-                        value: double.tryParse(
-                                (billInfo.totalPriceVoucher.toString())) ??
-                            0.0,
+                        value: double.tryParse((billInfo.totalPriceVoucher.toString())) ?? 0.0,
                       ),
                       _PriceItem(
                         title: S.current.totalAmountPayment,
@@ -413,8 +265,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
             }),
             Consumer(
               builder: (context, ref, child) {
-                var customer = ref.watch(
-                    historyOrderPageProvider.select((value) => value.customer));
+                var customer =
+                    ref.watch(historyOrderPageProvider.select((value) => value.customer));
                 if (customer == null) return const SizedBox.shrink();
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -433,13 +285,10 @@ class _OrderDetailContentDialog extends ConsumerWidget {
             const Gap(12),
             Consumer(
               builder: (context, ref, child) {
-                // var paymentMethods = ref.watch(historyOrderPageProvider
-                //     .select((value) => value.paymentMethods));
-                var paymentMethods = ref.watch(historyOrderPageProvider.select(
-                        (value) => value.dataBill?.order.listPaymentMethod)) ??
+                var paymentMethods = ref.watch(historyOrderPageProvider
+                        .select((value) => value.dataBill?.order.listPaymentMethod)) ??
                     [];
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
-                    .contains(item.status)) {
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status)) {
                   return const SizedBox.shrink();
                 }
                 if (paymentMethods.isEmpty) return const SizedBox.shrink();
@@ -472,10 +321,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                             enabled: false,
                             readOnly: true,
                             initialValue: AppUtils.formatCurrency(
-                                value: paymentMethods.first.paymentAmount
-                                    .toDouble()),
-                            // AppConfig.formatCurrency()
-                            //     .format(paymentMethods.first.paymentAmount.toDouble()),
+                                value: paymentMethods.first.paymentAmount.toDouble()),
                           ),
                         ),
                       ],
@@ -487,22 +333,19 @@ class _OrderDetailContentDialog extends ConsumerWidget {
             const Gap(12),
             Consumer(
               builder: (context, ref, child) {
-                var amountAdult = ref.watch(historyOrderPageProvider.select(
-                        (value) => value.dataBill?.order.amountAdult)) ??
+                var amountAdult = ref.watch(historyOrderPageProvider
+                        .select((value) => value.dataBill?.order.amountAdult)) ??
                     0;
-                var amountChildren = ref.watch(historyOrderPageProvider.select(
-                        (value) => value.dataBill?.order.amountChildren)) ??
+                var amountChildren = ref.watch(historyOrderPageProvider
+                        .select((value) => value.dataBill?.order.amountChildren)) ??
                     0;
-                var description = ref.watch(historyOrderPageProvider
-                        .select((value) => value.dataBill?.description)) ??
+                var description = ref.watch(
+                        historyOrderPageProvider.select((value) => value.dataBill?.description)) ??
                     '';
-                if (amountAdult <= 0 &&
-                    amountChildren <= 0 &&
-                    description.trim().isEmpty) {
+                if (amountAdult <= 0 && amountChildren <= 0 && description.trim().isEmpty) {
                   return const SizedBox.shrink();
                 }
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
-                    .contains(item.status)) {
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status)) {
                   return const SizedBox.shrink();
                 }
                 return Column(
@@ -525,8 +368,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
                               label: S.current.number_of_people,
                               enabled: false,
                               readOnly: true,
-                              initialValue:
-                                  (amountAdult + amountChildren).toString(),
+                              initialValue: (amountAdult + amountChildren).toString(),
                             ),
                           ),
                         SizedBox(
@@ -565,22 +407,18 @@ class _OrderDetailContentDialog extends ConsumerWidget {
             const Gap(12),
             Consumer(
               builder: (context, ref, child) {
-                // var portrait = ref.watch(historyOrderPageProvider
-                //         .select((value) => value.portrait)) ??
-                //     '';
                 var portrait = ref.watch(historyOrderPageProvider
                         .select((value) => value.dataBill?.order.portrait)) ??
                     '';
-                var customerPortraits = ref.watch(
-                    homeProvider.select((value) => value.customerPortraits));
+                var customerPortraits =
+                    ref.watch(homeProvider.select((value) => value.customerPortraits));
                 CustomerPortrait? portraitSelect = portrait.trim().isEmpty
                     ? null
                     : customerPortraits.firstWhereOrNull(
                         (element) => element.key.trim() == portrait.trim(),
                       );
 
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
-                    .contains(item.status)) {
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status)) {
                   return const SizedBox.shrink();
                 }
                 return Column(
@@ -608,13 +446,10 @@ class _OrderDetailContentDialog extends ConsumerWidget {
             ),
             Consumer(
               builder: (context, ref, child) {
-                // var imageConfirms = ref.watch(historyOrderPageProvider
-                //     .select((value) => value.imageConfirms));
-                var imageConfirms = ref.watch(historyOrderPageProvider.select(
-                        (value) => value.dataBill?.order.imageConfirms)) ??
+                var imageConfirms = ref.watch(historyOrderPageProvider
+                        .select((value) => value.dataBill?.order.imageConfirms)) ??
                     [];
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
-                        .contains(item.status) ||
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status) ||
                     imageConfirms.isEmpty) {
                   return const SizedBox.shrink();
                 }
@@ -647,8 +482,8 @@ class _OrderDetailContentDialog extends ConsumerWidget {
     });
   }
 
-  TableViewCell _buildCell(BuildContext context, TableVicinity vicinity,
-      List<ProductCheckoutHistoryModel> products) {
+  TableViewCell _buildCell(
+      BuildContext context, TableVicinity vicinity, List<ProductCheckoutHistoryModel> products) {
     if (vicinity.yIndex == 0) {
       String colTitle = '';
       try {
@@ -664,8 +499,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
             ? titleAlign
             : colSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
         child: Padding(
-          padding: EdgeInsets.only(
-              right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
+          padding: EdgeInsets.only(right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
           child: Text(
             colTitle,
             maxLines: 2,
@@ -694,8 +528,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
         child: Align(
       alignment: colSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
       child: Padding(
-        padding: EdgeInsets.only(
-            right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
+        padding: EdgeInsets.only(right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
         child: Text(
           contents[xIndex],
           maxLines: 2,
@@ -743,11 +576,9 @@ class _OrderDetailContentDialog extends ConsumerWidget {
       }
       return TableViewCell(
           child: Align(
-        alignment:
-            couponSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
+        alignment: couponSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
         child: Padding(
-          padding: EdgeInsets.only(
-              right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
+          padding: EdgeInsets.only(right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
           child: Text(
             colTitle,
             maxLines: 2,
@@ -770,8 +601,7 @@ class _OrderDetailContentDialog extends ConsumerWidget {
         child: Align(
       alignment: couponSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
       child: Padding(
-        padding: EdgeInsets.only(
-            right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
+        padding: EdgeInsets.only(right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
         child: Text(
           contents[xIndex],
           maxLines: 2,

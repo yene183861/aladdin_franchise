@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
 import 'package:aladdin_franchise/src/core/network/repository/order/order_repository.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/create_order.dart';
@@ -33,6 +33,8 @@ class OrderRepositoryImpl extends OrderRepository {
   final RestClient _client;
 
   OrderRepositoryImpl(this._client);
+
+  /// checked
   @override
   Future<ApiResult<OrdersResponseData>> getOrders({int? typeOrder}) async {
     var uri = "${ApiConfig.apiUrl}/api/v2/list-table-using";
@@ -49,6 +51,8 @@ class OrderRepositoryImpl extends OrderRepository {
           using: res.using.map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder)).toList(),
           userUsing:
               res.userUsing.map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder)).toList(),
+          waiters: res.waiters ?? [],
+          ipOrder: res.ipOrder,
         );
       },
       log: ErrorLogModel(
@@ -58,6 +62,7 @@ class OrderRepositoryImpl extends OrderRepository {
     );
   }
 
+  /// checked - create not reservation
   @override
   Future<ApiResult<CreateOrderResponse>> createAndUpdateOrder(
     List<int> tableIds,
@@ -65,10 +70,10 @@ class OrderRepositoryImpl extends OrderRepository {
     WaiterModel? waiterTransfer,
     int? typeOrder,
     ReservationModel? reservation,
+    bool updateSaleInfo = true,
   }) {
     var uri = "${ApiConfig.apiUrl}/api/v1/make-dine-in-orders";
     var loginData = LocalStorage.getDataLogin();
-    // bool useReservation = loginData?.restaurant?.reservationStatus ?? false;
     Map<String, dynamic> body = {
       "lat": "0",
       "long": "0",
@@ -80,15 +85,10 @@ class OrderRepositoryImpl extends OrderRepository {
       "waiter_id": loginData?.waiterId,
       "waiter_id_transfer": waiterTransfer?.id,
       "reservation_crm_id": reservation?.id,
-      "sale_name": reservation?.saleName ?? '',
-      "sale_code": reservation?.saleCode ?? '',
+      if (updateSaleInfo) "sale_name": reservation?.saleName ?? '',
+      if (updateSaleInfo) "sale_code": reservation?.saleCode ?? '',
     };
 
-    // if (useReservation) {
-    //   body['reservation_crm_id'] = reservation?.id;
-    //   body['sale_name'] = reservation?.saleName ?? '';
-    //   body['sale_code'] = reservation?.saleCode ?? '';
-    // }
     return safeCallApi(
       () {
         final url = Uri.parse(uri);
@@ -104,151 +104,22 @@ class OrderRepositoryImpl extends OrderRepository {
     );
   }
 
-  @override
-  Future<ApiResult<ProcessOrderResponse>> processOrder({
-    required OrderModel order,
-    required List<ProductModel> products,
-    required double total,
-    String? orderNote,
-  }) async {
-    final api = "${ApiConfig.apiUrl}/api/v1/confirm-orders";
-    final loginData = LocalStorage.getDataLogin();
-    final body = jsonEncode(<String, dynamic>{
-      "order_id": order.id,
-      "total": total,
-      "restaurant_id": loginData?.restaurant?.id,
-      "description": orderNote,
-      "items": jsonEncode(products
-          .map(
-            (e) => {
-              "instructions": "",
-              "restaurant_id": 0,
-              "menu_item_variation_id": "",
-              "menuItem_id": e.id,
-              "unit_price": e.unitPrice,
-              "quantity": e.numberSelecting,
-              "discounted_price": e.discountPrice,
-              "options": [],
-              "note": e.noteForProcessOrder ?? "",
-            },
-          )
-          .toList()),
-    });
-    return safeCallApi(
-      () {
-        final url = Uri.parse(api);
-        return _client.post(url, body: body);
-      },
-      parser: (json) => ProcessOrderResponse.fromJson(json),
-      log: ErrorLogModel(
-        action: AppLogAction.processOrder,
-        api: api,
-        order: order,
-        request: body,
-      ),
-    );
-  }
-
+  /// checked
   @override
   Future<ApiResult<ProductCheckoutResponse>> getProductCheckout(OrderModel? order) async {
-    var uri = '${ApiConfig.apiUrl}/api/v1/orders-for-table?order_id=${order?.id}';
+    var apiUrl = '${ApiConfig.apiUrl}/api/v1/orders-for-table?order_id=${order?.id}';
     return safeCallApi(
       () {
-        final url = Uri.parse(uri);
+        final url = Uri.parse(apiUrl);
         return _client.get(url);
       },
       parser: (json) => ProductCheckoutResponse.fromJson(json),
       log: ErrorLogModel(
         action: AppLogAction.getProductCheckout,
-        api: uri,
+        api: apiUrl,
         order: order,
       ),
     );
-  }
-
-  @override
-  Future<ApiResult<ProcessOrderResponse>> cancelDishInOrder({
-    required OrderModel order,
-    required List<ProductCheckoutModel> products,
-    required double total,
-    required String contentCancelOrder,
-  }) async {
-    return safeCallApi(
-      () {
-        final url = Uri.parse("${ApiConfig.apiUrl}/api/v1/confirm-orders");
-        final loginData = LocalStorage.getDataLogin();
-        final body = jsonEncode(<String, dynamic>{
-          "order_id": order.id,
-          "total": total,
-          "restaurant_id": loginData?.restaurant?.id,
-          "content_cancel_order": contentCancelOrder,
-          "items": jsonEncode(products
-              .map((e) => {
-                    "instructions": "",
-                    "restaurant_id": 0,
-                    "menu_item_variation_id": "",
-                    "menuItem_id": e.id,
-                    "unit_price": e.unitPrice,
-                    "quantity": e.quantityCancel,
-                    "discounted_price": 0,
-                    "options": [],
-                  })
-              .toList()),
-        });
-        return _client.post(url, body: body);
-      },
-      parser: (json) => ProcessOrderResponse.fromJson(json),
-    );
-    // final apiUrl = ApiConfig.processOrder;
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.cancelDish,
-    //   api: apiUrl,
-    //   modelInterface: ProcessOrderResponse.getModelInterface(),
-    //   order: order,
-    // );
-    // try {
-    //   final loginData = LocalStorage.getDataLogin();
-    //   final body = jsonEncode(<String, dynamic>{
-    //     "order_id": order.id,
-    //     "total": total,
-    //     "restaurant_id": loginData?.restaurant?.id,
-    //     "content_cancel_order": contentCancelOrder,
-    //     "items": jsonEncode(products
-    //         .map((e) => {
-    //               "instructions": "",
-    //               "restaurant_id": 0,
-    //               "menu_item_variation_id": "",
-    //               "menuItem_id": e.id,
-    //               "unit_price": e.unitPrice,
-    //               "quantity": e.quantityCancel,
-    //               "discounted_price": 0,
-    //               "options": [],
-    //             })
-    //         .toList()),
-    //   });
-    //   final response = await restClient.post(
-    //     Uri.parse(apiUrl),
-    //     body: body,
-    //   );
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //     request: body,
-    //   );
-    //   checkLockedOrder(response);
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     final jsonRes = jsonDecode(response.body);
-    //     final result = ProcessOrderResponse.fromJson(jsonRes);
-    //     return result;
-    //   } else {
-    //     throw AppException.fromStatusCode(response.statusCode);
-    //   }
-    // } catch (ex) {
-    //   showLog(ex.toString(), flags: 'cancelDishInOrder ex');
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
   }
 
   @override
@@ -280,7 +151,7 @@ class OrderRepositoryImpl extends OrderRepository {
   }
 
   @override
-  Future<bool> payment({
+  Future<ApiResult<bool>> payment({
     required OrderModel order,
     required List<IpOrderModel> infoPrint,
     required List<ProductCheckoutModel> products,
@@ -299,219 +170,163 @@ class OrderRepositoryImpl extends OrderRepository {
     required bool statusPaymentCompleted,
     dynamic totalPaymentCompleted,
   }) async {
-    return true;
-    // var apiUrl = ApiConfig.paymentAndPrinter;
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.payment,
-    //   api: apiUrl,
-    //   modelInterface: "bool",
-    //   order: order,
-    // );
-    // ListCustomerRating customerRatingPush =
-    //     customerRatings.where((element) => element.isEmptyOrError() == false).toList();
-
-    // try {
-    //   var loginData = LocalStorage.getDataLogin();
-    //   List<String> images = [];
-    //   for (final image in imageBills) {
-    //     List<int> imageBytes = await image.readAsBytes();
-    //     String base64File = base64Encode(imageBytes);
-    //     images.add(base64File);
-    //   }
-    //   var body = jsonEncode(<String, dynamic>{
-    //     "restaurant": loginData?.restaurant,
-    //     "order": {
-    //       "code": order.misc,
-    //       "table_name": order.name,
-    //     },
-    //     "infoPrint": infoPrint,
-    //     "orderLineItems": products
-    //         .map((e) => {
-    //               "id": e.id,
-    //               "name": e.getNameView(),
-    //               "price": e.unitPrice,
-    //               "dollarSign": "vnđ",
-    //               "count": e.quantity,
-    //               "unit": e.unit,
-    //               "tax": e.tax,
-    //               "printer_type": e.printerType,
-    //             })
-    //         .toList(),
-    //     "vouchers": vouchers
-    //         .map((e) => {
-    //               'id': e.id,
-    //               'name': e.name,
-    //               'total': e.discount.fold(0.0, (pValue, e) => pValue + e.amount)
-    //             })
-    //         .toList(),
-    //     "createVouchers": createVouchers,
-    //     "comment": comment,
-    //     "order_id": order.id,
-    //     "numberOfPeople": numberOfAdults + numberOfChildren,
-    //     "numberOfAdults": numberOfAdults,
-    //     "numberOfChildren": numberOfChildren,
-    //     "note": note,
-    //     "flag_invoice": flagInvoice,
-    //     "customer_rating": customerRatingPush, //customerRating.getQuestionPush(),
-    //     //"payment": paymentDataBillCheck.toJson(),
-    //     "files": images,
-    //     "payment_method": paymentMethod,
-    //     "portrait": customerPortrait?.key,
-    //     "status_payment_completed": statusPaymentCompleted ? 1 : 0,
-    //     "total_payment_completed": totalPaymentCompleted,
-    //   });
-    //   final response = await restClient.post(
-    //     Uri.parse(apiUrl),
-    //     body: body,
-    //   );
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //   );
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     showLogs(response.body, flags: "payment client result");
-    //     // if (int.tryParse(response.body) != 1) {
-    //     //   throw AppException.fromMessage("Thanh toán in bill lỗi");
-    //     // }
-    //     return true;
-    //   } else {
-    //     throw AppException.fromStatusCode(response.statusCode);
-    //   }
-    // } catch (ex) {
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   showLogs(ex, flags: "Call payment error");
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
+    var apiUrl = "${ApiConfig.apiUrl}/api/v1/in-bill-tmp";
+    var loginData = LocalStorage.getDataLogin();
+    List<String> images = [];
+    for (final image in imageBills) {
+      List<int> imageBytes = await image.readAsBytes();
+      String base64File = base64Encode(imageBytes);
+      images.add(base64File);
+    }
+    var body = jsonEncode(<String, dynamic>{
+      "restaurant": loginData?.restaurant,
+      "order": {
+        "code": order.misc,
+        "table_name": order.name,
+      },
+      "infoPrint": infoPrint,
+      "orderLineItems": products
+          .map((e) => {
+                "id": e.id,
+                "name": e.getNameView(),
+                "price": e.unitPrice,
+                "dollarSign": "vnđ",
+                "count": e.quantity,
+                "unit": e.unit,
+                "tax": e.tax,
+                "printer_type": e.printerType,
+              })
+          .toList(),
+      "vouchers": vouchers
+          .map((e) => {
+                'id': e.id,
+                'name': e.name,
+                'total': e.discount.fold(0.0, (pValue, e) => pValue + e.amount)
+              })
+          .toList(),
+      "createVouchers": createVouchers,
+      "comment": comment,
+      "order_id": order.id,
+      "numberOfPeople": numberOfAdults + numberOfChildren,
+      "numberOfAdults": numberOfAdults,
+      "numberOfChildren": numberOfChildren,
+      "note": note,
+      "flag_invoice": flagInvoice,
+      "customer_rating":
+          customerRatings.where((element) => element.isEmptyOrError() == false).toList(),
+      //"payment": paymentDataBillCheck.toJson(),
+      "files": images,
+      "payment_method": paymentMethod,
+      "portrait": customerPortrait?.key,
+      "status_payment_completed": statusPaymentCompleted ? 1 : 0,
+      "total_payment_completed": totalPaymentCompleted,
+    });
+    return safeCallApi(
+      () {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      parser: (json) {
+        if (int.tryParse(json) != 1) {
+          /// 200 - nhưng response k phải 1
+          throw AppException(statusCode: 200, message: "Thanh toán in bill lỗi");
+        }
+        return true;
+      },
+      log: ErrorLogModel(
+        action: AppLogAction.payment,
+        api: apiUrl,
+        order: order,
+      ),
+    );
   }
 
+  /// checked
   @override
-  Future<({bool result, String? error})> processOrderPrintBill({
+  Future<ApiResult<ProcessOrderResponse>> processOrderItem({
     required OrderModel order,
-    required List<IpOrderModel> infoPrint,
-    List<ProductModel>? products,
-    List<ProductCheckoutModel>? productCheckout,
-    required int status,
-    int? timesOrder,
-    String? contentCancelOrder,
-    String? orderNote,
+    required double total,
+    List<ProductModel> products = const [],
+    List<ProductCheckoutModel> productCheckout = const [],
+    String? note,
+    bool cancel = false,
   }) async {
-    return (result: false, error: null);
-    // var apiUrl = ApiConfig.processOrderAndPrinter;
-    // var log = ErrorLogModel(
-    //   action: status == 2 ? AppLogAction.processOrderBill : AppLogAction.cancelDishBill,
-    //   api: apiUrl,
-    //   modelInterface: "bool",
-    //   order: order,
-    // );
-    // try {
-    //   var loginData = LocalStorage.getDataLogin();
-    //   var body = jsonEncode(<String, dynamic>{
-    //     "content_cancel_order": contentCancelOrder,
-    //     "description": orderNote,
-    //     "restaurant": loginData?.restaurant,
-    //     "order": {
-    //       "code": order.misc,
-    //       "order_time": timesOrder,
-    //       "table_name": order.name,
-    //     },
-    //     "order_id": order.id,
-    //     "infoPrint": infoPrint,
-    //     "orderLineItems": status == 2
-    //         ? products
-    //             ?.map((e) => {
-    //                   "id": e.id,
-    //                   "name": e.name,
-    //                   "price": e.unitPrice,
-    //                   "dollarSign": "vnđ",
-    //                   "count": e.numberSelecting,
-    //                   "unit": e.unit,
-    //                   "printer_type": e.printerType,
-    //                   "tax": e.tax,
-    //                   "note": e.noteForProcessOrder ?? "",
-    //                 })
-    //             .toList()
-    //         : productCheckout
-    //             ?.map((e) => {
-    //                   "id": e.id,
-    //                   "name": e.name,
-    //                   "price": e.unitPrice,
-    //                   "dollarSign": "vnđ",
-    //                   "count": e.quantityCancel,
-    //                   "unit": e.unit,
-    //                   "printer_type": e.printerType,
-    //                   "tax": e.tax,
-    //                 })
-    //             .toList(),
-    //     "status": status,
-    //   });
+    final apiUrl = '${ApiConfig.apiUrl}/api/v1/confirm-orders';
+    var loginData = LocalStorage.getDataLogin();
+    final body = jsonEncode(<String, dynamic>{
+      "order_id": order.id,
+      "total": total,
+      "restaurant_id": loginData?.restaurant?.id,
+      if (cancel) "content_cancel_order": note else "description": note,
+      "items": cancel
+          ? jsonEncode(productCheckout
+              .map((e) => {
+                    "instructions": "",
+                    "restaurant_id": 0,
+                    "menu_item_variation_id": "",
+                    "menuItem_id": e.id,
+                    "unit_price": e.unitPrice,
+                    "quantity": e.quantityCancel,
+                    "discounted_price": 0,
+                    "options": [],
+                  })
+              .toList())
+          : jsonEncode(products
+              .map(
+                (e) => {
+                  "instructions": "",
+                  "restaurant_id": 0,
+                  "menu_item_variation_id": "",
+                  "menuItem_id": e.id,
+                  "unit_price": e.unitPrice,
+                  "quantity": e.numberSelecting,
+                  "discounted_price": e.discountPrice,
+                  "options": [],
+                  "note": e.noteForProcessOrder ?? "",
+                },
+              )
+              .toList()),
+    });
 
-    //   var response = await restClient.post(
-    //     Uri.parse(apiUrl),
-    //     body: body,
-    //   );
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //     request: body,
-    //   );
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     showLog(response.body, flags: "InBillOrder Result");
-    //     if (int.tryParse(response.body) != 1) {
-    //       throw AppException.fromMessage(S.current.error_print_bill_order);
-    //     }
-    //     return (result: true, error: null);
-    //   } else {
-    //     throw AppException.fromStatusCode(response.statusCode);
-    //   }
-    // } catch (ex) {
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   showLogs(ex, flags: "processOrderInBill");
-    //   return (result: false, error: ex.toString());
-    // }
+    return safeCallApi(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      parser: (json) => ProcessOrderResponse.fromJson(json),
+      log: ErrorLogModel(
+        action: AppLogAction.processOrder,
+        api: apiUrl,
+        request: body,
+        order: order,
+      ),
+    );
   }
 
+  /// checked
   @override
-  Future<DataBillResponse> getDataBill({required int orderId}) async {
-    return DataBillResponse(data: DataBillResponseData());
-    // var apiUrl = ApiConfig.getDataBillOrder;
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.getDataBill,
-    //   api: ApiConfig.getDataBillOrder,
-    // );
-    // try {
-    //   var response = await restClient.get(
-    //     Uri.parse("$apiUrl?order_id=$orderId"),
-    //   );
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //   );
-
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     if (response.body.trim().isEmpty) {
-    //       throw S.current.error_get_invoice_info;
-    //     }
-    //     var jsonBody = jsonDecode(response.body);
-
-    //     var sale = jsonBody['data']['sale'];
-    //     if (sale is List && sale.isEmpty) {
-    //       jsonBody['data']['sale'] = null;
-    //     }
-
-    //     var result = DataBillResponse.fromJson(jsonBody);
-    //     return result;
-    //   } else {
-    //     throw AppException.fromStatusCode(response.statusCode);
-    //   }
-    // } catch (ex) {
-    //   showLogs(ex.toString(), flags: 'ex getDataBill');
-    //   if (ex.toString() != S.current.error_get_invoice_info) {
-    //     LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-    //   }
-
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
+  Future<ApiResult<DataBillResponseData>> getDataBill({required int orderId}) async {
+    var apiUrl = "${ApiConfig.apiUrl}/api/v1/get-data-bill-order?order_id=$orderId";
+    return safeCallApi(
+      () {
+        final url = Uri.parse(apiUrl);
+        return _client.get(url);
+      },
+      dataKey: 'data',
+      parser: (json) {
+        var jsonData = json;
+        var sale = json['sale'];
+        if (sale is List && sale.isEmpty) {
+          jsonData['sale'] = null;
+        }
+        var res = DataBillResponseData.fromJson(jsonData);
+        return res;
+      },
+      log: ErrorLogModel(
+        action: AppLogAction.getDataBill,
+        api: apiUrl,
+      ),
+    );
   }
 
   // @override
@@ -571,46 +386,47 @@ class OrderRepositoryImpl extends OrderRepository {
     return ApiResult.success(200, ipResult);
   }
 
+  /// checked
   @override
-  Future<void> lockOrder({
+  Future<ApiResult<bool>> lockOrder({
     required int orderId,
     required int statusLock,
   }) async {
-    return;
-    // final makeDeviceId = LocalStorage.getMakeDeviceId();
-    // final apiUrl = ApiConfig.lockOrder;
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.lockOrder,
-    //   api: apiUrl,
-    // );
-    // try {
-    //   final bodyRequest = jsonEncode(<String, dynamic>{
-    //     "order_id": orderId,
-    //     "status_lock": statusLock,
-    //     "device_id": makeDeviceId,
-    //   });
-    //   final response = await restClient.post(
-    //     Uri.parse(apiUrl),
-    //     body: bodyRequest,
-    //   );
-    //   log = log.copyWith(
-    //     request: bodyRequest,
-    //     response: [response.statusCode, response.body],
-    //   );
-    //   if (response.statusCode != 200) {
-    //     throw AppException.fromStatusCode(response.statusCode);
-    //   }
-    // } catch (ex) {
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
+    final makeDeviceId = LocalStorage.getMakeDeviceId();
+    var apiUrl = "${ApiConfig.apiUrl}/api/v1/lock-order";
+    final body = jsonEncode(<String, dynamic>{
+      "order_id": orderId,
+      "status_lock": statusLock,
+      "device_id": makeDeviceId,
+    });
+    return safeCallApi(
+      () {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      dataKey: 'data',
+      log: ErrorLogModel(
+        action: AppLogAction.lockOrder,
+        api: apiUrl,
+        request: body,
+      ),
+    );
   }
 
   @override
-  Future<bool> checkStatusLockOrder({required int orderId}) async {
-    return false;
+  Future<ApiResult<bool>> checkStatusLockOrder(int orderId) async {
+    var apiUrl = "${ApiConfig.apiUrl}/api/v1/status-lock-order?order_id=$orderId";
+    return safeCallApi(
+      () {
+        final url = Uri.parse(apiUrl);
+        return _client.get(url);
+      },
+      log: ErrorLogModel(
+        action: AppLogAction.getDataBill,
+        api: apiUrl,
+        order: OrderModel(id: orderId),
+      ),
+    );
     // final apiUrl = "${ApiConfig.statusLockOrder}?order_id=$orderId";
     // var log = ErrorLogModel(
     //   action: AppLogAction.checkStatusLockOrder,
@@ -638,102 +454,9 @@ class OrderRepositoryImpl extends OrderRepository {
     // }
   }
 
+  /// checked
   @override
-  Future<ApiResult<ProcessOrderResponse>> updateProductInOrder({
-    required OrderModel order,
-    required List<ProductModel> products,
-    required double total,
-    String noteCancel = '',
-    String totalNote = '',
-  }) async {
-    return safeCallApi(
-      () {
-        final url = Uri.parse("${ApiConfig.apiUrl}/api/v1/confirm-orders");
-        final loginData = LocalStorage.getDataLogin();
-        final body = jsonEncode(<String, dynamic>{
-          "order_id": order.id,
-          "total": total,
-          "restaurant_id": loginData?.restaurant?.id,
-          "description": totalNote,
-          "content_cancel_order": noteCancel,
-          "items": jsonEncode(products
-              .map(
-                (e) => {
-                  "instructions": "",
-                  "restaurant_id": 0,
-                  "menu_item_variation_id": "",
-                  "menuItem_id": e.id,
-                  "unit_price": e.unitPrice,
-                  "quantity": e.numberSelecting,
-                  "discounted_price": e.discountPrice,
-                  "options": [],
-                  "note": e.noteForProcessOrder ?? "",
-                },
-              )
-              .toList()),
-        });
-        return _client.post(url, body: body);
-      },
-      parser: (json) => ProcessOrderResponse.fromJson(json),
-    );
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.processOrder,
-    //   api: ApiConfig.processOrder,
-    //   modelInterface: ProcessOrderResponse.getModelInterface(),
-    //   order: order,
-    // );
-    // try {
-    //   final loginData = LocalStorage.getDataLogin();
-    //   final body = jsonEncode(<String, dynamic>{
-    //     "order_id": order.id,
-    //     "total": total,
-    //     "restaurant_id": loginData?.restaurant?.id,
-    //     "description": totalNote,
-    //     "content_cancel_order": noteCancel,
-    //     "items": jsonEncode(products
-    //         .map(
-    //           (e) => {
-    //             "instructions": "",
-    //             "restaurant_id": 0,
-    //             "menu_item_variation_id": "",
-    //             "menuItem_id": e.id,
-    //             "unit_price": e.unitPrice,
-    //             "quantity": e.numberSelecting,
-    //             "discounted_price": e.discountPrice,
-    //             "options": [],
-    //             "note": e.noteForProcessOrder ?? "",
-    //           },
-    //         )
-    //         .toList()),
-    //   });
-    //   final response = await restClient.post(
-    //     Uri.parse(ApiConfig.processOrder),
-    //     body: body,
-    //   );
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //     request: body,
-    //   );
-    //   if (response.statusCode == NetworkCodeConfig.locked) {
-    //     throw AppException.fromMessage(S.current.msg_locked_order);
-    //   }
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     final jsonRes = jsonDecode(response.body);
-    //     final result = ProcessOrderResponse.fromJson(jsonRes);
-    //     return result;
-    //   } else {
-    //     throw AppException.fromStatusCode(response.statusCode);
-    //   }
-    // } catch (ex) {
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
-  }
-
-  @override
-  Future<void> completeBill({
+  Future<ApiResult<void>> completeBill({
     required OrderModel order,
     String description = '',
     // // cấu trúc: keyPaymentMethod--priceFinal,
@@ -749,58 +472,66 @@ class OrderRepositoryImpl extends OrderRepository {
     required String eSaleCode,
     int isPrintPeople = 0,
   }) async {
-    return;
-    // var api = '${ApiConfig.completeBill}/${order.id}';
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.completeBill,
-    //   api: api,
-    //   modelInterface: ProcessOrderResponse.getModelInterface(),
-    //   order: order,
-    // );
-    // try {
-    //   final body = jsonEncode(<String, dynamic>{
-    //     "description": description,
-    //     "arrMethod": arrMethod,
-    //     "amount_people": (amountChildren + amountAdult).toString(),
-    //     "amount_children": amountChildren.toString(),
-    //     "amount_adult": amountAdult.toString(),
-    //     "e_sale_code": eSaleCode,
-    //     "e_sale_name": eSaleName,
-    //     "portrait": portrait,
-    //     "total_price": totalPrice.toString(),
-    //     "total_price_voucher": totalPriceVoucher.toString(),
-    //     "total_price_tax": totalPriceTax.toString(),
-    //     "total_price_final": totalPriceFinal.toString(),
-    //     "isPrintPeople": isPrintPeople.toString(),
-    //   });
-    //   final response = await restClient.post(Uri.parse(api), body: body);
-    //   showLogs(response.body, flags: 'response completeBill');
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //     request: body,
-    //   );
-    //   if (response.statusCode == NetworkCodeConfig.locked) {
-    //     throw AppException.fromMessage(S.current.msg_locked_order);
-    //   }
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     return;
-    //   } else {
-    //     throw AppException.fromStatusCode(response.statusCode);
-    //   }
-    // } catch (ex) {
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
+    final apiUrl = '${ApiConfig.apiUrl}/api/v2/in-bill-completed/${order.id}';
+    final body = jsonEncode(<String, dynamic>{
+      "description": description,
+      "arrMethod": arrMethod,
+      "amount_people": (amountChildren + amountAdult).toString(),
+      "amount_children": amountChildren.toString(),
+      "amount_adult": amountAdult.toString(),
+      "e_sale_code": eSaleCode,
+      "e_sale_name": eSaleName,
+      "portrait": portrait,
+      "total_price": totalPrice.toString(),
+      "total_price_voucher": totalPriceVoucher.toString(),
+      "total_price_tax": totalPriceTax.toString(),
+      "total_price_final": totalPriceFinal.toString(),
+      "isPrintPeople": isPrintPeople.toString(),
+    });
+    return safeCallApi(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      log: ErrorLogModel(
+        action: AppLogAction.completeBill,
+        api: apiUrl,
+        request: body,
+        order: order,
+      ),
+    );
   }
 
   @override
-  Future<List<ProductCheckoutUpdateTaxModel>> updateTax(
+  Future<ApiResult<List<ProductCheckoutUpdateTaxModel>>> updateTax(
       {required OrderModel order,
       required List<ProductCheckoutModel> pc,
       required PaymentMethod paymentMethod}) async {
-    return [];
+    final apiUrl = '${ApiConfig.apiUrl}/api/v2/update-tax-waiter';
+    var body = jsonEncode({
+      "order_id": order.id,
+      "method": paymentMethod.key,
+      "data": pc
+          .map((e) => {
+                'menu_item_id': e.id,
+                // vì tax đang là dạng 0.08
+                'tax': e.tax * 100,
+              })
+          .toList(),
+    });
+    return safeCallApiList(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      dataKey: 'data',
+      parser: (json) => ProductCheckoutUpdateTaxModel.fromJson(json),
+      log: ErrorLogModel(
+        action: AppLogAction.updateReservation,
+        api: apiUrl,
+        request: body,
+      ),
+    );
     // var api = ApiConfig.updateTax;
     // var bodyRequest = jsonEncode({
     //   "order_id": order.id,
@@ -842,33 +573,4 @@ class OrderRepositoryImpl extends OrderRepository {
     //   throw AppException(message: ex.toString());
     // }
   }
-
-  // @override
-  // Future<bool> checkStatusLockOrder({required int orderId}) async {
-  //   return true;
-  //   // final apiUrl = "${ApiConfig.statusLockOrder}?order_id=$orderId";
-  //   // var log = ErrorLogModel(
-  //   //   action: AppLogAction.checkStatusLockOrder,
-  //   //   api: apiUrl,
-  //   //   modelInterface: 'bool',
-  //   //   order: OrderModel(id: orderId),
-  //   // );
-  //   // try {
-  //   //   final response = await restClient.get(Uri.parse(apiUrl));
-  //   //   log = log.copyWith(
-  //   //     response: [response.statusCode, response.body],
-  //   //   );
-  //   //   if (response.statusCode == 200) {
-  //   //     return false;
-  //   //   } else if (response.statusCode == 423) {
-  //   //     return true;
-  //   //   }
-  //   //   throw AppException.fromHttpResponse(response);
-  //   // } catch (ex) {
-  //   //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-  //   //   if (ex is AppException) rethrow;
-  //   //   throw AppException(message: ex.toString());
-  //   // }
-  // }
 }

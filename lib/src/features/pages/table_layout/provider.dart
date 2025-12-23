@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:aladdin_franchise/src/configs/app.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/status.dart';
@@ -429,9 +430,15 @@ class TableLayoutPageNotifier extends StateNotifier<TableLayoutPageState> {
         var result = await ref
             .read(restaurantRepositoryProvider)
             .getOrderHistoryList(startDate: state.fromDate, endDate: state.toDate);
+        if (!result.isSuccess) {
+          throw AppException(
+            statusCode: result.statusCode,
+            message: result.error,
+          );
+        }
         state = state.copyWith(
           historyOrderState: const ProcessState(status: StatusEnum.success),
-          historyOrder: result,
+          historyOrder: result.data ?? [],
         );
         return;
       } catch (ex) {

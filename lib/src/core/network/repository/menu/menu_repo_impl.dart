@@ -12,40 +12,43 @@ class MenuRepositoryImpl extends MenuRepository {
   final RestClient _client;
 
   MenuRepositoryImpl(this._client);
+
+  /// checked
   @override
   Future<ApiResult<CategoryResponseData>> getCategory() {
-    final uri = "${ApiConfig.apiUrl}/api/v1/make-waiter-restaurant-category";
+    final apiUrl = "${ApiConfig.apiUrl}/api/v1/make-waiter-restaurant-category";
     return safeCallApi(
       () {
-        final url = Uri.parse(uri);
+        final url = Uri.parse(apiUrl);
         return _client.get(url);
       },
       wrapperResponse: true,
       parser: (json) => CategoryResponseData.fromJson(json),
       log: ErrorLogModel(
         action: AppLogAction.getCategory,
-        api: uri,
+        api: apiUrl,
       ),
     );
   }
 
+  /// checked
   @override
   Future<ApiResult<List<ProductModel>>> getProduct(
     int? categoryId, {
     int? typeOrder,
   }) {
-    final uri = "${ApiConfig.apiUrl}/api/v1/make-menu-search?category=${categoryId ?? ''}";
+    final apiUrl = "${ApiConfig.apiUrl}/api/v1/make-menu-search?category=${categoryId ?? ''}";
     return safeCallApiList(
       () {
-        final url = Uri.parse(uri);
-        return _client.get(url);
+        final url = Uri.parse(apiUrl);
+        return _client.get(url, typeOrder: typeOrder);
       },
       dataKey: 'data',
       parser: (json) => ProductModel.fromJson(json),
       wrapperResponse: true,
       log: ErrorLogModel(
         action: AppLogAction.getProduct,
-        api: uri,
+        api: apiUrl,
       ),
     );
   }

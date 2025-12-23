@@ -40,14 +40,13 @@ extension CreateNewOrderTabEnumEx on CreateNewOrderTabEnum {
 class CreateNewOrderDialogState with _$CreateNewOrderDialogState {
   const factory CreateNewOrderDialogState({
     @Default([]) List<TableModel> tableSelect,
-    // @Default([]) List<int> previousTableIds,
     @Default([]) List<int> tableIds,
     @Default(0) int tabIndexSelect,
     ReservationModel? reservationSelect,
-    @Default('') String textSearchReservation,
     @Default(false) bool notifyReservation,
     @Default([]) List<ReservationModel> reservationsAssginTable,
     @Default(false) bool ignoreNotifyReservation,
-    @Default(2) int typeOrderSelect,
+    TypeOrderEnum? typeOrder,
+    @Default(false) bool useReservation,
   }) = _CreateNewOrderDialogState;
 }

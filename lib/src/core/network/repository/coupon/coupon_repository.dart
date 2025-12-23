@@ -2,6 +2,7 @@ import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/apply_policy.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/coupon.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
+import 'package:aladdin_franchise/src/data/model/discount/voucher.dart';
 import 'package:aladdin_franchise/src/models/customer/customer.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
@@ -16,12 +17,12 @@ abstract class CouponRepository {
     required int numberOfAdults,
   });
 
-  Future<bool> deleteCoupon({
+  Future<ApiResult<bool>> deleteCoupon({
     required String idCode,
     required OrderModel order,
   });
 
-  Future<ApplyPolicyResponse> applyPolicy({
+  Future<ApiResult<ApplyPolicyResponseData>> applyPolicy({
     required List<CustomerPolicyModel> coupons,
     required List<CustomerPolicyModel> customerPolicy,
     required List<ProductCheckoutModel> products,
@@ -32,12 +33,12 @@ abstract class CouponRepository {
     required int numberOfAdults,
   });
 
-  Future<VoucherResponse> addVoucher({
+  Future<ApiResult<VoucherModel>> addVoucher({
     required OrderModel order,
     required double amount,
     required double totalBill,
     required DiscountTypeEnum type,
   });
 
-  Future<void> deleteVoucher(dynamic id);
+  Future<ApiResult<void>> deleteVoucher(dynamic id);
 }

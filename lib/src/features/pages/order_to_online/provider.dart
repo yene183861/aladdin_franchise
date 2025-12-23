@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/repository/o2o/o2o_repository.dart';
 import 'package:aladdin_franchise/src/core/network/repository/order/order_repository.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
@@ -325,8 +326,14 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
 
   Future<bool> _checkStatusLockOrder(int orderId) async {
     try {
-      final locked = await _orderRepository.checkStatusLockOrder(orderId: orderId);
-      return locked;
+      final result = await _orderRepository.checkStatusLockOrder(orderId);
+      if (!result.isSuccess) {
+        throw AppException(
+          statusCode: result.statusCode,
+          message: result.error,
+        );
+      }
+      return result.data ?? false;
     } catch (ex) {
       return false;
     }
@@ -562,13 +569,20 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     }
 
     try {
-      final messages = await _o2oRepository.getChatMessages(
+      final result = await _o2oRepository.getChatMessages(
         restaurantId: restaurantId,
         orderId: orderSelect.orderId,
       );
+      if (!result.isSuccess) {
+        throw AppException(
+          statusCode: result.statusCode,
+          message: result.error,
+        );
+      }
+
       state = state.copyWith(
         getChatMessageState: const PageState(status: PageCommonState.success, messageError: ''),
-        chatMessages: messages,
+        chatMessages: result.data ?? [],
       );
     } catch (ex) {
       state = state.copyWith(

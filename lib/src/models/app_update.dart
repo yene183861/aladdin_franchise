@@ -23,8 +23,7 @@ class AppUpdateModel with _$AppUpdateModel {
     @Default(false) bool isRequired,
   }) = _AppUpdateModel;
 
-  factory AppUpdateModel.fromJson(Map<String, dynamic> json) =>
-      _$AppUpdateModelFromJson(json);
+  factory AppUpdateModel.fromJson(Map<String, dynamic> json) => _$AppUpdateModelFromJson(json);
 
   const AppUpdateModel._();
 
@@ -63,14 +62,12 @@ class AppUpdateNew with _$AppUpdateNew {
     @Default(false) bool isRequired,
   }) = _AppUpdateNew;
 
-  factory AppUpdateNew.fromJson(Map<String, dynamic> json) =>
-      _$AppUpdateNewFromJson(json);
+  factory AppUpdateNew.fromJson(Map<String, dynamic> json) => _$AppUpdateNewFromJson(json);
 
   const AppUpdateNew._();
 
   bool get checkEnable {
     var restaurantId = LocalStorage.getKeepRestaurantId();
-    showLog(restaurantId, flags: 'restaurantId');
     return (active &&
         (version != AppConfig.appVersion) &&
         (versionCode > AppConfig.versionCode) &&

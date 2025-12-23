@@ -1,6 +1,5 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
-import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
@@ -12,8 +11,7 @@ class LockedOrderWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    final lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     if (!lockedOrder) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
@@ -27,12 +25,10 @@ class LockedOrderWidget extends ConsumerWidget {
             child: ButtonSimpleWidget(
               color: AppColors.secondColor,
               textAction: S.current.unlock,
-              onPressed: () async {
-                final res = await ref.read(homeProvider.notifier).unlockOrder();
-                if (!res && context.mounted) {
-                  showMessageDialog(context,
-                      message: S.current.msg_id_device_to_unlock_order);
-                }
+              onPressed: () {
+                ref.read(homeProvider.notifier).unlockOrder(
+                      messageError: S.current.msg_id_device_to_unlock_order,
+                    );
               },
             ),
           ),

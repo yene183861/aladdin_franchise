@@ -5,7 +5,6 @@ import 'package:aladdin_franchise/src/models/product.dart';
 abstract class MenuRepository {
   Future<ApiResult<CategoryResponseData>> getCategory();
 
-  /// categoryId == null, get all product
   Future<ApiResult<List<ProductModel>>> getProduct(
     int? categoryId, {
     int? typeOrder,

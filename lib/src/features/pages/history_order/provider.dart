@@ -3,11 +3,11 @@ import 'dart:math';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/repository/order/order_repository.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/data_bill.dart';
 import 'package:aladdin_franchise/src/core/services/print_queue.dart';
-import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
@@ -120,10 +120,16 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             while (_count < 3) {
               try {
                 if (listPaymentMethods.isEmpty) {
-                  listPaymentMethods =
-                      await ref.read(restaurantRepositoryProvider).getPaymentMethod(
-                            orderId: order.id,
-                          );
+                  var pm = await ref.read(restaurantRepositoryProvider).getPaymentMethod(
+                        orderId: order.id,
+                      );
+                  if (!pm.isSuccess) {
+                    throw AppException(
+                      statusCode: pm.statusCode,
+                      message: pm.error,
+                    );
+                  }
+                  listPaymentMethods = pm.data ?? [];
                 }
                 errorGetPaymentMethods = null;
                 break;
@@ -206,15 +212,12 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
               }
               products = List<ProductModel>.from(offlineProducts);
             }
-            showLogs(paymentMethodSelect, flags: 'paymentMethodSelect');
             var checkTax = _checkValidTaxItemsPrint(
               requireUpdateTax: paymentMethodSelect.requireEditTax,
               itemsPrint: itemsPrint,
               products: products,
             );
             var tax = Map<int, Map<String, dynamic>>.from(checkTax.tax);
-            showLogs(tax, flags: 'tax require change');
-            showLogs(checkTax.valid, flags: 'tax require change');
 
             if (!checkTax.valid) {
               // dialog sửa thuế
@@ -304,11 +307,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                 );
                 if (resultUpdateTax.error != null) {
                   state = state.copyWith(event: HistoryOrderEvent.normal);
-                  // if (context.mounted) {
-                  //   showMessageDialog(context,
-                  //       message:
-                  //           'Chỉnh sửa thuế không thành công\n${resultUpdateTax.error}');
-                  // }
+
                   return (
                     error: 'Chỉnh sửa thuế không thành công\n${resultUpdateTax.error}',
                     refreshData: refreshData
@@ -433,7 +432,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                     cashierPrint: orderPrint?.cashierPrint ?? '',
                     timeCompleted: orderPrint?.timeCompleted,
                     timeCreatedAt: orderPrint?.createdAt,
-                    invoiceQr: AppConfig.useInvoiceQr ? 'https://google.com' : '',
+                    invoiceQr: AppConfig.useInvoiceQr ? '' : '',
                   );
                   if (bytes.isEmpty) {
                     return <int>[];
@@ -441,7 +440,6 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                     return bytes;
                   }
                 } catch (ex) {
-                  debugPrint("⚠️ getReceptBillContent ex");
                   rethrow;
                 }
               },
@@ -471,11 +469,6 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
               refreshData: refreshData
             );
           }
-          // try {
-          //   await LocalStorage.deleteEmployeeSaleForOrder(order: order);
-          // } catch (ex) {
-          //   //
-          // }
           printBillResult = true;
           error = null;
           break;
@@ -520,14 +513,27 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
       })> _getDataBill({required int orderId}) async {
     try {
       var result = await _orderRepository.getDataBill(orderId: orderId);
-      var sale = result.data.sale;
+      if (!result.isSuccess) {
+        throw AppException(
+          statusCode: result.statusCode,
+          message: result.error,
+        );
+      }
+      var data = result.data;
+      if (data == null) {
+        throw AppException(
+          statusCode: result.statusCode,
+          message: 'Không có dữ liệu',
+        );
+      }
+      var sale = data.sale;
 
-      var print = result.data.print;
+      var print = data.print;
 
-      var paymentMethodKey = result.data.order.paymentMethod;
+      var paymentMethodKey = data.order.paymentMethod;
       return (
         error: null,
-        itemsPrint: result.data.orderLineItems,
+        itemsPrint: data.orderLineItems,
         sale: sale == null
             ? null
             : EmployeeSaleModel(
@@ -598,40 +604,56 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
   }
 
   void getDetailOrder() async {
-    // try {
-    //   state = state.copyWith(getOrderDetailState: const PageState(status: PageCommonState.loading));
-    //   var historyOrderSelect = state.historyOrderSelect;
-    //   if (historyOrderSelect == null) {
-    //     return;
-    //   }
-    //   var order = OrderModel(
-    //     id: historyOrderSelect.orderExcute.order,
-    //     // orderCode: historyOrderSelect.orderCode,
-    //     name: historyOrderSelect.tableName,
-    //     misc: '{"order_code":"${historyOrderSelect.orderCode}","remarks":""}',
-    //   );
-    //   final result = await _orderRepository.getProductCheckout(order);
-    //   final productCheckout = result.data?.first.orderItem ?? [];
-    //   final coupons = result.coupons;
-    //   final customer = result.customer;
-    //   DataBillResponse? billInfo;
-    //   if (historyOrderSelect.orderItems.isNotEmpty) {
-    //     billInfo = await _orderRepository.getDataBill(orderId: order.id);
-    //   }
-    //   state = state.copyWith(
-    //     getOrderDetailState: const PageState(status: PageCommonState.success),
-    //     customer: customer,
-    //     coupons: coupons ?? [],
-    //     productCheckout: productCheckout,
-    //     dataBill: billInfo?.data,
-    //   );
-    // } catch (ex) {
-    //   state = state.copyWith(
-    //       getOrderDetailState: PageState(
-    //     status: PageCommonState.error,
-    //     messageError: ex.toString(),
-    //   ));
-    // }
+    try {
+      state = state.copyWith(getOrderDetailState: const PageState(status: PageCommonState.loading));
+      var historyOrderSelect = state.historyOrderSelect;
+      if (historyOrderSelect == null) {
+        return;
+      }
+      var order = OrderModel(
+        id: historyOrderSelect.orderExcute.order,
+        // orderCode: historyOrderSelect.orderCode,
+        name: historyOrderSelect.tableName,
+        misc: '{"order_code":"${historyOrderSelect.orderCode}","remarks":""}',
+      );
+
+      final result = await _orderRepository.getProductCheckout(order);
+      if (!result.isSuccess) {
+        throw AppException(
+          statusCode: result.statusCode,
+          message: result.error,
+        );
+      }
+
+      var data = result.data;
+      final productCheckout = data?.data?.firstOrNull?.orderItem ?? [];
+      final coupons = data?.coupons;
+      final customer = data?.customer;
+      DataBillResponseData? billInfo;
+      if (historyOrderSelect.orderItems.isNotEmpty) {
+        var bill = await _orderRepository.getDataBill(orderId: order.id);
+        if (!bill.isSuccess) {
+          throw AppException(
+            statusCode: bill.statusCode,
+            message: bill.error,
+          );
+        }
+        billInfo = bill.data;
+      }
+      state = state.copyWith(
+        getOrderDetailState: const PageState(status: PageCommonState.success),
+        customer: customer,
+        coupons: coupons ?? [],
+        productCheckout: productCheckout,
+        dataBill: billInfo,
+      );
+    } catch (ex) {
+      state = state.copyWith(
+          getOrderDetailState: PageState(
+        status: PageCommonState.error,
+        messageError: ex.toString(),
+      ));
+    }
   }
 
   void onChangeDate({
@@ -671,13 +693,19 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
     state = state.copyWith(event: HistoryOrderEvent.updateTax);
     while (retry < 3) {
       try {
-        var res = await _orderRepository.updateTax(
+        var result = await _orderRepository.updateTax(
           order: order,
           pc: item,
           paymentMethod: paymentMethod,
         );
+        if (!result.isSuccess) {
+          throw AppException(
+            statusCode: result.statusCode,
+            message: result.error,
+          );
+        }
         state = state.copyWith(event: HistoryOrderEvent.normal);
-        return (error: null, pc: res);
+        return (error: null, pc: result.data ?? []);
       } catch (ex) {
         retry++;
         error = ex.toString();

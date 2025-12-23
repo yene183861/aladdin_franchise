@@ -7,14 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../utils/app_log.dart';
 import 'state.dart';
 
-final ticketCreatePageProvider = StateNotifierProvider.autoDispose<
-    TicketCreatePageNotifier, TicketCreateState>((ref) {
+final ticketCreatePageProvider =
+    StateNotifierProvider.autoDispose<TicketCreatePageNotifier, TicketCreateState>((ref) {
   return TicketCreatePageNotifier(ref.read(ticketRepositoryProvider));
 });
 
 class TicketCreatePageNotifier extends StateNotifier<TicketCreateState> {
-  TicketCreatePageNotifier(this._ticketRepository)
-      : super(const TicketCreateState());
+  TicketCreatePageNotifier(this._ticketRepository) : super(const TicketCreateState());
 
   final TicketRepository _ticketRepository;
 
@@ -80,12 +79,12 @@ class TicketCreatePageNotifier extends StateNotifier<TicketCreateState> {
   Future<void> onSummit() async {
     try {
       state = state.copyWith(events: TicketCreateEvent.processing);
-      await _ticketRepository.createTicket(
-        title: state.title,
-        content: state.content,
-        imagePaths: state.attachFile.map((e) => e.path).toList(),
-        dateOfWish: state.dateOfWish,
-      );
+      // await _ticketRepository.createTicket(
+      //   title: state.title,
+      //   content: state.content,
+      //   imagePaths: state.attachFile.map((e) => e.path).toList(),
+      //   dateOfWish: state.dateOfWish,
+      // );
       state = state.copyWith(events: TicketCreateEvent.success);
     } catch (ex) {
       state = state.copyWith(

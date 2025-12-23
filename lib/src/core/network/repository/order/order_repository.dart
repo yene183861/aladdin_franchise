@@ -35,46 +35,11 @@ abstract class OrderRepository {
     WaiterModel? waiterTransfer,
     int? typeOrder,
     ReservationModel? reservation,
-  });
-
-  /// Gọi món
-  ///
-  /// Success => ProcessOrderRepository
-  ///
-  /// Error => Exception
-  Future<ApiResult<ProcessOrderResponse>> processOrder({
-    required OrderModel order,
-    required List<ProductModel> products,
-    required double total,
-    String? orderNote,
+    bool updateSaleInfo = true,
   });
 
   /// Lấy danh sách món đã gọi
-  ///
-  /// Success => ProductCheckoutRepository
-  ///
-  /// Error => Exception
   Future<ApiResult<ProductCheckoutResponse>> getProductCheckout(OrderModel? order);
-
-  /// Huỷ món
-  ///
-  /// Success => ProcessOrderRepository
-  ///
-  /// Error => Exception
-  Future<ApiResult<ProcessOrderResponse>> cancelDishInOrder({
-    required OrderModel order,
-    required List<ProductCheckoutModel> products,
-    required double total,
-    required String contentCancelOrder,
-  });
-// cả thêm, cả huỷ
-  Future<ApiResult<ProcessOrderResponse>> updateProductInOrder({
-    required OrderModel order,
-    required List<ProductModel> products,
-    required double total,
-    String noteCancel = 'Khách huỷ món',
-    String totalNote = '',
-  });
 
   /// Lấy ip máy in
   ///
@@ -84,7 +49,7 @@ abstract class OrderRepository {
   /// Success => true
   ///
   /// Error => Exception
-  Future<bool> payment({
+  Future<ApiResult<bool>> payment({
     required OrderModel order,
     required List<IpOrderModel> infoPrint,
     required List<ProductCheckoutModel> products,
@@ -105,23 +70,19 @@ abstract class OrderRepository {
     dynamic totalPaymentCompleted,
   });
 
-  /// Success => true
+  /// gọi hoặc huỷ món
   ///
-  /// Error => false
-  ///
-  /// status: 3 - huy mon | 2 - goi mon
-  Future<({bool result, String? error})> processOrderPrintBill({
+  /// cancel: true - huy mon | false - goi mon
+  Future<ApiResult<ProcessOrderResponse>> processOrderItem({
     required OrderModel order,
-    required List<IpOrderModel> infoPrint,
-    List<ProductModel>? products,
-    List<ProductCheckoutModel>? productCheckout,
-    required int status,
-    int? timesOrder,
-    String? contentCancelOrder,
-    String? orderNote,
+    required double total,
+    List<ProductModel> products = const [],
+    List<ProductCheckoutModel> productCheckout = const [],
+    String? note,
+    bool cancel = false,
   });
 
-  Future<DataBillResponse> getDataBill({required int orderId});
+  Future<ApiResult<DataBillResponseData>> getDataBill({required int orderId});
 
   /// Kiểm tra tình trạng máy in dành cho gọi món, huỷ món
   ///
@@ -134,13 +95,13 @@ abstract class OrderRepository {
   /// @order_id
   ///
   /// @status_lock: 1 khoá, 0 mở khoá
-  Future<void> lockOrder({
+  Future<ApiResult<bool>> lockOrder({
     required int orderId,
     required int statusLock,
   });
 
 // hoàn thành bill
-  Future<void> completeBill({
+  Future<ApiResult<void>> completeBill({
     required OrderModel order,
     String description = '',
     // cấu trúc: keyPaymentMethod--priceFinal,
@@ -159,13 +120,11 @@ abstract class OrderRepository {
 
   /// tax: dạng 0.08
   /// truyền lên server phải đổi về 8
-  Future<List<ProductCheckoutUpdateTaxModel>> updateTax({
+  Future<ApiResult<List<ProductCheckoutUpdateTaxModel>>> updateTax({
     required OrderModel order,
     required List<ProductCheckoutModel> pc,
     required PaymentMethod paymentMethod,
   });
 
-  Future<bool> checkStatusLockOrder({
-    required int orderId,
-  });
+  Future<ApiResult<bool>> checkStatusLockOrder(int orderId);
 }

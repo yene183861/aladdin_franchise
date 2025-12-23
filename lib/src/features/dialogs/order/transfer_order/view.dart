@@ -5,7 +5,6 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
-import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -25,13 +24,11 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 import 'provider.dart';
 import 'state.dart';
 
-Future<({ReservationModel? reservation, bool requireUpdateReservation})> showTransferOrderDialog(
-    BuildContext context) async {
+Future<int?> showTransferOrderDialog(BuildContext context) async {
   final result = await showDialog(
     context: context,
     useRootNavigator: false,
@@ -55,13 +52,6 @@ class TransferOrderDialog extends ConsumerStatefulWidget {
 }
 
 class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
-  bool useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
-  @override
-  void initState() {
-    super.initState();
-    ref.refresh(tableAvailableAndWaiterTransferOrderProvider);
-  }
-
   @override
   Widget build(BuildContext context) {
     var notifier = ref.read(transferOrderProvider.notifier);
@@ -69,29 +59,18 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
     final tableAndWaiterTransferAvailable = ref.watch(tableAvailableAndWaiterTransferOrderProvider);
     final orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
     final waiterSelect = ref.watch(transferOrderProvider.select((value) => value.waiterSelect));
-    List<ReservationModel> reservations = ref.watch(reservationsProvider).when(
-          skipError: false,
-          skipLoadingOnRefresh: false,
-          data: (data) => List.from(data),
-          error: (error, stackTrace) => [],
-          loading: () => [],
-        );
-    // bool isMobile = Device.screenType == ScreenType.mobile;
-    // bool isPortraitOrientation =
-    //     MediaQuery.of(context).orientation == Orientation.portrait;
-    // bool isSmallDevice = isMobile && isPortraitOrientation;
+
     bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
     return AlertDialog(
       title: Text(
         S.current.transferUpdateOrder,
-        // style: AppTextStyle.bold(rawFontSize: 15),
       ),
       content: tableAndWaiterTransferAvailable.when(
         skipLoadingOnRefresh: false,
         data: (data) {
-          final tableCurrent = data[0] as List<TableModel>;
-          final tablesAvailable = data[1] as List<TableModel>;
-          final waiter = data[2] as List<WaiterModel>;
+          final tableCurrent = data.currentSelect;
+          final tablesAvailable = data.notUse;
+          final waiter = data.waiters;
           var waiterView = List<WaiterModel>.from(waiter);
           final waiterCurrent = waiterView.firstWhereOrNull((element) =>
               element.id == ref.read(homeProvider.notifier).getOrderSelect()?.waiterId);
@@ -196,8 +175,7 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: [
         ButtonCancelWidget(
-          onPressed: () =>
-              Navigator.pop(context, (requireUpdateReservation: false, reservation: null)),
+          onPressed: () => Navigator.pop(context, null),
         ),
         ButtonSimpleWidget(
           onPressed: () {
@@ -217,26 +195,14 @@ Phục vụ tiếp nhận: ${state.waiterSelect?.name}
               ''',
               action: () async {
                 var listTableIds = state.tableSelects.map((e) => e.id).toList();
-                // var listTableNames = state.tableSelects.map((e) => (e.name ?? '')).toList();
-                // var homeState = ref.read(homeProvider);
-                ReservationModel? reservation;
-                bool requireUpdateReservation = false;
-                if (useReservation && orderSelect?.reservationCrmId != null) {
-                  reservation =
-                      reservations.firstWhereOrNull((e) => e.id == orderSelect?.reservationCrmId);
-                  if (reservation != null &&
-                      (reservation.reservationStatus != ReservationStatus.process ||
-                          !const SetEquality()
-                              .equals((reservation.tableId ?? []).toSet(), listTableIds.toSet()))) {
-                    requireUpdateReservation = true;
-                  }
-                  reservation ??= ReservationModel(
-                    id: orderSelect?.reservationCrmId,
-                    reservationDate: DateTime.now().toString(),
-                    endTime: '',
-                    startTime: '',
-                  );
-                }
+                var reservation = orderSelect?.reservationCrmId == null
+                    ? null
+                    : ReservationModel(
+                        id: orderSelect?.reservationCrmId,
+                        reservationDate: '',
+                        startTime: '',
+                        endTime: '',
+                      );
                 final result = await ref.read(homeProvider.notifier).transferOrder(
                       listTableIds,
                       orderSelect!,
@@ -245,23 +211,14 @@ Phục vụ tiếp nhận: ${state.waiterSelect?.name}
                     );
                 if (result == null) {
                   showDoneSnackBar(context: context, message: S.current.transferOrderSuccess);
-                  // ref.read(homeProvider.notifier).changeOrderSelect(null);
-                  Navigator.pop(
-                    context,
-                    (
-                      reservation: requireUpdateReservation
-                          ? reservation?.copyWith(
-                              rejectReason: '',
-                              status: ReservationStatus.process.type,
-                              statusName: ReservationStatus.process.name,
-                              isUpdate: false,
-                              tableId: listTableIds,
-                              table: state.tableSelects.map((e) => (e.name ?? '')).join(', '),
-                            )
-                          : reservation,
-                      requireUpdateReservation: requireUpdateReservation,
-                    ),
-                  );
+                  if (reservation != null) {
+                    ref.read(homeProvider.notifier).updateReservationStatus(
+                          reservation.id,
+                          ReservationStatus.process,
+                          state.tableSelects,
+                        );
+                  }
+                  Navigator.pop(context, orderSelect.id);
                 } else {
                   showMessageDialog(context, message: result);
                 }

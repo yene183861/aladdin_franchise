@@ -3,104 +3,104 @@ import 'dart:convert';
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
-import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
-import 'package:aladdin_franchise/src/core/network/repository/responses/payment_method.dart';
-import 'package:aladdin_franchise/src/core/network/repository/responses/payment_qr_code/banks.dart';
-import 'package:aladdin_franchise/src/core/network/repository/responses/process_order.dart';
+import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
 import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
 import 'package:aladdin_franchise/src/core/network/repository/restaurant/restaurant_repository.dart';
-import 'package:aladdin_franchise/src/core/services/send_log/log_service.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/models/atm_pos.dart';
-import 'package:aladdin_franchise/src/models/employee_sale.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
 import 'package:aladdin_franchise/src/models/param_family/bank_param.dart';
 import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart';
 import 'package:aladdin_franchise/src/models/user_bank.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
-import 'package:http/http.dart' as http;
 
 class RestaurantRepositoryImpl extends RestaurantRepository {
   final RestClient _client;
 
   RestaurantRepositoryImpl(this._client);
+
+  /// checked
   @override
-  Future<List<UserBankModel>> getBanks(ApiBankParam apiBankParam) async {
-    return [];
-    // var log = const ErrorLogModel(action: AppLogAction.getBanks);
-    // try {
-    //   var loginData = LocalStorage.getDataLogin();
-    //   final restaurantId = loginData?.restaurant?.id;
-    //   final apiUrl = "${ApiConfig.getBankPayment}?restaurant_id=$restaurantId"
-    //       "&order_id=${apiBankParam.orderDataBill.id}"
-    //       "&table_name=${apiBankParam.orderDataBill.tableName}"
-    //       "&total_bill=${apiBankParam.priceFinal}";
-    //   log = log.copyWith(api: apiUrl);
-
-    //   var response = await restClient.get(Uri.parse(apiUrl));
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //   );
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     var bodyJson = jsonDecode(response.body);
-    //     final resData = BankPaymentResponse.fromJson(bodyJson);
-    //     return resData.data;
-    //   } else {
-    //     throw AppException.fromStatusCode(response.statusCode);
-    //   }
-    // } catch (ex) {
-    //   showLog(ex.toString(), flags: 'getBanks ex');
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
+  Future<ApiResult<List<UserBankModel>>> getBanks(ApiBankParam apiBankParam) async {
+    var loginData = LocalStorage.getDataLogin();
+    final apiUrl = '${ApiConfig.apiUrl}/api/v1/get-bank-information'
+        '?restaurant_id=${loginData?.restaurant?.id}'
+        '&order_id=${apiBankParam.orderDataBill.id}'
+        '&table_name=${apiBankParam.orderDataBill.tableName}'
+        '&total_bill=${apiBankParam.priceFinal}';
+    return safeCallApiList(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.get(url);
+      },
+      dataKey: 'data',
+      parser: (json) => UserBankModel.fromJson(json),
+      log: ErrorLogModel(
+        action: AppLogAction.getBanks,
+        api: apiUrl,
+      ),
+    );
   }
 
+  /// checked
   @override
-  Future<List<PaymentMethod>> getPaymentMethod({
+  Future<ApiResult<List<PaymentMethod>>> getPaymentMethod({
     required int orderId,
   }) async {
-    return [];
-    // final makeDeviceId = LocalStorage.getMakeDeviceId();
-    // final apiUrl = "${ApiConfig.getPaymentMethod}"
-    //     "?order_id=$orderId"
-    //     "&device_id=$makeDeviceId";
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.getPaymentMethod,
-    //   api: apiUrl,
-    // );
-    // try {
-    //   var response = await restClient.get(Uri.parse(apiUrl));
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //   );
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     final bodyJson = jsonDecode(response.body);
-    //     final resData = PaymentMethodResponse.fromJson(bodyJson);
-    //     return resData.data;
-    //   } else {
-    //     throw AppException.fromStatusCode(response.statusCode);
-    //   }
-    // } catch (ex) {
-    //   showLog(ex.toString(), flags: 'getPaymentMethod ex');
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
+    final makeDeviceId = LocalStorage.getMakeDeviceId();
+    final apiUrl = '${ApiConfig.apiUrl}/api/v1/get-payment-method'
+        '?order_id=$orderId'
+        '&device_id=$makeDeviceId';
+    return safeCallApiList(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.get(url);
+      },
+      dataKey: 'data',
+      parser: (json) => PaymentMethod.fromJson(json),
+      log: ErrorLogModel(
+        action: AppLogAction.getPaymentMethod,
+        api: apiUrl,
+      ),
+    );
   }
 
   @override
-  Future<({String? url, String? qr, int? expiryMin, String? message, int? status})>
+  Future<ApiResult<({String? url, String? qr, int? expiryMin, String? message, int? status})>>
       getPaymentGateway({
     required ApiBankParam apiBankParam,
     required int keyPaymentMethod,
   }) async {
-    return (url: null, qr: null, expiryMin: null, message: null, status: null);
+    final loginData = LocalStorage.getDataLogin();
+    final apiUrl = '${ApiConfig.apiUrl}/api/v2/get-payment-gateway'
+        '?payment_method=$keyPaymentMethod'
+        '&restaurant_id=${loginData?.restaurant?.id}'
+        '&order_id=${apiBankParam.orderDataBill.id}'
+        '&table_name=${apiBankParam.orderDataBill.tableName}'
+        '&total_bill=${apiBankParam.priceFinal}';
+    return safeCallApi(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.get(url);
+      },
+      dataKey: 'data',
+      parser: (json) {
+        // Response: {status: 200, data: {"gateway_url": "https://newsandbox.payoo.com....", "qr": ""}}
+        final String? url = json['data']?['gateway_url'];
+        final String? qr = json['data']?['qr'];
+        final int? expiryMin = json['data']?['expiry_min'];
+        final String? message = json['message'];
+        final int? status = json['status'];
+        return (url: url, qr: qr, expiryMin: expiryMin, message: message, status: status);
+      },
+      log: ErrorLogModel(
+        action: AppLogAction.getPaymentMethod,
+        api: apiUrl,
+      ),
+    );
+    // return (url: null, qr: null, expiryMin: null, message: null, status: null);
     //return "https://newsandbox.payoo.com.vn/v2/paynow/prepare?_token=1ePupay5CD3";
     // var log = const ErrorLogModel(action: AppLogAction.getPaymentGateway);
     // try {
@@ -142,11 +142,28 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
   }
 
   @override
-  Future<List<AtmPosModel>> getListAtmPos({
+  Future<ApiResult<List<AtmPosModel>>> getListAtmPos({
     required int orderId,
     required dynamic totalBill,
   }) async {
-    return [];
+    final apiUrl = '${ApiConfig.apiUrl}/api/v2/list-pos';
+    var body = jsonEncode({
+      'order_id': orderId,
+      'total_bill': totalBill,
+    });
+    return safeCallApiList(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      dataKey: 'data',
+      parser: (json) => AtmPosModel.fromJson(json),
+      log: ErrorLogModel(
+        action: AppLogAction.getListAtmPos,
+        api: apiUrl,
+        request: body,
+      ),
+    );
     // var log = const ErrorLogModel(action: AppLogAction.getListAtmPos);
     // try {
     //   final apiUrl = ApiConfig.getListAtmPos;
@@ -177,12 +194,41 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
   }
 
   @override
-  Future<void> atmPosCallback({
+  Future<ApiResult<void>> atmPosCallback({
     required String urlPos,
     // tổng tiền cuối ? (thấy note trên posman vậy)
     required dynamic orderId,
   }) async {
-    return;
+    final apiUrl = '${ApiConfig.apiUrl}/api/v2/pos-callback';
+    var body = jsonEncode({
+      'urlPos': urlPos,
+      'orderId': orderId,
+    });
+    await AppHelper.initTokenAndTypeOrder();
+    var defaultHeaders = <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $kToken',
+      'x-status-order': '$kTypeOrder',
+      'x-location': kAppLanguageLocal,
+      'x-device-id': kDeviceId,
+    };
+    return safeCallApiList(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.post(
+          url,
+          body: body,
+          headers: defaultHeaders,
+        );
+      },
+      parser: (json) => AtmPosModel.fromJson(json),
+      log: ErrorLogModel(
+        action: AppLogAction.getListAtmPos,
+        api: apiUrl,
+        request: body,
+      ),
+    );
     // var log = const ErrorLogModel(action: AppLogAction.posCallback);
     // try {
     //   final apiUrl = ApiConfig.atmPosCallback;
@@ -225,73 +271,28 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
     // }
   }
 
+  /// checked
   @override
-  Future<List<EmployeeSaleModel>> getEmployeeSales() async {
-    return [];
-    // var log = const ErrorLogModel(action: AppLogAction.getEmployeeSales);
-    // try {
-    //   var restaurantId = LocalStorage.getDataLogin()?.restaurant?.id ?? -1;
-    //   var apiUrl = '${ApiConfig.getEmployeeSales}?restaurant_id=$restaurantId';
-    //   log = log.copyWith(api: apiUrl);
-
-    //   final response = await restClient.get(Uri.parse(apiUrl));
-
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //   );
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     var body = jsonDecode(response.body);
-    //     if (body['status'] != 200) {
-    //       throw AppException.fromStatusCode(body['status']);
-    //     }
-    //     return (jsonDecode(response.body)['data'] as List)
-    //         .map((e) => EmployeeSaleModel.fromJson(e))
-    //         .toList();
-    //   } else {
-    //     throw AppException.fromStatusCode(response.statusCode);
-    //   }
-    // } catch (ex) {
-    //   showLog(ex.toString(), flags: 'getEmployeeSales ex');
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
-  }
-
-  @override
-  Future<List<HistoryOrderModel>> getOrderHistoryList({
+  Future<ApiResult<List<HistoryOrderModel>>> getOrderHistoryList({
     required DateTime startDate,
     required DateTime endDate,
   }) async {
-    return [];
-    // var api =
-    //     '${ApiConfig.historyOrder}?restaurant_id=${LocalStorage.getDataLogin()?.restaurant?.id}'
-    //     '&start_date=${DateTimeUtils.formatToString(time: startDate, newPattern: 'yyyy-MM-dd')}'
-    //     '&end_date=${DateTimeUtils.formatToString(time: endDate, newPattern: 'yyyy-MM-dd')}';
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.historyOrder,
-    //   api: api,
-    //   modelInterface: ProcessOrderResponse.getModelInterface(),
-    // );
-    // try {
-    //   final response = await restClient.get(Uri.parse(api));
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //   );
-
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     var data = jsonDecode(response.body)['data']['data_histories'];
-    //     return (data as List).map((e) => HistoryOrderModel.fromJson(e)).toList();
-    //   } else {
-    //     throw AppException.fromStatusCode(response.statusCode);
-    //   }
-    // } catch (ex) {
-    //   showLog(ex.toString(), flags: 'getOrderHistoryList ex');
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
+    final apiUrl = '${ApiConfig.apiUrl}/api/v2/order-history'
+        '?restaurant_id=${LocalStorage.getDataLogin()?.restaurant?.id}'
+        '&start_date=${DateTimeUtils.formatToString(time: startDate, newPattern: 'yyyy-MM-dd')}'
+        '&end_date=${DateTimeUtils.formatToString(time: endDate, newPattern: 'yyyy-MM-dd')}';
+    return safeCallApiList(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.get(url);
+      },
+      wrapperResponse: true,
+      dataKey: 'data_histories',
+      parser: (json) => HistoryOrderModel.fromJson(json),
+      log: ErrorLogModel(
+        action: AppLogAction.historyOrder,
+        api: apiUrl,
+      ),
+    );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
+import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -150,8 +151,7 @@ class ReservationModel with _$ReservationModel {
       DateTimeUtils.parseToDateTimeFromHour(timeStr: startTime, date: date);
 
   /// convert field reservationDate format: yyyy-MM-dd to DateTime
-  DateTime get date =>
-      DateTimeUtils.instance.dateFormatYYYYMMDD.parse(reservationDate);
+  DateTime get date => DateTimeUtils.instance.dateFormatYYYYMMDD.parse(reservationDate);
 
   /// convert field status to enum ReservationStatus
   ReservationStatus get reservationStatus => convertReservationStatus(status);
@@ -170,8 +170,9 @@ class ReservationModel with _$ReservationModel {
   //       ReservationStatus.reject,
   //     ].contains(reservationStatus);
 
-  factory ReservationModel.fromJson(Map<String, Object?> json) =>
-      _$ReservationModelFromJson(json);
+  TypeOrderEnum get typeOrder => isOnline ? TypeOrderEnum.online : TypeOrderEnum.offline;
+
+  factory ReservationModel.fromJson(Map<String, Object?> json) => _$ReservationModelFromJson(json);
 
   static String getModelInterface() {
     return '''ReservationModel{

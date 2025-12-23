@@ -1,18 +1,19 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/features/pages/history_order/provider.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class InputSearchBillWidget extends ConsumerStatefulWidget {
-  const InputSearchBillWidget({super.key});
+class OrderSearchField extends ConsumerStatefulWidget {
+  const OrderSearchField({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _InputSearchBillWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _OrderSearchFieldState();
 }
 
-class _InputSearchBillWidgetState extends ConsumerState<InputSearchBillWidget> {
+class _OrderSearchFieldState extends ConsumerState<OrderSearchField> {
   late TextEditingController _controller;
 
   @override
@@ -31,13 +32,13 @@ class _InputSearchBillWidgetState extends ConsumerState<InputSearchBillWidget> {
   Widget build(BuildContext context) {
     var search = ref.watch(historyOrderPageProvider.select((value) => value.textSearch));
     return SizedBox(
-      height: 40,
+      height: 48,
       width: 300,
       child: AppTextFormField(
         hintText: S.current.search_order_history,
         textController: _controller,
-        contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-        prefixIcon: const Icon(CupertinoIcons.search, size: 18),
+        contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 12),
+        prefixIcon: const ResponsiveIconWidget(iconData: CupertinoIcons.search),
         suffixIcon: search.trim().isEmpty
             ? null
             : GestureDetector(
@@ -46,7 +47,7 @@ class _InputSearchBillWidgetState extends ConsumerState<InputSearchBillWidget> {
                   FocusManager.instance.primaryFocus?.unfocus();
                   ref.read(historyOrderPageProvider.notifier).onChangeTextSearch('');
                 },
-                child: const Icon(Icons.clear, size: 18),
+                child: const ResponsiveIconWidget(iconData: Icons.clear),
               ),
         onChanged: (value) {
           ref.read(historyOrderPageProvider.notifier).onChangeTextSearch(value);

@@ -13,6 +13,7 @@ import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
 import 'package:aladdin_franchise/src/core/services/send_log/log_service.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
+import 'package:aladdin_franchise/src/data/model/discount/voucher.dart';
 import 'package:aladdin_franchise/src/data/response/add_voucher.dart';
 import 'package:aladdin_franchise/src/models/customer/customer.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
@@ -56,57 +57,45 @@ class CouponRepositoryImpl extends CouponRepository {
         request: body,
       ),
     );
-    // return CouponResponse(
-    //     data: CouponResponseData(
-    //   status: 200,
-    //   data: [],
-    // ));
-    // var apiUrl = ApiConfig.addCoupon;
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.addCoupon,
-    //   api: apiUrl,
-    //   modelInterface: CouponResponse.getModelInterface(),
-    //   order: order,
-    // );
-    // try {
-    //   final loginData = LocalStorage.getDataLogin();
-    //   final body = jsonEncode(<String, dynamic>{
-    //     "code": code,
-    //     "restaurant": loginData?.restaurant?.id,
-    //     "order_id": order.id,
-    //     "total_order": totalOrder,
-    //     "numberOfAdults": numberOfAdults,
-    //   });
-    //   log = log.copyWith(
-    //     request: body,
-    //   );
-    //   final response = await restClient.post(
-    //     Uri.parse(apiUrl),
-    //     body: body,
-    //   );
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //   );
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     final jsonRes = jsonDecode(response.body);
-    //     final result = CouponResponse.fromJson(jsonRes);
-    //     return result;
-    //   } else {
-    //     checkLockedOrder(response);
-    //     throw AppException.fromHttpResponse(response);
-    //   }
-    // } catch (ex) {
-    //   showLog(ex, flags: "addCoupon ex");
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
   }
 
   @override
-  Future<bool> deleteCoupon({required String idCode, required OrderModel order}) async {
-    return true;
+  Future<ApiResult<bool>> deleteCoupon({required String idCode, required OrderModel order}) async {
+    final apiUrl = "${ApiConfig.apiUrl}/api/v1/mock-api-block-coupon";
+    final body = jsonEncode(<String, dynamic>{
+      "id": idCode,
+      "order_id": order.id,
+    });
+    return safeCallApi(
+      () {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      log: ErrorLogModel(
+        action: AppLogAction.deleteCoupon,
+        api: apiUrl,
+        order: order,
+        request: body,
+      ),
+    );
+    // var apiUrl = "${ApiConfig.apiUrl}/api/v1/calculate-discount-code";
+    // final body = jsonEncode(<String, dynamic>{
+    //   "id": idCode,
+    //   "order_id": order.id,
+    // });
+    // return safeCallApi(
+    //   () {
+    //     final url = Uri.parse(apiUrl);
+    //     return _client.post(url, body: body);
+    //   },
+    //   dataKey: 'data',
+    //   parser: (json) => VoucherModel.fromJson(json),
+    //   log: ErrorLogModel(
+    //     action: AppLogAction.deleteCoupon,
+    //     api: apiUrl,
+    //     order: order,
+    //   ),
+    // );
     //   final apiUrl = ApiConfig.deleteCoupon;
     //   var log = ErrorLogModel(
     //     action: AppLogAction.deleteCoupon,
@@ -146,7 +135,7 @@ class CouponRepositoryImpl extends CouponRepository {
   }
 
   @override
-  Future<ApplyPolicyResponse> applyPolicy({
+  Future<ApiResult<ApplyPolicyResponseData>> applyPolicy({
     required List<CustomerPolicyModel> coupons,
     required List<CustomerPolicyModel> customerPolicy,
     required List<ProductCheckoutModel> products,
@@ -156,12 +145,57 @@ class CouponRepositoryImpl extends CouponRepository {
     required int pointUseToMoney,
     required int numberOfAdults,
   }) async {
-    return ApplyPolicyResponse(
-        data: ApplyPolicyResponseData(
-      status: 200,
-      data: [],
-      dataCreateVouchers: null,
-    ));
+    final apiUrl = "${ApiConfig.apiUrl}/api/v1/mock-api-policy";
+    final loginData = LocalStorage.getDataLogin();
+    if (customer == null && coupons.isNotEmpty) {
+      for (final c in coupons) {
+        if (c.customer != null) {
+          customer = c.customer;
+          break;
+        }
+      }
+    }
+    final body = jsonEncode(<String, dynamic>{
+      "list_coupon": jsonEncode(coupons),
+      "list_customer_policy": jsonEncode(customerPolicy),
+      "list_food": jsonEncode(products),
+      "point_use": pointUseToMoney > 0
+          ? jsonEncode(
+              CustomerPolicyModel(
+                id: 'pointuse',
+                name: 'POINTUSE',
+                type: 16,
+                discount: [
+                  DiscountPolicy(
+                    type: 2,
+                    amount: pointUseToMoney * 1.0,
+                  ),
+                ],
+              ),
+            )
+          : "",
+      "order_id": order.id,
+      "phone": customer?.phoneNumber ?? "",
+      "customer_crm_id": customer?.id,
+      "restaurant_id": loginData?.restaurant?.id,
+      "total_order": totalOrder,
+      "numberOfAdults": numberOfAdults,
+    });
+    return safeCallApi(
+      () {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      wrapperResponse: true,
+      parser: (json) => ApplyPolicyResponseData.fromJson(json),
+      log: ErrorLogModel(
+        action: AppLogAction.applyPolicy,
+        api: apiUrl,
+        order: order,
+        request: body,
+      ),
+    );
+
     //   final apiUrl = ApiConfig.applyPolicy;
     //   var log = ErrorLogModel(
     //     action: AppLogAction.applyPolicy,
@@ -233,89 +267,52 @@ class CouponRepositoryImpl extends CouponRepository {
     //     throw AppException(message: ex.toString());
   }
 
+  /// checked
   @override
-  Future<VoucherResponse> addVoucher({
+  Future<ApiResult<VoucherModel>> addVoucher({
     required OrderModel order,
     required double amount,
     required double totalBill,
     required DiscountTypeEnum type,
   }) async {
-    return VoucherResponse();
-    // var apiUrl = ApiConfig.addVoucher;
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.addVoucher,
-    //   api: apiUrl,
-    //   modelInterface: CouponResponse.getModelInterface(),
-    //   order: order,
-    // );
-    // try {
-    //   final loginData = LocalStorage.getDataLogin();
-    //   final body = jsonEncode(<String, dynamic>{
-    //     "restaurant_id": loginData?.restaurant?.id,
-    //     "order_id": order.id,
-    //     "amount": type == DiscountTypeEnum.percent ? amount.toInt() : amount,
-    //     "total_bill": totalBill,
-    //     "type": type.key,
-    //   });
-    //   log = log.copyWith(request: body);
-    //   final response = await restClient.post(
-    //     Uri.parse(apiUrl),
-    //     body: body,
-    //   );
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //   );
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     final jsonRes = jsonDecode(response.body);
-    //     showLogs(jsonRes, flags: 'add voucher');
-    //     final result = VoucherResponse.fromJson(jsonRes);
-    //     if (result.status != 'success') {
-    //       throw AppException.fromMessage(result.message);
-    //     }
-    //     return result;
-    //   } else {
-    //     checkLockedOrder(response);
-    //     throw AppException.fromHttpResponse(response);
-    //   }
-    // } catch (ex) {
-    //   showLog(ex, flags: "addVoucher ex");
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
+    var apiUrl = "${ApiConfig.apiUrl}/api/v1/calculate-discount-code";
+    final loginData = LocalStorage.getDataLogin();
+    final body = jsonEncode(<String, dynamic>{
+      "restaurant_id": loginData?.restaurant?.id,
+      "order_id": order.id,
+      "amount": type == DiscountTypeEnum.percent ? amount.toInt() : amount,
+      "total_bill": totalBill,
+      "type": type.key,
+    });
+    return safeCallApi(
+      () {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      dataKey: 'data',
+      parser: (json) => VoucherModel.fromJson(json),
+      log: ErrorLogModel(
+        action: AppLogAction.addVoucher,
+        api: apiUrl,
+        order: order,
+      ),
+    );
   }
 
+  /// checked
   @override
-  Future<void> deleteVoucher(dynamic id) async {
-    return;
-    // var apiUrl = ApiConfig.deleteVoucher;
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.deleteVoucher,
-    //   api: apiUrl,
-    //   modelInterface: CouponResponse.getModelInterface(),
-    // );
-    // try {
-    //   final body = jsonEncode(<String, dynamic>{"voucher_id": id});
-    //   log = log.copyWith(request: body);
-    //   final response = await restClient.post(
-    //     Uri.parse(apiUrl),
-    //     body: body,
-    //   );
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //   );
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     final jsonRes = jsonDecode(response.body);
-    //     return;
-    //   } else {
-    //     checkLockedOrder(response);
-    //     throw AppException.fromHttpResponse(response);
-    //   }
-    // } catch (ex) {
-    //   showLog(ex, flags: "deleteVoucher ex");
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
+  Future<ApiResult<void>> deleteVoucher(dynamic id) async {
+    var apiUrl = "${ApiConfig.apiUrl}/api/v1/delete-voucher";
+    final body = jsonEncode(<String, dynamic>{"voucher_id": id});
+    return safeCallApi(
+      () {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      log: ErrorLogModel(
+        action: AppLogAction.deleteVoucher,
+        api: apiUrl,
+      ),
+    );
   }
 }

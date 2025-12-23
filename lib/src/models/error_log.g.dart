@@ -99,6 +99,7 @@ const _$AppLogActionEnumMap = {
   AppLogAction.syncReservation: 'syncReservation',
   AppLogAction.updateReservation: 'updateReservation',
   AppLogAction.getReservations: 'getReservations',
+  AppLogAction.getReservationById: 'getReservationById',
   AppLogAction.getOrderToOnline: 'getOrderToOnline',
   AppLogAction.processO2oRequest: 'processO2oRequest',
   AppLogAction.getChatMessages: 'getChatMessages',

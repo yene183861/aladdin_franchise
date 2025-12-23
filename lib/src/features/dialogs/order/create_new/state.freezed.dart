@@ -16,17 +16,16 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$CreateNewOrderDialogState {
-  List<TableModel> get tableSelect =>
-      throw _privateConstructorUsedError; // @Default([]) List<int> previousTableIds,
+  List<TableModel> get tableSelect => throw _privateConstructorUsedError;
   List<int> get tableIds => throw _privateConstructorUsedError;
   int get tabIndexSelect => throw _privateConstructorUsedError;
   ReservationModel? get reservationSelect => throw _privateConstructorUsedError;
-  String get textSearchReservation => throw _privateConstructorUsedError;
   bool get notifyReservation => throw _privateConstructorUsedError;
   List<ReservationModel> get reservationsAssginTable =>
       throw _privateConstructorUsedError;
   bool get ignoreNotifyReservation => throw _privateConstructorUsedError;
-  int get typeOrderSelect => throw _privateConstructorUsedError;
+  TypeOrderEnum? get typeOrder => throw _privateConstructorUsedError;
+  bool get useReservation => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $CreateNewOrderDialogStateCopyWith<CreateNewOrderDialogState> get copyWith =>
@@ -44,11 +43,11 @@ abstract class $CreateNewOrderDialogStateCopyWith<$Res> {
       List<int> tableIds,
       int tabIndexSelect,
       ReservationModel? reservationSelect,
-      String textSearchReservation,
       bool notifyReservation,
       List<ReservationModel> reservationsAssginTable,
       bool ignoreNotifyReservation,
-      int typeOrderSelect});
+      TypeOrderEnum? typeOrder,
+      bool useReservation});
 
   $ReservationModelCopyWith<$Res>? get reservationSelect;
 }
@@ -71,11 +70,11 @@ class _$CreateNewOrderDialogStateCopyWithImpl<$Res,
     Object? tableIds = null,
     Object? tabIndexSelect = null,
     Object? reservationSelect = freezed,
-    Object? textSearchReservation = null,
     Object? notifyReservation = null,
     Object? reservationsAssginTable = null,
     Object? ignoreNotifyReservation = null,
-    Object? typeOrderSelect = null,
+    Object? typeOrder = freezed,
+    Object? useReservation = null,
   }) {
     return _then(_value.copyWith(
       tableSelect: null == tableSelect
@@ -94,10 +93,6 @@ class _$CreateNewOrderDialogStateCopyWithImpl<$Res,
           ? _value.reservationSelect
           : reservationSelect // ignore: cast_nullable_to_non_nullable
               as ReservationModel?,
-      textSearchReservation: null == textSearchReservation
-          ? _value.textSearchReservation
-          : textSearchReservation // ignore: cast_nullable_to_non_nullable
-              as String,
       notifyReservation: null == notifyReservation
           ? _value.notifyReservation
           : notifyReservation // ignore: cast_nullable_to_non_nullable
@@ -110,10 +105,14 @@ class _$CreateNewOrderDialogStateCopyWithImpl<$Res,
           ? _value.ignoreNotifyReservation
           : ignoreNotifyReservation // ignore: cast_nullable_to_non_nullable
               as bool,
-      typeOrderSelect: null == typeOrderSelect
-          ? _value.typeOrderSelect
-          : typeOrderSelect // ignore: cast_nullable_to_non_nullable
-              as int,
+      typeOrder: freezed == typeOrder
+          ? _value.typeOrder
+          : typeOrder // ignore: cast_nullable_to_non_nullable
+              as TypeOrderEnum?,
+      useReservation: null == useReservation
+          ? _value.useReservation
+          : useReservation // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 
@@ -144,11 +143,11 @@ abstract class _$$CreateNewOrderDialogStateImplCopyWith<$Res>
       List<int> tableIds,
       int tabIndexSelect,
       ReservationModel? reservationSelect,
-      String textSearchReservation,
       bool notifyReservation,
       List<ReservationModel> reservationsAssginTable,
       bool ignoreNotifyReservation,
-      int typeOrderSelect});
+      TypeOrderEnum? typeOrder,
+      bool useReservation});
 
   @override
   $ReservationModelCopyWith<$Res>? get reservationSelect;
@@ -171,11 +170,11 @@ class __$$CreateNewOrderDialogStateImplCopyWithImpl<$Res>
     Object? tableIds = null,
     Object? tabIndexSelect = null,
     Object? reservationSelect = freezed,
-    Object? textSearchReservation = null,
     Object? notifyReservation = null,
     Object? reservationsAssginTable = null,
     Object? ignoreNotifyReservation = null,
-    Object? typeOrderSelect = null,
+    Object? typeOrder = freezed,
+    Object? useReservation = null,
   }) {
     return _then(_$CreateNewOrderDialogStateImpl(
       tableSelect: null == tableSelect
@@ -194,10 +193,6 @@ class __$$CreateNewOrderDialogStateImplCopyWithImpl<$Res>
           ? _value.reservationSelect
           : reservationSelect // ignore: cast_nullable_to_non_nullable
               as ReservationModel?,
-      textSearchReservation: null == textSearchReservation
-          ? _value.textSearchReservation
-          : textSearchReservation // ignore: cast_nullable_to_non_nullable
-              as String,
       notifyReservation: null == notifyReservation
           ? _value.notifyReservation
           : notifyReservation // ignore: cast_nullable_to_non_nullable
@@ -210,10 +205,14 @@ class __$$CreateNewOrderDialogStateImplCopyWithImpl<$Res>
           ? _value.ignoreNotifyReservation
           : ignoreNotifyReservation // ignore: cast_nullable_to_non_nullable
               as bool,
-      typeOrderSelect: null == typeOrderSelect
-          ? _value.typeOrderSelect
-          : typeOrderSelect // ignore: cast_nullable_to_non_nullable
-              as int,
+      typeOrder: freezed == typeOrder
+          ? _value.typeOrder
+          : typeOrder // ignore: cast_nullable_to_non_nullable
+              as TypeOrderEnum?,
+      useReservation: null == useReservation
+          ? _value.useReservation
+          : useReservation // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -226,11 +225,11 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
       final List<int> tableIds = const [],
       this.tabIndexSelect = 0,
       this.reservationSelect,
-      this.textSearchReservation = '',
       this.notifyReservation = false,
       final List<ReservationModel> reservationsAssginTable = const [],
       this.ignoreNotifyReservation = false,
-      this.typeOrderSelect = 2})
+      this.typeOrder,
+      this.useReservation = false})
       : _tableSelect = tableSelect,
         _tableIds = tableIds,
         _reservationsAssginTable = reservationsAssginTable;
@@ -244,9 +243,7 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
     return EqualUnmodifiableListView(_tableSelect);
   }
 
-// @Default([]) List<int> previousTableIds,
   final List<int> _tableIds;
-// @Default([]) List<int> previousTableIds,
   @override
   @JsonKey()
   List<int> get tableIds {
@@ -260,9 +257,6 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
   final int tabIndexSelect;
   @override
   final ReservationModel? reservationSelect;
-  @override
-  @JsonKey()
-  final String textSearchReservation;
   @override
   @JsonKey()
   final bool notifyReservation;
@@ -280,12 +274,14 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
   @JsonKey()
   final bool ignoreNotifyReservation;
   @override
+  final TypeOrderEnum? typeOrder;
+  @override
   @JsonKey()
-  final int typeOrderSelect;
+  final bool useReservation;
 
   @override
   String toString() {
-    return 'CreateNewOrderDialogState(tableSelect: $tableSelect, tableIds: $tableIds, tabIndexSelect: $tabIndexSelect, reservationSelect: $reservationSelect, textSearchReservation: $textSearchReservation, notifyReservation: $notifyReservation, reservationsAssginTable: $reservationsAssginTable, ignoreNotifyReservation: $ignoreNotifyReservation, typeOrderSelect: $typeOrderSelect)';
+    return 'CreateNewOrderDialogState(tableSelect: $tableSelect, tableIds: $tableIds, tabIndexSelect: $tabIndexSelect, reservationSelect: $reservationSelect, notifyReservation: $notifyReservation, reservationsAssginTable: $reservationsAssginTable, ignoreNotifyReservation: $ignoreNotifyReservation, typeOrder: $typeOrder, useReservation: $useReservation)';
   }
 
   @override
@@ -300,8 +296,6 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
                 other.tabIndexSelect == tabIndexSelect) &&
             (identical(other.reservationSelect, reservationSelect) ||
                 other.reservationSelect == reservationSelect) &&
-            (identical(other.textSearchReservation, textSearchReservation) ||
-                other.textSearchReservation == textSearchReservation) &&
             (identical(other.notifyReservation, notifyReservation) ||
                 other.notifyReservation == notifyReservation) &&
             const DeepCollectionEquality().equals(
@@ -309,8 +303,10 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
             (identical(
                     other.ignoreNotifyReservation, ignoreNotifyReservation) ||
                 other.ignoreNotifyReservation == ignoreNotifyReservation) &&
-            (identical(other.typeOrderSelect, typeOrderSelect) ||
-                other.typeOrderSelect == typeOrderSelect));
+            (identical(other.typeOrder, typeOrder) ||
+                other.typeOrder == typeOrder) &&
+            (identical(other.useReservation, useReservation) ||
+                other.useReservation == useReservation));
   }
 
   @override
@@ -320,11 +316,11 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
       const DeepCollectionEquality().hash(_tableIds),
       tabIndexSelect,
       reservationSelect,
-      textSearchReservation,
       notifyReservation,
       const DeepCollectionEquality().hash(_reservationsAssginTable),
       ignoreNotifyReservation,
-      typeOrderSelect);
+      typeOrder,
+      useReservation);
 
   @JsonKey(ignore: true)
   @override
@@ -340,22 +336,20 @@ abstract class _CreateNewOrderDialogState implements CreateNewOrderDialogState {
       final List<int> tableIds,
       final int tabIndexSelect,
       final ReservationModel? reservationSelect,
-      final String textSearchReservation,
       final bool notifyReservation,
       final List<ReservationModel> reservationsAssginTable,
       final bool ignoreNotifyReservation,
-      final int typeOrderSelect}) = _$CreateNewOrderDialogStateImpl;
+      final TypeOrderEnum? typeOrder,
+      final bool useReservation}) = _$CreateNewOrderDialogStateImpl;
 
   @override
   List<TableModel> get tableSelect;
-  @override // @Default([]) List<int> previousTableIds,
+  @override
   List<int> get tableIds;
   @override
   int get tabIndexSelect;
   @override
   ReservationModel? get reservationSelect;
-  @override
-  String get textSearchReservation;
   @override
   bool get notifyReservation;
   @override
@@ -363,7 +357,9 @@ abstract class _CreateNewOrderDialogState implements CreateNewOrderDialogState {
   @override
   bool get ignoreNotifyReservation;
   @override
-  int get typeOrderSelect;
+  TypeOrderEnum? get typeOrder;
+  @override
+  bool get useReservation;
   @override
   @JsonKey(ignore: true)
   _$$CreateNewOrderDialogStateImplCopyWith<_$CreateNewOrderDialogStateImpl>

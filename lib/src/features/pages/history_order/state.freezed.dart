@@ -21,17 +21,10 @@ mixin _$HistoryOrderState {
       throw _privateConstructorUsedError;
   String get messageError => throw _privateConstructorUsedError;
   PageState get getOrderDetailState => throw _privateConstructorUsedError;
-  CustomerModel? get customer =>
-      throw _privateConstructorUsedError; // PriceDataBill? billInfo,
+  CustomerModel? get customer => throw _privateConstructorUsedError;
   List<CustomerPolicyModel> get coupons => throw _privateConstructorUsedError;
   List<ProductCheckoutModel> get productCheckout =>
-      throw _privateConstructorUsedError; // @Default([]) List<HistoryPolicyResultModel> vouchers,
-// @Default([]) List<PaymentMethodDataBill> paymentMethods,
-// String? portrait,
-// int? amountChildren,
-// int? amountAdult,
-// String? description,
-// @Default([]) List<String> imageConfirms,
+      throw _privateConstructorUsedError;
   DataBillResponseData? get dataBill => throw _privateConstructorUsedError;
   DateTime get startDate => throw _privateConstructorUsedError;
   DateTime get endDate => throw _privateConstructorUsedError;
@@ -321,9 +314,7 @@ class _$HistoryOrderStateImpl implements _HistoryOrderState {
   final PageState getOrderDetailState;
   @override
   final CustomerModel? customer;
-// PriceDataBill? billInfo,
   final List<CustomerPolicyModel> _coupons;
-// PriceDataBill? billInfo,
   @override
   @JsonKey()
   List<CustomerPolicyModel> get coupons {
@@ -341,13 +332,6 @@ class _$HistoryOrderStateImpl implements _HistoryOrderState {
     return EqualUnmodifiableListView(_productCheckout);
   }
 
-// @Default([]) List<HistoryPolicyResultModel> vouchers,
-// @Default([]) List<PaymentMethodDataBill> paymentMethods,
-// String? portrait,
-// int? amountChildren,
-// int? amountAdult,
-// String? description,
-// @Default([]) List<String> imageConfirms,
   @override
   final DataBillResponseData? dataBill;
   @override
@@ -436,17 +420,11 @@ abstract class _HistoryOrderState implements HistoryOrderState {
   PageState get getOrderDetailState;
   @override
   CustomerModel? get customer;
-  @override // PriceDataBill? billInfo,
+  @override
   List<CustomerPolicyModel> get coupons;
   @override
   List<ProductCheckoutModel> get productCheckout;
-  @override // @Default([]) List<HistoryPolicyResultModel> vouchers,
-// @Default([]) List<PaymentMethodDataBill> paymentMethods,
-// String? portrait,
-// int? amountChildren,
-// int? amountAdult,
-// String? description,
-// @Default([]) List<String> imageConfirms,
+  @override
   DataBillResponseData? get dataBill;
   @override
   DateTime get startDate;

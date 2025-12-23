@@ -103,6 +103,7 @@ class _ManualConfigWidgetState extends ConsumerState<ManualConfigWidget> {
                           await notifier.saveConfigs(ctrlApiUrl.text.trim());
 
                           ref.refresh(apiUrlProvider);
+                          ref.refresh(enableOrderOnlineProvider);
                           showDoneSnackBar(context: context, message: S.current.saveSuccess);
                           Navigator.popUntil(context, (route) => route.isFirst);
                         },

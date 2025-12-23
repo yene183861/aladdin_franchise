@@ -1,9 +1,7 @@
 import 'package:aladdin_franchise/src/core/network/provider.dart';
-import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
@@ -11,17 +9,12 @@ import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
-import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-
-import 'package:aladdin_franchise/src/configs/app.dart';
 
 import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 
@@ -34,42 +27,18 @@ class UpdateOrderDialog extends ConsumerStatefulWidget {
 
 class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
   List<TableModel> tableSelected = [];
-  bool useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
   bool update = true;
 
-  // Khởi tạo bàn chọn theo bàn hiện tại
   bool isAddSelected = false;
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.refresh(tableAvailableUpdateOrderProvider);
-      // var error = ref.read(reservationsProvider).when(
-      //       data: (data) => false,
-      //       error: (error, stackTrace) => true,
-      //       loading: () => false,
-      //     );
-      // if (error) {
-      //   ref.refresh(reservationsProvider);
-      // }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     final tableAvailable = ref.watch(tableAvailableUpdateOrderProvider);
     final orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
-    List<ReservationModel> reservations = ref.watch(reservationsProvider).when(
-          skipError: false,
-          skipLoadingOnRefresh: false,
-          data: (data) => List.from(data),
-          error: (error, stackTrace) => [],
-          loading: () => [],
-        );
+
     return AlertDialog(
       title: Text(
         S.current.updateAndChoseTable,
-        style: AppTextStyle.bold(rawFontSize: 15),
       ),
       content: SizedBox(
         width: double.maxFinite,
@@ -168,8 +137,7 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: [
         ButtonCancelWidget(
-          onPressed: () => Navigator.pop(
-              context, (orderId: null, reservation: null, requireUpdateReservation: false)),
+          onPressed: () => Navigator.pop(context, null),
         ),
         ButtonSimpleWidget(
           onPressed: () async {
@@ -178,26 +146,15 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
               return;
             }
             final tableIds = tableSelected.map<int>((e) => e.id).toList();
-            // var homeState = ref.read(homeProvider);
+            ReservationModel? reservation = orderSelect?.reservationCrmId == null
+                ? null
+                : ReservationModel(
+                    id: orderSelect?.reservationCrmId,
+                    reservationDate: '',
+                    startTime: '',
+                    endTime: '',
+                  );
 
-            ReservationModel? reservation;
-            bool requireUpdateReservation = false;
-            if (useReservation && orderSelect?.reservationCrmId != null) {
-              reservation =
-                  reservations.firstWhereOrNull((e) => e.id == orderSelect?.reservationCrmId);
-              if (reservation != null &&
-                  (reservation.reservationStatus != ReservationStatus.process ||
-                      !const SetEquality()
-                          .equals((reservation.tableId ?? []).toSet(), tableIds.toSet()))) {
-                requireUpdateReservation = true;
-              }
-              reservation ??= ReservationModel(
-                id: orderSelect?.reservationCrmId,
-                reservationDate: DateTime.now().toString(),
-                endTime: '',
-                startTime: '',
-              );
-            }
             var result = await ref.read(homeProvider.notifier).updateOrder(
                   tableIds,
                   orderSelect!,
@@ -207,21 +164,15 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
             if (result.error == null) {
               if (context.mounted) {
                 showDoneSnackBar(context: context, message: S.current.updateSuccess);
-                Navigator.pop(context, (
-                  orderId: result.orderId,
-                  reservation: requireUpdateReservation
-                      ? reservation?.copyWith(
-                          rejectReason: '',
-                          status: ReservationStatus.process.type,
-                          statusName: ReservationStatus.process.name,
-                          isUpdate: false,
-                          tableId: tableIds,
-                          table: tableSelected.map((e) => e.name ?? '').join(', '),
-                        )
-                      : reservation,
-                  requireUpdateReservation: requireUpdateReservation,
-                ));
               }
+              if (reservation != null) {
+                ref.read(homeProvider.notifier).updateReservationStatus(
+                      reservation.id,
+                      ReservationStatus.process,
+                      tableSelected,
+                    );
+              }
+              Navigator.pop(context, result.orderId);
             } else {
               if (context.mounted) {
                 showErrorDialog(context, message: result.error.toString());
@@ -237,8 +188,7 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
   }
 }
 
-Future<({int? orderId, ReservationModel? reservation, bool requireUpdateReservation})>
-    showUpdateOrderDialog(BuildContext context) async {
+Future<int?> showUpdateOrderDialog(BuildContext context) async {
   final result = await showDialog(
     context: context,
     useRootNavigator: false,

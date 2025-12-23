@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
-class HistoryDateRangeWidget extends ConsumerWidget {
-  const HistoryDateRangeWidget({super.key, this.textColor});
+class HistoryDateRange extends ConsumerWidget {
+  const HistoryDateRange({super.key, this.textColor});
   final Color? textColor;
 
   @override
@@ -19,7 +19,7 @@ class HistoryDateRangeWidget extends ConsumerWidget {
           var dateSelect = await showDateRangePicker(
             context: context,
             firstDate: DateTime(1970, 1, 1),
-            lastDate: DateTime(2100, 1, 1),
+            lastDate: DateTime(9999, 1, 1),
             initialDateRange: DateTimeRange(start: startDate, end: endDate),
           );
           if (dateSelect != null) {

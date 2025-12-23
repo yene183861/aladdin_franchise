@@ -59,13 +59,14 @@ class AppException implements Exception {
       } else if (messageCheck.contains('connection abort')) {
         messageResult = "Kết nối bị huỷ\n$postFixNetwork";
       } else if (messageCheck.contains('reset by peer')) {
-        messageResult =
-            "Có lỗi liên quan đến hệ điều hành, vui lòng thoát phần mềm và vào lại!";
+        messageResult = "Có lỗi liên quan đến hệ điều hành, vui lòng thoát phần mềm và vào lại!";
       } else if (messageCheck.contains('no route to host')) {
         messageResult = "Kết nối máy chủ thất bại\n$postFixNetworkAndServer";
+      } else {
+        messageResult = message.trim().isNotEmpty ? message.trim() : messageResult;
       }
     }
-    return "$messageResult\nSự cố: $message";
+    return messageResult;
   }
 
   AppException.fromStatusCode(int? statusCode) {
@@ -80,8 +81,7 @@ class AppException implements Exception {
 
   AppException({int? statusCode, String? message}) {
     errorCode = statusCode;
-    showLog("\nStatus code: $statusCode\nMessage: $message",
-        flags: "AppException");
+    showLog("\nStatus code: $statusCode\nMessage: $message", flags: "AppException");
 
     messageError = 'Có lỗi không mong muốn xảy ra\nVui lòng thử lại!';
     if (message != null) {

@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
@@ -36,6 +37,17 @@ extension TypeOrderEnumEx on TypeOrderEnum {
         return AppColors.secondColor;
       default:
         return const Color(0xFF2FA7E7);
+    }
+  }
+
+  String get svgIcon {
+    switch (this) {
+      case TypeOrderEnum.offline:
+        return Assets.iconsTableBar;
+      case TypeOrderEnum.online:
+        return Assets.iconsTakeAway;
+      default:
+        return Assets.iconsTableBar;
     }
   }
 }

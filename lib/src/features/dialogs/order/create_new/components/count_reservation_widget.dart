@@ -1,10 +1,8 @@
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
+import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 
 import '../provider.dart';
 
@@ -13,11 +11,11 @@ class CountReservationWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final reservationsAssginTable = ref.watch(createNewOrderDialogProvider
-        .select((value) => value.reservationsAssginTable));
-    final reservationSelect = ref.watch(createNewOrderDialogProvider
-        .select((value) => value.reservationSelect));
-    var reservations = ref.watch(reservationsProvider);
+    final reservationsAssginTable =
+        ref.watch(createNewOrderDialogProvider.select((value) => value.reservationsAssginTable));
+    final reservationSelect =
+        ref.watch(createNewOrderDialogProvider.select((value) => value.reservationSelect));
+    var reservations = ref.watch(reservationsProvider(DateTime.now().date));
     if (reservationSelect != null) {
       return const Icon(
         Icons.task_alt,

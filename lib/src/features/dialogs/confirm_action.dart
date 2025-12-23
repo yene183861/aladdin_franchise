@@ -47,11 +47,8 @@ Future<bool?> showConfirmAction(
               style: AppTextStyle.regular(),
               textAlign: textAlign,
             ),
-            shape: RoundedRectangleBorder(
-                borderRadius: AppConfig.borderRadiusMain),
-            actionsAlignment: notCancel
-                ? MainAxisAlignment.center
-                : MainAxisAlignment.spaceEvenly,
+            shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
+            actionsAlignment: notCancel ? MainAxisAlignment.center : MainAxisAlignment.spaceEvenly,
             actions: [
               if (!notCancel) ...[
                 ButtonCancelWidget(
@@ -97,6 +94,7 @@ Future<bool?> showConfirmActionWithChild(
   /// đóng popup khi bấm button action
   bool closeDialog = true,
   bool noTitle = false,
+  List<Widget> otherActions = const [],
 }) async {
   final result = await showDialog(
       context: context,
@@ -113,8 +111,7 @@ Future<bool?> showConfirmActionWithChild(
                     style: AppTextStyle.semiBold(),
                   ),
             content: child,
-            shape: RoundedRectangleBorder(
-                borderRadius: AppConfig.borderRadiusMain),
+            shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
             actionsAlignment: MainAxisAlignment.spaceEvenly,
             actions: [
               if (!notCancel)
@@ -126,6 +123,7 @@ Future<bool?> showConfirmActionWithChild(
                   },
                 ),
               if (!notCancel) const GapW(16),
+              if (otherActions.isNotEmpty) ...otherActions,
               ButtonSimpleWidget(
                 color: AppColors.bgButtonMain,
                 textColor: AppColors.tcButtonMain,

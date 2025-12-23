@@ -13,4 +13,19 @@ class TextUtil {
     textPainter.layout(minWidth: 0, maxWidth: double.maxFinite);
     return textPainter.size;
   }
+
+  static String convertPhone(String text) {
+    var value = text.trim();
+    if (value.startsWith('+')) {
+      value = value.substring(1);
+    }
+    if (value.length >= 12) {
+      var sb = value.substring(2);
+      return sb;
+    }
+    if (value.startsWith('84')) {
+      value = value.replaceFirst(RegExp('84'), '0');
+    }
+    return value;
+  }
 }

@@ -31,6 +31,7 @@ import 'package:aladdin_franchise/src/models/history_order.dart';
 import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
 import 'package:aladdin_franchise/src/models/o2o/request_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
+import 'package:aladdin_franchise/src/models/param/get_reservation_param.dart';
 import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
 import 'package:aladdin_franchise/src/models/ticket.dart';
@@ -115,19 +116,25 @@ final FutureProvider<({OrdersResponseData? offline, OrdersResponseData? online})
   OrdersResponseData? offData;
   var resultOff =
       await ref.read(orderRepositoryProvider).getOrders(typeOrder: TypeOrderEnum.offline.type);
-  if (resultOff.isSuccess) {
-    offData = resultOff.data;
+  if (!resultOff.isSuccess) {
+    throw AppException(
+      statusCode: resultOff.statusCode,
+      message: resultOff.error,
+    );
   } else {
-    throw AppException.fromMessage(resultOff.error);
+    offData = resultOff.data;
   }
   OrdersResponseData? onData;
   if (ref.read(enableOrderOnlineProvider)) {
     var result =
         await ref.read(orderRepositoryProvider).getOrders(typeOrder: TypeOrderEnum.online.type);
-    if (result.isSuccess) {
-      onData = result.data;
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
     } else {
-      throw AppException.fromMessage(result.error);
+      onData = result.data;
     }
   }
 
@@ -138,6 +145,7 @@ final FutureProvider<({OrdersResponseData? offline, OrdersResponseData? online})
             ? (offData?.userUsing ?? [])
             : (onData?.userUsing ?? []))
         .firstWhereOrNull((e) => e.id == orderCurrent.id);
+
     ref.read(homeProvider.notifier).changeOrderSelect(orderCheck);
   }
   return (offline: offData, online: onData);
@@ -146,35 +154,37 @@ final FutureProvider<({OrdersResponseData? offline, OrdersResponseData? online})
 /// lấy danh sách bàn chưa sử dụng kèm bàn theo đơn đang chọn
 /// [0] - danh sách bàn hiện tại đang chọn
 /// [1] - danh sách bàn chưa sử dụng + bàn hiện tại đang chọn
-final FutureProvider<
-        ({List<TableModel> notUse, List<TableModel> tableSelect, List<TableModel> using})>
-    tableAvailableUpdateOrderProvider = FutureProvider<
-            ({List<TableModel> notUse, List<TableModel> tableSelect, List<TableModel> using})>(
-        (FutureProviderRef<
-                ({List<TableModel> notUse, List<TableModel> tableSelect, List<TableModel> using})>
-            ref) async {
+final tableAvailableUpdateOrderProvider = FutureProvider.autoDispose<
+        ({List<TableModel> notUse, List<TableModel> tableSelect, List<TableModel> using})>(
+    (FutureProviderRef<
+            ({List<TableModel> notUse, List<TableModel> tableSelect, List<TableModel> using})>
+        ref) async {
+  var orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
+  if (orderSelect != null) {
+    final result = await ref.read(orderRepositoryProvider).getOrders();
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    var notUse = List<TableModel>.from(result.data?.notUse ?? []);
+    // các bàn đang sử dụng
+    final using = result.data?.using ?? [];
+    // các bàn mà đơn hàng này đang giữ
+    var tableSelectRaw = orderSelect.name.split(',');
+    List<TableModel> tableSelect = [];
+    for (var tableName in tableSelectRaw) {
+      var tableTemp = using.firstWhere((element) => element.name == tableName);
+      tableSelect.add(tableTemp);
+    }
+    notUse.insertAll(0, tableSelect);
+    return (notUse: notUse, tableSelect: tableSelect, using: using);
+  }
   return (notUse: <TableModel>[], tableSelect: <TableModel>[], using: <TableModel>[]);
-//   var orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
-//   if (orderSelect != null) {
-//     final orderRepo = await ref.read(orderRepositoryProvider).getOrders();
-//     var result = List<TableModel>.from(orderRepo.data.notUse);
-//     // các bàn đang sử dụng
-//     final tableUse = orderRepo.data.using;
-//     // các bàn mà đơn hàng này đang giữ
-//     var tableSelectRaw = orderSelect.name.split(',');
-//     List<TableModel> tableSelect = [];
-//     for (var tableName in tableSelectRaw) {
-//       var tableTemp = tableUse.firstWhere((element) => element.name == tableName);
-//       tableSelect.add(tableTemp);
-//     }
-//     result.insertAll(0, tableSelect);
-//     return (notUse: result, tableSelect: tableSelect, using: tableUse);
-//     // return [tableSelect, result, orderRepo.data.using];
-//   }
-//   return (notUse: <TableModel>[], tableSelect: <TableModel>[], using: <TableModel>[]);
-// });
+});
 
-// /// lấy danh sách món đã gọi + lịch sử gọi món
+/// lấy danh sách món đã gọi + lịch sử gọi món
 // final FutureProvider<ProductCheckoutResponseData?> productCheckoutProvider =
 //     FutureProvider<ProductCheckoutResponseData?>(
 //         (FutureProviderRef<ProductCheckoutResponseData?> ref) async {
@@ -182,7 +192,7 @@ final FutureProvider<
 //   final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
 //   final data = await ref.read(orderRepositoryProvider).getProductCheckout(orderSelect);
 //   return productRepo.data?.first;
-});
+// });
 
 /// Lấy tổng tiền hoá đơn hiện tại
 final FutureProvider<double> priceProductCheckoutProvider =
@@ -210,35 +220,64 @@ final FutureProvider<double> priceProductCheckoutProvider =
 /// [[1]] - Danh sách bàn chưa sử dụng + bàn hiện tại đang chọn
 ///
 /// [[2]] - Danh sách waiter
-final FutureProvider<List<List<dynamic>>> tableAvailableAndWaiterTransferOrderProvider =
-    FutureProvider<List<List<dynamic>>>((FutureProviderRef<List<List<dynamic>>> ref) async {
-  // _logEvent('tableAvailableAndWaiterTransferOrderProvider');
-  // var orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
-  // if (orderSelect != null) {
-  //   final orderRepo = await ref.read(orderRepositoryProvider).getOrders();
-  //   var tableAvailable = List<TableModel>.from(orderRepo.data.notUse);
-  //   // các bàn đang sử dụng
-  //   final tableUse = orderRepo.data.using;
-  //   // các bàn mà đơn hàng này đang giữ
-  //   var tableSelectRaw = orderSelect.name.split(',');
-  //   List<TableModel> tableCurrentSelect = [];
-  //   for (var tableName in tableSelectRaw) {
-  //     var tableTemp = tableUse.firstWhere((element) => element.name == tableName);
-  //     tableCurrentSelect.add(tableTemp);
-  //   }
-  //   tableAvailable.insertAll(0, tableCurrentSelect);
-  //   return [tableCurrentSelect, tableAvailable, orderRepo.data.waiters ?? [], tableUse];
-  // }
-  return [];
+final tableAvailableAndWaiterTransferOrderProvider = FutureProvider.autoDispose<
+    ({
+      List<TableModel> currentSelect,
+      List<TableModel> notUse,
+      List<WaiterModel> waiters,
+      List<TableModel> using,
+    })>((FutureProviderRef<
+        ({
+          List<TableModel> currentSelect,
+          List<TableModel> notUse,
+          List<WaiterModel> waiters,
+          List<TableModel> using,
+        })>
+    ref) async {
+  var orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
+  final result = await ref.read(orderRepositoryProvider).getOrders();
+  if (!result.isSuccess) {
+    throw AppException(
+      statusCode: result.statusCode,
+      message: result.error,
+    );
+  }
+  var tableAvailable = List<TableModel>.from(result.data?.notUse ?? []);
+  // các bàn đang sử dụng
+  final using = result.data?.using ?? [];
+
+  List<TableModel> tableCurrentSelect = [];
+  if (orderSelect != null) {
+    // các bàn mà đơn hàng này đang giữ
+    var tableSelectRaw = orderSelect.name.split(',');
+    for (var tableName in tableSelectRaw) {
+      var tableTemp = using.firstWhere((element) => element.name == tableName);
+      tableCurrentSelect.add(tableTemp);
+    }
+    tableAvailable.insertAll(0, tableCurrentSelect);
+
+    return (
+      currentSelect: tableCurrentSelect,
+      notUse: tableAvailable,
+      waiters: result.data?.waiters ?? [],
+      using: using,
+    );
+  }
+  return (
+    currentSelect: tableCurrentSelect,
+    notUse: tableAvailable,
+    waiters: result.data?.waiters ?? [],
+    using: using,
+  );
 });
 
 /// Lấy danh sách phục vụ tại nhà hàng
 
-final waitersProvider = FutureProvider.autoDispose<List<WaiterModel>>((ref) async {
-  return [];
-  // final orderRepo = await ref.read(orderRepositoryProvider).getOrders();
-  // return orderRepo.data.waiters ?? [];
-});
+// final waitersProvider = FutureProvider.autoDispose<List<WaiterModel>>((ref) async {
+//   return [];
+//   // final orderRepo = await ref.read(orderRepositoryProvider).getOrders();
+//   // return orderRepo.data.waiters ?? [];
+// });
 
 final historyOrderProvider = FutureProvider.autoDispose<List<HistoryOrderModel>>((ref) async {
   var startDate = ref.watch(historyOrderPageProvider.select((value) => value.startDate));
@@ -246,21 +285,37 @@ final historyOrderProvider = FutureProvider.autoDispose<List<HistoryOrderModel>>
   var result = await ref
       .read(restaurantRepositoryProvider)
       .getOrderHistoryList(startDate: startDate, endDate: endDate);
-  return result;
-});
+  if (!result.isSuccess) {
+    throw AppException(
+      statusCode: result.statusCode,
+      message: result.error,
+    );
+  }
 
-final ticketsProvider = FutureProvider.autoDispose<List<TicketModel>>((ref) async {
-  var result = await ref.read(ticketRepositoryProvider).getTickets();
-  return result;
-});
-
-final reservationsProvider = FutureProvider.autoDispose<List<ReservationModel>>((ref) async {
-  var useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
-  if (!useReservation) return [];
-  var result = await ref.read(reservationRepositoryProvider).getReservations();
-  if (!result.isSuccess) throw result.error;
   return result.data ?? [];
 });
+
+// final ticketsProvider = FutureProvider.autoDispose<List<TicketModel>>((ref) async {
+//   var result = await ref.read(ticketRepositoryProvider).getTickets();
+//   return result;
+// });
+
+final reservationsProvider = FutureProvider.autoDispose.family<List<ReservationModel>, DateTime>(
+  (ref, date) async {
+    var useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
+    if (!useReservation) return [];
+    var param = GetReservationParam(
+      retaurantId: LocalStorage.getDataLogin()?.restaurant?.id ?? 0,
+      startDate: date,
+      endDate: date,
+    );
+
+    showLogs(date, flags: 'date lấy lịch');
+    var result = await ref.read(reservationRepositoryProvider).getReservations(param);
+    if (!result.isSuccess) throw AppException(statusCode: result.statusCode, message: result.error);
+    return result.data ?? [];
+  },
+);
 
 final orderToOnlineProvider =
     FutureProvider.autoDispose<Map<O2OOrderModel, Map<String, dynamic>>>((ref) async {
@@ -418,5 +473,11 @@ final todayHistoryOrderProvider = FutureProvider.autoDispose<List<HistoryOrderMo
   var result = await ref
       .read(restaurantRepositoryProvider)
       .getOrderHistoryList(startDate: today.subtract(const Duration(days: 1)), endDate: today);
-  return result;
+  if (!result.isSuccess) {
+    throw AppException(
+      statusCode: result.statusCode,
+      message: result.error,
+    );
+  }
+  return result.data ?? [];
 });

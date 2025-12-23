@@ -1,70 +1,52 @@
 import 'dart:convert';
 
 import 'package:aladdin_franchise/src/configs/api.dart';
-import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
-import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
+import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
 import 'package:aladdin_franchise/src/core/network/repository/customer/customer_repository.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/customer.dart';
-import 'package:aladdin_franchise/src/core/network/repository/responses/customer_create.dart';
 import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
-import 'package:aladdin_franchise/src/core/services/send_log/log_service.dart';
+import 'package:aladdin_franchise/src/core/network/repository/responses/customer_create.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
 
-class CustomerRepositoryImpl extends CustomerRepository {final RestClient _client;
+class CustomerRepositoryImpl extends CustomerRepository {
+  final RestClient _client;
 
   CustomerRepositoryImpl(this._client);
-  @override
-  Future<CustomerResponse> findCustomer(
-      {required String phoneNumber, required OrderModel order}) async {
-    return CustomerResponse(
-        data: CustomerResponseData(
-      status: 200,
-      data: [],
-      customer: null,
-    ));
-    // var apiUrl = ApiConfig.getInfoCustomer;
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.findCustomer,
-    //   api: apiUrl,
-    //   modelInterface: CustomerResponse.getModelInterface(),
-    //   order: order,
-    // );
-    // try {
-    //   final loginData = LocalStorage.getDataLogin();
-    //   final body = jsonEncode(<String, dynamic>{
-    //     "phone_number": phoneNumber,
-    //     "restaurant_id": loginData?.restaurant?.id,
-    //     "order_id": order.id,
-    //   });
-    //   log = log.copyWith(request: body);
-    //   final response = await restClient.post(
-    //     Uri.parse(apiUrl),
-    //     body: body,
-    //   );
-    //   log = log.copyWith(response: [response.statusCode, response.body]);
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     final jsonRes = jsonDecode(response.body);
-    //     final result = CustomerResponse.fromJson(jsonRes);
-    //     return result;
-    //   } else {
-    //     checkLockedOrder(response);
-    //     throw AppException.fromHttpResponse(response);
-    //   }
-    // } catch (ex) {
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
 
-    //   showLog(ex, flags: "findCustomer ex");
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
+  /// checked
+  @override
+  Future<ApiResult<CustomerResponseData>> findCustomer(
+      {required String phoneNumber, required OrderModel order}) async {
+    var apiUrl = "${ApiConfig.apiUrl}/api/v1/mock-api-promotion";
+
+    final loginData = LocalStorage.getDataLogin();
+    final body = jsonEncode(<String, dynamic>{
+      "phone_number": phoneNumber,
+      "restaurant_id": loginData?.restaurant?.id,
+      "order_id": order.id,
+    });
+    return safeCallApi(
+      () {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      wrapperResponse: true,
+      parser: (json) => CustomerResponseData.fromJson(json),
+      log: ErrorLogModel(
+        action: AppLogAction.findCustomer,
+        api: apiUrl,
+        request: body,
+        order: order,
+      ),
+    );
   }
 
+  /// checked
   @override
-  Future<bool> createCustomer({
+  Future<ApiResult<bool>> createCustomer({
     required String phone,
     required String firstName,
     required String lastName,
@@ -74,49 +56,49 @@ class CustomerRepositoryImpl extends CustomerRepository {final RestClient _clien
     String? idCardNumber,
     String? address,
   }) async {
-    return true;
-    // final apiUrl = ApiConfig.createCustomer;
-    // final body = jsonEncode(<String, dynamic>{
-    //   "phone": phone,
-    //   "first_name": firstName,
-    //   "last_name": lastName,
-    //   "birthday": birthday.isEmpty ? "0" : birthday,
-    //   "gender": gender,
-    //   "id_card_number": idCardNumber,
-    //   "address": address,
-    //   "order_id": order.id,
-    // });
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.createCustomer,
-    //   api: apiUrl,
-    //   modelInterface: "bool",
-    //   order: order,
-    //   request: body,
-    // );
-    // try {
-    //   final response = await restClient.post(
-    //     Uri.parse(apiUrl),
-    //     body: body,
-    //   );
-    //   log = log.copyWith(response: [response.statusCode, response.body]);
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     var jsonRes = jsonDecode(response.body);
-    //     CustomerCreateResponse.fromJson(jsonRes);
-    //     return true;
-    //   } else {
-    //     throw AppException.fromHttpResponse(response);
-    //   }
-    // } catch (ex) {
-    //   showLog(ex, flags: 'createCustomer ex');
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
+    var apiUrl = "${ApiConfig.apiUrl}/api/v1/mock-api-customer";
+    final body = jsonEncode(<String, dynamic>{
+      "phone": phone,
+      "first_name": firstName,
+      "last_name": lastName,
+      "birthday": birthday.isEmpty ? "0" : birthday,
+      "gender": gender,
+      "id_card_number": idCardNumber,
+      "address": address,
+      "order_id": order.id,
+    });
+    return safeCallApi(
+      () {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      wrapperResponse: true,
+      parser: (json) {
+        CustomerCreateResponseData.fromJson(json);
+        return true;
+      },
+      log: ErrorLogModel(
+        action: AppLogAction.createCustomer,
+        api: apiUrl,
+        request: body,
+      ),
+    );
   }
 
   @override
-  Future<void> resetCustomer({required int orderId}) async {
-    return;
+  Future<ApiResult<void>> resetCustomer(int orderId) async {
+    var apiUrl = "${ApiConfig.apiUrl}/api/v1/status-lock-order?order_id=$orderId";
+    return safeCallApi(
+      () {
+        final url = Uri.parse(apiUrl);
+        return _client.get(url);
+      },
+      log: ErrorLogModel(
+        action: AppLogAction.resetCustomer,
+        api: apiUrl,
+        order: OrderModel(id: orderId),
+      ),
+    );
     // final apiUrl = "${ApiConfig.statusLockOrder}?order_id=$orderId";
     // var log = ErrorLogModel(
     //   action: AppLogAction.resetCustomer,

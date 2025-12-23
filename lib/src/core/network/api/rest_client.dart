@@ -38,17 +38,15 @@ class RestClient extends http.BaseClient {
     var defaultHeaders = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Authorization': 'Bearer $kToken',
+      if (kToken.isNotEmpty) 'Authorization': 'Bearer $kToken',
       'x-status-order': '${typeOrder ?? kTypeOrder}',
       'x-location': kAppLanguageLocal,
       'x-device-id': kDeviceId,
     };
-    if (headers == null) {
-      headers = defaultHeaders;
-    } else {
-      headers.addAll(defaultHeaders);
+    if (headers != null) {
+      defaultHeaders.addAll(headers);
     }
-    var res = await _httpClient.post(url, headers: headers, body: body).timeout(
+    var res = await _httpClient.post(url, headers: defaultHeaders, body: body).timeout(
           const Duration(seconds: 100),
           onTimeout: () => http.Response(
             NetworkMessageConfig.connectionTimeout,
@@ -65,17 +63,15 @@ class RestClient extends http.BaseClient {
     var defaultHeaders = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Authorization': 'Bearer $kToken',
+      if (kToken.isNotEmpty) 'Authorization': 'Bearer $kToken',
       'x-status-order': '${typeOrder ?? kTypeOrder}',
       'x-location': kAppLanguageLocal,
       'x-device-id': kDeviceId,
     };
-    if (headers == null) {
-      headers = defaultHeaders;
-    } else {
-      headers.addAll(defaultHeaders);
+    if (headers != null) {
+      defaultHeaders.addAll(headers);
     }
-    var res = await _httpClient.get(url, headers: headers).timeout(
+    var res = await _httpClient.get(url, headers: defaultHeaders).timeout(
           const Duration(seconds: 100),
           onTimeout: () => http.Response(
             NetworkMessageConfig.connectionTimeout,
@@ -92,17 +88,15 @@ class RestClient extends http.BaseClient {
     var defaultHeaders = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Authorization': 'Bearer $kToken',
+      if (kToken.isNotEmpty) 'Authorization': 'Bearer $kToken',
       'x-status-order': '${typeOrder ?? kTypeOrder}',
       'x-location': kAppLanguageLocal,
       'x-device-id': kDeviceId,
     };
-    if (headers == null) {
-      headers = defaultHeaders;
-    } else {
-      headers.addAll(defaultHeaders);
+    if (headers != null) {
+      defaultHeaders.addAll(headers);
     }
-    var res = await _httpClient.post(url, headers: headers, body: body).timeout(
+    var res = await _httpClient.put(url, headers: defaultHeaders, body: body).timeout(
           const Duration(seconds: 100),
           onTimeout: () => http.Response(
             NetworkMessageConfig.connectionTimeout,

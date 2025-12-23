@@ -31,7 +31,7 @@ class ApiResult<T> {
 ///
 Future<ApiResult<T>> safeCallApi<T>(
   Future<http.Response> Function() request, {
-  Future<T> Function(dynamic json)? parser,
+  T Function(dynamic json)? parser,
   String? dataKey,
   bool wrapperResponse = false,
   ErrorLogModel? log,
@@ -47,21 +47,56 @@ Future<ApiResult<T>> safeCallApi<T>(
     if (response.statusCode >= 200 && response.statusCode <= 226) {
       var jsonData = jsonDecode(response.body);
       jsonData = wrapperResponse ? jsonData['data'] : jsonData;
-      final data = dataKey != null ? jsonData[dataKey] : jsonData;
-      if (parser != null) {
-        try {
-          var result = await parser(data);
-          return ApiResult.success(response.statusCode, result);
-        } catch (ex) {
-          if (ex is ApiResult) {
-            result = ex as ApiResult<T>;
-          } else {
-            rethrow;
+      if (jsonData is Map) {
+        dynamic status = jsonData['status'];
+        var message = jsonData['message'] as String?;
+        // dành cho case statusCode = 200 nhưng status != 200
+        if (status != null) {
+          switch (status.runtimeType) {
+            case int:
+              if (status != 200) {
+                result = ApiResult.failure(
+                  status,
+                  message ?? AppException.fromHttpResponse(response).toString(),
+                );
+                _pushLog(result, errorLog);
+                return result;
+              }
+              break;
+            case String:
+              if (status != 'success') {
+                result = ApiResult.failure(
+                  response.statusCode,
+                  message ?? AppException.fromHttpResponse(response).toString(),
+                );
+                _pushLog(result, errorLog);
+                return result;
+              }
+              break;
+
+            case bool:
+              if (!status) {
+                result = ApiResult.failure(
+                  response.statusCode,
+                  message ?? AppException.fromHttpResponse(response).toString(),
+                );
+                _pushLog(result, errorLog);
+                return result;
+              }
+              break;
+            default:
           }
         }
-        // return ApiResult.success(response.statusCode, parser(data));
       }
-      return ApiResult.success(response.statusCode, data as T);
+      final data = dataKey != null ? jsonData[dataKey] : jsonData;
+      if (parser != null) {
+        result = ApiResult.success(response.statusCode, parser(data));
+        _pushLog(result, errorLog);
+        return result;
+      }
+      result = ApiResult.success(response.statusCode, data as T);
+      _pushLog(result, errorLog);
+      return result;
     } else {
       result = ApiResult.failure(
         response.statusCode,
@@ -74,6 +109,11 @@ Future<ApiResult<T>> safeCallApi<T>(
       999,
       'Lỗi kết nối: ${AppException(message: e.message).toString()}',
     );
+  } on AppException catch (e) {
+    result = ApiResult.failure(
+      e.errorCode ?? 999,
+      e.messageError,
+    );
   } catch (e) {
     showLog(e, flags: 'safeCallApi');
     result = ApiResult.failure(
@@ -81,12 +121,7 @@ Future<ApiResult<T>> safeCallApi<T>(
       AppException(message: e.toString()).toString(),
     );
   }
-  if (!result.isSuccess && errorLog != null) {
-    LogService.sendLogs(errorLog.copyWith(
-      createAt: DateTime.now(),
-      errorMessage: result.error,
-    ));
-  }
+  _pushLog(result, errorLog);
   return result;
 }
 
@@ -96,7 +131,6 @@ Future<ApiResult<List<T>>> safeCallApiList<T>(
   String? dataKey,
   bool wrapperResponse = false,
   ErrorLogModel? log,
-  Future<ApiResult<List<T>>> Function(Map<String, dynamic> json)? checkBeforeParse,
 }) async {
   ApiResult<List<T>> result;
   ErrorLogModel? errorLog = log;
@@ -108,21 +142,59 @@ Future<ApiResult<List<T>>> safeCallApiList<T>(
     if (response.statusCode >= 200 && response.statusCode <= 226) {
       var jsonData = jsonDecode(response.body);
       jsonData = wrapperResponse ? jsonData['data'] : jsonData;
-      if (checkBeforeParse != null) {
-        var check = await checkBeforeParse(jsonData);
-        if (!check.isSuccess) {
-          result = check;
+      if (jsonData is Map) {
+        dynamic status = jsonData['status'];
+        var message = jsonData['message'] as String?;
+        // dành cho case statusCode = 200 nhưng status != 200
+        if (status != null) {
+          switch (status.runtimeType) {
+            case int:
+              if (status != 200) {
+                result = ApiResult.failure(
+                  status,
+                  message ?? AppException.fromHttpResponse(response).toString(),
+                );
+                _pushLog(result, errorLog);
+                return result;
+              }
+              break;
+            case String:
+              if (status != 'success') {
+                result = ApiResult.failure(
+                  response.statusCode,
+                  message ?? AppException.fromHttpResponse(response).toString(),
+                );
+                _pushLog(result, errorLog);
+                return result;
+              }
+              break;
+
+            case bool:
+              if (!status) {
+                result = ApiResult.failure(
+                  response.statusCode,
+                  message ?? AppException.fromHttpResponse(response).toString(),
+                );
+                _pushLog(result, errorLog);
+                return result;
+              }
+              break;
+            default:
+          }
         }
       }
-
       final list = (dataKey != null ? jsonData[dataKey] : jsonData) as List<dynamic>;
       if (parser != null) {
-        return ApiResult.success(
+        result = ApiResult.success(
           response.statusCode,
           list.map((item) => parser(item as Map<String, dynamic>)).toList(),
         );
+        _pushLog(result, errorLog);
+        return result;
       }
-      return ApiResult.success(response.statusCode, list.cast<T>());
+      result = ApiResult.success(response.statusCode, list.cast<T>());
+      _pushLog(result, errorLog);
+      return result;
     } else {
       result = ApiResult.failure(
         response.statusCode,
@@ -132,8 +204,11 @@ Future<ApiResult<List<T>>> safeCallApiList<T>(
   } on http.ClientException catch (e) {
     showLog(e, flags: 'safeCallApiList ClientException');
     result = ApiResult.failure(444, 'Lỗi kết nối: ${AppException(message: e.message).toString()}');
-  } on ApiResult catch (e) {
-    result = e;
+  } on AppException catch (e) {
+    result = ApiResult.failure(
+      e.errorCode ?? 999,
+      e.messageError,
+    );
   } catch (e) {
     showLog(e, flags: 'safeCallApiList');
     result = ApiResult.failure(
@@ -141,11 +216,17 @@ Future<ApiResult<List<T>>> safeCallApiList<T>(
       AppException(message: e.toString()).toString(),
     );
   }
+  _pushLog(result, errorLog);
+
+  return result;
+}
+
+void _pushLog(ApiResult<dynamic> result, ErrorLogModel? errorLog) {
   if (!result.isSuccess && errorLog != null) {
+    // return;
     LogService.sendLogs(errorLog.copyWith(
       createAt: DateTime.now(),
       errorMessage: result.error,
     ));
   }
-  return result;
 }

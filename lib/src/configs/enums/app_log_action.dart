@@ -79,6 +79,7 @@ enum AppLogAction {
   syncReservation,
   updateReservation,
   getReservations,
+  getReservationById,
 
   /// o2o
   getOrderToOnline,
@@ -331,6 +332,7 @@ extension ExtAppLogAction on AppLogAction {
       case AppLogAction.syncReservation:
         return "https://discord.com/api/webhooks/1423125645268877333/XNp-_JabJNSL0zqDsc1YV2Y9M-ou9ZHqZYUYNMdSuC3d-jcf0BW4mz5LOptLPLYZ1axb";
       case AppLogAction.getReservations:
+      case AppLogAction.getReservationById:
         return "https://discord.com/api/webhooks/1423126051990798456/4w2vwsiOBLeIwFsGn2ai1ItQ63yy4HRgbk0tE5kPovzUHjIQsLVdHRM6KpvFSKQCHXOY";
       case AppLogAction.updateReservation:
         return "https://discord.com/api/webhooks/1423125644086214788/qCa7YMHimy4Dmjk8udU1I80L5HJeqD4ipng-p6mjrkQyioVSRIclX98-UR251FduESKU";
