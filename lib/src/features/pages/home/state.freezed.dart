@@ -167,21 +167,6 @@ mixin _$HomeState {
   String get messageError => throw _privateConstructorUsedError;
   bool get realtimeStatus => throw _privateConstructorUsedError;
   bool get reconnectRedis => throw _privateConstructorUsedError;
-
-  /// danh mục, món
-  PageState get productsState => throw _privateConstructorUsedError;
-  List<CategoryModel> get categories => throw _privateConstructorUsedError;
-  List<ProductModel> get products => throw _privateConstructorUsedError;
-  List<TagProductModel> get tags => throw _privateConstructorUsedError;
-
-  /// chứa category, subcategory, dấu >
-  List<dynamic> get menuCategoryItem => throw _privateConstructorUsedError;
-  CategoryModel? get categorySelect => throw _privateConstructorUsedError;
-  SubCategoryModel? get subCategorySelect => throw _privateConstructorUsedError;
-  TagProductModel? get tagSelect => throw _privateConstructorUsedError;
-
-  ///
-  String get search => throw _privateConstructorUsedError;
   bool get ignoreCheckCodeWaiter => throw _privateConstructorUsedError;
 
   /// đơn bàn
@@ -229,8 +214,7 @@ mixin _$HomeState {
 
   /// hoá đơn
   OrderInvoice? get invoice => throw _privateConstructorUsedError;
-  PageState get orderInvoiceState => throw _privateConstructorUsedError; //
-  bool get checkReloadWhenHiddenApp => throw _privateConstructorUsedError;
+  PageState get orderInvoiceState => throw _privateConstructorUsedError;
 
   /// thông tin tiền
   DataBillResponseData get dataBill => throw _privateConstructorUsedError;
@@ -288,15 +272,6 @@ abstract class $HomeStateCopyWith<$Res> {
       String messageError,
       bool realtimeStatus,
       bool reconnectRedis,
-      PageState productsState,
-      List<CategoryModel> categories,
-      List<ProductModel> products,
-      List<TagProductModel> tags,
-      List<dynamic> menuCategoryItem,
-      CategoryModel? categorySelect,
-      SubCategoryModel? subCategorySelect,
-      TagProductModel? tagSelect,
-      String search,
       bool ignoreCheckCodeWaiter,
       OrderModel? orderSelect,
       bool lockedOrder,
@@ -323,7 +298,6 @@ abstract class $HomeStateCopyWith<$Res> {
       AtmPosModel? atmPosSelect,
       OrderInvoice? invoice,
       PageState orderInvoiceState,
-      bool checkReloadWhenHiddenApp,
       DataBillResponseData dataBill,
       PageState dataBillState,
       List<File> imageBills,
@@ -345,10 +319,6 @@ abstract class $HomeStateCopyWith<$Res> {
       PageState getChatMessageState,
       DiscountTypeEnum discountTypeSelect});
 
-  $PageStateCopyWith<$Res> get productsState;
-  $CategoryModelCopyWith<$Res>? get categorySelect;
-  $SubCategoryModelCopyWith<$Res>? get subCategorySelect;
-  $TagProductModelCopyWith<$Res>? get tagSelect;
   $OrderModelCopyWith<$Res>? get orderSelect;
   $PageStateCopyWith<$Res> get productCheckoutState;
   $CustomerModelCopyWith<$Res>? get customer;
@@ -384,15 +354,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? messageError = null,
     Object? realtimeStatus = null,
     Object? reconnectRedis = null,
-    Object? productsState = null,
-    Object? categories = null,
-    Object? products = null,
-    Object? tags = null,
-    Object? menuCategoryItem = null,
-    Object? categorySelect = freezed,
-    Object? subCategorySelect = freezed,
-    Object? tagSelect = freezed,
-    Object? search = null,
     Object? ignoreCheckCodeWaiter = null,
     Object? orderSelect = freezed,
     Object? lockedOrder = null,
@@ -419,7 +380,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? atmPosSelect = freezed,
     Object? invoice = freezed,
     Object? orderInvoiceState = null,
-    Object? checkReloadWhenHiddenApp = null,
     Object? dataBill = null,
     Object? dataBillState = null,
     Object? imageBills = null,
@@ -458,42 +418,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.reconnectRedis
           : reconnectRedis // ignore: cast_nullable_to_non_nullable
               as bool,
-      productsState: null == productsState
-          ? _value.productsState
-          : productsState // ignore: cast_nullable_to_non_nullable
-              as PageState,
-      categories: null == categories
-          ? _value.categories
-          : categories // ignore: cast_nullable_to_non_nullable
-              as List<CategoryModel>,
-      products: null == products
-          ? _value.products
-          : products // ignore: cast_nullable_to_non_nullable
-              as List<ProductModel>,
-      tags: null == tags
-          ? _value.tags
-          : tags // ignore: cast_nullable_to_non_nullable
-              as List<TagProductModel>,
-      menuCategoryItem: null == menuCategoryItem
-          ? _value.menuCategoryItem
-          : menuCategoryItem // ignore: cast_nullable_to_non_nullable
-              as List<dynamic>,
-      categorySelect: freezed == categorySelect
-          ? _value.categorySelect
-          : categorySelect // ignore: cast_nullable_to_non_nullable
-              as CategoryModel?,
-      subCategorySelect: freezed == subCategorySelect
-          ? _value.subCategorySelect
-          : subCategorySelect // ignore: cast_nullable_to_non_nullable
-              as SubCategoryModel?,
-      tagSelect: freezed == tagSelect
-          ? _value.tagSelect
-          : tagSelect // ignore: cast_nullable_to_non_nullable
-              as TagProductModel?,
-      search: null == search
-          ? _value.search
-          : search // ignore: cast_nullable_to_non_nullable
-              as String,
       ignoreCheckCodeWaiter: null == ignoreCheckCodeWaiter
           ? _value.ignoreCheckCodeWaiter
           : ignoreCheckCodeWaiter // ignore: cast_nullable_to_non_nullable
@@ -598,10 +522,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.orderInvoiceState
           : orderInvoiceState // ignore: cast_nullable_to_non_nullable
               as PageState,
-      checkReloadWhenHiddenApp: null == checkReloadWhenHiddenApp
-          ? _value.checkReloadWhenHiddenApp
-          : checkReloadWhenHiddenApp // ignore: cast_nullable_to_non_nullable
-              as bool,
       dataBill: null == dataBill
           ? _value.dataBill
           : dataBill // ignore: cast_nullable_to_non_nullable
@@ -683,50 +603,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           : discountTypeSelect // ignore: cast_nullable_to_non_nullable
               as DiscountTypeEnum,
     ) as $Val);
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $PageStateCopyWith<$Res> get productsState {
-    return $PageStateCopyWith<$Res>(_value.productsState, (value) {
-      return _then(_value.copyWith(productsState: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $CategoryModelCopyWith<$Res>? get categorySelect {
-    if (_value.categorySelect == null) {
-      return null;
-    }
-
-    return $CategoryModelCopyWith<$Res>(_value.categorySelect!, (value) {
-      return _then(_value.copyWith(categorySelect: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $SubCategoryModelCopyWith<$Res>? get subCategorySelect {
-    if (_value.subCategorySelect == null) {
-      return null;
-    }
-
-    return $SubCategoryModelCopyWith<$Res>(_value.subCategorySelect!, (value) {
-      return _then(_value.copyWith(subCategorySelect: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $TagProductModelCopyWith<$Res>? get tagSelect {
-    if (_value.tagSelect == null) {
-      return null;
-    }
-
-    return $TagProductModelCopyWith<$Res>(_value.tagSelect!, (value) {
-      return _then(_value.copyWith(tagSelect: value) as $Val);
-    });
   }
 
   @override
@@ -900,15 +776,6 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       String messageError,
       bool realtimeStatus,
       bool reconnectRedis,
-      PageState productsState,
-      List<CategoryModel> categories,
-      List<ProductModel> products,
-      List<TagProductModel> tags,
-      List<dynamic> menuCategoryItem,
-      CategoryModel? categorySelect,
-      SubCategoryModel? subCategorySelect,
-      TagProductModel? tagSelect,
-      String search,
       bool ignoreCheckCodeWaiter,
       OrderModel? orderSelect,
       bool lockedOrder,
@@ -935,7 +802,6 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       AtmPosModel? atmPosSelect,
       OrderInvoice? invoice,
       PageState orderInvoiceState,
-      bool checkReloadWhenHiddenApp,
       DataBillResponseData dataBill,
       PageState dataBillState,
       List<File> imageBills,
@@ -957,14 +823,6 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       PageState getChatMessageState,
       DiscountTypeEnum discountTypeSelect});
 
-  @override
-  $PageStateCopyWith<$Res> get productsState;
-  @override
-  $CategoryModelCopyWith<$Res>? get categorySelect;
-  @override
-  $SubCategoryModelCopyWith<$Res>? get subCategorySelect;
-  @override
-  $TagProductModelCopyWith<$Res>? get tagSelect;
   @override
   $OrderModelCopyWith<$Res>? get orderSelect;
   @override
@@ -1014,15 +872,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? messageError = null,
     Object? realtimeStatus = null,
     Object? reconnectRedis = null,
-    Object? productsState = null,
-    Object? categories = null,
-    Object? products = null,
-    Object? tags = null,
-    Object? menuCategoryItem = null,
-    Object? categorySelect = freezed,
-    Object? subCategorySelect = freezed,
-    Object? tagSelect = freezed,
-    Object? search = null,
     Object? ignoreCheckCodeWaiter = null,
     Object? orderSelect = freezed,
     Object? lockedOrder = null,
@@ -1049,7 +898,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? atmPosSelect = freezed,
     Object? invoice = freezed,
     Object? orderInvoiceState = null,
-    Object? checkReloadWhenHiddenApp = null,
     Object? dataBill = null,
     Object? dataBillState = null,
     Object? imageBills = null,
@@ -1088,42 +936,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.reconnectRedis
           : reconnectRedis // ignore: cast_nullable_to_non_nullable
               as bool,
-      productsState: null == productsState
-          ? _value.productsState
-          : productsState // ignore: cast_nullable_to_non_nullable
-              as PageState,
-      categories: null == categories
-          ? _value._categories
-          : categories // ignore: cast_nullable_to_non_nullable
-              as List<CategoryModel>,
-      products: null == products
-          ? _value._products
-          : products // ignore: cast_nullable_to_non_nullable
-              as List<ProductModel>,
-      tags: null == tags
-          ? _value._tags
-          : tags // ignore: cast_nullable_to_non_nullable
-              as List<TagProductModel>,
-      menuCategoryItem: null == menuCategoryItem
-          ? _value._menuCategoryItem
-          : menuCategoryItem // ignore: cast_nullable_to_non_nullable
-              as List<dynamic>,
-      categorySelect: freezed == categorySelect
-          ? _value.categorySelect
-          : categorySelect // ignore: cast_nullable_to_non_nullable
-              as CategoryModel?,
-      subCategorySelect: freezed == subCategorySelect
-          ? _value.subCategorySelect
-          : subCategorySelect // ignore: cast_nullable_to_non_nullable
-              as SubCategoryModel?,
-      tagSelect: freezed == tagSelect
-          ? _value.tagSelect
-          : tagSelect // ignore: cast_nullable_to_non_nullable
-              as TagProductModel?,
-      search: null == search
-          ? _value.search
-          : search // ignore: cast_nullable_to_non_nullable
-              as String,
       ignoreCheckCodeWaiter: null == ignoreCheckCodeWaiter
           ? _value.ignoreCheckCodeWaiter
           : ignoreCheckCodeWaiter // ignore: cast_nullable_to_non_nullable
@@ -1228,10 +1040,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.orderInvoiceState
           : orderInvoiceState // ignore: cast_nullable_to_non_nullable
               as PageState,
-      checkReloadWhenHiddenApp: null == checkReloadWhenHiddenApp
-          ? _value.checkReloadWhenHiddenApp
-          : checkReloadWhenHiddenApp // ignore: cast_nullable_to_non_nullable
-              as bool,
       dataBill: null == dataBill
           ? _value.dataBill
           : dataBill // ignore: cast_nullable_to_non_nullable
@@ -1324,15 +1132,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       this.messageError = '',
       this.realtimeStatus = false,
       this.reconnectRedis = false,
-      this.productsState = const PageState(status: PageCommonState.loading),
-      final List<CategoryModel> categories = const [],
-      final List<ProductModel> products = const [],
-      final List<TagProductModel> tags = const [],
-      final List<dynamic> menuCategoryItem = const [],
-      this.categorySelect,
-      this.subCategorySelect,
-      this.tagSelect,
-      this.search = '',
       this.ignoreCheckCodeWaiter = true,
       this.orderSelect,
       this.lockedOrder = false,
@@ -1359,7 +1158,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       this.atmPosSelect,
       this.invoice,
       this.orderInvoiceState = const PageState(),
-      this.checkReloadWhenHiddenApp = false,
       this.dataBill = const DataBillResponseData(),
       this.dataBillState = const PageState(status: PageCommonState.normal),
       final List<File> imageBills = const [],
@@ -1384,11 +1182,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       this.getChatMessageState =
           const PageState(status: PageCommonState.loading),
       this.discountTypeSelect = DiscountTypeEnum.vnd})
-      : _categories = categories,
-        _products = products,
-        _tags = tags,
-        _menuCategoryItem = menuCategoryItem,
-        _productsSelecting = productsSelecting,
+      : _productsSelecting = productsSelecting,
         _productsSelected = productsSelected,
         _productCheckout = productCheckout,
         _coupons = coupons,
@@ -1414,62 +1208,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final bool reconnectRedis;
-
-  /// danh mục, món
-  @override
-  @JsonKey()
-  final PageState productsState;
-  final List<CategoryModel> _categories;
-  @override
-  @JsonKey()
-  List<CategoryModel> get categories {
-    if (_categories is EqualUnmodifiableListView) return _categories;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_categories);
-  }
-
-  final List<ProductModel> _products;
-  @override
-  @JsonKey()
-  List<ProductModel> get products {
-    if (_products is EqualUnmodifiableListView) return _products;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_products);
-  }
-
-  final List<TagProductModel> _tags;
-  @override
-  @JsonKey()
-  List<TagProductModel> get tags {
-    if (_tags is EqualUnmodifiableListView) return _tags;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_tags);
-  }
-
-  /// chứa category, subcategory, dấu >
-  final List<dynamic> _menuCategoryItem;
-
-  /// chứa category, subcategory, dấu >
-  @override
-  @JsonKey()
-  List<dynamic> get menuCategoryItem {
-    if (_menuCategoryItem is EqualUnmodifiableListView)
-      return _menuCategoryItem;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_menuCategoryItem);
-  }
-
-  @override
-  final CategoryModel? categorySelect;
-  @override
-  final SubCategoryModel? subCategorySelect;
-  @override
-  final TagProductModel? tagSelect;
-
-  ///
-  @override
-  @JsonKey()
-  final String search;
   @override
   @JsonKey()
   final bool ignoreCheckCodeWaiter;
@@ -1621,10 +1359,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final PageState orderInvoiceState;
-//
-  @override
-  @JsonKey()
-  final bool checkReloadWhenHiddenApp;
 
   /// thông tin tiền
   @override
@@ -1743,7 +1477,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, productsState: $productsState, categories: $categories, products: $products, tags: $tags, menuCategoryItem: $menuCategoryItem, categorySelect: $categorySelect, subCategorySelect: $subCategorySelect, tagSelect: $tagSelect, search: $search, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productsSelecting: $productsSelecting, productsSelected: $productsSelected, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, checkReloadWhenHiddenApp: $checkReloadWhenHiddenApp, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, customerPortraits: $customerPortraits, completeNote: $completeNote, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, displayOrderHistory: $displayOrderHistory, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, discountTypeSelect: $discountTypeSelect)';
+    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productsSelecting: $productsSelecting, productsSelected: $productsSelected, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, customerPortraits: $customerPortraits, completeNote: $completeNote, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, displayOrderHistory: $displayOrderHistory, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, discountTypeSelect: $discountTypeSelect)';
   }
 
   @override
@@ -1755,15 +1489,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       ..add(DiagnosticsProperty('messageError', messageError))
       ..add(DiagnosticsProperty('realtimeStatus', realtimeStatus))
       ..add(DiagnosticsProperty('reconnectRedis', reconnectRedis))
-      ..add(DiagnosticsProperty('productsState', productsState))
-      ..add(DiagnosticsProperty('categories', categories))
-      ..add(DiagnosticsProperty('products', products))
-      ..add(DiagnosticsProperty('tags', tags))
-      ..add(DiagnosticsProperty('menuCategoryItem', menuCategoryItem))
-      ..add(DiagnosticsProperty('categorySelect', categorySelect))
-      ..add(DiagnosticsProperty('subCategorySelect', subCategorySelect))
-      ..add(DiagnosticsProperty('tagSelect', tagSelect))
-      ..add(DiagnosticsProperty('search', search))
       ..add(DiagnosticsProperty('ignoreCheckCodeWaiter', ignoreCheckCodeWaiter))
       ..add(DiagnosticsProperty('orderSelect', orderSelect))
       ..add(DiagnosticsProperty('lockedOrder', lockedOrder))
@@ -1790,8 +1515,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       ..add(DiagnosticsProperty('atmPosSelect', atmPosSelect))
       ..add(DiagnosticsProperty('invoice', invoice))
       ..add(DiagnosticsProperty('orderInvoiceState', orderInvoiceState))
-      ..add(DiagnosticsProperty(
-          'checkReloadWhenHiddenApp', checkReloadWhenHiddenApp))
       ..add(DiagnosticsProperty('dataBill', dataBill))
       ..add(DiagnosticsProperty('dataBillState', dataBillState))
       ..add(DiagnosticsProperty('imageBills', imageBills))
@@ -1827,21 +1550,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
                 other.realtimeStatus == realtimeStatus) &&
             (identical(other.reconnectRedis, reconnectRedis) ||
                 other.reconnectRedis == reconnectRedis) &&
-            (identical(other.productsState, productsState) ||
-                other.productsState == productsState) &&
-            const DeepCollectionEquality()
-                .equals(other._categories, _categories) &&
-            const DeepCollectionEquality().equals(other._products, _products) &&
-            const DeepCollectionEquality().equals(other._tags, _tags) &&
-            const DeepCollectionEquality()
-                .equals(other._menuCategoryItem, _menuCategoryItem) &&
-            (identical(other.categorySelect, categorySelect) ||
-                other.categorySelect == categorySelect) &&
-            (identical(other.subCategorySelect, subCategorySelect) ||
-                other.subCategorySelect == subCategorySelect) &&
-            (identical(other.tagSelect, tagSelect) ||
-                other.tagSelect == tagSelect) &&
-            (identical(other.search, search) || other.search == search) &&
             (identical(other.ignoreCheckCodeWaiter, ignoreCheckCodeWaiter) ||
                 other.ignoreCheckCodeWaiter == ignoreCheckCodeWaiter) &&
             (identical(other.orderSelect, orderSelect) ||
@@ -1890,8 +1598,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
             (identical(other.invoice, invoice) || other.invoice == invoice) &&
             (identical(other.orderInvoiceState, orderInvoiceState) ||
                 other.orderInvoiceState == orderInvoiceState) &&
-            (identical(other.checkReloadWhenHiddenApp, checkReloadWhenHiddenApp) ||
-                other.checkReloadWhenHiddenApp == checkReloadWhenHiddenApp) &&
             (identical(other.dataBill, dataBill) ||
                 other.dataBill == dataBill) &&
             (identical(other.dataBillState, dataBillState) ||
@@ -1912,14 +1618,22 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
                 other.completeNote == completeNote) &&
             (identical(other.printNumberOfPeople, printNumberOfPeople) ||
                 other.printNumberOfPeople == printNumberOfPeople) &&
-            (identical(other.autoScrollProducts, autoScrollProducts) || other.autoScrollProducts == autoScrollProducts) &&
-            (identical(other.changedProductId, changedProductId) || other.changedProductId == changedProductId) &&
-            (identical(other.pinnedOrder, pinnedOrder) || other.pinnedOrder == pinnedOrder) &&
-            (identical(other.orderTabSelect, orderTabSelect) || other.orderTabSelect == orderTabSelect) &&
-            const DeepCollectionEquality().equals(other._orderTabs, _orderTabs) &&
-            (identical(other.displayOrderHistory, displayOrderHistory) || other.displayOrderHistory == displayOrderHistory) &&
-            const DeepCollectionEquality().equals(other._orderHistory, _orderHistory) &&
-            const DeepCollectionEquality().equals(other._chatMessages, _chatMessages) &&
+            (identical(other.autoScrollProducts, autoScrollProducts) ||
+                other.autoScrollProducts == autoScrollProducts) &&
+            (identical(other.changedProductId, changedProductId) ||
+                other.changedProductId == changedProductId) &&
+            (identical(other.pinnedOrder, pinnedOrder) ||
+                other.pinnedOrder == pinnedOrder) &&
+            (identical(other.orderTabSelect, orderTabSelect) ||
+                other.orderTabSelect == orderTabSelect) &&
+            const DeepCollectionEquality()
+                .equals(other._orderTabs, _orderTabs) &&
+            (identical(other.displayOrderHistory, displayOrderHistory) ||
+                other.displayOrderHistory == displayOrderHistory) &&
+            const DeepCollectionEquality()
+                .equals(other._orderHistory, _orderHistory) &&
+            const DeepCollectionEquality()
+                .equals(other._chatMessages, _chatMessages) &&
             (identical(other.getChatMessageState, getChatMessageState) || other.getChatMessageState == getChatMessageState) &&
             (identical(other.discountTypeSelect, discountTypeSelect) || other.discountTypeSelect == discountTypeSelect));
   }
@@ -1931,15 +1645,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         messageError,
         realtimeStatus,
         reconnectRedis,
-        productsState,
-        const DeepCollectionEquality().hash(_categories),
-        const DeepCollectionEquality().hash(_products),
-        const DeepCollectionEquality().hash(_tags),
-        const DeepCollectionEquality().hash(_menuCategoryItem),
-        categorySelect,
-        subCategorySelect,
-        tagSelect,
-        search,
         ignoreCheckCodeWaiter,
         orderSelect,
         lockedOrder,
@@ -1966,7 +1671,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         atmPosSelect,
         invoice,
         orderInvoiceState,
-        checkReloadWhenHiddenApp,
         dataBill,
         dataBillState,
         const DeepCollectionEquality().hash(_imageBills),
@@ -2002,15 +1706,6 @@ abstract class _HomeState implements HomeState {
       final String messageError,
       final bool realtimeStatus,
       final bool reconnectRedis,
-      final PageState productsState,
-      final List<CategoryModel> categories,
-      final List<ProductModel> products,
-      final List<TagProductModel> tags,
-      final List<dynamic> menuCategoryItem,
-      final CategoryModel? categorySelect,
-      final SubCategoryModel? subCategorySelect,
-      final TagProductModel? tagSelect,
-      final String search,
       final bool ignoreCheckCodeWaiter,
       final OrderModel? orderSelect,
       final bool lockedOrder,
@@ -2037,7 +1732,6 @@ abstract class _HomeState implements HomeState {
       final AtmPosModel? atmPosSelect,
       final OrderInvoice? invoice,
       final PageState orderInvoiceState,
-      final bool checkReloadWhenHiddenApp,
       final DataBillResponseData dataBill,
       final PageState dataBillState,
       final List<File> imageBills,
@@ -2067,30 +1761,6 @@ abstract class _HomeState implements HomeState {
   bool get realtimeStatus;
   @override
   bool get reconnectRedis;
-  @override
-
-  /// danh mục, món
-  PageState get productsState;
-  @override
-  List<CategoryModel> get categories;
-  @override
-  List<ProductModel> get products;
-  @override
-  List<TagProductModel> get tags;
-  @override
-
-  /// chứa category, subcategory, dấu >
-  List<dynamic> get menuCategoryItem;
-  @override
-  CategoryModel? get categorySelect;
-  @override
-  SubCategoryModel? get subCategorySelect;
-  @override
-  TagProductModel? get tagSelect;
-  @override
-
-  ///
-  String get search;
   @override
   bool get ignoreCheckCodeWaiter;
   @override
@@ -2157,8 +1827,6 @@ abstract class _HomeState implements HomeState {
   OrderInvoice? get invoice;
   @override
   PageState get orderInvoiceState;
-  @override //
-  bool get checkReloadWhenHiddenApp;
   @override
 
   /// thông tin tiền

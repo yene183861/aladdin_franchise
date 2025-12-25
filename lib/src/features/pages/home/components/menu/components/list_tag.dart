@@ -1,7 +1,8 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/menu/list_product.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/components/list_product.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
@@ -14,8 +15,8 @@ class ListTagsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var pageState = ref.watch(homeProvider.select((value) => value.productsState));
-    final tags = ref.watch(homeProvider.select((value) => value.tags));
+    var pageState = ref.watch(menuProvider.select((value) => value.productsState));
+    final tags = ref.watch(menuProvider.select((value) => value.tags));
 
     switch (pageState.status) {
       case PageCommonState.loading:
@@ -64,10 +65,10 @@ class _SubTagSelectWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    bool active = ref.watch(homeProvider.select((value) => value.tagSelect)) == tag;
+    bool active = ref.watch(menuProvider.select((value) => value.tagSelect)) == tag;
     return InkWell(
       onTap: () {
-        ref.read(homeProvider.notifier).changeTagSelect(active ? null : tag);
+        ref.read(menuProvider.notifier).changeTagSelect(active ? null : tag);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),

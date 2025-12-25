@@ -27,6 +27,7 @@ import 'package:aladdin_franchise/src/data/enum/payment_status.dart';
 import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
 import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/home/view.dart';
 import 'package:aladdin_franchise/src/models/atm_pos.dart';
@@ -161,27 +162,28 @@ class HomeNotifier extends StateNotifier<HomeState> {
     bool loadProducts = true,
     OrderModel? order,
   }) async {
-    if (!mounted) return;
-    ctrlSearch.text = '';
-    final dataLogin = LocalStorage.getDataLogin();
-    final customerPortraits = dataLogin?.customerPortraits ?? [];
+    await ref.read(menuProvider.notifier).init(loadProducts: loadProducts);
+    // if (!mounted) return;
+    // ctrlSearch.text = '';
+    // final dataLogin = LocalStorage.getDataLogin();
+    // final customerPortraits = dataLogin?.customerPortraits ?? [];
 
-    state = state.copyWith(
-      orderSelect: order,
-      categorySelect: null,
-      subCategorySelect: null,
-      tagSelect: null,
-      customerPortraits: customerPortraits,
-      banks: [],
-      search: '',
-      paymentMethods: [],
-      listAtmPos: [],
-    );
-    syncInfoCustomerPage(method: WindowsMethodEnum.order);
-    _resetOrder();
-    if (loadProducts) {
-      await getProducts();
-    }
+    // state = state.copyWith(
+    //   orderSelect: order,
+    //   categorySelect: null,
+    //   subCategorySelect: null,
+    //   tagSelect: null,
+    //   customerPortraits: customerPortraits,
+    //   banks: [],
+    //   search: '',
+    //   paymentMethods: [],
+    //   listAtmPos: [],
+    // );
+    // syncInfoCustomerPage(method: WindowsMethodEnum.order);
+    // _resetOrder();
+    // if (loadProducts) {
+    //   await getProducts();
+    // }
     if (order != null) {
       getOrderProductCheckout();
       getOrderInvoice();
@@ -392,25 +394,25 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void changeCategorySelect(CategoryModel? categoryModel) {
-    state = state.copyWith(categorySelect: categoryModel);
+  // void changeCategorySelect(CategoryModel? categoryModel) {
+  //   state = state.copyWith(categorySelect: categoryModel);
 
-    if ((categoryModel?.children ?? []).isEmpty) {
-      changeSubCategorySelect(null);
-    } else {
-      var subCategorySelect = state.subCategorySelect;
-      var checkSubCategorySelect =
-          categoryModel?.children?.firstWhereOrNull((e) => e == subCategorySelect);
-      if (subCategorySelect == null || checkSubCategorySelect == null) {
-        changeSubCategorySelect(
-            (categoryModel?.children?.isEmpty ?? true) ? null : categoryModel!.children!.first);
-      }
-    }
-  }
+  //   if ((categoryModel?.children ?? []).isEmpty) {
+  //     changeSubCategorySelect(null);
+  //   } else {
+  //     var subCategorySelect = state.subCategorySelect;
+  //     var checkSubCategorySelect =
+  //         categoryModel?.children?.firstWhereOrNull((e) => e == subCategorySelect);
+  //     if (subCategorySelect == null || checkSubCategorySelect == null) {
+  //       changeSubCategorySelect(
+  //           (categoryModel?.children?.isEmpty ?? true) ? null : categoryModel!.children!.first);
+  //     }
+  //   }
+  // }
 
-  void changeSubCategorySelect(SubCategoryModel? subCategoryModel) {
-    state = state.copyWith(subCategorySelect: subCategoryModel);
-  }
+  // void changeSubCategorySelect(SubCategoryModel? subCategoryModel) {
+  //   state = state.copyWith(subCategorySelect: subCategoryModel);
+  // }
 
   /// thêm sp vào giỏ hàng (số lượng 1)
   void addProductToCart({required ProductModel product}) async {
@@ -669,8 +671,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
             if (event[0] == "message") {
               showLog('run', flags: "Test reload");
               if (event[1] == kRedisUpdateItemChannel) {
-                ref.read(homeProvider.notifier).updateReloadWhenHiddenApp(true);
-                ref.read(homeProvider.notifier).getProducts();
+                ref.read(menuProvider.notifier).updateReloadWhenHiddenApp(true);
+                ref.read(menuProvider.notifier).getProducts();
               } else if (event[1] == kLockOrderChannel) {
                 ref.read(homeProvider.notifier).setUnlockOrder();
               } else if (event[1] == kLockOrderChannel) {
@@ -719,13 +721,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
     );
   }
 
-  void checkReloadMenu() {
-    final lastTime = LocalStorage.getLastReloadMenu();
-    final now = DateTime.now();
-    if ((now.compareToWithoutTime(lastTime) == false) && now.hour >= 9 && now.minute >= 5) {
-      getProducts();
-    }
-  }
+  // void checkReloadMenu() {
+  //   final lastTime = LocalStorage.getLastReloadMenu();
+  //   final now = DateTime.now();
+  //   if ((now.compareToWithoutTime(lastTime) == false) && now.hour >= 9 && now.minute >= 5) {
+  //     getProducts();
+  //   }
+  // }
 
   Future<FindCustomerStatus> findCustomer(
     String phone, {
@@ -1199,102 +1201,102 @@ class HomeNotifier extends StateNotifier<HomeState> {
     // }
   }
 
-  Future<void> getProducts() async {
-    try {
-      state = state.copyWith(productsState: const PageState(status: PageCommonState.loading));
-      final categoryResult = await _menuRepository.getCategory();
-      if (!categoryResult.isSuccess) {
-        throw categoryResult.error;
-      }
-      List<CategoryModel> categories = categoryResult.data?.data ?? [];
-      List<TagProductModel> tags = categoryResult.data?.tags ?? [];
+  // Future<void> getProducts() async {
+  //   try {
+  //     state = state.copyWith(productsState: const PageState(status: PageCommonState.loading));
+  //     final categoryResult = await _menuRepository.getCategory();
+  //     if (!categoryResult.isSuccess) {
+  //       throw categoryResult.error;
+  //     }
+  //     List<CategoryModel> categories = categoryResult.data?.data ?? [];
+  //     List<TagProductModel> tags = categoryResult.data?.tags ?? [];
 
-      final productsRepo = await _menuRepository.getProduct(null);
-      if (!productsRepo.isSuccess) {
-        throw AppException(
-          statusCode: productsRepo.statusCode,
-          message: productsRepo.error,
-        );
-      }
-      await LocalStorage.setLastReloadMenu();
-      List<ProductModel> products = List.from(productsRepo.data ?? []);
-      List<dynamic> menuCategoryItem = [];
+  //     final productsRepo = await _menuRepository.getProduct(null);
+  //     if (!productsRepo.isSuccess) {
+  //       throw AppException(
+  //         statusCode: productsRepo.statusCode,
+  //         message: productsRepo.error,
+  //       );
+  //     }
+  //     await LocalStorage.setLastReloadMenu();
+  //     List<ProductModel> products = List.from(productsRepo.data ?? []);
+  //     List<dynamic> menuCategoryItem = [];
 
-      if (categories.isNotEmpty) {
-        var categorySelect = state.categorySelect;
+  //     if (categories.isNotEmpty) {
+  //       var categorySelect = state.categorySelect;
 
-        var checkCategorySelect = categories.firstWhereOrNull((e) => e.id == categorySelect?.id);
-        if (categorySelect == null || checkCategorySelect == null) {
-          changeCategorySelect(categories.first);
-          checkCategorySelect = categories.first;
-        } else {
-          changeCategorySelect(checkCategorySelect);
-        }
-      } else {
-        state = state.copyWith(
-          categorySelect: null,
-          subCategorySelect: null,
-        );
-      }
+  //       var checkCategorySelect = categories.firstWhereOrNull((e) => e.id == categorySelect?.id);
+  //       if (categorySelect == null || checkCategorySelect == null) {
+  //         changeCategorySelect(categories.first);
+  //         checkCategorySelect = categories.first;
+  //       } else {
+  //         changeCategorySelect(checkCategorySelect);
+  //       }
+  //     } else {
+  //       state = state.copyWith(
+  //         categorySelect: null,
+  //         subCategorySelect: null,
+  //       );
+  //     }
 
-      // cập nhật ngôn ngữ local khi load menu
-      kAppLanguageLocal = LocalStorage.getLanguageLocal();
-      for (var element in categories) {
-        menuCategoryItem.add(element);
-        categoryKeys[element] = categoryKeys[element] ?? GlobalKey();
-        if ((element.children ?? []).isNotEmpty) {
-          menuCategoryItem.add(-1);
-        }
-        for (var sub in (element.children ?? [])) {
-          menuCategoryItem.add(sub);
-          categoryKeys[sub] = categoryKeys[sub] ?? GlobalKey();
-        }
-      }
+  //     // cập nhật ngôn ngữ local khi load menu
+  //     kAppLanguageLocal = LocalStorage.getLanguageLocal();
+  //     for (var element in categories) {
+  //       menuCategoryItem.add(element);
+  //       categoryKeys[element] = categoryKeys[element] ?? GlobalKey();
+  //       if ((element.children ?? []).isNotEmpty) {
+  //         menuCategoryItem.add(-1);
+  //       }
+  //       for (var sub in (element.children ?? [])) {
+  //         menuCategoryItem.add(sub);
+  //         categoryKeys[sub] = categoryKeys[sub] ?? GlobalKey();
+  //       }
+  //     }
 
-      state = state.copyWith(
-        categories: categories,
-        products: products,
-        tags: tags,
-        menuCategoryItem: menuCategoryItem,
-        productsState: const PageState(status: PageCommonState.success),
-        tagSelect: tags.firstWhereOrNull((e) => e == state.tagSelect),
-      );
-      // syncInfoCustomerPage(
+  //     state = state.copyWith(
+  //       categories: categories,
+  //       products: products,
+  //       tags: tags,
+  //       menuCategoryItem: menuCategoryItem,
+  //       productsState: const PageState(status: PageCommonState.success),
+  //       tagSelect: tags.firstWhereOrNull((e) => e == state.tagSelect),
+  //     );
+  //     // syncInfoCustomerPage(
 
-      // );
-      // syncInfoForCustomer();
-    } catch (ex) {
-      if (mounted) {
-        state = state.copyWith(
-          productsState: PageState(
-            status: PageCommonState.error,
-            messageError: ex.toString(),
-          ),
-        );
-      }
-    }
-  }
+  //     // );
+  //     // syncInfoForCustomer();
+  //   } catch (ex) {
+  //     if (mounted) {
+  //       state = state.copyWith(
+  //         productsState: PageState(
+  //           status: PageCommonState.error,
+  //           messageError: ex.toString(),
+  //         ),
+  //       );
+  //     }
+  //   }
+  // }
 
-  void changeSearch(String text) {
-    state = state.copyWith(search: text);
-    if (ctrlSearch.text != text) {
-      ctrlSearch.text = text;
-    }
-  }
+  // void changeSearch(String text) {
+  //   state = state.copyWith(search: text);
+  //   if (ctrlSearch.text != text) {
+  //     ctrlSearch.text = text;
+  //   }
+  // }
 
   void changeIgnoreCheckCodeWaiter() {
     state = state.copyWith(ignoreCheckCodeWaiter: !state.ignoreCheckCodeWaiter);
   }
 
-  void changeTagSelect(TagProductModel? tag) {
-    state = state.copyWith(tagSelect: tag);
-  }
+  // void changeTagSelect(TagProductModel? tag) {
+  //   state = state.copyWith(tagSelect: tag);
+  // }
 
-  void updateReloadWhenHiddenApp(bool value) {
-    state = state.copyWith(checkReloadWhenHiddenApp: value);
-  }
+  // void updateReloadWhenHiddenApp(bool value) {
+  //   state = state.copyWith(checkReloadWhenHiddenApp: value);
+  // }
 
-  bool getCheckReloadWhenHiddenApp() => state.checkReloadWhenHiddenApp;
+  // bool getCheckReloadWhenHiddenApp() => state.checkReloadWhenHiddenApp;
 
   Future<(MInvoiceInfo? mInvoiceInfo, String? error)> searchTaxCodeInfo(String taxCode) async {
     try {
@@ -2044,7 +2046,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
             cashierPrint: '',
             timeCompleted: null,
             timeCreatedAt: null,
-            invoiceQr: AppConfig.useInvoiceQr ? 'https://google.com' : '',
+            invoiceQr: AppConfig.useInvoiceQr ? '' : '',
           );
 
           var check = await AppPrinterCommon.checkPrinters(printers);
@@ -2266,25 +2268,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
   void onChangeAutoScrollProducts(bool value) {
     state = state.copyWith(autoScrollProducts: value);
     syncInfoCustomerPage(method: WindowsMethodEnum.changeOrderProduct);
-    // syncInfoForCustomer(
-    //   method: WindowsMethod.changeOrderProduct,
-    //   arguments: {
-    //     'auto_scroll_order_product': state.autoScrollProducts,
-    //     'changed_product_id': state.changedProductId,
-    //   },
-    // );
   }
 
   void onChangeChangedProductId(int? id) {
     state = state.copyWith(changedProductId: id);
     syncInfoCustomerPage(method: WindowsMethodEnum.changeOrderProduct);
-    // syncInfoForCustomer(
-    //   method: WindowsMethod.changeOrderProduct,
-    //   arguments: {
-    //     'auto_scroll_order_product': true,
-    //     'changed_product_id': state.changedProductId,
-    //   },
-    // );
   }
 
   Future<String?> onUpdateTax(
@@ -2427,10 +2415,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   void onChangeCustomerLanguage() {
     syncInfoCustomerPage(method: WindowsMethodEnum.language);
-    // syncInfoForCustomer(
-    //   method: WindowsMethod.language,
-    //   arguments: LocalStorage.getCustomerLanguageLocal(),
-    // );
   }
 
   Future<String?> checkPrinter(List<IpOrderModel> printers) async {
@@ -2457,9 +2441,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
     String? error;
 
     List<ProductCheckoutModel> pc = [];
-
+    var products = ref.read(menuProvider).products;
     for (var p in state.productCheckout) {
-      var pCheck = state.products.firstWhereOrNull((e) => e.id == p.id);
+      var pCheck = products.firstWhereOrNull((e) => e.id == p.id);
       if (pCheck != null) {
         // check here: check xem tax < 1
         pc.add(p.copyWith(tax: pCheck.tax));
@@ -2821,47 +2805,47 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void getO2OChatMessages() async {
-    try {
-      var useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-      if (!useO2o) {
-        state = state.copyWith(
-          getChatMessageState: const PageState(status: PageCommonState.success),
-          chatMessages: [],
-        );
-        return;
-      }
-      state = state.copyWith(
-        getChatMessageState: const PageState(status: PageCommonState.loading),
-      );
-      final loginData = LocalStorage.getDataLogin();
-      int? restaurantId = loginData?.restaurant?.id;
-      final orderSelect = state.orderSelect;
-      if (restaurantId == null || orderSelect == null) {
-        state = state.copyWith(
-          getChatMessageState:
-              PageState(status: PageCommonState.error, messageError: S.current.no_data),
-        );
-        return;
-      }
+  // void getO2OChatMessages() async {
+  //   try {
+  //     var useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+  //     if (!useO2o) {
+  //       state = state.copyWith(
+  //         getChatMessageState: const PageState(status: PageCommonState.success),
+  //         chatMessages: [],
+  //       );
+  //       return;
+  //     }
+  //     state = state.copyWith(
+  //       getChatMessageState: const PageState(status: PageCommonState.loading),
+  //     );
+  //     final loginData = LocalStorage.getDataLogin();
+  //     int? restaurantId = loginData?.restaurant?.id;
+  //     final orderSelect = state.orderSelect;
+  //     if (restaurantId == null || orderSelect == null) {
+  //       state = state.copyWith(
+  //         getChatMessageState:
+  //             PageState(status: PageCommonState.error, messageError: S.current.no_data),
+  //       );
+  //       return;
+  //     }
 
-      final messages = await _o2oRepository.getChatMessages(
-        restaurantId: restaurantId,
-        orderId: orderSelect.id,
-      );
-      state = state.copyWith(
-        getChatMessageState: const PageState(status: PageCommonState.success),
-        chatMessages: messages,
-      );
-    } catch (ex) {
-      state = state.copyWith(
-        getChatMessageState: PageState(
-          status: PageCommonState.error,
-          messageError: ex.toString(),
-        ),
-      );
-    }
-  }
+  //     final messages = await _o2oRepository.getChatMessages(
+  //       restaurantId: restaurantId,
+  //       orderId: orderSelect.id,
+  //     );
+  //     state = state.copyWith(
+  //       getChatMessageState: const PageState(status: PageCommonState.success),
+  //       chatMessages: messages,
+  //     );
+  //   } catch (ex) {
+  //     state = state.copyWith(
+  //       getChatMessageState: PageState(
+  //         status: PageCommonState.error,
+  //         messageError: ex.toString(),
+  //       ),
+  //     );
+  //   }
+  // }
 
   void updateReservation(
     ReservationModel? reservation, {
@@ -2872,9 +2856,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
     int retry = 0;
     while (retry < 3) {
       try {
-        await ref
+        var result = await ref
             .read(reservationRepositoryProvider)
             .updateReservation(reservation.id, reservation);
+        if (!result.isSuccess) {
+          throw AppException(
+            statusCode: result.statusCode,
+            message: result.error,
+          );
+        }
         break;
       } catch (ex) {
         retry++;
@@ -3021,23 +3011,27 @@ class HomeNotifier extends StateNotifier<HomeState> {
     ReservationStatus status,
     List<TableModel> table,
   ) async {
-    try {
-      var result = await _reservationRepository.getReservationById(id: id);
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
+    int retry = 0;
+    while (retry < 3) {
+      try {
+        var result = await _reservationRepository.getReservationById(id: id);
+        if (!result.isSuccess) {
+          throw AppException(
+            statusCode: result.statusCode,
+            message: result.error,
+          );
+        }
+        var reservation = result.data?.copyWith(
+          status: status.type,
+          statusName: status.title,
+          table: table.map((e) => e.name).join(', '),
+          tableId: table.map((e) => e.id).toList(),
         );
+        updateReservation(reservation, showLoading: false);
+        break;
+      } catch (ex) {
+        retry++;
       }
-      var reservation = result.data?.copyWith(
-        status: status.type,
-        statusName: status.title,
-        table: table.map((e) => e.name).join(', '),
-        tableId: table.map((e) => e.id).toList(),
-      );
-      updateReservation(reservation, showLoading: false);
-    } catch (ex) {
-      //
     }
   }
 }

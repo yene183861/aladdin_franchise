@@ -8,7 +8,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/features/dialogs/detail_product.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/menu/list_product.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/components/list_product.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_detail.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';

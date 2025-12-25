@@ -16,7 +16,7 @@ import 'package:aladdin_franchise/src/features/dialogs/processing.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/view.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/action/btn_o2o.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/menu/list_tag.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/components/list_tag.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_detail.dart';
 
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -50,14 +50,16 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 
 import 'components/action/btn_refresh_data.dart';
 import 'components/action/history_order.dart';
-import 'components/menu/list_category.dart';
-import 'components/menu/list_product.dart';
+import 'components/menu/components/list_category.dart';
+import 'components/menu/components/list_product.dart';
 import 'components/action/type_order.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:badges/badges.dart' as badge_lib;
 
 import 'components/drawer/drawer.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
+
+import 'components/menu/view.dart';
 
 final GlobalKey<_HomePageState> homeKey = GlobalKey<_HomePageState>();
 
@@ -69,7 +71,7 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver {
-  late final Timer _timerReloadMenu;
+  // late final Timer _timerReloadMenu;
 
   _listenEvent(BuildContext context, WidgetRef ref) => (HomeEvent? previous, HomeEvent? next) {
         switch (next) {
@@ -280,9 +282,9 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
         }
       };
 
-  late ScrollController _productScrollController;
-  late ScrollController _categoryScrollController;
-  Map<dynamic, GlobalKey> categoryKeys = {};
+  // late ScrollController _productScrollController;
+  // late ScrollController _categoryScrollController;
+  // Map<dynamic, GlobalKey> categoryKeys = {};
 
   final GlobalKey _floatingBtnKey = GlobalKey();
   OverlayEntry? _overlayEntry;
@@ -292,146 +294,146 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
   @override
   void initState() {
     super.initState();
-    _productScrollController = ScrollController();
-    _categoryScrollController = ScrollController();
-    _productScrollController.addListener(_onScrollProduct);
-    WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _timerReloadMenu = Timer.periodic(
-        const Duration(minutes: 5),
-        (timer) {
-          ref.read(homeProvider.notifier).checkReloadMenu();
-        },
-      );
-    });
+    // _productScrollController = ScrollController();
+    // _categoryScrollController = ScrollController();
+    // _productScrollController.addListener(_onScrollProduct);
+    // WidgetsBinding.instance.addObserver(this);
+    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    //   _timerReloadMenu = Timer.periodic(
+    //     const Duration(minutes: 5),
+    //     (timer) {
+    //       ref.read(homeProvider.notifier).checkReloadMenu();
+    //     },
+    //   );
+    // });
   }
 
-  void _onScrollProduct() {
-    var state = ref.read(homeProvider);
-    var categories = state.categories;
-    var categorySelect = state.categorySelect;
-    var subCategorySelect = state.subCategorySelect;
+  // void _onScrollProduct() {
+  //   var state = ref.read(homeProvider);
+  //   var categories = state.categories;
+  //   var categorySelect = state.categorySelect;
+  //   var subCategorySelect = state.subCategorySelect;
 
-    List<dynamic> allCategory = [];
-    for (var item in categories) {
-      allCategory.add(item);
-      if ((item.children ?? []).isNotEmpty) {
-        allCategory.addAll(item.children ?? []);
-      }
-    }
+  //   List<dynamic> allCategory = [];
+  //   for (var item in categories) {
+  //     allCategory.add(item);
+  //     if ((item.children ?? []).isNotEmpty) {
+  //       allCategory.addAll(item.children ?? []);
+  //     }
+  //   }
 
-    for (var item in allCategory.reversed) {
-      bool isSubCategory = item is SubCategoryModel;
-      final ctx = categoryKeys[item]?.currentContext;
+  //   for (var item in allCategory.reversed) {
+  //     bool isSubCategory = item is SubCategoryModel;
+  //     final ctx = categoryKeys[item]?.currentContext;
 
-      if (ctx != null) {
-        final box = ctx.findRenderObject();
-        if (box is RenderBox) {
-          final pos = box.localToGlobal(Offset.zero);
-          if (pos.dy <= 250) {
-            if (isSubCategory && item != subCategorySelect) {
-              var category = categories.firstWhereOrNull(
-                  (e) => (e.children ?? []).firstWhereOrNull((i) => i.id == item.id) != null);
-              if (category != categorySelect) {
-                ref.read(homeProvider.notifier).changeCategorySelect(category);
-              }
-              ref.read(homeProvider.notifier).changeSubCategorySelect(item);
-              _scrollCategoryBarTo(item, allCategory);
-            } else if (!isSubCategory && item != categorySelect) {
-              ref.read(homeProvider.notifier).changeCategorySelect(item);
-              _scrollCategoryBarTo(item, allCategory);
-            }
+  //     if (ctx != null) {
+  //       final box = ctx.findRenderObject();
+  //       if (box is RenderBox) {
+  //         final pos = box.localToGlobal(Offset.zero);
+  //         if (pos.dy <= 250) {
+  //           if (isSubCategory && item != subCategorySelect) {
+  //             var category = categories.firstWhereOrNull(
+  //                 (e) => (e.children ?? []).firstWhereOrNull((i) => i.id == item.id) != null);
+  //             if (category != categorySelect) {
+  //               ref.read(homeProvider.notifier).changeCategorySelect(category);
+  //             }
+  //             ref.read(homeProvider.notifier).changeSubCategorySelect(item);
+  //             _scrollCategoryBarTo(item, allCategory);
+  //           } else if (!isSubCategory && item != categorySelect) {
+  //             ref.read(homeProvider.notifier).changeCategorySelect(item);
+  //             _scrollCategoryBarTo(item, allCategory);
+  //           }
 
-            break;
-          }
-        }
-      }
-    }
+  //           break;
+  //         }
+  //       }
+  //     }
+  //   }
 
-    return;
-  }
+  //   return;
+  // }
 
-  void _scrollCategoryBarTo(dynamic item, List<dynamic> allCategory) {
-    var state = ref.read(homeProvider);
-    // var categories = state.categories;
-    var menuCategoryItem = state.menuCategoryItem;
-    // var categorySelect = state.categorySelect;
+  // void _scrollCategoryBarTo(dynamic item, List<dynamic> allCategory) {
+  //   var state = ref.read(homeProvider);
+  //   // var categories = state.categories;
+  //   var menuCategoryItem = state.menuCategoryItem;
+  //   // var categorySelect = state.categorySelect;
 
-    final visibleItems = ref
-        .read(homeProvider.notifier)
-        .categoryPositionsListener
-        .itemPositions
-        .value
-        .where((position) => position.itemLeadingEdge < 1 && position.itemTrailingEdge > 0)
-        .map((e) => e.index)
-        .toList();
-    List<dynamic> dataView = List.from(menuCategoryItem);
-    // for (var item in categories) {
-    //   bool selected = item == categorySelect;
-    //   dataView.add(item);
-    //   if (selected && (item.children ?? []).isNotEmpty) {
-    //     dataView.add(null);
-    //     dataView.addAll(item.children ?? []);
-    //   }
-    // }
-    var items = [];
-    for (var i in visibleItems) {
-      items.add(dataView[i]);
-    }
-    if (!items.contains(item)) {
-      var index = dataView.indexOf(item);
-      if (index != -1) {
-        ref.read(homeProvider.notifier).categoryScrollController.jumpTo(index: index);
-      }
-    }
-  }
+  //   final visibleItems = ref
+  //       .read(homeProvider.notifier)
+  //       .categoryPositionsListener
+  //       .itemPositions
+  //       .value
+  //       .where((position) => position.itemLeadingEdge < 1 && position.itemTrailingEdge > 0)
+  //       .map((e) => e.index)
+  //       .toList();
+  //   List<dynamic> dataView = List.from(menuCategoryItem);
+  //   // for (var item in categories) {
+  //   //   bool selected = item == categorySelect;
+  //   //   dataView.add(item);
+  //   //   if (selected && (item.children ?? []).isNotEmpty) {
+  //   //     dataView.add(null);
+  //   //     dataView.addAll(item.children ?? []);
+  //   //   }
+  //   // }
+  //   var items = [];
+  //   for (var i in visibleItems) {
+  //     items.add(dataView[i]);
+  //   }
+  //   if (!items.contains(item)) {
+  //     var index = dataView.indexOf(item);
+  //     if (index != -1) {
+  //       ref.read(homeProvider.notifier).categoryScrollController.jumpTo(index: index);
+  //     }
+  //   }
+  // }
 
-  void _scrollToCategory(dynamic item) {
-    BuildContext? ctx = categoryKeys[item]?.currentContext;
-    if (ctx != null) {
-      Scrollable.ensureVisible(
-        ctx,
-        duration: const Duration(milliseconds: 300),
-        alignment: 0,
-      );
-    }
-  }
+  // void _scrollToCategory(dynamic item) {
+  //   BuildContext? ctx = categoryKeys[item]?.currentContext;
+  //   if (ctx != null) {
+  //     Scrollable.ensureVisible(
+  //       ctx,
+  //       duration: const Duration(milliseconds: 300),
+  //       alignment: 0,
+  //     );
+  //   }
+  // }
 
   @override
   void dispose() {
     isCheckTypeOrderInit = false;
-    _productScrollController.dispose();
-    _categoryScrollController.dispose();
+    // _productScrollController.dispose();
+    // _categoryScrollController.dispose();
     kToken = "";
     kTypeOrder = 0;
-    _timerReloadMenu.cancel();
-    WidgetsBinding.instance.removeObserver(this);
+    // _timerReloadMenu.cancel();
+    // WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        if (ref.read(homeProvider.notifier).getCheckReloadWhenHiddenApp()) {
-          ref.read(homeProvider.notifier).updateReloadWhenHiddenApp(false);
-          ref.read(homeProvider.notifier).getProducts();
-        }
-        break;
-      case AppLifecycleState.inactive:
-        showLog('inactive');
-        break;
-      case AppLifecycleState.paused:
-        showLog('paused');
-        break;
-      case AppLifecycleState.detached:
-        showLog('detached');
-        break;
-      case AppLifecycleState.hidden:
-        showLog('hidden');
-        break;
-    }
-  }
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   switch (state) {
+  //     case AppLifecycleState.resumed:
+  //       if (ref.read(homeProvider.notifier).getCheckReloadWhenHiddenApp()) {
+  //         ref.read(homeProvider.notifier).updateReloadWhenHiddenApp(false);
+  //         ref.read(homeProvider.notifier).getProducts();
+  //       }
+  //       break;
+  //     case AppLifecycleState.inactive:
+  //       showLog('inactive');
+  //       break;
+  //     case AppLifecycleState.paused:
+  //       showLog('paused');
+  //       break;
+  //     case AppLifecycleState.detached:
+  //       showLog('detached');
+  //       break;
+  //     case AppLifecycleState.hidden:
+  //       showLog('hidden');
+  //       break;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -441,108 +443,108 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
       homeProvider.select((value) => value.event),
       _listenEvent(context, ref),
     );
-    var categories = ref.watch(homeProvider.select((value) => value.categories));
-    categoryKeys = ref.read(homeProvider.notifier).categoryKeys;
-    var products = ref.watch(homeProvider.select((value) => value.products));
-    var tags = ref.watch(homeProvider.select((value) => value.tags));
+    // var categories = ref.watch(homeProvider.select((value) => value.categories));
+    // categoryKeys = ref.read(homeProvider.notifier).categoryKeys;
+    // var products = ref.watch(homeProvider.select((value) => value.products));
+    // var tags = ref.watch(homeProvider.select((value) => value.tags));
 
-    var productsView = List<ProductModel>.from(products);
-    var keyword = ref.watch(homeProvider.select((value) => value.search)).trim();
-    var tagSelect = ref.watch(homeProvider.select((value) => value.tagSelect));
-    if (tagSelect != null) {
-      productsView =
-          productsView.where((product) => (product.tags ?? []).contains(tagSelect.id)).toList();
-    }
-    if (keyword.isNotEmpty) {
-      var search = removeDiacritics(keyword).toLowerCase();
-      productsView = productsView
-          .where((product) =>
-              (product.getSearchName().toLowerCase()).contains(search) ||
-              (product.getSearchShortName().toLowerCase().contains(search)))
-          .toList();
-    }
-    List<Widget> dataView = [];
-    for (var cate in categories) {
-      List<ProductModel> categoryProducts =
-          productsView.where((e) => e.categoryId == cate.id).toList();
-      var subCategory = List<SubCategoryModel>.from((cate.children ?? []));
-      Map<SubCategoryModel, List<ProductModel>> subCategoryProducts = {};
-      for (var subCate in subCategory) {
-        var data = productsView.where((e) => e.categoryId == subCate.id).toList();
+    // var productsView = List<ProductModel>.from(products);
+    // var keyword = ref.watch(homeProvider.select((value) => value.search)).trim();
+    // var tagSelect = ref.watch(homeProvider.select((value) => value.tagSelect));
+    // if (tagSelect != null) {
+    //   productsView =
+    //       productsView.where((product) => (product.tags ?? []).contains(tagSelect.id)).toList();
+    // }
+    // if (keyword.isNotEmpty) {
+    //   var search = removeDiacritics(keyword).toLowerCase();
+    //   productsView = productsView
+    //       .where((product) =>
+    //           (product.getSearchName().toLowerCase()).contains(search) ||
+    //           (product.getSearchShortName().toLowerCase().contains(search)))
+    //       .toList();
+    // }
+    // List<Widget> dataView = [];
+    // for (var cate in categories) {
+    //   List<ProductModel> categoryProducts =
+    //       productsView.where((e) => e.categoryId == cate.id).toList();
+    //   var subCategory = List<SubCategoryModel>.from((cate.children ?? []));
+    //   Map<SubCategoryModel, List<ProductModel>> subCategoryProducts = {};
+    //   for (var subCate in subCategory) {
+    //     var data = productsView.where((e) => e.categoryId == subCate.id).toList();
 
-        if (data.isNotEmpty) {
-          subCategoryProducts[subCate] = data;
-        }
-      }
-      if (categoryProducts.isNotEmpty || subCategoryProducts.isNotEmpty) {
-        dataView.add(SliverToBoxAdapter(
-          child: Container(
-            key: categoryKeys[cate],
-            decoration: const BoxDecoration(color: Colors.white),
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              cate.title,
-              style: AppTextStyle.bold(),
-            ),
-          ),
-        ));
-        if (categoryProducts.isNotEmpty) {
-          dataView.add(SliverPadding(
-            padding: const EdgeInsets.only(left: 10),
-            sliver: SliverGrid.builder(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 180,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 0.8,
-              ),
-              itemBuilder: (context, index) => ProductBoxWidget(product: categoryProducts[index]),
-              itemCount: categoryProducts.length,
-            ),
-          ));
-        }
-      }
+    //     if (data.isNotEmpty) {
+    //       subCategoryProducts[subCate] = data;
+    //     }
+    //   }
+    //   if (categoryProducts.isNotEmpty || subCategoryProducts.isNotEmpty) {
+    //     dataView.add(SliverToBoxAdapter(
+    //       child: Container(
+    //         key: categoryKeys[cate],
+    //         decoration: const BoxDecoration(color: Colors.white),
+    //         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+    //         alignment: Alignment.centerLeft,
+    //         child: Text(
+    //           cate.title,
+    //           style: AppTextStyle.bold(),
+    //         ),
+    //       ),
+    //     ));
+    //     if (categoryProducts.isNotEmpty) {
+    //       dataView.add(SliverPadding(
+    //         padding: const EdgeInsets.only(left: 10),
+    //         sliver: SliverGrid.builder(
+    //           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+    //             maxCrossAxisExtent: 180,
+    //             mainAxisSpacing: 10,
+    //             crossAxisSpacing: 10,
+    //             childAspectRatio: 0.8,
+    //           ),
+    //           itemBuilder: (context, index) => ProductBoxWidget(product: categoryProducts[index]),
+    //           itemCount: categoryProducts.length,
+    //         ),
+    //       ));
+    //     }
+    //   }
 
-      subCategoryProducts.forEach(
-        (key, value) {
-          if (value.isNotEmpty) {
-            dataView.add(SliverToBoxAdapter(
-              child: Container(
-                key: categoryKeys[key],
-                decoration: const BoxDecoration(color: Colors.white),
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  key.title,
-                  style: AppTextStyle.bold(),
-                ),
-              ),
-            ));
-            dataView.add(SliverPadding(
-              padding: const EdgeInsets.only(left: 10),
-              sliver: SliverGrid.builder(
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 180,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  childAspectRatio: 0.8,
-                ),
-                itemBuilder: (context, index) => ProductBoxWidget(product: value[index]),
-                itemCount: value.length,
-              ),
-            ));
-          }
-        },
-      );
-    }
+    //   subCategoryProducts.forEach(
+    //     (key, value) {
+    //       if (value.isNotEmpty) {
+    //         dataView.add(SliverToBoxAdapter(
+    //           child: Container(
+    //             key: categoryKeys[key],
+    //             decoration: const BoxDecoration(color: Colors.white),
+    //             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+    //             alignment: Alignment.centerLeft,
+    //             child: Text(
+    //               key.title,
+    //               style: AppTextStyle.bold(),
+    //             ),
+    //           ),
+    //         ));
+    //         dataView.add(SliverPadding(
+    //           padding: const EdgeInsets.only(left: 10),
+    //           sliver: SliverGrid.builder(
+    //             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+    //               maxCrossAxisExtent: 180,
+    //               mainAxisSpacing: 10,
+    //               crossAxisSpacing: 10,
+    //               childAspectRatio: 0.8,
+    //             ),
+    //             itemBuilder: (context, index) => ProductBoxWidget(product: value[index]),
+    //             itemCount: value.length,
+    //           ),
+    //         ));
+    //       }
+    //     },
+    //   );
+    // }
     var viewPadding = MediaQuery.of(context).viewPadding;
-    bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
-    bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
+    // bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
+    // bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
+    // bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
 
-    bool showOrderInfo = !(isMobile || (isTablet && portraitOrientation));
-    bool emptyTags = tags.isEmpty;
+    // bool showOrderInfo = !(isMobile || (isTablet && portraitOrientation));
+    // bool emptyTags = tags.isEmpty;
     // var homeTabSelect = ref.watch(homeProvider.select((value) => value.homeTabSelect));
 
     /// test UI mới
@@ -700,169 +702,170 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             padding: EdgeInsets.fromLTRB(viewPadding.left, 0, 0, 0),
             child: Row(
               children: [
-                Expanded(
-                  flex: 1,
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 48,
-                        width: double.maxFinite,
-                        alignment: Alignment.center,
-                        child: Row(
-                          children: [
-                            const Gap(8),
-                            Builder(
-                              builder: (context) {
-                                return InkWell(
-                                  onTap: Scaffold.of(context).openDrawer,
-                                  child: const ResponsiveIconWidget(
-                                    iconData: CupertinoIcons.home,
-                                  ),
-                                );
-                              },
-                            ),
-                            const Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                child: _SearchDishWidget(),
-                              ),
-                            ),
-                            if (!isMobile) ...[
-                              const ButtonHistoryOrderWidget(),
-                              const Gap(8),
-                            ] else ...[
-                              const ButtonO2oData(),
-                              Consumer(
-                                builder: (context, ref, child) {
-                                  ref.watch(typeOrderWaiterProvider);
-                                  var useO2O =
-                                      LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-                                  if (useO2O || portraitOrientation) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  if (emptyTags) {
-                                    return const TypeOrderWidget();
-                                  }
-                                  return const ButtonHistoryOrderWidget();
-                                },
-                              ),
-                              const ButtonRefreshData(),
-                            ],
-                          ],
-                        ),
-                      ),
-                      Consumer(
-                        builder: (context, ref, child) {
-                          // var tags = ref.watch(homeProvider.select((value) => value.tags));
-                          // if (tags.isEmpty && isMobile) {
-                          //   return const SizedBox.shrink();
-                          // }
+                Expanded(flex: 1, child: MenuPage()
+                    // Column(
+                    //   children: [
+                    //     Container(
+                    //       height: 48,
+                    //       width: double.maxFinite,
+                    //       alignment: Alignment.center,
+                    //       child: Row(
+                    //         children: [
+                    //           const Gap(8),
+                    //           Builder(
+                    //             builder: (context) {
+                    //               return InkWell(
+                    //                 onTap: Scaffold.of(context).openDrawer,
+                    //                 child: const ResponsiveIconWidget(
+                    //                   iconData: CupertinoIcons.home,
+                    //                 ),
+                    //               );
+                    //             },
+                    //           ),
+                    //           const Expanded(
+                    //             child: Padding(
+                    //               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    //               child: _SearchDishWidget(),
+                    //             ),
+                    //           ),
+                    //           if (!isMobile) ...[
+                    //             const ButtonHistoryOrderWidget(),
+                    //             const Gap(8),
+                    //           ] else ...[
+                    //             const ButtonO2oData(),
+                    //             Consumer(
+                    //               builder: (context, ref, child) {
+                    //                 ref.watch(typeOrderWaiterProvider);
+                    //                 var useO2O =
+                    //                     LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+                    //                 if (useO2O || portraitOrientation) {
+                    //                   return const SizedBox.shrink();
+                    //                 }
+                    //                 if (emptyTags) {
+                    //                   return const TypeOrderWidget();
+                    //                 }
+                    //                 return const ButtonHistoryOrderWidget();
+                    //               },
+                    //             ),
+                    //             const ButtonRefreshData(),
+                    //           ],
+                    //         ],
+                    //       ),
+                    //     ),
+                    //     Consumer(
+                    //       builder: (context, ref, child) {
+                    //         // var tags = ref.watch(homeProvider.select((value) => value.tags));
+                    //         // if (tags.isEmpty && isMobile) {
+                    //         //   return const SizedBox.shrink();
+                    //         // }
 
-                          return SizedBox(
-                            height: 48,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Row(
-                                          children: [
-                                            const Gap(8),
-                                            AppButtonWidget(
-                                              textAction: 'Layout nhà hàng',
-                                              onTap: () {
-                                                push(context, const TableLayoutPage());
-                                              },
-                                              color: AppColors.secondColor,
-                                            ),
-                                            const Expanded(
-                                              child: ListTagsWidget(),
-                                            ),
-                                            if (!isMobile) ...const [
-                                              Gap(8),
-                                              ButtonRefreshData(),
-                                              ButtonO2oData(),
-                                            ],
-                                            const Gap(8),
-                                            const TypeOrderWidget(),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                      Container(
-                        height: 42.px,
-                        padding: const EdgeInsets.fromLTRB(0, 4, 8, 4),
-                        alignment: Alignment.center,
-                        child: ListCategoryWidget(
-                            categoryScrollController: _categoryScrollController,
-                            onTap: (category) async {
-                              _scrollToCategory(category);
-                              await Future.delayed(const Duration(milliseconds: 350));
-                              // ref.read(homeProvider.notifier).ctrlSearch.text = '';
-                              if (category is CategoryModel) {
-                                ref.read(homeProvider.notifier).changeCategorySelect(category);
-                                return;
-                              }
-                              ref.read(homeProvider.notifier).changeSubCategorySelect(category);
-                            }),
-                      ),
-                      Expanded(
-                        child: Consumer(builder: (context, ref, child) {
-                          var productsState =
-                              ref.watch(homeProvider.select((value) => value.productsState));
+                    //         return SizedBox(
+                    //           height: 48,
+                    //           child: Row(
+                    //             children: [
+                    //               Expanded(
+                    //                 child: Column(
+                    //                   crossAxisAlignment: CrossAxisAlignment.start,
+                    //                   children: [
+                    //                     Expanded(
+                    //                       child: Row(
+                    //                         children: [
+                    //                           const Gap(8),
+                    //                           AppButtonWidget(
+                    //                             textAction: 'Layout nhà hàng',
+                    //                             onTap: () {
+                    //                               push(context, const TableLayoutPage());
+                    //                             },
+                    //                             color: AppColors.secondColor,
+                    //                           ),
+                    //                           const Gap(8),
+                    //                           const Expanded(
+                    //                             child: ListTagsWidget(),
+                    //                           ),
+                    //                           if (!isMobile) ...const [
+                    //                             Gap(8),
+                    //                             ButtonRefreshData(),
+                    //                             ButtonO2oData(),
+                    //                           ],
+                    //                           const Gap(8),
+                    //                           const TypeOrderWidget(),
+                    //                         ],
+                    //                       ),
+                    //                     ),
+                    //                   ],
+                    //                 ),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //         );
+                    //       },
+                    //     ),
+                    //     Container(
+                    //       height: 42.px,
+                    //       padding: const EdgeInsets.fromLTRB(0, 4, 8, 4),
+                    //       alignment: Alignment.center,
+                    //       child: ListCategoryWidget(
+                    //           categoryScrollController: _categoryScrollController,
+                    //           onTap: (category) async {
+                    //             _scrollToCategory(category);
+                    //             await Future.delayed(const Duration(milliseconds: 350));
+                    //             // ref.read(homeProvider.notifier).ctrlSearch.text = '';
+                    //             if (category is CategoryModel) {
+                    //               ref.read(homeProvider.notifier).changeCategorySelect(category);
+                    //               return;
+                    //             }
+                    //             ref.read(homeProvider.notifier).changeSubCategorySelect(category);
+                    //           }),
+                    //     ),
+                    //     Expanded(
+                    //       child: Consumer(builder: (context, ref, child) {
+                    //         var productsState =
+                    //             ref.watch(homeProvider.select((value) => value.productsState));
 
-                          switch (productsState.status) {
-                            case PageCommonState.normal:
-                            case PageCommonState.loading:
-                              return GridView.builder(
-                                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                                  maxCrossAxisExtent: 200,
-                                  mainAxisSpacing: 10,
-                                  crossAxisSpacing: 10,
-                                  childAspectRatio: 0.7,
-                                ),
-                                itemBuilder: (BuildContext context, int index) {
-                                  return const ProductBoxLoadingWidget();
-                                },
-                                itemCount: 12,
-                              );
-                            case PageCommonState.error:
-                              return AppErrorSimpleWidget(
-                                onTryAgain: () {
-                                  ref.read(homeProvider.notifier).getProducts();
-                                },
-                                message: productsState.messageError,
-                              );
-                            case PageCommonState.success:
-                          }
-                          return CustomScrollView(
-                            controller: _productScrollController,
-                            slivers: [
-                              ...dataView,
-                              const SliverToBoxAdapter(child: Gap(50)),
-                            ],
-                          );
-                        }),
-                      ),
-                    ],
-                  ),
+                    //         switch (productsState.status) {
+                    //           case PageCommonState.normal:
+                    //           case PageCommonState.loading:
+                    //             return GridView.builder(
+                    //               padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                    //               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    //                 maxCrossAxisExtent: 200,
+                    //                 mainAxisSpacing: 10,
+                    //                 crossAxisSpacing: 10,
+                    //                 childAspectRatio: 0.7,
+                    //               ),
+                    //               itemBuilder: (BuildContext context, int index) {
+                    //                 return const ProductBoxLoadingWidget();
+                    //               },
+                    //               itemCount: 12,
+                    //             );
+                    //           case PageCommonState.error:
+                    //             return AppErrorSimpleWidget(
+                    //               onTryAgain: () {
+                    //                 ref.read(homeProvider.notifier).getProducts();
+                    //               },
+                    //               message: productsState.messageError,
+                    //             );
+                    //           case PageCommonState.success:
+                    //         }
+                    //         return CustomScrollView(
+                    //           controller: _productScrollController,
+                    //           slivers: [
+                    //             ...dataView,
+                    //             const SliverToBoxAdapter(child: Gap(50)),
+                    //           ],
+                    //         );
+                    //       }),
+                    //     ),
+                    //   ],
+                    // ),
+                    ),
+                // !showOrderInfo
+                //     ? const SizedBox.shrink()
+                //     :
+                Container(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: const OrderPanelWidget(),
                 ),
-                !showOrderInfo
-                    ? const SizedBox.shrink()
-                    : Container(
-                        constraints: const BoxConstraints(maxWidth: 500),
-                        child: const OrderPanelWidget(),
-                      ),
               ],
             ),
           ),
@@ -907,87 +910,87 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
           ),
         ],
       ),
-      bottomNavigationBar: Builder(
-        builder: (context) {
-          return showOrderInfo
-              ? const SizedBox.shrink()
-              : Container(
-                  height: 56,
-                  decoration: BoxDecoration(color: Colors.grey.shade900),
-                  alignment: Alignment.center,
-                  child: Consumer(
-                    builder: (context, ref, child) {
-                      var orderSelect =
-                          ref.watch(homeProvider.select((value) => value.orderSelect));
-                      if (orderSelect == null) {
-                        return GestureDetector(
-                          onTap: () {
-                            showOrderOptionDialog(context);
-                            // showConfirmCodeDialog(context, ref, action: () async {
-                            //   showOrderOptionDialog(context);
-                            // });
-                          },
-                          child: Text(
-                            'Chọn đơn bàn thao tác',
-                            style: AppTextStyle.bold(color: Colors.white),
-                          ),
-                        );
-                      }
+      // bottomNavigationBar: Builder(
+      //   builder: (context) {
+      //     return showOrderInfo
+      //         ? const SizedBox.shrink()
+      //         : Container(
+      //             height: 56,
+      //             decoration: BoxDecoration(color: Colors.grey.shade900),
+      //             alignment: Alignment.center,
+      //             child: Consumer(
+      //               builder: (context, ref, child) {
+      //                 var orderSelect =
+      //                     ref.watch(homeProvider.select((value) => value.orderSelect));
+      //                 if (orderSelect == null) {
+      //                   return GestureDetector(
+      //                     onTap: () {
+      //                       showOrderOptionDialog(context);
+      //                       // showConfirmCodeDialog(context, ref, action: () async {
+      //                       //   showOrderOptionDialog(context);
+      //                       // });
+      //                     },
+      //                     child: Text(
+      //                       'Chọn đơn bàn thao tác',
+      //                       style: AppTextStyle.bold(color: Colors.white),
+      //                     ),
+      //                   );
+      //                 }
 
-                      return Row(children: [
-                        const CartInfoWidget(),
-                        const VerticalDivider(
-                          indent: 20,
-                          endIndent: 20,
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              showOrderOptionDialog(context);
-                            },
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    "${S.current.table} ${orderSelect.getNameView()}",
-                                    style: AppTextStyle.bold(color: Colors.white),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                const Gap(4),
-                                const ResponsiveIconWidget(
-                                  iconData: Icons.change_circle_outlined,
-                                  color: Colors.white,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const Gap(8),
-                        AppButtonWidget(
-                          textAction: 'Thanh toán',
-                          color: AppColors.mainColor,
-                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                          borderRadius: BorderRadius.circular(8),
-                          onTap: () async {
-                            if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
-                              showMessageDialog(context, message: S.current.noOrderSelect);
-                              return;
-                            }
+      //                 return Row(children: [
+      //                   const CartInfoWidget(),
+      //                   const VerticalDivider(
+      //                     indent: 20,
+      //                     endIndent: 20,
+      //                   ),
+      //                   Expanded(
+      //                     child: GestureDetector(
+      //                       onTap: () {
+      //                         showOrderOptionDialog(context);
+      //                       },
+      //                       child: Row(
+      //                         mainAxisSize: MainAxisSize.min,
+      //                         mainAxisAlignment: MainAxisAlignment.center,
+      //                         children: [
+      //                           Flexible(
+      //                             child: Text(
+      //                               "${S.current.table} ${orderSelect.getNameView()}",
+      //                               style: AppTextStyle.bold(color: Colors.white),
+      //                               textAlign: TextAlign.center,
+      //                             ),
+      //                           ),
+      //                           const Gap(4),
+      //                           const ResponsiveIconWidget(
+      //                             iconData: Icons.change_circle_outlined,
+      //                             color: Colors.white,
+      //                           ),
+      //                         ],
+      //                       ),
+      //                     ),
+      //                   ),
+      //                   const Gap(8),
+      //                   AppButtonWidget(
+      //                     textAction: 'Thanh toán',
+      //                     color: AppColors.mainColor,
+      //                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      //                     borderRadius: BorderRadius.circular(8),
+      //                     onTap: () async {
+      //                       if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
+      //                         showMessageDialog(context, message: S.current.noOrderSelect);
+      //                         return;
+      //                       }
 
-                            final OrderModel? order = await Navigator.of(context)
-                                .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
-                          },
-                        ),
-                        const Gap(8),
-                      ]);
-                    },
-                  ),
-                );
-        },
-      ),
+      //                       final OrderModel? order = await Navigator.of(context)
+      //                           .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
+      //                     },
+      //                   ),
+      //                   const Gap(8),
+      //                 ]);
+      //               },
+      //             ),
+      //           );
+      //   },
+      // ),
     );
   }
 

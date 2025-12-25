@@ -166,21 +166,6 @@ class HomeState with _$HomeState {
     @Default('') String messageError,
     @Default(false) bool realtimeStatus,
     @Default(false) bool reconnectRedis,
-
-    /// danh mục, món
-    @Default(PageState(status: PageCommonState.loading)) PageState productsState,
-    @Default([]) List<CategoryModel> categories,
-    @Default([]) List<ProductModel> products,
-    @Default([]) List<TagProductModel> tags,
-
-    /// chứa category, subcategory, dấu >
-    @Default([]) List<dynamic> menuCategoryItem,
-    CategoryModel? categorySelect,
-    SubCategoryModel? subCategorySelect,
-    TagProductModel? tagSelect,
-
-    ///
-    @Default('') String search,
     @Default(true) bool ignoreCheckCodeWaiter,
 
     /// đơn bàn
@@ -232,8 +217,6 @@ class HomeState with _$HomeState {
     /// hoá đơn
     OrderInvoice? invoice,
     @Default(PageState()) PageState orderInvoiceState,
-    //
-    @Default(false) bool checkReloadWhenHiddenApp,
 
     /// thông tin tiền
     @Default(DataBillResponseData()) DataBillResponseData dataBill,

@@ -1,7 +1,8 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/menu/list_product.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/components/list_product.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -30,10 +31,10 @@ class ListCategoryWidget extends ConsumerStatefulWidget {
 class _ListCategoryWidgetState extends ConsumerState<ListCategoryWidget> {
   @override
   Widget build(BuildContext context) {
-    var productsState = ref.watch(homeProvider.select((value) => value.productsState));
-    var categories = ref.watch(homeProvider.select((value) => value.categories));
-    var categorySelect = ref.watch(homeProvider.select((value) => value.categorySelect));
-    var subCategorySelect = ref.watch(homeProvider.select((value) => value.subCategorySelect));
+    var productsState = ref.watch(menuProvider.select((value) => value.productsState));
+    var categories = ref.watch(menuProvider.select((value) => value.categories));
+    var categorySelect = ref.watch(menuProvider.select((value) => value.categorySelect));
+    var subCategorySelect = ref.watch(menuProvider.select((value) => value.subCategorySelect));
     bool showMenuIcon = categories.any((e) => (e.children ?? []).isNotEmpty);
     switch (productsState.status) {
       case PageCommonState.loading:

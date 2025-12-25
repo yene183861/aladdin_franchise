@@ -1,4 +1,4 @@
-import 'package:aladdin_franchise/src/features/pages/home/components/menu/list_product.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/components/list_product.dart';
 import 'package:flutter/material.dart';
 
 class OrderHistoryGridViewLoading extends StatelessWidget {

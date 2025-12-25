@@ -325,7 +325,14 @@ final orderToOnlineProvider =
   Map<O2OOrderModel, Map<String, dynamic>> orders = {};
   orders = {};
   final result = await ref.read(o2oRepositoryProvider).getOrderToOnline();
-  for (var e in result) {
+  if (!result.isSuccess) {
+    throw AppException(
+      statusCode: result.statusCode,
+      message: result.error,
+    );
+  }
+
+  for (var e in (result.data ?? [])) {
     // if (loginUserId != null && e.userId != loginUserId) continue;
 
     var order = e.copyWith(items: []);
