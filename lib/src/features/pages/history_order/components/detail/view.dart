@@ -1,35 +1,17 @@
-import 'dart:convert';
-import 'dart:math';
-import 'dart:typed_data';
-
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/pages/history_order/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
-import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
-import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/custom_checkbox.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
-import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
-import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
-import 'package:aladdin_franchise/src/models/product_checkout.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
-import 'package:aladdin_franchise/src/utils/app_util.dart';
-import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
-import 'package:aladdin_franchise/src/utils/size_util.dart';
-import 'package:aladdin_franchise/src/utils/text_util.dart';
-import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 
 import 'order_detail_body.dart';
 
@@ -101,14 +83,17 @@ class _HistoryOrderDetailDialogState extends ConsumerState<HistoryOrderDetailDia
                     var statusLoading = ref.watch(
                         historyOrderPageProvider.select((value) => value.getOrderDetailState));
                     if (statusLoading.status == PageCommonState.success) {
-                      return ButtonSimpleWidget(
-                        textAction: S.current.complete_order,
-                        onPressed: () async {
-                          var refreshData = await widget.completeBillAction?.call();
-                          if (refreshData ?? false) {
-                            pop(context);
-                          }
-                        },
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: ButtonSimpleWidget(
+                          textAction: S.current.complete_order,
+                          onPressed: () async {
+                            var refreshData = await widget.completeBillAction?.call();
+                            if (refreshData ?? false) {
+                              pop(context);
+                            }
+                          },
+                        ),
                       );
                     }
                     return const SizedBox.shrink();

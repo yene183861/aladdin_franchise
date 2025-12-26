@@ -35,6 +35,7 @@ Future<ApiResult<T>> safeCallApi<T>(
   String? dataKey,
   bool wrapperResponse = false,
   ErrorLogModel? log,
+  bool ignoreCheckStatus = false,
 }) async {
   ApiResult<T> result;
 
@@ -47,7 +48,7 @@ Future<ApiResult<T>> safeCallApi<T>(
     if (response.statusCode >= 200 && response.statusCode <= 226) {
       var jsonData = jsonDecode(response.body);
       jsonData = wrapperResponse ? jsonData['data'] : jsonData;
-      if (jsonData is Map) {
+      if (!ignoreCheckStatus && (jsonData is Map)) {
         dynamic status = jsonData['status'];
         var message = jsonData['message'] as String?;
         // dành cho case statusCode = 200 nhưng status != 200

@@ -24,10 +24,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
-class HomeDrawerWidget extends ConsumerWidget {
-  const HomeDrawerWidget({
-    super.key,
-  });
+class HomeDrawer extends ConsumerWidget {
+  const HomeDrawer({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,21 +38,21 @@ class HomeDrawerWidget extends ConsumerWidget {
             child: Column(
               children: [
                 const LogoWidget(),
-                ListTile(
-                  onTap: () {
-                    pop(context);
-                    showCreateTicket(context);
-                  },
-                  leading: const ResponsiveIconWidget(
-                    iconData: Icons.outgoing_mail,
-                    color: Colors.green,
-                  ),
-                  title: Text(
-                    S.current.send_ticket,
-                    style: AppTextStyle.medium(),
-                  ),
-                ),
-                const Divider(height: 1),
+                // ListTile(
+                //   onTap: () {
+                //     pop(context);
+                //     showCreateTicket(context);
+                //   },
+                //   leading: const ResponsiveIconWidget(
+                //     iconData: Icons.outgoing_mail,
+                //     color: Colors.green,
+                //   ),
+                //   title: Text(
+                //     S.current.send_ticket,
+                //     style: AppTextStyle.medium(),
+                //   ),
+                // ),
+                // const Divider(height: 1),
                 ListTile(
                   onTap: () {
                     pop(context);
@@ -73,21 +71,16 @@ class HomeDrawerWidget extends ConsumerWidget {
                 ListTile(
                   onTap: () async {
                     pop(context);
-                    final res = await ref
-                        .read(homeProvider.notifier)
-                        .closeShift(context);
+                    final res = await ref.read(homeProvider.notifier).closeShift(context);
 
                     if (res != null) {
                       if (homeKey.currentContext != null) {
-                        showMessageDialog(homeKey.currentContext!,
-                            message: res);
+                        showMessageDialog(homeKey.currentContext!, message: res);
                         return;
                       }
                     }
                     if (context.mounted) {
-                      showDoneSnackBar(
-                          context: context,
-                          message: S.current.closing_shift_success);
+                      showDoneSnackBar(context: context, message: S.current.closing_shift_success);
                     }
                   },
                   leading: const ResponsiveIconWidget(

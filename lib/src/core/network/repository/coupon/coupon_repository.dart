@@ -7,9 +7,9 @@ import 'package:aladdin_franchise/src/models/customer/customer.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
-import 'package:aladdin_franchise/src/data/response/add_voucher.dart';
 
 abstract class CouponRepository {
+  /// checked
   Future<ApiResult<CouponResponseData>> addCoupon({
     required String code,
     required OrderModel order,
@@ -17,11 +17,13 @@ abstract class CouponRepository {
     required int numberOfAdults,
   });
 
+  /// checked
   Future<ApiResult<bool>> deleteCoupon({
     required String idCode,
     required OrderModel order,
   });
 
+  /// checked
   Future<ApiResult<ApplyPolicyResponseData>> applyPolicy({
     required List<CustomerPolicyModel> coupons,
     required List<CustomerPolicyModel> customerPolicy,
@@ -33,6 +35,7 @@ abstract class CouponRepository {
     required int numberOfAdults,
   });
 
+  /// checked
   Future<ApiResult<VoucherModel>> addVoucher({
     required OrderModel order,
     required double amount,
@@ -40,5 +43,6 @@ abstract class CouponRepository {
     required DiscountTypeEnum type,
   });
 
+  /// checked
   Future<ApiResult<void>> deleteVoucher(dynamic id);
 }

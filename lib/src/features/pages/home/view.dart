@@ -443,429 +443,30 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
       homeProvider.select((value) => value.event),
       _listenEvent(context, ref),
     );
-    // var categories = ref.watch(homeProvider.select((value) => value.categories));
-    // categoryKeys = ref.read(homeProvider.notifier).categoryKeys;
-    // var products = ref.watch(homeProvider.select((value) => value.products));
-    // var tags = ref.watch(homeProvider.select((value) => value.tags));
 
-    // var productsView = List<ProductModel>.from(products);
-    // var keyword = ref.watch(homeProvider.select((value) => value.search)).trim();
-    // var tagSelect = ref.watch(homeProvider.select((value) => value.tagSelect));
-    // if (tagSelect != null) {
-    //   productsView =
-    //       productsView.where((product) => (product.tags ?? []).contains(tagSelect.id)).toList();
-    // }
-    // if (keyword.isNotEmpty) {
-    //   var search = removeDiacritics(keyword).toLowerCase();
-    //   productsView = productsView
-    //       .where((product) =>
-    //           (product.getSearchName().toLowerCase()).contains(search) ||
-    //           (product.getSearchShortName().toLowerCase().contains(search)))
-    //       .toList();
-    // }
-    // List<Widget> dataView = [];
-    // for (var cate in categories) {
-    //   List<ProductModel> categoryProducts =
-    //       productsView.where((e) => e.categoryId == cate.id).toList();
-    //   var subCategory = List<SubCategoryModel>.from((cate.children ?? []));
-    //   Map<SubCategoryModel, List<ProductModel>> subCategoryProducts = {};
-    //   for (var subCate in subCategory) {
-    //     var data = productsView.where((e) => e.categoryId == subCate.id).toList();
-
-    //     if (data.isNotEmpty) {
-    //       subCategoryProducts[subCate] = data;
-    //     }
-    //   }
-    //   if (categoryProducts.isNotEmpty || subCategoryProducts.isNotEmpty) {
-    //     dataView.add(SliverToBoxAdapter(
-    //       child: Container(
-    //         key: categoryKeys[cate],
-    //         decoration: const BoxDecoration(color: Colors.white),
-    //         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-    //         alignment: Alignment.centerLeft,
-    //         child: Text(
-    //           cate.title,
-    //           style: AppTextStyle.bold(),
-    //         ),
-    //       ),
-    //     ));
-    //     if (categoryProducts.isNotEmpty) {
-    //       dataView.add(SliverPadding(
-    //         padding: const EdgeInsets.only(left: 10),
-    //         sliver: SliverGrid.builder(
-    //           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-    //             maxCrossAxisExtent: 180,
-    //             mainAxisSpacing: 10,
-    //             crossAxisSpacing: 10,
-    //             childAspectRatio: 0.8,
-    //           ),
-    //           itemBuilder: (context, index) => ProductBoxWidget(product: categoryProducts[index]),
-    //           itemCount: categoryProducts.length,
-    //         ),
-    //       ));
-    //     }
-    //   }
-
-    //   subCategoryProducts.forEach(
-    //     (key, value) {
-    //       if (value.isNotEmpty) {
-    //         dataView.add(SliverToBoxAdapter(
-    //           child: Container(
-    //             key: categoryKeys[key],
-    //             decoration: const BoxDecoration(color: Colors.white),
-    //             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-    //             alignment: Alignment.centerLeft,
-    //             child: Text(
-    //               key.title,
-    //               style: AppTextStyle.bold(),
-    //             ),
-    //           ),
-    //         ));
-    //         dataView.add(SliverPadding(
-    //           padding: const EdgeInsets.only(left: 10),
-    //           sliver: SliverGrid.builder(
-    //             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-    //               maxCrossAxisExtent: 180,
-    //               mainAxisSpacing: 10,
-    //               crossAxisSpacing: 10,
-    //               childAspectRatio: 0.8,
-    //             ),
-    //             itemBuilder: (context, index) => ProductBoxWidget(product: value[index]),
-    //             itemCount: value.length,
-    //           ),
-    //         ));
-    //       }
-    //     },
-    //   );
-    // }
     var viewPadding = MediaQuery.of(context).viewPadding;
-    // bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
-    // bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    // bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
+    bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
+    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
 
-    // bool showOrderInfo = !(isMobile || (isTablet && portraitOrientation));
-    // bool emptyTags = tags.isEmpty;
-    // var homeTabSelect = ref.watch(homeProvider.select((value) => value.homeTabSelect));
-
-    /// test UI mới
-    // return PopScope(
-    //   canPop: false,
-    //   child: Scaffold(
-    //     body: Column(
-    //       children: [
-    //         const Gap(12),
-    //         Row(
-    //           children: [
-    //             ResponsiveIconButtonWidget(
-    //               iconData: Icons.cloud_queue,
-    //               color: Colors.blue,
-    //             ),
-    //             Expanded(
-    //               child: Row(
-    //                 children: [
-    //                   Container(
-    //                     height: 48,
-    //                     padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-    //                     decoration: BoxDecoration(
-    //                       color: Color(0xFFf0f5f8),
-    //                       borderRadius: BorderRadius.circular(20),
-    //                     ),
-    //                     child: Consumer(
-    //                       builder: (context, ref, child) {
-    //                         var tabs = ref.watch(homeProvider.select((value) => value.homeTabs));
-    //                         return ListView.separated(
-    //                           shrinkWrap: true,
-    //                           scrollDirection: Axis.horizontal,
-    //                           itemBuilder: (context, index) {
-    //                             var item = tabs[index];
-    //                             bool selected = homeTabSelect == item;
-    //                             return InkWell(
-    //                               onTap: () {
-    //                                 if (selected) return;
-    //                                 ref.read(homeProvider.notifier).onChangeHomeTabSelect(item);
-    //                               },
-    //                               borderRadius: BorderRadius.circular(20),
-    //                               child: Container(
-    //                                 padding:
-    //                                     const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-    //                                 decoration: BoxDecoration(
-    //                                   color: selected ? Colors.white : null,
-    //                                   borderRadius: BorderRadius.circular(20),
-    //                                   border: selected
-    //                                       ? Border.all(color: Color(0xFFdadee3), width: 1)
-    //                                       : null,
-    //                                 ),
-    //                                 child: Row(
-    //                                   mainAxisSize: MainAxisSize.min,
-    //                                   children: [
-    //                                     ResponsiveIconWidget(
-    //                                       iconData: CupertinoIcons.home,
-    //                                       color: selected ? Color(0xFF323948) : Color(0xFF9aa2b1),
-    //                                     ),
-    //                                     Gap(12),
-    //                                     Text(item.title,
-    //                                         style: selected
-    //                                             ? AppTextStyle.bold(color: Color(0xFF323948))
-    //                                             : AppTextStyle.medium(color: Color(0xFF9aa2b1))),
-    //                                   ],
-    //                                 ),
-    //                               ),
-    //                             );
-    //                           },
-    //                           separatorBuilder: (context, index) => const Gap(4),
-    //                           itemCount: tabs.length,
-    //                         );
-    //                       },
-    //                     ),
-    //                   ),
-    //                   const Spacer(),
-    //                 ],
-    //               ),
-    //             ),
-    //             const Gap(20),
-    //             Stack(
-    //               children: [
-    //                 ResponsiveIconButtonWidget(
-    //                   iconData: Icons.notifications_none_rounded,
-    //                   iconSize: 24,
-    //                   color: Colors.black,
-    //                   buttonStyle: ButtonStyle(
-    //                       padding: WidgetStatePropertyAll(
-    //                           EdgeInsets.symmetric(horizontal: 10, vertical: 10)),
-    //                       shape: WidgetStatePropertyAll(
-    //                         RoundedRectangleBorder(
-    //                           borderRadius: BorderRadius.circular(16),
-    //                           side: BorderSide(color: Colors.grey),
-    //                         ),
-    //                       )),
-    //                 ),
-    //                 Positioned(
-    //                   right: 12,
-    //                   top: 12,
-    //                   child: Container(
-    //                     width: 12,
-    //                     height: 12,
-    //                     decoration: BoxDecoration(
-    //                       color: Colors.red,
-    //                       shape: BoxShape.circle,
-    //                     ),
-    //                   ),
-    //                 ),
-    //               ],
-    //             ),
-    //             Gap(20),
-    //             Consumer(
-    //               builder: (context, ref, child) {
-    //                 var info = ref.watch(userInfoProvider);
-    //                 return Container(
-    //                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-    //                   decoration: BoxDecoration(
-    //                     border: Border.all(color: Colors.grey),
-    //                     borderRadius: BorderRadius.circular(16),
-    //                   ),
-    //                   child: Row(
-    //                     children: [
-    //                       Text(
-    //                         info.user?.name ?? '',
-    //                         style: AppTextStyle.bold(),
-    //                       ),
-    //                     ],
-    //                   ),
-    //                 );
-    //               },
-    //             ),
-    //             Gap(20),
-    //           ],
-    //         ),
-    //         const Gap(12),
-    //         Expanded(
-    //           child: switch (homeTabSelect) {
-    //             HomeTabEnum.dashboard => Container(),
-    //             HomeTabEnum.order => OrderPageTest(),
-    //             HomeTabEnum.table => TableLayoutPageTest(),
-    //             HomeTabEnum.reservation => Container(),
-    //             HomeTabEnum.history => Container(),
-    //             HomeTabEnum.o2o => Container(),
-    //           },
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // );
+    bool showOrderInfo = !(isMobile || (isTablet && portraitOrientation));
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      drawer: const HomeDrawerWidget(),
+      drawer: const HomeDrawer(),
       body: Stack(
         children: [
           Padding(
             padding: EdgeInsets.fromLTRB(viewPadding.left, 0, 0, 0),
             child: Row(
               children: [
-                Expanded(flex: 1, child: MenuPage()
-                    // Column(
-                    //   children: [
-                    //     Container(
-                    //       height: 48,
-                    //       width: double.maxFinite,
-                    //       alignment: Alignment.center,
-                    //       child: Row(
-                    //         children: [
-                    //           const Gap(8),
-                    //           Builder(
-                    //             builder: (context) {
-                    //               return InkWell(
-                    //                 onTap: Scaffold.of(context).openDrawer,
-                    //                 child: const ResponsiveIconWidget(
-                    //                   iconData: CupertinoIcons.home,
-                    //                 ),
-                    //               );
-                    //             },
-                    //           ),
-                    //           const Expanded(
-                    //             child: Padding(
-                    //               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    //               child: _SearchDishWidget(),
-                    //             ),
-                    //           ),
-                    //           if (!isMobile) ...[
-                    //             const ButtonHistoryOrderWidget(),
-                    //             const Gap(8),
-                    //           ] else ...[
-                    //             const ButtonO2oData(),
-                    //             Consumer(
-                    //               builder: (context, ref, child) {
-                    //                 ref.watch(typeOrderWaiterProvider);
-                    //                 var useO2O =
-                    //                     LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-                    //                 if (useO2O || portraitOrientation) {
-                    //                   return const SizedBox.shrink();
-                    //                 }
-                    //                 if (emptyTags) {
-                    //                   return const TypeOrderWidget();
-                    //                 }
-                    //                 return const ButtonHistoryOrderWidget();
-                    //               },
-                    //             ),
-                    //             const ButtonRefreshData(),
-                    //           ],
-                    //         ],
-                    //       ),
-                    //     ),
-                    //     Consumer(
-                    //       builder: (context, ref, child) {
-                    //         // var tags = ref.watch(homeProvider.select((value) => value.tags));
-                    //         // if (tags.isEmpty && isMobile) {
-                    //         //   return const SizedBox.shrink();
-                    //         // }
-
-                    //         return SizedBox(
-                    //           height: 48,
-                    //           child: Row(
-                    //             children: [
-                    //               Expanded(
-                    //                 child: Column(
-                    //                   crossAxisAlignment: CrossAxisAlignment.start,
-                    //                   children: [
-                    //                     Expanded(
-                    //                       child: Row(
-                    //                         children: [
-                    //                           const Gap(8),
-                    //                           AppButtonWidget(
-                    //                             textAction: 'Layout nhà hàng',
-                    //                             onTap: () {
-                    //                               push(context, const TableLayoutPage());
-                    //                             },
-                    //                             color: AppColors.secondColor,
-                    //                           ),
-                    //                           const Gap(8),
-                    //                           const Expanded(
-                    //                             child: ListTagsWidget(),
-                    //                           ),
-                    //                           if (!isMobile) ...const [
-                    //                             Gap(8),
-                    //                             ButtonRefreshData(),
-                    //                             ButtonO2oData(),
-                    //                           ],
-                    //                           const Gap(8),
-                    //                           const TypeOrderWidget(),
-                    //                         ],
-                    //                       ),
-                    //                     ),
-                    //                   ],
-                    //                 ),
-                    //               ),
-                    //             ],
-                    //           ),
-                    //         );
-                    //       },
-                    //     ),
-                    //     Container(
-                    //       height: 42.px,
-                    //       padding: const EdgeInsets.fromLTRB(0, 4, 8, 4),
-                    //       alignment: Alignment.center,
-                    //       child: ListCategoryWidget(
-                    //           categoryScrollController: _categoryScrollController,
-                    //           onTap: (category) async {
-                    //             _scrollToCategory(category);
-                    //             await Future.delayed(const Duration(milliseconds: 350));
-                    //             // ref.read(homeProvider.notifier).ctrlSearch.text = '';
-                    //             if (category is CategoryModel) {
-                    //               ref.read(homeProvider.notifier).changeCategorySelect(category);
-                    //               return;
-                    //             }
-                    //             ref.read(homeProvider.notifier).changeSubCategorySelect(category);
-                    //           }),
-                    //     ),
-                    //     Expanded(
-                    //       child: Consumer(builder: (context, ref, child) {
-                    //         var productsState =
-                    //             ref.watch(homeProvider.select((value) => value.productsState));
-
-                    //         switch (productsState.status) {
-                    //           case PageCommonState.normal:
-                    //           case PageCommonState.loading:
-                    //             return GridView.builder(
-                    //               padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                    //               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    //                 maxCrossAxisExtent: 200,
-                    //                 mainAxisSpacing: 10,
-                    //                 crossAxisSpacing: 10,
-                    //                 childAspectRatio: 0.7,
-                    //               ),
-                    //               itemBuilder: (BuildContext context, int index) {
-                    //                 return const ProductBoxLoadingWidget();
-                    //               },
-                    //               itemCount: 12,
-                    //             );
-                    //           case PageCommonState.error:
-                    //             return AppErrorSimpleWidget(
-                    //               onTryAgain: () {
-                    //                 ref.read(homeProvider.notifier).getProducts();
-                    //               },
-                    //               message: productsState.messageError,
-                    //             );
-                    //           case PageCommonState.success:
-                    //         }
-                    //         return CustomScrollView(
-                    //           controller: _productScrollController,
-                    //           slivers: [
-                    //             ...dataView,
-                    //             const SliverToBoxAdapter(child: Gap(50)),
-                    //           ],
-                    //         );
-                    //       }),
-                    //     ),
-                    //   ],
-                    // ),
-                    ),
-                // !showOrderInfo
-                //     ? const SizedBox.shrink()
-                //     :
-                Container(
-                  constraints: const BoxConstraints(maxWidth: 500),
-                  child: const OrderPanelWidget(),
-                ),
+                const Expanded(flex: 1, child: MenuPage()),
+                !showOrderInfo
+                    ? const SizedBox.shrink()
+                    : Container(
+                        constraints: const BoxConstraints(maxWidth: 500),
+                        child: const OrderPanelWidget(),
+                      ),
               ],
             ),
           ),
@@ -910,87 +511,87 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
           ),
         ],
       ),
-      // bottomNavigationBar: Builder(
-      //   builder: (context) {
-      //     return showOrderInfo
-      //         ? const SizedBox.shrink()
-      //         : Container(
-      //             height: 56,
-      //             decoration: BoxDecoration(color: Colors.grey.shade900),
-      //             alignment: Alignment.center,
-      //             child: Consumer(
-      //               builder: (context, ref, child) {
-      //                 var orderSelect =
-      //                     ref.watch(homeProvider.select((value) => value.orderSelect));
-      //                 if (orderSelect == null) {
-      //                   return GestureDetector(
-      //                     onTap: () {
-      //                       showOrderOptionDialog(context);
-      //                       // showConfirmCodeDialog(context, ref, action: () async {
-      //                       //   showOrderOptionDialog(context);
-      //                       // });
-      //                     },
-      //                     child: Text(
-      //                       'Chọn đơn bàn thao tác',
-      //                       style: AppTextStyle.bold(color: Colors.white),
-      //                     ),
-      //                   );
-      //                 }
+      bottomNavigationBar: Builder(
+        builder: (context) {
+          return showOrderInfo
+              ? const SizedBox.shrink()
+              : Container(
+                  height: 56,
+                  decoration: BoxDecoration(color: Colors.grey.shade900),
+                  alignment: Alignment.center,
+                  child: Consumer(
+                    builder: (context, ref, child) {
+                      var orderSelect =
+                          ref.watch(homeProvider.select((value) => value.orderSelect));
+                      if (orderSelect == null) {
+                        return GestureDetector(
+                          onTap: () {
+                            showOrderOptionDialog(context);
+                            // showConfirmCodeDialog(context, ref, action: () async {
+                            //   showOrderOptionDialog(context);
+                            // });
+                          },
+                          child: Text(
+                            'Chọn đơn bàn thao tác',
+                            style: AppTextStyle.bold(color: Colors.white),
+                          ),
+                        );
+                      }
 
-      //                 return Row(children: [
-      //                   const CartInfoWidget(),
-      //                   const VerticalDivider(
-      //                     indent: 20,
-      //                     endIndent: 20,
-      //                   ),
-      //                   Expanded(
-      //                     child: GestureDetector(
-      //                       onTap: () {
-      //                         showOrderOptionDialog(context);
-      //                       },
-      //                       child: Row(
-      //                         mainAxisSize: MainAxisSize.min,
-      //                         mainAxisAlignment: MainAxisAlignment.center,
-      //                         children: [
-      //                           Flexible(
-      //                             child: Text(
-      //                               "${S.current.table} ${orderSelect.getNameView()}",
-      //                               style: AppTextStyle.bold(color: Colors.white),
-      //                               textAlign: TextAlign.center,
-      //                             ),
-      //                           ),
-      //                           const Gap(4),
-      //                           const ResponsiveIconWidget(
-      //                             iconData: Icons.change_circle_outlined,
-      //                             color: Colors.white,
-      //                           ),
-      //                         ],
-      //                       ),
-      //                     ),
-      //                   ),
-      //                   const Gap(8),
-      //                   AppButtonWidget(
-      //                     textAction: 'Thanh toán',
-      //                     color: AppColors.mainColor,
-      //                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      //                     borderRadius: BorderRadius.circular(8),
-      //                     onTap: () async {
-      //                       if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
-      //                         showMessageDialog(context, message: S.current.noOrderSelect);
-      //                         return;
-      //                       }
+                      return Row(children: [
+                        const CartInfoWidget(),
+                        const VerticalDivider(
+                          indent: 20,
+                          endIndent: 20,
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              showOrderOptionDialog(context);
+                            },
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    "${S.current.table} ${orderSelect.getNameView()}",
+                                    style: AppTextStyle.bold(color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                const Gap(4),
+                                const ResponsiveIconWidget(
+                                  iconData: Icons.change_circle_outlined,
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const Gap(8),
+                        AppButtonWidget(
+                          textAction: 'Thanh toán',
+                          color: AppColors.mainColor,
+                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: () async {
+                            if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
+                              showMessageDialog(context, message: S.current.noOrderSelect);
+                              return;
+                            }
 
-      //                       final OrderModel? order = await Navigator.of(context)
-      //                           .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
-      //                     },
-      //                   ),
-      //                   const Gap(8),
-      //                 ]);
-      //               },
-      //             ),
-      //           );
-      //   },
-      // ),
+                            final OrderModel? order = await Navigator.of(context)
+                                .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
+                          },
+                        ),
+                        const Gap(8),
+                      ]);
+                    },
+                  ),
+                );
+        },
+      ),
     );
   }
 
@@ -1243,54 +844,54 @@ class CartInfoWidget extends ConsumerWidget {
   }
 }
 
-class _SearchDishWidget extends ConsumerWidget {
-  const _SearchDishWidget({
-    super.key,
-  });
+// class _SearchDishWidget extends ConsumerWidget {
+//   const _SearchDishWidget({
+//     super.key,
+//   });
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final inputBorder = OutlineInputBorder(
-      borderRadius: AppConfig.borderRadiusMain,
-      borderSide: BorderSide(
-        color: Colors.grey.shade300,
-      ),
-    );
-    var controller = ref.read(homeProvider.notifier).ctrlSearch;
-    final keyword = ref.watch(homeProvider.select((value) => value.search));
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final inputBorder = OutlineInputBorder(
+//       borderRadius: AppConfig.borderRadiusMain,
+//       borderSide: BorderSide(
+//         color: Colors.grey.shade300,
+//       ),
+//     );
+//     var controller = ref.read(homeProvider.notifier).ctrlSearch;
+//     final keyword = ref.watch(homeProvider.select((value) => value.search));
 
-    return TextFormField(
-      style: AppTextStyle.regular(),
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.zero,
-        prefixIcon: const ResponsiveIconWidget(iconData: CupertinoIcons.search),
-        hintText: S.of(context).searchDish,
-        hintStyle: AppTextStyle.light(rawFontSize: 12),
-        helperStyle: AppTextStyle.regular(rawFontSize: 13),
-        suffixIcon: keyword.trim().isEmpty
-            ? null
-            : IconButton(
-                visualDensity: VisualDensity.compact,
-                onPressed: () {
-                  controller.text = '';
-                  ref.read(homeProvider.notifier).changeSearch('');
-                },
-                color: AppColors.clearSearch,
-                icon: const ResponsiveIconWidget(iconData: Icons.clear),
-              ),
-        enabledBorder: inputBorder,
-        border: inputBorder,
-      ),
-      controller: controller,
-      onTapOutside: (event) {
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
-      onChanged: (value) {
-        ref.read(homeProvider.notifier).changeSearch(value);
-      },
-    );
-  }
-}
+//     return TextFormField(
+//       style: AppTextStyle.regular(),
+//       decoration: InputDecoration(
+//         contentPadding: EdgeInsets.zero,
+//         prefixIcon: const ResponsiveIconWidget(iconData: CupertinoIcons.search),
+//         hintText: S.of(context).searchDish,
+//         hintStyle: AppTextStyle.light(rawFontSize: 12),
+//         helperStyle: AppTextStyle.regular(rawFontSize: 13),
+//         suffixIcon: keyword.trim().isEmpty
+//             ? null
+//             : IconButton(
+//                 visualDensity: VisualDensity.compact,
+//                 onPressed: () {
+//                   controller.text = '';
+//                   ref.read(homeProvider.notifier).changeSearch('');
+//                 },
+//                 color: AppColors.clearSearch,
+//                 icon: const ResponsiveIconWidget(iconData: Icons.clear),
+//               ),
+//         enabledBorder: inputBorder,
+//         border: inputBorder,
+//       ),
+//       controller: controller,
+//       onTapOutside: (event) {
+//         FocusManager.instance.primaryFocus?.unfocus();
+//       },
+//       onChanged: (value) {
+//         ref.read(homeProvider.notifier).changeSearch(value);
+//       },
+//     );
+//   }
+// }
 
 class LogoWidget extends ConsumerWidget {
   const LogoWidget({super.key});
@@ -1338,668 +939,668 @@ class LogoWidget extends ConsumerWidget {
   }
 }
 
-class OrderPageTest extends ConsumerStatefulWidget {
-  OrderPageTest({Key? key}) : super(key: homeKey);
+// class OrderPageTest extends ConsumerStatefulWidget {
+//   OrderPageTest({Key? key}) : super(key: homeKey);
 
-  @override
-  ConsumerState createState() => _OrderPageTestState();
-}
+//   @override
+//   ConsumerState createState() => _OrderPageTestState();
+// }
 
-class _OrderPageTestState extends ConsumerState<OrderPageTest> with WidgetsBindingObserver {
-  late final Timer _timerReloadMenu;
+// class _OrderPageTestState extends ConsumerState<OrderPageTest> with WidgetsBindingObserver {
+//   late final Timer _timerReloadMenu;
 
-  late ScrollController _productScrollController;
-  late ScrollController _categoryScrollController;
-  Map<dynamic, GlobalKey> categoryKeys = {};
+//   late ScrollController _productScrollController;
+//   late ScrollController _categoryScrollController;
+//   Map<dynamic, GlobalKey> categoryKeys = {};
 
-  final GlobalKey _floatingBtnKey = GlobalKey();
-  OverlayEntry? _overlayEntry;
-  double chatPopupHeight = 600;
-  double chatPopupWidth = 600;
+//   final GlobalKey _floatingBtnKey = GlobalKey();
+//   OverlayEntry? _overlayEntry;
+//   double chatPopupHeight = 600;
+//   double chatPopupWidth = 600;
 
-  @override
-  void initState() {
-    super.initState();
-    _productScrollController = ScrollController();
-    _categoryScrollController = ScrollController();
-    _productScrollController.addListener(_onScrollProduct);
-    WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _timerReloadMenu = Timer.periodic(
-        const Duration(minutes: 5),
-        (timer) {
-          ref.read(homeProvider.notifier).checkReloadMenu();
-        },
-      );
-    });
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     _productScrollController = ScrollController();
+//     _categoryScrollController = ScrollController();
+//     _productScrollController.addListener(_onScrollProduct);
+//     WidgetsBinding.instance.addObserver(this);
+//     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+//       _timerReloadMenu = Timer.periodic(
+//         const Duration(minutes: 5),
+//         (timer) {
+//           ref.read(homeProvider.notifier).checkReloadMenu();
+//         },
+//       );
+//     });
+//   }
 
-  void _onScrollProduct() {
-    var state = ref.read(homeProvider);
-    var categories = state.categories;
-    var categorySelect = state.categorySelect;
-    var subCategorySelect = state.subCategorySelect;
+//   void _onScrollProduct() {
+//     var state = ref.read(homeProvider);
+//     var categories = state.categories;
+//     var categorySelect = state.categorySelect;
+//     var subCategorySelect = state.subCategorySelect;
 
-    List<dynamic> allCategory = [];
-    for (var item in categories) {
-      allCategory.add(item);
-      if ((item.children ?? []).isNotEmpty) {
-        allCategory.addAll(item.children ?? []);
-      }
-    }
+//     List<dynamic> allCategory = [];
+//     for (var item in categories) {
+//       allCategory.add(item);
+//       if ((item.children ?? []).isNotEmpty) {
+//         allCategory.addAll(item.children ?? []);
+//       }
+//     }
 
-    for (var item in allCategory.reversed) {
-      bool isSubCategory = item is SubCategoryModel;
-      final ctx = categoryKeys[item]?.currentContext;
+//     for (var item in allCategory.reversed) {
+//       bool isSubCategory = item is SubCategoryModel;
+//       final ctx = categoryKeys[item]?.currentContext;
 
-      if (ctx != null) {
-        final box = ctx.findRenderObject();
-        if (box is RenderBox) {
-          final pos = box.localToGlobal(Offset.zero);
-          if (pos.dy <= 250) {
-            if (isSubCategory && item != subCategorySelect) {
-              var category = categories.firstWhereOrNull(
-                  (e) => (e.children ?? []).firstWhereOrNull((i) => i.id == item.id) != null);
-              if (category != categorySelect) {
-                ref.read(homeProvider.notifier).changeCategorySelect(category);
-              }
-              ref.read(homeProvider.notifier).changeSubCategorySelect(item);
-              _scrollCategoryBarTo(item, allCategory);
-            } else if (!isSubCategory && item != categorySelect) {
-              ref.read(homeProvider.notifier).changeCategorySelect(item);
-              _scrollCategoryBarTo(item, allCategory);
-            }
+//       if (ctx != null) {
+//         final box = ctx.findRenderObject();
+//         if (box is RenderBox) {
+//           final pos = box.localToGlobal(Offset.zero);
+//           if (pos.dy <= 250) {
+//             if (isSubCategory && item != subCategorySelect) {
+//               var category = categories.firstWhereOrNull(
+//                   (e) => (e.children ?? []).firstWhereOrNull((i) => i.id == item.id) != null);
+//               if (category != categorySelect) {
+//                 ref.read(homeProvider.notifier).changeCategorySelect(category);
+//               }
+//               ref.read(homeProvider.notifier).changeSubCategorySelect(item);
+//               _scrollCategoryBarTo(item, allCategory);
+//             } else if (!isSubCategory && item != categorySelect) {
+//               ref.read(homeProvider.notifier).changeCategorySelect(item);
+//               _scrollCategoryBarTo(item, allCategory);
+//             }
 
-            break;
-          }
-        }
-      }
-    }
+//             break;
+//           }
+//         }
+//       }
+//     }
 
-    return;
-  }
+//     return;
+//   }
 
-  void _scrollCategoryBarTo(dynamic item, List<dynamic> allCategory) {
-    var state = ref.read(homeProvider);
-    // var categories = state.categories;
-    var menuCategoryItem = state.menuCategoryItem;
-    // var categorySelect = state.categorySelect;
+//   void _scrollCategoryBarTo(dynamic item, List<dynamic> allCategory) {
+//     var state = ref.read(homeProvider);
+//     // var categories = state.categories;
+//     var menuCategoryItem = state.menuCategoryItem;
+//     // var categorySelect = state.categorySelect;
 
-    final visibleItems = ref
-        .read(homeProvider.notifier)
-        .categoryPositionsListener
-        .itemPositions
-        .value
-        .where((position) => position.itemLeadingEdge < 1 && position.itemTrailingEdge > 0)
-        .map((e) => e.index)
-        .toList();
-    List<dynamic> dataView = List.from(menuCategoryItem);
-    // for (var item in categories) {
-    //   bool selected = item == categorySelect;
-    //   dataView.add(item);
-    //   if (selected && (item.children ?? []).isNotEmpty) {
-    //     dataView.add(null);
-    //     dataView.addAll(item.children ?? []);
-    //   }
-    // }
-    var items = [];
-    for (var i in visibleItems) {
-      items.add(dataView[i]);
-    }
-    if (!items.contains(item)) {
-      var index = dataView.indexOf(item);
-      if (index != -1) {
-        ref.read(homeProvider.notifier).categoryScrollController.jumpTo(index: index);
-      }
-    }
-  }
+//     final visibleItems = ref
+//         .read(homeProvider.notifier)
+//         .categoryPositionsListener
+//         .itemPositions
+//         .value
+//         .where((position) => position.itemLeadingEdge < 1 && position.itemTrailingEdge > 0)
+//         .map((e) => e.index)
+//         .toList();
+//     List<dynamic> dataView = List.from(menuCategoryItem);
+//     // for (var item in categories) {
+//     //   bool selected = item == categorySelect;
+//     //   dataView.add(item);
+//     //   if (selected && (item.children ?? []).isNotEmpty) {
+//     //     dataView.add(null);
+//     //     dataView.addAll(item.children ?? []);
+//     //   }
+//     // }
+//     var items = [];
+//     for (var i in visibleItems) {
+//       items.add(dataView[i]);
+//     }
+//     if (!items.contains(item)) {
+//       var index = dataView.indexOf(item);
+//       if (index != -1) {
+//         ref.read(homeProvider.notifier).categoryScrollController.jumpTo(index: index);
+//       }
+//     }
+//   }
 
-  void _scrollToCategory(dynamic item) {
-    BuildContext? ctx = categoryKeys[item]?.currentContext;
-    if (ctx != null) {
-      Scrollable.ensureVisible(
-        ctx,
-        duration: const Duration(milliseconds: 300),
-        alignment: 0,
-      );
-    }
-  }
+//   void _scrollToCategory(dynamic item) {
+//     BuildContext? ctx = categoryKeys[item]?.currentContext;
+//     if (ctx != null) {
+//       Scrollable.ensureVisible(
+//         ctx,
+//         duration: const Duration(milliseconds: 300),
+//         alignment: 0,
+//       );
+//     }
+//   }
 
-  @override
-  void dispose() {
-    isCheckTypeOrderInit = false;
-    _productScrollController.dispose();
-    _categoryScrollController.dispose();
-    kToken = "";
-    kTypeOrder = 0;
-    _timerReloadMenu.cancel();
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     isCheckTypeOrderInit = false;
+//     _productScrollController.dispose();
+//     _categoryScrollController.dispose();
+//     kToken = "";
+//     kTypeOrder = 0;
+//     _timerReloadMenu.cancel();
+//     WidgetsBinding.instance.removeObserver(this);
+//     super.dispose();
+//   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        if (ref.read(homeProvider.notifier).getCheckReloadWhenHiddenApp()) {
-          ref.read(homeProvider.notifier).updateReloadWhenHiddenApp(false);
-          ref.read(homeProvider.notifier).getProducts();
-        }
-        break;
-      case AppLifecycleState.inactive:
-        showLog('inactive');
-        break;
-      case AppLifecycleState.paused:
-        showLog('paused');
-        break;
-      case AppLifecycleState.detached:
-        showLog('detached');
-        break;
-      case AppLifecycleState.hidden:
-        showLog('hidden');
-        break;
-    }
-  }
+//   @override
+//   void didChangeAppLifecycleState(AppLifecycleState state) {
+//     switch (state) {
+//       case AppLifecycleState.resumed:
+//         if (ref.read(homeProvider.notifier).getCheckReloadWhenHiddenApp()) {
+//           ref.read(homeProvider.notifier).updateReloadWhenHiddenApp(false);
+//           ref.read(homeProvider.notifier).getProducts();
+//         }
+//         break;
+//       case AppLifecycleState.inactive:
+//         showLog('inactive');
+//         break;
+//       case AppLifecycleState.paused:
+//         showLog('paused');
+//         break;
+//       case AppLifecycleState.detached:
+//         showLog('detached');
+//         break;
+//       case AppLifecycleState.hidden:
+//         showLog('hidden');
+//         break;
+//     }
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    checkUpdateApp(ref, context);
-    checkTypeOrder(ref, context);
+//   @override
+//   Widget build(BuildContext context) {
+//     checkUpdateApp(ref, context);
+//     checkTypeOrder(ref, context);
 
-    var categories = ref.watch(homeProvider.select((value) => value.categories));
-    categoryKeys = ref.read(homeProvider.notifier).categoryKeys;
-    var products = ref.watch(homeProvider.select((value) => value.products));
-    var tags = ref.watch(homeProvider.select((value) => value.tags));
+//     var categories = ref.watch(homeProvider.select((value) => value.categories));
+//     categoryKeys = ref.read(homeProvider.notifier).categoryKeys;
+//     var products = ref.watch(homeProvider.select((value) => value.products));
+//     var tags = ref.watch(homeProvider.select((value) => value.tags));
 
-    var productsView = List<ProductModel>.from(products);
-    var keyword = ref.watch(homeProvider.select((value) => value.search)).trim();
-    var tagSelect = ref.watch(homeProvider.select((value) => value.tagSelect));
-    if (tagSelect != null) {
-      productsView =
-          productsView.where((product) => (product.tags ?? []).contains(tagSelect.id)).toList();
-    }
-    if (keyword.isNotEmpty) {
-      var search = removeDiacritics(keyword).toLowerCase();
-      productsView = productsView
-          .where((product) =>
-              (product.getSearchName().toLowerCase()).contains(search) ||
-              (product.getSearchShortName().toLowerCase().contains(search)))
-          .toList();
-    }
-    List<Widget> dataView = [];
-    for (var cate in categories) {
-      List<ProductModel> categoryProducts =
-          productsView.where((e) => e.categoryId == cate.id).toList();
-      var subCategory = List<SubCategoryModel>.from((cate.children ?? []));
-      Map<SubCategoryModel, List<ProductModel>> subCategoryProducts = {};
-      for (var subCate in subCategory) {
-        var data = productsView.where((e) => e.categoryId == subCate.id).toList();
+//     var productsView = List<ProductModel>.from(products);
+//     var keyword = ref.watch(homeProvider.select((value) => value.search)).trim();
+//     var tagSelect = ref.watch(homeProvider.select((value) => value.tagSelect));
+//     if (tagSelect != null) {
+//       productsView =
+//           productsView.where((product) => (product.tags ?? []).contains(tagSelect.id)).toList();
+//     }
+//     if (keyword.isNotEmpty) {
+//       var search = removeDiacritics(keyword).toLowerCase();
+//       productsView = productsView
+//           .where((product) =>
+//               (product.getSearchName().toLowerCase()).contains(search) ||
+//               (product.getSearchShortName().toLowerCase().contains(search)))
+//           .toList();
+//     }
+//     List<Widget> dataView = [];
+//     for (var cate in categories) {
+//       List<ProductModel> categoryProducts =
+//           productsView.where((e) => e.categoryId == cate.id).toList();
+//       var subCategory = List<SubCategoryModel>.from((cate.children ?? []));
+//       Map<SubCategoryModel, List<ProductModel>> subCategoryProducts = {};
+//       for (var subCate in subCategory) {
+//         var data = productsView.where((e) => e.categoryId == subCate.id).toList();
 
-        if (data.isNotEmpty) {
-          subCategoryProducts[subCate] = data;
-        }
-      }
-      if (categoryProducts.isNotEmpty || subCategoryProducts.isNotEmpty) {
-        dataView.add(SliverToBoxAdapter(
-          child: Container(
-            key: categoryKeys[cate],
-            decoration: const BoxDecoration(color: Colors.white),
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              cate.title,
-              style: AppTextStyle.bold(),
-            ),
-          ),
-        ));
-        if (categoryProducts.isNotEmpty) {
-          dataView.add(SliverPadding(
-            padding: const EdgeInsets.only(left: 10),
-            sliver: SliverGrid.builder(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 180,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 0.8,
-              ),
-              itemBuilder: (context, index) => ProductBoxWidget(product: categoryProducts[index]),
-              itemCount: categoryProducts.length,
-            ),
-          ));
-        }
-      }
+//         if (data.isNotEmpty) {
+//           subCategoryProducts[subCate] = data;
+//         }
+//       }
+//       if (categoryProducts.isNotEmpty || subCategoryProducts.isNotEmpty) {
+//         dataView.add(SliverToBoxAdapter(
+//           child: Container(
+//             key: categoryKeys[cate],
+//             decoration: const BoxDecoration(color: Colors.white),
+//             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+//             alignment: Alignment.centerLeft,
+//             child: Text(
+//               cate.title,
+//               style: AppTextStyle.bold(),
+//             ),
+//           ),
+//         ));
+//         if (categoryProducts.isNotEmpty) {
+//           dataView.add(SliverPadding(
+//             padding: const EdgeInsets.only(left: 10),
+//             sliver: SliverGrid.builder(
+//               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+//                 maxCrossAxisExtent: 180,
+//                 mainAxisSpacing: 10,
+//                 crossAxisSpacing: 10,
+//                 childAspectRatio: 0.8,
+//               ),
+//               itemBuilder: (context, index) => ProductBoxWidget(product: categoryProducts[index]),
+//               itemCount: categoryProducts.length,
+//             ),
+//           ));
+//         }
+//       }
 
-      subCategoryProducts.forEach(
-        (key, value) {
-          if (value.isNotEmpty) {
-            dataView.add(SliverToBoxAdapter(
-              child: Container(
-                key: categoryKeys[key],
-                decoration: const BoxDecoration(color: Colors.white),
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  key.title,
-                  style: AppTextStyle.bold(),
-                ),
-              ),
-            ));
-            dataView.add(SliverPadding(
-              padding: const EdgeInsets.only(left: 10),
-              sliver: SliverGrid.builder(
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 180,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  childAspectRatio: 0.8,
-                ),
-                itemBuilder: (context, index) => ProductBoxWidget(product: value[index]),
-                itemCount: value.length,
-              ),
-            ));
-          }
-        },
-      );
-    }
-    var viewPadding = MediaQuery.of(context).viewPadding;
-    bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
-    bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
+//       subCategoryProducts.forEach(
+//         (key, value) {
+//           if (value.isNotEmpty) {
+//             dataView.add(SliverToBoxAdapter(
+//               child: Container(
+//                 key: categoryKeys[key],
+//                 decoration: const BoxDecoration(color: Colors.white),
+//                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+//                 alignment: Alignment.centerLeft,
+//                 child: Text(
+//                   key.title,
+//                   style: AppTextStyle.bold(),
+//                 ),
+//               ),
+//             ));
+//             dataView.add(SliverPadding(
+//               padding: const EdgeInsets.only(left: 10),
+//               sliver: SliverGrid.builder(
+//                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+//                   maxCrossAxisExtent: 180,
+//                   mainAxisSpacing: 10,
+//                   crossAxisSpacing: 10,
+//                   childAspectRatio: 0.8,
+//                 ),
+//                 itemBuilder: (context, index) => ProductBoxWidget(product: value[index]),
+//                 itemCount: value.length,
+//               ),
+//             ));
+//           }
+//         },
+//       );
+//     }
+//     var viewPadding = MediaQuery.of(context).viewPadding;
+//     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
+//     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
+//     bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
 
-    bool showOrderInfo = !(isMobile || (isTablet && portraitOrientation));
-    bool emptyTags = tags.isEmpty;
+//     bool showOrderInfo = !(isMobile || (isTablet && portraitOrientation));
+//     bool emptyTags = tags.isEmpty;
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(viewPadding.left, 0, 0, 0),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Column(
-              children: [
-                Container(
-                  height: 48,
-                  width: double.maxFinite,
-                  alignment: Alignment.center,
-                  child: Row(
-                    children: [
-                      const Gap(16),
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          'Menu Nhà hàng',
-                          style: AppTextStyle.bold(),
-                        ),
-                      ),
-                      const Gap(20),
-                      const Expanded(
-                        flex: 2,
-                        child: _SearchDishWidget(),
-                      ),
-                      const Gap(16),
-                    ],
-                  ),
-                ),
+//     return Padding(
+//       padding: EdgeInsets.fromLTRB(viewPadding.left, 0, 0, 0),
+//       child: Row(
+//         children: [
+//           Expanded(
+//             flex: 1,
+//             child: Column(
+//               children: [
+//                 Container(
+//                   height: 48,
+//                   width: double.maxFinite,
+//                   alignment: Alignment.center,
+//                   child: Row(
+//                     children: [
+//                       const Gap(16),
+//                       Expanded(
+//                         flex: 1,
+//                         child: Text(
+//                           'Menu Nhà hàng',
+//                           style: AppTextStyle.bold(),
+//                         ),
+//                       ),
+//                       const Gap(20),
+//                       const Expanded(
+//                         flex: 2,
+//                         child: _SearchDishWidget(),
+//                       ),
+//                       const Gap(16),
+//                     ],
+//                   ),
+//                 ),
 
-                // Consumer(
-                //   builder: (context, ref, child) {
-                //     var tags = ref.watch(homeProvider.select((value) => value.tags));
-                //     if (tags.isEmpty && isMobile) {
-                //       return const SizedBox.shrink();
-                //     }
+//                 // Consumer(
+//                 //   builder: (context, ref, child) {
+//                 //     var tags = ref.watch(homeProvider.select((value) => value.tags));
+//                 //     if (tags.isEmpty && isMobile) {
+//                 //       return const SizedBox.shrink();
+//                 //     }
 
-                //     return SizedBox(
-                //       height: 48,
-                //       child: Row(
-                //         children: [
-                //           Expanded(
-                //             child: Column(
-                //               crossAxisAlignment: CrossAxisAlignment.start,
-                //               children: [
-                //                 Expanded(
-                //                   child: Row(
-                //                     children: [
-                //                       const Expanded(
-                //                         child: ListTagsWidget(),
-                //                       ),
-                //                       if (!isMobile) ...const [
-                //                         Gap(8),
-                //                         ButtonRefreshData(),
-                //                         ButtonO2oData(),
-                //                       ],
-                //                       const Gap(8),
-                //                       const TypeOrderWidget(),
-                //                     ],
-                //                   ),
-                //                 ),
-                //               ],
-                //             ),
-                //           ),
-                //         ],
-                //       ),
-                //     );
-                //   },
-                // ),
+//                 //     return SizedBox(
+//                 //       height: 48,
+//                 //       child: Row(
+//                 //         children: [
+//                 //           Expanded(
+//                 //             child: Column(
+//                 //               crossAxisAlignment: CrossAxisAlignment.start,
+//                 //               children: [
+//                 //                 Expanded(
+//                 //                   child: Row(
+//                 //                     children: [
+//                 //                       const Expanded(
+//                 //                         child: ListTagsWidget(),
+//                 //                       ),
+//                 //                       if (!isMobile) ...const [
+//                 //                         Gap(8),
+//                 //                         ButtonRefreshData(),
+//                 //                         ButtonO2oData(),
+//                 //                       ],
+//                 //                       const Gap(8),
+//                 //                       const TypeOrderWidget(),
+//                 //                     ],
+//                 //                   ),
+//                 //                 ),
+//                 //               ],
+//                 //             ),
+//                 //           ),
+//                 //         ],
+//                 //       ),
+//                 //     );
+//                 //   },
+//                 // ),
 
-                Container(
-                  height: 42.px,
-                  padding: const EdgeInsets.fromLTRB(0, 4, 8, 4),
-                  alignment: Alignment.center,
-                  child: ListCategoryWidget(
-                      categoryScrollController: _categoryScrollController,
-                      onTap: (category) async {
-                        _scrollToCategory(category);
-                        await Future.delayed(const Duration(milliseconds: 350));
-                        // ref.read(homeProvider.notifier).ctrlSearch.text = '';
-                        if (category is CategoryModel) {
-                          ref.read(homeProvider.notifier).changeCategorySelect(category);
-                          return;
-                        }
-                        ref.read(homeProvider.notifier).changeSubCategorySelect(category);
-                      }),
-                ),
-                Expanded(
-                  child: Consumer(builder: (context, ref, child) {
-                    var productsState =
-                        ref.watch(homeProvider.select((value) => value.productsState));
+//                 Container(
+//                   height: 42.px,
+//                   padding: const EdgeInsets.fromLTRB(0, 4, 8, 4),
+//                   alignment: Alignment.center,
+//                   child: ListCategoryWidget(
+//                       categoryScrollController: _categoryScrollController,
+//                       onTap: (category) async {
+//                         _scrollToCategory(category);
+//                         await Future.delayed(const Duration(milliseconds: 350));
+//                         // ref.read(homeProvider.notifier).ctrlSearch.text = '';
+//                         if (category is CategoryModel) {
+//                           ref.read(homeProvider.notifier).changeCategorySelect(category);
+//                           return;
+//                         }
+//                         ref.read(homeProvider.notifier).changeSubCategorySelect(category);
+//                       }),
+//                 ),
+//                 Expanded(
+//                   child: Consumer(builder: (context, ref, child) {
+//                     var productsState =
+//                         ref.watch(homeProvider.select((value) => value.productsState));
 
-                    switch (productsState.status) {
-                      case PageCommonState.normal:
-                      case PageCommonState.loading:
-                        return GridView.builder(
-                          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 200,
-                            mainAxisSpacing: 10,
-                            crossAxisSpacing: 10,
-                            childAspectRatio: 0.7,
-                          ),
-                          itemBuilder: (BuildContext context, int index) {
-                            return const ProductBoxLoadingWidget();
-                          },
-                          itemCount: 12,
-                        );
-                      case PageCommonState.error:
-                        return AppErrorSimpleWidget(
-                          onTryAgain: () {
-                            ref.read(homeProvider.notifier).getProducts();
-                          },
-                          message: productsState.messageError,
-                        );
-                      case PageCommonState.success:
-                    }
-                    return CustomScrollView(
-                      controller: _productScrollController,
-                      slivers: [
-                        ...dataView,
-                        const SliverToBoxAdapter(child: Gap(50)),
-                      ],
-                    );
-                  }),
-                ),
-              ],
-            ),
-          ),
-          !showOrderInfo
-              ? const SizedBox.shrink()
-              : Container(
-                  constraints: const BoxConstraints(maxWidth: 500),
-                  child: const OrderPanelWidget(),
-                ),
-        ],
-      ),
-      // ),
-      // Consumer(
-      //   builder: (context, ref, child) {
-      //     bool useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-      //     // useO2o = true;
-      //     final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
+//                     switch (productsState.status) {
+//                       case PageCommonState.normal:
+//                       case PageCommonState.loading:
+//                         return GridView.builder(
+//                           padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+//                           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+//                             maxCrossAxisExtent: 200,
+//                             mainAxisSpacing: 10,
+//                             crossAxisSpacing: 10,
+//                             childAspectRatio: 0.7,
+//                           ),
+//                           itemBuilder: (BuildContext context, int index) {
+//                             return const ProductBoxLoadingWidget();
+//                           },
+//                           itemCount: 12,
+//                         );
+//                       case PageCommonState.error:
+//                         return AppErrorSimpleWidget(
+//                           onTryAgain: () {
+//                             ref.read(homeProvider.notifier).getProducts();
+//                           },
+//                           message: productsState.messageError,
+//                         );
+//                       case PageCommonState.success:
+//                     }
+//                     return CustomScrollView(
+//                       controller: _productScrollController,
+//                       slivers: [
+//                         ...dataView,
+//                         const SliverToBoxAdapter(child: Gap(50)),
+//                       ],
+//                     );
+//                   }),
+//                 ),
+//               ],
+//             ),
+//           ),
+//           !showOrderInfo
+//               ? const SizedBox.shrink()
+//               : Container(
+//                   constraints: const BoxConstraints(maxWidth: 500),
+//                   child: const OrderPanelWidget(),
+//                 ),
+//         ],
+//       ),
+//       // ),
+//       // Consumer(
+//       //   builder: (context, ref, child) {
+//       //     bool useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+//       //     // useO2o = true;
+//       //     final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
 
-      //     bool isMobile = Device.screenType == ScreenType.mobile;
-      //     bool isSmallDevice = isMobile;
+//       //     bool isMobile = Device.screenType == ScreenType.mobile;
+//       //     bool isSmallDevice = isMobile;
 
-      //     return orderSelect == null
-      //         ? const SizedBox.shrink()
-      //         : !(kTypeOrder == AppConfig.orderOfflineValue && useO2o)
-      //             ? const SizedBox.shrink()
-      //             : FloatBubble(
-      //                 show: true,
-      //                 initialAlignment: isSmallDevice
-      //                     ? Alignment(1, (140 / 100.w) - 1)
-      //                     : Alignment.topRight,
-      //                 child: GestureDetector(
-      //                   onTap: () {
-      //                     _showChatPopup(ref);
-      //                   },
-      //                   child: Container(
-      //                     key: _floatingBtnKey,
-      //                     height: isSmallDevice ? 48 : 60,
-      //                     width: isSmallDevice ? 48 : 60,
-      //                     padding: EdgeInsets.all(isSmallDevice ? 12 : 12),
-      //                     decoration: const BoxDecoration(
-      //                       color: AppColors.bgBoxProduct,
-      //                       shape: BoxShape.circle,
-      //                     ),
-      //                     child: SvgPicture.asset(
-      //                       AppIcons.icChat,
-      //                       color: AppColors.secondColor,
-      //                     ),
-      //                   ),
-      //                 ),
-      //               );
-      //   },
-      // ),
+//       //     return orderSelect == null
+//       //         ? const SizedBox.shrink()
+//       //         : !(kTypeOrder == AppConfig.orderOfflineValue && useO2o)
+//       //             ? const SizedBox.shrink()
+//       //             : FloatBubble(
+//       //                 show: true,
+//       //                 initialAlignment: isSmallDevice
+//       //                     ? Alignment(1, (140 / 100.w) - 1)
+//       //                     : Alignment.topRight,
+//       //                 child: GestureDetector(
+//       //                   onTap: () {
+//       //                     _showChatPopup(ref);
+//       //                   },
+//       //                   child: Container(
+//       //                     key: _floatingBtnKey,
+//       //                     height: isSmallDevice ? 48 : 60,
+//       //                     width: isSmallDevice ? 48 : 60,
+//       //                     padding: EdgeInsets.all(isSmallDevice ? 12 : 12),
+//       //                     decoration: const BoxDecoration(
+//       //                       color: AppColors.bgBoxProduct,
+//       //                       shape: BoxShape.circle,
+//       //                     ),
+//       //                     child: SvgPicture.asset(
+//       //                       AppIcons.icChat,
+//       //                       color: AppColors.secondColor,
+//       //                     ),
+//       //                   ),
+//       //                 ),
+//       //               );
+//       //   },
+//       // ),
 
-      // ],
-      // ),
-      //   bottomNavigationBar: Builder(
-      //     builder: (context) {
-      //       return showOrderInfo
-      //           ? const SizedBox.shrink()
-      //           : Container(
-      //               height: 56,
-      //               decoration: BoxDecoration(color: Colors.grey.shade900),
-      //               alignment: Alignment.center,
-      //               child: Consumer(
-      //                 builder: (context, ref, child) {
-      //                   var orderSelect =
-      //                       ref.watch(homeProvider.select((value) => value.orderSelect));
-      //                   if (orderSelect == null) {
-      //                     return GestureDetector(
-      //                       onTap: () {
-      //                         showOrderOptionDialog(context);
-      //                         // showConfirmCodeDialog(context, ref, action: () async {
-      //                         //   showOrderOptionDialog(context);
-      //                         // });
-      //                       },
-      //                       child: Text(
-      //                         'Chọn đơn bàn thao tác',
-      //                         style: AppTextStyle.bold(color: Colors.white),
-      //                       ),
-      //                     );
-      //                   }
+//       // ],
+//       // ),
+//       //   bottomNavigationBar: Builder(
+//       //     builder: (context) {
+//       //       return showOrderInfo
+//       //           ? const SizedBox.shrink()
+//       //           : Container(
+//       //               height: 56,
+//       //               decoration: BoxDecoration(color: Colors.grey.shade900),
+//       //               alignment: Alignment.center,
+//       //               child: Consumer(
+//       //                 builder: (context, ref, child) {
+//       //                   var orderSelect =
+//       //                       ref.watch(homeProvider.select((value) => value.orderSelect));
+//       //                   if (orderSelect == null) {
+//       //                     return GestureDetector(
+//       //                       onTap: () {
+//       //                         showOrderOptionDialog(context);
+//       //                         // showConfirmCodeDialog(context, ref, action: () async {
+//       //                         //   showOrderOptionDialog(context);
+//       //                         // });
+//       //                       },
+//       //                       child: Text(
+//       //                         'Chọn đơn bàn thao tác',
+//       //                         style: AppTextStyle.bold(color: Colors.white),
+//       //                       ),
+//       //                     );
+//       //                   }
 
-      //                   return Row(children: [
-      //                     const CartInfoWidget(),
-      //                     const VerticalDivider(
-      //                       indent: 20,
-      //                       endIndent: 20,
-      //                     ),
-      //                     Expanded(
-      //                       child: GestureDetector(
-      //                         onTap: () {
-      //                           showOrderOptionDialog(context);
-      //                         },
-      //                         child: Row(
-      //                           mainAxisSize: MainAxisSize.min,
-      //                           mainAxisAlignment: MainAxisAlignment.center,
-      //                           children: [
-      //                             Flexible(
-      //                               child: Text(
-      //                                 "${S.current.table} ${orderSelect.getNameView()}",
-      //                                 style: AppTextStyle.bold(color: Colors.white),
-      //                                 textAlign: TextAlign.center,
-      //                               ),
-      //                             ),
-      //                             const Gap(4),
-      //                             const ResponsiveIconWidget(
-      //                               iconData: Icons.change_circle_outlined,
-      //                               color: Colors.white,
-      //                             ),
-      //                           ],
-      //                         ),
-      //                       ),
-      //                     ),
-      //                     const Gap(8),
-      //                     AppButtonWidget(
-      //                       textAction: 'Thanh toán',
-      //                       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      //                       borderRadius: BorderRadius.circular(8),
-      //                       onTap: () async {
-      //                         if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
-      //                           showMessageDialog(context, message: S.current.noOrderSelect);
-      //                           return;
-      //                         }
+//       //                   return Row(children: [
+//       //                     const CartInfoWidget(),
+//       //                     const VerticalDivider(
+//       //                       indent: 20,
+//       //                       endIndent: 20,
+//       //                     ),
+//       //                     Expanded(
+//       //                       child: GestureDetector(
+//       //                         onTap: () {
+//       //                           showOrderOptionDialog(context);
+//       //                         },
+//       //                         child: Row(
+//       //                           mainAxisSize: MainAxisSize.min,
+//       //                           mainAxisAlignment: MainAxisAlignment.center,
+//       //                           children: [
+//       //                             Flexible(
+//       //                               child: Text(
+//       //                                 "${S.current.table} ${orderSelect.getNameView()}",
+//       //                                 style: AppTextStyle.bold(color: Colors.white),
+//       //                                 textAlign: TextAlign.center,
+//       //                               ),
+//       //                             ),
+//       //                             const Gap(4),
+//       //                             const ResponsiveIconWidget(
+//       //                               iconData: Icons.change_circle_outlined,
+//       //                               color: Colors.white,
+//       //                             ),
+//       //                           ],
+//       //                         ),
+//       //                       ),
+//       //                     ),
+//       //                     const Gap(8),
+//       //                     AppButtonWidget(
+//       //                       textAction: 'Thanh toán',
+//       //                       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+//       //                       borderRadius: BorderRadius.circular(8),
+//       //                       onTap: () async {
+//       //                         if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
+//       //                           showMessageDialog(context, message: S.current.noOrderSelect);
+//       //                           return;
+//       //                         }
 
-      //                         final OrderModel? order = await Navigator.of(context)
-      //                             .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
-      //                       },
-      //                     ),
-      //                     const Gap(8),
-      //                   ]);
-      //                 },
-      //               ),
-      //             );
-      //     },
-      //   ),
-      // ),
-    );
-  }
+//       //                         final OrderModel? order = await Navigator.of(context)
+//       //                             .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
+//       //                       },
+//       //                     ),
+//       //                     const Gap(8),
+//       //                   ]);
+//       //                 },
+//       //               ),
+//       //             );
+//       //     },
+//       //   ),
+//       // ),
+//     );
+//   }
 
-  // void _showChatPopup(WidgetRef ref) {
-  //   ref.read(homeProvider.notifier).getO2OChatMessages();
-  //   if (_overlayEntry != null) {
-  //     _overlayEntry?.remove();
-  //     _overlayEntry = null;
-  //   }
-  //   RenderBox renderBox = _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
-  //   var buttonPosition = renderBox.localToGlobal(Offset.zero);
-  //   var buttonSize = renderBox.size;
+//   // void _showChatPopup(WidgetRef ref) {
+//   //   ref.read(homeProvider.notifier).getO2OChatMessages();
+//   //   if (_overlayEntry != null) {
+//   //     _overlayEntry?.remove();
+//   //     _overlayEntry = null;
+//   //   }
+//   //   RenderBox renderBox = _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
+//   //   var buttonPosition = renderBox.localToGlobal(Offset.zero);
+//   //   var buttonSize = renderBox.size;
 
-  //   var mediaQuery = MediaQuery.of(context);
-  //   var screenSize = mediaQuery.size;
-  //   double screenWidth = screenSize.width;
-  //   double screenHeight = screenSize.height;
+//   //   var mediaQuery = MediaQuery.of(context);
+//   //   var screenSize = mediaQuery.size;
+//   //   double screenWidth = screenSize.width;
+//   //   double screenHeight = screenSize.height;
 
-  //   double popupLeft = buttonPosition.dx;
-  //   double popupTop = buttonPosition.dy + buttonSize.height / 2;
+//   //   double popupLeft = buttonPosition.dx;
+//   //   double popupTop = buttonPosition.dy + buttonSize.height / 2;
 
-  //   if (popupTop + chatPopupHeight > screenHeight) {
-  //     popupTop = buttonPosition.dy - chatPopupHeight;
-  //   }
-  //   if (popupTop < 0) {
-  //     popupTop = 10;
-  //   }
+//   //   if (popupTop + chatPopupHeight > screenHeight) {
+//   //     popupTop = buttonPosition.dy - chatPopupHeight;
+//   //   }
+//   //   if (popupTop < 0) {
+//   //     popupTop = 10;
+//   //   }
 
-  //   if (buttonPosition.dx + buttonSize.width / 2 + 5 < screenWidth / 2) {
-  //     popupLeft = buttonPosition.dx + buttonSize.width + 5;
-  //   } else {
-  //     popupLeft = buttonPosition.dx - chatPopupWidth - 5;
-  //   }
+//   //   if (buttonPosition.dx + buttonSize.width / 2 + 5 < screenWidth / 2) {
+//   //     popupLeft = buttonPosition.dx + buttonSize.width + 5;
+//   //   } else {
+//   //     popupLeft = buttonPosition.dx - chatPopupWidth - 5;
+//   //   }
 
-  //   _overlayEntry = _createOverlayEntry(popupLeft, popupTop);
+//   //   _overlayEntry = _createOverlayEntry(popupLeft, popupTop);
 
-  //   Overlay.of(context).insert(_overlayEntry!);
-  // }
+//   //   Overlay.of(context).insert(_overlayEntry!);
+//   // }
 
-  OverlayEntry _createOverlayEntry(double left, double top) {
-    bool canReply = true;
-    return OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          GestureDetector(
-            onTap: () {
-              _overlayEntry?.remove();
-              _overlayEntry = null;
-            },
-            child: Container(
-              color: Colors.transparent,
-            ),
-          ),
-          Positioned(
-            left: left,
-            top: top,
-            child: Material(
-              color: Colors.transparent,
-              child: GestureDetector(
-                onTap: () {
-                  // Prevent the popup from closing when tapped inside
-                },
-                child: Container(
-                  width: chatPopupWidth,
-                  height: chatPopupHeight,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 12,
-                        offset: Offset(2, 2),
-                      )
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: const BoxDecoration(
-                          color: AppColors.bgTitleChatPopup,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(12),
-                            topRight: Radius.circular(12),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              S.current.chat_with_customers,
-                              style: AppTextStyle.bold(color: Colors.white),
-                            ),
-                            ResponsiveIconButtonWidget(
-                              iconData: Icons.close,
-                              color: Colors.white,
-                              onPressed: () {
-                                _overlayEntry?.remove();
-                                _overlayEntry = null;
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Expanded(
-                      //   child: Consumer(builder: (context, ref, child) {
-                      //     final getChatMessageState =
-                      //         ref.watch(homeProvider.select((value) => value.getChatMessageState));
+//   OverlayEntry _createOverlayEntry(double left, double top) {
+//     bool canReply = true;
+//     return OverlayEntry(
+//       builder: (context) => Stack(
+//         children: [
+//           GestureDetector(
+//             onTap: () {
+//               _overlayEntry?.remove();
+//               _overlayEntry = null;
+//             },
+//             child: Container(
+//               color: Colors.transparent,
+//             ),
+//           ),
+//           Positioned(
+//             left: left,
+//             top: top,
+//             child: Material(
+//               color: Colors.transparent,
+//               child: GestureDetector(
+//                 onTap: () {
+//                   // Prevent the popup from closing when tapped inside
+//                 },
+//                 child: Container(
+//                   width: chatPopupWidth,
+//                   height: chatPopupHeight,
+//                   decoration: BoxDecoration(
+//                     color: Colors.white,
+//                     borderRadius: BorderRadius.circular(12),
+//                     boxShadow: const [
+//                       BoxShadow(
+//                         color: Colors.black12,
+//                         blurRadius: 12,
+//                         offset: Offset(2, 2),
+//                       )
+//                     ],
+//                   ),
+//                   child: Column(
+//                     children: [
+//                       Container(
+//                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+//                         decoration: const BoxDecoration(
+//                           color: AppColors.bgTitleChatPopup,
+//                           borderRadius: BorderRadius.only(
+//                             topLeft: Radius.circular(12),
+//                             topRight: Radius.circular(12),
+//                           ),
+//                         ),
+//                         child: Row(
+//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                           children: [
+//                             Text(
+//                               S.current.chat_with_customers,
+//                               style: AppTextStyle.bold(color: Colors.white),
+//                             ),
+//                             ResponsiveIconButtonWidget(
+//                               iconData: Icons.close,
+//                               color: Colors.white,
+//                               onPressed: () {
+//                                 _overlayEntry?.remove();
+//                                 _overlayEntry = null;
+//                               },
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                       // Expanded(
+//                       //   child: Consumer(builder: (context, ref, child) {
+//                       //     final getChatMessageState =
+//                       //         ref.watch(homeProvider.select((value) => value.getChatMessageState));
 
-                      //     final chatMessages =
-                      //         ref.watch(homeProvider.select((value) => value.chatMessages));
-                      //     return ListChatWidget(
-                      //       state: getChatMessageState,
-                      //       chatMessages: chatMessages,
-                      //       onReload: ref.read(homeProvider.notifier).getO2OChatMessages,
-                      //     );
-                      //   }),
-                      // ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
+//                       //     final chatMessages =
+//                       //         ref.watch(homeProvider.select((value) => value.chatMessages));
+//                       //     return ListChatWidget(
+//                       //       state: getChatMessageState,
+//                       //       chatMessages: chatMessages,
+//                       //       onReload: ref.read(homeProvider.notifier).getO2OChatMessages,
+//                       //     );
+//                       //   }),
+//                       // ),
+//                     ],
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           )
+//         ],
+//       ),
+//     );
+//   }
+// }

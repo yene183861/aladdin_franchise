@@ -31,7 +31,6 @@ import 'package:aladdin_franchise/src/features/pages/home/components/menu/provid
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/home/view.dart';
 import 'package:aladdin_franchise/src/models/atm_pos.dart';
-import 'package:aladdin_franchise/src/models/category.dart';
 import 'package:aladdin_franchise/src/models/combo_item.dart';
 import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
 import 'package:aladdin_franchise/src/models/customer/customer.dart';
@@ -47,7 +46,6 @@ import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
-import 'package:aladdin_franchise/src/models/tag_product.dart';
 import 'package:aladdin_franchise/src/models/user_bank.dart';
 import 'package:aladdin_franchise/src/models/waiter.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
@@ -55,7 +53,6 @@ import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart'
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_html.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_normal.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
-import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/ip_config_helper.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:collection/collection.dart';
@@ -120,10 +117,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
   final InvoiceRepository _invoiceRepository;
   final ReservationRepository _reservationRepository;
 
-  Map<dynamic, GlobalKey> categoryKeys = {};
+  // Map<dynamic, GlobalKey> categoryKeys = {};
 
-  final ItemScrollController categoryScrollController = ItemScrollController();
-  final ItemPositionsListener categoryPositionsListener = ItemPositionsListener.create();
+  // final ItemScrollController categoryScrollController = ItemScrollController();
+  // final ItemPositionsListener categoryPositionsListener = ItemPositionsListener.create();
 
   late TextEditingController ctrlSearch;
 
@@ -162,28 +159,20 @@ class HomeNotifier extends StateNotifier<HomeState> {
     bool loadProducts = true,
     OrderModel? order,
   }) async {
-    await ref.read(menuProvider.notifier).init(loadProducts: loadProducts);
-    // if (!mounted) return;
-    // ctrlSearch.text = '';
-    // final dataLogin = LocalStorage.getDataLogin();
-    // final customerPortraits = dataLogin?.customerPortraits ?? [];
+    if (!mounted) return;
+    final dataLogin = LocalStorage.getDataLogin();
+    final customerPortraits = dataLogin?.customerPortraits ?? [];
 
-    // state = state.copyWith(
-    //   orderSelect: order,
-    //   categorySelect: null,
-    //   subCategorySelect: null,
-    //   tagSelect: null,
-    //   customerPortraits: customerPortraits,
-    //   banks: [],
-    //   search: '',
-    //   paymentMethods: [],
-    //   listAtmPos: [],
-    // );
-    // syncInfoCustomerPage(method: WindowsMethodEnum.order);
-    // _resetOrder();
-    // if (loadProducts) {
-    //   await getProducts();
-    // }
+    state = state.copyWith(
+      orderSelect: order,
+      customerPortraits: customerPortraits,
+      banks: [],
+      paymentMethods: [],
+      listAtmPos: [],
+    );
+    syncInfoCustomerPage(method: WindowsMethodEnum.order);
+    _resetOrder();
+    await ref.read(menuProvider.notifier).init(loadProducts: loadProducts);
     if (order != null) {
       getOrderProductCheckout();
       getOrderInvoice();
@@ -268,15 +257,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
           state = state.copyWith(orderHistory: orderHistory);
           var notes = LocalStorage.getNotePerOrderItem(order: orderSelect);
           List<ProductModel> productsSelected = [];
-
+          var products = ref.read(menuProvider).products;
           // map: ProductCheckoutModel -> ProductModel
           for (var item in pc) {
             // showLogs(item, flags: 'item');
-            var p = state.products.firstWhereOrNull((e) => e.id == item.id);
+            var p = products.firstWhereOrNull((e) => e.id == item.id);
             if (p != null) {
               var changeProduct = p.copyWith(
                 numberSelecting: item.quantity,
-                noteForProcessOrder: notes?[p.id.toString()] ?? '',
+                note: notes?[p.id.toString()] ?? '',
               );
               productsSelected.add(changeProduct);
             } else {
@@ -287,12 +276,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
                   numberSelecting: item.quantity,
                   unitPrice: item.unitPrice,
                   name: item.name,
-                  nameEn: item.nameEn,
                   language: item.language,
                   unit: item.unit,
                   tax: item.tax,
                   printerType: item.printerType,
-                  noteForProcessOrder: notes?[item.id.toString()] ?? '',
+                  note: notes?[item.id.toString()] ?? '',
                 ),
               );
             }
@@ -339,8 +327,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
           var productSelectingMap = LocalStorage.getOrderItemSelectingForOrder(orderSelect.id);
 
           List<ProductModel> selecting = [];
+          var _products = ref.read(menuProvider).products;
           productSelectingMap.forEach((key, value) {
-            var p = state.products.firstWhereOrNull((e) => e.id.toString() == key);
+            var p = _products.firstWhereOrNull((e) => e.id.toString() == key);
             if (p != null) {
               selecting.add(p.copyWith(numberSelecting: value));
             }
@@ -832,7 +821,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  /// nhập mã giảm
   Future<({String? error, String? titleError})> addCoupon({
     required String code,
     bool loadingHome = true,
@@ -958,8 +946,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  /// xoá mã nhập tiền giảm hoặc % giảm
-  Future<String?> removeVoucher({
+  /// nhập tiền giảm hoặc % giảm
+  Future<String?> deleteVoucher({
     required CustomerPolicyModel coupon,
     bool loadingHome = true,
     bool applyPolicy = true,
@@ -1157,146 +1145,64 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   PaymentMethod? getPaymentMethodSelected() => state.paymentMethodSelected;
 
-  Future<String?> removeCoupon(
+  Future<String?> deleteCoupon(
     CustomerPolicyModel coupon, {
     bool applyPolicy = true,
     bool loadingApplyPolicy = true,
   }) async {
-    // try {
-    //   if (state.orderSelect == null) return S.current.noOrderSelect;
-    //   updateEvent(HomeEvent.removeCoupon);
-    //   final result =
-    //       await _couponRepository.deleteCoupon(idCode: coupon.id, order: state.orderSelect!);
-    //   updateEvent(null);
-    //   showLogs(result, flags: 'kq xóa mã giảm giá');
-    //   if (result) {
-    //     var coupons = List<CustomerPolicyModel>.from(state.coupons);
-    //     coupons.removeWhere((element) => element.id == coupon.id);
-    //     // check KH có nằm trong mã bị xoá hay không
-    //     CustomerModel? customerChange = state.customer;
-    //     if ((coupon.customer != null) &&
-    //         (customerChange != null) &&
-    //         (coupon.customer?.id == customerChange.id)) {
-    //       customerChange = null;
-    //     }
-    //     state = state.copyWith(
-    //       coupons: coupons,
-    //       customer: customerChange,
-    //     );
+    try {
+      if (state.orderSelect == null) return S.current.noOrderSelect;
+      updateEvent(HomeEvent.removeCoupon);
+      final result =
+          await _couponRepository.deleteCoupon(idCode: coupon.id, order: state.orderSelect!);
+      if (!result.isSuccess) {
+        throw AppException(
+          statusCode: result.statusCode,
+          message: result.error,
+        );
+      }
+      updateEvent(null);
+      if (result.data ?? false) {
+        var coupons = List<CustomerPolicyModel>.from(state.coupons);
+        coupons.removeWhere((element) => element.id == coupon.id);
+        // check KH có nằm trong mã bị xoá hay không
+        CustomerModel? customerChange = state.customer;
+        if ((coupon.customer != null) &&
+            (customerChange != null) &&
+            (coupon.customer?.id == customerChange.id)) {
+          customerChange = null;
+        }
+        state = state.copyWith(
+          coupons: coupons,
+          customer: customerChange,
+        );
 
-    //     if (applyPolicy) {
-    //       try {
-    //         await applyCustomerPolicy(loadingHome: loadingApplyPolicy);
-    //       } catch (ex) {
-    //         //
-    //       }
-    //     }
-    //     return null;
-    //   }
-    //   return S.current.discount_code_cannot_be_deleted;
-    // } catch (ex) {
-    //   _lockOrder(ex);
-    //   updateEvent(null);
-    //   return ex.toString();
-    // }
+        if (applyPolicy) {
+          try {
+            var res = await applyCustomerPolicy(
+              loadingHome: loadingApplyPolicy,
+              requireApply: true,
+            );
+            if (res != null) {
+              return res.toString();
+            }
+          } catch (ex) {
+            //
+          }
+        }
+        return null;
+      }
+      return S.current.discount_code_cannot_be_deleted;
+    } catch (ex) {
+      _lockOrder(ex);
+      updateEvent(null);
+      return ex.toString();
+    }
   }
-
-  // Future<void> getProducts() async {
-  //   try {
-  //     state = state.copyWith(productsState: const PageState(status: PageCommonState.loading));
-  //     final categoryResult = await _menuRepository.getCategory();
-  //     if (!categoryResult.isSuccess) {
-  //       throw categoryResult.error;
-  //     }
-  //     List<CategoryModel> categories = categoryResult.data?.data ?? [];
-  //     List<TagProductModel> tags = categoryResult.data?.tags ?? [];
-
-  //     final productsRepo = await _menuRepository.getProduct(null);
-  //     if (!productsRepo.isSuccess) {
-  //       throw AppException(
-  //         statusCode: productsRepo.statusCode,
-  //         message: productsRepo.error,
-  //       );
-  //     }
-  //     await LocalStorage.setLastReloadMenu();
-  //     List<ProductModel> products = List.from(productsRepo.data ?? []);
-  //     List<dynamic> menuCategoryItem = [];
-
-  //     if (categories.isNotEmpty) {
-  //       var categorySelect = state.categorySelect;
-
-  //       var checkCategorySelect = categories.firstWhereOrNull((e) => e.id == categorySelect?.id);
-  //       if (categorySelect == null || checkCategorySelect == null) {
-  //         changeCategorySelect(categories.first);
-  //         checkCategorySelect = categories.first;
-  //       } else {
-  //         changeCategorySelect(checkCategorySelect);
-  //       }
-  //     } else {
-  //       state = state.copyWith(
-  //         categorySelect: null,
-  //         subCategorySelect: null,
-  //       );
-  //     }
-
-  //     // cập nhật ngôn ngữ local khi load menu
-  //     kAppLanguageLocal = LocalStorage.getLanguageLocal();
-  //     for (var element in categories) {
-  //       menuCategoryItem.add(element);
-  //       categoryKeys[element] = categoryKeys[element] ?? GlobalKey();
-  //       if ((element.children ?? []).isNotEmpty) {
-  //         menuCategoryItem.add(-1);
-  //       }
-  //       for (var sub in (element.children ?? [])) {
-  //         menuCategoryItem.add(sub);
-  //         categoryKeys[sub] = categoryKeys[sub] ?? GlobalKey();
-  //       }
-  //     }
-
-  //     state = state.copyWith(
-  //       categories: categories,
-  //       products: products,
-  //       tags: tags,
-  //       menuCategoryItem: menuCategoryItem,
-  //       productsState: const PageState(status: PageCommonState.success),
-  //       tagSelect: tags.firstWhereOrNull((e) => e == state.tagSelect),
-  //     );
-  //     // syncInfoCustomerPage(
-
-  //     // );
-  //     // syncInfoForCustomer();
-  //   } catch (ex) {
-  //     if (mounted) {
-  //       state = state.copyWith(
-  //         productsState: PageState(
-  //           status: PageCommonState.error,
-  //           messageError: ex.toString(),
-  //         ),
-  //       );
-  //     }
-  //   }
-  // }
-
-  // void changeSearch(String text) {
-  //   state = state.copyWith(search: text);
-  //   if (ctrlSearch.text != text) {
-  //     ctrlSearch.text = text;
-  //   }
-  // }
 
   void changeIgnoreCheckCodeWaiter() {
     state = state.copyWith(ignoreCheckCodeWaiter: !state.ignoreCheckCodeWaiter);
   }
-
-  // void changeTagSelect(TagProductModel? tag) {
-  //   state = state.copyWith(tagSelect: tag);
-  // }
-
-  // void updateReloadWhenHiddenApp(bool value) {
-  //   state = state.copyWith(checkReloadWhenHiddenApp: value);
-  // }
-
-  // bool getCheckReloadWhenHiddenApp() => state.checkReloadWhenHiddenApp;
 
   Future<(MInvoiceInfo? mInvoiceInfo, String? error)> searchTaxCodeInfo(String taxCode) async {
     try {
@@ -1639,11 +1545,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(customerPortraitSelect: customerPortrait);
   }
 
-  Future<String?> resetCustomer() async {
+  Future<String?> deleteCustomer() async {
     try {
       if (state.orderSelect == null) return S.current.noOrderSelect;
       state = state.copyWith(event: HomeEvent.removeCustomer);
-      var result = await _customerRepository.resetCustomer(state.orderSelect!.id);
+      var result = await _customerRepository.deleteCustomer(state.orderSelect!.id);
       if (!result.isSuccess) {
         throw AppException(
           statusCode: result.statusCode,
@@ -1671,135 +1577,138 @@ class HomeNotifier extends StateNotifier<HomeState> {
     bool ignoreGetDataBill = false,
     bool requireApply = false,
   }) async {
-    // hiện chưa dùng cái này
-    if (!ignoreGetDataBill) getDataBill(loadingHome: loadingHome);
-    return null;
-    // try {
-    //   // có thể data bill chưa được làm mới nên tạm bỏ qua
-    //   // if (state.coupons.isEmpty &&
-    //   //     getFinalPaymentPrice.totalPriceVoucher == 0 &&
-    //   //     state.dataBillState.status == PageCommonState.success) {
-    //   //   showLogs(null, flags: 'k có mã giảm nào');
-    //   //   if (loadingHome) updateEvent(null);
-    //   //   getDataBill();
-    //   //   return null;
-    //   // }
-    //   // showLogs(null, flags: 'apply lại mã có mã giảm nào');
-    //   state = state.copyWith(
-    //     applyPolicyState: const PageState(status: PageCommonState.loading, messageError: ''),
-    //   );
-    //   if (loadingHome) state = state.copyWith(event: HomeEvent.applyPolicy);
-    //   if (!requireApply) {
-    //     if (state.coupons.isEmpty) {
-    //       showLogs(null, flags: 'bỏ qua nếu danh sách mã giảm giá trống');
-    //       if (loadingHome) updateEvent(null);
-    //       state = state.copyWith(
-    //         applyPolicyState: const PageState(status: PageCommonState.success, messageError: ''),
-    //       );
-    //       if (!ignoreGetDataBill) await getDataBill(loadingHome: loadingHome);
-    //       return null;
-    //     }
-    //   }
-    //   int retryTimes = 0;
-    //   while (retryTimes < (retry ? 3 : 1)) {
-    //     try {
-    //       List<CustomerPolicyModel> couponsApply = List<CustomerPolicyModel>.from(state.coupons);
+    if (!AppConfig.useCoupon) {
+      if (!ignoreGetDataBill) getDataBill(loadingHome: loadingHome);
+      return null;
+    }
+    try {
+      // có thể data bill chưa được làm mới nên tạm bỏ qua
+      // if (state.coupons.isEmpty &&
+      //     getFinalPaymentPrice.totalPriceVoucher == 0 &&
+      //     state.dataBillState.status == PageCommonState.success) {
+      //   showLogs(null, flags: 'k có mã giảm nào');
+      //   if (loadingHome) updateEvent(null);
+      //   getDataBill();
+      //   return null;
+      // }
+      state = state.copyWith(
+        applyPolicyState: const PageState(status: PageCommonState.loading, messageError: ''),
+      );
+      if (loadingHome) state = state.copyWith(event: HomeEvent.applyPolicy);
+      if (!requireApply) {
+        if (state.coupons.isEmpty) {
+          if (loadingHome) updateEvent(null);
+          state = state.copyWith(
+            applyPolicyState: const PageState(status: PageCommonState.success, messageError: ''),
+          );
+          if (!ignoreGetDataBill) await getDataBill(loadingHome: loadingHome);
+          return null;
+        }
+      }
+      int retryTimes = 0;
+      while (retryTimes < (retry ? 3 : 1)) {
+        try {
+          List<CustomerPolicyModel> couponsApply = List<CustomerPolicyModel>.from(state.coupons);
 
-    //       var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
+          var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
 
-    //       var totalOrder = getFinalPaymentPrice.totalPrice * 1.0;
+          var totalOrder = getFinalPaymentPrice.totalPrice * 1.0;
 
-    //       for (final c in couponsApply) {
-    //         // chỉ áp dụng cho Tặng món 0 đ (is_type == 5)
-    //         // bỏ những discount có number_select == 0
-    //         if (c.isPromotion()) {
-    //           List<DiscountPolicy> discount = [];
-    //           for (var dc in c.discount) {
-    //             if (dc.numberSelect > 0) {
-    //               discount.add(dc);
-    //               var p =
-    //                   productCheckout.firstWhereOrNull((e) => e.id == int.tryParse(dc.id ?? '0'));
-    //               if (p != null) {
-    //                 var index = productCheckout.indexOf(p);
+          for (final c in couponsApply) {
+            // chỉ áp dụng cho Tặng món 0 đ (is_type == 5)
+            // bỏ những discount có number_select == 0
+            if (c.isPromotion()) {
+              List<DiscountPolicy> discount = [];
+              for (var dc in c.discount) {
+                if (dc.numberSelect > 0) {
+                  discount.add(dc);
+                  var p =
+                      productCheckout.firstWhereOrNull((e) => e.id == int.tryParse(dc.id ?? '0'));
+                  if (p != null) {
+                    var index = productCheckout.indexOf(p);
 
-    //                 if (index != -1) {
-    //                   productCheckout[index] = p.copyWith(
-    //                     quantityPromotion: p.quantityPromotion + dc.numberSelect,
-    //                   );
-    //                 }
-    //               }
-    //             }
-    //           }
+                    if (index != -1) {
+                      productCheckout[index] = p.copyWith(
+                        quantityPromotion: p.quantityPromotion + dc.numberSelect,
+                      );
+                    }
+                  }
+                }
+              }
 
-    //           couponsApply[couponsApply.indexOf(c)] = c.copyWith(discount: discount);
-    //         }
-    //       }
+              couponsApply[couponsApply.indexOf(c)] = c.copyWith(discount: discount);
+            }
+          }
 
-    //       await _checkOrderSelect();
+          await _checkOrderSelect();
 
-    //       var result = await _couponRepository.applyPolicy(
-    //         coupons: couponsApply,
-    //         // chính sách khách hàng?
-    //         customerPolicy: [],
-    //         // trừ đi số lượng món đã tặng để apply cho các mã khác
-    //         products: productCheckout.map(
-    //           (e) {
-    //             return e.copyWith(
-    //               quantity: e.getQuantityFinal(),
-    //               quantityCancel: 0,
-    //             );
-    //           },
-    //         ).toList(),
-    //         order: state.orderSelect!,
-    //         customer: state.customer,
-    //         totalOrder: totalOrder,
-    //         pointUseToMoney: 0,
-    //         numberOfAdults: state.numberOfAdults,
-    //       );
-    //       state = state.copyWith(
-    //         vouchers: result.data.data,
-    //         createVouchers: result.data.dataCreateVouchers,
-    //         productCheckout: productCheckout,
-    //       );
+          var result = await _couponRepository.applyPolicy(
+            coupons: couponsApply,
+            // chính sách khách hàng?
+            customerPolicy: [],
+            // trừ đi số lượng món đã tặng để apply cho các mã khác
+            products: productCheckout.map(
+              (e) {
+                return e.copyWith(
+                  quantity: e.getQuantityFinal(),
+                  quantityCancel: 0,
+                );
+              },
+            ).toList(),
+            order: state.orderSelect!,
+            customer: state.customer,
+            totalOrder: totalOrder,
+            pointUseToMoney: 0,
+            numberOfAdults: state.numberOfAdults,
+          );
+          if (!result.isSuccess) {
+            throw AppException(
+              statusCode: result.statusCode,
+              message: result.error,
+            );
+          }
 
-    //       // requireApplyPolicy = false;
+          state = state.copyWith(
+            vouchers: result.data?.data ?? [],
+            createVouchers: result.data?.dataCreateVouchers,
+            productCheckout: productCheckout,
+          );
 
-    //       state = state.copyWith(
-    //         applyPolicyState: const PageState(status: PageCommonState.success, messageError: ''),
-    //       );
-    //       if (loadingHome) updateEvent(null);
-    //       if (!ignoreGetDataBill) await getDataBill(loadingHome: loadingHome);
-    //       // syncInfoForCustomer();
-    //       return null;
-    //     } catch (ex) {
-    //       if (ex is AppException && ex.errorCode == 423) {
-    //         state = state.copyWith(lockedOrder: true);
-    //         retryTimes = (retry ? 3 : 1);
-    //         rethrow;
-    //       }
-    //       retryTimes++;
-    //       if (retryTimes >= (retry ? 3 : 1)) {
-    //         rethrow;
-    //       }
-    //     }
-    //   }
-    //   state = state.copyWith(
-    //     applyPolicyState: const PageState(status: PageCommonState.success, messageError: ''),
-    //   );
-    //   return null;
-    // } catch (ex) {
-    //   // requireApplyPolicy = true;
-    //   showLogs(ex.toString(), flags: 'áp lại mã giảm giá lỗi');
-    //   _lockOrder(ex);
-    //   if (loadingHome) updateEvent(null);
-    //   state = state.copyWith(
-    //     applyPolicyState: PageState(
-    //         status: PageCommonState.error,
-    //         messageError: ex.toString().replaceAll(kIgnoreRetryApplyPolicy, "")),
-    //   );
-    //   if (!ignoreGetDataBill) await getDataBill(loadingHome: loadingHome);
-    //   return ex.toString().replaceAll(kIgnoreRetryApplyPolicy, "");
-    // }
+          state = state.copyWith(
+            applyPolicyState: const PageState(status: PageCommonState.success, messageError: ''),
+          );
+          if (loadingHome) updateEvent(null);
+          if (!ignoreGetDataBill) await getDataBill(loadingHome: loadingHome);
+          return null;
+        } catch (ex) {
+          if (ex is AppException && ex.errorCode == 423) {
+            state = state.copyWith(lockedOrder: true);
+            retryTimes = (retry ? 3 : 1);
+            rethrow;
+          }
+          retryTimes++;
+          if (retryTimes >= (retry ? 3 : 1)) {
+            rethrow;
+          }
+        }
+      }
+      state = state.copyWith(
+        applyPolicyState: const PageState(status: PageCommonState.success, messageError: ''),
+      );
+      return null;
+    } catch (ex) {
+      // requireApplyPolicy = true;
+      showLogs(ex.toString(), flags: 'áp lại mã giảm giá lỗi');
+      _lockOrder(ex);
+      if (loadingHome) updateEvent(null);
+      state = state.copyWith(
+        applyPolicyState: PageState(
+            status: PageCommonState.error,
+            messageError: ex.toString().replaceAll(kIgnoreRetryApplyPolicy, "")),
+      );
+      if (!ignoreGetDataBill) await getDataBill(loadingHome: loadingHome);
+      return ex.toString().replaceAll(kIgnoreRetryApplyPolicy, "");
+    }
   }
 
   /// tạm tính
@@ -2513,7 +2422,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     List<ProductModel> productPrintBill = (state.productsSelecting).map((e) {
       total += (double.tryParse(e.unitPrice) ?? 0.0) * max(0, e.numberSelecting);
 
-      var product = e.copyWith(noteForProcessOrder: note?[e.id.toString()] ?? '');
+      var product = e.copyWith(note: note?[e.id.toString()] ?? '');
       var comboItems = ProductHelper().getComboDescription(product);
       if (comboItems == null || comboItems.isEmpty) {
         if (product.printerType != null) {
@@ -2555,7 +2464,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
         state.orderSelect!,
         printerCheck.toList(),
       );
-      showLogs(listPrinters, flags: 'listPrinters');
       if (!listPrinters.isSuccess) {
         throw AppException(
           statusCode: listPrinters.statusCode,
@@ -2615,7 +2523,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
             continue;
           }
           if (kitchenNote.trim().isEmpty && productPrinter.length == 1) {
-            kitchenNote = productPrinter.firstOrNull?.noteForProcessOrder ?? '';
+            kitchenNote = productPrinter.firstOrNull?.note ?? '';
           }
           showLogs(productPrinter.length, flags: 'check só lượng món in');
           var bytes = printNormal

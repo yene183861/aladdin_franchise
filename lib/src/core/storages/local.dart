@@ -186,7 +186,7 @@ class LocalStorage {
     var products = List<ProductModel>.from(data[data.indexOf(psOrder)].products);
     var productUpdate = product.copyWith(
       numberSelecting: quantity ?? product.numberSelecting,
-      noteForProcessOrder: note,
+      note: note,
     );
     products[products.indexOf(product)] = productUpdate;
     data[data.indexOf(psOrder)] = data[data.indexOf(psOrder)].copyWith(products: products);
@@ -451,7 +451,7 @@ class LocalStorage {
               // Cập nhật lại thông tin món
               final productUpdate = productValid.copyWith(
                 numberSelecting: product.numberSelecting,
-                noteForProcessOrder: product.noteForProcessOrder,
+                note: product.note,
               );
               productOfOrder[productOfOrder.indexOf(product)] = productUpdate;
             } else {

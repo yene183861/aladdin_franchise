@@ -401,8 +401,7 @@ class AppPrinterNormalUtils {
     if (printNote) {
       bytes += generator.hr();
       bytes += generator.text(TiengViet.parse('Ghi chú: '));
-      bytes +=
-          generator.text(TiengViet.parse((item.noteForProcessOrder ?? totalNote ?? '').trim()));
+      bytes += generator.text(TiengViet.parse((item.note ?? totalNote ?? '').trim()));
     }
     return bytes;
   }
@@ -469,8 +468,7 @@ class AppPrinterNormalUtils {
     if (printNote) {
       bytes += generator.hr();
       bytes += generator.text(TiengViet.parse("Ghi chú:"));
-      bytes +=
-          generator.text(TiengViet.parse((combo?.noteForProcessOrder ?? totalNote ?? '').trim()));
+      bytes += generator.text(TiengViet.parse((combo?.note ?? totalNote ?? '').trim()));
     }
     return bytes;
   }

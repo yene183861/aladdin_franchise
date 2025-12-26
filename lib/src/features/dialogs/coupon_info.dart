@@ -5,7 +5,9 @@ import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/detail_coupon.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/home/view.dart';
 import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
@@ -36,7 +38,7 @@ class CouponInfoWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var allProduct = ref.watch(homeProvider.select((value) => value.products));
+    var allProduct = ref.watch(menuProvider.select((value) => value.products));
     var coupons = ref.watch(homeProvider.select((value) => value.coupons));
     var productCheckouts = ref.watch(homeProvider.select((value) => value.productCheckout));
     final numberOfAdults = ref.watch(homeProvider.select((value) => value.numberOfAdults));
@@ -268,11 +270,19 @@ class CouponInfoWidget extends ConsumerWidget {
                           context,
                           message: S.current.deleteDiscountCode,
                           action: () async {
-                            var result =
-                                await ref.read(homeProvider.notifier).removeVoucher(coupon: coupon);
-                            if (result != null) {
+                            String? result;
+                            if (!AppConfig.useCoupon) {
+                              result = await ref
+                                  .read(homeProvider.notifier)
+                                  .deleteVoucher(coupon: coupon);
+                            } else {
+                              /// đang k có trường để xác định gọi deleteVoucher hay deleteCoupon
+                              result = await ref.read(homeProvider.notifier).deleteCoupon(coupon);
+                            }
+                            var homeContext = homeKey.currentContext;
+                            if (result != null && homeContext != null) {
                               showErrorDialog(
-                                context,
+                                homeContext,
                                 message: result,
                                 isNotifier: true,
                               );

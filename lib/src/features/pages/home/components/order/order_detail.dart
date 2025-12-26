@@ -15,6 +15,7 @@ import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/order/order_option_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/reason_cancel_item.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/components/order_items_widget.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
@@ -281,7 +282,7 @@ Future<void> onPressedCancelItem(
   Function? setStateFunc,
 }) async {
   var state = ref.read(homeProvider);
-
+  var menuState = ref.read(menuProvider);
   List<ProductCheckoutModel> listProductCancel = [];
   List<ProductCheckoutModel> checkProductCancel = [];
   List<int> cancelItemIds = [];
@@ -290,7 +291,7 @@ Future<void> onPressedCancelItem(
 
   for (var p in productCancel) {
     if (p.quantityCancel >= 0) continue;
-    var pCheck = state.products.firstWhereOrNull((e) => e.id == p.id);
+    var pCheck = menuState.products.firstWhereOrNull((e) => e.id == p.id);
     if (pCheck != null) {
       var cbItems = ProductHelper().getComboDescription(pCheck);
       if (cbItems == null || cbItems.isEmpty) {
@@ -566,7 +567,8 @@ Future<void> onPressedCancelItem(
         bool checkFoodCancelInCoupon = false;
         for (var discount in coupon.discount) {
           for (var itemCancel in checkProductCancel) {
-            var product = state.products.firstWhereOrNull((element) => element.id == itemCancel.id);
+            var product =
+                menuState.products.firstWhereOrNull((element) => element.id == itemCancel.id);
             if (product != null) {
               // copy từ apos sang đoạn này
               // đối với món thông thường
@@ -583,7 +585,7 @@ Future<void> onPressedCancelItem(
                   for (var itemCb in comboItems) {
                     if (itemCb.name == discount.name) {
                       var productCheckDiscount =
-                          state.products.firstWhereOrNull((e) => e.name == discount.name);
+                          menuState.products.firstWhereOrNull((e) => e.name == discount.name);
                       if (productCheckDiscount != null &&
                           productFromDiscount.contains(productCheckDiscount) == false) {
                         productFromDiscount.add(productCheckDiscount);
@@ -602,7 +604,7 @@ Future<void> onPressedCancelItem(
           if (checkFoodCancelInCoupon) break;
         }
         if (checkFoodCancelInCoupon && coupon.only) {
-          var resultRemove = await ref.read(homeProvider.notifier).removeCoupon(coupon);
+          var resultRemove = await ref.read(homeProvider.notifier).deleteCoupon(coupon);
           if (resultRemove != null) {
             // ignore: use_build_context_synchronously
             showMessageDialog(

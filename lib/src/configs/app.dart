@@ -29,6 +29,7 @@ final appConfig = AppConfig();
 
 class AppConfig {
   static bool useKds = false;
+  static bool useCoupon = false;
   static bool initHomeProvider = false;
   static const String companyName = "Aladdin.,JSC";
   static const String appName = "APOS Franchise";
@@ -37,8 +38,7 @@ class AppConfig {
   static const String appVersion = "V1.0.0";
   static const int versionCode = 1;
   static const String appUpdateFileName = "apos-franchise-update.apk";
-  final String urlHelp =
-      "https://sites.google.com/aladdin-jsc.com/aladdin-pos-docs?usp=sharing";
+  final String urlHelp = "https://sites.google.com/aladdin-jsc.com/aladdin-pos-docs?usp=sharing";
 
   static const double defaultRawTextSize = 13.0;
 

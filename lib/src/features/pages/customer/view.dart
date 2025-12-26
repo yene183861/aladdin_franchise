@@ -625,7 +625,8 @@ class CustomerInfoWidget extends ConsumerWidget {
                       const ResponsiveIconWidget(iconData: CupertinoIcons.sunrise),
                       const Gap(4),
                       Expanded(
-                        child: Text(customer.dob == null || customer.dob!.trim().isEmpty
+                        child: Text(customer.dob == null ||
+                                ['', '0000-00-00'].contains(customer.dob!.trim().toLowerCase())
                             ? S.current.noBOD
                             : appConfig.dateFormatDDMMYYYY.format(DateTime.parse(customer.dob!))),
                       ),
@@ -664,18 +665,17 @@ class CustomerInfoWidget extends ConsumerWidget {
                         showConfirmAction(
                           context,
                           action: () async {
-                            final result = await ref.read(homeProvider.notifier).resetCustomer();
+                            final result = await ref.read(homeProvider.notifier).deleteCustomer();
                             if (result != null) {
                               showMessageDialog(
                                 context,
                                 message: result.toString(),
                               );
                             } else {
-                              // ref
-                              //     .read(homeProvider.notifier)
-                              //     .syncInfoCustomerPage(method: WindowsMethodEnum.customer);
-                              // xoá khách xong thì áp dụng lại giảm giá (hiện bên NQ bỏ api nên thấy thông tin vẫn còn nguyên)
-                              await ref.read(homeProvider.notifier).applyCustomerPolicy();
+                              // xoá khách xong thì áp dụng lại giảm giá
+                              await ref
+                                  .read(homeProvider.notifier)
+                                  .applyCustomerPolicy(requireApply: true);
                             }
                           },
                           message: S.current.removeCustomer,

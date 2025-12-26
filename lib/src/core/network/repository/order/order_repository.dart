@@ -21,14 +21,10 @@ import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/waiter.dart';
 
 abstract class OrderRepository {
-  /// Success => OrdersRepository
-  ///
-  /// Error => Exception
+  /// checked
   Future<ApiResult<OrdersResponseData>> getOrders({int? typeOrder});
 
-  /// Success => CreateOrderRepository
-  ///
-  /// Error => Exception
+  /// checked
   Future<ApiResult<CreateOrderResponse>> createAndUpdateOrder(
     List<int> tableIds,
     OrderModel order, {
@@ -38,9 +34,10 @@ abstract class OrderRepository {
     bool updateSaleInfo = true,
   });
 
-  /// Lấy danh sách món đã gọi
+  /// checked
   Future<ApiResult<ProductCheckoutResponse>> getProductCheckout(OrderModel? order);
 
+  /// checked
   /// Lấy ip máy in
   ///
   /// printerType: [1] in thanh toán, [2,4] in bếp & bar
@@ -82,8 +79,10 @@ abstract class OrderRepository {
     bool cancel = false,
   });
 
+  /// checked
   Future<ApiResult<DataBillResponseData>> getDataBill({required int orderId});
 
+  /// checked
   /// Kiểm tra tình trạng máy in dành cho gọi món, huỷ món
   ///
   /// Kiểm tra tuỳ thuộc vào loại món ăn được yêu cầu (printerCheck)
@@ -92,9 +91,10 @@ abstract class OrderRepository {
     List<int> printerCheck,
   );
 
+  /// checked
   /// @order_id
   ///
-  /// @status_lock: 1 khoá, 0 mở khoá
+  /// [statusLock]: 1 khoá, 0 mở khoá
   Future<ApiResult<bool>> lockOrder({
     required int orderId,
     required int statusLock,

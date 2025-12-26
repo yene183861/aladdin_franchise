@@ -6,19 +6,6 @@ part of 'order.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$OrdersResponseImpl _$$OrdersResponseImplFromJson(Map<String, dynamic> json) =>
-    _$OrdersResponseImpl(
-      status: (json['status'] as num).toInt(),
-      data: OrdersResponseData.fromJson(json['data'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$$OrdersResponseImplToJson(
-        _$OrdersResponseImpl instance) =>
-    <String, dynamic>{
-      'status': instance.status,
-      'data': instance.data.toJson(),
-    };
-
 _$OrdersResponseDataImpl _$$OrdersResponseDataImplFromJson(
         Map<String, dynamic> json) =>
     _$OrdersResponseDataImpl(

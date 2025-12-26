@@ -5,6 +5,7 @@ import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/features/dialogs/coupon_info.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
@@ -44,8 +45,8 @@ class _CouponDialogContent extends ConsumerStatefulWidget {
 }
 
 class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
-  late TextEditingController _percentCtrl;
-  late FocusNode _percentFocusNode;
+  late TextEditingController _voucherCtrl, _couponCtrl;
+  late FocusNode _voucherFocusNode, _couponFocusNode;
 
   final BehaviorSubject<String> _amountTextChange = BehaviorSubject<String>();
 
@@ -57,18 +58,35 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
   @override
   void initState() {
     super.initState();
-    _percentCtrl = TextEditingController();
-    _percentFocusNode = FocusNode();
-    _percentCtrl.addListener(
+    _voucherCtrl = TextEditingController();
+    _voucherFocusNode = FocusNode();
+    _couponCtrl = TextEditingController();
+    _couponFocusNode = FocusNode();
+    _couponCtrl.addListener(
       () {
+        _clearText();
+      },
+    );
+    _voucherCtrl.addListener(
+      () {
+        _clearText();
         if (_isFormatting) return;
-        _amountTextChange.value = _percentCtrl.text.trim();
+        _amountTextChange.value = _voucherCtrl.text.trim();
       },
     );
 
     _amountTextChange.debounceTime(const Duration(milliseconds: 0)).distinct().listen((event) {
       _formatValue(event);
     });
+  }
+
+  void _clearText() {
+    if (_couponFocusNode.hasFocus && _voucherCtrl.text.trim().isNotEmpty) {
+      _voucherCtrl.text = '';
+    }
+    if (_voucherFocusNode.hasFocus && _couponCtrl.text.trim().isNotEmpty) {
+      _couponCtrl.text = '';
+    }
   }
 
   void _formatValue(String data) {
@@ -81,7 +99,7 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
     final formatted =
         type == DiscountTypeEnum.percent ? digits : AppUtils.formatCurrency(value: number);
     _isFormatting = true;
-    _percentCtrl.value = TextEditingValue(
+    _voucherCtrl.value = TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
     );
@@ -90,36 +108,42 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
 
   @override
   void dispose() {
-    _percentFocusNode.dispose();
-    _percentCtrl.dispose();
+    _couponCtrl.dispose();
+    _couponFocusNode.dispose();
+    _voucherFocusNode.dispose();
+    _voucherCtrl.dispose();
     _amountTextChange.close();
     super.dispose();
   }
 
-  void _addCoupon() async {
+  void _submit() async {
+    var coupon = _couponCtrl.text.trim();
+    var voucher = _voucherCtrl.text.trim();
+    if (coupon.isEmpty && voucher.isEmpty) return;
     if (_formKey.currentState?.validate() ?? false) {
-      var percent = _percentCtrl.text.trim();
-      if (percent.isEmpty) return;
       ({String? error, String? titleError}) result = (error: null, titleError: null);
-      result = await ref.read(homeProvider.notifier).addVoucher(value: _getAmountValue());
+      if (coupon.isNotEmpty) {
+        result = await ref.read(homeProvider.notifier).addCoupon(code: coupon);
+      } else if (voucher.isNotEmpty) {
+        result = await ref.read(homeProvider.notifier).addVoucher(value: _getAmountValue());
+      }
       if (result.error != null) {
         if (context.mounted) {
-          showMessageDialog(context, message: result.error.toString());
-          // await showErrorDialog(
-          //   context,
-          //   message: result.error.toString(),
-          //   isNotifier: true,
-          //   titleMessage: result.titleError,
-          // );
+          showMessageDialog(
+            context,
+            message: result.error.toString(),
+            title: result.titleError,
+          );
         }
       } else {
-        _percentCtrl.text = '';
+        _couponCtrl.text = '';
+        _voucherCtrl.text = '';
       }
     }
   }
 
   double _getAmountValue() {
-    return double.tryParse(_percentCtrl.text.trim().replaceAll(removeChars, '')) ?? 0.0;
+    return double.tryParse(_voucherCtrl.text.trim().replaceAll(removeChars, '')) ?? 0.0;
   }
 
   @override
@@ -132,68 +156,106 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(S.current.discountCode),
+            Text(
+              S.current.discountCode,
+              style: Theme.of(context).dialogTheme.titleTextStyle,
+            ),
             const Gap(20),
             const _NumberOfAdultsWidget(),
             Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  const Text('Giảm giá VND/%'),
-                  const Gap(4),
-                  Consumer(builder: (context, ref, child) {
-                    var discoundType =
-                        ref.watch(homeProvider.select((value) => value.discountTypeSelect));
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: AppTextFormField(
-                            focusNode: _percentFocusNode,
-                            textController: _percentCtrl,
+                  if (AppConfig.useCoupon) ...[
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Nhập mã giảm'),
+                          const Gap(4),
+                          AppTextFormField(
+                            textInputType: TextInputType.number,
+                            focusNode: _couponFocusNode,
+                            hintText: S.current.inputCode,
+                            prefixIcon: const ResponsiveIconWidget(
+                              iconData: Icons.keyboard_alt_outlined,
+                            ),
+                            textController: _couponCtrl,
                             onEditingComplete: () async {
                               FocusManager.instance.primaryFocus?.unfocus();
                             },
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            validator: (value) {
-                              var data = AppUtils.convertToDouble(value) ?? 0;
-                              if (discoundType == DiscountTypeEnum.percent && data > 100.0) {
-                                return 'Phần trăm không được vượt quá 100%';
-                              }
-                              return null;
-                            },
                           ),
-                        ),
-                        const Gap(8),
-                        SizedBox(
-                          width: 100,
-                          child: CustomDropdownButton<DiscountTypeEnum>(
-                            data: DiscountTypeEnum.values,
-                            initData: [discoundType],
-                            buildTextDisplay: (data) => data.title,
-                            onChangeData: (p0) {
-                              if (p0.isEmpty) return;
-                              ref.read(homeProvider.notifier).onChangeDiscountTypeSelect(p0.first);
-                              final digits = _percentCtrl.text.trim().replaceAll(removeChars, '');
-                              _formatValue(digits);
-                            },
-                          ),
-                        ),
-                        const Gap(8),
-                        Consumer(
-                          builder: (context, ref, child) {
-                            var coupons = ref.watch(homeProvider.select((value) => value.coupons));
-                            return AppButtonWidget(
-                              textAction: S.current.confirm,
-                              color: coupons.isNotEmpty ? Colors.grey : AppColors.secondColor,
-                              onTap: coupons.isNotEmpty ? null : _addCoupon,
-                            );
-                          },
-                        )
+                        ],
+                      ),
+                    ),
+                    const Gap(12),
+                  ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Giảm giá VND/%'),
+                        const Gap(4),
+                        Consumer(builder: (context, ref, child) {
+                          var discoundType =
+                              ref.watch(homeProvider.select((value) => value.discountTypeSelect));
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: AppTextFormField(
+                                  focusNode: _voucherFocusNode,
+                                  textController: _voucherCtrl,
+                                  onEditingComplete: () async {
+                                    FocusManager.instance.primaryFocus?.unfocus();
+                                  },
+                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                  validator: (value) {
+                                    var data = AppUtils.convertToDouble(value) ?? 0;
+                                    if (discoundType == DiscountTypeEnum.percent && data > 100.0) {
+                                      return 'Phần trăm không được vượt quá 100%';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const Gap(8),
+                              SizedBox(
+                                width: 100,
+                                child: CustomDropdownButton<DiscountTypeEnum>(
+                                  data: DiscountTypeEnum.values,
+                                  initData: [discoundType],
+                                  buildTextDisplay: (data) => data.title,
+                                  onChangeData: (p0) {
+                                    if (p0.isEmpty) return;
+                                    ref
+                                        .read(homeProvider.notifier)
+                                        .onChangeDiscountTypeSelect(p0.first);
+                                    final digits =
+                                        _voucherCtrl.text.trim().replaceAll(removeChars, '');
+                                    _formatValue(digits);
+                                  },
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
                       ],
-                    );
-                  }),
+                    ),
+                  ),
+                  const Gap(8),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      var coupons = ref.watch(homeProvider.select((value) => value.coupons));
+                      return AppButtonWidget(
+                        textAction: S.current.confirm,
+                        color: !AppConfig.useCoupon && coupons.isNotEmpty
+                            ? Colors.grey
+                            : AppColors.secondColor,
+                        onTap: !AppConfig.useCoupon && coupons.isNotEmpty ? null : _submit,
+                      );
+                    },
+                  )
                 ],
               ),
             ),
@@ -303,21 +365,24 @@ class _CounponActionWidget extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // ButtonSimpleWidget(
-        //   textAction: S.current.apply_policy_again,
-        //   onPressed: () async {
-        //     var res = await ref.read(homeProvider.notifier).applyCustomerPolicy(requireApply: true);
+        if (AppConfig.useCoupon) ...[
+          ButtonSimpleWidget(
+            textAction: S.current.apply_policy_again,
+            onPressed: () async {
+              var res =
+                  await ref.read(homeProvider.notifier).applyCustomerPolicy(requireApply: true);
 
-        //     if (res != null && context.mounted) {
-        //       showErrorDialog(
-        //         context,
-        //         message: res,
-        //         isNotifier: true,
-        //       );
-        //     }
-        //   },
-        // ),
-        // const Gap(12),
+              if (res != null && context.mounted) {
+                showErrorDialog(
+                  context,
+                  message: res,
+                  isNotifier: true,
+                );
+              }
+            },
+          ),
+          const Gap(12),
+        ],
         ButtonCancelWidget(
           onPressed: () => Navigator.pop(context),
           textAction: S.current.close,

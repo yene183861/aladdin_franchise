@@ -12,21 +12,7 @@ class ProductResponse with _$ProductResponse {
     required ProductResponseData data,
   }) = _ProductResponse;
 
-  factory ProductResponse.fromJson(Map<String, dynamic> json) =>
-      _$ProductResponseFromJson(json);
-
-  static String getModelInterface() {
-    return '''required ProductResponseData data,
-    ProductResponseData{
-      required int status,
-      List<ProductModel>? data,
-      ---
-        ProductModel{
-          ${ProductModel.getModelInterface()}
-        }
-    }
-    ''';
-  }
+  factory ProductResponse.fromJson(Map<String, dynamic> json) => _$ProductResponseFromJson(json);
 }
 
 @freezed

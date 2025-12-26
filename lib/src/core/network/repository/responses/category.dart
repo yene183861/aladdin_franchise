@@ -6,34 +6,15 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'category.freezed.dart';
 part 'category.g.dart';
 
-@freezed
-class CategoryResponse with _$CategoryResponse {
-  @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
-  const factory CategoryResponse({
-    required CategoryResponseData data,
-  }) = _CategoryResponse;
+// @freezed
+// class CategoryResponse with _$CategoryResponse {
+//   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
+//   const factory CategoryResponse({
+//     required CategoryResponseData data,
+//   }) = _CategoryResponse;
 
-  factory CategoryResponse.fromJson(Map<String, dynamic> json) =>
-      _$CategoryResponseFromJson(json);
-
-  static String getModelInterface() {
-    return '''required CategoryResponseData data,
-    CategoryResponseData{
-      required int status,
-      required List<CategoryModel> data,
-      List<TagProductModel>? tags,
-      ---
-      CategoryModel{
-        ${CategoryModel.getModelInterface()}
-      }
-      ---
-      TagProductModel{
-        ${TagProductModel.getModelInterface()}
-      }
-    }
-    ''';
-  }
-}
+//   factory CategoryResponse.fromJson(Map<String, dynamic> json) => _$CategoryResponseFromJson(json);
+// }
 
 @freezed
 class CategoryResponseData with _$CategoryResponseData {

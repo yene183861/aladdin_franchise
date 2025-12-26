@@ -6,6 +6,7 @@ import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/complete_order.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/confirm_payment.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
@@ -80,7 +81,7 @@ Future<void> onSelectPaymentMethod({
           child: SizedBox(
             width: MediaQuery.of(context).size.width,
             child: EditTaxDialog(
-                products: ref.read(homeProvider).products,
+                products: ref.read(menuProvider).products,
                 productCheckouts: pc,
                 onSave: (List<ProductCheckoutModel> changedPc) {
                   pc = changedPc;
@@ -585,7 +586,7 @@ class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodW
                       // Xoá các mã giảm giá không hợp lệ
                       List<CustomerPolicyModel> removeCouponFails = [];
                       for (final c in resultCouponCheck.coupons) {
-                        final resRemove = await ref.read(homeProvider.notifier).removeCoupon(
+                        final resRemove = await ref.read(homeProvider.notifier).deleteCoupon(
                               c,
                               applyPolicy: false,
                             );

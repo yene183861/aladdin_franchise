@@ -21,7 +21,6 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
 
   RestaurantRepositoryImpl(this._client);
 
-  /// checked
   @override
   Future<ApiResult<List<UserBankModel>>> getBanks(ApiBankParam apiBankParam) async {
     var loginData = LocalStorage.getDataLogin();
@@ -44,7 +43,6 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
     );
   }
 
-  /// checked
   @override
   Future<ApiResult<List<PaymentMethod>>> getPaymentMethod({
     required int orderId,
@@ -271,7 +269,6 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
     // }
   }
 
-  /// checked
   @override
   Future<ApiResult<List<HistoryOrderModel>>> getOrderHistoryList({
     required DateTime startDate,

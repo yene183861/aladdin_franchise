@@ -10,14 +10,12 @@ import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/models/minvoice/minvoice.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/order_invoice/order_invoice.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
 
 class InvoiceRepositoryImpl extends InvoiceRepository {
   final RestClient _client;
 
   InvoiceRepositoryImpl(this._client);
 
-  /// checked
   @override
   Future<ApiResult<OrderInvoice>> getOrderInvoice(int orderId) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v1/get-invoice-information?order_id=$orderId";
@@ -39,7 +37,6 @@ class InvoiceRepositoryImpl extends InvoiceRepository {
     );
   }
 
-  /// checked
   @override
   Future<ApiResult<void>> updateOrderInvoice(
       {required int orderId, required OrderInvoice orderInvoice}) async {
@@ -62,7 +59,6 @@ class InvoiceRepositoryImpl extends InvoiceRepository {
     );
   }
 
-  /// checked
   @override
   Future<ApiResult<MInvoiceInfo>> getMInvoiceTaxInfo(String taxCode) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v1/get-information-tax?tax_code=$taxCode";

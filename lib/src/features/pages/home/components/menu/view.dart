@@ -5,14 +5,12 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
+import 'package:aladdin_franchise/src/data/enum/status.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/action/btn_o2o.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/action/btn_refresh_data.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/action/history_order.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/action/type_order.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/menu/components/list_category.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/menu/components/list_tag.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/table_layout/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -31,7 +29,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import 'components/barrel_component.dart';
-import 'components/list_product.dart';
 
 class MenuPage extends ConsumerStatefulWidget {
   const MenuPage({super.key});
@@ -393,11 +390,11 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
         ),
         Expanded(
           child: Consumer(builder: (context, ref, child) {
-            var productsState = ref.watch(menuProvider.select((value) => value.productsState));
+            var productState = ref.watch(menuProvider.select((value) => value.productState));
 
-            switch (productsState.status) {
-              case PageCommonState.normal:
-              case PageCommonState.loading:
+            switch (productState.status) {
+              case StatusEnum.normal:
+              case StatusEnum.loading:
                 return GridView.builder(
                   padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -411,14 +408,14 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                   },
                   itemCount: 12,
                 );
-              case PageCommonState.error:
+              case StatusEnum.error:
                 return AppErrorSimpleWidget(
                   onTryAgain: () {
                     ref.read(menuProvider.notifier).getProducts();
                   },
-                  message: productsState.messageError,
+                  message: productState.message,
                 );
-              case PageCommonState.success:
+              case StatusEnum.success:
             }
             return CustomScrollView(
               controller: _productScrollController,

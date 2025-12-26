@@ -16,7 +16,6 @@ class ProductModel with _$ProductModel {
     required int id,
     @Default(-1) int categoryId,
     @Default('') String name,
-    @Default('') String nameEn,
     @Default({}) Map<String, dynamic> language,
     int? printerType,
     String? slug,
@@ -31,26 +30,17 @@ class ProductModel with _$ProductModel {
     String? image,
     String? description,
 
-    /// dùng nội bộ
+    /// chỉ dùng dưới app
     @Default(0) int numberSelecting,
-
-    ///
-    /// dùng nội bộ
-    String? noteForProcessOrder,
+    String? note,
     List<int>? tags,
-    // @Default(true) bool active,
-
-    /// chỉ dùng nội bộ
     @Default(0) int quantityPromotion,
-
-    // for discount
     @Default(0) int unitPriceDiscount,
     @Default(0) int quantityDiscount,
     @Default(0) int withComboDiscount,
   }) = _ProductModel;
 
-  factory ProductModel.fromJson(Map<String, dynamic> json) =>
-      _$ProductModelFromJson(json);
+  factory ProductModel.fromJson(Map<String, dynamic> json) => _$ProductModelFromJson(json);
 
   const ProductModel._();
   String getNameView() {
@@ -71,16 +61,7 @@ class ProductModel with _$ProductModel {
         .join();
   }
 
-  String getShortNameView() => kAppLanguageLocal == AppLanguageLocal.vietnamese
-      ? getInitials(name)
-      : nameEn.trim().isEmpty
-          ? getInitials(name)
-          : getInitials(nameEn);
-  String getSearchName() => kAppLanguageLocal == AppLanguageLocal.vietnamese
-      ? removeDiacritics(name)
-      : nameEn.trim().isEmpty
-          ? removeDiacritics(nameEn)
-          : removeDiacritics(name);
+  String getSearchName() => removeDiacritics(getNameView());
   String getSearchShortName() => getInitials(getSearchName());
 
   double getUnitPriceNum() => double.tryParse(unitPrice) ?? 0;
@@ -93,23 +74,5 @@ class ProductModel with _$ProductModel {
     // } catch (ex) {
     //   return 0.0;
     // }
-  }
-
-  static String getModelInterface() {
-    return '''required int id,
-    String? name,
-    String? slug,
-    int? menuNumber,
-    String? unitPrice,
-    String? discountPrice,
-    String? currencyCode,
-    String? image,
-    String? description,
-    @Default(0) int numberSelecting,
-    String? unit,
-    int? printerType,
-    dynamic tax,
-    required int categoryId,
-    ''';
   }
 }

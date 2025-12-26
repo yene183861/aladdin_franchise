@@ -23,7 +23,6 @@ mixin _$ProductModel {
   int get id => throw _privateConstructorUsedError;
   int get categoryId => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
-  String get nameEn => throw _privateConstructorUsedError;
   Map<String, dynamic> get language => throw _privateConstructorUsedError;
   int? get printerType => throw _privateConstructorUsedError;
   String? get slug => throw _privateConstructorUsedError;
@@ -38,17 +37,11 @@ mixin _$ProductModel {
   String? get image => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
 
-  /// dùng nội bộ
+  /// chỉ dùng dưới app
   int get numberSelecting => throw _privateConstructorUsedError;
-
-  ///
-  /// dùng nội bộ
-  String? get noteForProcessOrder => throw _privateConstructorUsedError;
-  List<int>? get tags =>
-      throw _privateConstructorUsedError; // @Default(true) bool active,
-  /// chỉ dùng nội bộ
-  int get quantityPromotion =>
-      throw _privateConstructorUsedError; // for discount
+  String? get note => throw _privateConstructorUsedError;
+  List<int>? get tags => throw _privateConstructorUsedError;
+  int get quantityPromotion => throw _privateConstructorUsedError;
   int get unitPriceDiscount => throw _privateConstructorUsedError;
   int get quantityDiscount => throw _privateConstructorUsedError;
   int get withComboDiscount => throw _privateConstructorUsedError;
@@ -69,7 +62,6 @@ abstract class $ProductModelCopyWith<$Res> {
       {int id,
       int categoryId,
       String name,
-      String nameEn,
       Map<String, dynamic> language,
       int? printerType,
       String? slug,
@@ -84,7 +76,7 @@ abstract class $ProductModelCopyWith<$Res> {
       String? image,
       String? description,
       int numberSelecting,
-      String? noteForProcessOrder,
+      String? note,
       List<int>? tags,
       int quantityPromotion,
       int unitPriceDiscount,
@@ -108,7 +100,6 @@ class _$ProductModelCopyWithImpl<$Res, $Val extends ProductModel>
     Object? id = null,
     Object? categoryId = null,
     Object? name = null,
-    Object? nameEn = null,
     Object? language = null,
     Object? printerType = freezed,
     Object? slug = freezed,
@@ -123,7 +114,7 @@ class _$ProductModelCopyWithImpl<$Res, $Val extends ProductModel>
     Object? image = freezed,
     Object? description = freezed,
     Object? numberSelecting = null,
-    Object? noteForProcessOrder = freezed,
+    Object? note = freezed,
     Object? tags = freezed,
     Object? quantityPromotion = null,
     Object? unitPriceDiscount = null,
@@ -142,10 +133,6 @@ class _$ProductModelCopyWithImpl<$Res, $Val extends ProductModel>
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      nameEn: null == nameEn
-          ? _value.nameEn
-          : nameEn // ignore: cast_nullable_to_non_nullable
               as String,
       language: null == language
           ? _value.language
@@ -203,9 +190,9 @@ class _$ProductModelCopyWithImpl<$Res, $Val extends ProductModel>
           ? _value.numberSelecting
           : numberSelecting // ignore: cast_nullable_to_non_nullable
               as int,
-      noteForProcessOrder: freezed == noteForProcessOrder
-          ? _value.noteForProcessOrder
-          : noteForProcessOrder // ignore: cast_nullable_to_non_nullable
+      note: freezed == note
+          ? _value.note
+          : note // ignore: cast_nullable_to_non_nullable
               as String?,
       tags: freezed == tags
           ? _value.tags
@@ -243,7 +230,6 @@ abstract class _$$ProductModelImplCopyWith<$Res>
       {int id,
       int categoryId,
       String name,
-      String nameEn,
       Map<String, dynamic> language,
       int? printerType,
       String? slug,
@@ -258,7 +244,7 @@ abstract class _$$ProductModelImplCopyWith<$Res>
       String? image,
       String? description,
       int numberSelecting,
-      String? noteForProcessOrder,
+      String? note,
       List<int>? tags,
       int quantityPromotion,
       int unitPriceDiscount,
@@ -280,7 +266,6 @@ class __$$ProductModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? categoryId = null,
     Object? name = null,
-    Object? nameEn = null,
     Object? language = null,
     Object? printerType = freezed,
     Object? slug = freezed,
@@ -295,7 +280,7 @@ class __$$ProductModelImplCopyWithImpl<$Res>
     Object? image = freezed,
     Object? description = freezed,
     Object? numberSelecting = null,
-    Object? noteForProcessOrder = freezed,
+    Object? note = freezed,
     Object? tags = freezed,
     Object? quantityPromotion = null,
     Object? unitPriceDiscount = null,
@@ -314,10 +299,6 @@ class __$$ProductModelImplCopyWithImpl<$Res>
       name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      nameEn: null == nameEn
-          ? _value.nameEn
-          : nameEn // ignore: cast_nullable_to_non_nullable
               as String,
       language: null == language
           ? _value._language
@@ -375,9 +356,9 @@ class __$$ProductModelImplCopyWithImpl<$Res>
           ? _value.numberSelecting
           : numberSelecting // ignore: cast_nullable_to_non_nullable
               as int,
-      noteForProcessOrder: freezed == noteForProcessOrder
-          ? _value.noteForProcessOrder
-          : noteForProcessOrder // ignore: cast_nullable_to_non_nullable
+      note: freezed == note
+          ? _value.note
+          : note // ignore: cast_nullable_to_non_nullable
               as String?,
       tags: freezed == tags
           ? _value._tags
@@ -411,7 +392,6 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
       {required this.id,
       this.categoryId = -1,
       this.name = '',
-      this.nameEn = '',
       final Map<String, dynamic> language = const {},
       this.printerType,
       this.slug,
@@ -426,7 +406,7 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
       this.image,
       this.description,
       this.numberSelecting = 0,
-      this.noteForProcessOrder,
+      this.note,
       final List<int>? tags,
       this.quantityPromotion = 0,
       this.unitPriceDiscount = 0,
@@ -447,9 +427,6 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
   @override
   @JsonKey()
   final String name;
-  @override
-  @JsonKey()
-  final String nameEn;
   final Map<String, dynamic> _language;
   @override
   @JsonKey()
@@ -489,15 +466,12 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
   @override
   final String? description;
 
-  /// dùng nội bộ
+  /// chỉ dùng dưới app
   @override
   @JsonKey()
   final int numberSelecting;
-
-  ///
-  /// dùng nội bộ
   @override
-  final String? noteForProcessOrder;
+  final String? note;
   final List<int>? _tags;
   @override
   List<int>? get tags {
@@ -508,12 +482,9 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
     return EqualUnmodifiableListView(value);
   }
 
-// @Default(true) bool active,
-  /// chỉ dùng nội bộ
   @override
   @JsonKey()
   final int quantityPromotion;
-// for discount
   @override
   @JsonKey()
   final int unitPriceDiscount;
@@ -526,7 +497,7 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'ProductModel(id: $id, categoryId: $categoryId, name: $name, nameEn: $nameEn, language: $language, printerType: $printerType, slug: $slug, menuNumber: $menuNumber, unitPrice: $unitPrice, outOfStock: $outOfStock, internalUse: $internalUse, discountPrice: $discountPrice, unit: $unit, tax: $tax, currencyCode: $currencyCode, image: $image, description: $description, numberSelecting: $numberSelecting, noteForProcessOrder: $noteForProcessOrder, tags: $tags, quantityPromotion: $quantityPromotion, unitPriceDiscount: $unitPriceDiscount, quantityDiscount: $quantityDiscount, withComboDiscount: $withComboDiscount)';
+    return 'ProductModel(id: $id, categoryId: $categoryId, name: $name, language: $language, printerType: $printerType, slug: $slug, menuNumber: $menuNumber, unitPrice: $unitPrice, outOfStock: $outOfStock, internalUse: $internalUse, discountPrice: $discountPrice, unit: $unit, tax: $tax, currencyCode: $currencyCode, image: $image, description: $description, numberSelecting: $numberSelecting, note: $note, tags: $tags, quantityPromotion: $quantityPromotion, unitPriceDiscount: $unitPriceDiscount, quantityDiscount: $quantityDiscount, withComboDiscount: $withComboDiscount)';
   }
 
   @override
@@ -537,7 +508,6 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('categoryId', categoryId))
       ..add(DiagnosticsProperty('name', name))
-      ..add(DiagnosticsProperty('nameEn', nameEn))
       ..add(DiagnosticsProperty('language', language))
       ..add(DiagnosticsProperty('printerType', printerType))
       ..add(DiagnosticsProperty('slug', slug))
@@ -552,7 +522,7 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('image', image))
       ..add(DiagnosticsProperty('description', description))
       ..add(DiagnosticsProperty('numberSelecting', numberSelecting))
-      ..add(DiagnosticsProperty('noteForProcessOrder', noteForProcessOrder))
+      ..add(DiagnosticsProperty('note', note))
       ..add(DiagnosticsProperty('tags', tags))
       ..add(DiagnosticsProperty('quantityPromotion', quantityPromotion))
       ..add(DiagnosticsProperty('unitPriceDiscount', unitPriceDiscount))
@@ -569,7 +539,6 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
             (identical(other.categoryId, categoryId) ||
                 other.categoryId == categoryId) &&
             (identical(other.name, name) || other.name == name) &&
-            (identical(other.nameEn, nameEn) || other.nameEn == nameEn) &&
             const DeepCollectionEquality().equals(other._language, _language) &&
             (identical(other.printerType, printerType) ||
                 other.printerType == printerType) &&
@@ -593,8 +562,7 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
                 other.description == description) &&
             (identical(other.numberSelecting, numberSelecting) ||
                 other.numberSelecting == numberSelecting) &&
-            (identical(other.noteForProcessOrder, noteForProcessOrder) ||
-                other.noteForProcessOrder == noteForProcessOrder) &&
+            (identical(other.note, note) || other.note == note) &&
             const DeepCollectionEquality().equals(other._tags, _tags) &&
             (identical(other.quantityPromotion, quantityPromotion) ||
                 other.quantityPromotion == quantityPromotion) &&
@@ -613,7 +581,6 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
         id,
         categoryId,
         name,
-        nameEn,
         const DeepCollectionEquality().hash(_language),
         printerType,
         slug,
@@ -628,7 +595,7 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
         image,
         description,
         numberSelecting,
-        noteForProcessOrder,
+        note,
         const DeepCollectionEquality().hash(_tags),
         quantityPromotion,
         unitPriceDiscount,
@@ -655,7 +622,6 @@ abstract class _ProductModel extends ProductModel {
       {required final int id,
       final int categoryId,
       final String name,
-      final String nameEn,
       final Map<String, dynamic> language,
       final int? printerType,
       final String? slug,
@@ -670,7 +636,7 @@ abstract class _ProductModel extends ProductModel {
       final String? image,
       final String? description,
       final int numberSelecting,
-      final String? noteForProcessOrder,
+      final String? note,
       final List<int>? tags,
       final int quantityPromotion,
       final int unitPriceDiscount,
@@ -687,8 +653,6 @@ abstract class _ProductModel extends ProductModel {
   int get categoryId;
   @override
   String get name;
-  @override
-  String get nameEn;
   @override
   Map<String, dynamic> get language;
   @override
@@ -717,19 +681,15 @@ abstract class _ProductModel extends ProductModel {
   String? get description;
   @override
 
-  /// dùng nội bộ
+  /// chỉ dùng dưới app
   int get numberSelecting;
   @override
-
-  ///
-  /// dùng nội bộ
-  String? get noteForProcessOrder;
+  String? get note;
   @override
   List<int>? get tags;
-  @override // @Default(true) bool active,
-  /// chỉ dùng nội bộ
+  @override
   int get quantityPromotion;
-  @override // for discount
+  @override
   int get unitPriceDiscount;
   @override
   int get quantityDiscount;

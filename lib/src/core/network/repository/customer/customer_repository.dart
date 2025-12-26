@@ -3,9 +3,11 @@ import 'package:aladdin_franchise/src/core/network/repository/responses/customer
 import 'package:aladdin_franchise/src/models/order.dart';
 
 abstract class CustomerRepository {
+  /// checked
   Future<ApiResult<CustomerResponseData>> findCustomer(
       {required String phoneNumber, required OrderModel order});
 
+  /// checked
   Future<ApiResult<bool>> createCustomer({
     required String phone,
     required String firstName,
@@ -17,5 +19,6 @@ abstract class CustomerRepository {
     String? address,
   });
 
-  Future<ApiResult<void>> resetCustomer(int orderId);
+  /// checked
+  Future<ApiResult<void>> deleteCustomer(int orderId);
 }

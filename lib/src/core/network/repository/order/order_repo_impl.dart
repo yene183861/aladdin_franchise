@@ -27,6 +27,7 @@ import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/waiter.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
 
 class OrderRepositoryImpl extends OrderRepository {
@@ -34,13 +35,12 @@ class OrderRepositoryImpl extends OrderRepository {
 
   OrderRepositoryImpl(this._client);
 
-  /// checked
   @override
   Future<ApiResult<OrdersResponseData>> getOrders({int? typeOrder}) async {
-    var uri = "${ApiConfig.apiUrl}/api/v2/list-table-using";
+    var apiUrl = "${ApiConfig.apiUrl}/api/v2/list-table-using";
     return safeCallApi(
       () {
-        final url = Uri.parse(uri);
+        final url = Uri.parse(apiUrl);
         return _client.get(url, typeOrder: typeOrder);
       },
       dataKey: 'data',
@@ -57,12 +57,11 @@ class OrderRepositoryImpl extends OrderRepository {
       },
       log: ErrorLogModel(
         action: AppLogAction.getOrders,
-        api: uri,
+        api: apiUrl,
       ),
     );
   }
 
-  /// checked - create not reservation
   @override
   Future<ApiResult<CreateOrderResponse>> createAndUpdateOrder(
     List<int> tableIds,
@@ -72,7 +71,7 @@ class OrderRepositoryImpl extends OrderRepository {
     ReservationModel? reservation,
     bool updateSaleInfo = true,
   }) {
-    var uri = "${ApiConfig.apiUrl}/api/v1/make-dine-in-orders";
+    var apiUrl = "${ApiConfig.apiUrl}/api/v1/make-dine-in-orders";
     var loginData = LocalStorage.getDataLogin();
     Map<String, dynamic> body = {
       "lat": "0",
@@ -91,20 +90,19 @@ class OrderRepositoryImpl extends OrderRepository {
 
     return safeCallApi(
       () {
-        final url = Uri.parse(uri);
+        final url = Uri.parse(apiUrl);
 
         return _client.post(url, typeOrder: typeOrder, body: jsonEncode(body));
       },
       parser: (json) => CreateOrderResponse.fromJson(json),
       log: ErrorLogModel(
         action: AppLogAction.createAndUpdateOrder,
-        api: uri,
+        api: apiUrl,
         request: body,
       ),
     );
   }
 
-  /// checked
   @override
   Future<ApiResult<ProductCheckoutResponse>> getProductCheckout(OrderModel? order) async {
     var apiUrl = '${ApiConfig.apiUrl}/api/v1/orders-for-table?order_id=${order?.id}';
@@ -127,24 +125,25 @@ class OrderRepositoryImpl extends OrderRepository {
     OrderModel order,
     List<int> printerType,
   ) async {
-    var uri =
+    var apiUrl =
         "${ApiConfig.apiUrl}/api/v2/list-table-using?type_order=${order.id}&printer_type=$printerType";
     return safeCallApi(
       () {
-        final url = Uri.parse(uri);
+        final url = Uri.parse(apiUrl);
         return _client.get(url);
       },
+      dataKey: 'data',
       parser: (json) {
         List<IpOrderModel> printers = [];
-        var res = OrdersResponse.fromJson(json);
-        printers = res.data.ipOrder == null
+        var res = OrdersResponseData.fromJson(json);
+        printers = res.ipOrder == null
             ? []
-            : res.data.ipOrder.map<IpOrderModel>((e) => IpOrderModel.fromJson(e)).toList();
+            : res.ipOrder.map<IpOrderModel>((e) => IpOrderModel.fromJson(e)).toList();
         return printers;
       },
       log: ErrorLogModel(
         action: AppLogAction.getIpPrinterOrder,
-        api: uri,
+        api: apiUrl,
         order: order,
       ),
     );
@@ -241,7 +240,6 @@ class OrderRepositoryImpl extends OrderRepository {
     );
   }
 
-  /// checked
   @override
   Future<ApiResult<ProcessOrderResponse>> processOrderItem({
     required OrderModel order,
@@ -282,7 +280,7 @@ class OrderRepositoryImpl extends OrderRepository {
                   "quantity": e.numberSelecting,
                   "discounted_price": e.discountPrice,
                   "options": [],
-                  "note": e.noteForProcessOrder ?? "",
+                  "note": e.note ?? "",
                 },
               )
               .toList()),
@@ -303,7 +301,6 @@ class OrderRepositoryImpl extends OrderRepository {
     );
   }
 
-  /// checked
   @override
   Future<ApiResult<DataBillResponseData>> getDataBill({required int orderId}) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v1/get-data-bill-order?order_id=$orderId";
@@ -325,6 +322,7 @@ class OrderRepositoryImpl extends OrderRepository {
       log: ErrorLogModel(
         action: AppLogAction.getDataBill,
         api: apiUrl,
+        order: OrderModel(id: orderId),
       ),
     );
   }
@@ -371,7 +369,10 @@ class OrderRepositoryImpl extends OrderRepository {
   ) async {
     final resultPrinter = await getIpPrinterOrder(order, printerCheck);
     if (!resultPrinter.isSuccess) {
-      return resultPrinter;
+      throw AppException(
+        statusCode: resultPrinter.statusCode,
+        message: resultPrinter.error,
+      );
     }
     List<IpOrderModel> ipResult = resultPrinter.data ?? [];
     try {
@@ -386,7 +387,6 @@ class OrderRepositoryImpl extends OrderRepository {
     return ApiResult.success(200, ipResult);
   }
 
-  /// checked
   @override
   Future<ApiResult<bool>> lockOrder({
     required int orderId,
@@ -454,7 +454,6 @@ class OrderRepositoryImpl extends OrderRepository {
     // }
   }
 
-  /// checked
   @override
   Future<ApiResult<void>> completeBill({
     required OrderModel order,

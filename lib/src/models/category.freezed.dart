@@ -26,7 +26,6 @@ mixin _$CategoryModel {
   String? get description => throw _privateConstructorUsedError;
   String? get image => throw _privateConstructorUsedError;
   List<SubCategoryModel>? get children => throw _privateConstructorUsedError;
-  String get titleEn => throw _privateConstructorUsedError;
   Map<String, dynamic> get language => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -48,7 +47,6 @@ abstract class $CategoryModelCopyWith<$Res> {
       String? description,
       String? image,
       List<SubCategoryModel>? children,
-      String titleEn,
       Map<String, dynamic> language});
 }
 
@@ -71,7 +69,6 @@ class _$CategoryModelCopyWithImpl<$Res, $Val extends CategoryModel>
     Object? description = freezed,
     Object? image = freezed,
     Object? children = freezed,
-    Object? titleEn = null,
     Object? language = null,
   }) {
     return _then(_value.copyWith(
@@ -99,10 +96,6 @@ class _$CategoryModelCopyWithImpl<$Res, $Val extends CategoryModel>
           ? _value.children
           : children // ignore: cast_nullable_to_non_nullable
               as List<SubCategoryModel>?,
-      titleEn: null == titleEn
-          ? _value.titleEn
-          : titleEn // ignore: cast_nullable_to_non_nullable
-              as String,
       language: null == language
           ? _value.language
           : language // ignore: cast_nullable_to_non_nullable
@@ -126,7 +119,6 @@ abstract class _$$CategoryModelImplCopyWith<$Res>
       String? description,
       String? image,
       List<SubCategoryModel>? children,
-      String titleEn,
       Map<String, dynamic> language});
 }
 
@@ -147,7 +139,6 @@ class __$$CategoryModelImplCopyWithImpl<$Res>
     Object? description = freezed,
     Object? image = freezed,
     Object? children = freezed,
-    Object? titleEn = null,
     Object? language = null,
   }) {
     return _then(_$CategoryModelImpl(
@@ -175,10 +166,6 @@ class __$$CategoryModelImplCopyWithImpl<$Res>
           ? _value._children
           : children // ignore: cast_nullable_to_non_nullable
               as List<SubCategoryModel>?,
-      titleEn: null == titleEn
-          ? _value.titleEn
-          : titleEn // ignore: cast_nullable_to_non_nullable
-              as String,
       language: null == language
           ? _value._language
           : language // ignore: cast_nullable_to_non_nullable
@@ -198,7 +185,6 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
       this.description,
       this.image,
       final List<SubCategoryModel>? children,
-      this.titleEn = '',
       final Map<String, dynamic> language = const {}})
       : _children = children,
         _language = language,
@@ -227,9 +213,6 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
     return EqualUnmodifiableListView(value);
   }
 
-  @override
-  @JsonKey()
-  final String titleEn;
   final Map<String, dynamic> _language;
   @override
   @JsonKey()
@@ -241,7 +224,7 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CategoryModel(id: $id, title: $title, slug: $slug, description: $description, image: $image, children: $children, titleEn: $titleEn, language: $language)';
+    return 'CategoryModel(id: $id, title: $title, slug: $slug, description: $description, image: $image, children: $children, language: $language)';
   }
 
   @override
@@ -255,7 +238,6 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('description', description))
       ..add(DiagnosticsProperty('image', image))
       ..add(DiagnosticsProperty('children', children))
-      ..add(DiagnosticsProperty('titleEn', titleEn))
       ..add(DiagnosticsProperty('language', language));
   }
 
@@ -271,7 +253,6 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
                 other.description == description) &&
             (identical(other.image, image) || other.image == image) &&
             const DeepCollectionEquality().equals(other._children, _children) &&
-            (identical(other.titleEn, titleEn) || other.titleEn == titleEn) &&
             const DeepCollectionEquality().equals(other._language, _language));
   }
 
@@ -285,7 +266,6 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
       description,
       image,
       const DeepCollectionEquality().hash(_children),
-      titleEn,
       const DeepCollectionEquality().hash(_language));
 
   @JsonKey(ignore: true)
@@ -310,7 +290,6 @@ abstract class _CategoryModel extends CategoryModel {
       final String? description,
       final String? image,
       final List<SubCategoryModel>? children,
-      final String titleEn,
       final Map<String, dynamic> language}) = _$CategoryModelImpl;
   const _CategoryModel._() : super._();
 
@@ -329,8 +308,6 @@ abstract class _CategoryModel extends CategoryModel {
   String? get image;
   @override
   List<SubCategoryModel>? get children;
-  @override
-  String get titleEn;
   @override
   Map<String, dynamic> get language;
   @override

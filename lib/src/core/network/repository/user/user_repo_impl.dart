@@ -15,7 +15,6 @@ class UserRepositoryImpl extends UserRepository {
 
   UserRepositoryImpl(this._client);
 
-  /// checked
   @override
   Future<ApiResult<LoginResponse>> login({required email, required password}) async {
     var apiUrl = '${ApiConfig.apiUrl}/api/v1/login';
@@ -34,7 +33,6 @@ class UserRepositoryImpl extends UserRepository {
     );
   }
 
-  /// checked
   @override
   Future<ApiResult<CloseShiftResponseModel>> closeShift() async {
     var waiterId = LocalStorage.getDataLogin()?.user?.id;

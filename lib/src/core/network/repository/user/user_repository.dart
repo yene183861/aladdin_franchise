@@ -3,8 +3,9 @@ import 'package:aladdin_franchise/src/core/network/repository/responses/login.da
 import 'package:aladdin_franchise/src/data/response/close_shift.dart';
 
 abstract class UserRepository {
+  /// checked
   Future<ApiResult<LoginResponse>> login({required email, required password});
 
-  /// chốt ca
+  /// checked
   Future<ApiResult<CloseShiftResponseModel>> closeShift();
 }

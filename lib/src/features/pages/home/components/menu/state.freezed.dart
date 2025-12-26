@@ -16,19 +16,14 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$MenuState {
-  /// danh mục, món
-  PageState get productsState => throw _privateConstructorUsedError;
+  ProcessState get productState => throw _privateConstructorUsedError;
   List<CategoryModel> get categories => throw _privateConstructorUsedError;
   List<ProductModel> get products => throw _privateConstructorUsedError;
   List<TagProductModel> get tags => throw _privateConstructorUsedError;
-
-  /// chứa category, subcategory, dấu >
   List<dynamic> get menuCategoryItem => throw _privateConstructorUsedError;
   CategoryModel? get categorySelect => throw _privateConstructorUsedError;
   SubCategoryModel? get subCategorySelect => throw _privateConstructorUsedError;
   TagProductModel? get tagSelect => throw _privateConstructorUsedError;
-
-  ///
   String get search => throw _privateConstructorUsedError;
   bool get checkReloadWhenHiddenApp => throw _privateConstructorUsedError;
 
@@ -43,7 +38,7 @@ abstract class $MenuStateCopyWith<$Res> {
       _$MenuStateCopyWithImpl<$Res, MenuState>;
   @useResult
   $Res call(
-      {PageState productsState,
+      {ProcessState productState,
       List<CategoryModel> categories,
       List<ProductModel> products,
       List<TagProductModel> tags,
@@ -54,7 +49,7 @@ abstract class $MenuStateCopyWith<$Res> {
       String search,
       bool checkReloadWhenHiddenApp});
 
-  $PageStateCopyWith<$Res> get productsState;
+  $ProcessStateCopyWith<$Res> get productState;
   $CategoryModelCopyWith<$Res>? get categorySelect;
   $SubCategoryModelCopyWith<$Res>? get subCategorySelect;
   $TagProductModelCopyWith<$Res>? get tagSelect;
@@ -73,7 +68,7 @@ class _$MenuStateCopyWithImpl<$Res, $Val extends MenuState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? productsState = null,
+    Object? productState = null,
     Object? categories = null,
     Object? products = null,
     Object? tags = null,
@@ -85,10 +80,10 @@ class _$MenuStateCopyWithImpl<$Res, $Val extends MenuState>
     Object? checkReloadWhenHiddenApp = null,
   }) {
     return _then(_value.copyWith(
-      productsState: null == productsState
-          ? _value.productsState
-          : productsState // ignore: cast_nullable_to_non_nullable
-              as PageState,
+      productState: null == productState
+          ? _value.productState
+          : productState // ignore: cast_nullable_to_non_nullable
+              as ProcessState,
       categories: null == categories
           ? _value.categories
           : categories // ignore: cast_nullable_to_non_nullable
@@ -130,9 +125,9 @@ class _$MenuStateCopyWithImpl<$Res, $Val extends MenuState>
 
   @override
   @pragma('vm:prefer-inline')
-  $PageStateCopyWith<$Res> get productsState {
-    return $PageStateCopyWith<$Res>(_value.productsState, (value) {
-      return _then(_value.copyWith(productsState: value) as $Val);
+  $ProcessStateCopyWith<$Res> get productState {
+    return $ProcessStateCopyWith<$Res>(_value.productState, (value) {
+      return _then(_value.copyWith(productState: value) as $Val);
     });
   }
 
@@ -182,7 +177,7 @@ abstract class _$$HomeStateImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {PageState productsState,
+      {ProcessState productState,
       List<CategoryModel> categories,
       List<ProductModel> products,
       List<TagProductModel> tags,
@@ -194,7 +189,7 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       bool checkReloadWhenHiddenApp});
 
   @override
-  $PageStateCopyWith<$Res> get productsState;
+  $ProcessStateCopyWith<$Res> get productState;
   @override
   $CategoryModelCopyWith<$Res>? get categorySelect;
   @override
@@ -214,7 +209,7 @@ class __$$HomeStateImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? productsState = null,
+    Object? productState = null,
     Object? categories = null,
     Object? products = null,
     Object? tags = null,
@@ -226,10 +221,10 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? checkReloadWhenHiddenApp = null,
   }) {
     return _then(_$HomeStateImpl(
-      productsState: null == productsState
-          ? _value.productsState
-          : productsState // ignore: cast_nullable_to_non_nullable
-              as PageState,
+      productState: null == productState
+          ? _value.productState
+          : productState // ignore: cast_nullable_to_non_nullable
+              as ProcessState,
       categories: null == categories
           ? _value._categories
           : categories // ignore: cast_nullable_to_non_nullable
@@ -274,7 +269,7 @@ class __$$HomeStateImplCopyWithImpl<$Res>
 
 class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   const _$HomeStateImpl(
-      {this.productsState = const PageState(status: PageCommonState.loading),
+      {this.productState = const ProcessState(status: StatusEnum.loading),
       final List<CategoryModel> categories = const [],
       final List<ProductModel> products = const [],
       final List<TagProductModel> tags = const [],
@@ -289,10 +284,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         _tags = tags,
         _menuCategoryItem = menuCategoryItem;
 
-  /// danh mục, món
   @override
   @JsonKey()
-  final PageState productsState;
+  final ProcessState productState;
   final List<CategoryModel> _categories;
   @override
   @JsonKey()
@@ -320,10 +314,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
     return EqualUnmodifiableListView(_tags);
   }
 
-  /// chứa category, subcategory, dấu >
   final List<dynamic> _menuCategoryItem;
-
-  /// chứa category, subcategory, dấu >
   @override
   @JsonKey()
   List<dynamic> get menuCategoryItem {
@@ -339,8 +330,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   final SubCategoryModel? subCategorySelect;
   @override
   final TagProductModel? tagSelect;
-
-  ///
   @override
   @JsonKey()
   final String search;
@@ -350,7 +339,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'MenuState(productsState: $productsState, categories: $categories, products: $products, tags: $tags, menuCategoryItem: $menuCategoryItem, categorySelect: $categorySelect, subCategorySelect: $subCategorySelect, tagSelect: $tagSelect, search: $search, checkReloadWhenHiddenApp: $checkReloadWhenHiddenApp)';
+    return 'MenuState(productState: $productState, categories: $categories, products: $products, tags: $tags, menuCategoryItem: $menuCategoryItem, categorySelect: $categorySelect, subCategorySelect: $subCategorySelect, tagSelect: $tagSelect, search: $search, checkReloadWhenHiddenApp: $checkReloadWhenHiddenApp)';
   }
 
   @override
@@ -358,7 +347,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'MenuState'))
-      ..add(DiagnosticsProperty('productsState', productsState))
+      ..add(DiagnosticsProperty('productState', productState))
       ..add(DiagnosticsProperty('categories', categories))
       ..add(DiagnosticsProperty('products', products))
       ..add(DiagnosticsProperty('tags', tags))
@@ -376,8 +365,8 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$HomeStateImpl &&
-            (identical(other.productsState, productsState) ||
-                other.productsState == productsState) &&
+            (identical(other.productState, productState) ||
+                other.productState == productState) &&
             const DeepCollectionEquality()
                 .equals(other._categories, _categories) &&
             const DeepCollectionEquality().equals(other._products, _products) &&
@@ -399,7 +388,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      productsState,
+      productState,
       const DeepCollectionEquality().hash(_categories),
       const DeepCollectionEquality().hash(_products),
       const DeepCollectionEquality().hash(_tags),
@@ -419,7 +408,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
 
 abstract class _HomeState implements MenuState {
   const factory _HomeState(
-      {final PageState productsState,
+      {final ProcessState productState,
       final List<CategoryModel> categories,
       final List<ProductModel> products,
       final List<TagProductModel> tags,
@@ -431,9 +420,7 @@ abstract class _HomeState implements MenuState {
       final bool checkReloadWhenHiddenApp}) = _$HomeStateImpl;
 
   @override
-
-  /// danh mục, món
-  PageState get productsState;
+  ProcessState get productState;
   @override
   List<CategoryModel> get categories;
   @override
@@ -441,8 +428,6 @@ abstract class _HomeState implements MenuState {
   @override
   List<TagProductModel> get tags;
   @override
-
-  /// chứa category, subcategory, dấu >
   List<dynamic> get menuCategoryItem;
   @override
   CategoryModel? get categorySelect;
@@ -451,8 +436,6 @@ abstract class _HomeState implements MenuState {
   @override
   TagProductModel? get tagSelect;
   @override
-
-  ///
   String get search;
   @override
   bool get checkReloadWhenHiddenApp;

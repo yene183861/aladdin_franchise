@@ -8,38 +8,6 @@ part 'order.freezed.dart';
 part 'order.g.dart';
 
 @freezed
-class OrdersResponse with _$OrdersResponse {
-  @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
-  const factory OrdersResponse({
-    required int status,
-    required OrdersResponseData data,
-  }) = _OrdersResponse;
-
-  factory OrdersResponse.fromJson(Map<String, dynamic> json) =>
-      _$OrdersResponseFromJson(json);
-  static String getModelInterface() {
-    return '''required int status,
-    required OrdersResponseData data,
-    OrdersRepositoryData{
-      required List<TableModel> notUse,
-      required List<TableModel> using,
-      required List<OrderModel> userUsing,
-      dynamic ipOrder,
-      @Default([]) List<OrderModel> waitingNotUse,
-      ---
-      TableModel{
-        required int id,
-        String? name,
-        int? capacity,
-        int? status,
-        int? restaurantId,
-      }
-    }
-    ''';
-  }
-}
-
-@freezed
 class OrdersResponseData with _$OrdersResponseData {
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory OrdersResponseData({

@@ -7,7 +7,10 @@ import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart'
 import 'package:aladdin_franchise/src/models/user_bank.dart';
 
 abstract class RestaurantRepository {
+  /// checked
   Future<ApiResult<List<UserBankModel>>> getBanks(ApiBankParam apiBankParam);
+
+  /// checked
   Future<ApiResult<List<PaymentMethod>>> getPaymentMethod({required int orderId});
   Future<ApiResult<({String? url, String? qr, int? expiryMin, String? message, int? status})>>
       getPaymentGateway({
@@ -27,6 +30,7 @@ abstract class RestaurantRepository {
     required dynamic orderId,
   });
 
+  /// checked
   Future<ApiResult<List<HistoryOrderModel>>> getOrderHistoryList({
     required DateTime startDate,
     required DateTime endDate,

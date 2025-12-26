@@ -3,6 +3,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'process_state.freezed.dart';
 
+// enum PageCommonState {
+//   normal,
+//   loading,
+//   success,
+//   error,
+// }
+
 @freezed
 class ProcessState with _$ProcessState {
   const factory ProcessState({

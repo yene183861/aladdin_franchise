@@ -68,24 +68,23 @@ class PaymentMethodDataBill with _$PaymentMethodDataBill {
       _$PaymentMethodDataBillFromJson(json);
 }
 
+///
+/// [isChangeTax] - cấu hình món được sửa thuế (0 - k được sửa, 1 - được sửa)
 @freezed
 class LineItemDataBill with _$LineItemDataBill {
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory LineItemDataBill({
     @Default(-1) int id,
     @Default('') String name,
-    @Default(0) dynamic price,
+    dynamic price,
     @Default(0) int count,
     @Default('_') String unit,
-    @Default('') dynamic tax,
+    dynamic tax,
     @Default('') String nameEn,
     @Default('') String codeProduct,
     @Default([]) List<SubLineItemDataBill> listItem,
-
-    /// được sửa thuế hay 0
-    /// 0 - k được sửa
-    /// 1 - được sửa
     @Default(0) int isChangeTax,
+    @Default({}) Map<String, dynamic> language,
   }) = _LineItemDataBill;
 
   factory LineItemDataBill.fromJson(Map<String, dynamic> json) => _$LineItemDataBillFromJson(json);

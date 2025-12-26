@@ -87,10 +87,10 @@ _$LineItemDataBillImpl _$$LineItemDataBillImplFromJson(
     _$LineItemDataBillImpl(
       id: (json['id'] as num?)?.toInt() ?? -1,
       name: json['name'] as String? ?? '',
-      price: json['price'] ?? 0,
+      price: json['price'],
       count: (json['count'] as num?)?.toInt() ?? 0,
       unit: json['unit'] as String? ?? '_',
-      tax: json['tax'] ?? '',
+      tax: json['tax'],
       nameEn: json['name_en'] as String? ?? '',
       codeProduct: json['code_product'] as String? ?? '',
       listItem: (json['list_item'] as List<dynamic>?)
@@ -99,6 +99,7 @@ _$LineItemDataBillImpl _$$LineItemDataBillImplFromJson(
               .toList() ??
           const [],
       isChangeTax: (json['is_change_tax'] as num?)?.toInt() ?? 0,
+      language: json['language'] as Map<String, dynamic>? ?? const {},
     );
 
 Map<String, dynamic> _$$LineItemDataBillImplToJson(
@@ -114,6 +115,7 @@ Map<String, dynamic> _$$LineItemDataBillImplToJson(
       'code_product': instance.codeProduct,
       'list_item': instance.listItem.map((e) => e.toJson()).toList(),
       'is_change_tax': instance.isChangeTax,
+      'language': instance.language,
     };
 
 _$SubLineItemDataBillImpl _$$SubLineItemDataBillImplFromJson(

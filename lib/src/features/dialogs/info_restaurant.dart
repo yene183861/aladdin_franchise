@@ -5,6 +5,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -247,7 +248,7 @@ class _ChipLanguageLocalWidget extends ConsumerWidget {
               Navigator.pop(context);
               await LocalStorage.setLanguageLocal(code);
               ref.invalidate(languageLocalProvider);
-              ref.read(homeProvider.notifier).getProducts();
+              ref.read(menuProvider.notifier).getProducts();
             },
           );
         } else {

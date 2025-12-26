@@ -1,10 +1,9 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/menu/components/list_product.dart';
+import 'package:aladdin_franchise/src/data/enum/status.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/components/barrel_component.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/tag_product.dart';
 import 'package:flutter/material.dart';
@@ -15,11 +14,11 @@ class ListTagsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var pageState = ref.watch(menuProvider.select((value) => value.productsState));
+    var productState = ref.watch(menuProvider.select((value) => value.productState));
     final tags = ref.watch(menuProvider.select((value) => value.tags));
 
-    switch (pageState.status) {
-      case PageCommonState.loading:
+    switch (productState.status) {
+      case StatusEnum.loading:
         return ListView.separated(
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
@@ -38,10 +37,10 @@ class ListTagsWidget extends ConsumerWidget {
           separatorBuilder: (context, index) => const Gap(12),
           itemCount: 2,
         );
-      case PageCommonState.normal:
-      case PageCommonState.error:
+      case StatusEnum.normal:
+      case StatusEnum.error:
         return Container();
-      case PageCommonState.success:
+      case StatusEnum.success:
     }
 
     return ListView.separated(

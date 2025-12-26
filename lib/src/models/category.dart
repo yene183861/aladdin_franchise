@@ -17,27 +17,10 @@ class CategoryModel with _$CategoryModel {
     String? description,
     String? image,
     List<SubCategoryModel>? children,
-    @Default('') String titleEn,
     @Default({}) Map<String, dynamic> language,
   }) = _CategoryModel;
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) => _$CategoryModelFromJson(json);
-
-  static String getModelInterface() {
-    return '''dynamic id,
-    required String title,
-    String? slug,
-    String? description,
-    String? image,
-    List<SubCategoryModel>? children,
-    @Default('') String titleEn,
-    @Default({}) Map<String, dynamic> language,
-    ---
-    SubCategoryModel{
-      ${SubCategoryModel.getModelInterface()}
-    }
-    ''';
-  }
 
   const CategoryModel._();
   String getNameView() {

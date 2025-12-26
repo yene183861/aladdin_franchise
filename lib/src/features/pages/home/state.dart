@@ -26,34 +26,6 @@ import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
 
 part 'state.freezed.dart';
 
-enum HomeTabEnum {
-  dashboard,
-  order,
-  table,
-  reservation,
-  history,
-  o2o,
-}
-
-extension HomeTabEnumEx on HomeTabEnum {
-  String get title {
-    switch (this) {
-      case HomeTabEnum.dashboard:
-        return 'Dashboard';
-      case HomeTabEnum.order:
-        return 'Order';
-      case HomeTabEnum.table:
-        return 'Table';
-      case HomeTabEnum.reservation:
-        return 'Reservation';
-      case HomeTabEnum.history:
-        return 'History';
-      case HomeTabEnum.o2o:
-        return 'Order to online';
-    }
-  }
-}
-
 enum HomeEvent {
   normal,
   checkCode,

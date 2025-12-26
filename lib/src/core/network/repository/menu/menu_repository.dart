@@ -3,8 +3,10 @@ import 'package:aladdin_franchise/src/core/network/repository/responses/category
 import 'package:aladdin_franchise/src/models/product.dart';
 
 abstract class MenuRepository {
+  /// checked
   Future<ApiResult<CategoryResponseData>> getCategory();
 
+  /// checked
   Future<ApiResult<List<ProductModel>>> getProduct(
     int? categoryId, {
     int? typeOrder,

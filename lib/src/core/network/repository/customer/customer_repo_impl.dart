@@ -16,7 +16,6 @@ class CustomerRepositoryImpl extends CustomerRepository {
 
   CustomerRepositoryImpl(this._client);
 
-  /// checked
   @override
   Future<ApiResult<CustomerResponseData>> findCustomer(
       {required String phoneNumber, required OrderModel order}) async {
@@ -44,7 +43,6 @@ class CustomerRepositoryImpl extends CustomerRepository {
     );
   }
 
-  /// checked
   @override
   Future<ApiResult<bool>> createCustomer({
     required String phone,
@@ -81,12 +79,13 @@ class CustomerRepositoryImpl extends CustomerRepository {
         action: AppLogAction.createCustomer,
         api: apiUrl,
         request: body,
+        order: order,
       ),
     );
   }
 
   @override
-  Future<ApiResult<void>> resetCustomer(int orderId) async {
+  Future<ApiResult<void>> deleteCustomer(int orderId) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v1/status-lock-order?order_id=$orderId";
     return safeCallApi(
       () {
@@ -99,26 +98,5 @@ class CustomerRepositoryImpl extends CustomerRepository {
         order: OrderModel(id: orderId),
       ),
     );
-    // final apiUrl = "${ApiConfig.statusLockOrder}?order_id=$orderId";
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.resetCustomer,
-    //   api: apiUrl,
-    // );
-    // try {
-    //   final response = await restClient.get(Uri.parse(apiUrl));
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //   );
-    //   if (response.statusCode != 200) {
-    //     checkLockedOrder(response);
-    //     throw AppException.fromHttpResponse(response);
-    //   }
-    // } catch (ex) {
-    //   showLog(ex.toString(), flags: 'resetCustomer ex');
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
   }
 }

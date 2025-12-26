@@ -1,10 +1,10 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/data/enum/status.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/components/list_product.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/category.dart';
@@ -31,13 +31,13 @@ class ListCategoryWidget extends ConsumerStatefulWidget {
 class _ListCategoryWidgetState extends ConsumerState<ListCategoryWidget> {
   @override
   Widget build(BuildContext context) {
-    var productsState = ref.watch(menuProvider.select((value) => value.productsState));
+    var productState = ref.watch(menuProvider.select((value) => value.productState));
     var categories = ref.watch(menuProvider.select((value) => value.categories));
     var categorySelect = ref.watch(menuProvider.select((value) => value.categorySelect));
     var subCategorySelect = ref.watch(menuProvider.select((value) => value.subCategorySelect));
     bool showMenuIcon = categories.any((e) => (e.children ?? []).isNotEmpty);
-    switch (productsState.status) {
-      case PageCommonState.loading:
+    switch (productState.status) {
+      case StatusEnum.loading:
         return ListView.separated(
           padding: const EdgeInsets.only(left: 8),
           scrollDirection: Axis.horizontal,
@@ -55,11 +55,11 @@ class _ListCategoryWidgetState extends ConsumerState<ListCategoryWidget> {
           separatorBuilder: (context, index) => const Gap(8),
           itemCount: 8,
         );
-      case PageCommonState.error:
-      case PageCommonState.normal:
+      case StatusEnum.error:
+      case StatusEnum.normal:
         return const SizedBox.shrink();
 
-      case PageCommonState.success:
+      case StatusEnum.success:
     }
     if (categories.isEmpty) {
       return const SizedBox.shrink();
@@ -90,8 +90,8 @@ class _ListCategoryWidgetState extends ConsumerState<ListCategoryWidget> {
         dataView.add(item);
       }
     }
-    var itemScrollController = ref.read(homeProvider.notifier).categoryScrollController;
-    var itemPositionsListener = ref.read(homeProvider.notifier).categoryPositionsListener;
+    var itemScrollController = ref.read(menuProvider.notifier).categoryScrollController;
+    var itemPositionsListener = ref.read(menuProvider.notifier).categoryPositionsListener;
 
     return Row(
       children: [
@@ -179,8 +179,8 @@ class _ListCategoryPopup extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final categories = ref.watch(homeProvider.select((value) => value.categories));
-    final categorySelect = ref.watch(homeProvider.select((value) => value.categorySelect));
+    final categories = ref.watch(menuProvider.select((value) => value.categories));
+    final categorySelect = ref.watch(menuProvider.select((value) => value.categorySelect));
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: ListView.separated(

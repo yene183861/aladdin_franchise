@@ -7,8 +7,6 @@ import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
-// final restClient = RestClient();
-
 class RestClient extends http.BaseClient {
   final http.Client _httpClient;
 

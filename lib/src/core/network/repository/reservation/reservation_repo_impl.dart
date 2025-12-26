@@ -4,7 +4,6 @@ import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
 import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
-import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/models/param/get_reservation_param.dart';
 import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
@@ -22,10 +21,7 @@ class ReservationRepositoryImpl extends ReservationRepository {
     return safeCallApi(
       () async {
         final url = Uri.parse(apiUrl);
-        return _client.post(
-          url,
-          body: body,
-        );
+        return _client.post(url, body: body);
       },
       wrapperResponse: true,
       dataKey: 'data',
@@ -39,11 +35,6 @@ class ReservationRepositoryImpl extends ReservationRepository {
 
   @override
   Future<ApiResult<List<ReservationModel>>> getReservations(GetReservationParam param) async {
-    // var param = GetReservationParam(
-    //   retaurantId: LocalStorage.getDataLogin()?.restaurant?.id ?? 0,
-    //   startDate: DateTime.now(),
-    //   endDate: DateTime.now(),
-    // );
     final apiUrl = "${ApiConfig.apiUrl}/api/v1/reservation?${param.toParamRequest()}";
     var syn = await syncReservation(param);
     if (!syn.isSuccess) {

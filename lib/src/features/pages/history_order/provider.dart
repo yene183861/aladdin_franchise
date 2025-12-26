@@ -3,16 +3,19 @@ import 'dart:math';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
+import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/repository/order/order_repository.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/data_bill.dart';
 import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
+import 'package:aladdin_franchise/src/data/enum/status.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/edit_tax_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/models/data_bill.dart';
@@ -91,7 +94,6 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
           if (dataBill.error != null) {
             throw dataBill.error!;
           }
-
           List<LineItemDataBill> itemsPrint = List<LineItemDataBill>.from(dataBill.itemsPrint);
 
           PriceDataBill price = dataBill.price;
@@ -149,7 +151,6 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
           if (paymentMethodSelect == null) {
             throw 'Không thể tìm thấy phương thức thanh toán đã tạm tính với đơn bàn này';
           }
-
           if (paymentAmount == -1.0) {
             if (paymentMethodSelect.isGateway) {
               paymentAmount = 0.0;
@@ -157,23 +158,30 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
               paymentAmount = double.tryParse(price.totalPriceFinal.toString()) ?? 0.0;
             }
           }
-
+          showLogs(paymentAmount, flags: 'paymentAmount 1');
           if (requireCompleteBill) {
-            var homeState = ref.read(homeProvider);
+            var homeState = ref.read(menuProvider);
             List<ProductModel> products = [];
             if (isOnline) {
               if (kTypeOrder == AppConfig.orderOnlineValue &&
-                  homeState.productsState.status == PageCommonState.success) {
+                  homeState.productState.status == StatusEnum.success) {
                 onlineProducts = List<ProductModel>.from(homeState.products);
               } else {
                 if (onlineProducts.isEmpty) {
                   int retry = 0;
                   while (retry < 3) {
                     try {
-                      var res = await ref
+                      var result = await ref
                           .read(menuRepositoryProvider)
-                          .getProduct(null, typeOrder: AppConfig.orderOnlineValue);
-                      onlineProducts = List<ProductModel>.from(res.data ?? []);
+                          .getProduct(null, typeOrder: TypeOrderEnum.online.type);
+                      if (!result.isSuccess) {
+                        throw AppException(
+                          statusCode: result.statusCode,
+                          message: result.error,
+                        );
+                      }
+
+                      onlineProducts = List<ProductModel>.from(result.data ?? []);
                       break;
                     } catch (ex) {
                       retry++;
@@ -188,17 +196,23 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
               products = List<ProductModel>.from(onlineProducts);
             } else {
               if (kTypeOrder == AppConfig.orderOfflineValue &&
-                  homeState.productsState.status == PageCommonState.success) {
+                  homeState.productState.status == StatusEnum.success) {
                 offlineProducts = List<ProductModel>.from(homeState.products);
               } else {
                 if (offlineProducts.isEmpty) {
                   int retry = 0;
                   while (retry < 3) {
                     try {
-                      var res = await ref
+                      var result = await ref
                           .read(menuRepositoryProvider)
-                          .getProduct(null, typeOrder: AppConfig.orderOfflineValue);
-                      offlineProducts = List<ProductModel>.from(res.data ?? []);
+                          .getProduct(null, typeOrder: TypeOrderEnum.offline.type);
+                      if (!result.isSuccess) {
+                        throw AppException(
+                          statusCode: result.statusCode,
+                          message: result.error,
+                        );
+                      }
+                      offlineProducts = List<ProductModel>.from(result.data ?? []);
                       break;
                     } catch (ex) {
                       retry++;
@@ -212,13 +226,14 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
               }
               products = List<ProductModel>.from(offlineProducts);
             }
+            showLogs(null, flags: 'checkTax 1');
             var checkTax = _checkValidTaxItemsPrint(
               requireUpdateTax: paymentMethodSelect.requireEditTax,
               itemsPrint: itemsPrint,
               products: products,
             );
+            showLogs(checkTax, flags: 'checkTax');
             var tax = Map<int, Map<String, dynamic>>.from(checkTax.tax);
-
             if (!checkTax.valid) {
               // dialog sửa thuế
               if (context.mounted) {
@@ -359,9 +374,9 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
               );
             }
           }
-
+          showLogs(requireCompleteBill, flags: 'requireCompleteBill');
           if (requireCompleteBill) {
-            await _orderRepository.completeBill(
+            var result = await _orderRepository.completeBill(
                 order: order,
                 description: dataBill.description,
                 isPrintPeople: orderPrint.isPrintPeople ? 1 : 0,
@@ -375,6 +390,13 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                 eSaleName: '',
                 eSaleCode: '',
                 arrMethod: ['${paymentMethodSelect.key}--$paymentAmount']);
+            if (!result.isSuccess) {
+              throw AppException(
+                statusCode: result.statusCode,
+                message: result.error,
+              );
+            }
+
             if (requireCompleteBill) {
               refreshData = true;
             }
@@ -491,6 +513,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
 
       return (error: null, refreshData: refreshData);
     } catch (ex) {
+      showLogs(ex, flags: 'ex printBill');
       state = state.copyWith(event: HistoryOrderEvent.normal);
       return (error: ex.toString(), refreshData: refreshData);
     }
@@ -560,6 +583,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
         portrait: '',
       );
     } catch (ex) {
+      showLogs(ex, flags: 'ex 1122');
       return (
         error: ex.toString(),
         itemsPrint: <LineItemDataBill>[],
@@ -577,26 +601,53 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
     }
   }
 
-  ({bool valid, Map<int, double> tax}) _checkValidTaxItemsPrint({
+  // ({bool valid, Map<int, double> tax})
+  ({bool valid, Map<int, Map<String, dynamic>> tax}) _checkValidTaxItemsPrint({
     required List<ProductModel> products,
     required List<LineItemDataBill> itemsPrint,
     bool requireUpdateTax = false,
   }) {
     bool valid = true;
-    Map<int, double> tax = {};
+    Map<int, Map<String, dynamic>> tax = {};
+    // Map<int, double> tax = {};
     for (var item in itemsPrint) {
-      tax[item.id] = item.getTax1();
+      // tax[item.id] = item.getTax1();
+
       var p = products.firstWhereOrNull((e) => e.id == item.id);
       if (p != null) {
-        tax[item.id] = p.getTax;
-        if (requireUpdateTax) {
-          if (item.getTax1() == 0) {
-            valid = false;
-          }
+        if (item.isChangeTax == 1) {
+          valid = false;
+          tax[item.id] = {
+            'use_default': false,
+            'default': p.getTax * 1.0,
+          };
         } else {
+          // k cần phân bổ thuế
           if (item.getTax1() != p.getTax) {
             valid = false;
+            tax[item.id] = {
+              'use_default': true,
+              'default': p.getTax * 1.0,
+            };
           }
+        }
+        // tax[item.id] = p.getTax;
+        // if (requireUpdateTax) {
+        //   if (item.getTax1() == 0) {
+        //     valid = false;
+        //   }
+        // } else {
+        //   if (item.getTax1() != p.getTax) {
+        //     valid = false;
+        //   }
+        // }
+      } else {
+        if (item.isChangeTax == 1 && requireUpdateTax && item.getTax1() == 0) {
+          valid = false;
+          tax[item.id] = {
+            'use_default': false,
+            'default': 0.0,
+          };
         }
       }
     }

@@ -11,7 +11,6 @@ _$ProductModelImpl _$$ProductModelImplFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num).toInt(),
       categoryId: (json['category_id'] as num?)?.toInt() ?? -1,
       name: json['name'] as String? ?? '',
-      nameEn: json['name_en'] as String? ?? '',
       language: json['language'] as Map<String, dynamic>? ?? const {},
       printerType: (json['printer_type'] as num?)?.toInt(),
       slug: json['slug'] as String?,
@@ -26,7 +25,7 @@ _$ProductModelImpl _$$ProductModelImplFromJson(Map<String, dynamic> json) =>
       image: json['image'] as String?,
       description: json['description'] as String?,
       numberSelecting: (json['number_selecting'] as num?)?.toInt() ?? 0,
-      noteForProcessOrder: json['note_for_process_order'] as String?,
+      note: json['note'] as String?,
       tags: (json['tags'] as List<dynamic>?)
           ?.map((e) => (e as num).toInt())
           .toList(),
@@ -41,7 +40,6 @@ Map<String, dynamic> _$$ProductModelImplToJson(_$ProductModelImpl instance) =>
       'id': instance.id,
       'category_id': instance.categoryId,
       'name': instance.name,
-      'name_en': instance.nameEn,
       'language': instance.language,
       'printer_type': instance.printerType,
       'slug': instance.slug,
@@ -56,7 +54,7 @@ Map<String, dynamic> _$$ProductModelImplToJson(_$ProductModelImpl instance) =>
       'image': instance.image,
       'description': instance.description,
       'number_selecting': instance.numberSelecting,
-      'note_for_process_order': instance.noteForProcessOrder,
+      'note': instance.note,
       'tags': instance.tags,
       'quantity_promotion': instance.quantityPromotion,
       'unit_price_discount': instance.unitPriceDiscount,

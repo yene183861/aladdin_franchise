@@ -5,12 +5,11 @@ import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/repository/menu/menu_repository.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
-import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
-import 'package:aladdin_franchise/src/features/pages/home/state.dart';
+import 'package:aladdin_franchise/src/data/enum/status.dart';
+import 'package:aladdin_franchise/src/features/common/process_state.dart';
 import 'package:aladdin_franchise/src/models/category.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/tag_product.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
@@ -99,7 +98,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
 
   Future<void> getProducts() async {
     try {
-      state = state.copyWith(productsState: const PageState(status: PageCommonState.loading));
+      state = state.copyWith(productState: const ProcessState(status: StatusEnum.loading));
       final categoryResult = await _menuRepository.getCategory();
       if (!categoryResult.isSuccess) {
         throw AppException(
@@ -110,7 +109,6 @@ class MenuNotifier extends StateNotifier<MenuState> {
 
       List<CategoryModel> categories = categoryResult.data?.data ?? [];
       List<TagProductModel> tags = categoryResult.data?.tags ?? [];
-      showLogs(categories, flags: 'categories');
       final productsRepo = await _menuRepository.getProduct(null);
       if (!productsRepo.isSuccess) {
         throw AppException(
@@ -158,15 +156,15 @@ class MenuNotifier extends StateNotifier<MenuState> {
         products: products,
         tags: tags,
         menuCategoryItem: menuCategoryItem,
-        productsState: const PageState(status: PageCommonState.success),
+        productState: const ProcessState(status: StatusEnum.success),
         tagSelect: tags.firstWhereOrNull((e) => e == state.tagSelect),
       );
     } catch (ex) {
       if (mounted) {
         state = state.copyWith(
-          productsState: PageState(
-            status: PageCommonState.error,
-            messageError: ex.toString(),
+          productState: ProcessState(
+            status: StatusEnum.error,
+            message: ex.toString(),
           ),
         );
       }

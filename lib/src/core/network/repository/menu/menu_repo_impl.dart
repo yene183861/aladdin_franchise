@@ -13,7 +13,6 @@ class MenuRepositoryImpl extends MenuRepository {
 
   MenuRepositoryImpl(this._client);
 
-  /// checked
   @override
   Future<ApiResult<CategoryResponseData>> getCategory() {
     final apiUrl = "${ApiConfig.apiUrl}/api/v1/make-waiter-restaurant-category";
@@ -31,7 +30,6 @@ class MenuRepositoryImpl extends MenuRepository {
     );
   }
 
-  /// checked
   @override
   Future<ApiResult<List<ProductModel>>> getProduct(
     int? categoryId, {

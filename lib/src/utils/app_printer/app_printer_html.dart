@@ -116,8 +116,8 @@ class AppPrinterHtmlUtils {
     String dishTable = "";
 
     var finalNote = note;
-    if (!totalBill && (product.firstOrNull?.noteForProcessOrder ?? '').isNotEmpty) {
-      finalNote = (product.firstOrNull?.noteForProcessOrder ?? '');
+    if (!totalBill && (product.firstOrNull?.note ?? '').isNotEmpty) {
+      finalNote = (product.firstOrNull?.note ?? '');
     }
     if (cancel) {
       finalNote = note;

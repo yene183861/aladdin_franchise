@@ -241,7 +241,7 @@ class __NotePerItemWidgetState extends ConsumerState<_NotePerItemWidget> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.item.noteForProcessOrder ?? '');
+    _controller = TextEditingController(text: widget.item.note ?? '');
     // _focusNode.addListener(() {
     //   showLogs('');
     //   if (!_focusNode.hasFocus) {

@@ -184,16 +184,6 @@ final tableAvailableUpdateOrderProvider = FutureProvider.autoDispose<
   return (notUse: <TableModel>[], tableSelect: <TableModel>[], using: <TableModel>[]);
 });
 
-/// lấy danh sách món đã gọi + lịch sử gọi món
-// final FutureProvider<ProductCheckoutResponseData?> productCheckoutProvider =
-//     FutureProvider<ProductCheckoutResponseData?>(
-//         (FutureProviderRef<ProductCheckoutResponseData?> ref) async {
-//   _logEvent('productCheckoutProvider');
-//   final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
-//   final data = await ref.read(orderRepositoryProvider).getProductCheckout(orderSelect);
-//   return productRepo.data?.first;
-// });
-
 /// Lấy tổng tiền hoá đơn hiện tại
 final FutureProvider<double> priceProductCheckoutProvider =
     FutureProvider<double>((FutureProviderRef<double> ref) async {
@@ -271,14 +261,6 @@ final tableAvailableAndWaiterTransferOrderProvider = FutureProvider.autoDispose<
   );
 });
 
-/// Lấy danh sách phục vụ tại nhà hàng
-
-// final waitersProvider = FutureProvider.autoDispose<List<WaiterModel>>((ref) async {
-//   return [];
-//   // final orderRepo = await ref.read(orderRepositoryProvider).getOrders();
-//   // return orderRepo.data.waiters ?? [];
-// });
-
 final historyOrderProvider = FutureProvider.autoDispose<List<HistoryOrderModel>>((ref) async {
   var startDate = ref.watch(historyOrderPageProvider.select((value) => value.startDate));
   var endDate = ref.watch(historyOrderPageProvider.select((value) => value.endDate));
@@ -310,9 +292,13 @@ final reservationsProvider = FutureProvider.autoDispose.family<List<ReservationM
       endDate: date,
     );
 
-    showLogs(date, flags: 'date lấy lịch');
     var result = await ref.read(reservationRepositoryProvider).getReservations(param);
-    if (!result.isSuccess) throw AppException(statusCode: result.statusCode, message: result.error);
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
     return result.data ?? [];
   },
 );
