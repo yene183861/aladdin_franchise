@@ -43,12 +43,6 @@ class MenuNotifier extends StateNotifier<MenuState> {
   final ItemScrollController categoryScrollController = ItemScrollController();
   final ItemPositionsListener categoryPositionsListener = ItemPositionsListener.create();
 
-  final selectedItemsScrollCtrl = ItemScrollController();
-  final selectedItemsPositionsListener = ItemPositionsListener.create();
-
-  final selectingItemsScrollCtrl = ItemScrollController();
-  final selectingItemsPositionsListener = ItemPositionsListener.create();
-
   @override
   void dispose() {
     ctrlSearch.dispose();
@@ -172,6 +166,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
   }
 
   void changeSearch(String text) {
+    
     state = state.copyWith(search: text);
     if (ctrlSearch.text != text) {
       ctrlSearch.text = text;

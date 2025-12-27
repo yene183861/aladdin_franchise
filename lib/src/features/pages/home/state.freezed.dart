@@ -172,89 +172,56 @@ mixin _$HomeState {
   /// đơn bàn
   OrderModel? get orderSelect => throw _privateConstructorUsedError;
   bool get lockedOrder => throw _privateConstructorUsedError;
-
-  /// các món đang gọi
   List<ProductModel> get productsSelecting =>
       throw _privateConstructorUsedError;
-
-  /// các món đã chọn (map từ ProductCheckoutModel -> ProductModel)
-  List<ProductModel> get productsSelected =>
-      throw _privateConstructorUsedError; // các món đã gọi
+  List<ProductModel> get productsSelected => throw _privateConstructorUsedError;
   List<ProductCheckoutModel> get productCheckout =>
       throw _privateConstructorUsedError;
   PageState get productCheckoutState => throw _privateConstructorUsedError;
-
-  /// khách hàng
   CustomerModel? get customer => throw _privateConstructorUsedError;
-
-  /// mã giảm giá
-  List<CustomerPolicyModel> get coupons =>
-      throw _privateConstructorUsedError; // danh sách vourcher sau khi áp mã giảm giá
+  List<CustomerPolicyModel> get coupons => throw _privateConstructorUsedError;
   List<PolicyResultModel> get vouchers => throw _privateConstructorUsedError;
   dynamic get createVouchers => throw _privateConstructorUsedError;
   PageState get applyPolicyState => throw _privateConstructorUsedError;
-
-  /// phương thức thanh toán
   List<PaymentMethod> get paymentMethods => throw _privateConstructorUsedError;
   PageState get paymentMethodState => throw _privateConstructorUsedError;
   PaymentMethod? get paymentMethodSelected =>
-      throw _privateConstructorUsedError; // trạng thái thanh toán gateway
-  bool get statusPaymentGateway =>
-      throw _privateConstructorUsedError; // tiền nhận được từ gateway
-  dynamic get totalPaymentGateway => throw _privateConstructorUsedError; // bank
+      throw _privateConstructorUsedError;
+  bool get statusPaymentGateway => throw _privateConstructorUsedError;
+  dynamic get totalPaymentGateway => throw _privateConstructorUsedError;
   List<UserBankModel> get banks => throw _privateConstructorUsedError;
   PageState get banksState => throw _privateConstructorUsedError;
-  UserBankModel? get bankSelect =>
-      throw _privateConstructorUsedError; // số tiền mặt khách đưa (áp dụng cho phương thức Tiền mặt)
-  double get cashReceivedAmount =>
-      throw _privateConstructorUsedError; // danh sách máy pos ATM
+  UserBankModel? get bankSelect => throw _privateConstructorUsedError;
+  double get cashReceivedAmount => throw _privateConstructorUsedError;
   PageState get listAtmPosState => throw _privateConstructorUsedError;
   List<AtmPosModel> get listAtmPos => throw _privateConstructorUsedError;
   AtmPosModel? get atmPosSelect => throw _privateConstructorUsedError;
-
-  /// hoá đơn
   OrderInvoice? get invoice => throw _privateConstructorUsedError;
   PageState get orderInvoiceState => throw _privateConstructorUsedError;
-
-  /// thông tin tiền
   DataBillResponseData get dataBill => throw _privateConstructorUsedError;
   PageState get dataBillState => throw _privateConstructorUsedError;
-
-  /// hoàn thành bill
   List<File> get imageBills => throw _privateConstructorUsedError;
   int get numberOfAdults => throw _privateConstructorUsedError;
   int get numberOfChildren => throw _privateConstructorUsedError;
-  String get kitchenNote =>
-      throw _privateConstructorUsedError; // nhóm chân dung KH
+  String get kitchenNote => throw _privateConstructorUsedError;
   CustomerPortrait? get customerPortraitSelect =>
       throw _privateConstructorUsedError;
-  List<CustomerPortrait> get customerPortraits =>
-      throw _privateConstructorUsedError;
-  String get completeNote => throw _privateConstructorUsedError; // nv sale
-// EmployeeSaleModel? employeeSaleSelect,
-  bool get printNumberOfPeople => throw _privateConstructorUsedError;
-
-  ///
-// tự động cuộn xuống cuối danh sách món đang gọi
-  bool get autoScrollProducts => throw _privateConstructorUsedError;
-
-  /// id của sản phẩm được thay đổi gần nhất
+  String get completeNote => throw _privateConstructorUsedError;
+  bool get printNumberOfPeople =>
+      throw _privateConstructorUsedError; // tự động cuộn xuống cuối danh sách món đang gọi
+  bool get autoScrollProducts =>
+      throw _privateConstructorUsedError; // id của sản phẩm được thay đổi gần nhất
   int? get changedProductId => throw _privateConstructorUsedError;
   bool get pinnedOrder => throw _privateConstructorUsedError;
   OrderTabEnum get orderTabSelect => throw _privateConstructorUsedError;
   List<OrderTabEnum> get orderTabs => throw _privateConstructorUsedError;
-  bool get displayOrderHistory =>
-      throw _privateConstructorUsedError; // @Default(false) bool cancelOrderItem,
+  bool get displayOrderHistory => throw _privateConstructorUsedError;
   List<OrderHistory> get orderHistory =>
       throw _privateConstructorUsedError; // o2o
 // @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
 // @Default(PageState()) PageState getO2ODataState,
   List<ChatMessageModel> get chatMessages => throw _privateConstructorUsedError;
   PageState get getChatMessageState => throw _privateConstructorUsedError;
-
-  /// reservation
-// @Default(PageState()) PageState getReservationsState,
-// @Default([]) List<ReservationModel> reservations,
   DiscountTypeEnum get discountTypeSelect => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -305,7 +272,6 @@ abstract class $HomeStateCopyWith<$Res> {
       int numberOfChildren,
       String kitchenNote,
       CustomerPortrait? customerPortraitSelect,
-      List<CustomerPortrait> customerPortraits,
       String completeNote,
       bool printNumberOfPeople,
       bool autoScrollProducts,
@@ -387,7 +353,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? numberOfChildren = null,
     Object? kitchenNote = null,
     Object? customerPortraitSelect = freezed,
-    Object? customerPortraits = null,
     Object? completeNote = null,
     Object? printNumberOfPeople = null,
     Object? autoScrollProducts = null,
@@ -550,10 +515,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.customerPortraitSelect
           : customerPortraitSelect // ignore: cast_nullable_to_non_nullable
               as CustomerPortrait?,
-      customerPortraits: null == customerPortraits
-          ? _value.customerPortraits
-          : customerPortraits // ignore: cast_nullable_to_non_nullable
-              as List<CustomerPortrait>,
       completeNote: null == completeNote
           ? _value.completeNote
           : completeNote // ignore: cast_nullable_to_non_nullable
@@ -809,7 +770,6 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       int numberOfChildren,
       String kitchenNote,
       CustomerPortrait? customerPortraitSelect,
-      List<CustomerPortrait> customerPortraits,
       String completeNote,
       bool printNumberOfPeople,
       bool autoScrollProducts,
@@ -905,7 +865,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? numberOfChildren = null,
     Object? kitchenNote = null,
     Object? customerPortraitSelect = freezed,
-    Object? customerPortraits = null,
     Object? completeNote = null,
     Object? printNumberOfPeople = null,
     Object? autoScrollProducts = null,
@@ -1068,10 +1027,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.customerPortraitSelect
           : customerPortraitSelect // ignore: cast_nullable_to_non_nullable
               as CustomerPortrait?,
-      customerPortraits: null == customerPortraits
-          ? _value._customerPortraits
-          : customerPortraits // ignore: cast_nullable_to_non_nullable
-              as List<CustomerPortrait>,
       completeNote: null == completeNote
           ? _value.completeNote
           : completeNote // ignore: cast_nullable_to_non_nullable
@@ -1165,7 +1120,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       this.numberOfChildren = 0,
       this.kitchenNote = '',
       this.customerPortraitSelect,
-      final List<CustomerPortrait> customerPortraits = const [],
       this.completeNote = '',
       this.printNumberOfPeople = false,
       this.autoScrollProducts = true,
@@ -1191,7 +1145,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         _banks = banks,
         _listAtmPos = listAtmPos,
         _imageBills = imageBills,
-        _customerPortraits = customerPortraits,
         _orderTabs = orderTabs,
         _orderHistory = orderHistory,
         _chatMessages = chatMessages;
@@ -1218,11 +1171,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final bool lockedOrder;
-
-  /// các món đang gọi
   final List<ProductModel> _productsSelecting;
-
-  /// các món đang gọi
   @override
   @JsonKey()
   List<ProductModel> get productsSelecting {
@@ -1232,10 +1181,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
     return EqualUnmodifiableListView(_productsSelecting);
   }
 
-  /// các món đã chọn (map từ ProductCheckoutModel -> ProductModel)
   final List<ProductModel> _productsSelected;
-
-  /// các món đã chọn (map từ ProductCheckoutModel -> ProductModel)
   @override
   @JsonKey()
   List<ProductModel> get productsSelected {
@@ -1245,9 +1191,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
     return EqualUnmodifiableListView(_productsSelected);
   }
 
-// các món đã gọi
   final List<ProductCheckoutModel> _productCheckout;
-// các món đã gọi
   @override
   @JsonKey()
   List<ProductCheckoutModel> get productCheckout {
@@ -1259,15 +1203,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final PageState productCheckoutState;
-
-  /// khách hàng
   @override
   final CustomerModel? customer;
-
-  /// mã giảm giá
   final List<CustomerPolicyModel> _coupons;
-
-  /// mã giảm giá
   @override
   @JsonKey()
   List<CustomerPolicyModel> get coupons {
@@ -1276,9 +1214,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
     return EqualUnmodifiableListView(_coupons);
   }
 
-// danh sách vourcher sau khi áp mã giảm giá
   final List<PolicyResultModel> _vouchers;
-// danh sách vourcher sau khi áp mã giảm giá
   @override
   @JsonKey()
   List<PolicyResultModel> get vouchers {
@@ -1292,11 +1228,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final PageState applyPolicyState;
-
-  /// phương thức thanh toán
   final List<PaymentMethod> _paymentMethods;
-
-  /// phương thức thanh toán
   @override
   @JsonKey()
   List<PaymentMethod> get paymentMethods {
@@ -1310,16 +1242,12 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   final PageState paymentMethodState;
   @override
   final PaymentMethod? paymentMethodSelected;
-// trạng thái thanh toán gateway
   @override
   @JsonKey()
   final bool statusPaymentGateway;
-// tiền nhận được từ gateway
   @override
   final dynamic totalPaymentGateway;
-// bank
   final List<UserBankModel> _banks;
-// bank
   @override
   @JsonKey()
   List<UserBankModel> get banks {
@@ -1333,11 +1261,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   final PageState banksState;
   @override
   final UserBankModel? bankSelect;
-// số tiền mặt khách đưa (áp dụng cho phương thức Tiền mặt)
   @override
   @JsonKey()
   final double cashReceivedAmount;
-// danh sách máy pos ATM
   @override
   @JsonKey()
   final PageState listAtmPosState;
@@ -1352,26 +1278,18 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
 
   @override
   final AtmPosModel? atmPosSelect;
-
-  /// hoá đơn
   @override
   final OrderInvoice? invoice;
   @override
   @JsonKey()
   final PageState orderInvoiceState;
-
-  /// thông tin tiền
   @override
   @JsonKey()
   final DataBillResponseData dataBill;
   @override
   @JsonKey()
   final PageState dataBillState;
-
-  /// hoàn thành bill
   final List<File> _imageBills;
-
-  /// hoàn thành bill
   @override
   @JsonKey()
   List<File> get imageBills {
@@ -1389,35 +1307,19 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final String kitchenNote;
-// nhóm chân dung KH
   @override
   final CustomerPortrait? customerPortraitSelect;
-  final List<CustomerPortrait> _customerPortraits;
-  @override
-  @JsonKey()
-  List<CustomerPortrait> get customerPortraits {
-    if (_customerPortraits is EqualUnmodifiableListView)
-      return _customerPortraits;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_customerPortraits);
-  }
-
   @override
   @JsonKey()
   final String completeNote;
-// nv sale
-// EmployeeSaleModel? employeeSaleSelect,
   @override
   @JsonKey()
   final bool printNumberOfPeople;
-
-  ///
 // tự động cuộn xuống cuối danh sách món đang gọi
   @override
   @JsonKey()
   final bool autoScrollProducts;
-
-  /// id của sản phẩm được thay đổi gần nhất
+// id của sản phẩm được thay đổi gần nhất
   @override
   final int? changedProductId;
   @override
@@ -1438,9 +1340,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final bool displayOrderHistory;
-// @Default(false) bool cancelOrderItem,
   final List<OrderHistory> _orderHistory;
-// @Default(false) bool cancelOrderItem,
   @override
   @JsonKey()
   List<OrderHistory> get orderHistory {
@@ -1467,17 +1367,13 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final PageState getChatMessageState;
-
-  /// reservation
-// @Default(PageState()) PageState getReservationsState,
-// @Default([]) List<ReservationModel> reservations,
   @override
   @JsonKey()
   final DiscountTypeEnum discountTypeSelect;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productsSelecting: $productsSelecting, productsSelected: $productsSelected, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, customerPortraits: $customerPortraits, completeNote: $completeNote, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, displayOrderHistory: $displayOrderHistory, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, discountTypeSelect: $discountTypeSelect)';
+    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productsSelecting: $productsSelecting, productsSelected: $productsSelected, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, completeNote: $completeNote, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, displayOrderHistory: $displayOrderHistory, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, discountTypeSelect: $discountTypeSelect)';
   }
 
   @override
@@ -1523,7 +1419,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       ..add(DiagnosticsProperty('kitchenNote', kitchenNote))
       ..add(
           DiagnosticsProperty('customerPortraitSelect', customerPortraitSelect))
-      ..add(DiagnosticsProperty('customerPortraits', customerPortraits))
       ..add(DiagnosticsProperty('completeNote', completeNote))
       ..add(DiagnosticsProperty('printNumberOfPeople', printNumberOfPeople))
       ..add(DiagnosticsProperty('autoScrollProducts', autoScrollProducts))
@@ -1612,8 +1507,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
                 other.kitchenNote == kitchenNote) &&
             (identical(other.customerPortraitSelect, customerPortraitSelect) ||
                 other.customerPortraitSelect == customerPortraitSelect) &&
-            const DeepCollectionEquality()
-                .equals(other._customerPortraits, _customerPortraits) &&
             (identical(other.completeNote, completeNote) ||
                 other.completeNote == completeNote) &&
             (identical(other.printNumberOfPeople, printNumberOfPeople) ||
@@ -1634,7 +1527,8 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
                 .equals(other._orderHistory, _orderHistory) &&
             const DeepCollectionEquality()
                 .equals(other._chatMessages, _chatMessages) &&
-            (identical(other.getChatMessageState, getChatMessageState) || other.getChatMessageState == getChatMessageState) &&
+            (identical(other.getChatMessageState, getChatMessageState) ||
+                other.getChatMessageState == getChatMessageState) &&
             (identical(other.discountTypeSelect, discountTypeSelect) || other.discountTypeSelect == discountTypeSelect));
   }
 
@@ -1678,7 +1572,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         numberOfChildren,
         kitchenNote,
         customerPortraitSelect,
-        const DeepCollectionEquality().hash(_customerPortraits),
         completeNote,
         printNumberOfPeople,
         autoScrollProducts,
@@ -1739,7 +1632,6 @@ abstract class _HomeState implements HomeState {
       final int numberOfChildren,
       final String kitchenNote,
       final CustomerPortrait? customerPortraitSelect,
-      final List<CustomerPortrait> customerPortraits,
       final String completeNote,
       final bool printNumberOfPeople,
       final bool autoScrollProducts,
@@ -1770,72 +1662,56 @@ abstract class _HomeState implements HomeState {
   @override
   bool get lockedOrder;
   @override
-
-  /// các món đang gọi
   List<ProductModel> get productsSelecting;
   @override
-
-  /// các món đã chọn (map từ ProductCheckoutModel -> ProductModel)
   List<ProductModel> get productsSelected;
-  @override // các món đã gọi
+  @override
   List<ProductCheckoutModel> get productCheckout;
   @override
   PageState get productCheckoutState;
   @override
-
-  /// khách hàng
   CustomerModel? get customer;
   @override
-
-  /// mã giảm giá
   List<CustomerPolicyModel> get coupons;
-  @override // danh sách vourcher sau khi áp mã giảm giá
+  @override
   List<PolicyResultModel> get vouchers;
   @override
   dynamic get createVouchers;
   @override
   PageState get applyPolicyState;
   @override
-
-  /// phương thức thanh toán
   List<PaymentMethod> get paymentMethods;
   @override
   PageState get paymentMethodState;
   @override
   PaymentMethod? get paymentMethodSelected;
-  @override // trạng thái thanh toán gateway
+  @override
   bool get statusPaymentGateway;
-  @override // tiền nhận được từ gateway
+  @override
   dynamic get totalPaymentGateway;
-  @override // bank
+  @override
   List<UserBankModel> get banks;
   @override
   PageState get banksState;
   @override
   UserBankModel? get bankSelect;
-  @override // số tiền mặt khách đưa (áp dụng cho phương thức Tiền mặt)
+  @override
   double get cashReceivedAmount;
-  @override // danh sách máy pos ATM
+  @override
   PageState get listAtmPosState;
   @override
   List<AtmPosModel> get listAtmPos;
   @override
   AtmPosModel? get atmPosSelect;
   @override
-
-  /// hoá đơn
   OrderInvoice? get invoice;
   @override
   PageState get orderInvoiceState;
   @override
-
-  /// thông tin tiền
   DataBillResponseData get dataBill;
   @override
   PageState get dataBillState;
   @override
-
-  /// hoàn thành bill
   List<File> get imageBills;
   @override
   int get numberOfAdults;
@@ -1843,23 +1719,15 @@ abstract class _HomeState implements HomeState {
   int get numberOfChildren;
   @override
   String get kitchenNote;
-  @override // nhóm chân dung KH
+  @override
   CustomerPortrait? get customerPortraitSelect;
   @override
-  List<CustomerPortrait> get customerPortraits;
-  @override
   String get completeNote;
-  @override // nv sale
-// EmployeeSaleModel? employeeSaleSelect,
+  @override
   bool get printNumberOfPeople;
-  @override
-
-  ///
-// tự động cuộn xuống cuối danh sách món đang gọi
+  @override // tự động cuộn xuống cuối danh sách món đang gọi
   bool get autoScrollProducts;
-  @override
-
-  /// id của sản phẩm được thay đổi gần nhất
+  @override // id của sản phẩm được thay đổi gần nhất
   int? get changedProductId;
   @override
   bool get pinnedOrder;
@@ -1869,7 +1737,7 @@ abstract class _HomeState implements HomeState {
   List<OrderTabEnum> get orderTabs;
   @override
   bool get displayOrderHistory;
-  @override // @Default(false) bool cancelOrderItem,
+  @override
   List<OrderHistory> get orderHistory;
   @override // o2o
 // @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
@@ -1878,10 +1746,6 @@ abstract class _HomeState implements HomeState {
   @override
   PageState get getChatMessageState;
   @override
-
-  /// reservation
-// @Default(PageState()) PageState getReservationsState,
-// @Default([]) List<ReservationModel> reservations,
   DiscountTypeEnum get discountTypeSelect;
   @override
   @JsonKey(ignore: true)

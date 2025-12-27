@@ -143,91 +143,53 @@ class HomeState with _$HomeState {
     /// đơn bàn
     OrderModel? orderSelect,
     @Default(false) bool lockedOrder,
-
-    /// các món đang gọi
     @Default([]) List<ProductModel> productsSelecting,
-
-    /// các món đã chọn (map từ ProductCheckoutModel -> ProductModel)
     @Default([]) List<ProductModel> productsSelected,
-    // các món đã gọi
     @Default([]) List<ProductCheckoutModel> productCheckout,
     @Default(PageState()) PageState productCheckoutState,
-
-    /// khách hàng
     CustomerModel? customer,
-
-    /// mã giảm giá
     @Default([]) List<CustomerPolicyModel> coupons,
-    // danh sách vourcher sau khi áp mã giảm giá
     @Default([]) List<PolicyResultModel> vouchers,
     dynamic createVouchers,
     @Default(PageState(status: PageCommonState.success)) PageState applyPolicyState,
-
-    /// phương thức thanh toán
     @Default([]) List<PaymentMethod> paymentMethods,
     @Default(PageState()) PageState paymentMethodState,
     PaymentMethod? paymentMethodSelected,
-    // trạng thái thanh toán gateway
     @Default(false) bool statusPaymentGateway,
-
-    // tiền nhận được từ gateway
     dynamic totalPaymentGateway,
-
-    // bank
     @Default([]) List<UserBankModel> banks,
     @Default(PageState()) PageState banksState,
     UserBankModel? bankSelect,
-
-    // số tiền mặt khách đưa (áp dụng cho phương thức Tiền mặt)
     @Default(0) double cashReceivedAmount,
-
-    // danh sách máy pos ATM
     @Default(PageState()) PageState listAtmPosState,
     @Default([]) List<AtmPosModel> listAtmPos,
     AtmPosModel? atmPosSelect,
-
-    /// hoá đơn
     OrderInvoice? invoice,
     @Default(PageState()) PageState orderInvoiceState,
-
-    /// thông tin tiền
     @Default(DataBillResponseData()) DataBillResponseData dataBill,
     @Default(PageState(status: PageCommonState.normal)) PageState dataBillState,
-
-    /// hoàn thành bill
     @Default([]) List<File> imageBills,
     @Default(1) int numberOfAdults,
     @Default(0) int numberOfChildren,
     @Default('') String kitchenNote,
-    // nhóm chân dung KH
     CustomerPortrait? customerPortraitSelect,
-    @Default([]) List<CustomerPortrait> customerPortraits,
     @Default('') String completeNote,
-    // nv sale
-    // EmployeeSaleModel? employeeSaleSelect,
     @Default(false) bool printNumberOfPeople,
 
-    ///
     // tự động cuộn xuống cuối danh sách món đang gọi
     @Default(true) bool autoScrollProducts,
-
-    /// id của sản phẩm được thay đổi gần nhất
+    // id của sản phẩm được thay đổi gần nhất
     int? changedProductId,
     @Default(false) bool pinnedOrder,
     @Default(OrderTabEnum.ordered) OrderTabEnum orderTabSelect,
     @Default([OrderTabEnum.ordering, OrderTabEnum.ordered]) List<OrderTabEnum> orderTabs,
     @Default(false) bool displayOrderHistory,
-    // @Default(false) bool cancelOrderItem,
     @Default([]) List<OrderHistory> orderHistory,
     // o2o
     // @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
     // @Default(PageState()) PageState getO2ODataState,
     @Default([]) List<ChatMessageModel> chatMessages,
     @Default(PageState(status: PageCommonState.loading)) PageState getChatMessageState,
-
-    /// reservation
-    // @Default(PageState()) PageState getReservationsState,
-    // @Default([]) List<ReservationModel> reservations,
     @Default(DiscountTypeEnum.vnd) DiscountTypeEnum discountTypeSelect,
   }) = _HomeState;
 }

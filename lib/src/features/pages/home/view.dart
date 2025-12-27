@@ -71,8 +71,6 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver {
-  // late final Timer _timerReloadMenu;
-
   _listenEvent(BuildContext context, WidgetRef ref) => (HomeEvent? previous, HomeEvent? next) {
         switch (next) {
           case HomeEvent.checkCode:
@@ -282,158 +280,18 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
         }
       };
 
-  // late ScrollController _productScrollController;
-  // late ScrollController _categoryScrollController;
-  // Map<dynamic, GlobalKey> categoryKeys = {};
-
   final GlobalKey _floatingBtnKey = GlobalKey();
   OverlayEntry? _overlayEntry;
   double chatPopupHeight = 600;
   double chatPopupWidth = 600;
 
   @override
-  void initState() {
-    super.initState();
-    // _productScrollController = ScrollController();
-    // _categoryScrollController = ScrollController();
-    // _productScrollController.addListener(_onScrollProduct);
-    // WidgetsBinding.instance.addObserver(this);
-    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-    //   _timerReloadMenu = Timer.periodic(
-    //     const Duration(minutes: 5),
-    //     (timer) {
-    //       ref.read(homeProvider.notifier).checkReloadMenu();
-    //     },
-    //   );
-    // });
-  }
-
-  // void _onScrollProduct() {
-  //   var state = ref.read(homeProvider);
-  //   var categories = state.categories;
-  //   var categorySelect = state.categorySelect;
-  //   var subCategorySelect = state.subCategorySelect;
-
-  //   List<dynamic> allCategory = [];
-  //   for (var item in categories) {
-  //     allCategory.add(item);
-  //     if ((item.children ?? []).isNotEmpty) {
-  //       allCategory.addAll(item.children ?? []);
-  //     }
-  //   }
-
-  //   for (var item in allCategory.reversed) {
-  //     bool isSubCategory = item is SubCategoryModel;
-  //     final ctx = categoryKeys[item]?.currentContext;
-
-  //     if (ctx != null) {
-  //       final box = ctx.findRenderObject();
-  //       if (box is RenderBox) {
-  //         final pos = box.localToGlobal(Offset.zero);
-  //         if (pos.dy <= 250) {
-  //           if (isSubCategory && item != subCategorySelect) {
-  //             var category = categories.firstWhereOrNull(
-  //                 (e) => (e.children ?? []).firstWhereOrNull((i) => i.id == item.id) != null);
-  //             if (category != categorySelect) {
-  //               ref.read(homeProvider.notifier).changeCategorySelect(category);
-  //             }
-  //             ref.read(homeProvider.notifier).changeSubCategorySelect(item);
-  //             _scrollCategoryBarTo(item, allCategory);
-  //           } else if (!isSubCategory && item != categorySelect) {
-  //             ref.read(homeProvider.notifier).changeCategorySelect(item);
-  //             _scrollCategoryBarTo(item, allCategory);
-  //           }
-
-  //           break;
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   return;
-  // }
-
-  // void _scrollCategoryBarTo(dynamic item, List<dynamic> allCategory) {
-  //   var state = ref.read(homeProvider);
-  //   // var categories = state.categories;
-  //   var menuCategoryItem = state.menuCategoryItem;
-  //   // var categorySelect = state.categorySelect;
-
-  //   final visibleItems = ref
-  //       .read(homeProvider.notifier)
-  //       .categoryPositionsListener
-  //       .itemPositions
-  //       .value
-  //       .where((position) => position.itemLeadingEdge < 1 && position.itemTrailingEdge > 0)
-  //       .map((e) => e.index)
-  //       .toList();
-  //   List<dynamic> dataView = List.from(menuCategoryItem);
-  //   // for (var item in categories) {
-  //   //   bool selected = item == categorySelect;
-  //   //   dataView.add(item);
-  //   //   if (selected && (item.children ?? []).isNotEmpty) {
-  //   //     dataView.add(null);
-  //   //     dataView.addAll(item.children ?? []);
-  //   //   }
-  //   // }
-  //   var items = [];
-  //   for (var i in visibleItems) {
-  //     items.add(dataView[i]);
-  //   }
-  //   if (!items.contains(item)) {
-  //     var index = dataView.indexOf(item);
-  //     if (index != -1) {
-  //       ref.read(homeProvider.notifier).categoryScrollController.jumpTo(index: index);
-  //     }
-  //   }
-  // }
-
-  // void _scrollToCategory(dynamic item) {
-  //   BuildContext? ctx = categoryKeys[item]?.currentContext;
-  //   if (ctx != null) {
-  //     Scrollable.ensureVisible(
-  //       ctx,
-  //       duration: const Duration(milliseconds: 300),
-  //       alignment: 0,
-  //     );
-  //   }
-  // }
-
-  @override
   void dispose() {
     isCheckTypeOrderInit = false;
-    // _productScrollController.dispose();
-    // _categoryScrollController.dispose();
     kToken = "";
     kTypeOrder = 0;
-    // _timerReloadMenu.cancel();
-    // WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
-
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   switch (state) {
-  //     case AppLifecycleState.resumed:
-  //       if (ref.read(homeProvider.notifier).getCheckReloadWhenHiddenApp()) {
-  //         ref.read(homeProvider.notifier).updateReloadWhenHiddenApp(false);
-  //         ref.read(homeProvider.notifier).getProducts();
-  //       }
-  //       break;
-  //     case AppLifecycleState.inactive:
-  //       showLog('inactive');
-  //       break;
-  //     case AppLifecycleState.paused:
-  //       showLog('paused');
-  //       break;
-  //     case AppLifecycleState.detached:
-  //       showLog('detached');
-  //       break;
-  //     case AppLifecycleState.hidden:
-  //       showLog('hidden');
-  //       break;
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {

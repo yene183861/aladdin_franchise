@@ -67,6 +67,7 @@ abstract class OrderRepository {
     dynamic totalPaymentCompleted,
   });
 
+  /// checked
   /// gọi hoặc huỷ món
   ///
   /// cancel: true - huy mon | false - goi mon

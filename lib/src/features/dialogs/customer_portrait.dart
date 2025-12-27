@@ -1,4 +1,5 @@
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ class CheckoutCustomerPortraitSelectWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final portraitSelect = ref.watch(homeProvider.select((value) => value.customerPortraitSelect));
-    final portraits = ref.read(homeProvider.notifier).getCustomerPortrait();
+    final portraits = LocalStorage.getDataLogin()?.customerPortraits ?? [];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

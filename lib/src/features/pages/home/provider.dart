@@ -100,7 +100,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     this._reservationRepository,
   ) : super(const HomeState()) {
     AppConfig.initHomeProvider = true;
-    ctrlSearch = TextEditingController();
     // confirm dùng redis hay không?
     // listenRedisChannel();
   }
@@ -117,13 +116,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
   final InvoiceRepository _invoiceRepository;
   final ReservationRepository _reservationRepository;
 
-  // Map<dynamic, GlobalKey> categoryKeys = {};
-
-  // final ItemScrollController categoryScrollController = ItemScrollController();
-  // final ItemPositionsListener categoryPositionsListener = ItemPositionsListener.create();
-
-  late TextEditingController ctrlSearch;
-
   List<PaymentMethod> _listPaymentMethods = [];
 
   /// bắt buộc update lại thuế với giá trị mặc định
@@ -138,16 +130,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
   @override
   void dispose() {
     AppConfig.initHomeProvider = false;
-    ctrlSearch.dispose();
     super.dispose();
   }
 
+  /// checked
   void _lockOrder(dynamic ex) {
     if (ex is AppException && ex.errorCode == 423) {
       state = state.copyWith(lockedOrder: true);
     }
   }
 
+  /// checked
   Future<void> _checkOrderSelect() async {
     if (state.orderSelect == null) {
       _resetOrder();
@@ -155,22 +148,18 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// checked
   void initialize({
     bool loadProducts = true,
     OrderModel? order,
   }) async {
     if (!mounted) return;
-    final dataLogin = LocalStorage.getDataLogin();
-    final customerPortraits = dataLogin?.customerPortraits ?? [];
-
     state = state.copyWith(
       orderSelect: order,
-      customerPortraits: customerPortraits,
       banks: [],
       paymentMethods: [],
       listAtmPos: [],
     );
-    syncInfoCustomerPage(method: WindowsMethodEnum.order);
     _resetOrder();
     await ref.read(menuProvider.notifier).init(loadProducts: loadProducts);
     if (order != null) {
@@ -179,6 +168,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// checked
   void updateEvent(HomeEvent? event) {
     state = state.copyWith(event: event ?? HomeEvent.normal);
   }
@@ -213,12 +203,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  ///
-  /// [loadingHome] = false - hiện circle loading
-  ///
-  /// [applyPolicy] = true - áp dụng lại mã giảm giá
-  ///
-  /// [ignoreGetDataBill] = false - bỏ qua lấy data bill
   Future<void> getOrderProductCheckout({
     bool loadingHome = false,
     bool applyPolicy = true,
@@ -235,9 +219,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
         var orderSelect = state.orderSelect;
         try {
           if (orderSelect == null) {
-            if (loadingHome) updateEvent(HomeEvent.normal);
+            if (loadingHome) updateEvent(null);
             state = state.copyWith(
-                productCheckoutState: const PageState(status: PageCommonState.success));
+              productCheckoutState: const PageState(status: PageCommonState.success),
+            );
             _resetOrder();
             return;
           }
@@ -260,7 +245,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
           var products = ref.read(menuProvider).products;
           // map: ProductCheckoutModel -> ProductModel
           for (var item in pc) {
-            // showLogs(item, flags: 'item');
             var p = products.firstWhereOrNull((e) => e.id == item.id);
             if (p != null) {
               var changeProduct = p.copyWith(
@@ -599,7 +583,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     ]) {
       syncInfoCustomerPage(method: e);
     }
-    // syncInfoForCustomer();
   }
 
   Future<void> loadingChangeOrderSelect(
@@ -1254,6 +1237,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// checked
   Future<void> getOrderInvoice() async {
     try {
       state = state.copyWith(
@@ -1538,7 +1522,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     );
   }
 
-  List<CustomerPortrait> getCustomerPortrait() => state.customerPortraits;
   CustomerPortrait? getCustomerPortraitSelect() => state.customerPortraitSelect;
 
   void onChangeCustomerPortraitSelect(CustomerPortrait? customerPortrait) {
