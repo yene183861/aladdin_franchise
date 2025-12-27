@@ -21,11 +21,9 @@ import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/waiter.dart';
 
 abstract class OrderRepository {
-  /// checked
-  Future<ApiResult<OrdersResponseData>> getOrders({int? typeOrder});
+  Future<OrdersResponseData> getOrders({int? typeOrder});
 
-  /// checked
-  Future<ApiResult<CreateOrderResponse>> createAndUpdateOrder(
+  Future<CreateOrderResponse> createAndUpdateOrder(
     List<int> tableIds,
     OrderModel order, {
     WaiterModel? waiterTransfer,
@@ -67,6 +65,7 @@ abstract class OrderRepository {
     dynamic totalPaymentCompleted,
   });
 
+  /// checked
   /// gọi hoặc huỷ món
   ///
   /// cancel: true - huy mon | false - goi mon

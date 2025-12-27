@@ -36,9 +36,9 @@ class OrderRepositoryImpl extends OrderRepository {
   OrderRepositoryImpl(this._client);
 
   @override
-  Future<ApiResult<OrdersResponseData>> getOrders({int? typeOrder}) async {
+  Future<OrdersResponseData> getOrders({int? typeOrder}) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v2/list-table-using";
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.get(url, typeOrder: typeOrder);
@@ -60,17 +60,25 @@ class OrderRepositoryImpl extends OrderRepository {
         api: apiUrl,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? const OrdersResponseData();
   }
 
   @override
-  Future<ApiResult<CreateOrderResponse>> createAndUpdateOrder(
+  Future<CreateOrderResponse> createAndUpdateOrder(
     List<int> tableIds,
     OrderModel order, {
     WaiterModel? waiterTransfer,
     int? typeOrder,
     ReservationModel? reservation,
     bool updateSaleInfo = true,
-  }) {
+  }) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v1/make-dine-in-orders";
     var loginData = LocalStorage.getDataLogin();
     Map<String, dynamic> body = {
@@ -88,7 +96,7 @@ class OrderRepositoryImpl extends OrderRepository {
       if (updateSaleInfo) "sale_code": reservation?.saleCode ?? '',
     };
 
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
 
@@ -101,6 +109,14 @@ class OrderRepositoryImpl extends OrderRepository {
         request: body,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? const CreateOrderResponse();
   }
 
   @override

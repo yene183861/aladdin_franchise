@@ -113,29 +113,13 @@ final FutureProvider<({OrdersResponseData? offline, OrdersResponseData? online})
     tablesAndOrdersProvider =
     FutureProvider<({OrdersResponseData? offline, OrdersResponseData? online})>(
         (FutureProviderRef<({OrdersResponseData? offline, OrdersResponseData? online})> ref) async {
-  OrdersResponseData? offData;
-  var resultOff =
+  OrdersResponseData? offData =
       await ref.read(orderRepositoryProvider).getOrders(typeOrder: TypeOrderEnum.offline.type);
-  if (!resultOff.isSuccess) {
-    throw AppException(
-      statusCode: resultOff.statusCode,
-      message: resultOff.error,
-    );
-  } else {
-    offData = resultOff.data;
-  }
+
   OrdersResponseData? onData;
   if (ref.read(enableOrderOnlineProvider)) {
-    var result =
+    onData =
         await ref.read(orderRepositoryProvider).getOrders(typeOrder: TypeOrderEnum.online.type);
-    if (!result.isSuccess) {
-      throw AppException(
-        statusCode: result.statusCode,
-        message: result.error,
-      );
-    } else {
-      onData = result.data;
-    }
   }
 
   final orderCurrent = ref.read(homeProvider.notifier).getOrderSelect();
@@ -162,16 +146,9 @@ final tableAvailableUpdateOrderProvider = FutureProvider.autoDispose<
   var orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
   if (orderSelect != null) {
     final result = await ref.read(orderRepositoryProvider).getOrders();
-    if (!result.isSuccess) {
-      throw AppException(
-        statusCode: result.statusCode,
-        message: result.error,
-      );
-    }
-    var notUse = List<TableModel>.from(result.data?.notUse ?? []);
-    // các bàn đang sử dụng
-    final using = result.data?.using ?? [];
-    // các bàn mà đơn hàng này đang giữ
+
+    var notUse = List<TableModel>.from(result.notUse);
+    final using = result.using;
     var tableSelectRaw = orderSelect.name.split(',');
     List<TableModel> tableSelect = [];
     for (var tableName in tableSelectRaw) {
@@ -182,25 +159,6 @@ final tableAvailableUpdateOrderProvider = FutureProvider.autoDispose<
     return (notUse: notUse, tableSelect: tableSelect, using: using);
   }
   return (notUse: <TableModel>[], tableSelect: <TableModel>[], using: <TableModel>[]);
-});
-
-/// Lấy tổng tiền hoá đơn hiện tại
-final FutureProvider<double> priceProductCheckoutProvider =
-    FutureProvider<double>((FutureProviderRef<double> ref) async {
-  return 0.0;
-  // _logEvent('priceProductCheckoutProvider');
-  // var productCheckout = ref.watch(productCheckoutProvider);
-  // return productCheckout.when(data: (data) {
-  //   var totalOrder = 0.0;
-  //   for (var product in data?.orderItem ?? []) {
-  //     totalOrder += product.totalOrdered;
-  //   }
-  //   return totalOrder;
-  // }, error: (_, __) {
-  //   throw Exception();
-  // }, loading: () {
-  //   return 0;
-  // });
 });
 
 /// Dành cho chuyển giao đơn bàn
@@ -226,19 +184,12 @@ final tableAvailableAndWaiterTransferOrderProvider = FutureProvider.autoDispose<
     ref) async {
   var orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
   final result = await ref.read(orderRepositoryProvider).getOrders();
-  if (!result.isSuccess) {
-    throw AppException(
-      statusCode: result.statusCode,
-      message: result.error,
-    );
-  }
-  var tableAvailable = List<TableModel>.from(result.data?.notUse ?? []);
-  // các bàn đang sử dụng
-  final using = result.data?.using ?? [];
+
+  var tableAvailable = List<TableModel>.from(result.notUse);
+  final using = result.using;
 
   List<TableModel> tableCurrentSelect = [];
   if (orderSelect != null) {
-    // các bàn mà đơn hàng này đang giữ
     var tableSelectRaw = orderSelect.name.split(',');
     for (var tableName in tableSelectRaw) {
       var tableTemp = using.firstWhere((element) => element.name == tableName);
@@ -249,14 +200,14 @@ final tableAvailableAndWaiterTransferOrderProvider = FutureProvider.autoDispose<
     return (
       currentSelect: tableCurrentSelect,
       notUse: tableAvailable,
-      waiters: result.data?.waiters ?? [],
+      waiters: result.waiters ?? [],
       using: using,
     );
   }
   return (
     currentSelect: tableCurrentSelect,
     notUse: tableAvailable,
-    waiters: result.data?.waiters ?? [],
+    waiters: result.waiters ?? [],
     using: using,
   );
 });

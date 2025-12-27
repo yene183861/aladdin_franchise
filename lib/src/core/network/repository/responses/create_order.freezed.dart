@@ -20,7 +20,7 @@ CreateOrderResponse _$CreateOrderResponseFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$CreateOrderResponse {
-  int get status => throw _privateConstructorUsedError;
+  int? get status => throw _privateConstructorUsedError;
   dynamic get message => throw _privateConstructorUsedError;
   int? get orderId => throw _privateConstructorUsedError;
 
@@ -36,7 +36,7 @@ abstract class $CreateOrderResponseCopyWith<$Res> {
           CreateOrderResponse value, $Res Function(CreateOrderResponse) then) =
       _$CreateOrderResponseCopyWithImpl<$Res, CreateOrderResponse>;
   @useResult
-  $Res call({int status, dynamic message, int? orderId});
+  $Res call({int? status, dynamic message, int? orderId});
 }
 
 /// @nodoc
@@ -52,15 +52,15 @@ class _$CreateOrderResponseCopyWithImpl<$Res, $Val extends CreateOrderResponse>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? status = null,
+    Object? status = freezed,
     Object? message = freezed,
     Object? orderId = freezed,
   }) {
     return _then(_value.copyWith(
-      status: null == status
+      status: freezed == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       message: freezed == message
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
@@ -81,7 +81,7 @@ abstract class _$$CreateOrderResponseImplCopyWith<$Res>
       __$$CreateOrderResponseImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int status, dynamic message, int? orderId});
+  $Res call({int? status, dynamic message, int? orderId});
 }
 
 /// @nodoc
@@ -95,15 +95,15 @@ class __$$CreateOrderResponseImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? status = null,
+    Object? status = freezed,
     Object? message = freezed,
     Object? orderId = freezed,
   }) {
     return _then(_$CreateOrderResponseImpl(
-      status: null == status
+      status: freezed == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       message: freezed == message
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
@@ -122,14 +122,13 @@ class __$$CreateOrderResponseImplCopyWithImpl<$Res>
 class _$CreateOrderResponseImpl
     with DiagnosticableTreeMixin
     implements _CreateOrderResponse {
-  const _$CreateOrderResponseImpl(
-      {required this.status, required this.message, required this.orderId});
+  const _$CreateOrderResponseImpl({this.status, this.message, this.orderId});
 
   factory _$CreateOrderResponseImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreateOrderResponseImplFromJson(json);
 
   @override
-  final int status;
+  final int? status;
   @override
   final dynamic message;
   @override
@@ -182,15 +181,15 @@ class _$CreateOrderResponseImpl
 
 abstract class _CreateOrderResponse implements CreateOrderResponse {
   const factory _CreateOrderResponse(
-      {required final int status,
-      required final dynamic message,
-      required final int? orderId}) = _$CreateOrderResponseImpl;
+      {final int? status,
+      final dynamic message,
+      final int? orderId}) = _$CreateOrderResponseImpl;
 
   factory _CreateOrderResponse.fromJson(Map<String, dynamic> json) =
       _$CreateOrderResponseImpl.fromJson;
 
   @override
-  int get status;
+  int? get status;
   @override
   dynamic get message;
   @override

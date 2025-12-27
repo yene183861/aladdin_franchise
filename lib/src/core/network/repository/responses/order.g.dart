@@ -9,15 +9,18 @@ part of 'order.dart';
 _$OrdersResponseDataImpl _$$OrdersResponseDataImplFromJson(
         Map<String, dynamic> json) =>
     _$OrdersResponseDataImpl(
-      notUse: (json['not_use'] as List<dynamic>)
-          .map((e) => TableModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      using: (json['using'] as List<dynamic>)
-          .map((e) => TableModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      userUsing: (json['user_using'] as List<dynamic>)
-          .map((e) => OrderModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      notUse: (json['not_use'] as List<dynamic>?)
+              ?.map((e) => TableModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      using: (json['using'] as List<dynamic>?)
+              ?.map((e) => TableModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      userUsing: (json['user_using'] as List<dynamic>?)
+              ?.map((e) => OrderModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
       waiters: (json['waiters'] as List<dynamic>?)
           ?.map((e) => WaiterModel.fromJson(e as Map<String, dynamic>))
           .toList(),

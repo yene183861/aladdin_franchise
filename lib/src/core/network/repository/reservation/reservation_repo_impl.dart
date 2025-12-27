@@ -59,7 +59,7 @@ class ReservationRepositoryImpl extends ReservationRepository {
   Future<ApiResult<ReservationModel?>> updateReservation(dynamic id, ReservationModel model) async {
     final apiUrl = '${ApiConfig.apiUrl}/api/v1/reservation/status/$id';
     var reservationModel = model.toJson();
-    //  hình như bên anh T.A cần convert sang thế này
+    // bên anh T.A cần convert sang thế này
     reservationModel['status'] = reservationModel['status'].toString();
     var body = jsonEncode(reservationModel);
     return safeCallApi(

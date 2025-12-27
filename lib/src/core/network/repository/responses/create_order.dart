@@ -8,18 +8,11 @@ part 'create_order.g.dart';
 class CreateOrderResponse with _$CreateOrderResponse {
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory CreateOrderResponse({
-    required int status,
-    required dynamic message,
-    required int? orderId,
+    int? status,
+    dynamic message,
+    int? orderId,
   }) = _CreateOrderResponse;
 
   factory CreateOrderResponse.fromJson(Map<String, dynamic> json) =>
       _$CreateOrderResponseFromJson(json);
-  static String getModelInterface() {
-    return '''
-    required int status,
-    required dynamic message,
-    required int? orderId,
-    ''';
-  }
 }

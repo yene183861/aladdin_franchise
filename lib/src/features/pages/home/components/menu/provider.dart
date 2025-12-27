@@ -43,12 +43,6 @@ class MenuNotifier extends StateNotifier<MenuState> {
   final ItemScrollController categoryScrollController = ItemScrollController();
   final ItemPositionsListener categoryPositionsListener = ItemPositionsListener.create();
 
-  final selectedItemsScrollCtrl = ItemScrollController();
-  final selectedItemsPositionsListener = ItemPositionsListener.create();
-
-  final selectingItemsScrollCtrl = ItemScrollController();
-  final selectingItemsPositionsListener = ItemPositionsListener.create();
-
   @override
   void dispose() {
     ctrlSearch.dispose();
@@ -100,24 +94,13 @@ class MenuNotifier extends StateNotifier<MenuState> {
     try {
       state = state.copyWith(productState: const ProcessState(status: StatusEnum.loading));
       final categoryResult = await _menuRepository.getCategory();
-      if (!categoryResult.isSuccess) {
-        throw AppException(
-          statusCode: categoryResult.statusCode,
-          message: categoryResult.error,
-        );
-      }
 
-      List<CategoryModel> categories = categoryResult.data?.data ?? [];
-      List<TagProductModel> tags = categoryResult.data?.tags ?? [];
+      List<CategoryModel> categories = categoryResult.data;
+      List<TagProductModel> tags = categoryResult.tags ?? [];
       final productsRepo = await _menuRepository.getProduct(null);
-      if (!productsRepo.isSuccess) {
-        throw AppException(
-          statusCode: productsRepo.statusCode,
-          message: productsRepo.error,
-        );
-      }
+
       await LocalStorage.setLastReloadMenu();
-      List<ProductModel> products = List.from(productsRepo.data ?? []);
+      List<ProductModel> products = List.from(productsRepo);
       List<dynamic> menuCategoryItem = [];
 
       if (categories.isNotEmpty) {

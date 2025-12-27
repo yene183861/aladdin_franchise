@@ -28,6 +28,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'components/order_price_widget.dart';
+
 enum CheckoutTabEnum { receipt, endow }
 
 bool openCheckoutPage = false;

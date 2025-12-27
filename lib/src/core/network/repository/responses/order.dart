@@ -11,9 +11,9 @@ part 'order.g.dart';
 class OrdersResponseData with _$OrdersResponseData {
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory OrdersResponseData({
-    required List<TableModel> notUse,
-    required List<TableModel> using,
-    required List<OrderModel> userUsing,
+    @Default([]) List<TableModel> notUse,
+    @Default([]) List<TableModel> using,
+    @Default([]) List<OrderModel> userUsing,
     List<WaiterModel>? waiters,
     dynamic ipOrder,
   }) = _OrdersResponseData;

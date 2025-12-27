@@ -9,7 +9,7 @@ part of 'create_order.dart';
 _$CreateOrderResponseImpl _$$CreateOrderResponseImplFromJson(
         Map<String, dynamic> json) =>
     _$CreateOrderResponseImpl(
-      status: (json['status'] as num).toInt(),
+      status: (json['status'] as num?)?.toInt(),
       message: json['message'],
       orderId: (json['order_id'] as num?)?.toInt(),
     );

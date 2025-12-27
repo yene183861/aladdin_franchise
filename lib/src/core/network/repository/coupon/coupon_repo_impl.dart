@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
 import 'package:aladdin_franchise/src/core/network/repository/coupon/coupon_repository.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/apply_policy.dart';
@@ -22,7 +23,7 @@ class CouponRepositoryImpl extends CouponRepository {
   CouponRepositoryImpl(this._client);
 
   @override
-  Future<ApiResult<CouponResponseData>> addCoupon({
+  Future<CouponResponseData> addCoupon({
     required String code,
     required OrderModel order,
     required double totalOrder,
@@ -37,7 +38,7 @@ class CouponRepositoryImpl extends CouponRepository {
       "total_order": totalOrder,
       "numberOfAdults": numberOfAdults,
     });
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(api);
         return _client.post(url, body: body);
@@ -51,16 +52,27 @@ class CouponRepositoryImpl extends CouponRepository {
         request: body,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return result.data ??
+        const CouponResponseData(
+          status: 200,
+          data: [],
+        );
   }
 
   @override
-  Future<ApiResult<bool>> deleteCoupon({required String idCode, required OrderModel order}) async {
+  Future<bool> deleteCoupon({required String idCode, required OrderModel order}) async {
     final apiUrl = "${ApiConfig.apiUrl}/api/v1/mock-api-block-coupon";
     final body = jsonEncode(<String, dynamic>{
       "id": idCode,
       "order_id": order.id,
     });
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
@@ -74,10 +86,17 @@ class CouponRepositoryImpl extends CouponRepository {
         request: body,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return result.data ?? false;
   }
 
   @override
-  Future<ApiResult<ApplyPolicyResponseData>> applyPolicy({
+  Future<ApplyPolicyResponseData> applyPolicy({
     required List<CustomerPolicyModel> coupons,
     required List<CustomerPolicyModel> customerPolicy,
     required List<ProductCheckoutModel> products,
@@ -123,7 +142,7 @@ class CouponRepositoryImpl extends CouponRepository {
       "total_order": totalOrder,
       "numberOfAdults": numberOfAdults,
     });
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
@@ -137,10 +156,23 @@ class CouponRepositoryImpl extends CouponRepository {
         request: body,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ??
+        const ApplyPolicyResponseData(
+          status: 200,
+          data: [],
+          dataCreateVouchers: null,
+        );
   }
 
   @override
-  Future<ApiResult<VoucherModel>> addVoucher({
+  Future<VoucherModel> addVoucher({
     required OrderModel order,
     required double amount,
     required double totalBill,
@@ -155,7 +187,7 @@ class CouponRepositoryImpl extends CouponRepository {
       "total_bill": totalBill,
       "type": type.key,
     });
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
@@ -169,13 +201,21 @@ class CouponRepositoryImpl extends CouponRepository {
         request: body,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? const VoucherModel();
   }
 
   @override
-  Future<ApiResult<void>> deleteVoucher(dynamic id) async {
+  Future<void> deleteVoucher(dynamic id) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v1/delete-voucher";
     final body = jsonEncode(<String, dynamic>{"voucher_id": id});
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
@@ -186,5 +226,11 @@ class CouponRepositoryImpl extends CouponRepository {
         request: body,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
   }
 }

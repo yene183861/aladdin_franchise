@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
 import 'package:aladdin_franchise/src/core/network/repository/customer/customer_repository.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/customer.dart';
@@ -17,7 +18,7 @@ class CustomerRepositoryImpl extends CustomerRepository {
   CustomerRepositoryImpl(this._client);
 
   @override
-  Future<ApiResult<CustomerResponseData>> findCustomer(
+  Future<CustomerResponseData> findCustomer(
       {required String phoneNumber, required OrderModel order}) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v1/mock-api-promotion";
 
@@ -27,7 +28,7 @@ class CustomerRepositoryImpl extends CustomerRepository {
       "restaurant_id": loginData?.restaurant?.id,
       "order_id": order.id,
     });
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
@@ -41,10 +42,17 @@ class CustomerRepositoryImpl extends CustomerRepository {
         order: order,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return result.data ?? const CustomerResponseData(status: 200, customer: null, data: []);
   }
 
   @override
-  Future<ApiResult<bool>> createCustomer({
+  Future<bool> createCustomer({
     required String phone,
     required String firstName,
     required String lastName,
@@ -65,7 +73,7 @@ class CustomerRepositoryImpl extends CustomerRepository {
       "address": address,
       "order_id": order.id,
     });
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
@@ -82,12 +90,19 @@ class CustomerRepositoryImpl extends CustomerRepository {
         order: order,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return true;
   }
 
   @override
-  Future<ApiResult<void>> deleteCustomer(int orderId) async {
+  Future<void> deleteCustomer(int orderId) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v1/status-lock-order?order_id=$orderId";
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
@@ -98,5 +113,11 @@ class CustomerRepositoryImpl extends CustomerRepository {
         order: OrderModel(id: orderId),
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
   }
 }

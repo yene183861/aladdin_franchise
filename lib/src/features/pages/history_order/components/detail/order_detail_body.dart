@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/pages/history_order/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
@@ -410,8 +411,7 @@ class HistoryOrderDetailBody extends ConsumerWidget {
                 var portrait = ref.watch(historyOrderPageProvider
                         .select((value) => value.dataBill?.order.portrait)) ??
                     '';
-                var customerPortraits =
-                    ref.watch(homeProvider.select((value) => value.customerPortraits));
+                var customerPortraits = LocalStorage.getDataLogin()?.customerPortraits ?? [];
                 CustomerPortrait? portraitSelect = portrait.trim().isEmpty
                     ? null
                     : customerPortraits.firstWhereOrNull(

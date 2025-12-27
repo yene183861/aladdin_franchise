@@ -155,9 +155,9 @@ class _$OrdersResponseDataImpl
     with DiagnosticableTreeMixin
     implements _OrdersResponseData {
   const _$OrdersResponseDataImpl(
-      {required final List<TableModel> notUse,
-      required final List<TableModel> using,
-      required final List<OrderModel> userUsing,
+      {final List<TableModel> notUse = const [],
+      final List<TableModel> using = const [],
+      final List<OrderModel> userUsing = const [],
       final List<WaiterModel>? waiters,
       this.ipOrder})
       : _notUse = notUse,
@@ -170,6 +170,7 @@ class _$OrdersResponseDataImpl
 
   final List<TableModel> _notUse;
   @override
+  @JsonKey()
   List<TableModel> get notUse {
     if (_notUse is EqualUnmodifiableListView) return _notUse;
     // ignore: implicit_dynamic_type
@@ -178,6 +179,7 @@ class _$OrdersResponseDataImpl
 
   final List<TableModel> _using;
   @override
+  @JsonKey()
   List<TableModel> get using {
     if (_using is EqualUnmodifiableListView) return _using;
     // ignore: implicit_dynamic_type
@@ -186,6 +188,7 @@ class _$OrdersResponseDataImpl
 
   final List<OrderModel> _userUsing;
   @override
+  @JsonKey()
   List<OrderModel> get userUsing {
     if (_userUsing is EqualUnmodifiableListView) return _userUsing;
     // ignore: implicit_dynamic_type
@@ -262,9 +265,9 @@ class _$OrdersResponseDataImpl
 
 abstract class _OrdersResponseData implements OrdersResponseData {
   const factory _OrdersResponseData(
-      {required final List<TableModel> notUse,
-      required final List<TableModel> using,
-      required final List<OrderModel> userUsing,
+      {final List<TableModel> notUse,
+      final List<TableModel> using,
+      final List<OrderModel> userUsing,
       final List<WaiterModel>? waiters,
       final dynamic ipOrder}) = _$OrdersResponseDataImpl;
 

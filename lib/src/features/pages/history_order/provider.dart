@@ -174,14 +174,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                       var result = await ref
                           .read(menuRepositoryProvider)
                           .getProduct(null, typeOrder: TypeOrderEnum.online.type);
-                      if (!result.isSuccess) {
-                        throw AppException(
-                          statusCode: result.statusCode,
-                          message: result.error,
-                        );
-                      }
 
-                      onlineProducts = List<ProductModel>.from(result.data ?? []);
+                      onlineProducts = List<ProductModel>.from(result);
                       break;
                     } catch (ex) {
                       retry++;
@@ -206,13 +200,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                       var result = await ref
                           .read(menuRepositoryProvider)
                           .getProduct(null, typeOrder: TypeOrderEnum.offline.type);
-                      if (!result.isSuccess) {
-                        throw AppException(
-                          statusCode: result.statusCode,
-                          message: result.error,
-                        );
-                      }
-                      offlineProducts = List<ProductModel>.from(result.data ?? []);
+                      offlineProducts = List<ProductModel>.from(result);
                       break;
                     } catch (ex) {
                       retry++;

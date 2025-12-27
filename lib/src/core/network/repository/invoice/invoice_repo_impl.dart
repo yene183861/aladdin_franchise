@@ -17,9 +17,9 @@ class InvoiceRepositoryImpl extends InvoiceRepository {
   InvoiceRepositoryImpl(this._client);
 
   @override
-  Future<ApiResult<OrderInvoice>> getOrderInvoice(int orderId) async {
+  Future<OrderInvoice> getOrderInvoice(int orderId) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v1/get-invoice-information?order_id=$orderId";
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
@@ -35,17 +35,24 @@ class InvoiceRepositoryImpl extends InvoiceRepository {
         order: OrderModel(id: orderId),
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return result.data ?? const OrderInvoice();
   }
 
   @override
-  Future<ApiResult<void>> updateOrderInvoice(
+  Future<void> updateOrderInvoice(
       {required int orderId, required OrderInvoice orderInvoice}) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v1/save-invoice";
     var body = jsonEncode(<String, dynamic>{
       "order_id": orderId,
       "invoice": orderInvoice.toJson(),
     });
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
@@ -57,13 +64,20 @@ class InvoiceRepositoryImpl extends InvoiceRepository {
         order: OrderModel(id: orderId),
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return;
   }
 
   @override
-  Future<ApiResult<MInvoiceInfo>> getMInvoiceTaxInfo(String taxCode) async {
+  Future<MInvoiceInfo> getMInvoiceTaxInfo(String taxCode) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v1/get-information-tax?tax_code=$taxCode";
 
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
@@ -83,5 +97,12 @@ class InvoiceRepositoryImpl extends InvoiceRepository {
         api: apiUrl,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return result.data ?? const MInvoiceInfo();
   }
 }

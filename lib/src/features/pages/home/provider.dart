@@ -100,7 +100,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     this._reservationRepository,
   ) : super(const HomeState()) {
     AppConfig.initHomeProvider = true;
-    ctrlSearch = TextEditingController();
     // confirm dùng redis hay không?
     // listenRedisChannel();
   }
@@ -117,13 +116,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
   final InvoiceRepository _invoiceRepository;
   final ReservationRepository _reservationRepository;
 
-  // Map<dynamic, GlobalKey> categoryKeys = {};
-
-  // final ItemScrollController categoryScrollController = ItemScrollController();
-  // final ItemPositionsListener categoryPositionsListener = ItemPositionsListener.create();
-
-  late TextEditingController ctrlSearch;
-
   List<PaymentMethod> _listPaymentMethods = [];
 
   /// bắt buộc update lại thuế với giá trị mặc định
@@ -138,16 +130,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
   @override
   void dispose() {
     AppConfig.initHomeProvider = false;
-    ctrlSearch.dispose();
     super.dispose();
   }
 
+  /// checked
   void _lockOrder(dynamic ex) {
     if (ex is AppException && ex.errorCode == 423) {
       state = state.copyWith(lockedOrder: true);
     }
   }
 
+  /// checked
   Future<void> _checkOrderSelect() async {
     if (state.orderSelect == null) {
       _resetOrder();
@@ -155,22 +148,18 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// checked
   void initialize({
     bool loadProducts = true,
     OrderModel? order,
   }) async {
     if (!mounted) return;
-    final dataLogin = LocalStorage.getDataLogin();
-    final customerPortraits = dataLogin?.customerPortraits ?? [];
-
     state = state.copyWith(
       orderSelect: order,
-      customerPortraits: customerPortraits,
       banks: [],
       paymentMethods: [],
       listAtmPos: [],
     );
-    syncInfoCustomerPage(method: WindowsMethodEnum.order);
     _resetOrder();
     await ref.read(menuProvider.notifier).init(loadProducts: loadProducts);
     if (order != null) {
@@ -179,6 +168,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// checked
   void updateEvent(HomeEvent? event) {
     state = state.copyWith(event: event ?? HomeEvent.normal);
   }
@@ -213,12 +203,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  ///
-  /// [loadingHome] = false - hiện circle loading
-  ///
-  /// [applyPolicy] = true - áp dụng lại mã giảm giá
-  ///
-  /// [ignoreGetDataBill] = false - bỏ qua lấy data bill
   Future<void> getOrderProductCheckout({
     bool loadingHome = false,
     bool applyPolicy = true,
@@ -235,9 +219,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
         var orderSelect = state.orderSelect;
         try {
           if (orderSelect == null) {
-            if (loadingHome) updateEvent(HomeEvent.normal);
+            if (loadingHome) updateEvent(null);
             state = state.copyWith(
-                productCheckoutState: const PageState(status: PageCommonState.success));
+              productCheckoutState: const PageState(status: PageCommonState.success),
+            );
             _resetOrder();
             return;
           }
@@ -260,7 +245,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
           var products = ref.read(menuProvider).products;
           // map: ProductCheckoutModel -> ProductModel
           for (var item in pc) {
-            // showLogs(item, flags: 'item');
             var p = products.firstWhereOrNull((e) => e.id == item.id);
             if (p != null) {
               var changeProduct = p.copyWith(
@@ -488,14 +472,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
         reservation: reservation,
         updateSaleInfo: true,
       );
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
       updateEvent(null);
-      return [result.data?.orderId, null];
+      return [result.orderId, null];
     } catch (ex) {
       updateEvent(null);
       return [-1, ex.toString()];
@@ -521,12 +499,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         typeOrder: kTypeOrder,
         updateSaleInfo: false,
       );
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
+
       if (tableIds.isEmpty) {
         try {
           LocalStorage.deleteNotePerOrderItem(order: state.orderSelect!);
@@ -535,7 +508,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         }
       }
       updateEvent(null);
-      return (error: null, orderId: result.data?.orderId);
+      return (error: null, orderId: result.orderId);
     } catch (ex) {
       _lockOrder(ex);
       updateEvent(null);
@@ -599,7 +572,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     ]) {
       syncInfoCustomerPage(method: e);
     }
-    // syncInfoForCustomer();
   }
 
   Future<void> loadingChangeOrderSelect(
@@ -727,33 +699,23 @@ class HomeNotifier extends StateNotifier<HomeState> {
       if (loadingHome) updateEvent(HomeEvent.findingCustomer);
       await _checkOrderSelect();
       int countRetry = 0;
-      ApiResult<CustomerResponseData>? result;
-      do {
-        try {
-          result =
-              await _customerRepository.findCustomer(phoneNumber: phone, order: state.orderSelect!);
-          if (!result.isSuccess) {
-            throw AppException(
-              statusCode: result.statusCode,
-              message: result.error,
-            );
-          }
-          break;
-        } catch (ex) {
-          countRetry++;
-        }
-      } while (countRetry < (retry ? 1 : 3));
+      CustomerResponseData result =
+          await _customerRepository.findCustomer(phoneNumber: phone, order: state.orderSelect!);
+      // do {
+      //   try {
+      //     result =
+      //         await _customerRepository.findCustomer(phoneNumber: phone, order: state.orderSelect!);
 
-      if (!(result?.isSuccess ?? false)) {
-        throw AppException(
-          statusCode: result?.statusCode ?? 400,
-          message: result?.error ?? S.current.unknown,
-        );
-      }
+      //     break;
+      //   } catch (ex) {
+      //     countRetry++;
+      //     if(countRetry
+      //   }
+      // } while (countRetry < (retry ? 1 : 3));
+
       if (loadingHome) updateEvent(null);
-      var customerRepo = result?.data;
-      if (customerRepo?.customer is List<dynamic> == false) {
-        CustomerModel customer = CustomerModel.fromJson(customerRepo?.customer);
+      if (result.customer is List<dynamic> == false) {
+        CustomerModel customer = CustomerModel.fromJson(result.customer);
         state = state.copyWith(customer: customer);
         syncInfoCustomerPage(method: WindowsMethodEnum.customer);
         // syncInfoForCustomer();
@@ -796,7 +758,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         return S.current.miss_information;
       }
       await _checkOrderSelect();
-      var result = await _customerRepository.createCustomer(
+      await _customerRepository.createCustomer(
         phone: phone,
         firstName: firstName,
         lastName: lastName,
@@ -806,12 +768,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         idCardNumber: idCardNumber,
         address: address,
       );
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
+
       updateEvent(null);
       return null;
     } catch (ex) {
@@ -843,18 +800,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
         totalOrder: AppUtils.convertToDouble(getFinalPaymentPrice.totalPrice) ?? 0.0,
         numberOfAdults: state.numberOfAdults,
       );
-      if (!couponRepo.isSuccess) {
-        throw AppException(
-          statusCode: couponRepo.statusCode,
-          message: couponRepo.error,
-        );
-      }
 
       if (loadingHome) updateEvent(null);
-      List<CustomerPolicyModel> coupons =
-          List<CustomerPolicyModel>.from(couponRepo.data?.data ?? []);
+      List<CustomerPolicyModel> coupons = List<CustomerPolicyModel>.from(couponRepo.data);
       if (coupons.isEmpty) {
-        final errorMessage = couponRepo.data?.message ?? '';
+        final errorMessage = couponRepo.message;
         return (
           titleError:
               errorMessage.isEmpty ? null : "${S.current.discount_code_is_not_valid} ($code)",
@@ -897,25 +847,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
         amount: value,
         type: state.discountTypeSelect,
       );
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
+
       if (loadingHome) updateEvent(null);
-      if (result.data == null) {
-        return (
-          error: 'Không có dữ liệu',
-          titleError: null,
-        );
-      }
 
       state = state.copyWith(
         coupons: [
           CustomerPolicyModel(
-            id: result.data?.id,
-            name: result.data?.name ?? '',
+            id: result.id,
+            name: result.name,
             type: null,
             isType: 3,
             discount: [
@@ -925,7 +864,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                 // do response trả về lại là số tiền giảm nên type sẽ là DiscountTypeEnum.vnd
                 // getOrderProductCheckout sẽ ghi đè lại thông in mã giảm
                 type: DiscountTypeEnum.vnd.key,
-                amount: result.data?.amount ?? 0.0,
+                amount: result.amount,
               ),
             ],
           ),
@@ -954,14 +893,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }) async {
     try {
       if (loadingHome) updateEvent(HomeEvent.removeCoupon);
-
-      var result = await _couponRepository.deleteVoucher(coupon.id);
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
+      await _couponRepository.deleteVoucher(coupon.id);
       if (loadingHome) updateEvent(null);
       var coupons = List<CustomerPolicyModel>.from(state.coupons);
       coupons.removeWhere((e) => e.id == coupon.id);
@@ -1155,14 +1087,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
       updateEvent(HomeEvent.removeCoupon);
       final result =
           await _couponRepository.deleteCoupon(idCode: coupon.id, order: state.orderSelect!);
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
+
       updateEvent(null);
-      if (result.data ?? false) {
+      if (result) {
         var coupons = List<CustomerPolicyModel>.from(state.coupons);
         coupons.removeWhere((element) => element.id == coupon.id);
         // check KH có nằm trong mã bị xoá hay không
@@ -1208,14 +1135,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
     try {
       updateEvent(HomeEvent.findingTaxCode);
       final result = await _invoiceRepository.getMInvoiceTaxInfo(taxCode);
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
       updateEvent(HomeEvent.normal);
-      return (result.data, null);
+      return (result, null);
     } catch (ex) {
       updateEvent(HomeEvent.normal);
       return (null, ex.toString());
@@ -1229,16 +1150,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
     try {
       updateEvent(isUpdate ? HomeEvent.updateInvoice : HomeEvent.insertInvoice);
       await _checkOrderSelect();
-      var result = await _invoiceRepository.updateOrderInvoice(
+      await _invoiceRepository.updateOrderInvoice(
         orderId: state.orderSelect!.id,
         orderInvoice: invoice,
       );
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
+
       state = state.copyWith(
         event: HomeEvent.processed,
         invoice: invoice,
@@ -1268,15 +1184,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
         return;
       }
       final result = await _invoiceRepository.getOrderInvoice(orderSelect.id);
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
+
       state = state.copyWith(
         orderInvoiceState: const PageState(status: PageCommonState.success),
-        invoice: (result.data?.isEmpty() ?? true) ? null : result.data,
+        invoice: result.isEmpty() ? null : result,
       );
     } catch (ex) {
       _lockOrder(ex);
@@ -1538,7 +1449,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     );
   }
 
-  List<CustomerPortrait> getCustomerPortrait() => state.customerPortraits;
   CustomerPortrait? getCustomerPortraitSelect() => state.customerPortraitSelect;
 
   void onChangeCustomerPortraitSelect(CustomerPortrait? customerPortrait) {
@@ -1549,13 +1459,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     try {
       if (state.orderSelect == null) return S.current.noOrderSelect;
       state = state.copyWith(event: HomeEvent.removeCustomer);
-      var result = await _customerRepository.deleteCustomer(state.orderSelect!.id);
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
+      await _customerRepository.deleteCustomer(state.orderSelect!.id);
       state = state.copyWith(event: HomeEvent.normal, customer: null);
       syncInfoCustomerPage(method: WindowsMethodEnum.customer);
       return null;
@@ -1661,16 +1565,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
             pointUseToMoney: 0,
             numberOfAdults: state.numberOfAdults,
           );
-          if (!result.isSuccess) {
-            throw AppException(
-              statusCode: result.statusCode,
-              message: result.error,
-            );
-          }
 
           state = state.copyWith(
-            vouchers: result.data?.data ?? [],
-            createVouchers: result.data?.dataCreateVouchers,
+            vouchers: result.data,
+            createVouchers: result.dataCreateVouchers,
             productCheckout: productCheckout,
           );
 
@@ -2791,19 +2689,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
     try {
       updateEvent(HomeEvent.transferOrder);
 
-      var result = await _orderRepository.createAndUpdateOrder(
+      await _orderRepository.createAndUpdateOrder(
         tableIds,
         order,
         reservation: reservation,
         waiterTransfer: waiterTransfer,
         updateSaleInfo: false,
       );
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
+
       updateEvent(null);
       return null;
     } catch (ex) {
@@ -2822,18 +2715,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
       if (orderSelect == null) return null;
       updateEvent(HomeEvent.updateOrderReservation);
 
-      var result = await _orderRepository.createAndUpdateOrder(
+      await _orderRepository.createAndUpdateOrder(
         tableIds,
         orderSelect,
         reservation: newReservation,
         updateSaleInfo: true,
       );
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
 
       state = state.copyWith(
         orderSelect: orderSelect.copyWith(reservationCrmId: newReservation?.id),

@@ -23,9 +23,9 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
   OrderToOnlineRepositoryImpl(this._client);
 
   @override
-  Future<ApiResult<List<O2OOrderModel>>> getOrderToOnline() async {
+  Future<List<O2OOrderModel>> getOrderToOnline() async {
     final apiUrl = "${ApiConfig.apiUrl}/api/v1/user-order-line-item";
-    return safeCallApiList(
+    var result = await safeCallApiList(
       () {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
@@ -38,6 +38,14 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
         api: apiUrl,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? [];
     // var log = ErrorLogModel(
     //   action: AppLogAction.getOrderToOnline,
     //   modelInterface: O2OOrderModel.getModelInterface(),
@@ -70,7 +78,7 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
   }
 
   @override
-  Future<ApiResult<void>> processO2oRequest({
+  Future<void> processO2oRequest({
     required int orderId,
     required int status,
     required int orderItemId,
@@ -87,7 +95,7 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
       "items": jsonEncode(orderItems),
       "notes": notes,
     });
-    return safeCallApiList(
+    var result = await safeCallApiList(
       () {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);

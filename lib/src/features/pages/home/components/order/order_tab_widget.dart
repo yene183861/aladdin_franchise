@@ -13,24 +13,18 @@ class OrderTabWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var orderTabs = ref.watch(homeProvider.select((value) => value.orderTabs));
-    var orderTabSelect =
-        ref.watch(homeProvider.select((value) => value.orderTabSelect));
+    var orderTabSelect = ref.watch(homeProvider.select((value) => value.orderTabSelect));
 
     if (orderTabs.length < 2) return const SizedBox.shrink();
     // var currentOrderItems =
     //     ref.watch(homeProvider.select((value) => value.currentOrderItems));
-    var productsSelecting =
-        ref.watch(homeProvider.select((value) => value.productsSelecting));
-    var productsSelected =
-        ref.watch(homeProvider.select((value) => value.productsSelected));
+    var productsSelecting = ref.watch(homeProvider.select((value) => value.productsSelecting));
+    var productsSelected = ref.watch(homeProvider.select((value) => value.productsSelected));
     return Row(
       children: orderTabs.map(
         (e) {
           int count = 0;
           switch (e) {
-            // case OrderTabEnum.all:
-            //   count = currentOrderItems.length;
-            //   break;
             case OrderTabEnum.ordering:
               count = productsSelecting.length;
               break;
@@ -50,8 +44,8 @@ class OrderTabWidget extends ConsumerWidget {
               loadingSuffix: e == OrderTabEnum.ordered
                   ? Consumer(
                       builder: (context, ref, child) {
-                        var pcState = ref.watch(homeProvider
-                            .select((value) => value.productCheckoutState));
+                        var pcState =
+                            ref.watch(homeProvider.select((value) => value.productCheckoutState));
                         switch (pcState.status) {
                           case PageCommonState.loading:
                             return const Padding(

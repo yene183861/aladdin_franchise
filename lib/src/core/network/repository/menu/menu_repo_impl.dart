@@ -1,5 +1,6 @@
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/category.dart';
 import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
@@ -14,9 +15,9 @@ class MenuRepositoryImpl extends MenuRepository {
   MenuRepositoryImpl(this._client);
 
   @override
-  Future<ApiResult<CategoryResponseData>> getCategory() {
+  Future<CategoryResponseData> getCategory() async {
     final apiUrl = "${ApiConfig.apiUrl}/api/v1/make-waiter-restaurant-category";
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
@@ -28,15 +29,23 @@ class MenuRepositoryImpl extends MenuRepository {
         api: apiUrl,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? const CategoryResponseData(status: 200, data: []);
   }
 
   @override
-  Future<ApiResult<List<ProductModel>>> getProduct(
+  Future<List<ProductModel>> getProduct(
     int? categoryId, {
     int? typeOrder,
-  }) {
+  }) async {
     final apiUrl = "${ApiConfig.apiUrl}/api/v1/make-menu-search?category=${categoryId ?? ''}";
-    return safeCallApiList(
+    var result = await safeCallApiList(
       () {
         final url = Uri.parse(apiUrl);
         return _client.get(url, typeOrder: typeOrder);
@@ -49,5 +58,13 @@ class MenuRepositoryImpl extends MenuRepository {
         api: apiUrl,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? [];
   }
 }
