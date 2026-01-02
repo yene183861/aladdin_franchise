@@ -101,16 +101,18 @@ class CustomerRepositoryImpl extends CustomerRepository {
 
   @override
   Future<void> deleteCustomer(int orderId) async {
-    var apiUrl = "${ApiConfig.apiUrl}/api/v1/status-lock-order?order_id=$orderId";
+    var apiUrl = "${ApiConfig.apiUrl}/api/v1/remove-customer-id-to-order";
+    var body = jsonEncode({'order_id': orderId});
     var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
-        return _client.get(url);
+        return _client.post(url, body: body);
       },
       log: ErrorLogModel(
         action: AppLogAction.resetCustomer,
         api: apiUrl,
         order: OrderModel(id: orderId),
+        request: body,
       ),
     );
     if (!result.isSuccess) {

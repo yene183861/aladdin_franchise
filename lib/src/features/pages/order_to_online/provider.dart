@@ -573,16 +573,10 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
         restaurantId: restaurantId,
         orderId: orderSelect.orderId,
       );
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
 
       state = state.copyWith(
         getChatMessageState: const PageState(status: PageCommonState.success, messageError: ''),
-        chatMessages: result.data ?? [],
+        chatMessages: result,
       );
     } catch (ex) {
       state = state.copyWith(

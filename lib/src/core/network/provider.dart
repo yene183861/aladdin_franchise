@@ -258,148 +258,149 @@ final orderToOnlineProvider =
     FutureProvider.autoDispose<Map<O2OOrderModel, Map<String, dynamic>>>((ref) async {
   var useO2O = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
   if (!useO2O) return {};
+  return {};
   // var loginUserId = LocalStorage.getDataLogin()?.user?.id;
-  Map<O2OOrderModel, Map<String, dynamic>> orders = {};
-  orders = {};
-  final result = await ref.read(o2oRepositoryProvider).getOrderToOnline();
-  if (!result.isSuccess) {
-    throw AppException(
-      statusCode: result.statusCode,
-      message: result.error,
-    );
-  }
+  // Map<O2OOrderModel, Map<String, dynamic>> orders = {};
+  // orders = {};
+  // final result = await ref.read(o2oRepositoryProvider).getOrderToOnline();
+  // if (!result.isSuccess) {
+  //   throw AppException(
+  //     statusCode: result.statusCode,
+  //     message: result.error,
+  //   );
+  // }
 
-  for (var e in (result.data ?? [])) {
-    // if (loginUserId != null && e.userId != loginUserId) continue;
+  // for (var e in (result.data ?? [])) {
+  //   // if (loginUserId != null && e.userId != loginUserId) continue;
 
-    var order = e.copyWith(items: []);
-    var data = orders[order] ?? {};
+  //   var order = e.copyWith(items: []);
+  //   var data = orders[order] ?? {};
 
-    var items = List<RequestOrderModel>.from(e.items);
+  //   var items = List<RequestOrderModel>.from(e.items);
 
-    var itemData = List<RequestOrderModel>.from(data['items'] ?? []);
+  //   var itemData = List<RequestOrderModel>.from(data['items'] ?? []);
 
-    int count = data['count'] ?? 0;
-    itemData.addAll(items);
+  //   int count = data['count'] ?? 0;
+  //   itemData.addAll(items);
 
-    for (var i in items) {
-      if (i.requestProcessingStatus == RequestProcessingStatus.waiting && i.listItem.isNotEmpty) {
-        count++;
-      }
-    }
+  //   for (var i in items) {
+  //     if (i.requestProcessingStatus == RequestProcessingStatus.waiting && i.listItem.isNotEmpty) {
+  //       count++;
+  //     }
+  //   }
 
-    orders[order] = {
-      'items': itemData,
-      'count': count,
-    };
-  }
+  //   orders[order] = {
+  //     'items': itemData,
+  //     'count': count,
+  //   };
+  // }
 
-  // return {
-  //   O2OOrderModel(
-  //     orderId: 1,
-  //     tableName: 'Test 01',
-  //     userId: 6,
-  //     orderCode: 'Test01',
-  //     qrOrderO2o: [],
-  //     items: [],
-  //   ): {
-  //     'items': [
-  //       RequestOrderModel(
-  //         id: 1,
-  //         status: 1,
-  //         timeOrder: DateTime.now(),
-  //         orderTimes: 1,
-  //         listItem: [
-  //           RequestOrderItemModel(
-  //             id: 1,
-  //             codeProduct: 'CHCMP028',
-  //             menuItemId: 82,
-  //             quantity: 1,
-  //             noteRestaurant: 'note 111',
-  //             name: 'Cơm niêu ba chỉ heo kho ngũ hương',
-  //             image: 'http://192.168.10.136:85/storage/3055/CHCMP033.jpg?3055',
-  //             // printerType: 2,
-  //             // unit: 'Suất',
-  //           ),
-  //           RequestOrderItemModel(
-  //             id: 2,
-  //             codeProduct: 'CHDSU001',
-  //             menuItemId: 82,
-  //             quantity: 1,
-  //             noteRestaurant: 'note 111',
-  //             name: 'Há cảo tôm thịt 3 chiếc',
-  //             image: 'https://o2o.aladdin-jsc.com/storage/4564/CHDSU001_1754401345.jpg',
-  //             // printerType: 2,
-  //             // unit: 'Suất',
-  //           ),
-  //         ],
-  //       ),
-  //       RequestOrderModel(
-  //         id: 2,
-  //         status: 2,
-  //         timeOrder: DateTime.now(),
-  //         orderTimes: 2,
-  //         listItem: [
-  //           RequestOrderItemModel(
-  //             id: 3,
-  //             codeProduct: 'CHCMP028',
-  //             menuItemId: 82,
-  //             quantity: 1,
-  //             noteRestaurant: 'note 111',
-  //             name: 'Cơm niêu ba chỉ heo kho ngũ hương',
-  //             image: 'http://192.168.10.136:85/storage/3055/CHCMP033.jpg?3055',
-  //             // printerType: 2,
-  //             // unit: 'Suất',
-  //           ),
-  //           RequestOrderItemModel(
-  //             id: 4,
-  //             codeProduct: 'CHDSU001',
-  //             menuItemId: 82,
-  //             quantity: 1,
-  //             noteRestaurant: 'note 111',
-  //             name: 'Há cảo tôm thịt 3 chiếc',
-  //             image: 'https://o2o.aladdin-jsc.com/storage/4564/CHDSU001_1754401345.jpg',
-  //             // printerType: 2,
-  //             // unit: 'Suất',
-  //           ),
-  //         ],
-  //       ),
-  //       RequestOrderModel(
-  //         id: 3,
-  //         status: 0,
-  //         timeOrder: DateTime.now(),
-  //         orderTimes: 3,
-  //         listItem: [
-  //           RequestOrderItemModel(
-  //             id: 5,
-  //             codeProduct: 'CHCMP028',
-  //             menuItemId: 82,
-  //             quantity: 1,
-  //             noteRestaurant: 'note 111',
-  //             name: 'Cơm niêu ba chỉ heo kho ngũ hương',
-  //             image: 'http://192.168.10.136:85/storage/3055/CHCMP033.jpg?3055',
-  //             // printerType: 2,
-  //             // unit: 'Suất',
-  //           ),
-  //           RequestOrderItemModel(
-  //             id: 6,
-  //             codeProduct: 'CHDSU001',
-  //             menuItemId: 82,
-  //             quantity: 1,
-  //             noteRestaurant: 'note 111',
-  //             name: 'Há cảo tôm thịt 3 chiếc',
-  //             image: 'https://o2o.aladdin-jsc.com/storage/4564/CHDSU001_1754401345.jpg',
-  //             // printerType: 2,
-  //             // unit: 'Suất',
-  //           ),
-  //         ],
-  //       ),
-  //     ],
-  //     'count': 1,
-  //   },
-  // };
+  // // return {
+  // //   O2OOrderModel(
+  // //     orderId: 1,
+  // //     tableName: 'Test 01',
+  // //     userId: 6,
+  // //     orderCode: 'Test01',
+  // //     qrOrderO2o: [],
+  // //     items: [],
+  // //   ): {
+  // //     'items': [
+  // //       RequestOrderModel(
+  // //         id: 1,
+  // //         status: 1,
+  // //         timeOrder: DateTime.now(),
+  // //         orderTimes: 1,
+  // //         listItem: [
+  // //           RequestOrderItemModel(
+  // //             id: 1,
+  // //             codeProduct: 'CHCMP028',
+  // //             menuItemId: 82,
+  // //             quantity: 1,
+  // //             noteRestaurant: 'note 111',
+  // //             name: 'Cơm niêu ba chỉ heo kho ngũ hương',
+  // //             image: 'http://192.168.10.136:85/storage/3055/CHCMP033.jpg?3055',
+  // //             // printerType: 2,
+  // //             // unit: 'Suất',
+  // //           ),
+  // //           RequestOrderItemModel(
+  // //             id: 2,
+  // //             codeProduct: 'CHDSU001',
+  // //             menuItemId: 82,
+  // //             quantity: 1,
+  // //             noteRestaurant: 'note 111',
+  // //             name: 'Há cảo tôm thịt 3 chiếc',
+  // //             image: 'https://o2o.aladdin-jsc.com/storage/4564/CHDSU001_1754401345.jpg',
+  // //             // printerType: 2,
+  // //             // unit: 'Suất',
+  // //           ),
+  // //         ],
+  // //       ),
+  // //       RequestOrderModel(
+  // //         id: 2,
+  // //         status: 2,
+  // //         timeOrder: DateTime.now(),
+  // //         orderTimes: 2,
+  // //         listItem: [
+  // //           RequestOrderItemModel(
+  // //             id: 3,
+  // //             codeProduct: 'CHCMP028',
+  // //             menuItemId: 82,
+  // //             quantity: 1,
+  // //             noteRestaurant: 'note 111',
+  // //             name: 'Cơm niêu ba chỉ heo kho ngũ hương',
+  // //             image: 'http://192.168.10.136:85/storage/3055/CHCMP033.jpg?3055',
+  // //             // printerType: 2,
+  // //             // unit: 'Suất',
+  // //           ),
+  // //           RequestOrderItemModel(
+  // //             id: 4,
+  // //             codeProduct: 'CHDSU001',
+  // //             menuItemId: 82,
+  // //             quantity: 1,
+  // //             noteRestaurant: 'note 111',
+  // //             name: 'Há cảo tôm thịt 3 chiếc',
+  // //             image: 'https://o2o.aladdin-jsc.com/storage/4564/CHDSU001_1754401345.jpg',
+  // //             // printerType: 2,
+  // //             // unit: 'Suất',
+  // //           ),
+  // //         ],
+  // //       ),
+  // //       RequestOrderModel(
+  // //         id: 3,
+  // //         status: 0,
+  // //         timeOrder: DateTime.now(),
+  // //         orderTimes: 3,
+  // //         listItem: [
+  // //           RequestOrderItemModel(
+  // //             id: 5,
+  // //             codeProduct: 'CHCMP028',
+  // //             menuItemId: 82,
+  // //             quantity: 1,
+  // //             noteRestaurant: 'note 111',
+  // //             name: 'Cơm niêu ba chỉ heo kho ngũ hương',
+  // //             image: 'http://192.168.10.136:85/storage/3055/CHCMP033.jpg?3055',
+  // //             // printerType: 2,
+  // //             // unit: 'Suất',
+  // //           ),
+  // //           RequestOrderItemModel(
+  // //             id: 6,
+  // //             codeProduct: 'CHDSU001',
+  // //             menuItemId: 82,
+  // //             quantity: 1,
+  // //             noteRestaurant: 'note 111',
+  // //             name: 'Há cảo tôm thịt 3 chiếc',
+  // //             image: 'https://o2o.aladdin-jsc.com/storage/4564/CHDSU001_1754401345.jpg',
+  // //             // printerType: 2,
+  // //             // unit: 'Suất',
+  // //           ),
+  // //         ],
+  // //       ),
+  // //     ],
+  // //     'count': 1,
+  // //   },
+  // // };
 
-  return orders;
+  // return orders;
 });
 // final employeeSalesProvider = FutureProvider.autoDispose<List<EmployeeSaleModel>>((ref) async {
 //   final result = await ref.read(restaurantRepositoryProvider).getEmployeeSales();

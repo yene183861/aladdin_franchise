@@ -110,6 +110,14 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
         request: body,
       ),
     );
+
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
     // final apiUrl = ApiConfig.processO2oRequest;
     // var log = ErrorLogModel(
     //   action: AppLogAction.processO2oRequest,
@@ -146,13 +154,13 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
   }
 
   @override
-  Future<ApiResult<List<ChatMessageModel>>> getChatMessages({
+  Future<List<ChatMessageModel>> getChatMessages({
     required int restaurantId,
     required int orderId,
   }) async {
     final dataLogin = LocalStorage.getDataLogin();
     final apiUrl = "${dataLogin?.restaurant?.urlServerO2o}/$restaurantId/$orderId/$kDeviceId";
-    return safeCallApiList(
+    var result = await safeCallApiList(
       () {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
@@ -165,6 +173,14 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
         order: OrderModel(id: orderId),
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? [];
     // final dataLogin = LocalStorage.getDataLogin();
     // final apiUrl = "${dataLogin?.restaurant?.urlServerO2o}/$restaurantId/$orderId/$kDeviceId";
     // var log = ErrorLogModel(
@@ -194,14 +210,14 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
   }
 
   @override
-  Future<ApiResult<List<O2oCustomerInfoModel>>> getO2OCustomerInfo({required int orderId}) async {
+  Future<List<O2oCustomerInfoModel>> getO2OCustomerInfo({required int orderId}) async {
     final dataLogin = LocalStorage.getDataLogin();
     final apiUrl = "${ApiConfig.apiUrl}/api/v1/get-customer-info";
     var body = jsonEncode(<String, dynamic>{
       "restaurant_id": dataLogin?.restaurant?.id,
       "order_id": orderId,
     });
-    return safeCallApiList(
+    var result = await safeCallApiList(
       () {
         final url = Uri.parse(apiUrl);
         return _client.post(
@@ -219,6 +235,14 @@ class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {
         request: body,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? [];
     // final dataLogin = LocalStorage.getDataLogin();
     // final apiUrl = ApiConfig.getO2oCustomerInfo;
     // var log = ErrorLogModel(
