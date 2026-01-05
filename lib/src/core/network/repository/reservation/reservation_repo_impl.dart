@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
 import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
+import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
+import 'package:aladdin_franchise/src/data/request/reservation_request.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/models/param/get_reservation_param.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 
 import 'reservation_repository.dart';
 
@@ -15,10 +17,10 @@ class ReservationRepositoryImpl extends ReservationRepository {
 
   ReservationRepositoryImpl(this._client);
   @override
-  Future<ApiResult<bool>> syncReservation(GetReservationParam param) async {
+  Future<bool> syncReservation(ReservationRequestModel param) async {
     final apiUrl = "${ApiConfig.apiUrl}/api/v1/reservation/sync";
     var body = jsonEncode(param.toJson());
-    return safeCallApi(
+    var result = await safeCallApi(
       () async {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
@@ -31,38 +33,60 @@ class ReservationRepositoryImpl extends ReservationRepository {
         request: body,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? false;
   }
 
   @override
-  Future<ApiResult<List<ReservationModel>>> getReservations(GetReservationParam param) async {
+  Future<List<ReservationModel>> getReservations(ReservationRequestModel param) async {
     final apiUrl = "${ApiConfig.apiUrl}/api/v1/reservation?${param.toParamRequest()}";
-    var syn = await syncReservation(param);
-    if (!syn.isSuccess) {
-      return ApiResult.failure(syn.statusCode, syn.error);
-    }
-    return safeCallApiList(
+    await syncReservation(param);
+    var result = await safeCallApiList(
       () async {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
       },
       wrapperResponse: true,
       dataKey: 'data',
-      parser: (json) => ReservationModel.fromJson(json),
+      parser: (json) {
+        var item = ReservationModel.fromJson(json);
+        item = item.copyWith(rawData: json);
+        return item;
+      },
       log: ErrorLogModel(
         action: AppLogAction.getReservations,
         api: apiUrl,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? [];
   }
 
   @override
-  Future<ApiResult<ReservationModel?>> updateReservation(dynamic id, ReservationModel model) async {
+  Future<ReservationModel?> updateReservation(dynamic id, ReservationModel model) async {
     final apiUrl = '${ApiConfig.apiUrl}/api/v1/reservation/status/$id';
-    var reservationModel = model.toJson();
-    // bên anh T.A cần convert sang thế này
-    reservationModel['status'] = reservationModel['status'].toString();
-    var body = jsonEncode(reservationModel);
-    return safeCallApi(
+    var update = Map<String, dynamic>.from(model.rawData ?? {});
+    update.addAll({
+      'status': model.status.toString(),
+      'status_name': model.statusName,
+      'table': model.table,
+      'table_id': model.tableId,
+      'is_update': false,
+    });
+    var body = jsonEncode(update);
+    var result = await safeCallApi(
       () async {
         final url = Uri.parse(apiUrl);
         return _client.put(url, body: body);
@@ -71,7 +95,9 @@ class ReservationRepositoryImpl extends ReservationRepository {
       dataKey: 'data',
       parser: (json) {
         if (json == null) return null;
-        return ReservationModel.fromJson(json);
+        var item = ReservationModel.fromJson(json);
+        item = item.copyWith(rawData: json);
+        return item;
       },
       log: ErrorLogModel(
         action: AppLogAction.updateReservation,
@@ -79,23 +105,43 @@ class ReservationRepositoryImpl extends ReservationRepository {
         request: body,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data;
   }
 
   @override
-  Future<ApiResult<ReservationModel>> getReservationById({required dynamic id}) async {
+  Future<ReservationModel?> getReservationById(dynamic id) async {
     final apiUrl = "${ApiConfig.apiUrl}/api/v1/reservation/detail/$id";
-    return safeCallApi(
+    var result = await safeCallApi(
       () async {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
       },
       wrapperResponse: true,
       dataKey: 'data',
-      parser: (json) => ReservationModel.fromJson(json),
+      parser: (json) {
+        var item = ReservationModel.fromJson(json);
+        item = item.copyWith(rawData: json);
+        return item;
+      },
       log: ErrorLogModel(
         action: AppLogAction.getReservationById,
         api: apiUrl,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data;
   }
 }

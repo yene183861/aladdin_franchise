@@ -4,12 +4,13 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
 import 'package:aladdin_franchise/src/data/enum/status.dart';
 import 'package:aladdin_franchise/src/data/model/floor.dart';
+import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/data/model/table_layout_item.dart';
 import 'package:aladdin_franchise/src/data/model/table_layout_setting.dart';
 import 'package:aladdin_franchise/src/features/common/process_state.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/restaurant.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
@@ -353,9 +354,9 @@ class TableLayoutPageNotifier extends StateNotifier<TableLayoutPageState> {
         .where(
           (e) =>
               [
-                ReservationStatus.pending,
-                ReservationStatus.accept,
-                ReservationStatus.process,
+                ReservationStatusEnum.pending,
+                ReservationStatusEnum.accept,
+                ReservationStatusEnum.process,
               ].contains(e.reservationStatus) &&
               (e.tableId ?? []).contains(table?.id) &&
               e.startDateTime.checkInRangeTime(start: startDateTime(), end: endDateTime()),
@@ -430,15 +431,10 @@ class TableLayoutPageNotifier extends StateNotifier<TableLayoutPageState> {
         var result = await ref
             .read(restaurantRepositoryProvider)
             .getOrderHistoryList(startDate: state.fromDate, endDate: state.toDate);
-        if (!result.isSuccess) {
-          throw AppException(
-            statusCode: result.statusCode,
-            message: result.error,
-          );
-        }
+
         state = state.copyWith(
           historyOrderState: const ProcessState(status: StatusEnum.success),
-          historyOrder: result.data ?? [],
+          historyOrder: result,
         );
         return;
       } catch (ex) {

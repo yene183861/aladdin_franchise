@@ -89,6 +89,8 @@ enum AppLogAction {
 
   ///
   webContentConverter,
+
+  getQrBankDynamicPaymentGateway,
 }
 
 extension ExtAppLogAction on AppLogAction {

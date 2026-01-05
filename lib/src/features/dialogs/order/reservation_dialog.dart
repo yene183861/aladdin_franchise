@@ -2,12 +2,12 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
+import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -76,13 +76,10 @@ Future<bool> showSelectReservationDialog({
                               newReservation: item,
                             );
                         if (error == null) {
-                          // cập nhật lịch đặt bàn mới sang trạng thái Process
                           if (item != null) {
                             final model = item.copyWith(
-                              rejectReason: '',
-                              status: ReservationStatus.process.type,
-                              statusName: ReservationStatus.process.name,
-                              isUpdate: false,
+                              status: ReservationStatusEnum.process.type,
+                              statusName: ReservationStatusEnum.process.name,
                               tableId: tableIds,
                               table: tableNames,
                             );
@@ -90,12 +87,9 @@ Future<bool> showSelectReservationDialog({
                             ref.read(homeProvider.notifier).updateReservation(model);
                           }
                           if (itemInit != null) {
-                            // cập nhật lịch đặt bàn cũ sang trạng thái Accept
                             final model = itemInit.copyWith(
-                              rejectReason: '',
-                              status: ReservationStatus.accept.type,
-                              statusName: ReservationStatus.accept.name,
-                              isUpdate: false,
+                              status: ReservationStatusEnum.accept.type,
+                              statusName: ReservationStatusEnum.accept.name,
                               tableId: tableIds,
                               table: tableNames,
                             );

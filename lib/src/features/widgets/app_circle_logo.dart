@@ -1,12 +1,10 @@
-import 'dart:io';
-
 import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 class CirleAppLogoWidget extends StatelessWidget {
-  const CirleAppLogoWidget({super.key});
+  const CirleAppLogoWidget({super.key, this.size = 120});
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +15,7 @@ class CirleAppLogoWidget extends StatelessWidget {
           color: AppColors.mainColor,
           child: Image.asset(
             Assets.imagesLoading,
-            width: Device.screenType == ScreenType.mobile ? 60.px : 120.px,
+            width: size,
             color: AppColors.secondColor,
           ),
         ),

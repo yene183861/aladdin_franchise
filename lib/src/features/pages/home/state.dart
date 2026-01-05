@@ -16,7 +16,6 @@ import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart'
 import 'package:aladdin_franchise/src/models/policy_result.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/tag_product.dart';
 import 'package:aladdin_franchise/src/models/user_bank.dart';
 import 'package:flutter/foundation.dart';

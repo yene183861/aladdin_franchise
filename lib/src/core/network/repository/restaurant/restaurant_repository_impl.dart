@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
 import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
 import 'package:aladdin_franchise/src/core/network/repository/restaurant/restaurant_repository.dart';
@@ -22,14 +23,14 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
   RestaurantRepositoryImpl(this._client);
 
   @override
-  Future<ApiResult<List<UserBankModel>>> getBanks(ApiBankParam apiBankParam) async {
+  Future<List<UserBankModel>> getBanks(ApiBankParam apiBankParam) async {
     var loginData = LocalStorage.getDataLogin();
     final apiUrl = '${ApiConfig.apiUrl}/api/v1/get-bank-information'
         '?restaurant_id=${loginData?.restaurant?.id}'
         '&order_id=${apiBankParam.orderDataBill.id}'
         '&table_name=${apiBankParam.orderDataBill.tableName}'
         '&total_bill=${apiBankParam.priceFinal}';
-    return safeCallApiList(
+    var result = await safeCallApiList(
       () async {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
@@ -41,17 +42,25 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         api: apiUrl,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? [];
   }
 
   @override
-  Future<ApiResult<List<PaymentMethod>>> getPaymentMethod({
+  Future<List<PaymentMethod>> getPaymentMethod({
     required int orderId,
   }) async {
     final makeDeviceId = LocalStorage.getMakeDeviceId();
     final apiUrl = '${ApiConfig.apiUrl}/api/v1/get-payment-method'
         '?order_id=$orderId'
         '&device_id=$makeDeviceId';
-    return safeCallApiList(
+    var result = await safeCallApiList(
       () async {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
@@ -63,10 +72,17 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         api: apiUrl,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return result.data ?? [];
   }
 
   @override
-  Future<ApiResult<({String? url, String? qr, int? expiryMin, String? message, int? status})>>
+  Future<({String? url, String? qr, int? expiryMin, String? message, int? status})>
       getPaymentGateway({
     required ApiBankParam apiBankParam,
     required int keyPaymentMethod,
@@ -78,7 +94,7 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         '&order_id=${apiBankParam.orderDataBill.id}'
         '&table_name=${apiBankParam.orderDataBill.tableName}'
         '&total_bill=${apiBankParam.priceFinal}';
-    return safeCallApi(
+    final result = await safeCallApi(
       () async {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
@@ -98,6 +114,13 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         api: apiUrl,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return result.data ?? (url: null, qr: null, expiryMin: null, message: null, status: null);
     // return (url: null, qr: null, expiryMin: null, message: null, status: null);
     //return "https://newsandbox.payoo.com.vn/v2/paynow/prepare?_token=1ePupay5CD3";
     // var log = const ErrorLogModel(action: AppLogAction.getPaymentGateway);
@@ -140,7 +163,7 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
   }
 
   @override
-  Future<ApiResult<List<AtmPosModel>>> getListAtmPos({
+  Future<List<AtmPosModel>> getListAtmPos({
     required int orderId,
     required dynamic totalBill,
   }) async {
@@ -149,7 +172,7 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       'order_id': orderId,
       'total_bill': totalBill,
     });
-    return safeCallApiList(
+    var result = await safeCallApiList(
       () async {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
@@ -162,37 +185,17 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         request: body,
       ),
     );
-    // var log = const ErrorLogModel(action: AppLogAction.getListAtmPos);
-    // try {
-    //   final apiUrl = ApiConfig.getListAtmPos;
-
-    //   var bodyRequest = jsonEncode({
-    //     'order_id': orderId,
-    //     'total_bill': totalBill,
-    //   });
-    //   log = log.copyWith(api: apiUrl, request: bodyRequest);
-    //   final response = await restClient.post(Uri.parse(apiUrl), body: bodyRequest);
-
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //   );
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     final data = jsonDecode(response.body);
-    //     return (data['data'] as List).map((e) => AtmPosModel.fromJson(e)).toList();
-    //   } else {
-    //     throw AppException.fromStatusCode(response.statusCode);
-    //   }
-    // } catch (ex) {
-    //   showLog(ex.toString(), flags: 'getListAtmPos ex');
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
-
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return result.data ?? [];
   }
 
   @override
-  Future<ApiResult<void>> atmPosCallback({
+  Future<void> atmPosCallback({
     required String urlPos,
     // tổng tiền cuối ? (thấy note trên posman vậy)
     required dynamic orderId,
@@ -202,31 +205,26 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       'urlPos': urlPos,
       'orderId': orderId,
     });
-    await AppHelper.initTokenAndTypeOrder();
-    var defaultHeaders = <String, String>{
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $kToken',
-      'x-status-order': '$kTypeOrder',
-      'x-location': kAppLanguageLocal,
-      'x-device-id': kDeviceId,
-    };
-    return safeCallApiList(
+
+    var result = await safeCallApi(
       () async {
         final url = Uri.parse(apiUrl);
-        return _client.post(
-          url,
-          body: body,
-          headers: defaultHeaders,
-        );
+        return _client.post(url, body: body);
       },
-      parser: (json) => AtmPosModel.fromJson(json),
+      dataKey: 'data',
       log: ErrorLogModel(
-        action: AppLogAction.getListAtmPos,
+        action: AppLogAction.posCallback,
         api: apiUrl,
         request: body,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return;
     // var log = const ErrorLogModel(action: AppLogAction.posCallback);
     // try {
     //   final apiUrl = ApiConfig.atmPosCallback;
@@ -270,7 +268,7 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
   }
 
   @override
-  Future<ApiResult<List<HistoryOrderModel>>> getOrderHistoryList({
+  Future<List<HistoryOrderModel>> getOrderHistoryList({
     required DateTime startDate,
     required DateTime endDate,
   }) async {
@@ -278,7 +276,7 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         '?restaurant_id=${LocalStorage.getDataLogin()?.restaurant?.id}'
         '&start_date=${DateTimeUtils.formatToString(time: startDate, newPattern: 'yyyy-MM-dd')}'
         '&end_date=${DateTimeUtils.formatToString(time: endDate, newPattern: 'yyyy-MM-dd')}';
-    return safeCallApiList(
+    var result = await safeCallApiList(
       () async {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
@@ -291,5 +289,12 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         api: apiUrl,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return result.data ?? [];
   }
 }

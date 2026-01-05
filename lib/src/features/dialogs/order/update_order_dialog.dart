@@ -1,4 +1,6 @@
 import 'package:aladdin_franchise/src/core/network/provider.dart';
+import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
+import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -15,8 +17,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 
 class UpdateOrderDialog extends ConsumerStatefulWidget {
   const UpdateOrderDialog({Key? key}) : super(key: key);
@@ -148,12 +148,7 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
             final tableIds = tableSelected.map<int>((e) => e.id).toList();
             ReservationModel? reservation = orderSelect?.reservationCrmId == null
                 ? null
-                : ReservationModel(
-                    id: orderSelect?.reservationCrmId,
-                    reservationDate: '',
-                    startTime: '',
-                    endTime: '',
-                  );
+                : ReservationModel(id: orderSelect?.reservationCrmId);
 
             var result = await ref.read(homeProvider.notifier).updateOrder(
                   tableIds,
@@ -168,7 +163,7 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
               if (reservation != null) {
                 ref.read(homeProvider.notifier).updateReservationStatus(
                       reservation.id,
-                      ReservationStatus.process,
+                      ReservationStatusEnum.process,
                       tableSelected,
                     );
               }

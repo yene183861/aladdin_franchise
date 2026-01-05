@@ -13,6 +13,7 @@ import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/tag_product.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
@@ -69,7 +70,7 @@ class ProductBoxWidget extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
-                    product.getNameView(),
+                     product.getNameView(),
                     style: AppTextStyle.bold(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

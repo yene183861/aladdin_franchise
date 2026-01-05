@@ -4,12 +4,13 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
+import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_with_icon.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -186,12 +187,7 @@ class OrderOptionAction extends ConsumerWidget {
       if (orderSelect == null) return;
       var reservation = orderSelect.reservationCrmId == null
           ? null
-          : ReservationModel(
-              id: orderSelect.reservationCrmId,
-              reservationDate: '',
-              startTime: '',
-              endTime: '',
-            );
+          : ReservationModel(id: orderSelect.reservationCrmId);
       var result = await ref.read(homeProvider.notifier).updateOrder(
         [],
         orderSelect,
@@ -207,7 +203,7 @@ class OrderOptionAction extends ConsumerWidget {
         if (reservation != null) {
           ref.read(homeProvider.notifier).updateReservationStatus(
             reservation.id,
-            ReservationStatus.cancel,
+            ReservationStatusEnum.cancel,
             [],
           );
         }

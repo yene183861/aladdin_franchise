@@ -52,7 +52,7 @@ class OrderPanelWidget extends ConsumerWidget {
           color: const Color(0xff292929),
           child: const Row(
             children: [
-              Expanded(child: DropdownOrderWidget()),
+              Expanded(child: OrderDropdown()),
               Gap(12),
               _OrderInfoWidget(),
             ],

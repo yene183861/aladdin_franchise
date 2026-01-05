@@ -7,31 +7,27 @@ import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart'
 import 'package:aladdin_franchise/src/models/user_bank.dart';
 
 abstract class RestaurantRepository {
-  /// checked
-  Future<ApiResult<List<UserBankModel>>> getBanks(ApiBankParam apiBankParam);
+  Future<List<UserBankModel>> getBanks(ApiBankParam apiBankParam);
 
-  /// checked
-  Future<ApiResult<List<PaymentMethod>>> getPaymentMethod({required int orderId});
-  Future<ApiResult<({String? url, String? qr, int? expiryMin, String? message, int? status})>>
+  Future<List<PaymentMethod>> getPaymentMethod({required int orderId});
+  Future<({String? url, String? qr, int? expiryMin, String? message, int? status})>
       getPaymentGateway({
     required ApiBankParam apiBankParam,
     required int keyPaymentMethod,
   });
 
-  /// danh sách máy cà thẻ
-  Future<ApiResult<List<AtmPosModel>>> getListAtmPos({
+  Future<List<AtmPosModel>> getListAtmPos({
     required int orderId,
     required dynamic totalBill,
   });
 
-  Future<ApiResult<void>> atmPosCallback({
+  Future<void> atmPosCallback({
     required String urlPos,
     // tổng tiền cuối ? (thấy note trên posman vậy)
     required dynamic orderId,
   });
 
-  /// checked
-  Future<ApiResult<List<HistoryOrderModel>>> getOrderHistoryList({
+  Future<List<HistoryOrderModel>> getOrderHistoryList({
     required DateTime startDate,
     required DateTime endDate,
   });

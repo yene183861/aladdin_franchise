@@ -1,17 +1,12 @@
-import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
-import 'package:aladdin_franchise/src/models/param/get_reservation_param.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
+import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
+import 'package:aladdin_franchise/src/data/request/reservation_request.dart';
 
 abstract class ReservationRepository {
-  /// checked
-  Future<ApiResult<bool>> syncReservation(GetReservationParam param);
+  Future<bool> syncReservation(ReservationRequestModel param);
 
-  /// checked
-  Future<ApiResult<List<ReservationModel>>> getReservations(GetReservationParam param);
+  Future<List<ReservationModel>> getReservations(ReservationRequestModel param);
 
-  /// checked
-  Future<ApiResult<ReservationModel?>> updateReservation(dynamic id, ReservationModel model);
+  Future<ReservationModel?> updateReservation(dynamic id, ReservationModel model);
 
-  /// checked
-  Future<ApiResult<ReservationModel>> getReservationById({required dynamic id});
+  Future<ReservationModel?> getReservationById(dynamic id);
 }

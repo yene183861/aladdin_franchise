@@ -63,14 +63,9 @@ class LoginNotifier extends StateNotifier<LoginState> {
           email: state.email,
           password: state.password,
         );
-        if (!loginRepo.isSuccess) {
-          throw AppException(
-            statusCode: loginRepo.statusCode,
-            message: loginRepo.error,
-          );
-        }
-        await LocalStorage.setToken(loginRepo.data?.token ?? "");
-        await LocalStorage.setDataLogin(loginRepo.data ?? const LoginResponse(status: 200));
+
+        await LocalStorage.setToken(loginRepo.token ?? "");
+        await LocalStorage.setDataLogin(loginRepo);
         await AppHelper.initTokenAndTypeOrder(refreshTypeOrder: true);
         state = state.copyWith(event: LoginEvent.success);
       }

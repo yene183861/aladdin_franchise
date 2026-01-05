@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'state.dart';
 
-final transferOrderProvider = StateNotifierProvider.autoDispose<
-    TransferOrderNotifier, TransferOrderState>((ref) {
+final transferOrderProvider =
+    StateNotifierProvider.autoDispose<TransferOrderNotifier, TransferOrderState>((ref) {
   return TransferOrderNotifier();
 });
 

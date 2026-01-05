@@ -17,7 +17,6 @@ import 'package:aladdin_franchise/src/features/widgets/dropdown/dropdown_menu_fu
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
@@ -744,10 +743,10 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               if (widget.item == null)
-                AppButtonWithIcon(
+                ButtonWithIconWidget(
                   textAction: 'Thiết lập mặc định',
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
-                  borderRadius: BorderRadius.circular(12),
+                  // borderRadius: BorderRadius.circular(12),
                   color: Colors.grey.shade400,
                   onPressed: () {
                     showConfirmAction(
@@ -765,10 +764,10 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                   icon: Icons.restart_alt_rounded,
                 ),
               if (widget.item != null)
-                AppButtonWithIcon(
+                ButtonWithIconWidget(
                   textAction: 'Xoá bỏ',
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
-                  borderRadius: BorderRadius.circular(12),
+                  // borderRadius: BorderRadius.circular(12),
                   color: Colors.grey.shade400,
                   onPressed: () {
                     showConfirmAction(
@@ -782,10 +781,10 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                   },
                   icon: Icons.delete,
                 ),
-              AppButtonWithIcon(
+              ButtonWithIconWidget(
                 textAction: 'Lưu',
                 padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
-                borderRadius: BorderRadius.circular(12),
+                // borderRadius: BorderRadius.circular(12),
                 onPressed: () {
                   Navigator.of(context).pop((
                     setting: setting,
@@ -895,7 +894,7 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
             ],
           ),
           const Gap(12),
-          AppButtonWithIcon(
+          ButtonWithIconWidget(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             textAction: 'Lưu',
             onPressed: () {

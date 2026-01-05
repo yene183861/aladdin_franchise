@@ -45,6 +45,7 @@ mixin _$ProductModel {
   int get unitPriceDiscount => throw _privateConstructorUsedError;
   int get quantityDiscount => throw _privateConstructorUsedError;
   int get withComboDiscount => throw _privateConstructorUsedError;
+  String? get codeProduct => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -81,7 +82,8 @@ abstract class $ProductModelCopyWith<$Res> {
       int quantityPromotion,
       int unitPriceDiscount,
       int quantityDiscount,
-      int withComboDiscount});
+      int withComboDiscount,
+      String? codeProduct});
 }
 
 /// @nodoc
@@ -120,6 +122,7 @@ class _$ProductModelCopyWithImpl<$Res, $Val extends ProductModel>
     Object? unitPriceDiscount = null,
     Object? quantityDiscount = null,
     Object? withComboDiscount = null,
+    Object? codeProduct = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -214,6 +217,10 @@ class _$ProductModelCopyWithImpl<$Res, $Val extends ProductModel>
           ? _value.withComboDiscount
           : withComboDiscount // ignore: cast_nullable_to_non_nullable
               as int,
+      codeProduct: freezed == codeProduct
+          ? _value.codeProduct
+          : codeProduct // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -249,7 +256,8 @@ abstract class _$$ProductModelImplCopyWith<$Res>
       int quantityPromotion,
       int unitPriceDiscount,
       int quantityDiscount,
-      int withComboDiscount});
+      int withComboDiscount,
+      String? codeProduct});
 }
 
 /// @nodoc
@@ -286,6 +294,7 @@ class __$$ProductModelImplCopyWithImpl<$Res>
     Object? unitPriceDiscount = null,
     Object? quantityDiscount = null,
     Object? withComboDiscount = null,
+    Object? codeProduct = freezed,
   }) {
     return _then(_$ProductModelImpl(
       id: null == id
@@ -380,6 +389,10 @@ class __$$ProductModelImplCopyWithImpl<$Res>
           ? _value.withComboDiscount
           : withComboDiscount // ignore: cast_nullable_to_non_nullable
               as int,
+      codeProduct: freezed == codeProduct
+          ? _value.codeProduct
+          : codeProduct // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -411,7 +424,8 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
       this.quantityPromotion = 0,
       this.unitPriceDiscount = 0,
       this.quantityDiscount = 0,
-      this.withComboDiscount = 0})
+      this.withComboDiscount = 0,
+      this.codeProduct})
       : _language = language,
         _tags = tags,
         super._();
@@ -494,10 +508,12 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
   @override
   @JsonKey()
   final int withComboDiscount;
+  @override
+  final String? codeProduct;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'ProductModel(id: $id, categoryId: $categoryId, name: $name, language: $language, printerType: $printerType, slug: $slug, menuNumber: $menuNumber, unitPrice: $unitPrice, outOfStock: $outOfStock, internalUse: $internalUse, discountPrice: $discountPrice, unit: $unit, tax: $tax, currencyCode: $currencyCode, image: $image, description: $description, numberSelecting: $numberSelecting, note: $note, tags: $tags, quantityPromotion: $quantityPromotion, unitPriceDiscount: $unitPriceDiscount, quantityDiscount: $quantityDiscount, withComboDiscount: $withComboDiscount)';
+    return 'ProductModel(id: $id, categoryId: $categoryId, name: $name, language: $language, printerType: $printerType, slug: $slug, menuNumber: $menuNumber, unitPrice: $unitPrice, outOfStock: $outOfStock, internalUse: $internalUse, discountPrice: $discountPrice, unit: $unit, tax: $tax, currencyCode: $currencyCode, image: $image, description: $description, numberSelecting: $numberSelecting, note: $note, tags: $tags, quantityPromotion: $quantityPromotion, unitPriceDiscount: $unitPriceDiscount, quantityDiscount: $quantityDiscount, withComboDiscount: $withComboDiscount, codeProduct: $codeProduct)';
   }
 
   @override
@@ -527,7 +543,8 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('quantityPromotion', quantityPromotion))
       ..add(DiagnosticsProperty('unitPriceDiscount', unitPriceDiscount))
       ..add(DiagnosticsProperty('quantityDiscount', quantityDiscount))
-      ..add(DiagnosticsProperty('withComboDiscount', withComboDiscount));
+      ..add(DiagnosticsProperty('withComboDiscount', withComboDiscount))
+      ..add(DiagnosticsProperty('codeProduct', codeProduct));
   }
 
   @override
@@ -571,7 +588,9 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
             (identical(other.quantityDiscount, quantityDiscount) ||
                 other.quantityDiscount == quantityDiscount) &&
             (identical(other.withComboDiscount, withComboDiscount) ||
-                other.withComboDiscount == withComboDiscount));
+                other.withComboDiscount == withComboDiscount) &&
+            (identical(other.codeProduct, codeProduct) ||
+                other.codeProduct == codeProduct));
   }
 
   @JsonKey(ignore: true)
@@ -600,7 +619,8 @@ class _$ProductModelImpl extends _ProductModel with DiagnosticableTreeMixin {
         quantityPromotion,
         unitPriceDiscount,
         quantityDiscount,
-        withComboDiscount
+        withComboDiscount,
+        codeProduct
       ]);
 
   @JsonKey(ignore: true)
@@ -641,7 +661,8 @@ abstract class _ProductModel extends ProductModel {
       final int quantityPromotion,
       final int unitPriceDiscount,
       final int quantityDiscount,
-      final int withComboDiscount}) = _$ProductModelImpl;
+      final int withComboDiscount,
+      final String? codeProduct}) = _$ProductModelImpl;
   const _ProductModel._() : super._();
 
   factory _ProductModel.fromJson(Map<String, dynamic> json) =
@@ -695,6 +716,8 @@ abstract class _ProductModel extends ProductModel {
   int get quantityDiscount;
   @override
   int get withComboDiscount;
+  @override
+  String? get codeProduct;
   @override
   @JsonKey(ignore: true)
   _$$ProductModelImplCopyWith<_$ProductModelImpl> get copyWith =>

@@ -18,7 +18,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$CreateNewOrderDialogState {
   List<TableModel> get tableSelect => throw _privateConstructorUsedError;
   List<int> get tableIds => throw _privateConstructorUsedError;
-  int get tabIndexSelect => throw _privateConstructorUsedError;
+  CreateNewOrderTabEnum get tabSelect => throw _privateConstructorUsedError;
   ReservationModel? get reservationSelect => throw _privateConstructorUsedError;
   bool get notifyReservation => throw _privateConstructorUsedError;
   List<ReservationModel> get reservationsAssginTable =>
@@ -41,7 +41,7 @@ abstract class $CreateNewOrderDialogStateCopyWith<$Res> {
   $Res call(
       {List<TableModel> tableSelect,
       List<int> tableIds,
-      int tabIndexSelect,
+      CreateNewOrderTabEnum tabSelect,
       ReservationModel? reservationSelect,
       bool notifyReservation,
       List<ReservationModel> reservationsAssginTable,
@@ -68,7 +68,7 @@ class _$CreateNewOrderDialogStateCopyWithImpl<$Res,
   $Res call({
     Object? tableSelect = null,
     Object? tableIds = null,
-    Object? tabIndexSelect = null,
+    Object? tabSelect = null,
     Object? reservationSelect = freezed,
     Object? notifyReservation = null,
     Object? reservationsAssginTable = null,
@@ -85,10 +85,10 @@ class _$CreateNewOrderDialogStateCopyWithImpl<$Res,
           ? _value.tableIds
           : tableIds // ignore: cast_nullable_to_non_nullable
               as List<int>,
-      tabIndexSelect: null == tabIndexSelect
-          ? _value.tabIndexSelect
-          : tabIndexSelect // ignore: cast_nullable_to_non_nullable
-              as int,
+      tabSelect: null == tabSelect
+          ? _value.tabSelect
+          : tabSelect // ignore: cast_nullable_to_non_nullable
+              as CreateNewOrderTabEnum,
       reservationSelect: freezed == reservationSelect
           ? _value.reservationSelect
           : reservationSelect // ignore: cast_nullable_to_non_nullable
@@ -141,7 +141,7 @@ abstract class _$$CreateNewOrderDialogStateImplCopyWith<$Res>
   $Res call(
       {List<TableModel> tableSelect,
       List<int> tableIds,
-      int tabIndexSelect,
+      CreateNewOrderTabEnum tabSelect,
       ReservationModel? reservationSelect,
       bool notifyReservation,
       List<ReservationModel> reservationsAssginTable,
@@ -168,7 +168,7 @@ class __$$CreateNewOrderDialogStateImplCopyWithImpl<$Res>
   $Res call({
     Object? tableSelect = null,
     Object? tableIds = null,
-    Object? tabIndexSelect = null,
+    Object? tabSelect = null,
     Object? reservationSelect = freezed,
     Object? notifyReservation = null,
     Object? reservationsAssginTable = null,
@@ -185,10 +185,10 @@ class __$$CreateNewOrderDialogStateImplCopyWithImpl<$Res>
           ? _value._tableIds
           : tableIds // ignore: cast_nullable_to_non_nullable
               as List<int>,
-      tabIndexSelect: null == tabIndexSelect
-          ? _value.tabIndexSelect
-          : tabIndexSelect // ignore: cast_nullable_to_non_nullable
-              as int,
+      tabSelect: null == tabSelect
+          ? _value.tabSelect
+          : tabSelect // ignore: cast_nullable_to_non_nullable
+              as CreateNewOrderTabEnum,
       reservationSelect: freezed == reservationSelect
           ? _value.reservationSelect
           : reservationSelect // ignore: cast_nullable_to_non_nullable
@@ -223,7 +223,7 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
   const _$CreateNewOrderDialogStateImpl(
       {final List<TableModel> tableSelect = const [],
       final List<int> tableIds = const [],
-      this.tabIndexSelect = 0,
+      this.tabSelect = CreateNewOrderTabEnum.table,
       this.reservationSelect,
       this.notifyReservation = false,
       final List<ReservationModel> reservationsAssginTable = const [],
@@ -254,7 +254,7 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
 
   @override
   @JsonKey()
-  final int tabIndexSelect;
+  final CreateNewOrderTabEnum tabSelect;
   @override
   final ReservationModel? reservationSelect;
   @override
@@ -281,7 +281,7 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
 
   @override
   String toString() {
-    return 'CreateNewOrderDialogState(tableSelect: $tableSelect, tableIds: $tableIds, tabIndexSelect: $tabIndexSelect, reservationSelect: $reservationSelect, notifyReservation: $notifyReservation, reservationsAssginTable: $reservationsAssginTable, ignoreNotifyReservation: $ignoreNotifyReservation, typeOrder: $typeOrder, useReservation: $useReservation)';
+    return 'CreateNewOrderDialogState(tableSelect: $tableSelect, tableIds: $tableIds, tabSelect: $tabSelect, reservationSelect: $reservationSelect, notifyReservation: $notifyReservation, reservationsAssginTable: $reservationsAssginTable, ignoreNotifyReservation: $ignoreNotifyReservation, typeOrder: $typeOrder, useReservation: $useReservation)';
   }
 
   @override
@@ -292,8 +292,8 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
             const DeepCollectionEquality()
                 .equals(other._tableSelect, _tableSelect) &&
             const DeepCollectionEquality().equals(other._tableIds, _tableIds) &&
-            (identical(other.tabIndexSelect, tabIndexSelect) ||
-                other.tabIndexSelect == tabIndexSelect) &&
+            (identical(other.tabSelect, tabSelect) ||
+                other.tabSelect == tabSelect) &&
             (identical(other.reservationSelect, reservationSelect) ||
                 other.reservationSelect == reservationSelect) &&
             (identical(other.notifyReservation, notifyReservation) ||
@@ -314,7 +314,7 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
       runtimeType,
       const DeepCollectionEquality().hash(_tableSelect),
       const DeepCollectionEquality().hash(_tableIds),
-      tabIndexSelect,
+      tabSelect,
       reservationSelect,
       notifyReservation,
       const DeepCollectionEquality().hash(_reservationsAssginTable),
@@ -334,7 +334,7 @@ abstract class _CreateNewOrderDialogState implements CreateNewOrderDialogState {
   const factory _CreateNewOrderDialogState(
       {final List<TableModel> tableSelect,
       final List<int> tableIds,
-      final int tabIndexSelect,
+      final CreateNewOrderTabEnum tabSelect,
       final ReservationModel? reservationSelect,
       final bool notifyReservation,
       final List<ReservationModel> reservationsAssginTable,
@@ -347,7 +347,7 @@ abstract class _CreateNewOrderDialogState implements CreateNewOrderDialogState {
   @override
   List<int> get tableIds;
   @override
-  int get tabIndexSelect;
+  CreateNewOrderTabEnum get tabSelect;
   @override
   ReservationModel? get reservationSelect;
   @override

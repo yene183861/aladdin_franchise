@@ -2,6 +2,8 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
+import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
+import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/features/dialogs/order/create_new/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
@@ -9,8 +11,8 @@ import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -93,8 +95,8 @@ class _ReservationListState extends ConsumerState<ReservationList> {
     /// Nếu chỉ lấy ngày hôm nay thì những đơn bàn treo ngày hôm qua sẽ k có lịch đã gán,
     /// và khi update sẽ gán nhầm sang lịch đặt ngày hôm nay.
     var date = widget.order == null
-        ? DateTime.now().date
-        : (widget.order?.createdAt?.toLocal() ?? DateTime.now()).date;
+        ? DateTime.now().onlyDate()
+        : (widget.order?.createdAt?.toLocal() ?? DateTime.now()).onlyDate();
     var reservations = ref.watch(reservationsProvider(date));
 
     return Column(
@@ -147,8 +149,8 @@ class _ReservationListState extends ConsumerState<ReservationList> {
               dataView = data.where((e) {
                 if (typeOrder != null && e.typeOrder != typeOrder) return false;
                 if (![
-                      ReservationStatus.pending,
-                      ReservationStatus.accept,
+                      ReservationStatusEnum.pending,
+                      ReservationStatusEnum.accept,
                     ].contains(e.reservationStatus) &&
                     e.id != widget.order?.reservationCrmId) {
                   return false;

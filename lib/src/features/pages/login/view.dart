@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
@@ -8,12 +9,16 @@ import 'package:aladdin_franchise/src/features/pages/login/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/login/state.dart';
 import 'package:aladdin_franchise/src/features/pages/login/widgets/button_login.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_circle_logo.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
+import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/utils/app_check.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
@@ -42,6 +47,21 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
+  late TextEditingController usernameCtrl, pwdCtrl;
+  @override
+  void initState() {
+    super.initState();
+    usernameCtrl = TextEditingController();
+    pwdCtrl = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    usernameCtrl.dispose();
+    pwdCtrl.dispose();
+    super.dispose();
+  }
+
   _listenEvent(BuildContext context, WidgetRef ref) => (LoginEvent? previous, LoginEvent? next) {
         switch (next) {
           case LoginEvent.processing:
@@ -72,104 +92,141 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       _listenEvent(context, ref),
     );
     final notifier = ref.read(loginProvider.notifier);
-    bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
-    bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool isPortraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
-    bool isSmallDevice = (isMobile && isPortraitOrientation) || (isTablet && isPortraitOrientation);
+    bool isMobile = ResponsiveBreakpoints.of(context).isMobile;
+    double screenHeight = ResponsiveBreakpoints.of(context).screenHeight;
+    bool twoPanel = screenHeight <=
+        (ResponsiveBreakpoints.of(context)
+                .breakpoints
+                .firstWhereOrNull((element) => element.name == MOBILE)
+                ?.end ??
+            0);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: _buildAppBar(),
       body: Center(
-        child: ListView(
-          shrinkWrap: true,
-          padding: EdgeInsets.symmetric(
-            horizontal: isSmallDevice ? 20 : 50.sp,
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            if (isSmallDevice) const Gap(70),
-            const CirleAppLogoWidget(),
-            Gap(isSmallDevice ? 12 : 24),
-            const BrandRestaurantWidget(),
-            Gap(isSmallDevice ? 12 : 24),
-            TextFormField(
-              textInputAction: TextInputAction.next,
-              style: AppTextStyle.regular(),
-              onTapOutside: (event) {
-                FocusManager.instance.primaryFocus?.unfocus();
-              },
-              decoration: InputDecoration(
-                errorText: ref.watch(loginProvider.select((value) => value.errorEmail)),
-                prefixIcon: const ResponsiveIconWidget(
-                  iconData: CupertinoIcons.mail,
-                  color: AppColors.secondColor,
-                ),
-                errorStyle: AppTextStyle.regular(color: AppColors.redColor),
-                label: Text(
-                  S.current.username,
-                  style: AppTextStyle.regular(color: AppColors.tcHintText),
-                ),
-              ),
-              onChanged: (value) => notifier.changeEmail(value),
-            ),
-            Gap(isSmallDevice ? 12 : 20),
-            Consumer(builder: (context, ref, child) {
-              final hiddenPassword =
-                  ref.watch(loginProvider.select((value) => value.hiddenPassword));
-              return TextFormField(
-                style: AppTextStyle.regular(),
-                obscureText: hiddenPassword,
-                onTapOutside: (event) {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                },
-                decoration: InputDecoration(
-                  errorText: ref.watch(loginProvider.select((value) => value.errorPassword)),
-                  errorStyle: AppTextStyle.regular(color: AppColors.redColor),
-                  prefixIcon: const ResponsiveIconWidget(
-                    iconData: CupertinoIcons.lock,
-                    color: AppColors.secondColor,
+            Row(
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (twoPanel)
+                  const Expanded(
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CirleAppLogoWidget(size: 80),
+                          Gap(12),
+                          BrandRestaurantWidget(),
+                        ],
+                      ),
+                    ),
                   ),
-                  label: Text(
-                    S.current.password,
-                    style: AppTextStyle.regular(color: AppColors.tcHintText),
-                  ),
-                  suffixIcon: IconButton(
-                    onPressed: () => notifier.changeHiddenPassword(),
-                    icon: ResponsiveIconWidget(
-                      iconData: hiddenPassword ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
+                Expanded(
+                  child: Center(
+                    child: ListView(
+                      shrinkWrap: true,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: (isMobile || twoPanel) ? 12 : 50.sp),
+                      children: [
+                        if (!twoPanel) ...[
+                          const CirleAppLogoWidget(),
+                          const Gap(12),
+                          const BrandRestaurantWidget(),
+                          const Gap(12),
+                        ] else
+                          Text(
+                            'Đăng nhập',
+                            textAlign: TextAlign.center,
+                            style: AppTextStyle.bold(rawFontSize: AppConfig.defaultRawTextSize + 4),
+                          ),
+                        const Gap(20),
+                        AppTextFormField(
+                          textController: pwdCtrl,
+                          textInputAction: TextInputAction.next,
+                          prefixIcon: const ResponsiveIconWidget(
+                            iconData: CupertinoIcons.mail,
+                            color: AppColors.secondColor,
+                          ),
+                          label: S.current.username,
+                          onChanged: (value) => notifier.changeEmail(value),
+                          validator: (value) {
+                            if ((value ?? '').isEmpty) {
+                              return S.current.not_be_empty;
+                            }
+                            return null;
+                          },
+                        ),
+                        const Gap(12),
+                        Consumer(builder: (context, ref, child) {
+                          final hiddenPassword =
+                              ref.watch(loginProvider.select((value) => value.hiddenPassword));
+
+                          return AppTextFormField(
+                            obscureText: hiddenPassword,
+                            maxLines: 1,
+                            textInputAction: TextInputAction.next,
+                            prefixIcon: const ResponsiveIconWidget(
+                              iconData: CupertinoIcons.lock,
+                              color: AppColors.secondColor,
+                            ),
+                            suffixIcon: InkWell(
+                              onTap: () {
+                                ref.read(loginProvider.notifier).changeHiddenPassword();
+                              },
+                              child: ResponsiveIconWidget(
+                                iconData:
+                                    hiddenPassword ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
+                              ),
+                            ),
+                            label: S.current.password,
+                            onChanged: (value) => notifier.changePassword(value),
+                          );
+                        }),
+                      ],
                     ),
                   ),
                 ),
-                onChanged: (value) => notifier.changePassword(value),
-                onEditingComplete: () async {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  var state = ref.read(loginProvider);
-                  if (state.errorEmail == null && state.errorPassword == null) {
-                    await ref.read(loginProvider.notifier).onLogin();
-                    ref.invalidate(userInfoProvider);
-                  }
-                },
-              );
-            }),
-            Gap(isSmallDevice ? 12 : 16),
-            Align(
-              alignment: Alignment.centerRight,
-              child: GestureDetector(
-                onTap: () {
-                  showMessageDialog(
-                    context,
-                    title: S.current.forgotPassword,
-                    message: S.current.forgotPasswordMessage,
-                  );
-                },
-                child: Text(
-                  S.current.forgotPassword,
-                  style: AppTextStyle.regular(color: Colors.blueGrey),
+              ],
+            ),
+            const Gap(12),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: (isMobile || twoPanel) ? 12 : 50.sp),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () {
+                    showMessageDialog(
+                      context,
+                      title: S.current.forgotPassword,
+                      message: S.current.forgotPasswordMessage,
+                    );
+                  },
+                  child: Text(
+                    S.current.forgotPassword,
+                    style: const TextStyle(
+                      color: Colors.blueGrey,
+                    ),
+                  ),
                 ),
               ),
             ),
-            Gap(isSmallDevice ? 12 : 24),
-            const ButtonLoginWidget(),
-            if (isSmallDevice) const Gap(50),
+            const Gap(16),
+            Row(
+              children: [
+                if (twoPanel) const Expanded(child: Text('')),
+                Expanded(
+                  child: AppButton(
+                    widthFactor: 0.5,
+                    textAction: S.current.login.toUpperCase(),
+                    onPressed: () {
+                      ref.read(loginProvider.notifier).onLogin();
+                    },
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

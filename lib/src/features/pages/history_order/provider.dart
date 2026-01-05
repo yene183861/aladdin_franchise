@@ -125,13 +125,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                   var pm = await ref.read(restaurantRepositoryProvider).getPaymentMethod(
                         orderId: order.id,
                       );
-                  if (!pm.isSuccess) {
-                    throw AppException(
-                      statusCode: pm.statusCode,
-                      message: pm.error,
-                    );
-                  }
-                  listPaymentMethods = pm.data ?? [];
+
+                  listPaymentMethods = pm;
                 }
                 errorGetPaymentMethods = null;
                 break;
@@ -378,12 +373,6 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                 eSaleName: '',
                 eSaleCode: '',
                 arrMethod: ['${paymentMethodSelect.key}--$paymentAmount']);
-            if (!result.isSuccess) {
-              throw AppException(
-                statusCode: result.statusCode,
-                message: result.error,
-              );
-            }
 
             if (requireCompleteBill) {
               refreshData = true;
@@ -524,19 +513,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
       })> _getDataBill({required int orderId}) async {
     try {
       var result = await _orderRepository.getDataBill(orderId: orderId);
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
-      var data = result.data;
-      if (data == null) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: 'Không có dữ liệu',
-        );
-      }
+
+      var data = result;
       var sale = data.sale;
 
       var print = data.print;
@@ -657,27 +635,13 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
       );
 
       final result = await _orderRepository.getProductCheckout(order);
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
 
-      var data = result.data;
-      final productCheckout = data?.data?.firstOrNull?.orderItem ?? [];
-      final coupons = data?.coupons;
-      final customer = data?.customer;
+      final productCheckout = result.data?.first.orderItem ?? [];
+      final coupons = result.coupons;
+      final customer = result.customer;
       DataBillResponseData? billInfo;
       if (historyOrderSelect.orderItems.isNotEmpty) {
-        var bill = await _orderRepository.getDataBill(orderId: order.id);
-        if (!bill.isSuccess) {
-          throw AppException(
-            statusCode: bill.statusCode,
-            message: bill.error,
-          );
-        }
-        billInfo = bill.data;
+        billInfo = await _orderRepository.getDataBill(orderId: order.id);
       }
       state = state.copyWith(
         getOrderDetailState: const PageState(status: PageCommonState.success),
@@ -737,14 +701,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
           pc: item,
           paymentMethod: paymentMethod,
         );
-        if (!result.isSuccess) {
-          throw AppException(
-            statusCode: result.statusCode,
-            message: result.error,
-          );
-        }
         state = state.copyWith(event: HistoryOrderEvent.normal);
-        return (error: null, pc: result.data ?? []);
+        return (error: null, pc: result);
       } catch (ex) {
         retry++;
         error = ex.toString();

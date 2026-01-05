@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
 // import 'package:aladdin_franchise/src/features/dialogs/detail_product_checkout.dart';
@@ -519,7 +520,7 @@ class ListChatWidget extends StatelessWidget {
               onReload?.call();
             },
             emptyImage: SvgPicture.asset(
-              'assets/icons/ic_chat.svg',
+              Assets.iconsChat,
               height: 36,
               width: 36,
             ),

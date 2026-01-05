@@ -38,6 +38,7 @@ class ProductModel with _$ProductModel {
     @Default(0) int unitPriceDiscount,
     @Default(0) int quantityDiscount,
     @Default(0) int withComboDiscount,
+    String? codeProduct,
   }) = _ProductModel;
 
   factory ProductModel.fromJson(Map<String, dynamic> json) => _$ProductModelFromJson(json);

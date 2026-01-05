@@ -33,6 +33,7 @@ _$ProductModelImpl _$$ProductModelImplFromJson(Map<String, dynamic> json) =>
       unitPriceDiscount: (json['unit_price_discount'] as num?)?.toInt() ?? 0,
       quantityDiscount: (json['quantity_discount'] as num?)?.toInt() ?? 0,
       withComboDiscount: (json['with_combo_discount'] as num?)?.toInt() ?? 0,
+      codeProduct: json['code_product'] as String?,
     );
 
 Map<String, dynamic> _$$ProductModelImplToJson(_$ProductModelImpl instance) =>
@@ -60,4 +61,5 @@ Map<String, dynamic> _$$ProductModelImplToJson(_$ProductModelImpl instance) =>
       'unit_price_discount': instance.unitPriceDiscount,
       'quantity_discount': instance.quantityDiscount,
       'with_combo_discount': instance.withComboDiscount,
+      'code_product': instance.codeProduct,
     };

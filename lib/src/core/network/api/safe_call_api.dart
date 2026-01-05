@@ -29,6 +29,7 @@ class ApiResult<T> {
 ///
 /// [wrapperResponse] - false - 2 cấp: data trong field 'data'
 ///
+/// [ignoreResponse] - false - bỏ qua parse response, chỉ cần statusCode = [200, 206]
 Future<ApiResult<T>> safeCallApi<T>(
   Future<http.Response> Function() request, {
   T Function(dynamic json)? parser,
@@ -36,6 +37,7 @@ Future<ApiResult<T>> safeCallApi<T>(
   bool wrapperResponse = false,
   ErrorLogModel? log,
   bool ignoreCheckStatus = false,
+  bool ignoreResponse = false,
 }) async {
   ApiResult<T> result;
 
@@ -46,6 +48,11 @@ Future<ApiResult<T>> safeCallApi<T>(
       response: [response.statusCode, response.body],
     );
     if (response.statusCode >= 200 && response.statusCode <= 226) {
+      if (ignoreResponse) {
+        result = ApiResult.success(response.statusCode, null);
+        _pushLog(result, errorLog);
+        return result;
+      }
       var jsonData = jsonDecode(response.body);
       jsonData = wrapperResponse ? jsonData['data'] : jsonData;
       if (!ignoreCheckStatus && (jsonData is Map)) {

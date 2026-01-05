@@ -1,5 +1,5 @@
 import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
+import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'state.freezed.dart';

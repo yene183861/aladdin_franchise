@@ -30,6 +30,13 @@ import 'package:window_manager/window_manager.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  if (Platform.isAndroid) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
+  }
   if (args.firstOrNull == 'multi_window' && Platform.isWindows) {
     final windowId = int.parse(args[1]);
     final argument =

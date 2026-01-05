@@ -6,6 +6,7 @@ import 'package:aladdin_franchise/src/core/network/repository/responses/data_bil
 import 'package:aladdin_franchise/src/core/network/repository/responses/order.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/process_order.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/product_checkout.dart';
+import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/comment.dart';
 import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
@@ -13,11 +14,11 @@ import 'package:aladdin_franchise/src/models/customer/customer_rating.dart';
 import 'package:aladdin_franchise/src/models/data_bill.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
+import 'package:aladdin_franchise/src/models/param_family/bank_param.dart';
 import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart';
 import 'package:aladdin_franchise/src/models/policy_result.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/waiter.dart';
 
 abstract class OrderRepository {
@@ -32,19 +33,17 @@ abstract class OrderRepository {
     bool updateSaleInfo = true,
   });
 
-  /// checked
-  Future<ApiResult<ProductCheckoutResponse>> getProductCheckout(OrderModel? order);
+  Future<ProductCheckoutResponse> getProductCheckout(OrderModel? order);
 
-  /// checked
   /// Lấy ip máy in
   ///
   /// printerType: [1] in thanh toán, [2,4] in bếp & bar
-  Future<ApiResult<List<IpOrderModel>>> getIpPrinterOrder(OrderModel order, List<int> printerType);
+  Future<List<IpOrderModel>> getIpPrinterOrder(OrderModel order, List<int> printerType);
 
   /// Success => true
   ///
   /// Error => Exception
-  Future<ApiResult<bool>> payment({
+  Future<bool> payment({
     required OrderModel order,
     required List<IpOrderModel> infoPrint,
     required List<ProductCheckoutModel> products,
@@ -65,11 +64,10 @@ abstract class OrderRepository {
     dynamic totalPaymentCompleted,
   });
 
-  /// checked
   /// gọi hoặc huỷ món
   ///
   /// cancel: true - huy mon | false - goi mon
-  Future<ApiResult<ProcessOrderResponse>> processOrderItem({
+  Future<ProcessOrderResponse> processOrderItem({
     required OrderModel order,
     required double total,
     List<ProductModel> products = const [],
@@ -78,29 +76,26 @@ abstract class OrderRepository {
     bool cancel = false,
   });
 
-  /// checked
-  Future<ApiResult<DataBillResponseData>> getDataBill({required int orderId});
+  Future<DataBillResponseData> getDataBill({required int orderId});
 
-  /// checked
   /// Kiểm tra tình trạng máy in dành cho gọi món, huỷ món
   ///
   /// Kiểm tra tuỳ thuộc vào loại món ăn được yêu cầu (printerCheck)
-  Future<ApiResult<List<IpOrderModel>>> getPrinterBill(
+  Future<List<IpOrderModel>> getPrinterBill(
     OrderModel order,
     List<int> printerCheck,
   );
 
-  /// checked
   /// @order_id
   ///
   /// [statusLock]: 1 khoá, 0 mở khoá
-  Future<ApiResult<bool>> lockOrder({
+  Future<bool> lockOrder({
     required int orderId,
     required int statusLock,
   });
 
 // hoàn thành bill
-  Future<ApiResult<void>> completeBill({
+  Future<void> completeBill({
     required OrderModel order,
     String description = '',
     // cấu trúc: keyPaymentMethod--priceFinal,
@@ -119,11 +114,17 @@ abstract class OrderRepository {
 
   /// tax: dạng 0.08
   /// truyền lên server phải đổi về 8
-  Future<ApiResult<List<ProductCheckoutUpdateTaxModel>>> updateTax({
+  Future<List<ProductCheckoutUpdateTaxModel>> updateTax({
     required OrderModel order,
     required List<ProductCheckoutModel> pc,
     required PaymentMethod paymentMethod,
   });
 
-  Future<ApiResult<bool>> checkStatusLockOrder(int orderId);
+  Future<bool> checkStatusLockOrder(int orderId);
+
+  Future<({String? qrData, String? message, dynamic status})> getQrBankDynamicPayment({
+    required ApiBankParam apiBankParam,
+    required int keyPaymentMethod,
+    required String bankCode,
+  });
 }

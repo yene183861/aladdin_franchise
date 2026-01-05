@@ -46,6 +46,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import 'components/action/btn_refresh_data.dart';
@@ -331,11 +332,9 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
           Consumer(
             builder: (context, ref, child) {
               bool useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-              // useO2o = true;
               final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
 
-              bool isMobile = Device.screenType == ScreenType.mobile;
-              bool isSmallDevice = isMobile;
+              bool smallDevice = ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
 
               return orderSelect == null
                   ? const SizedBox.shrink()
@@ -344,16 +343,16 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                       : FloatBubble(
                           show: true,
                           initialAlignment:
-                              isSmallDevice ? Alignment(1, (140 / 100.w) - 1) : Alignment.topRight,
+                              smallDevice ? Alignment(1, (140 / 100.w) - 1) : Alignment.topRight,
                           child: GestureDetector(
                             onTap: () {
                               _showChatPopup(ref);
                             },
                             child: Container(
                               key: _floatingBtnKey,
-                              height: isSmallDevice ? 48 : 60,
-                              width: isSmallDevice ? 48 : 60,
-                              padding: EdgeInsets.all(isSmallDevice ? 12 : 12),
+                              height: smallDevice ? 48 : 60,
+                              width: smallDevice ? 48 : 60,
+                              padding: EdgeInsets.all(smallDevice ? 12 : 12),
                               decoration: const BoxDecoration(
                                 color: AppColors.bgBoxProduct,
                                 shape: BoxShape.circle,
@@ -454,40 +453,39 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
   }
 
   void _showChatPopup(WidgetRef ref) {
-    return;
     // ref.read(homeProvider.notifier).getO2OChatMessages();
-    // if (_overlayEntry != null) {
-    //   _overlayEntry?.remove();
-    //   _overlayEntry = null;
-    // }
-    // RenderBox renderBox = _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
-    // var buttonPosition = renderBox.localToGlobal(Offset.zero);
-    // var buttonSize = renderBox.size;
+    if (_overlayEntry != null) {
+      _overlayEntry?.remove();
+      _overlayEntry = null;
+    }
+    RenderBox renderBox = _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
+    var buttonPosition = renderBox.localToGlobal(Offset.zero);
+    var buttonSize = renderBox.size;
 
-    // var mediaQuery = MediaQuery.of(context);
-    // var screenSize = mediaQuery.size;
-    // double screenWidth = screenSize.width;
-    // double screenHeight = screenSize.height;
+    var mediaQuery = MediaQuery.of(context);
+    var screenSize = mediaQuery.size;
+    double screenWidth = screenSize.width;
+    double screenHeight = screenSize.height;
 
-    // double popupLeft = buttonPosition.dx;
-    // double popupTop = buttonPosition.dy + buttonSize.height / 2;
+    double popupLeft = buttonPosition.dx;
+    double popupTop = buttonPosition.dy + buttonSize.height / 2;
 
-    // if (popupTop + chatPopupHeight > screenHeight) {
-    //   popupTop = buttonPosition.dy - chatPopupHeight;
-    // }
-    // if (popupTop < 0) {
-    //   popupTop = 10;
-    // }
+    if (popupTop + chatPopupHeight > screenHeight) {
+      popupTop = buttonPosition.dy - chatPopupHeight;
+    }
+    if (popupTop < 0) {
+      popupTop = 10;
+    }
 
-    // if (buttonPosition.dx + buttonSize.width / 2 + 5 < screenWidth / 2) {
-    //   popupLeft = buttonPosition.dx + buttonSize.width + 5;
-    // } else {
-    //   popupLeft = buttonPosition.dx - chatPopupWidth - 5;
-    // }
+    if (buttonPosition.dx + buttonSize.width / 2 + 5 < screenWidth / 2) {
+      popupLeft = buttonPosition.dx + buttonSize.width + 5;
+    } else {
+      popupLeft = buttonPosition.dx - chatPopupWidth - 5;
+    }
 
-    // _overlayEntry = _createOverlayEntry(popupLeft, popupTop);
+    _overlayEntry = _createOverlayEntry(popupLeft, popupTop);
 
-    // Overlay.of(context).insert(_overlayEntry!);
+    Overlay.of(context).insert(_overlayEntry!);
   }
 
   OverlayEntry _createOverlayEntry(double left, double top) {

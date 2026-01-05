@@ -105,4 +105,5 @@ const _$AppLogActionEnumMap = {
   AppLogAction.getChatMessages: 'getChatMessages',
   AppLogAction.getO2oCustomerInfo: 'getO2oCustomerInfo',
   AppLogAction.webContentConverter: 'webContentConverter',
+  AppLogAction.getQrBankDynamicPaymentGateway: 'getQrBankDynamicPaymentGateway',
 };

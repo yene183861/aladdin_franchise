@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
+import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/login.dart';
 import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
@@ -16,10 +17,10 @@ class UserRepositoryImpl extends UserRepository {
   UserRepositoryImpl(this._client);
 
   @override
-  Future<ApiResult<LoginResponse>> login({required email, required password}) async {
+  Future<LoginResponse> login({required email, required password}) async {
     var apiUrl = '${ApiConfig.apiUrl}/api/v1/login';
     final body = jsonEncode({"email": email, "password": password, "role": 5});
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
@@ -31,13 +32,21 @@ class UserRepositoryImpl extends UserRepository {
         request: body,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? const LoginResponse(status: 200);
   }
 
   @override
-  Future<ApiResult<CloseShiftResponseModel>> closeShift() async {
+  Future<CloseShiftResponseModel> closeShift() async {
     var waiterId = LocalStorage.getDataLogin()?.user?.id;
     var api = '${ApiConfig.apiUrl}/api/v2/get-close-shift-waiter?waiter_id=$waiterId';
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(api);
         return _client.get(url);
@@ -49,5 +58,13 @@ class UserRepositoryImpl extends UserRepository {
         api: api,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? const CloseShiftResponseModel();
   }
 }

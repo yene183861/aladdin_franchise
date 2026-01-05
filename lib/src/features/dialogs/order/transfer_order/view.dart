@@ -5,6 +5,8 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
+import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
+import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -15,11 +17,9 @@ import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/title_line.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
 import 'package:aladdin_franchise/src/models/waiter.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
-import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +60,8 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
     final orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
     final waiterSelect = ref.watch(transferOrderProvider.select((value) => value.waiterSelect));
 
-    bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
+    // bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
+    bool isSmallDevice = false;
     return AlertDialog(
       title: Text(
         S.current.transferUpdateOrder,
@@ -197,12 +198,7 @@ Phục vụ tiếp nhận: ${state.waiterSelect?.name}
                 var listTableIds = state.tableSelects.map((e) => e.id).toList();
                 var reservation = orderSelect?.reservationCrmId == null
                     ? null
-                    : ReservationModel(
-                        id: orderSelect?.reservationCrmId,
-                        reservationDate: '',
-                        startTime: '',
-                        endTime: '',
-                      );
+                    : ReservationModel(id: orderSelect?.reservationCrmId);
                 final result = await ref.read(homeProvider.notifier).transferOrder(
                       listTableIds,
                       orderSelect!,
@@ -214,7 +210,7 @@ Phục vụ tiếp nhận: ${state.waiterSelect?.name}
                   if (reservation != null) {
                     ref.read(homeProvider.notifier).updateReservationStatus(
                           reservation.id,
-                          ReservationStatus.process,
+                          ReservationStatusEnum.process,
                           state.tableSelects,
                         );
                   }

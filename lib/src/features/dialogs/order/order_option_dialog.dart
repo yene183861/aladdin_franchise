@@ -1,5 +1,3 @@
-import 'package:aladdin_franchise/generated/l10n.dart';
-import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
@@ -17,33 +15,31 @@ import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../generated/l10n.dart';
+import '../../../configs/app.dart';
 import 'option_action.dart';
 
 Future<void> showOrderOptionDialog(BuildContext context) async {
-  if (context.mounted) {
-    showDialog(
-      context: context,
-      useRootNavigator: false,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: TitleDialogWithCloseWidget(
-            title: S.current.order,
-          ),
-          content: const DropdownOrderWidget(
-            showOtherOption: true,
-            isExpanded: true,
-          ),
-          shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
-          actionsAlignment: MainAxisAlignment.center,
-        );
-      },
-    );
-  }
+  showDialog(
+    context: context,
+    useRootNavigator: false,
+    barrierDismissible: false,
+    builder: (context) {
+      return AlertDialog(
+        title: TitleDialogWithCloseWidget(title: S.current.order),
+        content: const OrderDropdown(
+          showOtherOption: true,
+          isExpanded: true,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
+        actionsAlignment: MainAxisAlignment.center,
+      );
+    },
+  );
 }
 
-class DropdownOrderWidget extends ConsumerStatefulWidget {
-  const DropdownOrderWidget({
+class OrderDropdown extends ConsumerStatefulWidget {
+  const OrderDropdown({
     super.key,
     this.isExpanded = false,
     this.showOtherOption = false,
@@ -52,12 +48,11 @@ class DropdownOrderWidget extends ConsumerStatefulWidget {
   final bool showOtherOption;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _DropdownOrderWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _OrderDropdownState();
 }
 
-class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
+class _OrderDropdownState extends ConsumerState<OrderDropdown> {
   bool useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
-
   @override
   void initState() {
     super.initState();
@@ -71,10 +66,8 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
   @override
   Widget build(BuildContext context) {
     var orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
-    ref.watch(typeOrderWaiterProvider);
     var tablesAndOrders = ref.watch(tablesAndOrdersProvider);
-    var enableOnline = ref.watch(enableOrderOnlineProvider);
-
+    bool enableOnline = ref.read(enableOrderOnlineProvider);
     return tablesAndOrders.when(
       skipError: false,
       skipLoadingOnRefresh: false,
@@ -101,7 +94,6 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
               orders.insertAll(0, [TypeOrderEnum.online, ...orderOnline]);
             }
             break;
-          default:
         }
 
         orders = orders.where((e) => e != null && (e is OrderModel || e is TypeOrderEnum)).toList();
@@ -129,7 +121,6 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
                         ),
                         child: DropdownButton<dynamic>(
                             isExpanded: widget.isExpanded,
-                            key: UniqueKey(),
                             underline: const SizedBox.shrink(),
                             value: orders.any((item) => item == orderSelect) ? orderSelect : null,
                             padding: EdgeInsets.zero,
@@ -282,6 +273,7 @@ class _DropdownOrderWidgetState extends ConsumerState<DropdownOrderWidget> {
             message: S.current.loading_list,
           );
         }
+
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [

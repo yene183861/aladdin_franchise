@@ -13,8 +13,10 @@ import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
+import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
 import 'package:aladdin_franchise/src/models/o2o/request_order.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -149,13 +151,20 @@ class _BodyPage extends ConsumerWidget {
     return orderToOnline.when(
       skipError: false,
       data: (data) {
-        WidgetsBinding.instance.addPostFrameCallback(
-          (timeStamp) {
-            if (orderSelect == null && data.isNotEmpty) {
-              ref.read(orderToOnlinePageProvider.notifier).changeOrderSelect(data.keys.first);
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          O2OOrderModel? order = orderSelect;
+
+          if (data.isNotEmpty) {
+            if (orderSelect == null) {
+              order = data.keys.first;
+            } else {
+              order = data.keys.toList().firstWhereOrNull((e) => e.orderId == orderSelect.orderId);
             }
-          },
-        );
+          }
+          if (order != orderSelect) {
+            ref.read(orderToOnlinePageProvider.notifier).changeOrderSelect(order);
+          }
+        });
         return data.isEmpty
             ? Center(
                 child: Column(
@@ -339,10 +348,10 @@ class _BodyPage extends ConsumerWidget {
                                   final sortByNewestTime = ref.watch(orderToOnlinePageProvider
                                       .select((value) => value.sortByNewestTime));
                                   String text = S.current.latest;
-                                  String icon = 'assets/icons/ic_sort_descending.svg';
+                                  String icon = Assets.iconsSortDescending;
                                   if (!sortByNewestTime) {
                                     text = S.current.oldest;
-                                    icon = './assets/icons/ic_sort_ascending.svg';
+                                    icon = Assets.iconsSortAscending;
                                   }
                                   return GestureDetector(
                                     onTap: ref

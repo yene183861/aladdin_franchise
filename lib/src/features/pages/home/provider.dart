@@ -25,7 +25,9 @@ import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/data/enum/payment_status.dart';
 import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
+import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
 import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
+import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
@@ -44,7 +46,6 @@ import 'package:aladdin_franchise/src/models/param_family/bank_param.dart';
 import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
 import 'package:aladdin_franchise/src/models/user_bank.dart';
 import 'package:aladdin_franchise/src/models/waiter.dart';
@@ -227,18 +228,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
             return;
           }
           final data = await _orderRepository.getProductCheckout(orderSelect);
-          if (!data.isSuccess) {
-            throw AppException(
-              statusCode: data.statusCode,
-              message: data.error,
-            );
-          }
 
-          final pc = List<ProductCheckoutModel>.from(data.data?.data?.first.orderItem ?? []);
+          final pc = List<ProductCheckoutModel>.from(data.data?.first.orderItem ?? []);
 
-          final coupons = List<CustomerPolicyModel>.from(data.data?.coupons ?? []);
-          final customer = data.data?.customer;
-          var orderHistory = data.data?.data?.first.orderHistory ?? [];
+          final coupons = List<CustomerPolicyModel>.from(data.coupons ?? []);
+          final customer = data.customer;
+          var orderHistory = data.data?.first.orderHistory ?? [];
           state = state.copyWith(orderHistory: orderHistory);
           var notes = LocalStorage.getNotePerOrderItem(order: orderSelect);
           List<ProductModel> productsSelected = [];
@@ -325,7 +320,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
             productsSelected: productsSelected,
             productsSelecting: selecting,
             productCheckout: pc,
-            numberOfAdults: max(data.data?.numberOfAdults ?? 0, 1),
+            numberOfAdults: max(data.numberOfAdults, 1),
             orderHistory: orderHistory,
           );
           for (var e in [
@@ -940,16 +935,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
             try {
               var resultCheckPrinter =
                   await _orderRepository.getPrinterBill(state.orderSelect!, printerCheck.toList());
-              if (!resultCheckPrinter.isSuccess) {
-                throw AppException(
-                  statusCode: resultCheckPrinter.statusCode,
-                  message: resultCheckPrinter.error,
-                );
-              }
+
               // if (resultCheckPrinter.error != null) {
               //   throw resultCheckPrinter.error!;
               // }
-              printers = List<IpOrderModel>.from(resultCheckPrinter.data ?? []);
+              printers = List<IpOrderModel>.from(resultCheckPrinter);
             } catch (ex) {
               if (retry >= 2) {
                 updateEvent(null);
@@ -962,19 +952,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
               rethrow;
             }
           }
-          var result = await _orderRepository.processOrderItem(
+          await _orderRepository.processOrderItem(
             order: state.orderSelect!,
             total: 0,
             note: contentCancelOrder,
             cancel: true,
             productCheckout: cancelProductCheckouts,
           );
-          if (!result.isSuccess) {
-            throw AppException(
-              statusCode: result.statusCode,
-              message: result.error,
-            );
-          }
+
           var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
           var productsSelected = List<ProductModel>.from(state.productsSelected);
           for (var item in cancelProductCheckouts) {
@@ -1053,17 +1038,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
       final result = await _restaurantRepository.getPaymentMethod(
         orderId: state.orderSelect!.id,
       );
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
-      _listPaymentMethods = List<PaymentMethod>.from(result.data ?? []);
+
+      _listPaymentMethods = List<PaymentMethod>.from(result);
 
       state = state.copyWith(
         paymentMethodState: const PageState(status: PageCommonState.success),
-        paymentMethods: result.data ?? [],
+        paymentMethods: result,
       );
     } catch (ex) {
       _lockOrder(ex);
@@ -1234,12 +1214,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
             orderId: state.orderSelect!.id,
             statusLock: 0,
           );
-          if (!result.isSuccess) {
-            throw AppException(
-              statusCode: result.statusCode,
-              message: result.error,
-            );
-          }
 
           state = state.copyWith(lockedOrder: false);
           break;
@@ -1277,12 +1251,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
             orderId: state.orderSelect!.id,
             statusLock: 1,
           );
-          if (!result.isSuccess) {
-            throw AppException(
-              statusCode: result.statusCode,
-              message: result.error,
-            );
-          }
 
           break;
         } catch (ex) {
@@ -1359,14 +1327,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       final apiBankParam = ApiBankParam(state.dataBill.order, getFinalPaymentPrice.totalPriceFinal);
       final paymentMethodSelect = state.paymentMethodSelected;
       final result = await _restaurantRepository.getBanks(apiBankParam);
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
 
-      var bankView = List<UserBankModel>.from(result.data ?? []);
+      var bankView = List<UserBankModel>.from(result ?? []);
       // Loại bỏ những bank không hỗ trợ PTTT
       bankView.removeWhere(
           (element) => element.listPaymentId.contains(paymentMethodSelect?.key) == false);
@@ -1639,13 +1601,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
           }
           if (printers.isEmpty) {
             final resultPrinter = await _orderRepository.getPrinterBill(state.orderSelect!, [1]);
-            if (!resultPrinter.isSuccess) {
-              throw AppException(
-                statusCode: resultPrinter.statusCode,
-                message: resultPrinter.error,
-              );
-            }
-            printers = List.from(resultPrinter.data ?? []);
+
+            printers = List.from(resultPrinter ?? []);
           }
 
           // // Kiểm tra tình trạng máy in
@@ -1677,12 +1634,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
             totalPaymentCompleted:
                 state.statusPaymentGateway ? state.totalPaymentGateway : price.totalPriceFinal,
           );
-          if (!result.isSuccess) {
-            throw AppException(
-              statusCode: result.statusCode,
-              message: result.error,
-            );
-          }
 
           try {
             LocalStorage.deleteNotePerOrderItem(
@@ -1805,12 +1756,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
             isPrintPeople: state.printNumberOfPeople ? 1 : 0,
             // providerCode: state.bankSelect?.code,
           );
-          if (!result.isSuccess) {
-            throw AppException(
-              statusCode: result.statusCode,
-              message: result.error,
-            );
-          }
+
           List<LineItemDataBill> productPrint = [];
           for (var e in (state.dataBill.print?.orderLineItems ?? <LineItemDataBill>[])) {
             productPrint.add(LineItemDataBill(
@@ -1934,14 +1880,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
         apiBankParam: apiBankParam,
         keyPaymentMethod: paymentMethodSelect.key,
       );
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
 
-      var data = result.data;
+      var data = result;
       url = data?.url;
       qr = data?.qr;
       expiryMin = data?.expiryMin;
@@ -1971,15 +1911,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
         orderId: state.orderSelect!.id,
         totalBill: getFinalPaymentPrice.totalPriceFinal,
       );
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
+
       state = state.copyWith(
         listAtmPosState: const PageState(status: PageCommonState.success),
-        listAtmPos: result.data ?? [],
+        listAtmPos: result ?? [],
       );
     } catch (ex) {
       state = state.copyWith(
@@ -1999,16 +1934,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
       if (state.atmPosSelect == null) {
         throw S.current.no_select_pos_machine;
       }
-      var result = await _restaurantRepository.atmPosCallback(
+      await _restaurantRepository.atmPosCallback(
         orderId: getFinalPaymentPrice.totalPriceFinal,
         urlPos: state.atmPosSelect!.url,
       );
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
       updateEvent(null);
       return null;
     } catch (ex) {
@@ -2027,13 +1956,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
     try {
       updateEvent(HomeEvent.closingShift);
       var res = await _userRepository.closeShift();
-      if (!res.isSuccess) {
-        throw AppException(
-          statusCode: res.statusCode,
-          message: res.error,
-        );
-      }
-      var printer = res.data?.infoPrint;
+
+      var printer = res.infoPrint;
       if (printer == null) {
         throw 'Chốt ca thành công nhưng không có thông tin máy in để in bill chốt ca.';
       }
@@ -2042,10 +1966,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
       updateEvent(HomeEvent.normal);
       var setting = LocalStorage.getPrintSetting();
       bool printNormal = setting.appPrinterType == AppPrinterSettingTypeEnum.normal;
-      if (res.data == null) return 'Không có dữ liệu chốt ca';
       var bytes = printNormal
-          ? await AppPrinterNormalUtils.instance.getCloseShift(res.data!)
-          : await AppPrinterHtmlUtils.instance.getCloseShiftContent(res.data!);
+          ? await AppPrinterNormalUtils.instance.getCloseShift(res)
+          : await AppPrinterHtmlUtils.instance.getCloseShiftContent(res);
       PrintQueue.instance.addTask(
         ip: printer.ip,
         port: printer.port,
@@ -2096,17 +2019,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
       if (pm.requireEditTax && pc.any((e) => e.tax == 0)) {
         throw S.current.error_edit_tax;
       }
-      var result = await _orderRepository.updateTax(
+      await _orderRepository.updateTax(
         order: state.orderSelect!,
         pc: pc,
         paymentMethod: pm,
       );
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
       requireUpdateDefaultTax = true;
       if (loadingHome) updateEvent(null);
       return null;
@@ -2123,24 +2040,18 @@ class HomeNotifier extends StateNotifier<HomeState> {
       await _checkOrderSelect();
       final result =
           await ref.read(orderRepositoryProvider).getDataBill(orderId: state.orderSelect!.id);
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
 
-      if (result.data == null) {
-        state = state.copyWith(
-          dataBill: const DataBillResponseData(),
-          dataBillState: const PageState(status: PageCommonState.success),
-          productCheckout: [],
-        );
-        if (loadingHome) updateEvent(null);
-        syncInfoCustomerPage(method: WindowsMethodEnum.price);
-        return null;
-      }
-      var data = result.data!;
+      // if (result == null) {
+      //   state = state.copyWith(
+      //     dataBill: const DataBillResponseData(),
+      //     dataBillState: const PageState(status: PageCommonState.success),
+      //     productCheckout: [],
+      //   );
+      //   if (loadingHome) updateEvent(null);
+      //   syncInfoCustomerPage(method: WindowsMethodEnum.price);
+      //   return null;
+      // }
+      var data = result;
       var orderLineItems = data.orderLineItems;
 
       var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
@@ -2362,13 +2273,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
         state.orderSelect!,
         printerCheck.toList(),
       );
-      if (!listPrinters.isSuccess) {
-        throw AppException(
-          statusCode: listPrinters.statusCode,
-          message: listPrinters.error,
-        );
-      }
-      showLogs(listPrinters.data, flags: 'danh sách máy in - gọi món');
+
+      showLogs(listPrinters, flags: 'danh sách máy in - gọi món');
       var kitchenNote = state.kitchenNote;
       await _checkOrderSelect();
       var result = await _orderRepository.processOrderItem(
@@ -2379,12 +2285,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         note: kitchenNote,
         cancel: false,
       );
-      if (!result.isSuccess) {
-        throw AppException(
-          statusCode: result.statusCode,
-          message: result.error,
-        );
-      }
+
       try {
         await LocalStorage.deleteNotePerOrderItem(order: state.orderSelect!);
       } catch (ex) {
@@ -2413,7 +2314,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         var setting = LocalStorage.getPrintSetting();
         bool printNormal = setting.appPrinterType == AppPrinterSettingTypeEnum.normal;
 
-        for (var printer in (listPrinters.data ?? <IpOrderModel>[])) {
+        for (var printer in (listPrinters ?? <IpOrderModel>[])) {
           List<ProductModel> productPrinter =
               List<ProductModel>.from(printerMapProducts[printer.type] ?? []);
 
@@ -2665,12 +2566,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         var result = await ref
             .read(reservationRepositoryProvider)
             .updateReservation(reservation.id, reservation);
-        if (!result.isSuccess) {
-          throw AppException(
-            statusCode: result.statusCode,
-            message: result.error,
-          );
-        }
+
         break;
       } catch (ex) {
         retry++;
@@ -2803,20 +2699,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   void updateReservationStatus(
     dynamic id,
-    ReservationStatus status,
+    ReservationStatusEnum status,
     List<TableModel> table,
   ) async {
     int retry = 0;
     while (retry < 3) {
       try {
-        var result = await _reservationRepository.getReservationById(id: id);
-        if (!result.isSuccess) {
-          throw AppException(
-            statusCode: result.statusCode,
-            message: result.error,
-          );
-        }
-        var reservation = result.data?.copyWith(
+        var result = await _reservationRepository.getReservationById(id);
+
+        var reservation = result?.copyWith(
           status: status.type,
           statusName: status.title,
           table: table.map((e) => e.name).join(', '),

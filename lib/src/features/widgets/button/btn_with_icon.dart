@@ -1,12 +1,13 @@
-import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
-import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:flutter/material.dart';
 
-class AppButtonWithIcon extends StatelessWidget {
+import '../../../../generated/l10n.dart';
+import '../gap.dart';
+
+class ButtonWithIconWidget extends StatelessWidget {
   final VoidCallback? onPressed;
   final String? textAction;
   final Color? color;
@@ -14,15 +15,12 @@ class AppButtonWithIcon extends StatelessWidget {
   final double? minWidth;
   final double? height;
   final IconData? icon;
-  final String? svgPath;
-  final double? iconSize;
   final EdgeInsetsGeometry? padding;
-  final BorderRadius? borderRadius;
-  final Color? iconColor;
-  final double? rawTextSize;
-
-  const AppButtonWithIcon({
-    super.key,
+  final ShapeBorder? shape;
+  final double? elevation;
+  final Widget? iconWidget;
+  const ButtonWithIconWidget({
+    Key? key,
     this.onPressed,
     this.textAction,
     this.color,
@@ -30,55 +28,37 @@ class AppButtonWithIcon extends StatelessWidget {
     this.minWidth,
     this.height,
     this.icon,
-    this.svgPath,
-    this.iconSize,
     this.padding,
-    this.borderRadius,
-    this.iconColor,
-    this.rawTextSize,
-  });
+    this.shape,
+    this.elevation,
+    this.iconWidget,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var br = borderRadius ?? AppConfig.borderRadiusSecond;
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: br,
-      child: Ink(
-        decoration: BoxDecoration(
-          color: color ?? AppColors.mainColor,
-          borderRadius: br,
-        ),
-        child: Container(
-          padding: padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: color ?? Colors.transparent,
-            borderRadius: br,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null || svgPath != null) ...[
-                ResponsiveIconWidget(
-                  iconData: icon,
-                  color: iconColor ?? Colors.white,
-                  svgPath: svgPath,
-                  iconSize: iconSize ?? 22,
-                ),
-                const Gap(4),
-              ],
-              Flexible(
-                child: Text(
-                  textAction ?? '',
-                  style: AppTextStyle.medium(
-                    color: textColor ?? Colors.white,
-                    rawFontSize: rawTextSize,
-                  ),
-                ),
-              ),
-            ],
-          ),
+    return MaterialButton(
+      elevation: elevation,
+      minWidth: minWidth,
+      height: height,
+      color: color ?? AppColors.mainColor,
+      textColor: textColor ?? Colors.white,
+      onPressed: () {
+        onPressed?.call();
+      },
+      shape: shape ?? RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
+      child: Padding(
+        padding: padding ?? const EdgeInsets.all(12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            iconWidget ??
+                (icon != null ? ResponsiveIconWidget(iconData: icon!) : const SizedBox.shrink()),
+            const Gap(8),
+            Text(
+              textAction ?? S.current.confirm,
+              style: AppTextStyle.regular(color: AppColors.tcButtonMain),
+            ),
+          ],
         ),
       ),
     );

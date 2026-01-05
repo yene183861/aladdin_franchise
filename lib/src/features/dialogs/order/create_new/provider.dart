@@ -1,9 +1,9 @@
 import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
+import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/features/dialogs/order/reservation/provider.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,8 +26,8 @@ class CreateNewOrderDialogNotifier extends StateNotifier<CreateNewOrderDialogSta
   /// danh sách lịch đặt bàn đã lọc theo type, search
   List<ReservationModel> filteredReservations = [];
 
-  void onChangeTabIndexSelect(int index) {
-    state = state.copyWith(tabIndexSelect: index);
+  void onChangeTabSelect(CreateNewOrderTabEnum value) {
+    state = state.copyWith(tabSelect: value);
   }
 
   void onChangeTableSelect({required TableModel value, bool onSelected = false}) async {
@@ -147,7 +147,7 @@ class CreateNewOrderDialogNotifier extends StateNotifier<CreateNewOrderDialogSta
         var diffMinutes = start.difference(DateTime.now()).inMinutes.abs();
         if (diffMinutes <= 30 &&
             state.reservationSelect == null &&
-            e.reservationStatus == ReservationStatus.accept &&
+            e.reservationStatus == ReservationStatusEnum.accept &&
             state.tableIds.toSet().intersection((e.tableId ?? []).toSet()).isNotEmpty) {
           return true;
         }

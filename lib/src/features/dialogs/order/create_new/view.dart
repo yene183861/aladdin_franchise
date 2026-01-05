@@ -2,34 +2,48 @@ import 'dart:async';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
-import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
-import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
+import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
+import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
-import 'package:aladdin_franchise/src/features/dialogs/order/reservation/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/components/custom_checkbox.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
-import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
-import 'components/count_reservation_widget.dart';
+import 'widgets/barrel_widget.dart';
 import 'provider.dart';
 import 'state.dart';
+
+Future<({int? orderId, ReservationModel? reservation, int? typeOrder})> showCreateNewOrderDialog(
+    BuildContext context) async {
+  final result = await showDialog(
+    context: context,
+    useRootNavigator: false,
+    barrierDismissible: false,
+    builder: (context) => const PopScope(
+      canPop: false,
+      child: CreateNewOrderDialog(),
+    ),
+  );
+
+  return result;
+}
 
 class CreateNewOrderDialog extends ConsumerStatefulWidget {
   const CreateNewOrderDialog({Key? key}) : super(key: key);
@@ -54,8 +68,9 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                      'Có ${state.reservationsAssginTable.length} lịch đặt bàn đã được lễ tân tiếp nhận ứng với các bàn bạn đã chọn.\n'
-                      'Nếu là khách đã đặt bàn trước, vui lòng chọn lịch đặt bàn trước khi bấm xác nhận!'),
+                    'Có ${state.reservationsAssginTable.length} lịch đặt bàn đã được lễ tân tiếp nhận ứng với các bàn bạn đã chọn.\n'
+                    'Nếu là khách đã đặt bàn trước, vui lòng chọn lịch đặt bàn trước khi bấm xác nhận!',
+                  ),
                   const Gap(12),
                   GestureDetector(
                     onTap: ref
@@ -75,8 +90,13 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
                             );
                           },
                         ),
-                        const Flexible(
-                            child: Text('Bỏ qua thông báo này và các thông báo nhắc nhở tương tự')),
+                        const Gap(4),
+                        Flexible(
+                            child: Text(
+                          'Bỏ qua thông báo này và các thông báo nhắc nhở tương tự',
+                          style:
+                              AppTextStyle.regular(rawFontSize: AppConfig.defaultRawTextSize - 1.0),
+                        )),
                       ],
                     ),
                   ),
@@ -98,12 +118,10 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
       createNewOrderDialogProvider.select((value) => value.notifyReservation),
       _listenNotifyReservation(context, ref),
     );
-
+    bool useReservation =
+        ref.watch(createNewOrderDialogProvider.select((value) => value.useReservation));
     final tableAvailable = ref.watch(tablesAndOrdersProvider);
-    bool isMobile = Device.screenType == ScreenType.mobile;
-    bool isPortraitOrientation = MediaQuery.of(context).orientation == Orientation.portrait;
-    bool isSmallDevice = isMobile && isPortraitOrientation;
-    bool useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
+    bool smallDevice = ResponsiveBreakpoints.of(context).smallerOrEqualTo(TABLET);
     return AlertDialog(
       title: Text(
         '${S.current.selectTable} - ${S.current.createNewOrder}',
@@ -149,64 +167,27 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
             }
 
             Widget reservationSection = useReservation
-                ? _buildListReservationWidget([
-                    ...notUseOffline,
-                    if (enableOnline) ...notUseOnline,
-                  ])
-                : Container();
-            Widget tableSection = _buildTableWidget(tableNotUseAndType);
+                ? ReservationSection(
+                    tables: [
+                      ...notUseOffline,
+                      if (enableOnline) ...notUseOnline,
+                    ],
+                  )
+                : const SizedBox.shrink();
+            Widget tableSection = TableSection(tableNotUseAndType: tableNotUseAndType);
 
-            if (useReservation && isSmallDevice) {
+            if (useReservation && smallDevice) {
               return Consumer(
                 builder: (context, ref, child) {
-                  var tabIndexSelect = ref
-                      .watch(createNewOrderDialogProvider.select((value) => value.tabIndexSelect));
+                  var tabSelect =
+                      ref.watch(createNewOrderDialogProvider.select((value) => value.tabSelect));
                   return Column(
                     children: [
-                      Row(
-                        children: CreateNewOrderTabEnum.values.map((e) {
-                          var selected = e.index == tabIndexSelect;
-                          bool reservationTab = e == CreateNewOrderTabEnum.reservation;
-                          return Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                ref
-                                    .read(createNewOrderDialogProvider.notifier)
-                                    .onChangeTabIndexSelect(e.index);
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: selected ? AppColors.mainColor : Colors.grey.shade200,
-                                ),
-                                child: Center(
-                                    child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        e.title,
-                                        style: AppTextStyle.bold(
-                                          color: selected ? Colors.white : null,
-                                        ),
-                                      ),
-                                    ),
-                                    if (reservationTab) ...[
-                                      const Gap(4),
-                                      const CountReservationWidget(),
-                                    ],
-                                  ],
-                                )),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
+                      const CreateNewOrderTabWidget(),
                       const Gap(12),
                       Expanded(
                         child: IndexedStack(
-                          index: tabIndexSelect,
+                          index: tabSelect.key,
                           children: [
                             tableSection,
                             reservationSection,
@@ -223,26 +204,10 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (useReservation) ...[
-                  Expanded(
-                    flex: 1,
-                    child: reservationSection,
-                  ),
-                  const VerticalDivider(
-                    thickness: 1,
-                    color: Colors.grey,
-                  ),
+                  Expanded(flex: 1, child: reservationSection),
+                  const VerticalDivider(thickness: 1, color: Colors.grey),
                 ],
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: tableSection,
-                      ),
-                    ],
-                  ),
-                ),
+                Expanded(flex: 2, child: tableSection),
               ],
             );
           },
@@ -268,7 +233,7 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
             typeOrder: kTypeOrder,
           )),
         ),
-        ButtonSimpleWidget(
+        AppButton(
           onPressed: () async {
             var state = ref.read(createNewOrderDialogProvider);
             var tableIds = state.tableIds.toList();
@@ -287,10 +252,8 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
                 );
             if (result.last == null) {
               reservation = reservation?.copyWith(
-                rejectReason: '',
-                status: ReservationStatus.process.type,
-                statusName: ReservationStatus.process.name,
-                isUpdate: false,
+                status: ReservationStatusEnum.process.type,
+                statusName: ReservationStatusEnum.process.title,
                 tableId: tableIds,
                 table: tableName,
               );
@@ -311,140 +274,10 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
               }
             }
           },
-          color: AppColors.bgButtonMain,
-          textColor: AppColors.tcButtonMain,
-          textAction: S.current.confirm,
-        )
-      ],
-    );
-  }
-
-  Widget _buildListReservationWidget(List<TableModel> tables) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: Text(
-                'Lịch đặt bàn',
-                style: AppTextStyle.regular(),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                ref.refresh(reservationsProvider(DateTime.now().date));
-              },
-              child: Text(
-                'Làm mới',
-                style: AppTextStyle.regular(
-                  rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const Gap(8),
-        Expanded(
-          child: ReservationList(
-            showAction: false,
-            onChangeItem: (p0) {
-              ref.read(createNewOrderDialogProvider.notifier).onChangeReservationSelect(p0, tables);
-            },
-            applyReservationFilters: (p0) {
-              ref.read(createNewOrderDialogProvider.notifier).applyReservationFilters(p0);
-            },
-          ),
         ),
       ],
     );
   }
-
-  Widget _buildTableWidget(List<dynamic> tableNotUseAndType) {
-    return Consumer(builder: (context, ref, child) {
-      var tableIds =
-          ref.watch(createNewOrderDialogProvider.select((value) => value.tableIds)).toList();
-      return SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ...tableNotUseAndType.map((e) {
-              if (e is Widget) {
-                return e;
-              } else if (e is TypeOrderEnum) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20).copyWith(bottomLeft: Radius.zero),
-                    color: e.color,
-                  ),
-                  child: Text(
-                    e.title,
-                    style: AppTextStyle.bold(color: AppColors.white),
-                  ),
-                );
-              } else if (e is List<TableModel>) {
-                if (e.isEmpty) {
-                  return Padding(
-                      padding: const EdgeInsets.only(top: 50),
-                      child: Center(
-                        child: Text(
-                          S.current.tableOff,
-                          style: AppTextStyle.regular(),
-                        ),
-                      ));
-                }
-                return Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: e.map(
-                      (e) {
-                        bool isSelected = tableIds.contains(e.id);
-                        return ChoiceChip(
-                          padding: const EdgeInsets.all(12),
-                          label: Text(
-                            e.name ?? "",
-                            style: AppTextStyle.regular(
-                              color: isSelected ? Colors.white : Colors.black,
-                            ),
-                          ),
-                          selected: isSelected,
-                          selectedColor: AppColors.mainColor,
-                          checkmarkColor: Colors.white,
-                          onSelected: (value) {
-                            ref.read(createNewOrderDialogProvider.notifier).onChangeTableSelect(
-                                  value: e,
-                                  onSelected: value,
-                                );
-                          },
-                        );
-                      },
-                    ).toList());
-              }
-              return const SizedBox.shrink();
-            }).toList(),
-          ],
-        ),
-      );
-    });
-  }
-}
-
-Future<({int? orderId, ReservationModel? reservation, int? typeOrder})> showCreateNewOrderDialog(
-    BuildContext context) async {
-  final result = await showDialog(
-    context: context,
-    useRootNavigator: false,
-    barrierDismissible: false,
-    builder: (context) => const PopScope(
-      canPop: false,
-      child: CreateNewOrderDialog(),
-    ),
-  );
-
-  return result;
 }
 
 class MessageContent extends StatelessWidget {

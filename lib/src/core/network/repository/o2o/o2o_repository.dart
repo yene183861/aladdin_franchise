@@ -7,7 +7,7 @@ abstract class OrderToOnlineRepository {
   Future<List<O2OOrderModel>> getOrderToOnline();
 
   /// nếu xác nhận thì status = 1, hủy status = 2
-  Future<void> processO2oRequest({
+  Future<bool> processO2oRequest({
     required int orderId,
     required int status,
     required int orderItemId,

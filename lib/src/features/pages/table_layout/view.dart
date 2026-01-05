@@ -20,7 +20,6 @@ import 'package:aladdin_franchise/src/features/widgets/date_picker_dialog.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
@@ -44,8 +43,7 @@ class TableLayoutPage extends ConsumerStatefulWidget {
   const TableLayoutPage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _TableLayoutPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _TableLayoutPageState();
 }
 
 class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
@@ -129,16 +127,14 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
     bool canvasExpanded = false;
 
     // Vị trí phải của khung nhìn (trên Canvas)
-    final double canvasViewRight =
-        currentCanvasViewLeft + viewportWidthInCanvas;
+    final double canvasViewRight = currentCanvasViewLeft + viewportWidthInCanvas;
     if (canvasViewRight > _canvasWidth - _expandThreshold) {
       _canvasWidth += _expandStep;
       canvasExpanded = true;
     }
 
     // Vị trí dưới của khung nhìn (trên Canvas)
-    final double canvasViewBottom =
-        currentCanvasViewTop + viewportHeightInCanvas;
+    final double canvasViewBottom = currentCanvasViewTop + viewportHeightInCanvas;
 
     if (canvasViewBottom > _canvasHeight - _expandThreshold) {
       _canvasHeight += _expandStep;
@@ -160,8 +156,7 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
 
   double oldScale = 1.0;
 
-  _listenEvent(BuildContext context, WidgetRef ref) =>
-      (bool? previous, bool? next) async {
+  _listenEvent(BuildContext context, WidgetRef ref) => (bool? previous, bool? next) async {
         if (next ?? false) {
           oldScale = _controller.value.entry(0, 0);
           _controller.value = Matrix4.identity()..scale(1.0);
@@ -175,8 +170,8 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
       _listenEvent(context, ref),
     );
 
-    bool enableDragLayout = ref.watch(
-        tableLayoutPageProvider.select((value) => value.enableDragLayout));
+    bool enableDragLayout =
+        ref.watch(tableLayoutPageProvider.select((value) => value.enableDragLayout));
     var table = ref.watch(tablesAndOrdersProvider);
     ProcessState tableState;
     tableState = table.when(
@@ -184,21 +179,13 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
       skipLoadingOnRefresh: false,
       skipLoadingOnReload: false,
       data: (data) {
-        usingTables = (kTypeOrder == TypeOrderEnum.offline.type
-                    ? data.offline
-                    : data.online)
-                ?.using ??
-            [];
-        orders = List.from((kTypeOrder == TypeOrderEnum.offline.type
-                    ? data.offline
-                    : data.online)
-                ?.userUsing ??
-            []);
+        usingTables =
+            (kTypeOrder == TypeOrderEnum.offline.type ? data.offline : data.online)?.using ?? [];
+        orders = List.from(
+            (kTypeOrder == TypeOrderEnum.offline.type ? data.offline : data.online)?.userUsing ??
+                []);
         allTables = [
-          ...((kTypeOrder == TypeOrderEnum.offline.type
-                      ? data.offline
-                      : data.online)
-                  ?.notUse ??
+          ...((kTypeOrder == TypeOrderEnum.offline.type ? data.offline : data.online)?.notUse ??
               []),
           ...usingTables,
         ];
@@ -207,21 +194,20 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
           return a.createdAt!.compareTo(b.createdAt!);
         });
 
-        final earliest = orders
-            .firstWhereOrNull((e) => e.createdAt != null); // ngày nhỏ nhất
+        final earliest = orders.firstWhereOrNull((e) => e.createdAt != null); // ngày nhỏ nhất
         final latest = orders.lastWhereOrNull((e) => e.createdAt != null);
         WidgetsBinding.instance.addPostFrameCallback(
           (timeStamp) {
             // ref.read(tableLayoutPageProvider.notifier).getHistoryOrder();
-            ref.read(tableLayoutPageProvider.notifier).onChangeDateHistory(
-                earliest: earliest?.createdAt, latest: latest?.createdAt);
+            ref
+                .read(tableLayoutPageProvider.notifier)
+                .onChangeDateHistory(earliest: earliest?.createdAt, latest: latest?.createdAt);
           },
         );
         return const ProcessState(status: StatusEnum.success);
       },
       error: (error, stackTrace) {
-        return ProcessState(
-            status: StatusEnum.error, message: error.toString());
+        return ProcessState(status: StatusEnum.error, message: error.toString());
       },
       loading: () {
         return const ProcessState(status: StatusEnum.loading);
@@ -294,31 +280,26 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                   useSafeArea: true,
                   builder: (context) {
                     return ItemSettingBottomSheet(
-                      initSetting:
-                          ref.read(tableLayoutPageProvider).itemSetting,
+                      initSetting: ref.read(tableLayoutPageProvider).itemSetting,
                       title: 'Thiết lập mặc định',
                     );
                   },
                 );
                 if (res == null) return;
                 if (res.setting != null) {
-                  ref
-                      .read(tableLayoutPageProvider.notifier)
-                      .onSaveItemSetting(res.setting!);
+                  ref.read(tableLayoutPageProvider.notifier).onSaveItemSetting(res.setting!);
                 }
               },
             ),
             Consumer(
               builder: (context, ref, child) {
-                var enableDragLayout = ref.watch(tableLayoutPageProvider
-                    .select((value) => value.enableDragLayout));
+                var enableDragLayout =
+                    ref.watch(tableLayoutPageProvider.select((value) => value.enableDragLayout));
                 return ResponsiveIconButtonWidget(
                   iconData: enableDragLayout ? Icons.save : Icons.edit,
                   color: Colors.white,
                   onPressed: () async {
-                    ref
-                        .read(tableLayoutPageProvider.notifier)
-                        .onChangeEnableDragLayout(null);
+                    ref.read(tableLayoutPageProvider.notifier).onChangeEnableDragLayout(null);
                   },
                 );
               },
@@ -331,10 +312,9 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
           children: [
             Consumer(
               builder: (context, ref, child) {
-                var floors = ref.watch(
-                    tableLayoutPageProvider.select((value) => value.floors));
-                var floorSelect = ref.watch(tableLayoutPageProvider
-                    .select((value) => value.floorSelect));
+                var floors = ref.watch(tableLayoutPageProvider.select((value) => value.floors));
+                var floorSelect =
+                    ref.watch(tableLayoutPageProvider.select((value) => value.floorSelect));
                 return Container(
                   height: 56,
                   padding: const EdgeInsets.symmetric(vertical: 8),
@@ -365,22 +345,18 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                 borderRadius: BorderRadius.circular(8),
                                 child: Container(
                                   alignment: Alignment.center,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(),
                                   ),
                                   child: Row(
                                     children: [
-                                      const ResponsiveIconWidget(
-                                          iconData: Icons.add),
+                                      const ResponsiveIconWidget(iconData: Icons.add),
                                       Text(
                                         'Thêm tầng',
                                         style: AppTextStyle.regular(
-                                            rawFontSize:
-                                                AppConfig.defaultRawTextSize -
-                                                    0.5),
+                                            rawFontSize: AppConfig.defaultRawTextSize - 0.5),
                                       ),
                                     ],
                                   ),
@@ -388,8 +364,7 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                               );
                             }
 
-                            var item =
-                                floors[index - (enableDragLayout ? 1 : 0)];
+                            var item = floors[index - (enableDragLayout ? 1 : 0)];
                             bool selected = floorSelect == item;
                             return InkWell(
                               borderRadius: BorderRadius.circular(8),
@@ -414,13 +389,12 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                   },
                                 );
                                 if ((res ?? '').trim().isNotEmpty) {
-                                  var fl = await ref
-                                      .read(tableLayoutPageProvider.notifier)
-                                      .updateFloor(
-                                        item: item,
-                                        name: (res ?? '').trim(),
-                                        delete: false,
-                                      );
+                                  var fl =
+                                      await ref.read(tableLayoutPageProvider.notifier).updateFloor(
+                                            item: item,
+                                            name: (res ?? '').trim(),
+                                            delete: false,
+                                          );
                                   if (item == floorSelect) {
                                     ref
                                         .read(tableLayoutPageProvider.notifier)
@@ -432,13 +406,10 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                 decoration: BoxDecoration(
                                   color: selected ? Colors.blue : null,
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                      color:
-                                          selected ? Colors.blue : Colors.grey),
+                                  border: Border.all(color: selected ? Colors.blue : Colors.grey),
                                 ),
                                 alignment: Alignment.center,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 4),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                 child: Row(
                                   children: [
                                     Text(
@@ -446,16 +417,11 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                       style: selected
                                           ? AppTextStyle.bold(
                                               color: Colors.white,
-                                              rawFontSize:
-                                                  AppConfig.defaultRawTextSize -
-                                                      0.5)
+                                              rawFontSize: AppConfig.defaultRawTextSize - 0.5)
                                           : AppTextStyle.regular(
-                                              rawFontSize:
-                                                  AppConfig.defaultRawTextSize -
-                                                      0.5),
+                                              rawFontSize: AppConfig.defaultRawTextSize - 0.5),
                                     ),
-                                    if (!item.isDefault &&
-                                        enableDragLayout) ...[
+                                    if (!item.isDefault && enableDragLayout) ...[
                                       const Gap(4),
                                       const ResponsiveIconWidget(
                                         iconData: Icons.edit,
@@ -472,8 +438,8 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                         ),
                       ),
                       Consumer(builder: (context, ref, child) {
-                        var setting = ref.watch(tableLayoutPageProvider
-                            .select((value) => value.itemSetting));
+                        var setting =
+                            ref.watch(tableLayoutPageProvider.select((value) => value.itemSetting));
                         return Row(
                           mainAxisSize: MainAxisSize.min,
                           children: TableColorEnum.values.map(
@@ -487,8 +453,7 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                     decoration: BoxDecoration(
                                       color: color ?? e.color,
                                       shape: BoxShape.circle,
-                                      border: Border.all(
-                                          color: color ?? e.borderColor),
+                                      border: Border.all(color: color ?? e.borderColor),
                                     ),
                                     height: 12,
                                     width: 12,
@@ -497,8 +462,7 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                   Text(
                                     e.title,
                                     style: AppTextStyle.regular(
-                                      rawFontSize:
-                                          AppConfig.defaultRawTextSize - 1.0,
+                                      rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -524,12 +488,10 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                       key: _dragTargetKey,
                       onAcceptWithDetails: (details) {
                         final RenderBox dragTargetRenderBox =
-                            _dragTargetKey.currentContext!.findRenderObject()
-                                as RenderBox;
+                            _dragTargetKey.currentContext!.findRenderObject() as RenderBox;
                         final Offset dragTargetGlobalPosition =
                             dragTargetRenderBox.localToGlobal(Offset.zero);
-                        final Offset screenOffset =
-                            details.offset - dragTargetGlobalPosition;
+                        final Offset screenOffset = details.offset - dragTargetGlobalPosition;
 
                         Matrix4 inverseMatrix;
                         try {
@@ -539,14 +501,11 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                         }
 
                         // Biến đổi ngược
-                        final vm.Vector4 localVector = inverseMatrix.transform(
-                            vm.Vector4(
-                                screenOffset.dx, screenOffset.dy, 0.0, 1.0));
-                        final Offset corrected = Offset(localVector.x,
-                            localVector.y); // toạ độ thực bên trong
-                        ref
-                            .read(tableLayoutPageProvider.notifier)
-                            .addItem(corrected);
+                        final vm.Vector4 localVector = inverseMatrix
+                            .transform(vm.Vector4(screenOffset.dx, screenOffset.dy, 0.0, 1.0));
+                        final Offset corrected =
+                            Offset(localVector.x, localVector.y); // toạ độ thực bên trong
+                        ref.read(tableLayoutPageProvider.notifier).addItem(corrected);
                       },
                       builder: (context, candidateData, rejectedData) {
                         return InteractiveViewer(
@@ -560,33 +519,27 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                             width: _canvasWidth,
                             height: _canvasHeight,
                             child: Consumer(builder: (context, ref, child) {
-                              var enableDragLayout = ref.watch(
-                                  tableLayoutPageProvider.select(
-                                      (value) => value.enableDragLayout));
+                              var enableDragLayout = ref.watch(tableLayoutPageProvider
+                                  .select((value) => value.enableDragLayout));
                               var itemSetting = ref.watch(
-                                  tableLayoutPageProvider
-                                      .select((value) => value.itemSetting));
-                              var data = ref.watch(tableLayoutPageProvider
-                                  .select((value) => value.items));
+                                  tableLayoutPageProvider.select((value) => value.itemSetting));
+                              var data =
+                                  ref.watch(tableLayoutPageProvider.select((value) => value.items));
                               var floorSelect = ref.watch(
-                                  tableLayoutPageProvider
-                                      .select((value) => value.floorSelect));
-                              var reservationTimeCheck = ref.watch(
-                                  tableLayoutPageProvider.select(
-                                      (value) => value.reservationTimeCheck));
-                              var fromTime = ref.watch(tableLayoutPageProvider
-                                  .select((value) => value.fromTime));
-                              var toTime = ref.watch(tableLayoutPageProvider
-                                  .select((value) => value.toTime));
-                              var date = ref.watch(tableLayoutPageProvider
-                                  .select((value) => value.date));
-                              var itemDelete = ref.watch(tableLayoutPageProvider
-                                  .select((value) => value.itemDelete));
+                                  tableLayoutPageProvider.select((value) => value.floorSelect));
+                              var reservationTimeCheck = ref.watch(tableLayoutPageProvider
+                                  .select((value) => value.reservationTimeCheck));
+                              var fromTime = ref
+                                  .watch(tableLayoutPageProvider.select((value) => value.fromTime));
+                              var toTime = ref
+                                  .watch(tableLayoutPageProvider.select((value) => value.toTime));
+                              var date =
+                                  ref.watch(tableLayoutPageProvider.select((value) => value.date));
+                              var itemDelete = ref.watch(
+                                  tableLayoutPageProvider.select((value) => value.itemDelete));
 
-                              List<TableLayoutItemModel> dataView = data
-                                  .where((e) =>
-                                      e.floorId == (floorSelect?.id ?? ''))
-                                  .toList();
+                              List<TableLayoutItemModel> dataView =
+                                  data.where((e) => e.floorId == (floorSelect?.id ?? '')).toList();
 
                               return Stack(
                                 clipBehavior: Clip.hardEdge,
@@ -600,26 +553,20 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                       left: item.xPos,
                                       top: item.yPos,
                                       child: Draggable<TableLayoutItemModel>(
-                                        maxSimultaneousDrags:
-                                            enableDragLayout ? null : 0,
+                                        maxSimultaneousDrags: enableDragLayout ? null : 0,
                                         data: item,
                                         feedback: Builder(builder: (context) {
-                                          var scale =
-                                              _controller.value.entry(0, 0);
+                                          var scale = _controller.value.entry(0, 0);
                                           return Transform.scale(
                                             scale: scale,
-                                            child:
-                                                DraggerTableWidget(item: item),
+                                            child: DraggerTableWidget(item: item),
                                           );
                                         }),
                                         onDragUpdate: (details) {
                                           if (anchorOffset == null) {
-                                            Offset rawAnchor =
-                                                details.localPosition;
-                                            var currentZoomScale =
-                                                _controller.value.entry(0, 0);
-                                            if (currentZoomScale != 1.0 &&
-                                                currentZoomScale > 0) {
+                                            Offset rawAnchor = details.localPosition;
+                                            var currentZoomScale = _controller.value.entry(0, 0);
+                                            if (currentZoomScale != 1.0 && currentZoomScale > 0) {
                                               anchorOffset = Offset(
                                                 rawAnchor.dx / currentZoomScale,
                                                 rawAnchor.dy / currentZoomScale,
@@ -632,38 +579,28 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                           _onDragUpdate(item, details.delta);
                                         },
                                         onDragEnd: (details) {},
-                                        childWhenDragging:
-                                            const SizedBox.shrink(),
+                                        childWhenDragging: const SizedBox.shrink(),
                                         child: Consumer(
                                           builder: (context, ref, child) {
-                                            var history = ref.watch(
-                                                tableLayoutPageProvider.select(
-                                                    (value) =>
-                                                        value.historyOrder));
+                                            var history = ref.watch(tableLayoutPageProvider
+                                                .select((value) => value.historyOrder));
 
                                             showLogs(history, flags: 'history');
                                             return DraggerTableWidget(
                                               history: history,
                                               order: item.table?.id != null
-                                                  ? orders
-                                                      .firstWhereOrNull((e) {
-                                                      return e.getTableIds
-                                                          .contains(
-                                                              item.table?.id);
+                                                  ? orders.firstWhereOrNull((e) {
+                                                      return e.getTableIds.contains(item.table?.id);
                                                     })
                                                   : null,
                                               onTap: (p0) async {
                                                 if (!enableDragLayout) {
-                                                  var order = orders
-                                                      .firstWhereOrNull((e) {
-                                                    return e.getTableIds
-                                                        .contains(
-                                                            item.table?.id);
+                                                  var order = orders.firstWhereOrNull((e) {
+                                                    return e.getTableIds.contains(item.table?.id);
                                                   });
                                                   if (order == null) return;
                                                   ref
-                                                      .read(
-                                                          homeProvider.notifier)
+                                                      .read(homeProvider.notifier)
                                                       .changeOrderSelect(order);
                                                   showModalBottomSheet(
                                                     context: context,
@@ -673,13 +610,12 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                                   );
                                                   return;
                                                 }
-                                                var res =
-                                                    await showModalBottomSheet<
-                                                        ({
-                                                          TableLayoutSettingModel? setting,
-                                                          TableModel? table,
-                                                          FloorModel? floor,
-                                                        })?>(
+                                                var res = await showModalBottomSheet<
+                                                    ({
+                                                      TableLayoutSettingModel? setting,
+                                                      TableModel? table,
+                                                      FloorModel? floor,
+                                                    })?>(
                                                   context: context,
                                                   backgroundColor: Colors.white,
                                                   isScrollControlled: true,
@@ -688,8 +624,7 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                                     // showLogs(item, flags: 'item');
                                                     return ItemSettingBottomSheet(
                                                       initSetting: ref
-                                                          .read(
-                                                              tableLayoutPageProvider)
+                                                          .read(tableLayoutPageProvider)
                                                           .itemSetting,
                                                       title: 'Thiết lập',
                                                       item: item,
@@ -698,9 +633,7 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                                 );
                                                 if (res != null) {
                                                   ref
-                                                      .read(
-                                                          tableLayoutPageProvider
-                                                              .notifier)
+                                                      .read(tableLayoutPageProvider.notifier)
                                                       .onChangeLayoutItem(
                                                         item: item,
                                                         floor: res.floor,
@@ -712,30 +645,25 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                               onLongPress: enableDragLayout
                                                   ? (p0) {
                                                       ref
-                                                          .read(
-                                                              tableLayoutPageProvider
-                                                                  .notifier)
+                                                          .read(tableLayoutPageProvider.notifier)
                                                           .addDeleteItem(p0);
                                                     }
                                                   : null,
                                               item: item,
                                               itemSetting: itemSetting,
                                               reservations: ref
-                                                  .read(tableLayoutPageProvider
-                                                      .notifier)
+                                                  .read(tableLayoutPageProvider.notifier)
                                                   .getReservationsOfTable(
                                                 // reservations: reservations,
                                                 reservations: [],
                                                 table: item.table,
-                                                reservationTimeCheck:
-                                                    reservationTimeCheck,
+                                                reservationTimeCheck: reservationTimeCheck,
                                                 fromTime: fromTime,
                                                 toTime: toTime,
                                                 date: date,
                                               ),
                                               isSelect: itemDelete
-                                                      .firstWhereOrNull((e) =>
-                                                          e.id == item.id) !=
+                                                      .firstWhereOrNull((e) => e.id == item.id) !=
                                                   null,
                                             );
                                           },
@@ -747,44 +675,31 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                       key: _dragLocalTargetKey,
                                       onAcceptWithDetails: (details) {
                                         final RenderBox dragTargetRenderBox =
-                                            _dragTargetKey.currentContext!
-                                                    .findRenderObject()
+                                            _dragTargetKey.currentContext!.findRenderObject()
                                                 as RenderBox;
 
                                         Offset screenOffset =
-                                            dragTargetRenderBox
-                                                .globalToLocal(details.offset);
+                                            dragTargetRenderBox.globalToLocal(details.offset);
                                         final double currentZoomScale =
                                             _controller.value.entry(0, 0);
                                         double feedbackScale = currentZoomScale;
-                                        double compensationFactor =
-                                            feedbackScale - 1.0;
+                                        double compensationFactor = feedbackScale - 1.0;
                                         if (anchorOffset != null) {
                                           var compensationVetor = Offset(
-                                              (anchorOffset?.dx ?? 0) *
-                                                  compensationFactor,
-                                              (anchorOffset?.dy ?? 0) *
-                                                  compensationFactor);
-                                          screenOffset =
-                                              screenOffset - compensationVetor;
+                                              (anchorOffset?.dx ?? 0) * compensationFactor,
+                                              (anchorOffset?.dy ?? 0) * compensationFactor);
+                                          screenOffset = screenOffset - compensationVetor;
                                         }
                                         Matrix4 inverseMatrix;
                                         try {
-                                          inverseMatrix = _controller.value
-                                              .clone()
-                                            ..invert();
+                                          inverseMatrix = _controller.value.clone()..invert();
                                         } catch (ex) {
                                           return;
                                         }
 
-                                        final vm.Vector4 localVector =
-                                            inverseMatrix.transform(vm.Vector4(
-                                                screenOffset.dx,
-                                                screenOffset.dy,
-                                                0.0,
-                                                1.0));
-                                        Offset corrected = Offset(
-                                            localVector.x, localVector.y);
+                                        final vm.Vector4 localVector = inverseMatrix.transform(
+                                            vm.Vector4(screenOffset.dx, screenOffset.dy, 0.0, 1.0));
+                                        Offset corrected = Offset(localVector.x, localVector.y);
                                         // final double scaleCorrectionFactor =
                                         //     1.0 - (1.0 / currentZoomScale);
                                         // showLogs(scaleCorrectionFactor,
@@ -801,13 +716,10 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                         anchorOffset = null;
 
                                         ref
-                                            .read(tableLayoutPageProvider
-                                                .notifier)
-                                            .updatePosition(
-                                                details.data, corrected);
+                                            .read(tableLayoutPageProvider.notifier)
+                                            .updatePosition(details.data, corrected);
                                       },
-                                      builder: (_, __, ___) =>
-                                          const SizedBox.expand(),
+                                      builder: (_, __, ___) => const SizedBox.expand(),
                                     ),
                                   ),
                                 ],
@@ -1364,12 +1276,10 @@ class DetailOrderBottomSheet extends ConsumerStatefulWidget {
   const DetailOrderBottomSheet({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _DetailOrderBottomSheetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _DetailOrderBottomSheetState();
 }
 
-class _DetailOrderBottomSheetState
-    extends ConsumerState<DetailOrderBottomSheet> {
+class _DetailOrderBottomSheetState extends ConsumerState<DetailOrderBottomSheet> {
   ItemScrollController? itemScrollController;
   ItemPositionsListener? itemPositionsListener;
 

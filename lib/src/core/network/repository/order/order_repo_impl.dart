@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
@@ -14,6 +15,7 @@ import 'package:aladdin_franchise/src/core/network/repository/responses/process_
 import 'package:aladdin_franchise/src/core/network/repository/responses/product_checkout.dart';
 import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/comment.dart';
 import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
@@ -22,10 +24,10 @@ import 'package:aladdin_franchise/src/models/data_bill.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
+import 'package:aladdin_franchise/src/models/param_family/bank_param.dart';
 import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
-import 'package:aladdin_franchise/src/models/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/models/waiter.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
@@ -120,9 +122,12 @@ class OrderRepositoryImpl extends OrderRepository {
   }
 
   @override
-  Future<ApiResult<ProductCheckoutResponse>> getProductCheckout(OrderModel? order) async {
-    var apiUrl = '${ApiConfig.apiUrl}/api/v1/orders-for-table?order_id=${order?.id}';
-    return safeCallApi(
+  Future<ProductCheckoutResponse> getProductCheckout(OrderModel? order) async {
+    if (order == null) {
+      return const ProductCheckoutResponse(status: 200);
+    }
+    var apiUrl = '${ApiConfig.apiUrl}/api/v1/orders-for-table?order_id=${order.id}';
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
@@ -134,27 +139,40 @@ class OrderRepositoryImpl extends OrderRepository {
         order: order,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? const ProductCheckoutResponse(status: 200);
   }
 
   @override
-  Future<ApiResult<List<IpOrderModel>>> getIpPrinterOrder(
+  Future<List<IpOrderModel>> getIpPrinterOrder(
     OrderModel order,
     List<int> printerType,
   ) async {
     var apiUrl =
         "${ApiConfig.apiUrl}/api/v2/list-table-using?type_order=${order.id}&printer_type=$printerType";
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
       },
       dataKey: 'data',
       parser: (json) {
-        List<IpOrderModel> printers = [];
-        var res = OrdersResponseData.fromJson(json);
-        printers = res.ipOrder == null
+        var result = OrdersResponseData.fromJson(json);
+        List<IpOrderModel> printers = result.ipOrder == null
             ? []
-            : res.ipOrder.map<IpOrderModel>((e) => IpOrderModel.fromJson(e)).toList();
+            : result.ipOrder.map<IpOrderModel>((e) => IpOrderModel.fromJson(e)).toList();
+        if (printers.isEmpty) {
+          throw AppException(
+            statusCode: 200,
+            message: S.current.error_ping_printer,
+          );
+        }
         return printers;
       },
       log: ErrorLogModel(
@@ -163,10 +181,17 @@ class OrderRepositoryImpl extends OrderRepository {
         order: order,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return result.data ?? [];
   }
 
   @override
-  Future<ApiResult<bool>> payment({
+  Future<bool> payment({
     required OrderModel order,
     required List<IpOrderModel> infoPrint,
     required List<ProductCheckoutModel> products,
@@ -184,6 +209,7 @@ class OrderRepositoryImpl extends OrderRepository {
     CustomerPortrait? customerPortrait,
     required bool statusPaymentCompleted,
     dynamic totalPaymentCompleted,
+    String? providerCode,
   }) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v1/in-bill-tmp";
     var loginData = LocalStorage.getDataLogin();
@@ -234,13 +260,14 @@ class OrderRepositoryImpl extends OrderRepository {
       "payment_method": paymentMethod,
       "portrait": customerPortrait?.key,
       "status_payment_completed": statusPaymentCompleted ? 1 : 0,
-      "total_payment_completed": totalPaymentCompleted,
+      "total_payment_completed": totalPaymentCompleted, "provider_code": providerCode,
     });
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
       },
+      ignoreCheckStatus: true,
       parser: (json) {
         if (int.tryParse(json) != 1) {
           /// 200 - nhưng response k phải 1
@@ -254,10 +281,17 @@ class OrderRepositoryImpl extends OrderRepository {
         order: order,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return result.data ?? false;
   }
 
   @override
-  Future<ApiResult<ProcessOrderResponse>> processOrderItem({
+  Future<ProcessOrderResponse> processOrderItem({
     required OrderModel order,
     required double total,
     List<ProductModel> products = const [],
@@ -302,7 +336,7 @@ class OrderRepositoryImpl extends OrderRepository {
               .toList()),
     });
 
-    return safeCallApi(
+    var result = await safeCallApi(
       () async {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
@@ -315,12 +349,20 @@ class OrderRepositoryImpl extends OrderRepository {
         order: order,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? const ProcessOrderResponse(status: 200);
   }
 
   @override
-  Future<ApiResult<DataBillResponseData>> getDataBill({required int orderId}) async {
+  Future<DataBillResponseData> getDataBill({required int orderId}) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v1/get-data-bill-order?order_id=$orderId";
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
@@ -341,6 +383,14 @@ class OrderRepositoryImpl extends OrderRepository {
         order: OrderModel(id: orderId),
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? const DataBillResponseData();
   }
 
   // @override
@@ -379,32 +429,21 @@ class OrderRepositoryImpl extends OrderRepository {
   // }
 
   @override
-  Future<ApiResult<List<IpOrderModel>>> getPrinterBill(
+  Future<List<IpOrderModel>> getPrinterBill(
     OrderModel order,
     List<int> printerCheck,
   ) async {
     final resultPrinter = await getIpPrinterOrder(order, printerCheck);
-    if (!resultPrinter.isSuccess) {
-      throw AppException(
-        statusCode: resultPrinter.statusCode,
-        message: resultPrinter.error,
-      );
-    }
-    List<IpOrderModel> ipResult = resultPrinter.data ?? [];
-    try {
-      await LocalStorage.saveListPrinters(ipResult);
-    } catch (ex) {
-      //
-    }
-    var checkPrinterAvailable = await AppPrinterCommon.checkPrinters(ipResult);
+
+    var checkPrinterAvailable = await AppPrinterCommon.checkPrinters(resultPrinter);
     if (checkPrinterAvailable != null) {
-      return ApiResult.failure(404, checkPrinterAvailable);
+      throw AppException(statusCode: 404, message: checkPrinterAvailable);
     }
-    return ApiResult.success(200, ipResult);
+    return resultPrinter;
   }
 
   @override
-  Future<ApiResult<bool>> lockOrder({
+  Future<bool> lockOrder({
     required int orderId,
     required int statusLock,
   }) async {
@@ -415,7 +454,7 @@ class OrderRepositoryImpl extends OrderRepository {
       "status_lock": statusLock,
       "device_id": makeDeviceId,
     });
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
@@ -427,12 +466,20 @@ class OrderRepositoryImpl extends OrderRepository {
         request: body,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? false;
   }
 
   @override
-  Future<ApiResult<bool>> checkStatusLockOrder(int orderId) async {
+  Future<bool> checkStatusLockOrder(int orderId) async {
     var apiUrl = "${ApiConfig.apiUrl}/api/v1/status-lock-order?order_id=$orderId";
-    return safeCallApi(
+    var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
         return _client.get(url);
@@ -443,35 +490,18 @@ class OrderRepositoryImpl extends OrderRepository {
         order: OrderModel(id: orderId),
       ),
     );
-    // final apiUrl = "${ApiConfig.statusLockOrder}?order_id=$orderId";
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.checkStatusLockOrder,
-    //   api: apiUrl,
-    //   modelInterface: 'bool',
-    //   order: OrderModel(id: orderId),
-    // );
-    // try {
-    //   final response = await restClient.get(Uri.parse(apiUrl));
-    //   log = log.copyWith(
-    //     response: [response.statusCode, response.body],
-    //   );
-    //   if (response.statusCode == 200) {
-    //     return false;
-    //   } else if (response.statusCode == 423) {
-    //     return true;
-    //   }
-    //   throw AppException.fromHttpResponse(response);
-    // } catch (ex) {
-    //   LogService.sendLogs(
-    //       log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
 
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
+    return result.data ?? false;
   }
 
   @override
-  Future<ApiResult<void>> completeBill({
+  Future<void> completeBill({
     required OrderModel order,
     String description = '',
     // // cấu trúc: keyPaymentMethod--priceFinal,
@@ -486,6 +516,7 @@ class OrderRepositoryImpl extends OrderRepository {
     required String eSaleName,
     required String eSaleCode,
     int isPrintPeople = 0,
+    String? providerCode,
   }) async {
     final apiUrl = '${ApiConfig.apiUrl}/api/v2/in-bill-completed/${order.id}';
     final body = jsonEncode(<String, dynamic>{
@@ -502,8 +533,9 @@ class OrderRepositoryImpl extends OrderRepository {
       "total_price_tax": totalPriceTax.toString(),
       "total_price_final": totalPriceFinal.toString(),
       "isPrintPeople": isPrintPeople.toString(),
+      "provider_code": providerCode,
     });
-    return safeCallApi(
+    var result = await safeCallApi(
       () async {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
@@ -515,10 +547,16 @@ class OrderRepositoryImpl extends OrderRepository {
         order: order,
       ),
     );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
   }
 
   @override
-  Future<ApiResult<List<ProductCheckoutUpdateTaxModel>>> updateTax(
+  Future<List<ProductCheckoutUpdateTaxModel>> updateTax(
       {required OrderModel order,
       required List<ProductCheckoutModel> pc,
       required PaymentMethod paymentMethod}) async {
@@ -534,7 +572,7 @@ class OrderRepositoryImpl extends OrderRepository {
               })
           .toList(),
     });
-    return safeCallApiList(
+    var result = await safeCallApiList(
       () async {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
@@ -547,45 +585,65 @@ class OrderRepositoryImpl extends OrderRepository {
         request: body,
       ),
     );
-    // var api = ApiConfig.updateTax;
-    // var bodyRequest = jsonEncode({
-    //   "order_id": order.id,
-    //   "method": paymentMethod.key,
-    //   "data": pc
-    //       .map((e) => {
-    //             'menu_item_id': e.id,
-    //             // vì tax đang là dạng 0.08
-    //             'tax': e.tax * 100,
-    //           })
-    //       .toList(),
-    // });
-    // var log = ErrorLogModel(
-    //   action: AppLogAction.updateTax,
-    //   api: api,
-    //   request: bodyRequest,
-    // );
-    // try {
-    //   final response = await restClient.post(Uri.parse(api), body: bodyRequest);
-    //   log = log.copyWith(response: [response.statusCode, response.body]);
-    //   if (response.statusCode == NetworkCodeConfig.ok) {
-    //     var body = jsonDecode(response.body);
-    //     if (body['status'] != NetworkCodeConfig.ok) {
-    //       throw body['message'] != null
-    //           ? AppException.fromMessage(body['message'])
-    //           : AppException.fromStatusCode(body['status']);
-    //     }
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
 
-    //     return (body['data'] as List)
-    //         .map((e) => ProductCheckoutUpdateTaxModel.fromJson(e))
-    //         .toList();
-    //   } else {
-    //     throw AppException.fromStatusCode(response.statusCode);
-    //   }
-    // } catch (ex) {
-    //   LogService.sendLogs(log.copyWith(errorMessage: ex.toString(), createAt: DateTime.now()));
+    return result.data ?? [];
+  }
 
-    //   if (ex is AppException) rethrow;
-    //   throw AppException(message: ex.toString());
-    // }
+  @override
+  Future<({String? qrData, String? message, dynamic status})> getQrBankDynamicPayment({
+    required ApiBankParam apiBankParam,
+    required int keyPaymentMethod,
+    required String bankCode,
+  }) async {
+    final apiUrl = '${ApiConfig.apiUrl}/v2/generate-qr-code';
+    final body = jsonEncode(<String, dynamic>{
+      "payment_method": keyPaymentMethod,
+      "restaurant_id": LocalStorage.getDataLogin()?.restaurant?.id,
+      "order_id": apiBankParam.orderDataBill.id,
+      "table_name": apiBankParam.orderDataBill.tableName,
+      "total_bill": apiBankParam.priceFinal,
+      "code": bankCode,
+    });
+
+    var result = await safeCallApi(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      parser: (json) {
+        final String? qrData = json['data'];
+        final String? message = json['message'];
+        final dynamic status = json['status'];
+        return (
+          qrData: qrData,
+          message: message,
+          status: status,
+        );
+      },
+      log: ErrorLogModel(
+        action: AppLogAction.getQrBankDynamicPaymentGateway,
+        api: apiUrl,
+        request: body,
+      ),
+    );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ??
+        (
+          qrData: null,
+          message: null,
+          status: null,
+        );
   }
 }
