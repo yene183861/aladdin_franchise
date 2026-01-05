@@ -1,6 +1,7 @@
 import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
+import 'package:aladdin_franchise/src/features/dialogs/payment_cancel.dart';
 // import 'package:aladdin_franchise/src/features/dialogs/detail_product_checkout.dart';
 // import 'package:aladdin_franchise/src/features/dialogs/payment_cancel.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
@@ -227,14 +228,12 @@ class _ListRequestWidget extends ConsumerWidget {
                       ref.read(orderToOnlinePageProvider).requestSelect?.listItem ?? [];
                   if (orderItems.isEmpty) return;
 
-                  // await showPaymentCancelDialog(
-                  //   context,
-                  //   onAction: (content) {
-                  //     ref
-                  //         .read(orderToOnlinePageProvider.notifier)
-                  //         .cancelRequest(reason: content);
-                  //   },
-                  // );
+                  await showPaymentCancelDialog(
+                    context,
+                    onAction: (content) {
+                      ref.read(orderToOnlinePageProvider.notifier).cancelRequest(reason: content);
+                    },
+                  );
                 },
               ),
               const Gap(12),

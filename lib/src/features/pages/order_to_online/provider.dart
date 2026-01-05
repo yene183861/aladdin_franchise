@@ -133,7 +133,6 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
       }
       state =
           state.copyWith(event: OrderToOnlineEvent.loading, message: S.current.canceling_request);
-      await onChangeLockedOrderId(orderId: orderSelect.orderId);
 
       await _o2oRepository.processO2oRequest(
         orderId: orderSelect.orderId,
@@ -142,6 +141,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
         status: 2,
         notes: reason,
       );
+      ref.refresh(orderToOnlineProvider);
       state = state.copyWith(
         event: OrderToOnlineEvent.success,
         message: '',
