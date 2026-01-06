@@ -20,8 +20,8 @@ import 'package:aladdin_franchise/src/models/tag_product.dart';
 import 'package:aladdin_franchise/src/models/user_bank.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:aladdin_franchise/src/models/o2o/chat_message_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/chat_message_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
 
 part 'state.freezed.dart';
 

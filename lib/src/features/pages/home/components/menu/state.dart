@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/data/enum/status.dart';
 import 'package:aladdin_franchise/src/features/common/process_state.dart';
 import 'package:aladdin_franchise/src/models/category.dart';
@@ -21,5 +22,6 @@ class MenuState with _$MenuState {
     TagProductModel? tagSelect,
     @Default('') String search,
     @Default(false) bool checkReloadWhenHiddenApp,
+    @Default({}) Map<int, Map<String, dynamic>> allProduct,
   }) = _HomeState;
 }

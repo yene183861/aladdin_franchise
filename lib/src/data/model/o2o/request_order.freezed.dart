@@ -34,9 +34,8 @@ mixin _$RequestOrderItemModel {
   String get image => throw _privateConstructorUsedError;
   @JsonKey(includeToJson: false)
   String get name => throw _privateConstructorUsedError;
-  String get noteRestaurant => throw _privateConstructorUsedError;
-  @JsonKey(includeToJson: false)
-  int? get printerType => throw _privateConstructorUsedError;
+  String get noteRestaurant =>
+      throw _privateConstructorUsedError; // @JsonKey(includeToJson: false) int? printerType,
   @JsonKey(includeToJson: false)
   String get unit => throw _privateConstructorUsedError;
 
@@ -61,7 +60,6 @@ abstract class $RequestOrderItemModelCopyWith<$Res> {
       @JsonKey(includeToJson: false) String image,
       @JsonKey(includeToJson: false) String name,
       String noteRestaurant,
-      @JsonKey(includeToJson: false) int? printerType,
       @JsonKey(includeToJson: false) String unit});
 }
 
@@ -87,7 +85,6 @@ class _$RequestOrderItemModelCopyWithImpl<$Res,
     Object? image = null,
     Object? name = null,
     Object? noteRestaurant = null,
-    Object? printerType = freezed,
     Object? unit = null,
   }) {
     return _then(_value.copyWith(
@@ -123,10 +120,6 @@ class _$RequestOrderItemModelCopyWithImpl<$Res,
           ? _value.noteRestaurant
           : noteRestaurant // ignore: cast_nullable_to_non_nullable
               as String,
-      printerType: freezed == printerType
-          ? _value.printerType
-          : printerType // ignore: cast_nullable_to_non_nullable
-              as int?,
       unit: null == unit
           ? _value.unit
           : unit // ignore: cast_nullable_to_non_nullable
@@ -153,7 +146,6 @@ abstract class _$$RequestOrderItemModelImplCopyWith<$Res>
       @JsonKey(includeToJson: false) String image,
       @JsonKey(includeToJson: false) String name,
       String noteRestaurant,
-      @JsonKey(includeToJson: false) int? printerType,
       @JsonKey(includeToJson: false) String unit});
 }
 
@@ -177,7 +169,6 @@ class __$$RequestOrderItemModelImplCopyWithImpl<$Res>
     Object? image = null,
     Object? name = null,
     Object? noteRestaurant = null,
-    Object? printerType = freezed,
     Object? unit = null,
   }) {
     return _then(_$RequestOrderItemModelImpl(
@@ -213,10 +204,6 @@ class __$$RequestOrderItemModelImplCopyWithImpl<$Res>
           ? _value.noteRestaurant
           : noteRestaurant // ignore: cast_nullable_to_non_nullable
               as String,
-      printerType: freezed == printerType
-          ? _value.printerType
-          : printerType // ignore: cast_nullable_to_non_nullable
-              as int?,
       unit: null == unit
           ? _value.unit
           : unit // ignore: cast_nullable_to_non_nullable
@@ -239,7 +226,6 @@ class _$RequestOrderItemModelImpl extends _RequestOrderItemModel
       @JsonKey(includeToJson: false) this.image = '',
       @JsonKey(includeToJson: false) this.name = '',
       this.noteRestaurant = '',
-      @JsonKey(includeToJson: false) this.printerType,
       @JsonKey(includeToJson: false) this.unit = ''})
       : super._();
 
@@ -270,16 +256,14 @@ class _$RequestOrderItemModelImpl extends _RequestOrderItemModel
   @override
   @JsonKey()
   final String noteRestaurant;
-  @override
-  @JsonKey(includeToJson: false)
-  final int? printerType;
+// @JsonKey(includeToJson: false) int? printerType,
   @override
   @JsonKey(includeToJson: false)
   final String unit;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'RequestOrderItemModel(id: $id, menuItemId: $menuItemId, codeProduct: $codeProduct, quantity: $quantity, note: $note, image: $image, name: $name, noteRestaurant: $noteRestaurant, printerType: $printerType, unit: $unit)';
+    return 'RequestOrderItemModel(id: $id, menuItemId: $menuItemId, codeProduct: $codeProduct, quantity: $quantity, note: $note, image: $image, name: $name, noteRestaurant: $noteRestaurant, unit: $unit)';
   }
 
   @override
@@ -295,7 +279,6 @@ class _$RequestOrderItemModelImpl extends _RequestOrderItemModel
       ..add(DiagnosticsProperty('image', image))
       ..add(DiagnosticsProperty('name', name))
       ..add(DiagnosticsProperty('noteRestaurant', noteRestaurant))
-      ..add(DiagnosticsProperty('printerType', printerType))
       ..add(DiagnosticsProperty('unit', unit));
   }
 
@@ -316,15 +299,13 @@ class _$RequestOrderItemModelImpl extends _RequestOrderItemModel
             (identical(other.name, name) || other.name == name) &&
             (identical(other.noteRestaurant, noteRestaurant) ||
                 other.noteRestaurant == noteRestaurant) &&
-            (identical(other.printerType, printerType) ||
-                other.printerType == printerType) &&
             (identical(other.unit, unit) || other.unit == unit));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, id, menuItemId, codeProduct,
-      quantity, note, image, name, noteRestaurant, printerType, unit);
+      quantity, note, image, name, noteRestaurant, unit);
 
   @JsonKey(ignore: true)
   @override
@@ -351,7 +332,6 @@ abstract class _RequestOrderItemModel extends RequestOrderItemModel {
           @JsonKey(includeToJson: false) final String image,
           @JsonKey(includeToJson: false) final String name,
           final String noteRestaurant,
-          @JsonKey(includeToJson: false) final int? printerType,
           @JsonKey(includeToJson: false) final String unit}) =
       _$RequestOrderItemModelImpl;
   const _RequestOrderItemModel._() : super._();
@@ -381,10 +361,7 @@ abstract class _RequestOrderItemModel extends RequestOrderItemModel {
   String get name;
   @override
   String get noteRestaurant;
-  @override
-  @JsonKey(includeToJson: false)
-  int? get printerType;
-  @override
+  @override // @JsonKey(includeToJson: false) int? printerType,
   @JsonKey(includeToJson: false)
   String get unit;
   @override
@@ -694,4 +671,264 @@ abstract class _RequestOrderModel extends RequestOrderModel {
   @JsonKey(ignore: true)
   _$$RequestOrderModelImplCopyWith<_$RequestOrderModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
+}
+
+RedisO2oProcessedRequestModel _$RedisO2oProcessedRequestModelFromJson(
+    Map<String, dynamic> json) {
+  return _RedisO2oProcessedRequestModel.fromJson(json);
+}
+
+/// @nodoc
+mixin _$RedisO2oProcessedRequestModel {
+  int? get orderId => throw _privateConstructorUsedError;
+  String? get tableName => throw _privateConstructorUsedError;
+  int get status => throw _privateConstructorUsedError;
+  List<RequestOrderItemModel> get items => throw _privateConstructorUsedError;
+  String get notes => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $RedisO2oProcessedRequestModelCopyWith<RedisO2oProcessedRequestModel>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $RedisO2oProcessedRequestModelCopyWith<$Res> {
+  factory $RedisO2oProcessedRequestModelCopyWith(
+          RedisO2oProcessedRequestModel value,
+          $Res Function(RedisO2oProcessedRequestModel) then) =
+      _$RedisO2oProcessedRequestModelCopyWithImpl<$Res,
+          RedisO2oProcessedRequestModel>;
+  @useResult
+  $Res call(
+      {int? orderId,
+      String? tableName,
+      int status,
+      List<RequestOrderItemModel> items,
+      String notes});
+}
+
+/// @nodoc
+class _$RedisO2oProcessedRequestModelCopyWithImpl<$Res,
+        $Val extends RedisO2oProcessedRequestModel>
+    implements $RedisO2oProcessedRequestModelCopyWith<$Res> {
+  _$RedisO2oProcessedRequestModelCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? orderId = freezed,
+    Object? tableName = freezed,
+    Object? status = null,
+    Object? items = null,
+    Object? notes = null,
+  }) {
+    return _then(_value.copyWith(
+      orderId: freezed == orderId
+          ? _value.orderId
+          : orderId // ignore: cast_nullable_to_non_nullable
+              as int?,
+      tableName: freezed == tableName
+          ? _value.tableName
+          : tableName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as int,
+      items: null == items
+          ? _value.items
+          : items // ignore: cast_nullable_to_non_nullable
+              as List<RequestOrderItemModel>,
+      notes: null == notes
+          ? _value.notes
+          : notes // ignore: cast_nullable_to_non_nullable
+              as String,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$RedisO2oProcessedRequestModelImplCopyWith<$Res>
+    implements $RedisO2oProcessedRequestModelCopyWith<$Res> {
+  factory _$$RedisO2oProcessedRequestModelImplCopyWith(
+          _$RedisO2oProcessedRequestModelImpl value,
+          $Res Function(_$RedisO2oProcessedRequestModelImpl) then) =
+      __$$RedisO2oProcessedRequestModelImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {int? orderId,
+      String? tableName,
+      int status,
+      List<RequestOrderItemModel> items,
+      String notes});
+}
+
+/// @nodoc
+class __$$RedisO2oProcessedRequestModelImplCopyWithImpl<$Res>
+    extends _$RedisO2oProcessedRequestModelCopyWithImpl<$Res,
+        _$RedisO2oProcessedRequestModelImpl>
+    implements _$$RedisO2oProcessedRequestModelImplCopyWith<$Res> {
+  __$$RedisO2oProcessedRequestModelImplCopyWithImpl(
+      _$RedisO2oProcessedRequestModelImpl _value,
+      $Res Function(_$RedisO2oProcessedRequestModelImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? orderId = freezed,
+    Object? tableName = freezed,
+    Object? status = null,
+    Object? items = null,
+    Object? notes = null,
+  }) {
+    return _then(_$RedisO2oProcessedRequestModelImpl(
+      orderId: freezed == orderId
+          ? _value.orderId
+          : orderId // ignore: cast_nullable_to_non_nullable
+              as int?,
+      tableName: freezed == tableName
+          ? _value.tableName
+          : tableName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      status: null == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as int,
+      items: null == items
+          ? _value._items
+          : items // ignore: cast_nullable_to_non_nullable
+              as List<RequestOrderItemModel>,
+      notes: null == notes
+          ? _value.notes
+          : notes // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+
+@JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
+class _$RedisO2oProcessedRequestModelImpl extends _RedisO2oProcessedRequestModel
+    with DiagnosticableTreeMixin {
+  const _$RedisO2oProcessedRequestModelImpl(
+      {this.orderId,
+      this.tableName,
+      this.status = 0,
+      final List<RequestOrderItemModel> items = const [],
+      this.notes = ''})
+      : _items = items,
+        super._();
+
+  factory _$RedisO2oProcessedRequestModelImpl.fromJson(
+          Map<String, dynamic> json) =>
+      _$$RedisO2oProcessedRequestModelImplFromJson(json);
+
+  @override
+  final int? orderId;
+  @override
+  final String? tableName;
+  @override
+  @JsonKey()
+  final int status;
+  final List<RequestOrderItemModel> _items;
+  @override
+  @JsonKey()
+  List<RequestOrderItemModel> get items {
+    if (_items is EqualUnmodifiableListView) return _items;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_items);
+  }
+
+  @override
+  @JsonKey()
+  final String notes;
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'RedisO2oProcessedRequestModel(orderId: $orderId, tableName: $tableName, status: $status, items: $items, notes: $notes)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'RedisO2oProcessedRequestModel'))
+      ..add(DiagnosticsProperty('orderId', orderId))
+      ..add(DiagnosticsProperty('tableName', tableName))
+      ..add(DiagnosticsProperty('status', status))
+      ..add(DiagnosticsProperty('items', items))
+      ..add(DiagnosticsProperty('notes', notes));
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$RedisO2oProcessedRequestModelImpl &&
+            (identical(other.orderId, orderId) || other.orderId == orderId) &&
+            (identical(other.tableName, tableName) ||
+                other.tableName == tableName) &&
+            (identical(other.status, status) || other.status == status) &&
+            const DeepCollectionEquality().equals(other._items, _items) &&
+            (identical(other.notes, notes) || other.notes == notes));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(runtimeType, orderId, tableName, status,
+      const DeepCollectionEquality().hash(_items), notes);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$RedisO2oProcessedRequestModelImplCopyWith<
+          _$RedisO2oProcessedRequestModelImpl>
+      get copyWith => __$$RedisO2oProcessedRequestModelImplCopyWithImpl<
+          _$RedisO2oProcessedRequestModelImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$RedisO2oProcessedRequestModelImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _RedisO2oProcessedRequestModel
+    extends RedisO2oProcessedRequestModel {
+  const factory _RedisO2oProcessedRequestModel(
+      {final int? orderId,
+      final String? tableName,
+      final int status,
+      final List<RequestOrderItemModel> items,
+      final String notes}) = _$RedisO2oProcessedRequestModelImpl;
+  const _RedisO2oProcessedRequestModel._() : super._();
+
+  factory _RedisO2oProcessedRequestModel.fromJson(Map<String, dynamic> json) =
+      _$RedisO2oProcessedRequestModelImpl.fromJson;
+
+  @override
+  int? get orderId;
+  @override
+  String? get tableName;
+  @override
+  int get status;
+  @override
+  List<RequestOrderItemModel> get items;
+  @override
+  String get notes;
+  @override
+  @JsonKey(ignore: true)
+  _$$RedisO2oProcessedRequestModelImplCopyWith<
+          _$RedisO2oProcessedRequestModelImpl>
+      get copyWith => throw _privateConstructorUsedError;
 }

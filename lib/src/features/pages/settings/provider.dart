@@ -36,6 +36,7 @@ class SettingsPageNotifier extends StateNotifier<SettingsPageState> {
     AppPrinterSettingTypeEnum? appPrinterType,
     BillHtmlSettingModel? billHtmlSetting,
     BillReturnSettingModel? billReturnSetting,
+    bool? autoAcceptO2o,
   }) {
     var settings = state.printSetting.copyWith(
       // noticeKitchenCancel:
@@ -55,6 +56,7 @@ class SettingsPageNotifier extends StateNotifier<SettingsPageState> {
       appPrinterType: appPrinterType ?? state.printSetting.appPrinterType,
       billHtmlSetting: billHtmlSetting ?? state.printSetting.billHtmlSetting,
       billReturnSetting: billReturnSetting ?? state.printSetting.billReturnSetting,
+      autoAcceptO2o: autoAcceptO2o ?? state.printSetting.autoAcceptO2o,
     );
     state = state.copyWith(printSetting: settings);
     LocalStorage.setPrintSetting(settings);

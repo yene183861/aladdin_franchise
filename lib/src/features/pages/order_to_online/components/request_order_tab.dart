@@ -11,9 +11,9 @@ import 'package:aladdin_franchise/src/features/pages/order_to_online/provider.da
 import 'package:aladdin_franchise/src/features/widgets/empty.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/refresh_data.dart';
-import 'package:aladdin_franchise/src/models/o2o/chat_message_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/request_order.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/chat_message_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/request_order.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';

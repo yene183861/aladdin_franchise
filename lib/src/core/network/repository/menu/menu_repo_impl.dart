@@ -15,12 +15,12 @@ class MenuRepositoryImpl extends MenuRepository {
   MenuRepositoryImpl(this._client);
 
   @override
-  Future<CategoryResponseData> getCategory() async {
+  Future<CategoryResponseData> getCategory(int? typeOrder) async {
     final apiUrl = "${ApiConfig.apiUrl}/api/v1/make-waiter-restaurant-category";
     var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
-        return _client.get(url);
+        return _client.get(url, typeOrder: typeOrder);
       },
       wrapperResponse: true,
       parser: (json) => CategoryResponseData.fromJson(json),

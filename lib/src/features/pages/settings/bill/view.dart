@@ -23,6 +23,25 @@ class _BillSettingsWidgetState extends ConsumerState<BillSettingsWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Consumer(builder: (context, ref, child) {
+            var autoAcceptO2o =
+                ref.watch(settingsPageProvider.select((value) => value.printSetting.autoAcceptO2o));
+            return SwitchListTile(
+              title: Text(
+                "Tự động duyệt yêu cầu gọi món tại bàn",
+                style: AppTextStyle.bold(),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              controlAffinity: ListTileControlAffinity.leading,
+              value: autoAcceptO2o,
+              onChanged: (value) {
+                ref
+                    .read(settingsPageProvider.notifier)
+                    .onChangeSetting(autoAcceptO2o: !autoAcceptO2o);
+              },
+            );
+          }),
           SwitchListTile(
             title: Text(
               "Gọi món/ Hủy món - Bill Tiếng Việt có dấu",
@@ -40,7 +59,7 @@ class _BillSettingsWidgetState extends ConsumerState<BillSettingsWidget> {
                   .onChangeSetting(appPrinterType: typePrinterNew);
             },
           ),
-          Expanded(
+          Flexible(
             child: typePrinter == AppPrinterSettingTypeEnum.normal
                 ? const BillSettingForNormalWidget()
                 : const BillSettingForHtmlWidget(),

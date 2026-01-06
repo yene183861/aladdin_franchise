@@ -29,6 +29,5 @@ class RestaurantModel with _$RestaurantModel {
     @Default(false) bool reservationStatus,
   }) = _RestaurantModel;
 
-  factory RestaurantModel.fromJson(Map<String, dynamic> json) =>
-      _$RestaurantModelFromJson(json);
+  factory RestaurantModel.fromJson(Map<String, dynamic> json) => _$RestaurantModelFromJson(json);
 }

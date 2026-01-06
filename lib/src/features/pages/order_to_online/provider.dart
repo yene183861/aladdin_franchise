@@ -9,16 +9,17 @@ import 'package:aladdin_franchise/src/core/network/repository/order/order_reposi
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/models/combo_item.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
-import 'package:aladdin_franchise/src/models/o2o/local_notification_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/notification_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/request_order.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/local_notification_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/notification_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/request_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
@@ -44,42 +45,31 @@ final orderToOnlinePageProvider =
 
 class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
   OrderToOnlinePageNotifier(this.ref, this._orderRepository, this._o2oRepository)
-      : super(const OrderToOnlineState()) {
-    // _listenChangeO2OData();
-  }
+      : super(const OrderToOnlineState()) {}
   final OrderRepository _orderRepository;
   final OrderToOnlineRepository _o2oRepository;
   final Ref ref;
-
-  // void _listenChangeO2OData() {
-  //   ref.listen(homeProvider.select((value) => value.o2oData), (previous, next) {
-  //     if (mounted) {
-  //       onChangeShowLoadingGetData(false);
-  //       _getO2OData(next);
-  //     }
-  //   });
-  // }
 
   void onChangeShowLoadingGetData(bool value) {
     state = state.copyWith(showLoadingGetData: value);
   }
 
-  Future<void> _getO2OData(Map<O2OOrderModel, Map<String, dynamic>> value) async {
-    try {
-      Map<O2OOrderModel, Map<String, dynamic>> orders = Map.from(value);
-      // sort theo value
-      var sortedEntries = orders.entries.toList()
-        ..sort((a, b) => b.value['count'].compareTo(a.value['count']));
+  // Future<void> _getO2OData(Map<O2OOrderModel, Map<String, dynamic>> value) async {
+  //   try {
+  //     Map<O2OOrderModel, Map<String, dynamic>> orders = Map.from(value);
+  //     // sort theo value
+  //     var sortedEntries = orders.entries.toList()
+  //       ..sort((a, b) => b.value['count'].compareTo(a.value['count']));
 
-      var sortedMap = {for (var e in sortedEntries) e.key: e.value};
+  //     var sortedMap = {for (var e in sortedEntries) e.key: e.value};
 
-      if (mounted) {
-        state = state.copyWith(orders: sortedMap);
-      }
-    } catch (ex) {
-      //
-    }
-  }
+  //     if (mounted) {
+  //       state = state.copyWith(orders: sortedMap);
+  //     }
+  //   } catch (ex) {
+  //     //
+  //   }
+  // }
 
   void init({int? orderId}) async {
     state = state.copyWith(orderSelect: orderId != null ? O2OOrderModel(orderId: orderId) : null);
@@ -141,7 +131,9 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
         status: 2,
         notes: reason,
       );
-      ref.refresh(orderToOnlineProvider);
+      if (!ref.read(homeProvider).realtimeStatus) {
+        ref.refresh(orderToOnlineProvider);
+      }
       state = state.copyWith(
         event: OrderToOnlineEvent.success,
         message: '',
@@ -160,53 +152,13 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
       var orderSelect = state.orderSelect;
       var requestSelect = state.requestSelect;
       var listItem = state.requestSelect?.listItem ?? [];
-      showLogs(
-        requestSelect,
-        flags: 'acceptRequest requestSelect',
-      );
+
       if (orderSelect == null || requestSelect == null || listItem.isEmpty) {
         return;
       }
 
-      Map<int, List<ProductModel>> productPrint = {};
-      // Set<int> printerCheck = {};
-
-      List<ProductModel> products = ref.read(menuProvider).products;
-
-      for (var element in listItem) {
-        var p = products.firstWhereOrNull((e) => e.codeProduct == element.codeProduct);
-        if (p != null) {
-          var comboItems = ProductHelper().getComboDescription(p);
-          // coi combo k có thành phần như là món thường để in
-          if (comboItems == null || comboItems.isEmpty) {
-            if (p.printerType != null) {
-              var items = List<ProductModel>.from(productPrint[p.printerType] ?? []);
-              items.add(p.copyWith(
-                  note: element.note, description: null, numberSelecting: element.quantity));
-              productPrint[p.printerType!] = items;
-            }
-          } else {
-            Map<int, List<ComboItemModel>> printComboItem = {};
-            for (var ci in comboItems) {
-              var printerType = ci.printerType;
-              if (printerType != null) {
-                var items = List<ComboItemModel>.from(printComboItem[printerType] ?? []);
-                items.add(ci);
-                printComboItem[printerType] = items;
-              }
-            }
-
-            printComboItem.forEach(
-              (key, value) {
-                var items = List<ProductModel>.from(productPrint[key] ?? []);
-                items.add(
-                    p.copyWith(description: jsonEncode(value), numberSelecting: element.quantity));
-                productPrint[key] = items;
-              },
-            );
-          }
-        }
-      }
+      Map<int, List<ProductModel>> productPrint =
+          ref.read(menuProvider.notifier).mapO2oItemWithPrintType(listItem);
 
       var order = OrderModel(
         id: orderSelect.orderId,
@@ -231,96 +183,24 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
         status: 1,
         notes: note,
       );
-
-      ref.refresh(orderToOnlineProvider);
-
       state = state.copyWith(
         event: OrderToOnlineEvent.success,
         message: '',
         requestSelect: null,
       );
-      var appSeting = LocalStorage.getPrintSetting();
-      for (var printer in printers) {
-        var _pPrint = productPrint[printer.type] ?? [];
-        if (_pPrint.isEmpty) continue;
-        var bytes =
-            LocalStorage.getPrintSetting().appPrinterType == AppPrinterSettingTypeEnum.normal
-                ? await AppPrinterNormalUtils.instance.generateBill(
-                    order: order,
-                    billSingle: false,
-                    cancel: false,
-                    timeOrder: 1,
-                    totalNote: note,
-                    products: _pPrint,
-                    title: '',
-                  )
-                : await AppPrinterHtmlUtils.instance
-                    .generateImageBill(AppPrinterHtmlUtils.instance.kitchenBillContent(
-                    order: order,
-                    product: _pPrint,
-                    note: note,
-                    timeOrders: 1,
-                    cancel: false,
-                    totalBill: true,
-                  ));
-        PrintQueue.instance.addTask(
-          ip: printer.ip,
-          port: printer.port,
-          buildReceipt: (generator) async {
-            return bytes;
-          },
-          onComplete: (success, error) async {
-            if (success) {
-              showLogs("✅ In thành công", flags: 'in món thành công');
-              // chỉ in bill lẻ với bếp
-              if (printer.type == 2 && appSeting.billReturnSetting.useOddBill) {
-                for (var p in _pPrint) {
-                  List<int> byteDatas;
-                  var oddHtmlBill = AppPrinterHtmlUtils.instance.kitchenBillContent(
-                    product: [p],
-                    totalBill: false,
-                    order: order,
-                    note: note,
-                    timeOrders: 1,
-                  );
-                  byteDatas = appSeting.appPrinterType == AppPrinterSettingTypeEnum.normal
-                      ? await AppPrinterNormalUtils.instance.generateBill(
-                          order: order,
-                          billSingle: true,
-                          cancel: false,
-                          timeOrder: 1,
-                          totalNote: note,
-                          products: [p],
-                          title: '',
-                        )
-                      : await AppPrinterHtmlUtils.instance.generateImageBill(oddHtmlBill);
-                  PrintQueue.instance.addTask(
-                    ip: printer.ip,
-                    port: printer.port,
-                    buildReceipt: (generator) async {
-                      // var byteDatas = await AppPrinterHtmlUtils.instance
-                      //     .generateImageBill(oddHtmlBill);
-                      return byteDatas;
-                    },
-                    onComplete: (success, error) {
-                      if (success) {
-                        showLogs("✅ In thành công", flags: 'in món lẻ thành công');
-                      } else {
-                        showLogs("❌ In thất bại: $error", flags: 'in món lẻ thất bại');
-                      }
-                    },
-                  );
-                }
-              }
-            } else {
-              showLogs("❌ In thất bại: $error", flags: 'in món thất bại');
-              if (error != null) {
-                showMessageDialog(context, message: error);
-              }
-            }
-          },
-        );
+      if (!ref.read(homeProvider).realtimeStatus) {
+        ref.refresh(orderToOnlineProvider);
       }
+      if (!ref.read(homeProvider).realtimeStatus || !ref.read(printSettingProvider).autoAcceptO2o) {
+        ref.read(menuProvider.notifier).printO2oRequest(
+              order: order,
+              context: context,
+              data: productPrint,
+              note: note,
+              printers: printers,
+            );
+      }
+
       if (orderSelect.orderId == ref.read(homeProvider).orderSelect?.id) {
         ref.read(homeProvider.notifier).getOrderProductCheckout();
       }

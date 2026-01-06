@@ -1,4 +1,4 @@
-import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

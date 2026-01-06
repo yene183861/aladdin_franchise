@@ -2,7 +2,7 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 
 import 'package:aladdin_franchise/src/features/pages/order_to_online/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
-import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

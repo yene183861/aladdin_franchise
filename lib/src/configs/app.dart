@@ -41,6 +41,7 @@ class AppConfig {
   final String urlHelp = "https://sites.google.com/aladdin-jsc.com/aladdin-pos-docs?usp=sharing";
 
   static const double defaultRawTextSize = 13.0;
+  static const bool autoAcceptO2O = true;
 
   static const double heightBtn = 56.0;
 

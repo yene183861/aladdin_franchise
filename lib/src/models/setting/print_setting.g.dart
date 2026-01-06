@@ -23,6 +23,7 @@ _$AppPrintSettingModelImpl _$$AppPrintSettingModelImplFromJson(
           ? const BillReturnSettingModel()
           : BillReturnSettingModel.fromJson(
               json['bill_return_setting'] as Map<String, dynamic>),
+      autoAcceptO2o: json['auto_accept_o2o'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$$AppPrintSettingModelImplToJson(
@@ -34,6 +35,7 @@ Map<String, dynamic> _$$AppPrintSettingModelImplToJson(
           _$AppPrinterSettingTypeEnumEnumMap[instance.appPrinterType]!,
       'bill_html_setting': instance.billHtmlSetting.toJson(),
       'bill_return_setting': instance.billReturnSetting.toJson(),
+      'auto_accept_o2o': instance.autoAcceptO2o,
     };
 
 const _$BillReturnItemTypeEnumEnumMap = {

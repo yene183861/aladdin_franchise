@@ -81,7 +81,7 @@ class RequestOrderItemModel with _$RequestOrderItemModel {
     @Default('') @JsonKey(includeToJson: false) String image,
     @Default('') @JsonKey(includeToJson: false) String name,
     @Default('') String noteRestaurant,
-    @JsonKey(includeToJson: false) int? printerType,
+    // @JsonKey(includeToJson: false) int? printerType,
     @Default('') @JsonKey(includeToJson: false) String unit,
   }) = _RequestOrderItemModel;
 
@@ -149,4 +149,21 @@ class RequestOrderModel with _$RequestOrderModel {
     ${RequestOrderItemModel.getModelInterface()}
     ''';
   }
+}
+
+@freezed
+class RedisO2oProcessedRequestModel with _$RedisO2oProcessedRequestModel {
+  @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
+  const factory RedisO2oProcessedRequestModel({
+    int? orderId,
+    String? tableName,
+    @Default(0) int status,
+    @Default([]) List<RequestOrderItemModel> items,
+    @Default('') String notes,
+  }) = _RedisO2oProcessedRequestModel;
+
+  const RedisO2oProcessedRequestModel._();
+
+  factory RedisO2oProcessedRequestModel.fromJson(Map<String, dynamic> json) =>
+      _$RedisO2oProcessedRequestModelFromJson(json);
 }

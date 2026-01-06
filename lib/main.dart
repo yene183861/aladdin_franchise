@@ -7,10 +7,11 @@ import 'package:aladdin_franchise/firebase_options.dart';
 import 'package:aladdin_franchise/src/app.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
+import 'package:aladdin_franchise/src/core/services/local_notification.dart';
 import 'package:aladdin_franchise/src/core/services/send_log/discord_service.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
-import 'package:aladdin_franchise/src/models/o2o/notification_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/notification_model.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
@@ -152,6 +153,10 @@ Future<void> _initPermissionRequest() async {
     await Permission.requestInstallPackages.request();
     await Permission.location.request();
     await Permission.camera.request();
+    if (Platform.isAndroid) {
+      await appLocalNotificationService?.initLocalNotification();
+      await appLocalNotificationService?.requestPermissions();
+    }
   } catch (ex) {
     showLog(ex, flags: "_initPermissionRequest");
   }

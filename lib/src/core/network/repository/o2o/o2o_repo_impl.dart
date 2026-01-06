@@ -9,10 +9,10 @@ import 'package:aladdin_franchise/src/core/network/repository/o2o/o2o_repository
 import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
-import 'package:aladdin_franchise/src/models/o2o/chat_message_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/customer_info_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/request_order.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/chat_message_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/customer_info_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/request_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 
 class OrderToOnlineRepositoryImpl extends OrderToOnlineRepository {

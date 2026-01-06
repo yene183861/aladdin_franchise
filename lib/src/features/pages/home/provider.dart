@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/const.dart';
 import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
+import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
 import 'package:aladdin_franchise/src/core/network/repository/coupon/coupon_repository.dart';
@@ -20,14 +21,19 @@ import 'package:aladdin_franchise/src/core/network/repository/responses/customer
 import 'package:aladdin_franchise/src/core/network/repository/responses/data_bill.dart';
 import 'package:aladdin_franchise/src/core/network/repository/restaurant/restaurant_repository.dart';
 import 'package:aladdin_franchise/src/core/network/repository/user/user_repository.dart';
+import 'package:aladdin_franchise/src/core/services/local_notification.dart';
 import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/data/enum/payment_status.dart';
 import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
 import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
+import 'package:aladdin_franchise/src/data/enum/status.dart';
 import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/request_order.dart';
 import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
+import 'package:aladdin_franchise/src/features/common/process_state.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
@@ -60,6 +66,7 @@ import 'package:collection/collection.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:local_notifier/local_notifier.dart';
 import 'package:redis/redis.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -102,7 +109,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   ) : super(const HomeState()) {
     AppConfig.initHomeProvider = true;
     // confirm dùng redis hay không?
-    // listenRedisChannel();
+    listenRedisChannel();
   }
 
   final Ref ref;
@@ -602,11 +609,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
   void listenRedisChannel() async {
     StreamSubscription<dynamic>? streamSubscription;
     try {
-      var ip = IPConfigHelper.getIP();
-      var port = LocalStorage.getPortRedis();
+      var info = LocalStorage.getDataLogin()?.restaurant?.redisGatewayPayment;
+      if (info == null) return;
+      var ip = info.host;
+      var port = info.port;
+      var password = info.password ?? '';
       final redisConnection = RedisConnection();
       showLog("$ip:$port", flags: "Connecting to");
       var command = await redisConnection.connect(ip, port);
+      if (password.isNotEmpty) {
+        await command.send_object(['AUTH', password]);
+      }
       final pubSub = PubSub(command);
       pubSub.subscribe([
         kRedisUpdateItemChannel,
@@ -620,25 +633,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       ]);
       final stream = pubSub.getStream();
       streamSubscription = stream.listen(
-        (event) {
-          showLog(event, flags: "New event");
-          //[message, item-channel, {"event":"App\\Events\\ItemCreated","data":{"data":"created item","socket":null},"socket":null}]
-          try {
-            if (event[0] == "message") {
-              showLog('run', flags: "Test reload");
-              if (event[1] == kRedisUpdateItemChannel) {
-                ref.read(menuProvider.notifier).updateReloadWhenHiddenApp(true);
-                ref.read(menuProvider.notifier).getProducts();
-              } else if (event[1] == kLockOrderChannel) {
-                ref.read(homeProvider.notifier).setUnlockOrder();
-              } else if (event[1] == kLockOrderChannel) {
-                ref.read(homeProvider.notifier).setUnlockOrder();
-              }
-            }
-          } catch (ex) {
-            showLog(ex, flags: "Error listen redis");
-          }
-        },
+        _hanleRedisEvent,
         onError: (_, __) async {
           showLog("onError listing $_ $__");
           await streamSubscription?.cancel();
@@ -660,6 +655,136 @@ class HomeNotifier extends StateNotifier<HomeState> {
       showLog(ex, flags: 'RedisConnection error');
       await streamSubscription?.cancel();
       _reconnectRedis();
+    }
+  }
+
+  void _hanleRedisEvent(dynamic event) async {
+    showLog(event, flags: "New event");
+    //[message, item-channel, {"event":"App\\Events\\ItemCreated","data":{"data":"created item","socket":null},"socket":null}]
+    try {
+      if (event[0] == "message") {
+        showLog('run', flags: "Test reload");
+        switch (event[1]) {
+          case kRedisUpdateItemChannel:
+            ref.read(menuProvider.notifier).updateReloadWhenHiddenApp(true);
+            ref.read(menuProvider.notifier).getProducts();
+            break;
+          case kLockOrderChannel:
+            // ref.read(homeProvider.notifier).setUnlockOrder();
+            break;
+
+          default:
+        }
+
+        /// handle o2o
+        final loginData = LocalStorage.getDataLogin();
+        bool useO2O = loginData?.restaurant?.o2oStatus ?? false;
+        if (!useO2O) return;
+        dynamic dataDecode = jsonDecode(event[2])['data'];
+        dynamic data = dataDecode['data'];
+        showLogs(data, flags: 'data event');
+        int? restaurantId = loginData?.restaurant?.id;
+        int? userId = loginData?.user?.id;
+        dynamic eventRestaurantId = data['restaurant_id'];
+        dynamic waiterId = data['waiter_id'];
+        if (userId == null) return;
+        if (restaurantId != eventRestaurantId) return;
+        switch (event[1]) {
+          case kUserCreateOrderChannel:
+            ref.refresh(orderToOnlineProvider);
+            break;
+          case kUserUpdateOrderChannel:
+            ref.refresh(orderToOnlineProvider);
+
+            /// tự động duyệt yêu cầu của KH
+            if (ref.read(printSettingProvider).autoAcceptO2o) {
+              var orderId = data['order_id'] as int?;
+              var status = data['status'] as int?;
+              if (status != 1) return;
+              var notes = data['notes'] as String?;
+              var itemsData = (jsonDecode(data['items']) as Map<String, dynamic>?) ?? {};
+              List<RequestOrderItemModel> items = itemsData.values
+                  .toList()
+                  .map((e) => RequestOrderItemModel.fromJson(e as Map<String, dynamic>))
+                  .toList();
+
+              Map<int, List<ProductModel>> productPrint =
+                  ref.read(menuProvider.notifier).mapO2oItemWithPrintType(items);
+              ref.read(tablesAndOrdersProvider).whenData(
+                (value) async {
+                  var order = value.offline?.userUsing.firstWhereOrNull((e) => e.id == orderId);
+                  if (order == null) return;
+
+                  List<int> printerCheck = productPrint.keys.toList();
+                  List<IpOrderModel> printers = [];
+                  if (printerCheck.isNotEmpty) {
+                    int retry = 0;
+
+                    while (retry < 3) {
+                      try {
+                        printers = await _orderRepository.getIpPrinterOrder(
+                          order,
+                          productPrint.keys.toList(),
+                        );
+                        break;
+                      } catch (ex) {
+                        retry++;
+                      }
+                    }
+                  }
+                  showLogs(productPrint, flags: 'productPrint');
+                  ref.read(menuProvider.notifier).printO2oRequest(
+                        order: order,
+                        data: productPrint,
+                        note: notes,
+                        printers: printers,
+                      );
+                },
+              );
+            }
+            break;
+
+          case kCallStaffChannel:
+            if (userId != waiterId) return;
+            final note = data['note'];
+            if (Platform.isAndroid) {
+              appLocalNotificationService?.showLocalNotification(
+                  S.current.request_service, '${S.current.table} ${note == null ? '' : '\n$note'}');
+            } else if (Platform.isWindows) {
+              try {
+                LocalNotification notification = LocalNotification(
+                  title: S.current.request_service,
+                  body: '${S.current.table} ${note == null ? '' : '\n$note'}',
+                );
+                notification.show();
+              } catch (ex) {
+                //
+              }
+            }
+            break;
+
+          case kPaymentRequestChannel:
+            if (userId != waiterId) return;
+            final table = data['table'];
+            if (Platform.isAndroid) {
+              appLocalNotificationService?.showLocalNotification(
+                  S.current.request_payment, '${S.current.table} $table gọi thanh toán');
+            } else if (Platform.isWindows) {
+              try {
+                LocalNotification notification = LocalNotification(
+                  title: S.current.request_payment,
+                  body: '${S.current.table} $table gọi thanh toán',
+                );
+                notification.show();
+              } catch (ex) {
+                //
+              }
+            }
+            break;
+        }
+      }
+    } catch (ex) {
+      showLog(ex, flags: "Error listen redis");
     }
   }
 

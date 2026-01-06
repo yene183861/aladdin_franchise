@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
-import 'package:aladdin_franchise/src/models/o2o/request_order.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/request_order.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:aladdin_franchise/src/utils/text_util.dart';

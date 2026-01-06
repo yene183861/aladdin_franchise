@@ -30,8 +30,8 @@ import 'package:aladdin_franchise/src/features/pages/history_order/provider.dart
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/models/employee_sale.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
-import 'package:aladdin_franchise/src/models/o2o/o2o_order_model.dart';
-import 'package:aladdin_franchise/src/models/o2o/request_order.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/request_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/param/get_reservation_param.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
@@ -245,7 +245,6 @@ final reservationsProvider = FutureProvider.autoDispose.family<List<ReservationM
 final orderToOnlineProvider =
     FutureProvider.autoDispose<Map<O2OOrderModel, Map<String, dynamic>>>((ref) async {
   var useO2O = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-  showLogs(useO2O, flags: 'useO2O');
   if (!useO2O) return {};
   var loginUserId = LocalStorage.getDataLogin()?.user?.id;
   Map<O2OOrderModel, Map<String, dynamic>> orders = {};
@@ -253,7 +252,7 @@ final orderToOnlineProvider =
   final result = await ref.read(o2oRepositoryProvider).getOrderToOnline();
 
   for (var e in result) {
-    // if (loginUserId != null && e.userId != loginUserId) continue;
+    if (loginUserId != null && e.userId != loginUserId) continue;
 
     var order = e.copyWith(items: []);
     var data = orders[order] ?? {};

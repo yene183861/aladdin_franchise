@@ -17,7 +17,6 @@ _$RequestOrderItemModelImpl _$$RequestOrderItemModelImplFromJson(
       image: json['image'] as String? ?? '',
       name: json['name'] as String? ?? '',
       noteRestaurant: json['note_restaurant'] as String? ?? '',
-      printerType: (json['printer_type'] as num?)?.toInt(),
       unit: json['unit'] as String? ?? '',
     );
 
@@ -56,4 +55,28 @@ Map<String, dynamic> _$$RequestOrderModelImplToJson(
       'sender': instance.sender,
       'notes': instance.notes,
       'order_times': instance.orderTimes,
+    };
+
+_$RedisO2oProcessedRequestModelImpl
+    _$$RedisO2oProcessedRequestModelImplFromJson(Map<String, dynamic> json) =>
+        _$RedisO2oProcessedRequestModelImpl(
+          orderId: (json['order_id'] as num?)?.toInt(),
+          tableName: json['table_name'] as String?,
+          status: (json['status'] as num?)?.toInt() ?? 0,
+          items: (json['items'] as List<dynamic>?)
+                  ?.map((e) =>
+                      RequestOrderItemModel.fromJson(e as Map<String, dynamic>))
+                  .toList() ??
+              const [],
+          notes: json['notes'] as String? ?? '',
+        );
+
+Map<String, dynamic> _$$RedisO2oProcessedRequestModelImplToJson(
+        _$RedisO2oProcessedRequestModelImpl instance) =>
+    <String, dynamic>{
+      'order_id': instance.orderId,
+      'table_name': instance.tableName,
+      'status': instance.status,
+      'items': instance.items.map((e) => e.toJson()).toList(),
+      'notes': instance.notes,
     };

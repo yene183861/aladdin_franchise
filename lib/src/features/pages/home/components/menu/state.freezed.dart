@@ -26,6 +26,8 @@ mixin _$MenuState {
   TagProductModel? get tagSelect => throw _privateConstructorUsedError;
   String get search => throw _privateConstructorUsedError;
   bool get checkReloadWhenHiddenApp => throw _privateConstructorUsedError;
+  Map<int, Map<String, dynamic>> get allProduct =>
+      throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $MenuStateCopyWith<MenuState> get copyWith =>
@@ -47,7 +49,8 @@ abstract class $MenuStateCopyWith<$Res> {
       SubCategoryModel? subCategorySelect,
       TagProductModel? tagSelect,
       String search,
-      bool checkReloadWhenHiddenApp});
+      bool checkReloadWhenHiddenApp,
+      Map<int, Map<String, dynamic>> allProduct});
 
   $ProcessStateCopyWith<$Res> get productState;
   $CategoryModelCopyWith<$Res>? get categorySelect;
@@ -78,6 +81,7 @@ class _$MenuStateCopyWithImpl<$Res, $Val extends MenuState>
     Object? tagSelect = freezed,
     Object? search = null,
     Object? checkReloadWhenHiddenApp = null,
+    Object? allProduct = null,
   }) {
     return _then(_value.copyWith(
       productState: null == productState
@@ -120,6 +124,10 @@ class _$MenuStateCopyWithImpl<$Res, $Val extends MenuState>
           ? _value.checkReloadWhenHiddenApp
           : checkReloadWhenHiddenApp // ignore: cast_nullable_to_non_nullable
               as bool,
+      allProduct: null == allProduct
+          ? _value.allProduct
+          : allProduct // ignore: cast_nullable_to_non_nullable
+              as Map<int, Map<String, dynamic>>,
     ) as $Val);
   }
 
@@ -186,7 +194,8 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       SubCategoryModel? subCategorySelect,
       TagProductModel? tagSelect,
       String search,
-      bool checkReloadWhenHiddenApp});
+      bool checkReloadWhenHiddenApp,
+      Map<int, Map<String, dynamic>> allProduct});
 
   @override
   $ProcessStateCopyWith<$Res> get productState;
@@ -219,6 +228,7 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? tagSelect = freezed,
     Object? search = null,
     Object? checkReloadWhenHiddenApp = null,
+    Object? allProduct = null,
   }) {
     return _then(_$HomeStateImpl(
       productState: null == productState
@@ -261,6 +271,10 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.checkReloadWhenHiddenApp
           : checkReloadWhenHiddenApp // ignore: cast_nullable_to_non_nullable
               as bool,
+      allProduct: null == allProduct
+          ? _value._allProduct
+          : allProduct // ignore: cast_nullable_to_non_nullable
+              as Map<int, Map<String, dynamic>>,
     ));
   }
 }
@@ -278,11 +292,13 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       this.subCategorySelect,
       this.tagSelect,
       this.search = '',
-      this.checkReloadWhenHiddenApp = false})
+      this.checkReloadWhenHiddenApp = false,
+      final Map<int, Map<String, dynamic>> allProduct = const {}})
       : _categories = categories,
         _products = products,
         _tags = tags,
-        _menuCategoryItem = menuCategoryItem;
+        _menuCategoryItem = menuCategoryItem,
+        _allProduct = allProduct;
 
   @override
   @JsonKey()
@@ -336,10 +352,18 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final bool checkReloadWhenHiddenApp;
+  final Map<int, Map<String, dynamic>> _allProduct;
+  @override
+  @JsonKey()
+  Map<int, Map<String, dynamic>> get allProduct {
+    if (_allProduct is EqualUnmodifiableMapView) return _allProduct;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_allProduct);
+  }
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'MenuState(productState: $productState, categories: $categories, products: $products, tags: $tags, menuCategoryItem: $menuCategoryItem, categorySelect: $categorySelect, subCategorySelect: $subCategorySelect, tagSelect: $tagSelect, search: $search, checkReloadWhenHiddenApp: $checkReloadWhenHiddenApp)';
+    return 'MenuState(productState: $productState, categories: $categories, products: $products, tags: $tags, menuCategoryItem: $menuCategoryItem, categorySelect: $categorySelect, subCategorySelect: $subCategorySelect, tagSelect: $tagSelect, search: $search, checkReloadWhenHiddenApp: $checkReloadWhenHiddenApp, allProduct: $allProduct)';
   }
 
   @override
@@ -357,7 +381,8 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       ..add(DiagnosticsProperty('tagSelect', tagSelect))
       ..add(DiagnosticsProperty('search', search))
       ..add(DiagnosticsProperty(
-          'checkReloadWhenHiddenApp', checkReloadWhenHiddenApp));
+          'checkReloadWhenHiddenApp', checkReloadWhenHiddenApp))
+      ..add(DiagnosticsProperty('allProduct', allProduct));
   }
 
   @override
@@ -382,7 +407,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
             (identical(other.search, search) || other.search == search) &&
             (identical(
                     other.checkReloadWhenHiddenApp, checkReloadWhenHiddenApp) ||
-                other.checkReloadWhenHiddenApp == checkReloadWhenHiddenApp));
+                other.checkReloadWhenHiddenApp == checkReloadWhenHiddenApp) &&
+            const DeepCollectionEquality()
+                .equals(other._allProduct, _allProduct));
   }
 
   @override
@@ -397,7 +424,8 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       subCategorySelect,
       tagSelect,
       search,
-      checkReloadWhenHiddenApp);
+      checkReloadWhenHiddenApp,
+      const DeepCollectionEquality().hash(_allProduct));
 
   @JsonKey(ignore: true)
   @override
@@ -417,7 +445,8 @@ abstract class _HomeState implements MenuState {
       final SubCategoryModel? subCategorySelect,
       final TagProductModel? tagSelect,
       final String search,
-      final bool checkReloadWhenHiddenApp}) = _$HomeStateImpl;
+      final bool checkReloadWhenHiddenApp,
+      final Map<int, Map<String, dynamic>> allProduct}) = _$HomeStateImpl;
 
   @override
   ProcessState get productState;
@@ -439,6 +468,8 @@ abstract class _HomeState implements MenuState {
   String get search;
   @override
   bool get checkReloadWhenHiddenApp;
+  @override
+  Map<int, Map<String, dynamic>> get allProduct;
   @override
   @JsonKey(ignore: true)
   _$$HomeStateImplCopyWith<_$HomeStateImpl> get copyWith =>

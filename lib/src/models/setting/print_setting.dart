@@ -27,6 +27,7 @@ class AppPrintSettingModel with _$AppPrintSettingModel {
     @Default(AppPrinterSettingTypeEnum.normal) AppPrinterSettingTypeEnum appPrinterType,
     @Default(BillHtmlSettingModel()) BillHtmlSettingModel billHtmlSetting,
     @Default(BillReturnSettingModel()) BillReturnSettingModel billReturnSetting,
+    @Default(false) bool autoAcceptO2o,
     // @Default(OrderHistorySetting()) OrderHistorySetting orderHistorySetting,
   }) = _AppPrintSettingModel;
 

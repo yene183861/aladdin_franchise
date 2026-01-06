@@ -1,5 +1,5 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
-import 'package:aladdin_franchise/src/models/o2o/chat_message_model.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/chat_message_model.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';

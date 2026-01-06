@@ -38,6 +38,7 @@ mixin _$AppPrintSettingModel {
       throw _privateConstructorUsedError;
   BillReturnSettingModel get billReturnSetting =>
       throw _privateConstructorUsedError;
+  bool get autoAcceptO2o => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -55,7 +56,8 @@ abstract class $AppPrintSettingModelCopyWith<$Res> {
       {BillReturnItemTypeEnum billReturnType,
       AppPrinterSettingTypeEnum appPrinterType,
       BillHtmlSettingModel billHtmlSetting,
-      BillReturnSettingModel billReturnSetting});
+      BillReturnSettingModel billReturnSetting,
+      bool autoAcceptO2o});
 
   $BillHtmlSettingModelCopyWith<$Res> get billHtmlSetting;
   $BillReturnSettingModelCopyWith<$Res> get billReturnSetting;
@@ -79,6 +81,7 @@ class _$AppPrintSettingModelCopyWithImpl<$Res,
     Object? appPrinterType = null,
     Object? billHtmlSetting = null,
     Object? billReturnSetting = null,
+    Object? autoAcceptO2o = null,
   }) {
     return _then(_value.copyWith(
       billReturnType: null == billReturnType
@@ -97,6 +100,10 @@ class _$AppPrintSettingModelCopyWithImpl<$Res,
           ? _value.billReturnSetting
           : billReturnSetting // ignore: cast_nullable_to_non_nullable
               as BillReturnSettingModel,
+      autoAcceptO2o: null == autoAcceptO2o
+          ? _value.autoAcceptO2o
+          : autoAcceptO2o // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 
@@ -130,7 +137,8 @@ abstract class _$$AppPrintSettingModelImplCopyWith<$Res>
       {BillReturnItemTypeEnum billReturnType,
       AppPrinterSettingTypeEnum appPrinterType,
       BillHtmlSettingModel billHtmlSetting,
-      BillReturnSettingModel billReturnSetting});
+      BillReturnSettingModel billReturnSetting,
+      bool autoAcceptO2o});
 
   @override
   $BillHtmlSettingModelCopyWith<$Res> get billHtmlSetting;
@@ -153,6 +161,7 @@ class __$$AppPrintSettingModelImplCopyWithImpl<$Res>
     Object? appPrinterType = null,
     Object? billHtmlSetting = null,
     Object? billReturnSetting = null,
+    Object? autoAcceptO2o = null,
   }) {
     return _then(_$AppPrintSettingModelImpl(
       billReturnType: null == billReturnType
@@ -171,6 +180,10 @@ class __$$AppPrintSettingModelImplCopyWithImpl<$Res>
           ? _value.billReturnSetting
           : billReturnSetting // ignore: cast_nullable_to_non_nullable
               as BillReturnSettingModel,
+      autoAcceptO2o: null == autoAcceptO2o
+          ? _value.autoAcceptO2o
+          : autoAcceptO2o // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -185,7 +198,8 @@ class _$AppPrintSettingModelImpl
       {this.billReturnType = BillReturnItemTypeEnum.normal,
       this.appPrinterType = AppPrinterSettingTypeEnum.normal,
       this.billHtmlSetting = const BillHtmlSettingModel(),
-      this.billReturnSetting = const BillReturnSettingModel()});
+      this.billReturnSetting = const BillReturnSettingModel(),
+      this.autoAcceptO2o = false});
 
   factory _$AppPrintSettingModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$AppPrintSettingModelImplFromJson(json);
@@ -213,10 +227,13 @@ class _$AppPrintSettingModelImpl
   @override
   @JsonKey()
   final BillReturnSettingModel billReturnSetting;
+  @override
+  @JsonKey()
+  final bool autoAcceptO2o;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'AppPrintSettingModel(billReturnType: $billReturnType, appPrinterType: $appPrinterType, billHtmlSetting: $billHtmlSetting, billReturnSetting: $billReturnSetting)';
+    return 'AppPrintSettingModel(billReturnType: $billReturnType, appPrinterType: $appPrinterType, billHtmlSetting: $billHtmlSetting, billReturnSetting: $billReturnSetting, autoAcceptO2o: $autoAcceptO2o)';
   }
 
   @override
@@ -227,7 +244,8 @@ class _$AppPrintSettingModelImpl
       ..add(DiagnosticsProperty('billReturnType', billReturnType))
       ..add(DiagnosticsProperty('appPrinterType', appPrinterType))
       ..add(DiagnosticsProperty('billHtmlSetting', billHtmlSetting))
-      ..add(DiagnosticsProperty('billReturnSetting', billReturnSetting));
+      ..add(DiagnosticsProperty('billReturnSetting', billReturnSetting))
+      ..add(DiagnosticsProperty('autoAcceptO2o', autoAcceptO2o));
   }
 
   @override
@@ -242,13 +260,15 @@ class _$AppPrintSettingModelImpl
             (identical(other.billHtmlSetting, billHtmlSetting) ||
                 other.billHtmlSetting == billHtmlSetting) &&
             (identical(other.billReturnSetting, billReturnSetting) ||
-                other.billReturnSetting == billReturnSetting));
+                other.billReturnSetting == billReturnSetting) &&
+            (identical(other.autoAcceptO2o, autoAcceptO2o) ||
+                other.autoAcceptO2o == autoAcceptO2o));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, billReturnType, appPrinterType,
-      billHtmlSetting, billReturnSetting);
+      billHtmlSetting, billReturnSetting, autoAcceptO2o);
 
   @JsonKey(ignore: true)
   @override
@@ -268,11 +288,11 @@ class _$AppPrintSettingModelImpl
 
 abstract class _AppPrintSettingModel implements AppPrintSettingModel {
   const factory _AppPrintSettingModel(
-          {final BillReturnItemTypeEnum billReturnType,
-          final AppPrinterSettingTypeEnum appPrinterType,
-          final BillHtmlSettingModel billHtmlSetting,
-          final BillReturnSettingModel billReturnSetting}) =
-      _$AppPrintSettingModelImpl;
+      {final BillReturnItemTypeEnum billReturnType,
+      final AppPrinterSettingTypeEnum appPrinterType,
+      final BillHtmlSettingModel billHtmlSetting,
+      final BillReturnSettingModel billReturnSetting,
+      final bool autoAcceptO2o}) = _$AppPrintSettingModelImpl;
 
   factory _AppPrintSettingModel.fromJson(Map<String, dynamic> json) =
       _$AppPrintSettingModelImpl.fromJson;
@@ -294,6 +314,8 @@ abstract class _AppPrintSettingModel implements AppPrintSettingModel {
   BillHtmlSettingModel get billHtmlSetting;
   @override
   BillReturnSettingModel get billReturnSetting;
+  @override
+  bool get autoAcceptO2o;
   @override
   @JsonKey(ignore: true)
   _$$AppPrintSettingModelImplCopyWith<_$AppPrintSettingModelImpl>
