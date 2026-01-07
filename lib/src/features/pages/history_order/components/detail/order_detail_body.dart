@@ -11,6 +11,7 @@ import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
+import 'package:aladdin_franchise/src/features/widgets/price_data_bill_preview.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
@@ -235,31 +236,15 @@ class HistoryOrderDetailBody extends ConsumerWidget {
               if (item.orderItems.isEmpty || billInfo == null) {
                 return const SizedBox.shrink();
               }
-
               return SizedBox(
                 width: double.maxFinite,
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 10, top: 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      _PriceItem(
-                        title: S.current.total_amount,
-                        value: double.tryParse((billInfo.totalPrice.toString())) ?? 0.0,
-                      ),
-                      _PriceItem(
-                        title: S.current.tax_money,
-                        value: double.tryParse((billInfo.totalPriceTax.toString())) ?? 0.0,
-                      ),
-                      _PriceItem(
-                        title: S.current.discount_money,
-                        value: double.tryParse((billInfo.totalPriceVoucher.toString())) ?? 0.0,
-                      ),
-                      _PriceItem(
-                        title: S.current.totalAmountPayment,
-                        value: billInfo.getTotalPriceFinal(),
-                      ),
-                    ],
+                  padding: const EdgeInsets.only(right: 0, top: 12),
+                  child: PriceDataBillPreview(
+                    dataBill: billInfo,
+                    titleTextAlign: TextAlign.end,
+                    amountMinWidth:
+                        maxWidth * 1.0 * ((colSettings.last['percent'] as double?) ?? 15) / 100,
                   ),
                 ),
               );
@@ -657,45 +642,6 @@ class _TitleWidget extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _PriceItem extends StatelessWidget {
-  const _PriceItem({
-    super.key,
-    this.value = 0.0,
-    required this.title,
-  });
-
-  final double value;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Expanded(
-          child: Text(
-            title,
-            style: AppTextStyle.regular(),
-            textAlign: TextAlign.end,
-          ),
-        ),
-        const Gap(20),
-        Container(
-          constraints: const BoxConstraints(minWidth: 100),
-          child: Text(
-            AppUtils.formatCurrency(value: value),
-            // AppConfig.formatCurrency().format(value),
-            style: AppTextStyle.bold(),
-            textAlign: TextAlign.end,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
     );
   }
 }

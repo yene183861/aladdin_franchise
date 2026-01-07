@@ -8,13 +8,15 @@ import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:flutter/material.dart';
 
-class PriceDataBillPreviewWidget extends StatelessWidget {
-  const PriceDataBillPreviewWidget({
+class PriceDataBillPreview extends StatelessWidget {
+  const PriceDataBillPreview({
     super.key,
     required this.dataBill,
     this.isLoading = false,
     this.showCashReceivedAmount = false,
     this.isCustomerPage = false,
+    this.titleTextAlign,
+    this.amountMinWidth,
   });
 
   final PriceDataBill dataBill;
@@ -22,6 +24,8 @@ class PriceDataBillPreviewWidget extends StatelessWidget {
 
   final bool showCashReceivedAmount;
   final bool isCustomerPage;
+  final TextAlign? titleTextAlign;
+  final double? amountMinWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +38,8 @@ class PriceDataBillPreviewWidget extends StatelessWidget {
             title: S.current.total_amount,
             value: dataBill.totalPrice,
             isLoading: isLoading,
+            titleTextAlign: titleTextAlign,
+            amountMinWidth: amountMinWidth,
           ),
           LineInfoPaymentQRWidget(
             title: S.current.discount_money,
@@ -42,11 +48,15 @@ class PriceDataBillPreviewWidget extends StatelessWidget {
             isLoading: isLoading,
             isCustomerPage: isCustomerPage,
             isDiscount: true,
+            titleTextAlign: titleTextAlign,
+            amountMinWidth: amountMinWidth,
           ),
           LineInfoPaymentQRWidget(
             title: S.current.tax_money,
             value: dataBill.totalPriceTax,
             isLoading: isLoading,
+            titleTextAlign: titleTextAlign,
+            amountMinWidth: amountMinWidth,
           ),
           LineInfoPaymentQRWidget(
             title: S.current.totalAmountPayment,
@@ -55,6 +65,8 @@ class PriceDataBillPreviewWidget extends StatelessWidget {
             textStyleValue: AppTextStyle.bold(color: AppColors.redColor),
             isLoading: isLoading,
             isCustomerPage: isCustomerPage,
+            titleTextAlign: titleTextAlign,
+            amountMinWidth: amountMinWidth,
           ),
           if (showCashReceivedAmount && (dataBill.receivedAmount ?? 0) > 0) ...[
             const Divider(),
@@ -65,6 +77,8 @@ class PriceDataBillPreviewWidget extends StatelessWidget {
               textStyleValue: AppTextStyle.bold(),
               isLoading: isLoading,
               isCustomerPage: isCustomerPage,
+              titleTextAlign: titleTextAlign,
+              amountMinWidth: amountMinWidth,
             ),
             if (((dataBill.receivedAmount ?? 0) - dataBill.totalPriceFinal) > 0)
               LineInfoPaymentQRWidget(
@@ -76,6 +90,8 @@ class PriceDataBillPreviewWidget extends StatelessWidget {
                 ),
                 isLoading: isLoading,
                 isCustomerPage: isCustomerPage,
+                titleTextAlign: titleTextAlign,
+                amountMinWidth: amountMinWidth,
               ),
           ],
         ],
@@ -92,6 +108,8 @@ class LineInfoPaymentQRWidget extends StatelessWidget {
   final bool isLoading;
   final bool isCustomerPage;
   final bool isDiscount;
+  final TextAlign? titleTextAlign;
+  final double? amountMinWidth;
   const LineInfoPaymentQRWidget({
     Key? key,
     required this.title,
@@ -101,6 +119,8 @@ class LineInfoPaymentQRWidget extends StatelessWidget {
     this.isLoading = false,
     this.isCustomerPage = false,
     this.isDiscount = false,
+    this.titleTextAlign,
+    this.amountMinWidth,
   }) : super(key: key);
 
   @override
@@ -113,22 +133,22 @@ class LineInfoPaymentQRWidget extends StatelessWidget {
           child: Text(
             title,
             style: textStyleTitle ?? AppTextStyle.bold(),
+            textAlign: titleTextAlign,
           ),
         ),
-        SizedBox(
+        Container(
           height: TextUtil.getTextSize(
             text: AppUtils.formatCurrency(value: 100000),
-            // AppConfig.formatCurrency(isCustomerPage: isCustomerPage).format(100000),
             textStyle: textStyleValue ?? AppTextStyle.bold(),
           ).height,
+          constraints: BoxConstraints(minWidth: amountMinWidth ?? 0.0),
           child: isLoading
               ? const AppShimmerLoading(width: 100)
               : Text(
                   AppUtils.formatCurrency(
                       value: number * ((isDiscount && number > 0) ? -1.0 : 1.0)),
-                  // AppConfig.formatCurrency(isCustomerPage: isCustomerPage)
-                  //     .format(number * ((isDiscount && number > 0) ? -1.0 : 1.0)),
                   style: textStyleValue ?? AppTextStyle.bold(),
+                  textAlign: TextAlign.end,
                 ),
         ),
       ],

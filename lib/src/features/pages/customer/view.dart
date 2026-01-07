@@ -8,6 +8,7 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/language.dart';
 import 'package:aladdin_franchise/src/data/enum/payment_status.dart';
 import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
@@ -36,6 +37,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import 'components/barrel_component.dart';
 
@@ -72,7 +74,6 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
     super.initState();
     paymentStatusNotifier = ValueNotifier<PaymentStatusEnum?>(null);
     detailProductNotifier = ValueNotifier<ProductModel?>(null);
-    ValueNotifier<String>(LocalStorage.getCustomerLanguageLocal());
     if (Platform.isWindows) {
       DesktopMultiWindow.setMethodHandler(_handleMethodCallback);
     }
@@ -287,6 +288,11 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
             _showDetailProduct();
           }
           break;
+        case WindowsMethodEnum.language:
+          var value = AppLanguageEnum.values
+              .byName((data as String?) ?? LocalStorage.getCustomerLanguageLocal().name);
+          ref.read(customerPageProvider.notifier).onChangeLanguage(value);
+          break;
         default:
       }
     } catch (ex) {
@@ -309,20 +315,15 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
   @override
   Widget build(BuildContext context) {
     var order = ref.watch(customerPageProvider.select((value) => value.order));
-    double paddingHorizontal = 12;
+    double padding = 12;
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       body: order == null
-          ? AppImageCacheNetworkWidget(
-              imageUrl: "https://haisu.vn/Upload/Banner/310525104657.jpg",
+          ? Image.asset(
+              Assets.imagesBackgroundCustomerPage,
               fit: BoxFit.cover,
               width: double.maxFinite,
               height: double.maxFinite,
-              errorWidget: Image.asset(
-                Assets.imagesLogoH,
-                height: 100,
-                fit: BoxFit.cover,
-              ),
             )
           : Row(
               children: [
@@ -334,7 +335,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                         height: 50,
                         color: Color(0xff292929),
                         padding: EdgeInsets.symmetric(
-                          horizontal: paddingHorizontal,
+                          horizontal: padding,
                           vertical: 4,
                         ),
                         child: Row(
@@ -371,22 +372,25 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                     child: Column(
                       children: [
                         TitleSection(
-                          paddingHorizontal: 12,
+                          paddingHorizontal: padding,
                           title: S.current.customer_information,
                         ),
                         Consumer(builder: (context, ref, child) {
                           var value =
                               ref.watch(customerPageProvider.select((value) => value.customer));
                           if (value == null) return Container(height: 100);
-                          return Center(
-                            child: CustomerInfoWidget(
-                              canAction: false,
-                              customer: value,
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: padding / 2, vertical: 4),
+                            child: Center(
+                              child: CustomerInfoWidget(
+                                canAction: false,
+                                customer: value,
+                              ),
                             ),
                           );
                         }),
                         TitleSection(
-                          paddingHorizontal: 12,
+                          paddingHorizontal: padding,
                           title: S.current.payment_info,
                         ),
                         Consumer(builder: (context, ref, child) {
@@ -399,7 +403,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                                 color: Colors.grey.shade200,
                                 borderRadius:
                                     BorderRadius.circular(AppConfig.sizeBorderRadiusMain)),
-                            child: PriceDataBillPreviewWidget(
+                            child: PriceDataBillPreview(
                               dataBill: price ?? const PriceDataBill(),
                               showCashReceivedAmount: true,
                               isCustomerPage: true,
@@ -407,7 +411,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                           );
                         }),
                         TitleSection(
-                          paddingHorizontal: paddingHorizontal,
+                          paddingHorizontal: padding,
                           title: S.current.payment_method,
                         ),
                         Expanded(child: Consumer(
@@ -436,27 +440,35 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                                     FittedBox(
                                       child: Column(
                                         children: [
-                                          Text.rich(
-                                            TextSpan(
-                                              children: [
-                                                TextSpan(
-                                                  text: bankSelect?.title ?? '',
-                                                ),
-                                                const TextSpan(
-                                                  text: ' - ',
-                                                ),
-                                                TextSpan(
-                                                  text: bankSelect?.bankName ?? '',
-                                                ),
-                                              ],
+                                          if ((bankSelect?.fullName ?? '').isNotEmpty)
+                                            Text(
+                                              bankSelect?.fullName ?? '',
                                               style: AppTextStyle.bold(),
                                             ),
-                                          ),
-                                          Text(
-                                            bankSelect?.bankNumber ?? '',
-                                            style: AppTextStyle.bold(),
-                                          ),
-                                          ImageQRWidget(imgUrl: bankSelect?.qrCode ?? ''),
+                                          if ((bankSelect?.bankNumber ?? '').isNotEmpty)
+                                            Text(
+                                              bankSelect?.bankNumber ?? '',
+                                              style: AppTextStyle.bold(),
+                                            ),
+                                          if ((bankSelect?.bankName ?? '').isNotEmpty)
+                                            Text(
+                                              bankSelect?.bankName ?? '',
+                                              style: AppTextStyle.regular(),
+                                            ),
+                                          if (bankSelect?.isPaymentGateway ?? false)
+                                            SizedBox(
+                                              width: 256,
+                                              height: 256,
+                                              child: QrImageView(
+                                                data: bankSelect?.qrCode ?? '',
+                                                eyeStyle: const QrEyeStyle(
+                                                  color: AppColors.mainColor,
+                                                  eyeShape: QrEyeShape.square,
+                                                ),
+                                              ),
+                                            )
+                                          else
+                                            ImageQRWidget(imgUrl: bankSelect?.qrCode ?? '')
                                         ],
                                       ),
                                     ),

@@ -699,5 +699,70 @@
   "software_update": "Cập nhật phần mềm",
   "print_number_of_people": "Có in số người khi hoàn thành đơn?",
   "apply_policy_again": "Áp dụng lại",
-  "attention_unknown_sale_1": "Không có nhân viên sale, vui lòng chọn \"Không xác định\""
+  "attention_unknown_sale_1": "Không có nhân viên sale, vui lòng chọn \"Không xác định\"",
+  "haven_t_chosen_a_table_to_manipulate": "Chưa chọn đơn bàn để thao tác",
+  "manipulate_with_the_current_table": "Thao tác với đơn bàn hiện tại:",
+  "unselect": "Bỏ chọn",
+  "current_order": "Đơn bàn hiện tại",
+  "list_ordered_item_empty": "Danh sách món đã gọi đang trống",
+  "attention_confirm_info_customer": "Bạn chưa nhập thông tin khách hàng cho Bill thanh toán.\nBạn vẫn muốn thực hiện in bill để Hoàn tất thanh toán?",
+  "locking_order_action": "Đang khoá thao tác đơn bàn",
+  "invoice": "Hoá đơn",
+  "confirm_delete_invoice": "Bạn có muốn xóa hóa đơn?",
+  "filter_by_brand": "Lọc theo thương hiệu",
+  "select_restaurant": "Chọn nhà hàng",
+  "updated_success": "Đã được cập nhật",
+  "search_restaurant": "Tìm kiếm nhà hàng",
+  "available_online": "CÓ bán online",
+  "not_available_online": "KHÔNG bán online",
+  "main_server": "Máy chủ chính",
+  "backup_server": "Máy chủ dự phòng",
+  "food_item": "Món",
+  "order_not_found": "Không tìm thấy đơn bàn",
+  "loading_payment_qr_code": "Đang tải mã QR thanh toán",
+  "updating_reservation_info": "Đang cập nhật lịch đặt bàn",
+  "updating_order_reser": "Đang thay đổi lịch đặt bàn của đơn",
+  "is_merged_with_table": "gộp thêm bàn",
+  "has_been_transferred_to": "được chuyển thành",
+  "has_removed_table": "bỏ bàn",
+  "waiter_service": "Phục vụ tiếp nhận",
+  "not_select": "Chưa chọn",
+  "search_waiter": "Tìm kiếm phục vụ viên",
+  "select_table_to_transfer": "Chọn bàn cần chuyển",
+  "confirm_transfer_table": "Chuyển từ bàn {fromTable} sang {toTable}",
+  "@confirm_transfer_table": {
+    "placeholders": {
+      "fromTable": {
+        "type": "String",
+        "example": "101"
+      },
+      "toTable": {
+        "type": "String",
+        "example": "102"
+      }
+    }
+  },
+  "reservation": "Lịch đặt bàn",
+  "got_it": "Đã hiểu",
+  "ignore_reservation_notification": "Bỏ qua thông báo này và các thông báo nhắc nhở tương tự",
+  "noti_has_reservation": "Có {count} lịch đặt bàn đã được lễ tân tiếp nhận ứng với các bàn bạn đã chọn.\nNếu là khách đã đặt bàn trước, vui lòng chọn lịch đặt bàn trước khi bấm xác nhận!",
+  "@noti_has_reservation": {
+    "placeholders": {
+      "count": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "reservation_assigned_order": "Lịch đang được gán với đơn bàn hiện tại",
+  "update_reservation": "Cập nhật lịch đặt bàn",
+  "confirm_cancel_order_has_reservation": "Đơn bàn hiện đang được gán với lịch đặt bàn.Việc huỷ đơn bàn sẽ đồng thời chuyển lịch đặt sang trạng thái \"Huỷ lịch\".\nNếu không muốn huỷ lịch, vui lòng cập nhật lịch đặt bàn trước khi huỷ bàn.",
+  "failed_apply_coupons": "Các mã giảm giá chưa được áp dụng thành công.",
+  "please": "Vui lòng",
+  "remove_coupon_and_reenter": "Xóa mã và nhập lại mã",
+  "reenter_coupon": "Nhập lại mã",
+  "error_price_because_tax_reallocated": "Thông tin hóa đơn sai do chưa được phân bổ lại thuế",
+  "action_when_ping_printer_error": "VUI LÒNG KIỂM TRA & ĐẢM BẢO\n- Tablet và máy tính đã kết nối mạng Order\n- Máy in đã bật và không bị kẹt giấy\n- Dây mạng kết nối với máy in đã sáng",
+  "unable_connect_printer": "Không kết nối được máy in",
+  "error_print_kitechen_bill": "Không in được bill xuống bếp"
 }

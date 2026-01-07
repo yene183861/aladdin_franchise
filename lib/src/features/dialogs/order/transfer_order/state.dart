@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
 import 'package:aladdin_franchise/src/models/waiter.dart';
 import 'package:flutter/foundation.dart';
@@ -15,13 +16,13 @@ extension TransferOrderTabEnumEx on TransferOrderTabEnum {
   String get title {
     switch (this) {
       case TransferOrderTabEnum.table:
-        return 'Danh sách bàn';
+        return S.current.table;
       case TransferOrderTabEnum.waiter:
-        return 'Phục vụ';
+        return S.current.waiter;
     }
   }
 
-  int get index {
+  int get key {
     switch (this) {
       case TransferOrderTabEnum.table:
         return 0;
@@ -35,11 +36,11 @@ extension TransferOrderTabEnumEx on TransferOrderTabEnum {
 class TransferOrderState with _$TransferOrderState {
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory TransferOrderState({
-    required List<TableModel> tableSelects,
-    required WaiterModel? waiterSelect,
-    required String searchWaiter,
-    required bool initTableCurrent,
-    @Default(0) int tabIndexSelect,
+    @Default([]) List<TableModel> tableSelects,
+    WaiterModel? waiterSelect,
+    @Default('') String searchWaiter,
+    @Default(false) bool initTableCurrent,
+    @Default(TransferOrderTabEnum.table) TransferOrderTabEnum tabSelect,
   }) = _TransferOrderState;
 
   factory TransferOrderState.fromJson(Map<String, dynamic> json) =>

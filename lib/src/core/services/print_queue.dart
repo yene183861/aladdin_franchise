@@ -52,6 +52,7 @@ class PrintQueue {
   }
 
   Future<void> _processTask(_PrintTaskModel task) async {
+    if (kDebugMode) return;
     String? error;
     bool success = false;
     PrinterNetworkManager? printerManager;

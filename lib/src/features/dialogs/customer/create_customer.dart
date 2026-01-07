@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
@@ -7,20 +5,17 @@ import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_with_icon.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/utils/date_input.dart';
-import 'package:aladdin_franchise/src/utils/id_card_helper.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-import '../../../generated/l10n.dart';
-import '../../utils/app_log.dart';
-import 'error.dart';
+import '../../../../generated/l10n.dart';
+import '../error.dart';
 
 class CreateCustomerDialog extends ConsumerStatefulWidget {
   final String? phone;
@@ -59,8 +54,10 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
-    bool enable = !lockedOrder;
+    // var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
+    // bool enable = !lockedOrder;
+    bool enable = true;
+    var smallDevice = ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
     return Scaffold(
       backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: false,
@@ -69,12 +66,9 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
           child: AlertDialog(
             title: Text(
               S.current.createNewCustomers,
-              // style: AppTextStyle.medium(
-              //   rawFontSize: 15,
-              // ),
             ),
             content: SizedBox(
-              width: 45.w,
+              width: smallDevice ? 95.w : 50.w,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,6 +205,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
             actionsAlignment: MainAxisAlignment.spaceEvenly,
             actions: [
               ButtonCancelWidget(
+                textAction: S.current.close,
                 onPressed: () => Navigator.pop(context, null),
               ),
               if (enable)

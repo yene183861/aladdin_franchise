@@ -25,6 +25,7 @@ class Assets {
   static const String iconsTakeAway = 'assets/icons/take_away.svg';
   static const String iconsTime = 'assets/icons/time.svg';
   static const String iconsWoman = 'assets/icons/woman.png';
+  static const String imagesBackgroundCustomerPage = 'assets/images/background_customer_page.jpg';
   static const String imagesError = 'assets/images/error.png';
   static const String imagesImageDefault = 'assets/images/image_default.png';
   static const String imagesLoading = 'assets/images/loading.png';

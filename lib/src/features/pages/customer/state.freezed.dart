@@ -26,6 +26,7 @@ mixin _$CustomerPageState {
   UserBankModel? get bankSelect => throw _privateConstructorUsedError;
   String get payooGatewayUrl => throw _privateConstructorUsedError;
   int get payooExpirationSeconds => throw _privateConstructorUsedError;
+  AppLanguageEnum get language => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $CustomerPageStateCopyWith<CustomerPageState> get copyWith =>
@@ -48,7 +49,8 @@ abstract class $CustomerPageStateCopyWith<$Res> {
       OrderModel? order,
       UserBankModel? bankSelect,
       String payooGatewayUrl,
-      int payooExpirationSeconds});
+      int payooExpirationSeconds,
+      AppLanguageEnum language});
 
   $PaymentMethodCopyWith<$Res>? get paymentMethod;
   $CustomerModelCopyWith<$Res>? get customer;
@@ -80,6 +82,7 @@ class _$CustomerPageStateCopyWithImpl<$Res, $Val extends CustomerPageState>
     Object? bankSelect = freezed,
     Object? payooGatewayUrl = null,
     Object? payooExpirationSeconds = null,
+    Object? language = null,
   }) {
     return _then(_value.copyWith(
       paymentMethod: freezed == paymentMethod
@@ -122,6 +125,10 @@ class _$CustomerPageStateCopyWithImpl<$Res, $Val extends CustomerPageState>
           ? _value.payooExpirationSeconds
           : payooExpirationSeconds // ignore: cast_nullable_to_non_nullable
               as int,
+      language: null == language
+          ? _value.language
+          : language // ignore: cast_nullable_to_non_nullable
+              as AppLanguageEnum,
     ) as $Val);
   }
 
@@ -204,7 +211,8 @@ abstract class _$$CustomerPageStateImplCopyWith<$Res>
       OrderModel? order,
       UserBankModel? bankSelect,
       String payooGatewayUrl,
-      int payooExpirationSeconds});
+      int payooExpirationSeconds,
+      AppLanguageEnum language});
 
   @override
   $PaymentMethodCopyWith<$Res>? get paymentMethod;
@@ -239,6 +247,7 @@ class __$$CustomerPageStateImplCopyWithImpl<$Res>
     Object? bankSelect = freezed,
     Object? payooGatewayUrl = null,
     Object? payooExpirationSeconds = null,
+    Object? language = null,
   }) {
     return _then(_$CustomerPageStateImpl(
       paymentMethod: freezed == paymentMethod
@@ -281,6 +290,10 @@ class __$$CustomerPageStateImplCopyWithImpl<$Res>
           ? _value.payooExpirationSeconds
           : payooExpirationSeconds // ignore: cast_nullable_to_non_nullable
               as int,
+      language: null == language
+          ? _value.language
+          : language // ignore: cast_nullable_to_non_nullable
+              as AppLanguageEnum,
     ));
   }
 }
@@ -298,7 +311,8 @@ class _$CustomerPageStateImpl implements _CustomerPageState {
       this.order,
       this.bankSelect,
       this.payooGatewayUrl = '',
-      this.payooExpirationSeconds = 0})
+      this.payooExpirationSeconds = 0,
+      this.language = AppLanguageEnum.vi})
       : _products = products;
 
   @override
@@ -331,10 +345,13 @@ class _$CustomerPageStateImpl implements _CustomerPageState {
   @override
   @JsonKey()
   final int payooExpirationSeconds;
+  @override
+  @JsonKey()
+  final AppLanguageEnum language;
 
   @override
   String toString() {
-    return 'CustomerPageState(paymentMethod: $paymentMethod, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, customer: $customer, products: $products, price: $price, order: $order, bankSelect: $bankSelect, payooGatewayUrl: $payooGatewayUrl, payooExpirationSeconds: $payooExpirationSeconds)';
+    return 'CustomerPageState(paymentMethod: $paymentMethod, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, customer: $customer, products: $products, price: $price, order: $order, bankSelect: $bankSelect, payooGatewayUrl: $payooGatewayUrl, payooExpirationSeconds: $payooExpirationSeconds, language: $language)';
   }
 
   @override
@@ -358,7 +375,9 @@ class _$CustomerPageStateImpl implements _CustomerPageState {
             (identical(other.payooGatewayUrl, payooGatewayUrl) ||
                 other.payooGatewayUrl == payooGatewayUrl) &&
             (identical(other.payooExpirationSeconds, payooExpirationSeconds) ||
-                other.payooExpirationSeconds == payooExpirationSeconds));
+                other.payooExpirationSeconds == payooExpirationSeconds) &&
+            (identical(other.language, language) ||
+                other.language == language));
   }
 
   @override
@@ -373,7 +392,8 @@ class _$CustomerPageStateImpl implements _CustomerPageState {
       order,
       bankSelect,
       payooGatewayUrl,
-      payooExpirationSeconds);
+      payooExpirationSeconds,
+      language);
 
   @JsonKey(ignore: true)
   @override
@@ -394,7 +414,8 @@ abstract class _CustomerPageState implements CustomerPageState {
       final OrderModel? order,
       final UserBankModel? bankSelect,
       final String payooGatewayUrl,
-      final int payooExpirationSeconds}) = _$CustomerPageStateImpl;
+      final int payooExpirationSeconds,
+      final AppLanguageEnum language}) = _$CustomerPageStateImpl;
 
   @override
   PaymentMethod? get paymentMethod;
@@ -416,6 +437,8 @@ abstract class _CustomerPageState implements CustomerPageState {
   String get payooGatewayUrl;
   @override
   int get payooExpirationSeconds;
+  @override
+  AppLanguageEnum get language;
   @override
   @JsonKey(ignore: true)
   _$$CustomerPageStateImplCopyWith<_$CustomerPageStateImpl> get copyWith =>

@@ -6,7 +6,7 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
-import 'package:aladdin_franchise/src/features/dialogs/button_find_customer.dart';
+import 'package:aladdin_franchise/src/features/dialogs/customer/customer_option_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/coupon/button_add_coupon.dart';
 import 'package:aladdin_franchise/src/features/dialogs/create_invoice_order_dialog.dart';

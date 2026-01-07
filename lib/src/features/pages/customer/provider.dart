@@ -1,3 +1,5 @@
+import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/language.dart';
 import 'package:aladdin_franchise/src/models/customer/customer.dart';
 import 'package:aladdin_franchise/src/models/data_bill.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
@@ -10,8 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'state.dart';
 
 final customerPageProvider =
-    StateNotifierProvider.autoDispose<CustomerPageNotifier, CustomerPageState>(
-        (ref) {
+    StateNotifierProvider.autoDispose<CustomerPageNotifier, CustomerPageState>((ref) {
   return CustomerPageNotifier(ref);
 });
 
@@ -29,40 +30,19 @@ class CustomerPageNotifier extends StateNotifier<CustomerPageState> {
     UserBankModel? bankSelect;
     int? changedProductId;
     bool? autoScrollProducts;
+    AppLanguageEnum language = LocalStorage.getCustomerLanguageLocal();
     try {
-      // {
-      // 'price': state.dataBill.price.copyWith(
-      //   receivedAmount: (state.paymentMethodSelected?.isCash ?? false)
-      //       ? state.cashReceivedAmount
-      //       : 0,
-      // ),
-      // 'bank': state.bankSelect,
-      // 'product': state.productsSelected,
-      // 'auto_scroll': state.autoScrollProducts,
-      // 'change_product_id': state.changedProductId,
-      // }
-      // ;
       order = args['order'] == null ? null : OrderModel.fromJson(args['order']);
-      customer = args['customer'] == null
-          ? null
-          : CustomerModel.fromJson(args['customer']);
-      paymentMethod = args['payment_method'] == null
-          ? null
-          : PaymentMethod.fromJson(args['payment_method']);
-      price =
-          args['price'] == null ? null : PriceDataBill.fromJson(args['price']);
-      bankSelect =
-          args['bank'] == null ? null : UserBankModel.fromJson(args['bank']);
-      products = ((args['product'] ?? []) as List)
-          .map((e) => ProductModel.fromJson(e))
-          .toList();
+      customer = args['customer'] == null ? null : CustomerModel.fromJson(args['customer']);
+      paymentMethod =
+          args['payment_method'] == null ? null : PaymentMethod.fromJson(args['payment_method']);
+      price = args['price'] == null ? null : PriceDataBill.fromJson(args['price']);
+      bankSelect = args['bank'] == null ? null : UserBankModel.fromJson(args['bank']);
+      products = ((args['product'] ?? []) as List).map((e) => ProductModel.fromJson(e)).toList();
       changedProductId = args['change_product_id'] as int?;
       autoScrollProducts = args['auto_scroll'] as bool?;
-      // if (orderNotifier.value?.id != null &&
-      //     orderId != orderNotifier.value?.id) {
-      //   _paymentTimer?.cancel();
-      //   paymentStatusNotifier.value = PaymentStatus.close;
-      // }
+      language = AppLanguageEnum.values
+          .byName((args['language'] as String?) ?? LocalStorage.getCustomerLanguageLocal().name);
 
       state = state.copyWith(
         order: order,
@@ -136,6 +116,12 @@ class CustomerPageNotifier extends StateNotifier<CustomerPageState> {
   }
 
   void resetState() {
-    state = const CustomerPageState();
+    var language = LocalStorage.getCustomerLanguageLocal();
+    state = CustomerPageState(language: language);
+  }
+
+  void onChangeLanguage(AppLanguageEnum value) async {
+    state = state.copyWith(language: value);
+    await LocalStorage.setCustomerLanguageLocal(value);
   }
 }

@@ -18,6 +18,19 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 
+Future<int?> showUpdateOrderDialog(BuildContext context) async {
+  final result = await showDialog(
+    context: context,
+    useRootNavigator: false,
+    barrierDismissible: false,
+    builder: (context) => const PopScope(
+      canPop: false,
+      child: UpdateOrderDialog(),
+    ),
+  );
+  return result;
+}
+
 class UpdateOrderDialog extends ConsumerStatefulWidget {
   const UpdateOrderDialog({Key? key}) : super(key: key);
 
@@ -137,6 +150,7 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: [
         ButtonCancelWidget(
+          textAction: S.current.close,
           onPressed: () => Navigator.pop(context, null),
         ),
         ButtonSimpleWidget(
@@ -181,17 +195,4 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
       ],
     );
   }
-}
-
-Future<int?> showUpdateOrderDialog(BuildContext context) async {
-  final result = await showDialog(
-    context: context,
-    useRootNavigator: false,
-    barrierDismissible: false,
-    builder: (context) => const PopScope(
-      canPop: false,
-      child: UpdateOrderDialog(),
-    ),
-  );
-  return result;
 }

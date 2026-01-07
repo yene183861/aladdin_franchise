@@ -26,14 +26,20 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m1(title) =>
       "Confirm to change language [${title}]?\nATTENTION: The software will restart after changing the language.";
 
-  static String m2(coupon_length, coupons, payment_method) =>
+  static String m2(fromTable, toTable) =>
+      "Transfer from table ${fromTable} to ${toTable}";
+
+  static String m3(coupon_length, coupons, payment_method) =>
       "The [${coupon_length}] discount codes [${coupons}] cannot be used with the payment method ([${payment_method}]).\nPlease remove the codes or choose a different payment method!";
 
-  static String m3(coupon) =>
+  static String m4(coupon) =>
       "Please remove and re-enter the discount code ([${coupon}]) before applying!";
 
-  static String m4(restaurant_name) =>
+  static String m5(restaurant_name) =>
       "Thank you for choosing [${restaurant_name}]! We wish you a delicious meal!";
+
+  static String m6(count) =>
+      "There is/are ${count} reservation(s) that has already been received by the receptionist for the selected tables.\nIf the customer has made a reservation in advance, please select the reservation before confirming!";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -45,6 +51,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "accepted_reser": MessageLookupByLibrary.simpleMessage("Accepted"),
         "accumulated_money":
             MessageLookupByLibrary.simpleMessage("Accumulated money"),
+        "action_when_ping_printer_error": MessageLookupByLibrary.simpleMessage(
+            "PLEASE CHECK & ENSURE\n- The tablet and computer are connected to the Order network\n- The printer is powered on and not jammed\n- The network cable connected to the printer is active (indicator light is on)"),
         "active": MessageLookupByLibrary.simpleMessage("Active"),
         "add_attachment":
             MessageLookupByLibrary.simpleMessage("Add attachments"),
@@ -107,7 +115,10 @@ class MessageLookup extends MessageLookupByLibrary {
             "No sales staff, please select unknown"),
         "authentication_unlocked":
             MessageLookupByLibrary.simpleMessage("Authentication unlocked"),
+        "available_online":
+            MessageLookupByLibrary.simpleMessage("Available online"),
         "bOD": MessageLookupByLibrary.simpleMessage("B.O.D"),
+        "backup_server": MessageLookupByLibrary.simpleMessage("Backup server"),
         "bank": MessageLookupByLibrary.simpleMessage("Bank"),
         "bank_account": MessageLookupByLibrary.simpleMessage("Bank account"),
         "bank_account_not_setup": MessageLookupByLibrary.simpleMessage(
@@ -237,6 +248,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Confirm cancel dish"),
         "confirm_before_complete_order": MessageLookupByLibrary.simpleMessage(
             "Please check and verify if the customer has paid.\nIf yes, please attach a receipt image for comparison before clicking confirm."),
+        "confirm_cancel_order_has_reservation":
+            MessageLookupByLibrary.simpleMessage(
+                "The table order is currently associated with a reservation.Canceling the table order will also change the reservation status to \"Canceled\".\nIf you do not want to cancel the reservation, please update the reservation before canceling the table."),
         "confirm_change_customer_language": m0,
         "confirm_change_language": m1,
         "confirm_complete_order_with_sale": MessageLookupByLibrary.simpleMessage(
@@ -247,6 +261,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "confirm_delete_code_and_continue":
             MessageLookupByLibrary.simpleMessage(
                 "Confirm delete code & continue"),
+        "confirm_delete_invoice": MessageLookupByLibrary.simpleMessage(
+            "Do you want to delete the invoice?"),
         "confirm_payment_done": MessageLookupByLibrary.simpleMessage(
             "Have you completed payment to the customer?"),
         "confirm_payment_tmp": MessageLookupByLibrary.simpleMessage(
@@ -257,6 +273,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Please check again"),
         "confirm_reload_payment_gateway": MessageLookupByLibrary.simpleMessage(
             "Do you want to reload the payment gateway?"),
+        "confirm_transfer_table": m2,
         "confirmation_content":
             MessageLookupByLibrary.simpleMessage("Confirmation content"),
         "confirmation_from_waiter":
@@ -304,6 +321,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Current account"),
         "current_language_use":
             MessageLookupByLibrary.simpleMessage("Software in use"),
+        "current_order":
+            MessageLookupByLibrary.simpleMessage("The current order"),
         "customerPolicy":
             MessageLookupByLibrary.simpleMessage("Customer policy"),
         "customer_gets_invoice":
@@ -439,8 +458,12 @@ class MessageLookup extends MessageLookupByLibrary {
                 "Payment recognition server is not configured"),
         "error_ping_printer": MessageLookupByLibrary.simpleMessage(
             "Unable to identify single-desk printer information\nCHECK CAUSES:\n- The table order has been paid\n- The table order has been changed (Transfer table, update table order)\nPlease check and re-select the table order to operate!"),
+        "error_price_because_tax_reallocated": MessageLookupByLibrary.simpleMessage(
+            "The invoice information is incorrect because taxes have not been reallocated"),
         "error_print_bill_order": MessageLookupByLibrary.simpleMessage(
             "Error in printing bill order"),
+        "error_print_kitechen_bill": MessageLookupByLibrary.simpleMessage(
+            "Unable to print the kitchen bill"),
         "error_products_not_set": MessageLookupByLibrary.simpleMessage(
             "Product list has not been set up yet"),
         "error_reload_menu_check_product_selecting":
@@ -455,6 +478,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "error_update_order_item": MessageLookupByLibrary.simpleMessage(
             "The list of dishes has not been updated in the system!"),
         "ex_problem": MessageLookupByLibrary.simpleMessage("Problem"),
+        "failed_apply_coupons": MessageLookupByLibrary.simpleMessage(
+            "Discount codes have not been applied successfully."),
         "failed_apply_discount_code": MessageLookupByLibrary.simpleMessage(
             "Failed to apply the discount code"),
         "failed_connect_payment_verification_server":
@@ -467,6 +492,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "failed_payment_closing":
             MessageLookupByLibrary.simpleMessage("Payment closing failed!"),
         "female": MessageLookupByLibrary.simpleMessage("Female"),
+        "filter_by_brand":
+            MessageLookupByLibrary.simpleMessage("Filter by brand"),
         "findCustomer": MessageLookupByLibrary.simpleMessage("Find customer"),
         "find_customer_not_found": MessageLookupByLibrary.simpleMessage(
             "No customer information found"),
@@ -475,6 +502,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "firstName": MessageLookupByLibrary.simpleMessage("First name"),
         "food_information":
             MessageLookupByLibrary.simpleMessage("Food information"),
+        "food_item": MessageLookupByLibrary.simpleMessage("items"),
         "forgotPassword":
             MessageLookupByLibrary.simpleMessage("Forgot password?"),
         "forgotPasswordMessage":
@@ -488,12 +516,22 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Navigate to the Endow"),
         "go_to_the_endow_tab":
             MessageLookupByLibrary.simpleMessage("Go to the Endow tab"),
+        "got_it": MessageLookupByLibrary.simpleMessage("Got it"),
         "hai_su_pot_rice":
             MessageLookupByLibrary.simpleMessage("Hai Su Pot rice"),
         "has_a_new_order_request":
             MessageLookupByLibrary.simpleMessage("has a new order request"),
+        "has_been_transferred_to":
+            MessageLookupByLibrary.simpleMessage("has been moved to table"),
+        "has_removed_table":
+            MessageLookupByLibrary.simpleMessage("has removed table"),
+        "haven_t_chosen_a_table_to_manipulate":
+            MessageLookupByLibrary.simpleMessage(
+                "Haven\'t chosen a table to manipulate"),
         "help": MessageLookupByLibrary.simpleMessage("Help"),
         "hours": MessageLookupByLibrary.simpleMessage("hour(s)"),
+        "ignore_reservation_notification": MessageLookupByLibrary.simpleMessage(
+            "Ignore this notification and similar reminders"),
         "image_error_delete":
             MessageLookupByLibrary.simpleMessage("Image error, please delete!"),
         "inaccurateData":
@@ -518,6 +556,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "invoiceDetail": MessageLookupByLibrary.simpleMessage("Invoice detail"),
         "invoice_support":
             MessageLookupByLibrary.simpleMessage("support invoice"),
+        "is_merged_with_table":
+            MessageLookupByLibrary.simpleMessage("is merged with table"),
         "item": MessageLookupByLibrary.simpleMessage("Item"),
         "just_done": MessageLookupByLibrary.simpleMessage("just done"),
         "language": MessageLookupByLibrary.simpleMessage("Language"),
@@ -527,6 +567,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "letsOrderFood":
             MessageLookupByLibrary.simpleMessage("Lets Order Food"),
         "list_dish": MessageLookupByLibrary.simpleMessage("List of dishes"),
+        "list_ordered_item_empty": MessageLookupByLibrary.simpleMessage(
+            "The list of ordered items is empty"),
         "list_request_o2o":
             MessageLookupByLibrary.simpleMessage("Request list"),
         "list_sales":
@@ -547,6 +589,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Loading payment method"),
         "loading_payment_method_list":
             MessageLookupByLibrary.simpleMessage("Loading payment methods.."),
+        "loading_payment_qr_code":
+            MessageLookupByLibrary.simpleMessage("Loading payment QR code"),
         "loading_pos_list": MessageLookupByLibrary.simpleMessage(
             "Getting list of pos machine..."),
         "loading_qr_code":
@@ -555,6 +599,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Loading request list"),
         "loading_reservations":
             MessageLookupByLibrary.simpleMessage("Loading the reservations..."),
+        "locking_order_action":
+            MessageLookupByLibrary.simpleMessage("Locking order actions"),
         "login": MessageLookupByLibrary.simpleMessage("Login"),
         "login_accounts_have_been_saved": MessageLookupByLibrary.simpleMessage(
             "Login accounts have been saved"),
@@ -567,11 +613,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "longWangSlogan": MessageLookupByLibrary.simpleMessage(
             "Hong Kong hydrothermal steaming hotpot"),
         "machine_type": MessageLookupByLibrary.simpleMessage("Machine type"),
+        "main_server": MessageLookupByLibrary.simpleMessage("Main server"),
         "male": MessageLookupByLibrary.simpleMessage("Male"),
         "manage_accounts_on_devices":
             MessageLookupByLibrary.simpleMessage("Manage accounts on devices"),
         "mandatory_update": MessageLookupByLibrary.simpleMessage(
             "This is a mandatory update. Please update the app to continue using it."),
+        "manipulate_with_the_current_table":
+            MessageLookupByLibrary.simpleMessage(
+                "Operate on the current table order:"),
         "messageAddCouponNoProducts": MessageLookupByLibrary.simpleMessage(
             "No ordered products are on the discount list"),
         "messageApplyDiscount": MessageLookupByLibrary.simpleMessage(
@@ -600,8 +650,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "You\'re about to close the payment gateway manually. Please make sure the customer has completed the payment."),
         "msg_completing_order": MessageLookupByLibrary.simpleMessage(
             "Completing the table order..."),
-        "msg_coupons_invalid_with_payment_method": m2,
-        "msg_delete_coupon_and_apply_again": m3,
+        "msg_coupons_invalid_with_payment_method": m3,
+        "msg_delete_coupon_and_apply_again": m4,
         "msg_error_print_receipt": MessageLookupByLibrary.simpleMessage(
             "Unable to print the receipt for the customer."),
         "msg_id_device_to_unlock_order": MessageLookupByLibrary.simpleMessage(
@@ -622,7 +672,7 @@ class MessageLookup extends MessageLookupByLibrary {
                 "Please select a table order before printing the payment receipt."),
         "msg_send_ticket_success": MessageLookupByLibrary.simpleMessage(
             "Your ticket has been recorded!\nView and check the status under Cashier."),
-        "msg_thanks_customer": m4,
+        "msg_thanks_customer": m5,
         "msg_unable_retrieve_latest_order_data":
             MessageLookupByLibrary.simpleMessage(
                 "Unable to retrieve the latest order data."),
@@ -700,12 +750,15 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("not waiter selected"),
         "not_available_feature": MessageLookupByLibrary.simpleMessage(
             "Feature available only on Tab Order"),
+        "not_available_online":
+            MessageLookupByLibrary.simpleMessage("NOT available online"),
         "not_be_empty": MessageLookupByLibrary.simpleMessage("Not be empty"),
         "not_correct_format":
             MessageLookupByLibrary.simpleMessage("Not in correct format"),
         "not_sale_select_before_complete_order":
             MessageLookupByLibrary.simpleMessage(
                 "Please select a sales person before clicking complete order."),
+        "not_select": MessageLookupByLibrary.simpleMessage("Not select"),
         "not_set_up":
             MessageLookupByLibrary.simpleMessage("has not been set up yet"),
         "not_used_promotion":
@@ -724,6 +777,7 @@ class MessageLookup extends MessageLookupByLibrary {
                 "Please delete the code, then choose the payment method again!"),
         "noti_enter_customer_info": MessageLookupByLibrary.simpleMessage(
             "Customer details have not been entered. Would you like to continue with the payment?"),
+        "noti_has_reservation": m6,
         "noticeRequestCancel": MessageLookupByLibrary.simpleMessage(
             "There is a cancellation request that has not been processed, please wait and reload the list to check!"),
         "notification": MessageLookupByLibrary.simpleMessage("Notification"),
@@ -813,6 +867,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "phone": MessageLookupByLibrary.simpleMessage("Phone number"),
         "phone_invalid":
             MessageLookupByLibrary.simpleMessage("Phone number is not valid"),
+        "please": MessageLookupByLibrary.simpleMessage("Please"),
         "pleaseSelectOrderFirst":
             MessageLookupByLibrary.simpleMessage("Please select order first!"),
         "please_select_a_sale": MessageLookupByLibrary.simpleMessage(
@@ -870,6 +925,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "recall": MessageLookupByLibrary.simpleMessage("Recall"),
         "reconnect": MessageLookupByLibrary.simpleMessage("Reconnect"),
         "reduce": MessageLookupByLibrary.simpleMessage("Reduce"),
+        "reenter_coupon":
+            MessageLookupByLibrary.simpleMessage("Re-enter the code"),
         "register_customers_via_zalo_oa": MessageLookupByLibrary.simpleMessage(
             "Register customers via Zalo-OA"),
         "rejected_reser": MessageLookupByLibrary.simpleMessage("Rejected"),
@@ -880,6 +937,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Remaining time"),
         "removeCustomer": MessageLookupByLibrary.simpleMessage(
             "Delete customer from invoice?"),
+        "remove_coupon_and_reenter": MessageLookupByLibrary.simpleMessage(
+            "Remove the code and re-enter it"),
         "remove_coupon_or_select_other_payment_method":
             MessageLookupByLibrary.simpleMessage(
                 "Please remove the coupon code to use the selected method or go back and choose another payment method."),
@@ -899,6 +958,9 @@ class MessageLookup extends MessageLookupByLibrary {
             "Please enter all required information"),
         "reselect_payment_method":
             MessageLookupByLibrary.simpleMessage("Reselect payment method"),
+        "reservation": MessageLookupByLibrary.simpleMessage("Reservation"),
+        "reservation_assigned_order": MessageLookupByLibrary.simpleMessage(
+            "The reservation is currently assigned to the current table order."),
         "restaurant": MessageLookupByLibrary.simpleMessage("Restaurant"),
         "restaurantEmpty":
             MessageLookupByLibrary.simpleMessage("Restaurant is empty"),
@@ -934,6 +996,9 @@ class MessageLookup extends MessageLookupByLibrary {
             "Search by order code, customer name, phone number, or voucher..."),
         "search_reservation": MessageLookupByLibrary.simpleMessage(
             "Search for table reservations"),
+        "search_restaurant":
+            MessageLookupByLibrary.simpleMessage("Search restaurant"),
+        "search_waiter": MessageLookupByLibrary.simpleMessage("Search waiter"),
         "selectOrder": MessageLookupByLibrary.simpleMessage("Select order"),
         "selectTable": MessageLookupByLibrary.simpleMessage("Select table"),
         "select_a_bank": MessageLookupByLibrary.simpleMessage("Select a bank"),
@@ -946,8 +1011,12 @@ class MessageLookup extends MessageLookupByLibrary {
             "Select a photo from the library"),
         "select_pos_to_continue": MessageLookupByLibrary.simpleMessage(
             "Please select a pos to continue."),
+        "select_restaurant":
+            MessageLookupByLibrary.simpleMessage("Select restaurant"),
         "select_sales_staff":
             MessageLookupByLibrary.simpleMessage("Select sales staff"),
+        "select_table_to_transfer": MessageLookupByLibrary.simpleMessage(
+            "Select the table to transfer"),
         "select_up_to": MessageLookupByLibrary.simpleMessage("Select up to"),
         "selected": MessageLookupByLibrary.simpleMessage("Selected"),
         "selectedDish": MessageLookupByLibrary.simpleMessage("Selected dish"),
@@ -1053,6 +1122,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "turn": MessageLookupByLibrary.simpleMessage("Turn"),
         "unable_add_customer": MessageLookupByLibrary.simpleMessage(
             "Unable to add the customer to the system."),
+        "unable_connect_printer": MessageLookupByLibrary.simpleMessage(
+            "Unable to connect to the printer"),
         "unable_load_order_list": MessageLookupByLibrary.simpleMessage(
             "Unable to load the table order list."),
         "unable_load_sales_list": MessageLookupByLibrary.simpleMessage(
@@ -1075,6 +1146,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "unpaid_order_select_payment_method_again":
             MessageLookupByLibrary.simpleMessage(
                 "The order is unpaid, please re-select a payment method and continue!"),
+        "unselect": MessageLookupByLibrary.simpleMessage("Unselect"),
         "unvailable_link_registration_zalo_oa":
             MessageLookupByLibrary.simpleMessage(
                 "The registration link is currently unavailable."),
@@ -1094,13 +1166,21 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_invoice_information":
             MessageLookupByLibrary.simpleMessage("Update invoice information"),
         "update_now": MessageLookupByLibrary.simpleMessage("Update now"),
+        "update_reservation":
+            MessageLookupByLibrary.simpleMessage("Update reservation"),
+        "updated_success":
+            MessageLookupByLibrary.simpleMessage("Updated successfully"),
         "updating": MessageLookupByLibrary.simpleMessage("Updating"),
         "updating_order":
             MessageLookupByLibrary.simpleMessage("Updating for order"),
         "updating_order_panel": MessageLookupByLibrary.simpleMessage(
             "Updating the operation panel menu"),
+        "updating_order_reser": MessageLookupByLibrary.simpleMessage(
+            "Updating the order\'s reservation"),
         "updating_payment_info": MessageLookupByLibrary.simpleMessage(
             "Updating payment information"),
+        "updating_reservation_info": MessageLookupByLibrary.simpleMessage(
+            "Updating reservation infomation"),
         "updating_tax": MessageLookupByLibrary.simpleMessage("Updating tax..."),
         "use": MessageLookupByLibrary.simpleMessage("Use"),
         "use_camera_zalo_to_scan_the_code":
@@ -1139,6 +1219,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "wait_updating_complete": MessageLookupByLibrary.simpleMessage(
             "Please wait until the update process is complete"),
         "waiter": MessageLookupByLibrary.simpleMessage("Waiter"),
+        "waiter_service":
+            MessageLookupByLibrary.simpleMessage("Waiter received the order"),
         "waiting_payment":
             MessageLookupByLibrary.simpleMessage("Waiting for payment"),
         "warning_delete_item_with_complimentary_gift":

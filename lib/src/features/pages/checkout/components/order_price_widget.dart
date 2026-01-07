@@ -18,7 +18,7 @@ class OrderPriceWidget extends ConsumerWidget {
     var dataBillState = ref.watch(homeProvider.select((value) => value.dataBillState));
     switch (dataBillState.status) {
       case PageCommonState.loading:
-        return const PriceDataBillPreviewWidget(dataBill: PriceDataBill(), isLoading: true);
+        return const PriceDataBillPreview(dataBill: PriceDataBill(), isLoading: true);
       case PageCommonState.error:
         return Center(
             child: Row(
@@ -36,7 +36,7 @@ class OrderPriceWidget extends ConsumerWidget {
         ));
 
       case PageCommonState.success:
-        return PriceDataBillPreviewWidget(dataBill: dataBill.price);
+        return PriceDataBillPreview(dataBill: dataBill.price);
 
       default:
     }

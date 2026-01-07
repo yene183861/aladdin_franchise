@@ -20,6 +20,8 @@ _$UserBankModelImpl _$$UserBankModelImplFromJson(Map<String, dynamic> json) =>
               ?.map((e) => (e as num).toInt())
               .toList() ??
           const [],
+      code: json['code'] as String?,
+      qrType: (json['qr_type'] as num?)?.toInt() ?? 1,
     );
 
 Map<String, dynamic> _$$UserBankModelImplToJson(_$UserBankModelImpl instance) =>
@@ -32,4 +34,6 @@ Map<String, dynamic> _$$UserBankModelImplToJson(_$UserBankModelImpl instance) =>
       'use_invoice': instance.useInvoice,
       'qr_code': instance.qrCode,
       'list_payment_id': instance.listPaymentId,
+      'code': instance.code,
+      'qr_type': instance.qrType,
     };

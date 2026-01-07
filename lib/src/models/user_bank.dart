@@ -21,6 +21,8 @@ class UserBankModel with _$UserBankModel {
     bool? useInvoice,
     @Default('') String qrCode,
     @Default([]) List<int> listPaymentId,
+    String? code,
+    @Default(1) int qrType,
   }) = _UserBankModel;
 
   factory UserBankModel.fromJson(Map<String, dynamic> json) => _$UserBankModelFromJson(json);
@@ -28,6 +30,7 @@ class UserBankModel with _$UserBankModel {
   const UserBankModel._();
 
   bool isError() => bankBin.isEmpty || bankNumber.isEmpty;
+  bool get isPaymentGateway => qrType != 1;
 }
 
 String _dataToString(dynamic data) {

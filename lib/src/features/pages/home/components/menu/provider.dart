@@ -107,14 +107,16 @@ class MenuNotifier extends StateNotifier<MenuState> {
   Future<void> getProducts() async {
     try {
       state = state.copyWith(productState: const ProcessState(status: StatusEnum.loading));
-      final categoryResult = await _menuRepository.getCategory(null);
 
-      List<CategoryModel> categories = categoryResult.data;
-      List<TagProductModel> tags = categoryResult.tags ?? [];
-      final productsRepo = await _menuRepository.getProduct(null);
-
+      await fetchAllProducts();
+      var data = getMenuByType(kTypeOrder);
+      if (data.status.status == StatusEnum.error) {
+        throw data.status.message;
+      }
       await LocalStorage.setLastReloadMenu();
-      List<ProductModel> products = List.from(productsRepo);
+      List<ProductModel> products = data.products;
+      List<CategoryModel> categories = data.categories;
+      List<TagProductModel> tags = data.tags;
       List<dynamic> menuCategoryItem = [];
 
       if (categories.isNotEmpty) {
@@ -134,8 +136,6 @@ class MenuNotifier extends StateNotifier<MenuState> {
         );
       }
 
-      // cập nhật ngôn ngữ local khi load menu
-      kAppLanguageLocal = LocalStorage.getLanguageLocal();
       for (var element in categories) {
         menuCategoryItem.add(element);
         categoryKeys[element] = categoryKeys[element] ?? GlobalKey();
@@ -185,18 +185,30 @@ class MenuNotifier extends StateNotifier<MenuState> {
 
   bool getCheckReloadWhenHiddenApp() => state.checkReloadWhenHiddenApp;
 
-  Map<int, List<ProductModel>> mapProductWithPrintType() {
-    return {};
+  ({
+    List<ProductModel> products,
+    List<CategoryModel> categories,
+    List<TagProductModel> tags,
+    ProcessState status
+  }) getMenuByType(int? typeOrder) {
+    var allProduct = Map<int, Map<String, dynamic>>.from(state.allProduct);
+    var data = allProduct[typeOrder ?? kTypeOrder] ?? {};
+    return (
+      products: (data['product'] ?? []) as List<ProductModel>,
+      categories: (data['category'] ?? []) as List<CategoryModel>,
+      tags: (data['tag'] ?? []) as List<TagProductModel>,
+      status: (data['status'] ?? const ProcessState(status: StatusEnum.normal)) as ProcessState,
+    );
   }
 
-  void fetchAllProducts() async {
-    _fetchProductByType(TypeOrderEnum.offline.type);
+  Future<void> fetchAllProducts() async {
+    await _fetchProductByType(TypeOrderEnum.offline.type);
     if (ref.read(enableOrderOnlineProvider)) {
-      _fetchProductByType(TypeOrderEnum.online.type);
+      await _fetchProductByType(TypeOrderEnum.online.type);
     }
   }
 
-  void _fetchProductByType(int typeOrder) async {
+  Future<void> _fetchProductByType(int typeOrder) async {
     Map<String, dynamic> result = {
       "status": const ProcessState(status: StatusEnum.loading),
       "category": [],
@@ -229,7 +241,6 @@ class MenuNotifier extends StateNotifier<MenuState> {
     var allProduct = Map<int, Map<String, dynamic>>.from(state.allProduct);
     allProduct[typeOrder] = result;
     state = state.copyWith(allProduct: allProduct);
-    showLogs(result, flags: '_fetchProductByType $typeOrder');
   }
 
   Map<int, List<ProductModel>> mapO2oItemWithPrintType(List<RequestOrderItemModel> items) {

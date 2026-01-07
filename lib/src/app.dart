@@ -9,7 +9,9 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/theme.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
+import 'package:aladdin_franchise/src/data/enum/language.dart';
 import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
+import 'package:aladdin_franchise/src/features/pages/customer/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
 import 'package:aladdin_franchise/src/utils/subwindows_moniter.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
@@ -28,14 +30,6 @@ import 'features/pages/home/view.dart';
 import 'features/pages/login/view.dart';
 import 'features/widgets/flash_init.dart';
 
-var localeSubject = BehaviorSubject<Locale>();
-
-Stream<Locale> setCustomerLocale(String choice) {
-  Locale local = Locale(choice);
-  localeSubject.sink.add(local);
-  return localeSubject.stream.distinct();
-}
-
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
@@ -47,11 +41,11 @@ class _MyAppState extends ConsumerState<MyApp> {
   var listener = CloseWindowsListener();
   @override
   void initState() {
+    super.initState();
     SubWindowMonitor.instance.init();
     if (WebViewHelper.isDesktop) {
       windowManager.addListener(listener);
     }
-    super.initState();
   }
 
   @override
@@ -77,19 +71,14 @@ class _MyAppState extends ConsumerState<MyApp> {
       builder: (context, orientation, screenType) {
         return MaterialApp(
           title: AppConfig.appName,
-          useInheritedMediaQuery: true,
           localizationsDelegates: const [
             S.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: const [
-            Locale('vi'),
-            Locale('en'),
-            Locale('zh'),
-          ],
-          locale: languageLocal,
+          supportedLocales: AppLanguageEnum.values.map((e) => Locale(e.name)).toList(),
+          locale: Locale(languageLocal.name),
           navigatorKey: AppConfig.navigatorKey,
           debugShowCheckedModeBanner: false,
           scrollBehavior: const MaterialScrollBehavior().copyWith(
@@ -130,8 +119,8 @@ class _MyAppState extends ConsumerState<MyApp> {
               ),
               breakpoints: [
                 const Breakpoint(start: 0, end: 450, name: MOBILE),
-                const Breakpoint(start: 451, end: 800, name: TABLET),
-                const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+                const Breakpoint(start: 451, end: 1000, name: TABLET),
+                const Breakpoint(start: 1001, end: 1920, name: DESKTOP),
                 const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
               ],
             );
@@ -159,6 +148,7 @@ class CloseWindowsListener extends WindowListener {
         ),
     ]);
     await windowManager.destroy();
+    exit(0);
   }
 }
 
@@ -175,52 +165,53 @@ class MySecondApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ResponsiveSizer(
       builder: (context, orientation, screenType) {
-        return StreamBuilder(
-          stream: localeSubject,
-          initialData: Locale(LocalStorage.getCustomerLanguageLocal()),
-          builder: (context, localeSnapshot) => MaterialApp(
-            title: AppConfig.appName,
-            localizationsDelegates: const [
-              S.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [
-              Locale('vi'),
-              Locale('en'),
-              Locale('zh'),
-            ],
-            locale: localeSnapshot.data,
-            navigatorKey: AppConfig.navigatorKey,
-            debugShowCheckedModeBanner: false,
-            scrollBehavior: const MaterialScrollBehavior().copyWith(
-              dragDevices: {
-                PointerDeviceKind.touch,
-                PointerDeviceKind.stylus,
-                PointerDeviceKind.invertedStylus,
-                PointerDeviceKind.trackpad,
-                PointerDeviceKind.mouse,
+        return Consumer(
+          builder: (context, ref, child) {
+            final fontScale = LocalStorage.getAppSetting().fontScale;
+            var language = ref.watch(customerPageProvider.select((value) => value.language));
+            return MaterialApp(
+              title: AppConfig.appName,
+              localizationsDelegates: const [
+                S.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: AppLanguageEnum.values.map((e) => Locale(e.name)).toList(),
+              locale: Locale(language.name),
+              navigatorKey: AppConfig.navigatorKey,
+              debugShowCheckedModeBanner: false,
+              scrollBehavior: const MaterialScrollBehavior().copyWith(
+                dragDevices: {
+                  PointerDeviceKind.touch,
+                  PointerDeviceKind.stylus,
+                  PointerDeviceKind.invertedStylus,
+                  PointerDeviceKind.trackpad,
+                  PointerDeviceKind.mouse,
+                },
+                scrollbars: true,
+              ),
+              theme: kAppTheme,
+              home: CustomerPage(
+                windowController: windowController,
+                args: args,
+              ),
+              builder: (context, child) {
+                return ResponsiveBreakpoints.builder(
+                  child: MediaQuery(
+                    data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(fontScale)),
+                    child: child!,
+                  ),
+                  breakpoints: [
+                    const Breakpoint(start: 0, end: 450, name: MOBILE),
+                    const Breakpoint(start: 451, end: 800, name: TABLET),
+                    const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+                    const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+                  ],
+                );
               },
-              scrollbars: true,
-            ),
-            theme: kAppTheme,
-            home: CustomerPage(
-              windowController: windowController,
-              args: args,
-            ),
-            builder: (context, child) {
-              return ResponsiveBreakpoints.builder(
-                child: child!,
-                breakpoints: [
-                  const Breakpoint(start: 0, end: 450, name: MOBILE),
-                  const Breakpoint(start: 451, end: 800, name: TABLET),
-                  const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-                  const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
-                ],
-              );
-            },
-          ),
+            );
+          },
         );
       },
     );

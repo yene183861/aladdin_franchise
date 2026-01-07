@@ -12,7 +12,7 @@ import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'reservation/view.dart';
+import 'view.dart';
 
 Future<bool> showSelectReservationDialog({
   required BuildContext context,

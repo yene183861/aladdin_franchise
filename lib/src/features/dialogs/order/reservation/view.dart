@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'provider.dart';
-import 'components/reservation_item.dart';
+import 'widgets/reservation_item.dart';
 
 class ReservationList extends ConsumerStatefulWidget {
   const ReservationList({
@@ -315,6 +315,45 @@ class _ReservationListState extends ConsumerState<ReservationList> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class MessageContent extends StatelessWidget {
+  const MessageContent({
+    required this.message,
+    this.onPressed,
+    this.textAction,
+    this.loadingWidget,
+  });
+  final VoidCallback? onPressed;
+  final String? textAction;
+  final String message;
+  final Widget? loadingWidget;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (loadingWidget != null) ...[
+            loadingWidget!,
+            const GapH(20),
+          ],
+          Text(
+            message,
+            textAlign: TextAlign.center,
+          ),
+          if (onPressed != null) ...[
+            const GapH(20),
+            ButtonSimpleWidget(
+              textAction: textAction ?? S.current.tryAgain,
+              onPressed: onPressed,
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

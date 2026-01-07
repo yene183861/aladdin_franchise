@@ -5,6 +5,7 @@ import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/login.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/language.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/models/product_selecting.dart';
 import 'package:aladdin_franchise/src/models/restaurant_config.dart';
@@ -142,8 +143,14 @@ final styleAppProvider = Provider.autoDispose<RestaurantStyle>((ref) {
   }
 });
 
-final languageLocalProvider = Provider<Locale>((ref) {
-  return Locale(LocalStorage.getLanguageLocal());
+final languageLocalProvider = Provider<AppLanguageEnum>((ref) {
+  var value = LocalStorage.getLanguageLocal();
+  kAppLanguageLocal = value.name;
+  return value;
+});
+
+final customerLanguageLocalProvider = Provider<AppLanguageEnum>((ref) {
+  return LocalStorage.getCustomerLanguageLocal();
 });
 final printSettingProvider = Provider<AppPrintSettingModel>((ref) {
   return LocalStorage.getPrintSetting();

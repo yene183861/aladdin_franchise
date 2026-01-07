@@ -37,8 +37,7 @@ class PreviewPaymentReceiptWidget extends ConsumerWidget {
         ],
         const Flexible(child: _PreviewProductCheckoutWidget()),
         const Gap(12),
-        PriceDataBillPreviewWidget(
-          // dataBill: ref.read(homeProvider.notifier).getPaymentPrice(),
+        PriceDataBillPreview(
           dataBill: ref.read(homeProvider.notifier).getFinalPaymentPrice,
         )
       ],

@@ -24,7 +24,7 @@ mixin _$TransferOrderState {
   WaiterModel? get waiterSelect => throw _privateConstructorUsedError;
   String get searchWaiter => throw _privateConstructorUsedError;
   bool get initTableCurrent => throw _privateConstructorUsedError;
-  int get tabIndexSelect => throw _privateConstructorUsedError;
+  TransferOrderTabEnum get tabSelect => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -43,7 +43,7 @@ abstract class $TransferOrderStateCopyWith<$Res> {
       WaiterModel? waiterSelect,
       String searchWaiter,
       bool initTableCurrent,
-      int tabIndexSelect});
+      TransferOrderTabEnum tabSelect});
 
   $WaiterModelCopyWith<$Res>? get waiterSelect;
 }
@@ -65,7 +65,7 @@ class _$TransferOrderStateCopyWithImpl<$Res, $Val extends TransferOrderState>
     Object? waiterSelect = freezed,
     Object? searchWaiter = null,
     Object? initTableCurrent = null,
-    Object? tabIndexSelect = null,
+    Object? tabSelect = null,
   }) {
     return _then(_value.copyWith(
       tableSelects: null == tableSelects
@@ -84,10 +84,10 @@ class _$TransferOrderStateCopyWithImpl<$Res, $Val extends TransferOrderState>
           ? _value.initTableCurrent
           : initTableCurrent // ignore: cast_nullable_to_non_nullable
               as bool,
-      tabIndexSelect: null == tabIndexSelect
-          ? _value.tabIndexSelect
-          : tabIndexSelect // ignore: cast_nullable_to_non_nullable
-              as int,
+      tabSelect: null == tabSelect
+          ? _value.tabSelect
+          : tabSelect // ignore: cast_nullable_to_non_nullable
+              as TransferOrderTabEnum,
     ) as $Val);
   }
 
@@ -117,7 +117,7 @@ abstract class _$$TransferOrderStateImplCopyWith<$Res>
       WaiterModel? waiterSelect,
       String searchWaiter,
       bool initTableCurrent,
-      int tabIndexSelect});
+      TransferOrderTabEnum tabSelect});
 
   @override
   $WaiterModelCopyWith<$Res>? get waiterSelect;
@@ -138,7 +138,7 @@ class __$$TransferOrderStateImplCopyWithImpl<$Res>
     Object? waiterSelect = freezed,
     Object? searchWaiter = null,
     Object? initTableCurrent = null,
-    Object? tabIndexSelect = null,
+    Object? tabSelect = null,
   }) {
     return _then(_$TransferOrderStateImpl(
       tableSelects: null == tableSelects
@@ -157,10 +157,10 @@ class __$$TransferOrderStateImplCopyWithImpl<$Res>
           ? _value.initTableCurrent
           : initTableCurrent // ignore: cast_nullable_to_non_nullable
               as bool,
-      tabIndexSelect: null == tabIndexSelect
-          ? _value.tabIndexSelect
-          : tabIndexSelect // ignore: cast_nullable_to_non_nullable
-              as int,
+      tabSelect: null == tabSelect
+          ? _value.tabSelect
+          : tabSelect // ignore: cast_nullable_to_non_nullable
+              as TransferOrderTabEnum,
     ));
   }
 }
@@ -172,11 +172,11 @@ class _$TransferOrderStateImpl
     with DiagnosticableTreeMixin
     implements _TransferOrderState {
   const _$TransferOrderStateImpl(
-      {required final List<TableModel> tableSelects,
-      required this.waiterSelect,
-      required this.searchWaiter,
-      required this.initTableCurrent,
-      this.tabIndexSelect = 0})
+      {final List<TableModel> tableSelects = const [],
+      this.waiterSelect,
+      this.searchWaiter = '',
+      this.initTableCurrent = false,
+      this.tabSelect = TransferOrderTabEnum.table})
       : _tableSelects = tableSelects;
 
   factory _$TransferOrderStateImpl.fromJson(Map<String, dynamic> json) =>
@@ -184,6 +184,7 @@ class _$TransferOrderStateImpl
 
   final List<TableModel> _tableSelects;
   @override
+  @JsonKey()
   List<TableModel> get tableSelects {
     if (_tableSelects is EqualUnmodifiableListView) return _tableSelects;
     // ignore: implicit_dynamic_type
@@ -193,16 +194,18 @@ class _$TransferOrderStateImpl
   @override
   final WaiterModel? waiterSelect;
   @override
+  @JsonKey()
   final String searchWaiter;
   @override
+  @JsonKey()
   final bool initTableCurrent;
   @override
   @JsonKey()
-  final int tabIndexSelect;
+  final TransferOrderTabEnum tabSelect;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'TransferOrderState(tableSelects: $tableSelects, waiterSelect: $waiterSelect, searchWaiter: $searchWaiter, initTableCurrent: $initTableCurrent, tabIndexSelect: $tabIndexSelect)';
+    return 'TransferOrderState(tableSelects: $tableSelects, waiterSelect: $waiterSelect, searchWaiter: $searchWaiter, initTableCurrent: $initTableCurrent, tabSelect: $tabSelect)';
   }
 
   @override
@@ -214,7 +217,7 @@ class _$TransferOrderStateImpl
       ..add(DiagnosticsProperty('waiterSelect', waiterSelect))
       ..add(DiagnosticsProperty('searchWaiter', searchWaiter))
       ..add(DiagnosticsProperty('initTableCurrent', initTableCurrent))
-      ..add(DiagnosticsProperty('tabIndexSelect', tabIndexSelect));
+      ..add(DiagnosticsProperty('tabSelect', tabSelect));
   }
 
   @override
@@ -230,8 +233,8 @@ class _$TransferOrderStateImpl
                 other.searchWaiter == searchWaiter) &&
             (identical(other.initTableCurrent, initTableCurrent) ||
                 other.initTableCurrent == initTableCurrent) &&
-            (identical(other.tabIndexSelect, tabIndexSelect) ||
-                other.tabIndexSelect == tabIndexSelect));
+            (identical(other.tabSelect, tabSelect) ||
+                other.tabSelect == tabSelect));
   }
 
   @JsonKey(ignore: true)
@@ -242,7 +245,7 @@ class _$TransferOrderStateImpl
       waiterSelect,
       searchWaiter,
       initTableCurrent,
-      tabIndexSelect);
+      tabSelect);
 
   @JsonKey(ignore: true)
   @override
@@ -261,11 +264,11 @@ class _$TransferOrderStateImpl
 
 abstract class _TransferOrderState implements TransferOrderState {
   const factory _TransferOrderState(
-      {required final List<TableModel> tableSelects,
-      required final WaiterModel? waiterSelect,
-      required final String searchWaiter,
-      required final bool initTableCurrent,
-      final int tabIndexSelect}) = _$TransferOrderStateImpl;
+      {final List<TableModel> tableSelects,
+      final WaiterModel? waiterSelect,
+      final String searchWaiter,
+      final bool initTableCurrent,
+      final TransferOrderTabEnum tabSelect}) = _$TransferOrderStateImpl;
 
   factory _TransferOrderState.fromJson(Map<String, dynamic> json) =
       _$TransferOrderStateImpl.fromJson;
@@ -279,7 +282,7 @@ abstract class _TransferOrderState implements TransferOrderState {
   @override
   bool get initTableCurrent;
   @override
-  int get tabIndexSelect;
+  TransferOrderTabEnum get tabSelect;
   @override
   @JsonKey(ignore: true)
   _$$TransferOrderStateImplCopyWith<_$TransferOrderStateImpl> get copyWith =>

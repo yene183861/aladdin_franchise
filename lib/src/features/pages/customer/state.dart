@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/src/data/enum/language.dart';
 import 'package:aladdin_franchise/src/models/customer/customer.dart';
 import 'package:aladdin_franchise/src/models/data_bill.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
@@ -21,5 +22,6 @@ class CustomerPageState with _$CustomerPageState {
     UserBankModel? bankSelect,
     @Default('') String payooGatewayUrl,
     @Default(0) int payooExpirationSeconds,
+    @Default(AppLanguageEnum.vi) AppLanguageEnum language,
   }) = _CustomerPageState;
 }

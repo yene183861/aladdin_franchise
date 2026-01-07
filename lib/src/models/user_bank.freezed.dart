@@ -29,6 +29,8 @@ mixin _$UserBankModel {
   bool? get useInvoice => throw _privateConstructorUsedError;
   String get qrCode => throw _privateConstructorUsedError;
   List<int> get listPaymentId => throw _privateConstructorUsedError;
+  String? get code => throw _privateConstructorUsedError;
+  int get qrType => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -50,7 +52,9 @@ abstract class $UserBankModelCopyWith<$Res> {
       String bankBin,
       bool? useInvoice,
       String qrCode,
-      List<int> listPaymentId});
+      List<int> listPaymentId,
+      String? code,
+      int qrType});
 }
 
 /// @nodoc
@@ -74,6 +78,8 @@ class _$UserBankModelCopyWithImpl<$Res, $Val extends UserBankModel>
     Object? useInvoice = freezed,
     Object? qrCode = null,
     Object? listPaymentId = null,
+    Object? code = freezed,
+    Object? qrType = null,
   }) {
     return _then(_value.copyWith(
       title: null == title
@@ -108,6 +114,14 @@ class _$UserBankModelCopyWithImpl<$Res, $Val extends UserBankModel>
           ? _value.listPaymentId
           : listPaymentId // ignore: cast_nullable_to_non_nullable
               as List<int>,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String?,
+      qrType: null == qrType
+          ? _value.qrType
+          : qrType // ignore: cast_nullable_to_non_nullable
+              as int,
     ) as $Val);
   }
 }
@@ -128,7 +142,9 @@ abstract class _$$UserBankModelImplCopyWith<$Res>
       String bankBin,
       bool? useInvoice,
       String qrCode,
-      List<int> listPaymentId});
+      List<int> listPaymentId,
+      String? code,
+      int qrType});
 }
 
 /// @nodoc
@@ -150,6 +166,8 @@ class __$$UserBankModelImplCopyWithImpl<$Res>
     Object? useInvoice = freezed,
     Object? qrCode = null,
     Object? listPaymentId = null,
+    Object? code = freezed,
+    Object? qrType = null,
   }) {
     return _then(_$UserBankModelImpl(
       title: null == title
@@ -184,6 +202,14 @@ class __$$UserBankModelImplCopyWithImpl<$Res>
           ? _value._listPaymentId
           : listPaymentId // ignore: cast_nullable_to_non_nullable
               as List<int>,
+      code: freezed == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String?,
+      qrType: null == qrType
+          ? _value.qrType
+          : qrType // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -200,7 +226,9 @@ class _$UserBankModelImpl extends _UserBankModel with DiagnosticableTreeMixin {
       this.bankBin = '',
       this.useInvoice,
       this.qrCode = '',
-      final List<int> listPaymentId = const []})
+      final List<int> listPaymentId = const [],
+      this.code,
+      this.qrType = 1})
       : _listPaymentId = listPaymentId,
         super._();
 
@@ -237,8 +265,14 @@ class _$UserBankModelImpl extends _UserBankModel with DiagnosticableTreeMixin {
   }
 
   @override
+  final String? code;
+  @override
+  @JsonKey()
+  final int qrType;
+
+  @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'UserBankModel(title: $title, bankName: $bankName, fullName: $fullName, bankNumber: $bankNumber, bankBin: $bankBin, useInvoice: $useInvoice, qrCode: $qrCode, listPaymentId: $listPaymentId)';
+    return 'UserBankModel(title: $title, bankName: $bankName, fullName: $fullName, bankNumber: $bankNumber, bankBin: $bankBin, useInvoice: $useInvoice, qrCode: $qrCode, listPaymentId: $listPaymentId, code: $code, qrType: $qrType)';
   }
 
   @override
@@ -253,7 +287,9 @@ class _$UserBankModelImpl extends _UserBankModel with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('bankBin', bankBin))
       ..add(DiagnosticsProperty('useInvoice', useInvoice))
       ..add(DiagnosticsProperty('qrCode', qrCode))
-      ..add(DiagnosticsProperty('listPaymentId', listPaymentId));
+      ..add(DiagnosticsProperty('listPaymentId', listPaymentId))
+      ..add(DiagnosticsProperty('code', code))
+      ..add(DiagnosticsProperty('qrType', qrType));
   }
 
   @override
@@ -273,7 +309,9 @@ class _$UserBankModelImpl extends _UserBankModel with DiagnosticableTreeMixin {
                 other.useInvoice == useInvoice) &&
             (identical(other.qrCode, qrCode) || other.qrCode == qrCode) &&
             const DeepCollectionEquality()
-                .equals(other._listPaymentId, _listPaymentId));
+                .equals(other._listPaymentId, _listPaymentId) &&
+            (identical(other.code, code) || other.code == code) &&
+            (identical(other.qrType, qrType) || other.qrType == qrType));
   }
 
   @JsonKey(ignore: true)
@@ -287,7 +325,9 @@ class _$UserBankModelImpl extends _UserBankModel with DiagnosticableTreeMixin {
       bankBin,
       useInvoice,
       qrCode,
-      const DeepCollectionEquality().hash(_listPaymentId));
+      const DeepCollectionEquality().hash(_listPaymentId),
+      code,
+      qrType);
 
   @JsonKey(ignore: true)
   @override
@@ -312,7 +352,9 @@ abstract class _UserBankModel extends UserBankModel {
       final String bankBin,
       final bool? useInvoice,
       final String qrCode,
-      final List<int> listPaymentId}) = _$UserBankModelImpl;
+      final List<int> listPaymentId,
+      final String? code,
+      final int qrType}) = _$UserBankModelImpl;
   const _UserBankModel._() : super._();
 
   factory _UserBankModel.fromJson(Map<String, dynamic> json) =
@@ -335,6 +377,10 @@ abstract class _UserBankModel extends UserBankModel {
   String get qrCode;
   @override
   List<int> get listPaymentId;
+  @override
+  String? get code;
+  @override
+  int get qrType;
   @override
   @JsonKey(ignore: true)
   _$$UserBankModelImplCopyWith<_$UserBankModelImpl> get copyWith =>

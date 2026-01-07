@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'create_new/view.dart';
-import 'reservation_dialog.dart';
+import 'reservation/reservation_dialog.dart';
 import 'transfer_order/view.dart';
 import 'update_order_dialog.dart';
 

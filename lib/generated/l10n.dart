@@ -6580,6 +6580,426 @@ class S {
       args: [],
     );
   }
+
+  /// `Haven't chosen a table to manipulate`
+  String get haven_t_chosen_a_table_to_manipulate {
+    return Intl.message(
+      'Haven\'t chosen a table to manipulate',
+      name: 'haven_t_chosen_a_table_to_manipulate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Operate on the current table order:`
+  String get manipulate_with_the_current_table {
+    return Intl.message(
+      'Operate on the current table order:',
+      name: 'manipulate_with_the_current_table',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unselect`
+  String get unselect {
+    return Intl.message(
+      'Unselect',
+      name: 'unselect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The current order`
+  String get current_order {
+    return Intl.message(
+      'The current order',
+      name: 'current_order',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The list of ordered items is empty`
+  String get list_ordered_item_empty {
+    return Intl.message(
+      'The list of ordered items is empty',
+      name: 'list_ordered_item_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Locking order actions`
+  String get locking_order_action {
+    return Intl.message(
+      'Locking order actions',
+      name: 'locking_order_action',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do you want to delete the invoice?`
+  String get confirm_delete_invoice {
+    return Intl.message(
+      'Do you want to delete the invoice?',
+      name: 'confirm_delete_invoice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Filter by brand`
+  String get filter_by_brand {
+    return Intl.message(
+      'Filter by brand',
+      name: 'filter_by_brand',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select restaurant`
+  String get select_restaurant {
+    return Intl.message(
+      'Select restaurant',
+      name: 'select_restaurant',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Updated successfully`
+  String get updated_success {
+    return Intl.message(
+      'Updated successfully',
+      name: 'updated_success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search restaurant`
+  String get search_restaurant {
+    return Intl.message(
+      'Search restaurant',
+      name: 'search_restaurant',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Available online`
+  String get available_online {
+    return Intl.message(
+      'Available online',
+      name: 'available_online',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `NOT available online`
+  String get not_available_online {
+    return Intl.message(
+      'NOT available online',
+      name: 'not_available_online',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Main server`
+  String get main_server {
+    return Intl.message(
+      'Main server',
+      name: 'main_server',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Backup server`
+  String get backup_server {
+    return Intl.message(
+      'Backup server',
+      name: 'backup_server',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `items`
+  String get food_item {
+    return Intl.message(
+      'items',
+      name: 'food_item',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Loading payment QR code`
+  String get loading_payment_qr_code {
+    return Intl.message(
+      'Loading payment QR code',
+      name: 'loading_payment_qr_code',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Updating reservation infomation`
+  String get updating_reservation_info {
+    return Intl.message(
+      'Updating reservation infomation',
+      name: 'updating_reservation_info',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Updating the order's reservation`
+  String get updating_order_reser {
+    return Intl.message(
+      'Updating the order\'s reservation',
+      name: 'updating_order_reser',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `is merged with table`
+  String get is_merged_with_table {
+    return Intl.message(
+      'is merged with table',
+      name: 'is_merged_with_table',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `has been moved to table`
+  String get has_been_transferred_to {
+    return Intl.message(
+      'has been moved to table',
+      name: 'has_been_transferred_to',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `has removed table`
+  String get has_removed_table {
+    return Intl.message(
+      'has removed table',
+      name: 'has_removed_table',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiter received the order`
+  String get waiter_service {
+    return Intl.message(
+      'Waiter received the order',
+      name: 'waiter_service',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not select`
+  String get not_select {
+    return Intl.message(
+      'Not select',
+      name: 'not_select',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search waiter`
+  String get search_waiter {
+    return Intl.message(
+      'Search waiter',
+      name: 'search_waiter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select the table to transfer`
+  String get select_table_to_transfer {
+    return Intl.message(
+      'Select the table to transfer',
+      name: 'select_table_to_transfer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Transfer from table {fromTable} to {toTable}`
+  String confirm_transfer_table(String fromTable, String toTable) {
+    return Intl.message(
+      'Transfer from table $fromTable to $toTable',
+      name: 'confirm_transfer_table',
+      desc: '',
+      args: [fromTable, toTable],
+    );
+  }
+
+  /// `Reservation`
+  String get reservation {
+    return Intl.message(
+      'Reservation',
+      name: 'reservation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Got it`
+  String get got_it {
+    return Intl.message(
+      'Got it',
+      name: 'got_it',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ignore this notification and similar reminders`
+  String get ignore_reservation_notification {
+    return Intl.message(
+      'Ignore this notification and similar reminders',
+      name: 'ignore_reservation_notification',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `There is/are {count} reservation(s) that has already been received by the receptionist for the selected tables.\nIf the customer has made a reservation in advance, please select the reservation before confirming!`
+  String noti_has_reservation(String count) {
+    return Intl.message(
+      'There is/are $count reservation(s) that has already been received by the receptionist for the selected tables.\nIf the customer has made a reservation in advance, please select the reservation before confirming!',
+      name: 'noti_has_reservation',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `The reservation is currently assigned to the current table order.`
+  String get reservation_assigned_order {
+    return Intl.message(
+      'The reservation is currently assigned to the current table order.',
+      name: 'reservation_assigned_order',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update reservation`
+  String get update_reservation {
+    return Intl.message(
+      'Update reservation',
+      name: 'update_reservation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The table order is currently associated with a reservation.Canceling the table order will also change the reservation status to "Canceled".\nIf you do not want to cancel the reservation, please update the reservation before canceling the table.`
+  String get confirm_cancel_order_has_reservation {
+    return Intl.message(
+      'The table order is currently associated with a reservation.Canceling the table order will also change the reservation status to "Canceled".\nIf you do not want to cancel the reservation, please update the reservation before canceling the table.',
+      name: 'confirm_cancel_order_has_reservation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Discount codes have not been applied successfully.`
+  String get failed_apply_coupons {
+    return Intl.message(
+      'Discount codes have not been applied successfully.',
+      name: 'failed_apply_coupons',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please`
+  String get please {
+    return Intl.message(
+      'Please',
+      name: 'please',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove the code and re-enter it`
+  String get remove_coupon_and_reenter {
+    return Intl.message(
+      'Remove the code and re-enter it',
+      name: 'remove_coupon_and_reenter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Re-enter the code`
+  String get reenter_coupon {
+    return Intl.message(
+      'Re-enter the code',
+      name: 'reenter_coupon',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The invoice information is incorrect because taxes have not been reallocated`
+  String get error_price_because_tax_reallocated {
+    return Intl.message(
+      'The invoice information is incorrect because taxes have not been reallocated',
+      name: 'error_price_because_tax_reallocated',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `PLEASE CHECK & ENSURE\n- The tablet and computer are connected to the Order network\n- The printer is powered on and not jammed\n- The network cable connected to the printer is active (indicator light is on)`
+  String get action_when_ping_printer_error {
+    return Intl.message(
+      'PLEASE CHECK & ENSURE\n- The tablet and computer are connected to the Order network\n- The printer is powered on and not jammed\n- The network cable connected to the printer is active (indicator light is on)',
+      name: 'action_when_ping_printer_error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to connect to the printer`
+  String get unable_connect_printer {
+    return Intl.message(
+      'Unable to connect to the printer',
+      name: 'unable_connect_printer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to print the kitchen bill`
+  String get error_print_kitechen_bill {
+    return Intl.message(
+      'Unable to print the kitchen bill',
+      name: 'error_print_kitechen_bill',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

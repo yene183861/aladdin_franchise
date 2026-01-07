@@ -8,6 +8,7 @@ import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/login.dart';
 import 'package:aladdin_franchise/src/core/services/send_log/log_service.dart';
+import 'package:aladdin_franchise/src/data/enum/language.dart';
 import 'package:aladdin_franchise/src/data/model/floor.dart';
 import 'package:aladdin_franchise/src/data/model/table_layout_item.dart';
 import 'package:aladdin_franchise/src/data/model/table_layout_setting.dart';
@@ -387,12 +388,13 @@ class LocalStorage {
     return dataLogin?.restaurant?.posStatus ?? false;
   }
 
-  static String getLanguageLocal() {
-    return _prefs.getString(_languageLocal) ?? AppLanguageLocal.vietnamese;
+  static AppLanguageEnum getLanguageLocal() {
+    return AppLanguageEnum.values
+        .byName(_prefs.getString(_languageLocal) ?? AppLanguageEnum.vi.name);
   }
 
-  static Future<void> setLanguageLocal(String key) async {
-    await _prefs.setString(_languageLocal, key);
+  static Future<void> setLanguageLocal(AppLanguageEnum value) async {
+    await _prefs.setString(_languageLocal, value.name);
   }
 
   // Đánh giá trải nghiệm khách hàng
@@ -711,12 +713,13 @@ class LocalStorage {
     await _prefs.remove(_notePerOrderItem);
   }
 
-  static String getCustomerLanguageLocal() {
-    return _prefs.getString(_customerLanguageLocal) ?? getLanguageLocal();
+  static AppLanguageEnum getCustomerLanguageLocal() {
+    return AppLanguageEnum.values
+        .byName(_prefs.getString(_customerLanguageLocal) ?? getLanguageLocal().name);
   }
 
-  static Future<void> setCustomerLanguageLocal(String key) async {
-    await _prefs.setString(_customerLanguageLocal, key);
+  static Future<void> setCustomerLanguageLocal(AppLanguageEnum value) async {
+    await _prefs.setString(_customerLanguageLocal, value.name);
   }
 
   // static Future<void> saveEmployeeSaleForOrder({

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/features/dialogs/button_find_customer.dart';
+import 'package:aladdin_franchise/src/features/dialogs/customer/customer_option_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
 import 'package:aladdin_franchise/src/features/dialogs/coupon/button_add_coupon.dart';

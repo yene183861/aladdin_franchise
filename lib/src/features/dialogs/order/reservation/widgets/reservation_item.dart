@@ -79,13 +79,6 @@ class ReservationItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Gap(4),
-                  // if (kDebugMode) ...[
-                  //   Text(
-                  //     'id: ${item.id}',
-                  //     maxLines: 1,
-                  //     overflow: TextOverflow.ellipsis,
-                  //   )
-                  // ],
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

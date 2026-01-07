@@ -26,14 +26,20 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m1(title) =>
       "Xác nhận đổi ngôn ngữ sang [${title}]?\nCHÚ Ý:Phần mềm sẽ khởi động lại sau khi thay đổi ngôn ngữ.";
 
-  static String m2(coupon_length, coupons, payment_method) =>
+  static String m2(fromTable, toTable) =>
+      "Chuyển từ bàn ${fromTable} sang ${toTable}";
+
+  static String m3(coupon_length, coupons, payment_method) =>
       "Có [${coupon_length}] mã giảm giá [${coupons}] không được phép dùng với PTTT ([${payment_method}]).\n Vui lòng xoá bỏ mã hoặc chọn phương thức thanh toán khác!";
 
-  static String m3(coupon) =>
+  static String m4(coupon) =>
       "Hãy xoá và nhập lại mã giảm giá ([${coupon}]) rồi áp dụng!";
 
-  static String m4(restaurant_name) =>
+  static String m5(restaurant_name) =>
       "Thank you for choosing [${restaurant_name}]! We wish you a delicious meal!";
+
+  static String m6(count) =>
+      "Có ${count} lịch đặt bàn đã được lễ tân tiếp nhận ứng với các bàn bạn đã chọn.\nNếu là khách đã đặt bàn trước, vui lòng chọn lịch đặt bàn trước khi bấm xác nhận!";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -45,6 +51,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "accepted_reser": MessageLookupByLibrary.simpleMessage("Đã tiếp nhận"),
         "accumulated_money":
             MessageLookupByLibrary.simpleMessage("Tiền tích luỹ"),
+        "action_when_ping_printer_error": MessageLookupByLibrary.simpleMessage(
+            "VUI LÒNG KIỂM TRA & ĐẢM BẢO\n- Tablet và máy tính đã kết nối mạng Order\n- Máy in đã bật và không bị kẹt giấy\n- Dây mạng kết nối với máy in đã sáng"),
         "active": MessageLookupByLibrary.simpleMessage("Hoạt động"),
         "add_attachment":
             MessageLookupByLibrary.simpleMessage("Thêm tệp đính kèm"),
@@ -107,7 +115,11 @@ class MessageLookup extends MessageLookupByLibrary {
             "Không có nhân viên sale, vui lòng chọn \"Không xác định\""),
         "authentication_unlocked":
             MessageLookupByLibrary.simpleMessage("Đã mở khoá xác thực"),
+        "available_online":
+            MessageLookupByLibrary.simpleMessage("CÓ bán online"),
         "bOD": MessageLookupByLibrary.simpleMessage("Sinh nhật"),
+        "backup_server":
+            MessageLookupByLibrary.simpleMessage("Máy chủ dự phòng"),
         "bank": MessageLookupByLibrary.simpleMessage("Ngân hàng"),
         "bank_account":
             MessageLookupByLibrary.simpleMessage("Tài khoản ngân hàng"),
@@ -238,6 +250,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Xác nhận huỷ món"),
         "confirm_before_complete_order": MessageLookupByLibrary.simpleMessage(
             "Vui lòng kiểm tra và xác minh xem khách hàng đã thanh toán hay chưa.\nNếu có, hãy đính kèm hình ảnh biên lai để đối chiếu trước khi bấm xác nhận."),
+        "confirm_cancel_order_has_reservation":
+            MessageLookupByLibrary.simpleMessage(
+                "Đơn bàn hiện đang được gán với lịch đặt bàn.Việc huỷ đơn bàn sẽ đồng thời chuyển lịch đặt sang trạng thái \"Huỷ lịch\".\nNếu không muốn huỷ lịch, vui lòng cập nhật lịch đặt bàn trước khi huỷ bàn."),
         "confirm_change_customer_language": m0,
         "confirm_change_language": m1,
         "confirm_complete_order_with_sale":
@@ -248,6 +263,8 @@ class MessageLookup extends MessageLookupByLibrary {
                 "Xác nhận tạo Phiếu thanh toán"),
         "confirm_delete_code_and_continue":
             MessageLookupByLibrary.simpleMessage("Xác nhận xoá mã & tiếp tục"),
+        "confirm_delete_invoice":
+            MessageLookupByLibrary.simpleMessage("Bạn có muốn xóa hóa đơn?"),
         "confirm_payment_done": MessageLookupByLibrary.simpleMessage(
             "Bạn đã hoàn tất thanh toán cho khách hàng?"),
         "confirm_payment_tmp": MessageLookupByLibrary.simpleMessage(
@@ -258,6 +275,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Bạn vui lòng kiểm tra lại"),
         "confirm_reload_payment_gateway": MessageLookupByLibrary.simpleMessage(
             "Bạn muốn tải lại cổng thanh toán?"),
+        "confirm_transfer_table": m2,
         "confirmation_content":
             MessageLookupByLibrary.simpleMessage("Ghi chú món"),
         "confirmation_from_waiter":
@@ -303,6 +321,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Tài khoản hiện tại"),
         "current_language_use":
             MessageLookupByLibrary.simpleMessage("Phần mềm đang sử dụng"),
+        "current_order":
+            MessageLookupByLibrary.simpleMessage("Đơn bàn hiện tại"),
         "customerPolicy":
             MessageLookupByLibrary.simpleMessage("Chính sách khách hàng"),
         "customer_gets_invoice":
@@ -433,8 +453,13 @@ class MessageLookup extends MessageLookupByLibrary {
                 "Máy chủ nhận dạng thanh toán chưa được thiết lập"),
         "error_ping_printer": MessageLookupByLibrary.simpleMessage(
             "Không nhận diện được thông tin máy in đơn bàn\nKIỂM TRA CÁC NGUYÊN NHÂN:\n- Đơn bàn đã được thanh toán\n- Đơn bàn đã bị thay đổi (Chuyển bàn, cập nhật đơn bàn)\nVui lòng kiểm tra và chọn lại đơn bàn thao tác!"),
+        "error_price_because_tax_reallocated":
+            MessageLookupByLibrary.simpleMessage(
+                "Thông tin hóa đơn sai do chưa được phân bổ lại thuế"),
         "error_print_bill_order":
             MessageLookupByLibrary.simpleMessage("Không thể in bill"),
+        "error_print_kitechen_bill": MessageLookupByLibrary.simpleMessage(
+            "Không in được bill xuống bếp"),
         "error_products_not_set": MessageLookupByLibrary.simpleMessage(
             "Danh sách sản phẩm chưa được thiết lập"),
         "error_reload_menu_check_product_selecting":
@@ -449,6 +474,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "error_update_order_item": MessageLookupByLibrary.simpleMessage(
             "Danh sách món chưa được cập nhật vào hệ thống!"),
         "ex_problem": MessageLookupByLibrary.simpleMessage("Sự cố"),
+        "failed_apply_coupons": MessageLookupByLibrary.simpleMessage(
+            "Các mã giảm giá chưa được áp dụng thành công."),
         "failed_apply_discount_code": MessageLookupByLibrary.simpleMessage(
             "Áp dụng mã giảm giá không thành công"),
         "failed_connect_payment_verification_server":
@@ -461,6 +488,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "failed_payment_closing":
             MessageLookupByLibrary.simpleMessage("Đóng thanh toán thất bại!"),
         "female": MessageLookupByLibrary.simpleMessage("Nữ"),
+        "filter_by_brand":
+            MessageLookupByLibrary.simpleMessage("Lọc theo thương hiệu"),
         "findCustomer":
             MessageLookupByLibrary.simpleMessage("Tìm kiếm khách hàng"),
         "find_customer_not_found": MessageLookupByLibrary.simpleMessage(
@@ -470,6 +499,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "firstName": MessageLookupByLibrary.simpleMessage("Họ"),
         "food_information":
             MessageLookupByLibrary.simpleMessage("Thông tin món"),
+        "food_item": MessageLookupByLibrary.simpleMessage("Món"),
         "forgotPassword":
             MessageLookupByLibrary.simpleMessage("Quên mật khẩu?"),
         "forgotPasswordMessage": MessageLookupByLibrary.simpleMessage(
@@ -482,12 +512,21 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Chuyển đến mục Ưu đãi"),
         "go_to_the_endow_tab":
             MessageLookupByLibrary.simpleMessage("Chuyển đến tab Ưu đãi"),
+        "got_it": MessageLookupByLibrary.simpleMessage("Đã hiểu"),
         "hai_su_pot_rice":
             MessageLookupByLibrary.simpleMessage("Cơm niêu Hải Sư"),
         "has_a_new_order_request":
             MessageLookupByLibrary.simpleMessage("có yêu cầu gọi món mới"),
+        "has_been_transferred_to":
+            MessageLookupByLibrary.simpleMessage("được chuyển thành"),
+        "has_removed_table": MessageLookupByLibrary.simpleMessage("bỏ bàn"),
+        "haven_t_chosen_a_table_to_manipulate":
+            MessageLookupByLibrary.simpleMessage(
+                "Chưa chọn đơn bàn để thao tác"),
         "help": MessageLookupByLibrary.simpleMessage("Trợ giúp"),
         "hours": MessageLookupByLibrary.simpleMessage("giờ"),
+        "ignore_reservation_notification": MessageLookupByLibrary.simpleMessage(
+            "Bỏ qua thông báo này và các thông báo nhắc nhở tương tự"),
         "image_error_delete":
             MessageLookupByLibrary.simpleMessage("Ảnh lỗi, hãy xoá bỏ!"),
         "inaccurateData":
@@ -515,6 +554,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Chi tiết hoá đơn"),
         "invoice_support":
             MessageLookupByLibrary.simpleMessage("hỗ trợ xuất hoá đơn"),
+        "is_merged_with_table":
+            MessageLookupByLibrary.simpleMessage("gộp thêm bàn"),
         "item": MessageLookupByLibrary.simpleMessage("Sản phẩm"),
         "just_done": MessageLookupByLibrary.simpleMessage("vừa xong"),
         "language": MessageLookupByLibrary.simpleMessage("Ngôn ngữ"),
@@ -524,6 +565,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "latest": MessageLookupByLibrary.simpleMessage("Mới nhất"),
         "letsOrderFood": MessageLookupByLibrary.simpleMessage("Hãy Gọi Món"),
         "list_dish": MessageLookupByLibrary.simpleMessage("Danh sách món ăn"),
+        "list_ordered_item_empty": MessageLookupByLibrary.simpleMessage(
+            "Danh sách món đã gọi đang trống"),
         "list_request_o2o":
             MessageLookupByLibrary.simpleMessage("Danh sách yêu cầu"),
         "list_sales":
@@ -545,6 +588,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "Đang tải phương thức thanh toán"),
         "loading_payment_method_list": MessageLookupByLibrary.simpleMessage(
             "Đang tải phương thức thanh toán..."),
+        "loading_payment_qr_code":
+            MessageLookupByLibrary.simpleMessage("Đang tải mã QR thanh toán"),
         "loading_pos_list": MessageLookupByLibrary.simpleMessage(
             "Đang lấy danh sách máy cà thẻ..."),
         "loading_qr_code":
@@ -553,6 +598,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Đang tải danh sách yêu cầu"),
         "loading_reservations": MessageLookupByLibrary.simpleMessage(
             "Đang tải danh sách bàn đặt..."),
+        "locking_order_action":
+            MessageLookupByLibrary.simpleMessage("Đang khoá thao tác đơn bàn"),
         "login": MessageLookupByLibrary.simpleMessage("Đăng nhập"),
         "login_accounts_have_been_saved": MessageLookupByLibrary.simpleMessage(
             "Các tài khoản đăng nhập đã được lưu"),
@@ -565,11 +612,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "longWangSlogan": MessageLookupByLibrary.simpleMessage(
             "Lẩu hấp thuỷ nhiệt Hồng Kông"),
         "machine_type": MessageLookupByLibrary.simpleMessage("Loại máy"),
+        "main_server": MessageLookupByLibrary.simpleMessage("Máy chủ chính"),
         "male": MessageLookupByLibrary.simpleMessage("Nam"),
         "manage_accounts_on_devices": MessageLookupByLibrary.simpleMessage(
             "Quản lý tài khoản trên thiết bị"),
         "mandatory_update": MessageLookupByLibrary.simpleMessage(
             "Phiên bản cập nhật bắt buộc, vui lòng cập nhật để tiếp tục sử dụng!"),
+        "manipulate_with_the_current_table":
+            MessageLookupByLibrary.simpleMessage(
+                "Thao tác với đơn bàn hiện tại:"),
         "messageAddCouponNoProducts": MessageLookupByLibrary.simpleMessage(
             "Không có sản phẩm đã gọi nào nằm trong danh sách được giảm giá"),
         "messageApplyDiscount": MessageLookupByLibrary.simpleMessage(
@@ -598,8 +649,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "Tự đóng cổng thanh toán, hãy đảm bảo về việc khách hàng đã thanh toán hay chưa?"),
         "msg_completing_order": MessageLookupByLibrary.simpleMessage(
             "Đang xử lý hoàn tất đơn bàn..."),
-        "msg_coupons_invalid_with_payment_method": m2,
-        "msg_delete_coupon_and_apply_again": m3,
+        "msg_coupons_invalid_with_payment_method": m3,
+        "msg_delete_coupon_and_apply_again": m4,
         "msg_error_print_receipt": MessageLookupByLibrary.simpleMessage(
             "Không thể thực hiện việc in hóa đơn cho khách hàng."),
         "msg_id_device_to_unlock_order": MessageLookupByLibrary.simpleMessage(
@@ -620,7 +671,7 @@ class MessageLookup extends MessageLookupByLibrary {
                 "Vui lòng chọn đơn bàn trước khi in hóa đơn thanh toán"),
         "msg_send_ticket_success": MessageLookupByLibrary.simpleMessage(
             "Ticket của bạn đã được ghi nhận!\nXem và kiểm  tra trạng thái ở dưới Thu Ngân."),
-        "msg_thanks_customer": m4,
+        "msg_thanks_customer": m5,
         "msg_unable_retrieve_latest_order_data":
             MessageLookupByLibrary.simpleMessage(
                 "Không thể truy xuất dữ liệu mới nhất của đơn"),
@@ -702,6 +753,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "Không có phục vụ bàn nào được chọn"),
         "not_available_feature": MessageLookupByLibrary.simpleMessage(
             "Tính năng chỉ khả dụng trên Tab Order"),
+        "not_available_online":
+            MessageLookupByLibrary.simpleMessage("KHÔNG bán online"),
         "not_be_empty":
             MessageLookupByLibrary.simpleMessage("Không được bỏ trống"),
         "not_correct_format":
@@ -709,6 +762,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "not_sale_select_before_complete_order":
             MessageLookupByLibrary.simpleMessage(
                 "Vui lòng chọn nhân viên sale trước khi bấm hoàn thành đơn."),
+        "not_select": MessageLookupByLibrary.simpleMessage("Chưa chọn"),
         "not_set_up":
             MessageLookupByLibrary.simpleMessage("chưa được thiết lập"),
         "not_used_promotion": MessageLookupByLibrary.simpleMessage(
@@ -727,6 +781,7 @@ class MessageLookup extends MessageLookupByLibrary {
                 "Vui lòng thực hiện xoá mã, rồi chọn lại phương thức thanh toán!"),
         "noti_enter_customer_info": MessageLookupByLibrary.simpleMessage(
             "Thông tin khách hàng chưa được điền. Bạn có muốn tiếp tục thanh toán?"),
+        "noti_has_reservation": m6,
         "noticeRequestCancel": MessageLookupByLibrary.simpleMessage(
             "Có yêu cầu huỷ chưa được xử lý, vui lòng đợi và tải lại danh sách để kiểm tra!"),
         "notification": MessageLookupByLibrary.simpleMessage("Thông báo"),
@@ -816,6 +871,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "phone": MessageLookupByLibrary.simpleMessage("Số điện thoại"),
         "phone_invalid":
             MessageLookupByLibrary.simpleMessage("Số điện thoại không hợp lệ"),
+        "please": MessageLookupByLibrary.simpleMessage("Vui lòng"),
         "pleaseSelectOrderFirst": MessageLookupByLibrary.simpleMessage(
             "Vui lòng chọn đơn bàn trước!"),
         "please_select_a_sale": MessageLookupByLibrary.simpleMessage(
@@ -875,6 +931,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "recall": MessageLookupByLibrary.simpleMessage("Thu hồi"),
         "reconnect": MessageLookupByLibrary.simpleMessage("Kết nối lại"),
         "reduce": MessageLookupByLibrary.simpleMessage("Giảm"),
+        "reenter_coupon": MessageLookupByLibrary.simpleMessage("Nhập lại mã"),
         "register_customers_via_zalo_oa": MessageLookupByLibrary.simpleMessage(
             "Đăng ký khách hàng qua Zalo-OA"),
         "rejected_reser": MessageLookupByLibrary.simpleMessage("Từ chối"),
@@ -886,6 +943,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Thời gian còn lại"),
         "removeCustomer": MessageLookupByLibrary.simpleMessage(
             "Xoá bỏ khách hàng trong hoá đơn?"),
+        "remove_coupon_and_reenter":
+            MessageLookupByLibrary.simpleMessage("Xóa mã và nhập lại mã"),
         "remove_coupon_or_select_other_payment_method":
             MessageLookupByLibrary.simpleMessage(
                 "Vui lòng xoá mã giảm giá để sử dụng phương thức đã chọn hoặc quay lại chọn phương thức thanh toán khác"),
@@ -905,6 +964,9 @@ class MessageLookup extends MessageLookupByLibrary {
             "Vui lòng nhập đủ thông tin bắt buộc"),
         "reselect_payment_method": MessageLookupByLibrary.simpleMessage(
             "Chọn lại phương thức thanh toán"),
+        "reservation": MessageLookupByLibrary.simpleMessage("Lịch đặt bàn"),
+        "reservation_assigned_order": MessageLookupByLibrary.simpleMessage(
+            "Lịch đang được gán với đơn bàn hiện tại"),
         "restaurant": MessageLookupByLibrary.simpleMessage("Nhà hàng"),
         "restaurantEmpty":
             MessageLookupByLibrary.simpleMessage("Không có nhà hàng nào"),
@@ -940,6 +1002,10 @@ class MessageLookup extends MessageLookupByLibrary {
             "Tìm theo mã đơn, tên khách hàng, số điện thoại, hoặc mã giảm giá..."),
         "search_reservation":
             MessageLookupByLibrary.simpleMessage("Tìm kiếm lịch đặt bàn"),
+        "search_restaurant":
+            MessageLookupByLibrary.simpleMessage("Tìm kiếm nhà hàng"),
+        "search_waiter":
+            MessageLookupByLibrary.simpleMessage("Tìm kiếm phục vụ viên"),
         "selectOrder": MessageLookupByLibrary.simpleMessage("Chọn đơn bàn"),
         "selectTable": MessageLookupByLibrary.simpleMessage("Chọn bàn"),
         "select_a_bank": MessageLookupByLibrary.simpleMessage("Chọn ngân hàng"),
@@ -952,8 +1018,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Chọn ảnh trong máy"),
         "select_pos_to_continue": MessageLookupByLibrary.simpleMessage(
             "Vui lòng chọn máy cà thẻ để tiếp tục"),
+        "select_restaurant":
+            MessageLookupByLibrary.simpleMessage("Chọn nhà hàng"),
         "select_sales_staff":
             MessageLookupByLibrary.simpleMessage("Chọn nhân viên sale"),
+        "select_table_to_transfer":
+            MessageLookupByLibrary.simpleMessage("Chọn bàn cần chuyển"),
         "select_up_to": MessageLookupByLibrary.simpleMessage("Chọn tối đa"),
         "selected": MessageLookupByLibrary.simpleMessage("Đã chọn"),
         "selectedDish": MessageLookupByLibrary.simpleMessage("Món đã gọi"),
@@ -1059,6 +1129,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "turn": MessageLookupByLibrary.simpleMessage("Lượt"),
         "unable_add_customer": MessageLookupByLibrary.simpleMessage(
             "Không thể thêm khách hàng vào hệ thống."),
+        "unable_connect_printer":
+            MessageLookupByLibrary.simpleMessage("Không kết nối được máy in"),
         "unable_load_order_list": MessageLookupByLibrary.simpleMessage(
             "Không tải được danh sách đơn bàn"),
         "unable_load_sales_list": MessageLookupByLibrary.simpleMessage(
@@ -1080,6 +1152,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "unpaid_order_select_payment_method_again":
             MessageLookupByLibrary.simpleMessage(
                 "Đơn bàn chưa thanh toán, vui lòng chọn lại Phương thức thanh toán và tiếp tục!"),
+        "unselect": MessageLookupByLibrary.simpleMessage("Bỏ chọn"),
         "unvailable_link_registration_zalo_oa":
             MessageLookupByLibrary.simpleMessage(
                 "Link đăng ký hiện không khả dụng"),
@@ -1099,13 +1172,21 @@ class MessageLookup extends MessageLookupByLibrary {
         "update_invoice_information":
             MessageLookupByLibrary.simpleMessage("Cập nhật thông tin hoá đơn"),
         "update_now": MessageLookupByLibrary.simpleMessage("Cập nhật ngay"),
+        "update_reservation":
+            MessageLookupByLibrary.simpleMessage("Cập nhật lịch đặt bàn"),
+        "updated_success":
+            MessageLookupByLibrary.simpleMessage("Đã được cập nhật"),
         "updating": MessageLookupByLibrary.simpleMessage("Đang cập nhật"),
         "updating_order":
             MessageLookupByLibrary.simpleMessage("Đang cập nhật đơn bàn"),
         "updating_order_panel": MessageLookupByLibrary.simpleMessage(
             "Đang cập nhật đơn bàn thao tác"),
+        "updating_order_reser": MessageLookupByLibrary.simpleMessage(
+            "Đang thay đổi lịch đặt bàn của đơn"),
         "updating_payment_info": MessageLookupByLibrary.simpleMessage(
             "Đang cập nhật thông tin thanh toán"),
+        "updating_reservation_info":
+            MessageLookupByLibrary.simpleMessage("Đang cập nhật lịch đặt bàn"),
         "updating_tax":
             MessageLookupByLibrary.simpleMessage("Đang cập nhật lại thuế..."),
         "use": MessageLookupByLibrary.simpleMessage("Sử dụng"),
@@ -1146,6 +1227,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "wait_updating_complete": MessageLookupByLibrary.simpleMessage(
             "Vui lòng chờ cho tới khi quá trình cập nhật kết thúc"),
         "waiter": MessageLookupByLibrary.simpleMessage("Phục vụ"),
+        "waiter_service":
+            MessageLookupByLibrary.simpleMessage("Phục vụ tiếp nhận"),
         "waiting_payment":
             MessageLookupByLibrary.simpleMessage("Chờ thanh toán"),
         "warning_delete_item_with_complimentary_gift":

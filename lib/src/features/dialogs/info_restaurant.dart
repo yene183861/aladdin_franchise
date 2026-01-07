@@ -1,24 +1,20 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
-import 'package:aladdin_franchise/src/configs/const.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
+import 'package:aladdin_franchise/src/data/enum/language.dart';
+import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_with_icon.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/title_line.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../generated/l10n.dart';
 
@@ -71,17 +67,7 @@ class InfoRestaurantWidget extends ConsumerWidget {
           content: "${AppConfig.appName} - ${AppConfig.appVersion}",
           iconColor: Colors.blueGrey,
         ),
-        // Padding(
-        //   padding: const EdgeInsets.fromLTRB(16, 8, 0, 0),
-        //   child: ButtonWithIconWidget(
-        //     icon: Icons.qr_code,
-        //     color: const Color(0xff0168fe),
-        //     textAction: S.current.qr_reg_zalo_oa,
-        //     onPressed: () {
-        //       // showCreateCustomerZaloOADialog(context);
-        //     },
-        //   ),
-        // ),
+
         const Divider(),
 
         Row(
@@ -121,22 +107,13 @@ class InfoRestaurantWidget extends ConsumerWidget {
             padding: const EdgeInsets.only(left: 30),
             child: Wrap(
               spacing: 12,
-              children: [
-                _ChipLanguageLocalWidget(
-                  title: S.current.tiengViet,
-                  code: AppLanguageLocal.vietnamese,
-                  currentLanguage: localCurrent.languageCode,
-                ),
-                _ChipLanguageLocalWidget(
-                  title: S.current.tiengAnh,
-                  code: AppLanguageLocal.english,
-                  currentLanguage: localCurrent.languageCode,
-                ),
-                // _ChipLanguageLocalWidget(
-                //   title: S.current.chinese,
-                //   code: AppLanguageLocal.chinese,
-                // ),
-              ],
+              children: AppLanguageEnum.values
+                  .map((e) => ChipLanguageLocal(
+                        title: localCurrent == AppLanguageEnum.vi ? e.viTitle : null,
+                        item: e,
+                        selected: localCurrent == e,
+                      ))
+                  .toList(),
             ),
           );
         }),
@@ -145,63 +122,38 @@ class InfoRestaurantWidget extends ConsumerWidget {
           textStyle: AppTextStyle.medium(),
         ),
         Builder(builder: (context) {
-          final localCurrent = LocalStorage.getCustomerLanguageLocal();
+          final localCurrent = ref.watch(customerLanguageLocalProvider);
           return Padding(
             padding: const EdgeInsets.only(left: 30),
             child: Wrap(
               spacing: 12,
-              children: [
-                _ChipLanguageLocalWidget(
-                  title: S.current.tiengViet,
-                  code: AppLanguageLocal.vietnamese,
-                  currentLanguage: localCurrent,
-                  onSelected: ({
-                    required bool value,
-                    required bool active,
-                  }) {
-                    if (!active) {
-                      showConfirmAction(
-                        context,
-                        message: S.current.confirm_change_customer_language(S.current.tiengViet),
-                        action: () async {
-                          Navigator.pop(context);
-                          await LocalStorage.setCustomerLanguageLocal(AppLanguageLocal.vietnamese);
-                          ref.read(homeProvider.notifier).onChangeCustomerLanguage();
+              children: AppLanguageEnum.values
+                  .map((e) => ChipLanguageLocal(
+                        item: e,
+                        selected: localCurrent == e,
+                        title: localCurrent == AppLanguageEnum.vi ? e.viTitle : null,
+                        onSelected: ({required active, required value}) {
+                          if (!active) {
+                            showConfirmAction(
+                              context,
+                              message: S.current.confirm_change_customer_language(
+                                  localCurrent == AppLanguageEnum.vi ? e.viTitle : e.title),
+                              action: () async {
+                                Navigator.pop(context);
+                                await LocalStorage.setCustomerLanguageLocal(e);
+                                ref
+                                    .read(homeProvider.notifier)
+                                    .syncInfoCustomerPage(method: WindowsMethodEnum.language);
+                              },
+                            );
+                          } else {
+                            showDoneSnackBar(
+                                context: context,
+                                message: '${S.current.current_language_use} [${e.title}]');
+                          }
                         },
-                      );
-                    } else {
-                      showDoneSnackBar(
-                          context: context,
-                          message: '${S.current.current_language_use} [${S.current.tiengViet}]');
-                    }
-                  },
-                ),
-                _ChipLanguageLocalWidget(
-                  title: S.current.tiengAnh,
-                  code: AppLanguageLocal.english,
-                  currentLanguage: localCurrent,
-                  onSelected: ({
-                    required bool value,
-                    required bool active,
-                  }) {
-                    if (!active) {
-                      showConfirmAction(
-                        context,
-                        message: S.current.confirm_change_customer_language(S.current.tiengAnh),
-                        action: () async {
-                          Navigator.pop(context);
-                          await LocalStorage.setCustomerLanguageLocal(AppLanguageLocal.english);
-                          ref.read(homeProvider.notifier).onChangeCustomerLanguage();
-                        },
-                      );
-                    } else {
-                      showDoneSnackBar(
-                          context: context,
-                          message: '${S.current.current_language_use} [${S.current.tiengViet}]');
-                    }
-                  },
-                ),
-              ],
+                      ))
+                  .toList(),
             ),
           );
         }),
@@ -210,49 +162,48 @@ class InfoRestaurantWidget extends ConsumerWidget {
   }
 }
 
-class _ChipLanguageLocalWidget extends ConsumerWidget {
-  const _ChipLanguageLocalWidget({
+class ChipLanguageLocal extends ConsumerWidget {
+  const ChipLanguageLocal({
     super.key,
-    required this.title,
-    required this.code,
-    required this.currentLanguage,
+    required this.item,
+    this.selected = false,
     this.onSelected,
+    this.title,
   });
-  final String title;
-  final String code;
-
-  final String currentLanguage;
+  final AppLanguageEnum item;
+  final bool selected;
+  final String? title;
 
   final Function({required bool value, required bool active})? onSelected;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool active = currentLanguage == code;
     return ChoiceChip(
-      label: Text(title),
+      label: Text(title ?? item.title),
       labelStyle: AppTextStyle.regular(
-        color: active ? AppColors.secondColor : null,
+        color: selected ? AppColors.secondColor : null,
       ),
-      selected: active,
-      selectedColor: active ? AppColors.mainColor : null,
-      checkmarkColor: active ? AppColors.secondColor : null,
+      selected: selected,
+      selectedColor: selected ? AppColors.mainColor : null,
+      checkmarkColor: selected ? AppColors.secondColor : null,
       onSelected: (value) async {
         if (onSelected != null) {
-          onSelected?.call(value: value, active: active);
+          onSelected?.call(value: value, active: selected);
           return;
         }
-        if (!active) {
+        if (!selected) {
           showConfirmAction(
             context,
-            message: S.current.confirm_change_language(title),
+            message: S.current.confirm_change_language(title ?? item.title),
             action: () async {
               Navigator.pop(context);
-              await LocalStorage.setLanguageLocal(code);
+              await LocalStorage.setLanguageLocal(item);
               ref.invalidate(languageLocalProvider);
-              ref.read(menuProvider.notifier).getProducts();
             },
           );
         } else {
-          showDoneSnackBar(context: context, message: '${S.current.current_language_use} [$title]');
+          showDoneSnackBar(
+              context: context,
+              message: '${S.current.current_language_use} [${title ?? item.title}]');
         }
       },
     );

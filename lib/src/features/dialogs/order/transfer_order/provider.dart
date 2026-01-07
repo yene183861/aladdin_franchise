@@ -10,13 +10,7 @@ final transferOrderProvider =
 });
 
 class TransferOrderNotifier extends StateNotifier<TransferOrderState> {
-  TransferOrderNotifier()
-      : super(const TransferOrderState(
-          tableSelects: [],
-          waiterSelect: null,
-          searchWaiter: '',
-          initTableCurrent: false,
-        ));
+  TransferOrderNotifier() : super(const TransferOrderState());
 
   void updateTableSelect(TableModel table) {
     var tableSelects = List<TableModel>.from(state.tableSelects);
@@ -40,7 +34,7 @@ class TransferOrderNotifier extends StateNotifier<TransferOrderState> {
     state = state.copyWith(initTableCurrent: true);
   }
 
-  void onChangeTabIndexSelect(int value) {
-    state = state.copyWith(tabIndexSelect: value);
+  void onChangeTabSelect(TransferOrderTabEnum value) {
+    state = state.copyWith(tabSelect: value);
   }
 }
