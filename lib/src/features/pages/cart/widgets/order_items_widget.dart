@@ -2,6 +2,8 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/widgets/dialog/confirm_add_items.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/locked_order_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_detail.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_tab_widget.dart';
@@ -9,7 +11,11 @@ import 'package:aladdin_franchise/src/features/pages/home/components/order/order
 
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
+import 'package:aladdin_franchise/src/features/pages/order_to_online/components/custom_checkbox.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
+import 'package:aladdin_franchise/src/features/widgets/image.dart';
+import 'package:aladdin_franchise/src/models/product.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -77,21 +83,29 @@ class OrderItemsWidget extends ConsumerWidget {
                         const Expanded(child: KitchenNoteWidget()),
                         Consumer(
                           builder: (mContext, ref, child) {
-                            var productsSelecting =
-                                ref.watch(homeProvider.select((value) => value.productsSelecting));
+                            // var productsSelecting =
+                            //     ref.watch(homeProvider.select((value) => value.productsSelecting));
+                            var productsSelecting = ref
+                                .watch(cartPageProvider.select((value) => value.productsSelecting));
                             if (productsSelecting.isEmpty) {
                               return const SizedBox.shrink();
                             }
                             return InkWell(
                               onTap: () async {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return ConfirmOrderPrinterDialog();
+                                  },
+                                );
                                 // var locked =
                                 //     ref.read(homeProvider).lockedOrder;
-                                var res =
-                                    await ref.read(homeProvider.notifier).addItemsToOrder(context);
-                                if (res != null && context.mounted) {
-                                  showMessageDialog(context, message: res);
-                                  return;
-                                }
+                                // var res =
+                                //     await ref.read(homeProvider.notifier).addItemsToOrder(context);
+                                // if (res != null && context.mounted) {
+                                //   showMessageDialog(context, message: res);
+                                //   return;
+                                // }
                               },
                               borderRadius: AppConfig.borderRadiusSecond,
                               child: Container(

@@ -1,21 +1,21 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'ip_order.dart';
+part of 'printer.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$IpOrderModelImpl _$$IpOrderModelImplFromJson(Map<String, dynamic> json) =>
-    _$IpOrderModelImpl(
-      ip: json['ip'] as String,
-      port: (json['port'] as num).toInt(),
+_$PrinterModelImpl _$$PrinterModelImplFromJson(Map<String, dynamic> json) =>
+    _$PrinterModelImpl(
+      ip: json['ip'] as String?,
+      port: (json['port'] as num?)?.toInt(),
       type: (json['type'] as num?)?.toInt() ?? 1,
       name: json['name'] as String? ?? 'Máy in',
       typeAreaLocation: (json['type_area_location'] as num?)?.toInt() ?? 1,
     );
 
-Map<String, dynamic> _$$IpOrderModelImplToJson(_$IpOrderModelImpl instance) =>
+Map<String, dynamic> _$$PrinterModelImplToJson(_$PrinterModelImpl instance) =>
     <String, dynamic>{
       'ip': instance.ip,
       'port': instance.port,

@@ -5,7 +5,7 @@ import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'components/order_items_widget.dart';
+import 'widgets/order_items_widget.dart';
 
 class CartPage extends ConsumerWidget {
   const CartPage({super.key});

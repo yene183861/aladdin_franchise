@@ -28,7 +28,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-import 'components/barrel_component.dart';
+import 'widgets/list_category.dart';
+import 'widgets/list_product.dart';
+import 'widgets/list_tag.dart';
+import 'widgets/search_dish.dart';
 
 class MenuPage extends ConsumerStatefulWidget {
   const MenuPage({super.key});
@@ -218,7 +221,7 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
             alignment: Alignment.centerLeft,
             child: Text(
-              cate.title,
+              cate.getNameView(),
               style: AppTextStyle.bold(),
             ),
           ),
@@ -233,7 +236,7 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                 crossAxisSpacing: 10,
                 childAspectRatio: 0.8,
               ),
-              itemBuilder: (context, index) => ProductBoxWidget(product: categoryProducts[index]),
+              itemBuilder: (context, index) => ProductBox(product: categoryProducts[index]),
               itemCount: categoryProducts.length,
             ),
           ));
@@ -250,7 +253,7 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  key.title,
+                  key.getNameView(),
                   style: AppTextStyle.bold(),
                 ),
               ),
@@ -264,7 +267,7 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                   crossAxisSpacing: 10,
                   childAspectRatio: 0.8,
                 ),
-                itemBuilder: (context, index) => ProductBoxWidget(product: value[index]),
+                itemBuilder: (context, index) => ProductBox(product: value[index]),
                 itemCount: value.length,
               ),
             ));

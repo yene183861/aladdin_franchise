@@ -33,6 +33,7 @@ class AppTextFormField extends StatelessWidget {
   final FocusNode? focusNode;
   final int? maxLines;
   final TextAlign textAlign;
+  final Color? fillColor;
 
   const AppTextFormField({
     Key? key,
@@ -61,6 +62,7 @@ class AppTextFormField extends StatelessWidget {
     this.focusNode,
     this.maxLines,
     this.textAlign = TextAlign.start,
+    this.fillColor,
   }) : super(key: key);
 
   @override
@@ -83,6 +85,8 @@ class AppTextFormField extends StatelessWidget {
       maxLength: maxLength,
       textAlign: textAlign,
       decoration: InputDecoration(
+        fillColor: fillColor,
+        filled: true,
         counter: const SizedBox.shrink(),
         contentPadding: contentPadding,
         errorStyle: AppTextStyle.regular(color: AppColors.redColor),
@@ -118,7 +122,8 @@ class AppTextFormField extends StatelessWidget {
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
         hintStyle: AppTextStyle.regular(
-            rawFontSize: AppConfig.defaultRawTextSize - 1.5, color: AppColors.tcHintText),
+            rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+            color: AppColors.tcHintText),
       ),
       onChanged: (value) {
         onChanged?.call(value);

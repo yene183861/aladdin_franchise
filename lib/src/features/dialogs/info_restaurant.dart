@@ -144,6 +144,7 @@ class InfoRestaurantWidget extends ConsumerWidget {
                                 ref
                                     .read(homeProvider.notifier)
                                     .syncInfoCustomerPage(method: WindowsMethodEnum.language);
+                                ref.refresh(customerLanguageLocalProvider);
                               },
                             );
                           } else {

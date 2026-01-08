@@ -268,6 +268,7 @@ class OrderRepositoryImpl extends OrderRepository {
         return _client.post(url, body: body);
       },
       ignoreCheckStatus: true,
+      ignoreResponse: true,
       parser: (json) {
         if (int.tryParse(json) != 1) {
           /// 200 - nhưng response k phải 1

@@ -12,7 +12,7 @@ import 'package:aladdin_franchise/src/data/model/table_layout_setting.dart';
 import 'package:aladdin_franchise/src/features/common/process_state.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
-import 'package:aladdin_franchise/src/features/pages/cart/components/order_items_widget.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/widgets/order_items_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/custom_checkbox.dart';

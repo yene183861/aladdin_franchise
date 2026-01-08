@@ -2,7 +2,7 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/menu/components/list_product.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/widgets/list_product.dart';
 import 'package:aladdin_franchise/src/models/data_bill.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/text_util.dart';

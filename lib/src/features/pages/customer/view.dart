@@ -214,6 +214,9 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
         case WindowsMethodEnum.closeApp:
           widget.windowController?.close();
           return;
+        case WindowsMethodEnum.data:
+          ref.read(customerPageProvider.notifier).init(data);
+          return;
         case WindowsMethodEnum.order:
           var value = data == null ? null : OrderModel.fromJson(data);
           var oldOrder = ref.read(customerPageProvider).order;

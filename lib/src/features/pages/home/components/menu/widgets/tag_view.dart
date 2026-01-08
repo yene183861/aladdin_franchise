@@ -27,7 +27,7 @@ class TagViewWidget extends StatelessWidget {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       child: Text(
-        tag.name,
+        tag.getNameView(),
         style: AppTextStyle.regular(
           rawFontSize: 12,
           fontWeight: FontWeight.bold,

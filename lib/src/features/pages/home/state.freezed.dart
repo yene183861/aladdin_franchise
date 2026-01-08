@@ -223,6 +223,8 @@ mixin _$HomeState {
   List<ChatMessageModel> get chatMessages => throw _privateConstructorUsedError;
   PageState get getChatMessageState => throw _privateConstructorUsedError;
   DiscountTypeEnum get discountTypeSelect => throw _privateConstructorUsedError;
+  List<PrinterModel> get printers => throw _privateConstructorUsedError;
+  PageState get printerState => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $HomeStateCopyWith<HomeState> get copyWith =>
@@ -283,7 +285,9 @@ abstract class $HomeStateCopyWith<$Res> {
       List<OrderHistory> orderHistory,
       List<ChatMessageModel> chatMessages,
       PageState getChatMessageState,
-      DiscountTypeEnum discountTypeSelect});
+      DiscountTypeEnum discountTypeSelect,
+      List<PrinterModel> printers,
+      PageState printerState});
 
   $OrderModelCopyWith<$Res>? get orderSelect;
   $PageStateCopyWith<$Res> get productCheckoutState;
@@ -301,6 +305,7 @@ abstract class $HomeStateCopyWith<$Res> {
   $PageStateCopyWith<$Res> get dataBillState;
   $CustomerPortraitCopyWith<$Res>? get customerPortraitSelect;
   $PageStateCopyWith<$Res> get getChatMessageState;
+  $PageStateCopyWith<$Res> get printerState;
 }
 
 /// @nodoc
@@ -365,6 +370,8 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? chatMessages = null,
     Object? getChatMessageState = null,
     Object? discountTypeSelect = null,
+    Object? printers = null,
+    Object? printerState = null,
   }) {
     return _then(_value.copyWith(
       event: null == event
@@ -563,6 +570,14 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.discountTypeSelect
           : discountTypeSelect // ignore: cast_nullable_to_non_nullable
               as DiscountTypeEnum,
+      printers: null == printers
+          ? _value.printers
+          : printers // ignore: cast_nullable_to_non_nullable
+              as List<PrinterModel>,
+      printerState: null == printerState
+          ? _value.printerState
+          : printerState // ignore: cast_nullable_to_non_nullable
+              as PageState,
     ) as $Val);
   }
 
@@ -722,6 +737,14 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
       return _then(_value.copyWith(getChatMessageState: value) as $Val);
     });
   }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $PageStateCopyWith<$Res> get printerState {
+    return $PageStateCopyWith<$Res>(_value.printerState, (value) {
+      return _then(_value.copyWith(printerState: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -781,7 +804,9 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       List<OrderHistory> orderHistory,
       List<ChatMessageModel> chatMessages,
       PageState getChatMessageState,
-      DiscountTypeEnum discountTypeSelect});
+      DiscountTypeEnum discountTypeSelect,
+      List<PrinterModel> printers,
+      PageState printerState});
 
   @override
   $OrderModelCopyWith<$Res>? get orderSelect;
@@ -815,6 +840,8 @@ abstract class _$$HomeStateImplCopyWith<$Res>
   $CustomerPortraitCopyWith<$Res>? get customerPortraitSelect;
   @override
   $PageStateCopyWith<$Res> get getChatMessageState;
+  @override
+  $PageStateCopyWith<$Res> get printerState;
 }
 
 /// @nodoc
@@ -877,6 +904,8 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? chatMessages = null,
     Object? getChatMessageState = null,
     Object? discountTypeSelect = null,
+    Object? printers = null,
+    Object? printerState = null,
   }) {
     return _then(_$HomeStateImpl(
       event: null == event
@@ -1075,6 +1104,14 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.discountTypeSelect
           : discountTypeSelect // ignore: cast_nullable_to_non_nullable
               as DiscountTypeEnum,
+      printers: null == printers
+          ? _value._printers
+          : printers // ignore: cast_nullable_to_non_nullable
+              as List<PrinterModel>,
+      printerState: null == printerState
+          ? _value.printerState
+          : printerState // ignore: cast_nullable_to_non_nullable
+              as PageState,
     ));
   }
 }
@@ -1135,7 +1172,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       final List<ChatMessageModel> chatMessages = const [],
       this.getChatMessageState =
           const PageState(status: PageCommonState.loading),
-      this.discountTypeSelect = DiscountTypeEnum.vnd})
+      this.discountTypeSelect = DiscountTypeEnum.vnd,
+      final List<PrinterModel> printers = const [],
+      this.printerState = const PageState(status: PageCommonState.loading)})
       : _productsSelecting = productsSelecting,
         _productsSelected = productsSelected,
         _productCheckout = productCheckout,
@@ -1147,7 +1186,8 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         _imageBills = imageBills,
         _orderTabs = orderTabs,
         _orderHistory = orderHistory,
-        _chatMessages = chatMessages;
+        _chatMessages = chatMessages,
+        _printers = printers;
 
   @override
   @JsonKey()
@@ -1370,10 +1410,22 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final DiscountTypeEnum discountTypeSelect;
+  final List<PrinterModel> _printers;
+  @override
+  @JsonKey()
+  List<PrinterModel> get printers {
+    if (_printers is EqualUnmodifiableListView) return _printers;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_printers);
+  }
+
+  @override
+  @JsonKey()
+  final PageState printerState;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productsSelecting: $productsSelecting, productsSelected: $productsSelected, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, completeNote: $completeNote, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, displayOrderHistory: $displayOrderHistory, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, discountTypeSelect: $discountTypeSelect)';
+    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productsSelecting: $productsSelecting, productsSelected: $productsSelected, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, completeNote: $completeNote, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, displayOrderHistory: $displayOrderHistory, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, discountTypeSelect: $discountTypeSelect, printers: $printers, printerState: $printerState)';
   }
 
   @override
@@ -1430,7 +1482,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       ..add(DiagnosticsProperty('orderHistory', orderHistory))
       ..add(DiagnosticsProperty('chatMessages', chatMessages))
       ..add(DiagnosticsProperty('getChatMessageState', getChatMessageState))
-      ..add(DiagnosticsProperty('discountTypeSelect', discountTypeSelect));
+      ..add(DiagnosticsProperty('discountTypeSelect', discountTypeSelect))
+      ..add(DiagnosticsProperty('printers', printers))
+      ..add(DiagnosticsProperty('printerState', printerState));
   }
 
   @override
@@ -1529,7 +1583,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
                 .equals(other._chatMessages, _chatMessages) &&
             (identical(other.getChatMessageState, getChatMessageState) ||
                 other.getChatMessageState == getChatMessageState) &&
-            (identical(other.discountTypeSelect, discountTypeSelect) || other.discountTypeSelect == discountTypeSelect));
+            (identical(other.discountTypeSelect, discountTypeSelect) || other.discountTypeSelect == discountTypeSelect) &&
+            const DeepCollectionEquality().equals(other._printers, _printers) &&
+            (identical(other.printerState, printerState) || other.printerState == printerState));
   }
 
   @override
@@ -1583,7 +1639,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         const DeepCollectionEquality().hash(_orderHistory),
         const DeepCollectionEquality().hash(_chatMessages),
         getChatMessageState,
-        discountTypeSelect
+        discountTypeSelect,
+        const DeepCollectionEquality().hash(_printers),
+        printerState
       ]);
 
   @JsonKey(ignore: true)
@@ -1643,7 +1701,9 @@ abstract class _HomeState implements HomeState {
       final List<OrderHistory> orderHistory,
       final List<ChatMessageModel> chatMessages,
       final PageState getChatMessageState,
-      final DiscountTypeEnum discountTypeSelect}) = _$HomeStateImpl;
+      final DiscountTypeEnum discountTypeSelect,
+      final List<PrinterModel> printers,
+      final PageState printerState}) = _$HomeStateImpl;
 
   @override
   HomeEvent get event;
@@ -1747,6 +1807,10 @@ abstract class _HomeState implements HomeState {
   PageState get getChatMessageState;
   @override
   DiscountTypeEnum get discountTypeSelect;
+  @override
+  List<PrinterModel> get printers;
+  @override
+  PageState get printerState;
   @override
   @JsonKey(ignore: true)
   _$$HomeStateImplCopyWith<_$HomeStateImpl> get copyWith =>

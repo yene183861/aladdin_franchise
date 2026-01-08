@@ -2,12 +2,13 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/data/enum/status.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/menu/components/barrel_component.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/tag_product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'list_product.dart';
 
 class ListTagsWidget extends ConsumerWidget {
   const ListTagsWidget({super.key});
@@ -77,7 +78,7 @@ class _SubTagSelectWidget extends ConsumerWidget {
         ),
         alignment: Alignment.center,
         child: Text(
-          tag.name,
+          tag.getNameView(),
           style: AppTextStyle.regular(
             color: active ? AppColors.white : null,
             rawFontSize: AppConfig.defaultRawTextSize - 1.5,

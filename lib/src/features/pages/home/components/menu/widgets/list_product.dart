@@ -3,23 +3,21 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/detail_product.dart';
-import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/menu/components/tag_view.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/widgets/tag_view.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/tag_product.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 
-class ProductBoxWidget extends ConsumerWidget {
-  const ProductBoxWidget({super.key, required this.product});
+class ProductBox extends ConsumerWidget {
+  const ProductBox({super.key, required this.product});
   final ProductModel product;
 
   @override
@@ -70,7 +68,7 @@ class ProductBoxWidget extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
-                     product.getNameView(),
+                    product.getNameView(),
                     style: AppTextStyle.bold(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -88,7 +86,7 @@ class ProductBoxWidget extends ConsumerWidget {
                     ),
                     children: [
                       TextSpan(
-                        text: " / ${product.unit.trim()}",
+                        text: " / ${product.getUnitView().trim()}",
                         style: AppTextStyle.regular(
                           color: Colors.grey,
                           rawFontSize: AppConfig.defaultRawTextSize - 1.0,
@@ -179,6 +177,7 @@ class ProductOutOfStockCircleWidget extends StatelessWidget {
               fontWeight: FontWeight.w600,
               color: Colors.white,
             ),
+            textAlign: TextAlign.center,
           ),
         ),
       ),

@@ -16,7 +16,7 @@ import 'package:aladdin_franchise/src/features/dialogs/processing.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/view.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/action/btn_o2o.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/menu/components/list_tag.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/widgets/list_tag.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_detail.dart';
 
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -51,8 +51,8 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 
 import 'components/action/btn_refresh_data.dart';
 import 'components/action/history_order.dart';
-import 'components/menu/components/list_category.dart';
-import 'components/menu/components/list_product.dart';
+import 'components/menu/widgets/list_category.dart';
+import 'components/menu/widgets/list_product.dart';
 import 'components/action/type_order.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:badges/badges.dart' as badge_lib;

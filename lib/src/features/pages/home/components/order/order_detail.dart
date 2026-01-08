@@ -14,7 +14,7 @@ import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/order/order_option_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/reason_cancel_item.dart';
-import 'package:aladdin_franchise/src/features/pages/cart/components/order_items_widget.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/widgets/order_items_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';

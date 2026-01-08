@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'ip_order.dart';
+part of 'printer.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -14,37 +14,45 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-IpOrderModel _$IpOrderModelFromJson(Map<String, dynamic> json) {
-  return _IpOrderModel.fromJson(json);
+PrinterModel _$PrinterModelFromJson(Map<String, dynamic> json) {
+  return _PrinterModel.fromJson(json);
 }
 
 /// @nodoc
-mixin _$IpOrderModel {
-  String get ip => throw _privateConstructorUsedError;
-  int get port => throw _privateConstructorUsedError;
+mixin _$PrinterModel {
+  String? get ip => throw _privateConstructorUsedError;
+  int? get port => throw _privateConstructorUsedError;
   int get type => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   int get typeAreaLocation => throw _privateConstructorUsedError;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool get pingStatus => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $IpOrderModelCopyWith<IpOrderModel> get copyWith =>
+  $PrinterModelCopyWith<PrinterModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $IpOrderModelCopyWith<$Res> {
-  factory $IpOrderModelCopyWith(
-          IpOrderModel value, $Res Function(IpOrderModel) then) =
-      _$IpOrderModelCopyWithImpl<$Res, IpOrderModel>;
+abstract class $PrinterModelCopyWith<$Res> {
+  factory $PrinterModelCopyWith(
+          PrinterModel value, $Res Function(PrinterModel) then) =
+      _$PrinterModelCopyWithImpl<$Res, PrinterModel>;
   @useResult
-  $Res call({String ip, int port, int type, String name, int typeAreaLocation});
+  $Res call(
+      {String? ip,
+      int? port,
+      int type,
+      String name,
+      int typeAreaLocation,
+      @JsonKey(includeFromJson: false, includeToJson: false) bool pingStatus});
 }
 
 /// @nodoc
-class _$IpOrderModelCopyWithImpl<$Res, $Val extends IpOrderModel>
-    implements $IpOrderModelCopyWith<$Res> {
-  _$IpOrderModelCopyWithImpl(this._value, this._then);
+class _$PrinterModelCopyWithImpl<$Res, $Val extends PrinterModel>
+    implements $PrinterModelCopyWith<$Res> {
+  _$PrinterModelCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
@@ -54,21 +62,22 @@ class _$IpOrderModelCopyWithImpl<$Res, $Val extends IpOrderModel>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? ip = null,
-    Object? port = null,
+    Object? ip = freezed,
+    Object? port = freezed,
     Object? type = null,
     Object? name = null,
     Object? typeAreaLocation = null,
+    Object? pingStatus = null,
   }) {
     return _then(_value.copyWith(
-      ip: null == ip
+      ip: freezed == ip
           ? _value.ip
           : ip // ignore: cast_nullable_to_non_nullable
-              as String,
-      port: null == port
+              as String?,
+      port: freezed == port
           ? _value.port
           : port // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
@@ -81,47 +90,58 @@ class _$IpOrderModelCopyWithImpl<$Res, $Val extends IpOrderModel>
           ? _value.typeAreaLocation
           : typeAreaLocation // ignore: cast_nullable_to_non_nullable
               as int,
+      pingStatus: null == pingStatus
+          ? _value.pingStatus
+          : pingStatus // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$$IpOrderModelImplCopyWith<$Res>
-    implements $IpOrderModelCopyWith<$Res> {
-  factory _$$IpOrderModelImplCopyWith(
-          _$IpOrderModelImpl value, $Res Function(_$IpOrderModelImpl) then) =
-      __$$IpOrderModelImplCopyWithImpl<$Res>;
+abstract class _$$PrinterModelImplCopyWith<$Res>
+    implements $PrinterModelCopyWith<$Res> {
+  factory _$$PrinterModelImplCopyWith(
+          _$PrinterModelImpl value, $Res Function(_$PrinterModelImpl) then) =
+      __$$PrinterModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String ip, int port, int type, String name, int typeAreaLocation});
+  $Res call(
+      {String? ip,
+      int? port,
+      int type,
+      String name,
+      int typeAreaLocation,
+      @JsonKey(includeFromJson: false, includeToJson: false) bool pingStatus});
 }
 
 /// @nodoc
-class __$$IpOrderModelImplCopyWithImpl<$Res>
-    extends _$IpOrderModelCopyWithImpl<$Res, _$IpOrderModelImpl>
-    implements _$$IpOrderModelImplCopyWith<$Res> {
-  __$$IpOrderModelImplCopyWithImpl(
-      _$IpOrderModelImpl _value, $Res Function(_$IpOrderModelImpl) _then)
+class __$$PrinterModelImplCopyWithImpl<$Res>
+    extends _$PrinterModelCopyWithImpl<$Res, _$PrinterModelImpl>
+    implements _$$PrinterModelImplCopyWith<$Res> {
+  __$$PrinterModelImplCopyWithImpl(
+      _$PrinterModelImpl _value, $Res Function(_$PrinterModelImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? ip = null,
-    Object? port = null,
+    Object? ip = freezed,
+    Object? port = freezed,
     Object? type = null,
     Object? name = null,
     Object? typeAreaLocation = null,
+    Object? pingStatus = null,
   }) {
-    return _then(_$IpOrderModelImpl(
-      ip: null == ip
+    return _then(_$PrinterModelImpl(
+      ip: freezed == ip
           ? _value.ip
           : ip // ignore: cast_nullable_to_non_nullable
-              as String,
-      port: null == port
+              as String?,
+      port: freezed == port
           ? _value.port
           : port // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
@@ -134,6 +154,10 @@ class __$$IpOrderModelImplCopyWithImpl<$Res>
           ? _value.typeAreaLocation
           : typeAreaLocation // ignore: cast_nullable_to_non_nullable
               as int,
+      pingStatus: null == pingStatus
+          ? _value.pingStatus
+          : pingStatus // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -141,22 +165,24 @@ class __$$IpOrderModelImplCopyWithImpl<$Res>
 /// @nodoc
 
 @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
-class _$IpOrderModelImpl extends _IpOrderModel with DiagnosticableTreeMixin {
-  const _$IpOrderModelImpl(
-      {required this.ip,
-      required this.port,
+class _$PrinterModelImpl extends _PrinterModel {
+  const _$PrinterModelImpl(
+      {this.ip,
+      this.port,
       this.type = 1,
       this.name = 'Máy in',
-      this.typeAreaLocation = 1})
+      this.typeAreaLocation = 1,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      this.pingStatus = true})
       : super._();
 
-  factory _$IpOrderModelImpl.fromJson(Map<String, dynamic> json) =>
-      _$$IpOrderModelImplFromJson(json);
+  factory _$PrinterModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$PrinterModelImplFromJson(json);
 
   @override
-  final String ip;
+  final String? ip;
   @override
-  final int port;
+  final int? port;
   @override
   @JsonKey()
   final int type;
@@ -166,72 +192,67 @@ class _$IpOrderModelImpl extends _IpOrderModel with DiagnosticableTreeMixin {
   @override
   @JsonKey()
   final int typeAreaLocation;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final bool pingStatus;
 
   @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'IpOrderModel(ip: $ip, port: $port, type: $type, name: $name, typeAreaLocation: $typeAreaLocation)';
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'IpOrderModel'))
-      ..add(DiagnosticsProperty('ip', ip))
-      ..add(DiagnosticsProperty('port', port))
-      ..add(DiagnosticsProperty('type', type))
-      ..add(DiagnosticsProperty('name', name))
-      ..add(DiagnosticsProperty('typeAreaLocation', typeAreaLocation));
+  String toString() {
+    return 'PrinterModel(ip: $ip, port: $port, type: $type, name: $name, typeAreaLocation: $typeAreaLocation, pingStatus: $pingStatus)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$IpOrderModelImpl &&
+            other is _$PrinterModelImpl &&
             (identical(other.ip, ip) || other.ip == ip) &&
             (identical(other.port, port) || other.port == port) &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.typeAreaLocation, typeAreaLocation) ||
-                other.typeAreaLocation == typeAreaLocation));
+                other.typeAreaLocation == typeAreaLocation) &&
+            (identical(other.pingStatus, pingStatus) ||
+                other.pingStatus == pingStatus));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, ip, port, type, name, typeAreaLocation);
+  int get hashCode => Object.hash(
+      runtimeType, ip, port, type, name, typeAreaLocation, pingStatus);
 
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$IpOrderModelImplCopyWith<_$IpOrderModelImpl> get copyWith =>
-      __$$IpOrderModelImplCopyWithImpl<_$IpOrderModelImpl>(this, _$identity);
+  _$$PrinterModelImplCopyWith<_$PrinterModelImpl> get copyWith =>
+      __$$PrinterModelImplCopyWithImpl<_$PrinterModelImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$IpOrderModelImplToJson(
+    return _$$PrinterModelImplToJson(
       this,
     );
   }
 }
 
-abstract class _IpOrderModel extends IpOrderModel {
-  const factory _IpOrderModel(
-      {required final String ip,
-      required final int port,
+abstract class _PrinterModel extends PrinterModel {
+  const factory _PrinterModel(
+      {final String? ip,
+      final int? port,
       final int type,
       final String name,
-      final int typeAreaLocation}) = _$IpOrderModelImpl;
-  const _IpOrderModel._() : super._();
+      final int typeAreaLocation,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      final bool pingStatus}) = _$PrinterModelImpl;
+  const _PrinterModel._() : super._();
 
-  factory _IpOrderModel.fromJson(Map<String, dynamic> json) =
-      _$IpOrderModelImpl.fromJson;
+  factory _PrinterModel.fromJson(Map<String, dynamic> json) =
+      _$PrinterModelImpl.fromJson;
 
   @override
-  String get ip;
+  String? get ip;
   @override
-  int get port;
+  int? get port;
   @override
   int get type;
   @override
@@ -239,7 +260,10 @@ abstract class _IpOrderModel extends IpOrderModel {
   @override
   int get typeAreaLocation;
   @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool get pingStatus;
+  @override
   @JsonKey(ignore: true)
-  _$$IpOrderModelImplCopyWith<_$IpOrderModelImpl> get copyWith =>
+  _$$PrinterModelImplCopyWith<_$PrinterModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

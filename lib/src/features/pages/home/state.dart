@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:aladdin_franchise/src/core/network/repository/responses/data_bill.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
+import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/models/atm_pos.dart';
 import 'package:aladdin_franchise/src/models/category.dart';
 import 'package:aladdin_franchise/src/models/customer/cusomter_portrait.dart';
@@ -190,5 +191,7 @@ class HomeState with _$HomeState {
     @Default([]) List<ChatMessageModel> chatMessages,
     @Default(PageState(status: PageCommonState.loading)) PageState getChatMessageState,
     @Default(DiscountTypeEnum.vnd) DiscountTypeEnum discountTypeSelect,
+    @Default([]) List<PrinterModel> printers,
+    @Default(PageState(status: PageCommonState.loading)) PageState printerState,
   }) = _HomeState;
 }

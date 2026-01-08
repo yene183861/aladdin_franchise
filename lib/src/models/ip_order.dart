@@ -12,10 +12,10 @@ class IpOrderModel with _$IpOrderModel {
     required int port,
     @Default(1) int type,
     @Default('Máy in') String name,
+    @Default(1) int typeAreaLocation,
   }) = _IpOrderModel;
 
-  factory IpOrderModel.fromJson(Map<String, dynamic> json) =>
-      _$IpOrderModelFromJson(json);
+  factory IpOrderModel.fromJson(Map<String, dynamic> json) => _$IpOrderModelFromJson(json);
 
   static String getModelInterface() {
     return '''required String ip,

@@ -12,7 +12,7 @@ import 'package:aladdin_franchise/src/features/dialogs/create_invoice_order_dial
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
-import 'package:aladdin_franchise/src/features/pages/cart/components/product_checkout_action.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/widgets/product_checkout_action.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/feature_button_group.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/price_order_widget.dart';
