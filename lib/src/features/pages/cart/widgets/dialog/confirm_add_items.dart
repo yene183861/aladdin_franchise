@@ -6,20 +6,17 @@ import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 
 import 'package:aladdin_franchise/src/features/pages/order_to_online/components/custom_checkbox.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
+import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-class Printer {
-  final String id;
-  final String name;
-
-  Printer({required this.id, required this.name});
-}
 
 class ConfirmOrderPrinterDialog extends ConsumerWidget {
   const ConfirmOrderPrinterDialog({super.key});
@@ -71,22 +68,56 @@ class _AddOrderSheetState extends ConsumerState<AddOrderSheet> {
                 children: [
                   Gap(16),
                   Row(
-                    children: const [
+                    children: [
                       Gap(20),
                       Icon(Icons.list_alt_outlined),
                       SizedBox(width: 8),
-                      Text(
-                        'Danh sách món',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                      Expanded(
+                        child: Text(
+                          'Danh sách món',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
                       ),
+                      // CustomCheckbox(
+                      //   onChange: () {},
+                      // ),
+                      // Text('Chọn tất cả'),
+                      // Gap(20),
                     ],
                   ),
-                  Expanded(child: _buildListProductAddOn(ref)),
+                  Expanded(child: Consumer(
+                    builder: (context, ref, child) {
+                      var items = ref.watch(cartPageProvider
+                          .select((value) => value.productsSelecting));
+                      return ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 16),
+                        itemBuilder: (context, index) {
+                          var data = items[index];
+                          return _ProductLine(product: data);
+                        },
+                        itemCount: items.length,
+                      );
+                    },
+                  )),
                 ],
               )),
-              VerticalDivider(width: 1),
-              PrinterDialog(current: null),
+              Consumer(
+                builder: (context, ref, child) {
+                  var show = ref.watch(cartPageProvider
+                      .select((value) => value.showPrinterSetupPanel));
+                  if (show) {
+                    return Row(
+                      children: [
+                        VerticalDivider(width: 1),
+                        PrinterDialog(current: null),
+                      ],
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
             ],
           )),
           // const Divider(),
@@ -121,77 +152,102 @@ class _AddOrderSheetState extends ConsumerState<AddOrderSheet> {
     );
   }
 
-  Widget _buildListProductAddOn(WidgetRef ref) {
-    var items =
-        ref.watch(cartPageProvider.select((value) => value.productsSelecting));
-
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      itemBuilder: (context, index) => _ItemLine(product: items[index]),
-      itemCount: items.length,
-    );
-  }
-
   // BOTTOM BAR
   Widget _buildBottomBar() {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: () async {
-              final printer = await showPrinterDialog(
-                context,
-                selectedPrinter,
-              );
-              if (printer != null) {
-                setState(() => selectedPrinter = printer);
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
-                color: Colors.white,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.print_outlined, size: 16),
-                  const SizedBox(width: 6),
-                  Text(
-                    selectedPrinter?.name ?? 'Print',
-                    style: const TextStyle(fontSize: 13),
-                  ),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.expand_more, size: 16),
-                ],
-              ),
-            ),
+          Text(
+            'Tổng: ',
+            style: AppTextStyle.regular(color: Colors.grey.shade500),
           ),
+          Consumer(
+            builder: (context, ref, child) {
+              var productIdSelect = ref.watch(
+                  cartPageProvider.select((value) => value.productIdSelect));
+              var productsSelecting = ref.watch(
+                  cartPageProvider.select((value) => value.productsSelecting));
+              double total = 0;
+              for (var i in productIdSelect) {
+                var p = productsSelecting.firstWhereOrNull((e) => e.id == i);
+                total +=
+                    (p?.getUnitPriceNum() ?? 0.0) * (p?.numberSelecting ?? 0);
+              }
+              return Text(
+                AppUtils.formatCurrency(
+                  symbol: 'đ',
+                  value: total,
+                ),
+                style: AppTextStyle.bold(
+                  color: AppColors.mainColor,
+                  rawFontSize: AppConfig.defaultRawTextSize + 1.0,
+                ),
+              );
+            },
+          ),
+          // InkWell(
+          //   borderRadius: BorderRadius.circular(20),
+          //   onTap: () async {
+          //     final printer = await showPrinterDialog(
+          //       context,
+          //       selectedPrinter,
+          //     );
+          //     if (printer != null) {
+          //       setState(() => selectedPrinter = printer);
+          //     }
+          //   },
+          //   child: Container(
+          //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          //     decoration: BoxDecoration(
+          //       borderRadius: BorderRadius.circular(12),
+          //       border: Border.all(color: Colors.grey.shade300),
+          //       color: Colors.white,
+          //     ),
+          //     child: Row(
+          //       mainAxisSize: MainAxisSize.min,
+          //       children: [
+          //         const Icon(Icons.print_outlined, size: 16),
+          //         const SizedBox(width: 6),
+          //         Text(
+          //           selectedPrinter?.name ?? 'Print',
+          //           style: const TextStyle(fontSize: 13),
+          //         ),
+          //         const SizedBox(width: 4),
+          //         const Icon(Icons.expand_more, size: 16),
+          //       ],
+          //     ),
+          //   ),
+          // ),
           // _buildQuantity(),
           const SizedBox(width: 16),
+          Spacer(),
+          ButtonCancelWidget(),
+          const Gap(12),
           Expanded(
-            child: ElevatedButton(
-              onPressed:
-                  // selectedAddOn == null
-                  //     ?
-                  null,
-              // : () {
-              //     // handle add to cart
-              //   },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                'Add to Cart • \$${totalPrice.toStringAsFixed(2)}',
-              ),
+            child: AppButton(
+              textAction: 'Thêm vào đơn',
+              onPressed: () {},
+              color: Color.fromARGB(255, 57, 132, 194),
             ),
+            // ElevatedButton(
+            //   onPressed: () {},
+            //   // selectedAddOn == null
+            //   //     ?
+            //   // null,
+            //   // : () {
+            //   //     // handle add to cart
+            //   //   },
+            //   style: ElevatedButton.styleFrom(
+            //     padding: const EdgeInsets.symmetric(vertical: 14),
+            //     shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(12),
+            //     ),
+            //   ),
+            //   child: Text(
+            //     'Thêm vào đơn',
+            //   ),
+            // ),
           ),
         ],
       ),
@@ -221,15 +277,15 @@ class _AddOrderSheetState extends ConsumerState<AddOrderSheet> {
   }
 }
 
-class _ItemLine extends StatefulWidget {
-  const _ItemLine({super.key, required this.product});
+class _ProductLine extends ConsumerStatefulWidget {
+  const _ProductLine({super.key, required this.product});
   final ProductModel product;
 
   @override
-  State<_ItemLine> createState() => __ItemLineState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __ProductLineState();
 }
 
-class __ItemLineState extends State<_ItemLine> {
+class __ProductLineState extends ConsumerState<_ProductLine> {
   bool showNote = false;
 
   void onChangeShowNote() {
@@ -241,199 +297,262 @@ class __ItemLineState extends State<_ItemLine> {
   @override
   Widget build(BuildContext context) {
     var item = widget.product;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              CustomCheckbox(
-                onChange: () {},
-                checked: true,
-              ),
-              AppImageCacheNetworkWidget(
-                imageUrl: item.image ?? '',
-                width: 70,
-                height: 70,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              const Gap(12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.getNameView(),
-                      style: AppTextStyle.bold(
-                          rawFontSize: AppConfig.defaultRawTextSize + 0.5),
-                    ),
-                    const Gap(4),
-                    Wrap(
-                      spacing: 4,
-                      children: [
-                        Text(
-                          AppUtils.formatCurrency(
-                              symbol: 'đ', value: item.unitPrice),
-                          style:
-                              AppTextStyle.regular(color: AppColors.redColor),
-                        ),
-                        Text(
-                          '/',
-                          style: AppTextStyle.light(color: Colors.grey),
-                        ),
-                        Text(
-                          item.getUnitView(),
-                          style: AppTextStyle.light(color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                  ],
+    var selected = ref
+        .watch(cartPageProvider.select((value) => value.productIdSelect))
+        .contains(item.id);
+    var productMap =
+        ref.watch(cartPageProvider.select((value) => value.productMap));
+    var printers = (productMap[item.id]?['printers'] ?? <PrinterModel>{})
+        as Set<PrinterModel>;
+    return InkWell(
+      onTap: () {
+        ref
+            .read(cartPageProvider.notifier)
+            .onChangeProductIdSelect(item.id, !selected);
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: selected
+                  ? Colors.blue.withOpacity(0.6)
+                  : Colors.black.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                CustomCheckbox(
+                  onChange: () {
+                    ref
+                        .read(cartPageProvider.notifier)
+                        .onChangeProductIdSelect(item.id, !selected);
+                  },
+                  checked: selected,
+                  checkedColor: Color.fromARGB(255, 57, 132, 194),
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  InkWell(
-                    onTap: () {},
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.redColor,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.delete,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const Gap(4),
-                  Text(
-                    AppUtils.formatCurrency(
-                        symbol: 'đ',
-                        value:
-                            (AppUtils.convertToDouble(item.unitPrice) ?? 0.0) *
-                                item.numberSelecting),
-                    style: AppTextStyle.bold(
-                      rawFontSize: AppConfig.defaultRawTextSize + 0.5,
-                      color: Colors.blue,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const Divider(),
-          Row(
-            children: [
-              InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: () async {},
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade300),
-                    color: Colors.white,
-                  ),
+                Expanded(
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.print_outlined, size: 16),
-                      const SizedBox(width: 6),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Máy in bếp, bar...',
-                            style: const TextStyle(fontSize: 13),
-                          ),
-                          // Text(
-                          //   '192.168.10.89:9100',
-                          //   style: const TextStyle(fontSize: 13),
-                          // ),
-                        ],
+                      Container(
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.shade300,
+                              offset: Offset(0, 2),
+                              blurRadius: 10,
+                            )
+                          ],
+                        ),
+                        child: AppImageCacheNetworkWidget(
+                          imageUrl: item.image ?? '',
+                          width: 70,
+                          height: 70,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.expand_more, size: 16),
+                      const Gap(12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    item.getNameView(),
+                                    style: AppTextStyle.bold(
+                                        rawFontSize:
+                                            AppConfig.defaultRawTextSize + 0.5),
+                                  ),
+                                ),
+                                Text(
+                                  AppUtils.formatCurrency(
+                                      symbol: 'đ',
+                                      value: (AppUtils.convertToDouble(
+                                                  item.unitPrice) ??
+                                              0.0) *
+                                          item.numberSelecting),
+                                  style: AppTextStyle.bold(
+                                    rawFontSize:
+                                        AppConfig.defaultRawTextSize + 0.5,
+                                    color: Color.fromARGB(255, 57, 132, 194),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: AppUtils.formatCurrency(
+                                        symbol: 'đ', value: item.unitPrice),
+                                  ),
+                                  const TextSpan(text: '/'),
+                                  TextSpan(text: item.getUnitView()),
+                                ],
+                              ),
+                              style: AppTextStyle.regular(
+                                  color: Colors.grey,
+                                  rawFontSize:
+                                      AppConfig.defaultRawTextSize - 1),
+                            ),
+                            const Gap(4),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (item.printerType != null)
+                                  InkWell(
+                                    borderRadius: BorderRadius.circular(20),
+                                    onTap: () async {
+                                      ref
+                                          .read(cartPageProvider.notifier)
+                                          .onChangeDisplayPrinterSetupPanel(
+                                              true);
+                                    },
+                                    child: Container(
+                                      constraints:
+                                          const BoxConstraints(maxWidth: 200),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 12),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                            color: Colors.grey.shade300),
+                                        color: Colors.white,
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.print_outlined,
+                                              size: 12),
+                                          const Gap(4),
+                                          Flexible(
+                                            child: Text(
+                                              printers.isEmpty
+                                                  ? 'Chưa thiết lập máy in'
+                                                  : printers
+                                                      .map((e) => e.name)
+                                                      .join(', '),
+                                              style: AppTextStyle.regular(
+                                                  rawFontSize: AppConfig
+                                                          .defaultRawTextSize -
+                                                      1.0),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          if (printers.isNotEmpty) ...[
+                                            const Gap(4),
+                                            const Icon(Icons.expand_more,
+                                                size: 12),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                const Gap(12),
+                                Expanded(
+                                  child: showNote
+                                      ? AppTextFormField(
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 4),
+                                          hintText: 'Ghi chú',
+                                        )
+                                      : AppTextFormField(
+                                          key: UniqueKey(),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 8, vertical: 4),
+                                          enabled: false,
+                                          readOnly: true,
+                                          fillColor: Colors.transparent,
+                                        ),
+                                ),
+                                const Gap(12),
+                                InkWell(
+                                  onTap: () {
+                                    onChangeShowNote();
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Container(
+                                    padding: EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                          color: Colors.grey.shade300),
+                                      // boxShadow: [
+                                      //   BoxShadow(
+                                      //     color: Colors.black.withOpacity(0.1),
+                                      //     blurRadius: 8,
+                                      //     offset: const Offset(0, 2),
+                                      //   ),
+                                      // ],
+                                    ),
+                                    child: showNote
+                                        ? Icon(Icons.close_fullscreen_sharp)
+                                        : Icon(Icons.edit_note_outlined),
+                                  ),
+                                ),
+                                const Gap(12),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFf1f4fa),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border:
+                                        Border.all(color: Colors.grey.shade300),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      _qtyButton(
+                                        Icons.remove,
+                                        () {},
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8),
+                                        child: Text(
+                                          widget.product.numberSelecting
+                                              .toString(),
+                                          style: AppTextStyle.bold(),
+                                        ),
+                                      ),
+                                      _qtyButton(
+                                        Icons.add,
+                                        () {},
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ),
-
-              // Text(
-              //   AppUtils.formatCurrency(
-              //       symbol: 'đ',
-              //       value: (AppUtils.convertToDouble(item.unitPrice) ?? 0.0) *
-              //           item.numberSelecting),
-              //   style: AppTextStyle.bold(
-              //     rawFontSize: AppConfig.defaultRawTextSize + 0.5,
-              //     color: Colors.blue,
-              //   ),
-              // ),
-              const Gap(12),
-              Expanded(
-                child: showNote
-                    ? AppTextFormField(
-                        hintText: 'Ghi chú',
-                      )
-                    : AppTextFormField(
-                        enabled: false,
-                        readOnly: true,
-                        fillColor: Colors.transparent,
-                      ),
-              ),
-              const Gap(12),
-              InkWell(
-                onTap: () {
-                  onChangeShowNote();
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade300),
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: Colors.black.withOpacity(0.1),
-                    //     blurRadius: 8,
-                    //     offset: const Offset(0, 2),
-                    //   ),
-                    // ],
-                  ),
-                  child: showNote
-                      ? Icon(Icons.close_fullscreen_sharp)
-                      : Icon(Icons.edit_note_outlined),
-                ),
-              ),
-              const Gap(12),
-              _buildQuantity(),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -538,10 +657,151 @@ class _PrinterDialogState extends ConsumerState<PrinterDialog> {
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Chọn máy in',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.double_arrow_rounded,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    ref
+                        .read(cartPageProvider.notifier)
+                        .onChangeDisplayPrinterSetupPanel(false);
+                  },
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Transform.scale(
+                  alignment: Alignment.centerLeft,
+                  scale: 0.8,
+                  child: Consumer(
+                    builder: (context, ref, child) {
+                      // var p = ref.watch(cartPageProvider.select((value) => value.pro,))
+                      return CupertinoSwitch(
+                        onChanged: (value) {},
+                        value: false,
+                        activeColor: AppColors.mainColor,
+                      );
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    'Sử dụng máy in mặc định',
+                    style: AppTextStyle.regular(
+                        rawFontSize: AppConfig.defaultRawTextSize - 0.5,
+                        color: Colors.grey),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 12),
-            _buildList(ref),
+            Consumer(
+              builder: (context, ref, child) {
+                var printers =
+                    ref.watch(homeProvider.select((value) => value.printers));
+
+                return Expanded(
+                  child: ListView.separated(
+                    itemCount: printers.length,
+                    separatorBuilder: (context, index) => const Gap(12),
+                    itemBuilder: (context, index) {
+                      var printer = printers[index];
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          // border: Border.all(
+                          //   color: Color.fromARGB(255, 57, 132, 194),,
+                          //   width: 2,
+                          // ),
+                          borderRadius: AppConfig.borderRadiusSecond,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              offset: Offset(0, 2),
+                              blurRadius: 8,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.print,
+                              size: 28,
+                              color: Colors.grey.shade500,
+                            ),
+                            Gap(12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    printer.name,
+                                    style: AppTextStyle.bold(),
+                                  ),
+                                  Text(
+                                    '${printer.ip ?? ''} : ${printer.port ?? ''}',
+                                    style: AppTextStyle.regular(
+                                      rawFontSize:
+                                          AppConfig.defaultRawTextSize - 1.0,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        height: 8,
+                                        width: 8,
+                                        decoration: BoxDecoration(
+                                          color: printer.pingStatus
+                                              ? Colors.green
+                                              : AppColors.redColor,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      const Gap(4),
+                                      Text(
+                                        printer.pingStatus
+                                            ? 'Online'
+                                            : 'Offline',
+                                        style: AppTextStyle.bold(
+                                          rawFontSize:
+                                              AppConfig.defaultRawTextSize -
+                                                  1.0,
+                                          color: printer.pingStatus
+                                              ? Colors.green
+                                              : AppColors.redColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Icon(Icons.check_circle_rounded),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+            // _buildList(ref),
             const SizedBox(height: 16),
             _buildActions(context),
           ],
@@ -551,108 +811,13 @@ class _PrinterDialogState extends ConsumerState<PrinterDialog> {
     );
   }
 
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        Icon(Icons.print),
-        SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            'Chọn máy in',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-        ),
-        SizedBox(width: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300),
-            color: Colors.white,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.check_rounded, size: 16),
-              const SizedBox(width: 6),
-              Text(
-                'Mặc định',
-                style: const TextStyle(fontSize: 13),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildList(WidgetRef ref) {
-    var printers = ref.watch(homeProvider.select((value) => value.printers));
-    return Column(
-      children: printers.map((printer) {
-        return InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: printer.pingStatus
-              ? () => setState(() => selected = printer)
-              : null,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.print_outlined,
-                  color: printer.pingStatus ? Colors.black : Colors.grey,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    printer.name,
-                    style: TextStyle(
-                      color: printer.pingStatus ? Colors.black : Colors.grey,
-                    ),
-                  ),
-                ),
-                _buildStatus(printer),
-                Radio<PrinterModel>(
-                  value: printer,
-                  groupValue: selected,
-                  onChanged: printer.pingStatus
-                      ? (v) => setState(() => selected = v)
-                      : null,
-                ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildStatus(PrinterModel printer) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: printer.pingStatus ? Colors.green.shade50 : Colors.red.shade50,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        printer.pingStatus ? 'Online' : 'Offline',
-        style: TextStyle(
-          fontSize: 11,
-          color: printer.pingStatus ? Colors.green : Colors.red,
-        ),
-      ),
-    );
-  }
-
   Widget _buildActions(BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: OutlinedButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Huỷ'),
+            child: const Text('Đóng'),
           ),
         ),
         const SizedBox(width: 12),
@@ -661,7 +826,7 @@ class _PrinterDialogState extends ConsumerState<PrinterDialog> {
             onPressed: selected == null
                 ? null
                 : () => Navigator.pop(context, selected),
-            child: const Text('Xác nhận'),
+            child: const Text('Lưu thiết lập'),
           ),
         ),
       ],

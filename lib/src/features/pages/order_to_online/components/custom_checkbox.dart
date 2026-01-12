@@ -6,9 +6,12 @@ class CustomCheckbox extends StatelessWidget {
     super.key,
     required this.onChange,
     this.checked = false,
+    this.checkedColor,
   });
   final Function() onChange;
   final bool checked;
+
+  final Color? checkedColor;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +25,7 @@ class CustomCheckbox extends StatelessWidget {
           height: 24,
           width: 24,
           decoration: BoxDecoration(
-            color: checked ? AppColors.redColor : Colors.white,
+            color: checked ? (checkedColor ?? AppColors.redColor) : Colors.white,
             borderRadius: BorderRadius.circular(4),
             border: checked ? null : Border.all(color: Colors.grey),
           ),

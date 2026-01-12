@@ -113,6 +113,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     AppConfig.initHomeProvider = true;
     // confirm dùng redis hay không?
     listenRedisChannel();
+    ref.read(cartPageProvider.notifier).init([]);
   }
 
   final Ref ref;
@@ -356,6 +357,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
             numberOfAdults: max(data.numberOfAdults, 1),
             orderHistory: orderHistory,
           );
+
           for (var e in [
             WindowsMethodEnum.customer,
             WindowsMethodEnum.productCheckout,

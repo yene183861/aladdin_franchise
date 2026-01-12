@@ -11,12 +11,25 @@ enum CartPageEvent {
   addItems,
 }
 
+/// [productMap]
+/// key: productId
+/// value: {
+///     selected: bool,
+///     printers: List<PrinterModel>
+///     product: ProductModel?,
+/// }
 @freezed
 class CartPageState with _$CartPageState {
   const factory CartPageState({
     @Default([]) List<ProductModel> productsSelecting,
     @Default(CartPageEvent.normal) CartPageEvent event,
     @Default('') String message,
-    @Default({}) Map<PrinterModel?, List<ProductModel>> productWithPrinter,
+    // @Default({}) Map<int, Set<PrinterModel>> productIdWithPrinter,
+    @Default(false) bool showPrinterSetupPanel,
+    // @Default({}) Set<int> productIdSelect,
+    @Default({}) Map<int, Map<String, dynamic>> productMap,
+    @Default({}) Set<PrinterModel> defaultPrinters,
+    @Default({}) Set<PrinterModel> printerSelect,
+    @Default({}) Set<int> productIdSelect,
   }) = _CartPageState;
 }

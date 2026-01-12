@@ -14,8 +14,23 @@ class PrinterModel with _$PrinterModel {
     @Default('Máy in') String name,
     @Default(1) int typeAreaLocation,
     @Default(true) @JsonKey(includeFromJson: false, includeToJson: false) bool pingStatus,
+    @Default(false) @JsonKey(includeFromJson: false, includeToJson: false) bool defaultPrinter,
   }) = _PrinterModel;
   const PrinterModel._();
 
   factory PrinterModel.fromJson(Map<String, dynamic> json) => _$PrinterModelFromJson(json);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other is PrinterModel &&
+            other.ip == ip &&
+            other.port == port &&
+            other.type == type &&
+            other.name == name &&
+            other.typeAreaLocation == typeAreaLocation);
+  }
+
+  @override
+  int get hashCode => super.hashCode;
 }

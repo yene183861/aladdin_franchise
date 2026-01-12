@@ -4,12 +4,15 @@ import 'dart:math';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
+import 'package:aladdin_franchise/src/configs/const.dart';
 import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/network/repository/order/order_repository.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/login.dart';
 import 'package:aladdin_franchise/src/core/network/repository/user/user_repository.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/printer_type.dart';
+import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/login/state.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
@@ -19,20 +22,177 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'state.dart';
 
-final cartPageProvider = StateNotifierProvider.autoDispose<CartPageNotifier, CartPageState>((ref) {
+final cartPageProvider =
+    StateNotifierProvider.autoDispose<CartPageNotifier, CartPageState>((ref) {
   return CartPageNotifier(ref, ref.read(orderRepositoryProvider));
 });
 
 class CartPageNotifier extends StateNotifier<CartPageState> {
-  CartPageNotifier(this.ref, this._orderRepository) : super(const CartPageState());
+  CartPageNotifier(this.ref, this._orderRepository)
+      : super(const CartPageState());
   final Ref ref;
   final OrderRepository _orderRepository;
+  void init(List<ProductModel> products) async {
+    await getPrinterDefault();
+    mapProductWithPrinter();
+  }
+
+  Future<void> getPrinterDefault() async {
+    var order = ref.read(homeProvider).orderSelect;
+    if (order == null) return;
+    try {
+      var printers = await _orderRepository.getIpPrinterOrder(
+        order,
+        [
+          PrinterTypeEnum.total,
+          PrinterTypeEnum.receipt,
+          PrinterTypeEnum.tmp,
+          PrinterTypeEnum.kitchen,
+          PrinterTypeEnum.bar,
+        ].map((e) => e.key).toList(),
+      );
+      var defaultPrinters = printers
+          .map(
+            (e) => PrinterModel(
+                ip: e.ip,
+                port: e.port,
+                name: e.name,
+                defaultPrinter: true,
+                pingStatus: true,
+                type: e.type,
+                typeAreaLocation: e.typeAreaLocation),
+          )
+          .toSet();
+      state = state.copyWith(defaultPrinters: defaultPrinters);
+      checkPrinterStatus();
+    } catch (ex) {
+      //
+    }
+  }
+
+  void checkPrinterStatus([List<PrinterModel>? printers]) {}
+
+  void reset() {
+    state = const CartPageState();
+  }
 
   void updateEvent([CartPageEvent? event]) {
     state = state.copyWith(event: event ?? CartPageEvent.normal);
   }
 
-  void mapProductWithPrinter() {}
+  void mapProductWithPrinter([
+    ProductModel? product,
+    bool saveConfigPrinter = false,
+  ]) {
+    var productsSelecting = state.productsSelecting;
+    var defaultPrinters = state.defaultPrinters;
+
+    Set<PrinterModel> defaultKitchenPrinter = <PrinterModel>{},
+        defaultBarPrinter = <PrinterModel>{};
+    for (var item in defaultPrinters) {
+      switch (item.type) {
+        case ProductPrinterType.drink:
+          defaultBarPrinter.add(item);
+          break;
+        case ProductPrinterType.food:
+          defaultKitchenPrinter.add(item);
+          break;
+      }
+    }
+    Set<int> productIdSelect = Set<int>.from(state.productIdSelect);
+    Map<int, Map<String, dynamic>> map =
+        Map<int, Map<String, dynamic>>.from(state.productMap);
+
+    if (saveConfigPrinter) {
+      // Set<int> productIdSelectChange = {};
+      for (var id in productIdSelect) {
+        var product = map[id]?['product'] as ProductModel?;
+        // if (product == null) {
+        //   map.remove(id);
+        // } else {
+        // productIdSelectChange.add(value)
+        map[id] = {
+          'printers': state.printerSelect,
+          'product': product,
+        };
+        // }
+      }
+      // var values = state.productMap.values.where((e) => e['selected'] == true);
+      // for (var item in state.)
+    } else if (product != null) {
+      var printDefault = switch (product.printerType) {
+        null => <PrinterModel>{},
+        ProductPrinterType.drink => defaultBarPrinter,
+        ProductPrinterType.food => defaultKitchenPrinter,
+        _ => <PrinterModel>{},
+      };
+      var printers =
+          (map[product.id]?['printers'] ?? printDefault) as Set<PrinterModel>;
+      if (product.numberSelecting == 0) {
+        map.remove(product.id);
+        productIdSelect.remove(product.id);
+      } else {
+        map[product.id] = {
+          'printers': printers,
+          'product': product,
+        };
+        productIdSelect.add(product.id);
+      }
+    } else {
+      for (var item in productsSelecting) {
+        var print = switch (item.printerType) {
+          null => <PrinterModel>{},
+          ProductPrinterType.drink => defaultBarPrinter,
+          ProductPrinterType.food => defaultKitchenPrinter,
+          _ => <PrinterModel>{},
+        };
+        productIdSelect.add(item.id);
+        map[item.id] = {
+          'printers': print,
+          'product': item,
+        };
+      }
+    }
+    // // Map<int, Set<PrinterModel>> map = {};
+    // Map<int, Map<String, dynamic>> map1 = {};
+    // if (product == null) {
+    //   // cấu hình máy in mặc định cho các món
+    //   for (var item in productsSelecting) {
+    //     var print = switch (item.printerType) {
+    //       null => <PrinterModel>{},
+    //       ProductPrinterType.drink => defaultBarPrinter,
+    //       ProductPrinterType.food => defaultKitchenPrinter,
+    //       _ => <PrinterModel>{},
+    //     };
+    //     // map[item.id] = print;
+    //     map1[item.id] = {
+    //       'selected': map1[item.id]?['selected'] ?? true,
+    //       'printers': print,
+    //       'product': item,
+    //     };
+    //   }
+    // } else {
+    //   var printDefault = switch (product.printerType) {
+    //     null => <PrinterModel>{},
+    //     ProductPrinterType.drink => defaultBarPrinter,
+    //     ProductPrinterType.food => defaultKitchenPrinter,
+    //     _ => <PrinterModel>{},
+    //   };
+    //   var printers =
+    //       (map1[product.id]?['printers'] ?? printDefault) as Set<PrinterModel>;
+    //   if (product.numberSelecting == 0) {
+    //     map1[product.id] = {
+    //       'selected': false,
+    //       'printers': printers,
+    //       'product': null,
+    //     };
+    showLogs(productIdSelect, flags: 'productIdSelect');
+    showLogs(map, flags: 'map');
+    state = state.copyWith(
+      productMap: map,
+      productIdSelect: productIdSelect,
+    );
+  }
 
   void addProductToCart({required ProductModel product}) async {
     var order = ref.read(homeProvider).orderSelect;
@@ -42,7 +202,8 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
     var index = productsSelecting.indexWhere((e) => e.id == product.id);
     if (index != -1) {
       var item = productsSelecting[index];
-      productsSelecting[index] = product.copyWith(numberSelecting: max(0, item.numberSelecting));
+      productsSelecting[index] =
+          product.copyWith(numberSelecting: max(0, item.numberSelecting));
     } else {
       productsSelecting.add(product.copyWith(numberSelecting: 1));
     }
@@ -53,10 +214,15 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
       data[e.id.toString()] = e.numberSelecting;
     }
     try {
-      await LocalStorage.setOrderItemSelectingForOrder(orderId: order.id, data: data);
+      await LocalStorage.setOrderItemSelectingForOrder(
+          orderId: order.id, data: data);
     } catch (ex) {
       showLogs(ex, flags: 'addProductToCart - K lưu được món đang chọn');
     }
+
+    // mapProductIdWithPrinter(product);
+    // onChangeProductIdSelect(product.id, true);
+    mapProductWithPrinter(product);
     return null;
   }
 
@@ -333,5 +499,21 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
     //   _lockOrder(ex);
     //   return ex.toString();
     // }
+  }
+
+  void onChangeProductIdSelect(int id, bool selected) {
+    var data = Set<int>.from(state.productIdSelect);
+    if (selected) {
+      data.add(id);
+    } else {
+      data.remove(id);
+    }
+
+    state = state.copyWith(productIdSelect: data);
+  }
+
+  void onChangeDisplayPrinterSetupPanel(bool? value) {
+    state = state.copyWith(
+        showPrinterSetupPanel: value ?? !state.showPrinterSetupPanel);
   }
 }

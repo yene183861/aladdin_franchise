@@ -19,9 +19,15 @@ mixin _$CartPageState {
   List<ProductModel> get productsSelecting =>
       throw _privateConstructorUsedError;
   CartPageEvent get event => throw _privateConstructorUsedError;
-  String get message => throw _privateConstructorUsedError;
-  Map<PrinterModel?, List<ProductModel>> get productWithPrinter =>
+  String get message =>
+      throw _privateConstructorUsedError; // @Default({}) Map<int, Set<PrinterModel>> productIdWithPrinter,
+  bool get showPrinterSetupPanel =>
+      throw _privateConstructorUsedError; // @Default({}) Set<int> productIdSelect,
+  Map<int, Map<String, dynamic>> get productMap =>
       throw _privateConstructorUsedError;
+  Set<PrinterModel> get defaultPrinters => throw _privateConstructorUsedError;
+  Set<PrinterModel> get printerSelect => throw _privateConstructorUsedError;
+  Set<int> get productIdSelect => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $CartPageStateCopyWith<CartPageState> get copyWith =>
@@ -38,7 +44,11 @@ abstract class $CartPageStateCopyWith<$Res> {
       {List<ProductModel> productsSelecting,
       CartPageEvent event,
       String message,
-      Map<PrinterModel?, List<ProductModel>> productWithPrinter});
+      bool showPrinterSetupPanel,
+      Map<int, Map<String, dynamic>> productMap,
+      Set<PrinterModel> defaultPrinters,
+      Set<PrinterModel> printerSelect,
+      Set<int> productIdSelect});
 }
 
 /// @nodoc
@@ -57,7 +67,11 @@ class _$CartPageStateCopyWithImpl<$Res, $Val extends CartPageState>
     Object? productsSelecting = null,
     Object? event = null,
     Object? message = null,
-    Object? productWithPrinter = null,
+    Object? showPrinterSetupPanel = null,
+    Object? productMap = null,
+    Object? defaultPrinters = null,
+    Object? printerSelect = null,
+    Object? productIdSelect = null,
   }) {
     return _then(_value.copyWith(
       productsSelecting: null == productsSelecting
@@ -72,10 +86,26 @@ class _$CartPageStateCopyWithImpl<$Res, $Val extends CartPageState>
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
-      productWithPrinter: null == productWithPrinter
-          ? _value.productWithPrinter
-          : productWithPrinter // ignore: cast_nullable_to_non_nullable
-              as Map<PrinterModel?, List<ProductModel>>,
+      showPrinterSetupPanel: null == showPrinterSetupPanel
+          ? _value.showPrinterSetupPanel
+          : showPrinterSetupPanel // ignore: cast_nullable_to_non_nullable
+              as bool,
+      productMap: null == productMap
+          ? _value.productMap
+          : productMap // ignore: cast_nullable_to_non_nullable
+              as Map<int, Map<String, dynamic>>,
+      defaultPrinters: null == defaultPrinters
+          ? _value.defaultPrinters
+          : defaultPrinters // ignore: cast_nullable_to_non_nullable
+              as Set<PrinterModel>,
+      printerSelect: null == printerSelect
+          ? _value.printerSelect
+          : printerSelect // ignore: cast_nullable_to_non_nullable
+              as Set<PrinterModel>,
+      productIdSelect: null == productIdSelect
+          ? _value.productIdSelect
+          : productIdSelect // ignore: cast_nullable_to_non_nullable
+              as Set<int>,
     ) as $Val);
   }
 }
@@ -92,7 +122,11 @@ abstract class _$$CartPageStateImplCopyWith<$Res>
       {List<ProductModel> productsSelecting,
       CartPageEvent event,
       String message,
-      Map<PrinterModel?, List<ProductModel>> productWithPrinter});
+      bool showPrinterSetupPanel,
+      Map<int, Map<String, dynamic>> productMap,
+      Set<PrinterModel> defaultPrinters,
+      Set<PrinterModel> printerSelect,
+      Set<int> productIdSelect});
 }
 
 /// @nodoc
@@ -109,7 +143,11 @@ class __$$CartPageStateImplCopyWithImpl<$Res>
     Object? productsSelecting = null,
     Object? event = null,
     Object? message = null,
-    Object? productWithPrinter = null,
+    Object? showPrinterSetupPanel = null,
+    Object? productMap = null,
+    Object? defaultPrinters = null,
+    Object? printerSelect = null,
+    Object? productIdSelect = null,
   }) {
     return _then(_$CartPageStateImpl(
       productsSelecting: null == productsSelecting
@@ -124,10 +162,26 @@ class __$$CartPageStateImplCopyWithImpl<$Res>
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
-      productWithPrinter: null == productWithPrinter
-          ? _value._productWithPrinter
-          : productWithPrinter // ignore: cast_nullable_to_non_nullable
-              as Map<PrinterModel?, List<ProductModel>>,
+      showPrinterSetupPanel: null == showPrinterSetupPanel
+          ? _value.showPrinterSetupPanel
+          : showPrinterSetupPanel // ignore: cast_nullable_to_non_nullable
+              as bool,
+      productMap: null == productMap
+          ? _value._productMap
+          : productMap // ignore: cast_nullable_to_non_nullable
+              as Map<int, Map<String, dynamic>>,
+      defaultPrinters: null == defaultPrinters
+          ? _value._defaultPrinters
+          : defaultPrinters // ignore: cast_nullable_to_non_nullable
+              as Set<PrinterModel>,
+      printerSelect: null == printerSelect
+          ? _value._printerSelect
+          : printerSelect // ignore: cast_nullable_to_non_nullable
+              as Set<PrinterModel>,
+      productIdSelect: null == productIdSelect
+          ? _value._productIdSelect
+          : productIdSelect // ignore: cast_nullable_to_non_nullable
+              as Set<int>,
     ));
   }
 }
@@ -139,10 +193,16 @@ class _$CartPageStateImpl implements _CartPageState {
       {final List<ProductModel> productsSelecting = const [],
       this.event = CartPageEvent.normal,
       this.message = '',
-      final Map<PrinterModel?, List<ProductModel>> productWithPrinter =
-          const {}})
+      this.showPrinterSetupPanel = false,
+      final Map<int, Map<String, dynamic>> productMap = const {},
+      final Set<PrinterModel> defaultPrinters = const {},
+      final Set<PrinterModel> printerSelect = const {},
+      final Set<int> productIdSelect = const {}})
       : _productsSelecting = productsSelecting,
-        _productWithPrinter = productWithPrinter;
+        _productMap = productMap,
+        _defaultPrinters = defaultPrinters,
+        _printerSelect = printerSelect,
+        _productIdSelect = productIdSelect;
 
   final List<ProductModel> _productsSelecting;
   @override
@@ -160,19 +220,51 @@ class _$CartPageStateImpl implements _CartPageState {
   @override
   @JsonKey()
   final String message;
-  final Map<PrinterModel?, List<ProductModel>> _productWithPrinter;
+// @Default({}) Map<int, Set<PrinterModel>> productIdWithPrinter,
   @override
   @JsonKey()
-  Map<PrinterModel?, List<ProductModel>> get productWithPrinter {
-    if (_productWithPrinter is EqualUnmodifiableMapView)
-      return _productWithPrinter;
+  final bool showPrinterSetupPanel;
+// @Default({}) Set<int> productIdSelect,
+  final Map<int, Map<String, dynamic>> _productMap;
+// @Default({}) Set<int> productIdSelect,
+  @override
+  @JsonKey()
+  Map<int, Map<String, dynamic>> get productMap {
+    if (_productMap is EqualUnmodifiableMapView) return _productMap;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(_productWithPrinter);
+    return EqualUnmodifiableMapView(_productMap);
+  }
+
+  final Set<PrinterModel> _defaultPrinters;
+  @override
+  @JsonKey()
+  Set<PrinterModel> get defaultPrinters {
+    if (_defaultPrinters is EqualUnmodifiableSetView) return _defaultPrinters;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableSetView(_defaultPrinters);
+  }
+
+  final Set<PrinterModel> _printerSelect;
+  @override
+  @JsonKey()
+  Set<PrinterModel> get printerSelect {
+    if (_printerSelect is EqualUnmodifiableSetView) return _printerSelect;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableSetView(_printerSelect);
+  }
+
+  final Set<int> _productIdSelect;
+  @override
+  @JsonKey()
+  Set<int> get productIdSelect {
+    if (_productIdSelect is EqualUnmodifiableSetView) return _productIdSelect;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableSetView(_productIdSelect);
   }
 
   @override
   String toString() {
-    return 'CartPageState(productsSelecting: $productsSelecting, event: $event, message: $message, productWithPrinter: $productWithPrinter)';
+    return 'CartPageState(productsSelecting: $productsSelecting, event: $event, message: $message, showPrinterSetupPanel: $showPrinterSetupPanel, productMap: $productMap, defaultPrinters: $defaultPrinters, printerSelect: $printerSelect, productIdSelect: $productIdSelect)';
   }
 
   @override
@@ -184,8 +276,16 @@ class _$CartPageStateImpl implements _CartPageState {
                 .equals(other._productsSelecting, _productsSelecting) &&
             (identical(other.event, event) || other.event == event) &&
             (identical(other.message, message) || other.message == message) &&
+            (identical(other.showPrinterSetupPanel, showPrinterSetupPanel) ||
+                other.showPrinterSetupPanel == showPrinterSetupPanel) &&
             const DeepCollectionEquality()
-                .equals(other._productWithPrinter, _productWithPrinter));
+                .equals(other._productMap, _productMap) &&
+            const DeepCollectionEquality()
+                .equals(other._defaultPrinters, _defaultPrinters) &&
+            const DeepCollectionEquality()
+                .equals(other._printerSelect, _printerSelect) &&
+            const DeepCollectionEquality()
+                .equals(other._productIdSelect, _productIdSelect));
   }
 
   @override
@@ -194,7 +294,11 @@ class _$CartPageStateImpl implements _CartPageState {
       const DeepCollectionEquality().hash(_productsSelecting),
       event,
       message,
-      const DeepCollectionEquality().hash(_productWithPrinter));
+      showPrinterSetupPanel,
+      const DeepCollectionEquality().hash(_productMap),
+      const DeepCollectionEquality().hash(_defaultPrinters),
+      const DeepCollectionEquality().hash(_printerSelect),
+      const DeepCollectionEquality().hash(_productIdSelect));
 
   @JsonKey(ignore: true)
   @override
@@ -205,11 +309,14 @@ class _$CartPageStateImpl implements _CartPageState {
 
 abstract class _CartPageState implements CartPageState {
   const factory _CartPageState(
-          {final List<ProductModel> productsSelecting,
-          final CartPageEvent event,
-          final String message,
-          final Map<PrinterModel?, List<ProductModel>> productWithPrinter}) =
-      _$CartPageStateImpl;
+      {final List<ProductModel> productsSelecting,
+      final CartPageEvent event,
+      final String message,
+      final bool showPrinterSetupPanel,
+      final Map<int, Map<String, dynamic>> productMap,
+      final Set<PrinterModel> defaultPrinters,
+      final Set<PrinterModel> printerSelect,
+      final Set<int> productIdSelect}) = _$CartPageStateImpl;
 
   @override
   List<ProductModel> get productsSelecting;
@@ -217,8 +324,16 @@ abstract class _CartPageState implements CartPageState {
   CartPageEvent get event;
   @override
   String get message;
+  @override // @Default({}) Map<int, Set<PrinterModel>> productIdWithPrinter,
+  bool get showPrinterSetupPanel;
+  @override // @Default({}) Set<int> productIdSelect,
+  Map<int, Map<String, dynamic>> get productMap;
   @override
-  Map<PrinterModel?, List<ProductModel>> get productWithPrinter;
+  Set<PrinterModel> get defaultPrinters;
+  @override
+  Set<PrinterModel> get printerSelect;
+  @override
+  Set<int> get productIdSelect;
   @override
   @JsonKey(ignore: true)
   _$$CartPageStateImplCopyWith<_$CartPageStateImpl> get copyWith =>

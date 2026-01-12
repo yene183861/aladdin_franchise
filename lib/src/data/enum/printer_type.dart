@@ -1,21 +1,26 @@
-enum PrinterEnum {
+enum PrinterTypeEnum {
   kitchen,
   bar,
+  tmp,
   receipt,
   total,
+  other,
 }
 
-extension PrinterEnumExt on PrinterEnum {
+extension PrinterTypeEnumExt on PrinterTypeEnum {
   int get key {
     switch (this) {
-      case PrinterEnum.kitchen:
+      case PrinterTypeEnum.kitchen:
         return 4;
-      case PrinterEnum.bar:
+      case PrinterTypeEnum.bar:
         return 2;
-      case PrinterEnum.receipt:
+      case PrinterTypeEnum.tmp:
+      case PrinterTypeEnum.receipt:
         return 1;
-      default:
+      case PrinterTypeEnum.total:
         return 0;
+      default:
+        return 5;
     }
   }
 }
