@@ -4,6 +4,7 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -78,6 +79,7 @@ class _ConfirmInputDialogState extends ConsumerState<ConfirmInputDialog> {
               widget.message == null
                   ? Container()
                   : Text(widget.message ?? "", style: AppTextStyle.regular()),
+              const Gap(8),
               AppTextFormField(
                 textController: ctrlInput,
                 minLines: widget.maxLineInput,

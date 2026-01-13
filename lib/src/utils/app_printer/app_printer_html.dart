@@ -124,7 +124,6 @@ class AppPrinterHtmlUtils {
     }
 
     for (final pc in product) {
-      showLogs(pc, flags: 'pc 123');
       if (totalBill) {
         dishTable += '''
         <tr>

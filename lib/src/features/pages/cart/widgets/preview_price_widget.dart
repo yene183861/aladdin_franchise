@@ -1,4 +1,5 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/components/order_price_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/price_order_widget.dart';
 
@@ -35,7 +36,7 @@ class PreviewPriceWidget extends ConsumerWidget {
       child: tabSelect == OrderTabEnum.ordering
           ? Consumer(builder: (context, ref, child) {
               var productsSelecting =
-                  ref.watch(homeProvider.select((value) => value.productsSelecting));
+                  ref.watch(cartPageProvider.select((value) => value.productsSelecting));
 
               var totalSelecting = productsSelecting.fold(
                 0.0,

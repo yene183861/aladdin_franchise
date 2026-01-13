@@ -120,7 +120,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
                 children: [
                   Text(S.current.apply_all),
                   const Gap(8),
-                  _DropdownTaxWidget(
+                  DropdownTaxWidget(
                     taxs: [defaultTax, 0.0, 0.08, 0.1],
                     taxSelect: applyAllTax,
                     oddRowColor: oddRowColor,
@@ -147,7 +147,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
             children: [
               Text(S.current.apply_all),
               const Gap(8),
-              _DropdownTaxWidget(
+              DropdownTaxWidget(
                 taxs: [defaultTax, 0.0, 0.08, 0.1],
                 taxSelect: applyAllTax,
                 oddRowColor: oddRowColor,
@@ -275,7 +275,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
           alignment: colSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: smallDevice ? 0 : 4),
-            child: _DropdownTaxWidget(
+            child: DropdownTaxWidget(
               taxs: const [0.0, 0.08, 0.1],
               taxSelect: i.tax,
               oddRowColor: oddRowColor,
@@ -351,8 +351,8 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
   }
 }
 
-class _DropdownTaxWidget extends StatelessWidget {
-  const _DropdownTaxWidget({
+class DropdownTaxWidget extends StatelessWidget {
+  const DropdownTaxWidget({
     super.key,
     this.taxSelect,
     this.taxs = const [],

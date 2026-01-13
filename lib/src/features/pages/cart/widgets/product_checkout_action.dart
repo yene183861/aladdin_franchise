@@ -1,10 +1,12 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/dialog/cancel_product_checkout.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_detail.dart';
 
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 
@@ -20,73 +22,112 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var productCheckout = ref.watch(homeProvider.select((value) => value.productCheckout));
+    var productCheckout =
+        ref.watch(homeProvider.select((value) => value.productCheckout));
 
-    var displayOrderHistory = ref.watch(homeProvider.select((value) => value.displayOrderHistory));
+    var displayOrderHistory =
+        ref.watch(homeProvider.select((value) => value.displayOrderHistory));
     return Container(
       color: Colors.white,
       padding: padding ?? const EdgeInsets.all(8.0),
       child: Row(children: [
-        InkWell(
-          onTap: () {
-            ref.read(homeProvider.notifier).onChangeDisplayOrderHistory(!displayOrderHistory);
+        AppButton(
+          icon: Icons.history,
+          padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+          textAction: 'Lịch sử gọi - hủy',
+          color: Colors.orange,
+          onPressed: () async {
+            await showDialog(
+              context: context,
+              builder: (context) {
+                return CancelProductCheckoutDialog();
+              },
+            );
           },
-          borderRadius: AppConfig.borderRadiusSecond,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: displayOrderHistory ? AppColors.secondColor : Colors.grey.shade200,
-              borderRadius: AppConfig.borderRadiusSecond,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (displayOrderHistory) ...[
-                  const ResponsiveIconWidget(
-                    iconData: Icons.check_rounded,
-                    iconSize: 20,
-                  ),
-                  const Gap(1),
-                ],
-                Text(
-                  'Xem lịch sử',
-                  style: AppTextStyle.medium(
-                    rawFontSize: AppConfig.defaultRawTextSize - 1.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
+        // InkWell(
+        //   onTap: () {
+        //     ref
+        //         .read(homeProvider.notifier)
+        //         .onChangeDisplayOrderHistory(!displayOrderHistory);
+        //   },
+        //   borderRadius: AppConfig.borderRadiusSecond,
+        //   child: Container(
+        //     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        //     decoration: BoxDecoration(
+        //       color: displayOrderHistory
+        //           ? AppColors.secondColor
+        //           : Colors.grey.shade200,
+        //       borderRadius: AppConfig.borderRadiusSecond,
+        //     ),
+        //     child: Row(
+        //       mainAxisSize: MainAxisSize.min,
+        //       children: [
+        //         if (displayOrderHistory) ...[
+        //           const ResponsiveIconWidget(
+        //             iconData: Icons.check_rounded,
+        //             iconSize: 20,
+        //           ),
+        //           const Gap(1),
+        //         ],
+        //         Text(
+        //           'Xem lịch sử',
+        //           style: AppTextStyle.medium(
+        //             rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+        //           ),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
+
         const Spacer(),
         if (productCheckout.isNotEmpty) ...[
           const Gap(12),
-          InkWell(
-            onTap: () async {
-              var state = ref.read(homeProvider);
-              if (state.displayOrderHistory) return;
-              await onPressedCancelItem(
-                context,
-                ref,
-                productCancel: state.productCheckout,
+          AppButton(
+            textAction: 'Hủy món',
+            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+            onPressed: () async {
+              await showDialog(
+                context: context,
+                builder: (context) {
+                  return CancelProductCheckoutDialog();
+                },
               );
             },
-            borderRadius: AppConfig.borderRadiusMain,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppColors.mainColor,
-                borderRadius: AppConfig.borderRadiusMain,
-              ),
-              child: Text(
-                'Xác nhận hủy',
-                style: AppTextStyle.regular(
-                  rawFontSize: AppConfig.defaultRawTextSize - 1.5,
-                  color: Colors.white,
-                ),
-              ),
-            ),
           ),
+          // InkWell(
+          //   onTap: () async {
+          //     await showDialog(
+          //       context: context,
+          //       builder: (context) {
+          //         return CancelProductCheckoutDialog();
+          //       },
+          //     );
+          //     // var state = ref.read(homeProvider);
+          //     // if (state.displayOrderHistory) return;
+          //     // await onPressedCancelItem(
+          //     //   context,
+          //     //   ref,
+          //     //   productCancel: state.productCheckout,
+          //     // );
+          //   },
+          //   borderRadius: AppConfig.borderRadiusMain,
+          //   child: Container(
+          //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          //     decoration: BoxDecoration(
+          //       color: AppColors.mainColor,
+          //       borderRadius: AppConfig.borderRadiusMain,
+          //     ),
+          //     child: Text(
+          //       'Hủy món',
+          //       style: AppTextStyle.regular(
+          //         rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+          //         color: Colors.white,
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ]),
     );

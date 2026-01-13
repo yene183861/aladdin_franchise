@@ -80,7 +80,8 @@ class OrderItemsWidget extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Row(
                       children: [
-                        const Expanded(child: KitchenNoteWidget()),
+                        Spacer(),
+                        // const Expanded(child: KitchenNoteWidget()),
                         Consumer(
                           builder: (mContext, ref, child) {
                             // var productsSelecting =
@@ -92,14 +93,13 @@ class OrderItemsWidget extends ConsumerWidget {
                             }
                             return InkWell(
                               onTap: () async {
-                                showDialog(
+                                await showDialog(
                                   context: context,
                                   builder: (context) {
                                     return ConfirmOrderPrinterDialog();
                                   },
                                 );
-                                // var locked =
-                                //     ref.read(homeProvider).lockedOrder;
+                                // var locked = ref.read(homeProvider).lockedOrder;
                                 // var res =
                                 //     await ref.read(homeProvider.notifier).addItemsToOrder(context);
                                 // if (res != null && context.mounted) {
@@ -115,7 +115,7 @@ class OrderItemsWidget extends ConsumerWidget {
                                     color: AppColors.mainColor,
                                     borderRadius: AppConfig.borderRadiusSecond),
                                 child: Text(
-                                  textProcessOrderItem ?? 'Gọi món\nngay',
+                                  textProcessOrderItem ?? 'Gửi bếp',
                                   style: AppTextStyle.regular(
                                       rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                                       color: AppColors.white),
@@ -129,7 +129,8 @@ class OrderItemsWidget extends ConsumerWidget {
                     ),
                   ),
                 ],
-                if (!priceSidebar) const PreviewPriceWidget(),
+                if (!priceSidebar) 
+                const PreviewPriceWidget(),
                 const Gap(4),
               ],
             ),

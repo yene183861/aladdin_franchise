@@ -1,4 +1,5 @@
 import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
+import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/models/atm_pos.dart';
 import 'package:aladdin_franchise/src/models/employee_sale.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
@@ -31,4 +32,6 @@ abstract class RestaurantRepository {
     required DateTime startDate,
     required DateTime endDate,
   });
+
+  Future<List<PrinterModel>> getListPrinters();
 }

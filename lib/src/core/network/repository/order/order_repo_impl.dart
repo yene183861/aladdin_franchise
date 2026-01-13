@@ -49,10 +49,15 @@ class OrderRepositoryImpl extends OrderRepository {
       parser: (json) {
         var res = OrdersResponseData.fromJson(json);
         return OrdersResponseData(
-          notUse: res.notUse.map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder)).toList(),
-          using: res.using.map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder)).toList(),
-          userUsing:
-              res.userUsing.map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder)).toList(),
+          notUse: res.notUse
+              .map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder))
+              .toList(),
+          using: res.using
+              .map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder))
+              .toList(),
+          userUsing: res.userUsing
+              .map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder))
+              .toList(),
           waiters: res.waiters ?? [],
           ipOrder: res.ipOrder,
         );
@@ -126,7 +131,8 @@ class OrderRepositoryImpl extends OrderRepository {
     if (order == null) {
       return const ProductCheckoutResponse(status: 200);
     }
-    var apiUrl = '${ApiConfig.apiUrl}/api/v1/orders-for-table?order_id=${order.id}';
+    var apiUrl =
+        '${ApiConfig.apiUrl}/api/v1/orders-for-table?order_id=${order.id}';
     var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
@@ -166,7 +172,9 @@ class OrderRepositoryImpl extends OrderRepository {
         var result = OrdersResponseData.fromJson(json);
         List<IpOrderModel> printers = result.ipOrder == null
             ? []
-            : result.ipOrder.map<IpOrderModel>((e) => IpOrderModel.fromJson(e)).toList();
+            : result.ipOrder
+                .map<IpOrderModel>((e) => IpOrderModel.fromJson(e))
+                .toList();
         if (printers.isEmpty) {
           throw AppException(
             statusCode: 200,
@@ -253,14 +261,16 @@ class OrderRepositoryImpl extends OrderRepository {
       "numberOfChildren": numberOfChildren,
       "note": note,
       "flag_invoice": flagInvoice,
-      "customer_rating":
-          customerRatings.where((element) => element.isEmptyOrError() == false).toList(),
+      "customer_rating": customerRatings
+          .where((element) => element.isEmptyOrError() == false)
+          .toList(),
       //"payment": paymentDataBillCheck.toJson(),
       "files": images,
       "payment_method": paymentMethod,
       "portrait": customerPortrait?.key,
       "status_payment_completed": statusPaymentCompleted ? 1 : 0,
-      "total_payment_completed": totalPaymentCompleted, "provider_code": providerCode,
+      "total_payment_completed": totalPaymentCompleted,
+      "provider_code": providerCode,
     });
     var result = await safeCallApi(
       () {
@@ -272,7 +282,8 @@ class OrderRepositoryImpl extends OrderRepository {
       parser: (json) {
         if (int.tryParse(json) != 1) {
           /// 200 - nhưng response k phải 1
-          throw AppException(statusCode: 200, message: "Thanh toán in bill lỗi");
+          throw AppException(
+              statusCode: 200, message: "Thanh toán in bill lỗi");
         }
         return true;
       },
@@ -315,7 +326,7 @@ class OrderRepositoryImpl extends OrderRepository {
                     "menu_item_variation_id": "",
                     "menuItem_id": e.id,
                     "unit_price": e.unitPrice,
-                    "quantity": e.quantityCancel,
+                    "quantity": -e.quantityCancel.abs(),
                     "discounted_price": 0,
                     "options": [],
                   })
@@ -362,7 +373,8 @@ class OrderRepositoryImpl extends OrderRepository {
 
   @override
   Future<DataBillResponseData> getDataBill({required int orderId}) async {
-    var apiUrl = "${ApiConfig.apiUrl}/api/v1/get-data-bill-order?order_id=$orderId";
+    var apiUrl =
+        "${ApiConfig.apiUrl}/api/v1/get-data-bill-order?order_id=$orderId";
     var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
@@ -436,7 +448,8 @@ class OrderRepositoryImpl extends OrderRepository {
   ) async {
     final resultPrinter = await getIpPrinterOrder(order, printerCheck);
 
-    var checkPrinterAvailable = await AppPrinterCommon.checkPrinters(resultPrinter);
+    var checkPrinterAvailable =
+        await AppPrinterCommon.checkPrinters(resultPrinter);
     if (checkPrinterAvailable != null) {
       throw AppException(statusCode: 404, message: checkPrinterAvailable);
     }
@@ -479,7 +492,8 @@ class OrderRepositoryImpl extends OrderRepository {
 
   @override
   Future<bool> checkStatusLockOrder(int orderId) async {
-    var apiUrl = "${ApiConfig.apiUrl}/api/v1/status-lock-order?order_id=$orderId";
+    var apiUrl =
+        "${ApiConfig.apiUrl}/api/v1/status-lock-order?order_id=$orderId";
     var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
@@ -597,7 +611,8 @@ class OrderRepositoryImpl extends OrderRepository {
   }
 
   @override
-  Future<({String? qrData, String? message, dynamic status})> getQrBankDynamicPayment({
+  Future<({String? qrData, String? message, dynamic status})>
+      getQrBankDynamicPayment({
     required ApiBankParam apiBankParam,
     required int keyPaymentMethod,
     required String bankCode,

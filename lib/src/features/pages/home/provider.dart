@@ -26,6 +26,7 @@ import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/data/enum/payment_status.dart';
+import 'package:aladdin_franchise/src/data/enum/printer_type.dart';
 import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
 import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
 import 'package:aladdin_franchise/src/data/enum/status.dart';
@@ -37,6 +38,7 @@ import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/features/common/process_state.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/home/view.dart';
@@ -171,25 +173,51 @@ class HomeNotifier extends StateNotifier<HomeState> {
       banks: [],
       paymentMethods: [],
       listAtmPos: [],
-      printerState: PageState(status: PageCommonState.success),
-      printers: [
-        PrinterModel(
-            ip: '192.168.10.89', port: 9100, type: 4, name: 'Máy in bếp'),
-        PrinterModel(
-            ip: '192.168.10.89',
-            port: 9100,
-            type: 2,
-            name: 'Máy in bar',
-            pingStatus: false),
-        PrinterModel(
-            ip: '192.168.10.89', port: 9100, type: 1, name: 'Máy in thu ngân'),
-      ],
     );
+    getListPrinters();
     _resetOrder();
     await ref.read(menuProvider.notifier).init(loadProducts: loadProducts);
     if (order != null) {
+      onLoadProductSelecting();
       getOrderProductCheckout();
       getOrderInvoice();
+    }
+  }
+
+  void onLoadProductSelecting() {
+    var order = state.orderSelect;
+    if (order == null) return;
+    var productSelectingMap =
+        LocalStorage.getOrderItemSelectingForOrder(order.id);
+
+    List<ProductModel> selecting = [];
+    var _products = ref.read(menuProvider).products;
+    productSelectingMap.forEach((key, value) {
+      var p = _products.firstWhereOrNull((e) => e.id.toString() == key);
+      if (p != null) {
+        selecting.add(p.copyWith(numberSelecting: value));
+      }
+    });
+
+    ref.read(cartPageProvider.notifier).init(selecting);
+  }
+
+  void getListPrinters() async {
+    try {
+      state = state.copyWith(
+          printerState: const PageState(status: PageCommonState.loading));
+      var printers = await _restaurantRepository.getListPrinters();
+
+      state = state.copyWith(
+        printers: printers,
+        printerState: const PageState(status: PageCommonState.success),
+      );
+    } catch (ex) {
+      state = state.copyWith(
+          printerState: PageState(
+        status: PageCommonState.error,
+        messageError: ex.toString(),
+      ));
     }
   }
 
@@ -222,6 +250,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         ref.refresh(typeOrderWaiterProvider);
         ref.read(homeProvider.notifier).initialize(order: orderModel);
       } else {
+        onLoadProductSelecting();
         getOrderProductCheckout();
         getOrderInvoice();
       }
@@ -357,7 +386,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
             numberOfAdults: max(data.numberOfAdults, 1),
             orderHistory: orderHistory,
           );
-
+          ref.read(checkoutPageProvider.notifier).init(pc);
           for (var e in [
             WindowsMethodEnum.customer,
             WindowsMethodEnum.productCheckout,
@@ -419,76 +448,72 @@ class HomeNotifier extends StateNotifier<HomeState> {
   // }
 
   /// thêm sp vào giỏ hàng (số lượng 1)
-  void addProductToCart({required ProductModel product}) async {
-    var orderSelect = state.orderSelect;
-    if (orderSelect == null) return;
-    var productsSelecting = List<ProductModel>.from(state.productsSelecting);
+  // void addProductToCart({required ProductModel product}) async {
+  //   var orderSelect = state.orderSelect;
+  //   if (orderSelect == null) return;
+  //   var productsSelecting = List<ProductModel>.from(state.productsSelecting);
 
-    var index = productsSelecting.indexWhere((e) => e.id == product.id);
-    if (index != -1) {
-      var item = productsSelecting[index];
-      productsSelecting[index] =
-          product.copyWith(numberSelecting: max(0, item.numberSelecting) + 1);
-    } else {
-      productsSelecting.add(product.copyWith(numberSelecting: 1));
-    }
-    state = state.copyWith(
-      productsSelecting: productsSelecting,
-      changedProductId: product.id,
-    );
+  //   // var index = productsSelecting.indexWhere((e) => e.id == product.id);
+  //   // if (index != -1) {
+  //   //   var item = productsSelecting[index];
+  //   //   productsSelecting[index] =
+  //   //       product.copyWith(numberSelecting: max(0, item.numberSelecting) + 1);
+  //   // } else {
+  //   //   productsSelecting.add(product.copyWith(numberSelecting: 1));
+  //   // }
+  //   // state = state.copyWith(
+  //   //   productsSelecting: productsSelecting,
+  //   //   changedProductId: product.id,
+  //   // );
 
-    onChangeAutoScrollProducts(true);
-    state = state.copyWith(orderTabSelect: OrderTabEnum.ordering);
+  //   // onChangeAutoScrollProducts(true);
+  //   // state = state.copyWith(orderTabSelect: OrderTabEnum.ordering);
 
-    Map<String, int> data = {};
-    for (var e in productsSelecting) {
-      data[e.id.toString()] = e.numberSelecting;
-    }
-    try {
-      await LocalStorage.setOrderItemSelectingForOrder(
-          orderId: orderSelect.id, data: data);
-    } catch (ex) {
-      showLogs(ex, flags: 'addProductToCart - K lưu được món đang chọn');
-    }
-    ref.read(cartPageProvider.notifier).addProductToCart(product: product);
-    return null;
-  }
+  //   // Map<String, int> data = {};
+  //   // for (var e in productsSelecting) {
+  //   //   data[e.id.toString()] = e.numberSelecting;
+  //   // }
+  //   // try {
+  //   //   await LocalStorage.setOrderItemSelectingForOrder(orderId: orderSelect.id, data: data);
+  //   // } catch (ex) {
+  //   //   showLogs(ex, flags: 'addProductToCart - K lưu được món đang chọn');
+  //   // }
+  //   // ref.read(cartPageProvider.notifier).addProductToCart(product: product);
+  //   return null;
+  // }
 
   /// thay đổi số lượng sp trong cart
-  void changeProductInCart(ProductModel productModel, int count) async {
-    var orderSelect = state.orderSelect;
-    if (orderSelect == null) return;
-    var productsSelecting = List<ProductModel>.from(state.productsSelecting);
-    var item =
-        productsSelecting.firstWhereOrNull((e) => e.id == productModel.id);
-    if (item != null) {
-      if (count > 0) {
-        var index = productsSelecting.indexOf(item);
-        if (index != -1) {
-          productsSelecting[index] =
-              productModel.copyWith(numberSelecting: count);
-        }
-      } else {
-        productsSelecting.remove(item);
-      }
-    }
-    productsSelecting.removeWhere((e) => e.numberSelecting < 1);
-    state = state.copyWith(
-      productsSelecting: productsSelecting,
-      changedProductId: productModel.id,
-    );
-    onChangeAutoScrollProducts(true);
-    Map<String, int> data = {};
-    for (var e in productsSelecting) {
-      data[e.id.toString()] = e.numberSelecting;
-    }
-    try {
-      await LocalStorage.setOrderItemSelectingForOrder(
-          orderId: orderSelect.id, data: data);
-    } catch (ex) {
-      showLogs(ex, flags: 'changeProductInCart - K lưu được món đang chọn');
-    }
-  }
+  // void changeProductInCart(ProductModel productModel, int count) async {
+  //   var orderSelect = state.orderSelect;
+  //   if (orderSelect == null) return;
+  //   var productsSelecting = List<ProductModel>.from(state.productsSelecting);
+  //   var item = productsSelecting.firstWhereOrNull((e) => e.id == productModel.id);
+  //   if (item != null) {
+  //     if (count > 0) {
+  //       var index = productsSelecting.indexOf(item);
+  //       if (index != -1) {
+  //         productsSelecting[index] = productModel.copyWith(numberSelecting: count);
+  //       }
+  //     } else {
+  //       productsSelecting.remove(item);
+  //     }
+  //   }
+  //   productsSelecting.removeWhere((e) => e.numberSelecting < 1);
+  //   state = state.copyWith(
+  //     productsSelecting: productsSelecting,
+  //     changedProductId: productModel.id,
+  //   );
+  //   onChangeAutoScrollProducts(true);
+  //   Map<String, int> data = {};
+  //   for (var e in productsSelecting) {
+  //     data[e.id.toString()] = e.numberSelecting;
+  //   }
+  //   try {
+  //     await LocalStorage.setOrderItemSelectingForOrder(orderId: orderSelect.id, data: data);
+  //   } catch (ex) {
+  //     showLogs(ex, flags: 'changeProductInCart - K lưu được món đang chọn');
+  //   }
+  // }
 
   /// Tạo đơn hàng mới
   /// [0]: orderId, -1 là lỗi tạo đơn mới
@@ -1069,6 +1094,31 @@ class HomeNotifier extends StateNotifier<HomeState> {
       _lockOrder(ex);
       if (loadingHome) updateEvent(null);
       return ex.toString();
+    }
+  }
+
+  Future<({String? error, int? timeOrder})> cancelProductOrder1({
+    List<ProductCheckoutModel> productCheckout = const [],
+    String reason = '',
+    Set<PrinterModel> printerSelect = const <PrinterModel>{},
+    bool useDefaultPrinter = true,
+  }) async {
+    try {
+      updateEvent(HomeEvent.cancelProductsCheckout);
+      var result = await _orderRepository.processOrderItem(
+        order: state.orderSelect!,
+        total: 0,
+        note: reason,
+        cancel: true,
+        productCheckout: productCheckout,
+      );
+      updateEvent(null);
+      getOrderProductCheckout();
+      getDataBill();
+      return (error: null, timeOrder: result.timesOrder);
+    } catch (ex) {
+      updateEvent(null);
+      return (error: ex.toString(), timeOrder: null);
     }
   }
 
@@ -2440,6 +2490,31 @@ class HomeNotifier extends StateNotifier<HomeState> {
   void onChangeDisplayOrderHistory(bool? value) {
     state = state.copyWith(
         displayOrderHistory: value ?? !state.displayOrderHistory);
+  }
+
+  Future<String?> addItemToOrder1({
+    List<ProductModel> products = const [],
+    double total = 0.0,
+    String kitchenNote = '',
+  }) async {
+    if (products.isEmpty) return null;
+    updateEvent(HomeEvent.processOrder);
+    try {
+      await _orderRepository.processOrderItem(
+        order: state.orderSelect!,
+        total: total,
+        products: products,
+        note: kitchenNote,
+        cancel: false,
+      );
+      getOrderProductCheckout();
+      getDataBill();
+      updateEvent(HomeEvent.normal);
+    } catch (ex) {
+      updateEvent(HomeEvent.normal);
+      _lockOrder(ex);
+      return ex.toString();
+    }
   }
 
   /// gọi món

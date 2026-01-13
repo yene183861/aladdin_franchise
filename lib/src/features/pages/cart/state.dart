@@ -14,7 +14,6 @@ enum CartPageEvent {
 /// [productMap]
 /// key: productId
 /// value: {
-///     selected: bool,
 ///     printers: List<PrinterModel>
 ///     product: ProductModel?,
 /// }
@@ -22,14 +21,14 @@ enum CartPageEvent {
 class CartPageState with _$CartPageState {
   const factory CartPageState({
     @Default([]) List<ProductModel> productsSelecting,
-    @Default(CartPageEvent.normal) CartPageEvent event,
-    @Default('') String message,
+    // @Default(CartPageEvent.normal) CartPageEvent event,
+    // @Default('') String message,
     // @Default({}) Map<int, Set<PrinterModel>> productIdWithPrinter,
-    @Default(false) bool showPrinterSetupPanel,
+    // @Default(false) bool showPrinterSetupPanel,
     // @Default({}) Set<int> productIdSelect,
-    @Default({}) Map<int, Map<String, dynamic>> productMap,
+    // @Default({}) Map<int, Map<String, dynamic>> productMap,
     @Default({}) Set<PrinterModel> defaultPrinters,
-    @Default({}) Set<PrinterModel> printerSelect,
+    // @Default({}) Set<PrinterModel> printerSelect,
     @Default({}) Set<int> productIdSelect,
   }) = _CartPageState;
 }

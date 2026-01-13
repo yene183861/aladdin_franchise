@@ -21,6 +21,7 @@ class CustomDropdownButton<T> extends StatefulWidget {
     this.allowSelectAll = false,
     this.selectAllObj,
     this.disableDropdown = false,
+    this.maxLinesText = 2,
   }) : assert(!allowSelectAll || selectAllObj != null);
 
   final List<T> data;
@@ -50,6 +51,7 @@ class CustomDropdownButton<T> extends StatefulWidget {
   final T? selectAllObj;
 
   final bool disableDropdown;
+  final int maxLinesText;
 
   @override
   State<CustomDropdownButton<T>> createState() => _CustomDropdownButtonState();
@@ -234,7 +236,7 @@ class _CustomDropdownButtonState<T> extends State<CustomDropdownButton<T>> {
                   _selectedItemBuilder(),
                   style: AppTextStyle.regular(),
                   overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
+                  maxLines: widget.maxLinesText,
                 ),
               );
             },

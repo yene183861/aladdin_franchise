@@ -66,6 +66,8 @@ class PrintQueue {
       data = await task.buildReceipt(generator);
       try {
         var connectResult = await printerManager.connect();
+        showLogs(AppPrinterCommon.posPrintResultMessage(connectResult),
+            flags: 'connect printer');
         if (connectResult != PosPrintResult.success) {
           throw AppPrinterCommon.posPrintResultMessage(connectResult) ?? '';
         }
@@ -76,7 +78,8 @@ class PrintQueue {
           success = true;
           await Future.delayed(const Duration(seconds: 1));
         } else {
-          error = "⚠️ Không in được: ${AppPrinterCommon.posPrintResultMessage(res) ?? ''}";
+          error =
+              "⚠️ Không in được: ${AppPrinterCommon.posPrintResultMessage(res) ?? ''}";
           showLogs(error, flags: '_processTask 1');
         }
       } catch (e) {

@@ -1,5 +1,7 @@
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -18,8 +20,9 @@ class OrderTabWidget extends ConsumerWidget {
     if (orderTabs.length < 2) return const SizedBox.shrink();
     // var currentOrderItems =
     //     ref.watch(homeProvider.select((value) => value.currentOrderItems));
-    var productsSelecting = ref.watch(homeProvider.select((value) => value.productsSelecting));
-    var productsSelected = ref.watch(homeProvider.select((value) => value.productsSelected));
+    var productsSelecting = ref.watch(cartPageProvider.select((value) => value.productsSelecting));
+    var productsCheckout =
+        ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
     return Row(
       children: orderTabs.map(
         (e) {
@@ -29,7 +32,7 @@ class OrderTabWidget extends ConsumerWidget {
               count = productsSelecting.length;
               break;
             case OrderTabEnum.ordered:
-              count = productsSelected.length;
+              count = productsCheckout.length;
               break;
             default:
           }

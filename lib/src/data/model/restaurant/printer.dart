@@ -32,5 +32,11 @@ class PrinterModel with _$PrinterModel {
   }
 
   @override
-  int get hashCode => super.hashCode;
+  int get hashCode => Object.hash(
+        ip,
+        port,
+        type,
+        name,
+        typeAreaLocation,
+      );
 }

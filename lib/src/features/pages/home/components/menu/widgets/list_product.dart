@@ -3,6 +3,7 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/detail_product.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/widgets/tag_view.dart';
@@ -22,14 +23,20 @@ class ProductBox extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var productsSelected = ref.watch(homeProvider.select((value) => value.productsSelected));
-    var productsSelecting = ref.watch(homeProvider.select((value) => value.productsSelecting));
+    var productsSelected =
+        ref.watch(homeProvider.select((value) => value.productsSelected));
+    var productsSelecting =
+        ref.watch(cartPageProvider.select((value) => value.productsSelecting));
 
-    int ordered =
-        (productsSelected.firstWhereOrNull((e) => e.id == product.id)?.numberSelecting ?? 0);
+    int ordered = (productsSelected
+            .firstWhereOrNull((e) => e.id == product.id)
+            ?.numberSelecting ??
+        0);
 
-    int ordering =
-        productsSelecting.firstWhereOrNull((e) => e.id == product.id)?.numberSelecting ?? 0;
+    int ordering = productsSelecting
+            .firstWhereOrNull((e) => e.id == product.id)
+            ?.numberSelecting ??
+        0;
     var listTags = ref.watch(menuProvider.select((value) => value.tags));
     List<TagProductModel> tags = [];
     for (var element in listTags) {
@@ -41,9 +48,8 @@ class ProductBox extends ConsumerWidget {
       onTap: () async {
         if (product.outOfStock == true) return;
         if (ref.read(homeProvider).orderSelect != null) {
-          ref
-              .read(homeProvider.notifier)
-              .addProductToCart(product: product.copyWith(numberSelecting: 1));
+          ref.read(cartPageProvider.notifier).addProductToCart(
+              product.copyWith(numberSelecting: ordering + 1));
         }
       },
       onLongPress: () {
@@ -53,8 +59,9 @@ class ProductBox extends ConsumerWidget {
         children: [
           Container(
             clipBehavior: Clip.hardEdge,
-            decoration:
-                BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.grey.shade100),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey.shade100),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -77,7 +84,8 @@ class ProductBox extends ConsumerWidget {
                 ),
                 Text.rich(
                   TextSpan(
-                    text: AppUtils.formatCurrency(value: product.unitPrice, symbol: 'đ'),
+                    text: AppUtils.formatCurrency(
+                        value: product.unitPrice, symbol: 'đ'),
                     style: AppTextStyle.bold(
                       color: AppColors.redColor,
                       fontWeight: FontWeight.w600,
@@ -106,7 +114,9 @@ class ProductBox extends ConsumerWidget {
                             text: 'Đã gọi: ',
                             children: [
                               TextSpan(
-                                text: ordered > 1000 ? '1000+' : ordered.toString(),
+                                text: ordered > 1000
+                                    ? '1000+'
+                                    : ordered.toString(),
                               ),
                             ],
                           ),
@@ -120,7 +130,9 @@ class ProductBox extends ConsumerWidget {
                         child: Text.rich(
                           textAlign: TextAlign.end,
                           TextSpan(
-                            text: ordering > 0 ? '${S.current.quantityCut}: ' : '',
+                            text: ordering > 0
+                                ? '${S.current.quantityCut}: '
+                                : '',
                             children: [
                               TextSpan(
                                 text: ordering < 1
@@ -129,7 +141,8 @@ class ProductBox extends ConsumerWidget {
                                         ? '1000+'
                                         : ordering.toString(),
                                 style: AppTextStyle.bold(
-                                  rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                                  rawFontSize:
+                                      AppConfig.defaultRawTextSize - 1.0,
                                 ),
                               ),
                             ],

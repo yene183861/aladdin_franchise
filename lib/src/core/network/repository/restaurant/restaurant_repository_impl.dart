@@ -8,6 +8,8 @@ import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
 import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
 import 'package:aladdin_franchise/src/core/network/repository/restaurant/restaurant_repository.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/printer_type.dart';
+import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/models/atm_pos.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
@@ -284,6 +286,50 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       wrapperResponse: true,
       dataKey: 'data_histories',
       parser: (json) => HistoryOrderModel.fromJson(json),
+      log: ErrorLogModel(
+        action: AppLogAction.historyOrder,
+        api: apiUrl,
+      ),
+    );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return result.data ?? [];
+  }
+
+  @override
+  Future<List<PrinterModel>> getListPrinters() async {
+    // return [
+    //   PrinterModel(
+    //     ip: '192.136.10.89',
+    //     port: 9100,
+    //     name: 'Máy in bếp',
+    //     type: PrinterTypeEnum.kitchen.key,
+    //   ),
+    //   PrinterModel(
+    //     ip: '192.136.10.89',
+    //     port: 9100,
+    //     name: 'Máy in bar',
+    //     type: PrinterTypeEnum.bar.key,
+    //   ),
+    //   PrinterModel(
+    //     ip: '192.136.10.88',
+    //     port: 9100,
+    //     name: 'Máy in tạm tính',
+    //     type: PrinterTypeEnum.tmp.key,
+    //   ),
+    // ];
+    final apiUrl = '${ApiConfig.apiUrl}/api/v2/printers-list';
+    var result = await safeCallApiList(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.get(url);
+      },
+      wrapperResponse: true,
+      parser: (json) => PrinterModel.fromJson(json),
       log: ErrorLogModel(
         action: AppLogAction.historyOrder,
         api: apiUrl,
