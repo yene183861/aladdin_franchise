@@ -13,6 +13,7 @@ import 'package:aladdin_franchise/src/core/network/repository/responses/login.da
 import 'package:aladdin_franchise/src/core/network/repository/user/user_repository.dart';
 import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/enum/print_type.dart';
 import 'package:aladdin_franchise/src/data/enum/printer_type.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -29,14 +30,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'state.dart';
 
-final cartPageProvider =
-    StateNotifierProvider.autoDispose<CartPageNotifier, CartPageState>((ref) {
+final cartPageProvider = StateNotifierProvider.autoDispose<CartPageNotifier, CartPageState>((ref) {
   return CartPageNotifier(ref, ref.read(orderRepositoryProvider));
 });
 
 class CartPageNotifier extends StateNotifier<CartPageState> {
-  CartPageNotifier(this.ref, this._orderRepository)
-      : super(const CartPageState());
+  CartPageNotifier(this.ref, this._orderRepository) : super(const CartPageState());
   final Ref ref;
   final OrderRepository _orderRepository;
   void init(List<ProductModel> products) async {
@@ -268,13 +267,16 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
     return null;
   }
 
-  Future<String?> addItemToOrder([String note = '']) async {
+  Future<String?> addItemToOrder({
+    String note = '',
+    Set<PrinterModel> printers = const {},
+    bool useDefaultPrinter = true,
+  }) async {
     var order = ref.read(homeProvider).orderSelect;
     if (order == null) return null;
     var productSelecting = List<ProductModel>.from(state.productsSelecting);
     var productIdSelect = Set<int>.from(state.productIdSelect);
-    var products =
-        productSelecting.where((e) => productIdSelect.contains(e.id)).toList();
+    var products = productSelecting.where((e) => productIdSelect.contains(e.id)).toList();
     var kitchenNote = note;
 
     try {
@@ -282,19 +284,66 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
             products: products,
             kitchenNote: kitchenNote,
             total: products.fold(
-                0.0,
-                (previousValue, p) =>
-                    previousValue + p.getUnitPriceNum() * p.numberSelecting),
+                0.0, (previousValue, p) => previousValue + p.getUnitPriceNum() * p.numberSelecting),
           );
-      await printOrderItems(products, kitchenNote: kitchenNote);
+      if (useDefaultPrinter) {
+        Set<PrinterModel> foodPrinterDefault = <PrinterModel>{},
+            barPrinterDefault = <PrinterModel>{};
+        for (var item in state.defaultPrinters) {
+          switch (item.type) {
+            case ProductPrinterType.drink:
+              barPrinterDefault.add(item);
+              break;
+            case ProductPrinterType.food:
+              foodPrinterDefault.add(item);
+              break;
+          }
+        }
+
+        Set<ProductModel> foods = <ProductModel>{}, drinks = <ProductModel>{};
+
+        for (var item in products) {
+          switch (item.printerType) {
+            case ProductPrinterType.drink:
+              drinks.add(item);
+              break;
+            case ProductPrinterType.food:
+              foods.add(item);
+              break;
+          }
+        }
+        if (drinks.isNotEmpty) {
+          ref.read(homeProvider.notifier).sendPrintData(
+                type: PrintTypeEnum.order,
+                note: kitchenNote,
+                products: drinks.toList(),
+                printers: barPrinterDefault.toList(),
+                timeOrder: 1,
+              );
+        }
+        if (foods.isNotEmpty) {
+          ref.read(homeProvider.notifier).sendPrintData(
+                type: PrintTypeEnum.order,
+                note: kitchenNote,
+                products: foods.toList(),
+                printers: foodPrinterDefault.toList(),
+                timeOrder: 1,
+              );
+        }
+      } else {
+        ref.read(homeProvider.notifier).sendPrintData(
+              type: PrintTypeEnum.order,
+              note: kitchenNote,
+              products: products,
+              printers: printers.toList(),
+              timeOrder: 1,
+            );
+      }
+
       productSelecting.removeWhere((e) => productIdSelect.contains(e.id));
-      // var map = Map<int, Map<String, dynamic>>.from(state.productMap);
-      // map.removeWhere((key, value) => productIdSelect.contains(key));
       state = state.copyWith(
         productsSelecting: productSelecting,
         productIdSelect: <int>{},
-        // printerSelect: <PrinterModel>{},
-        // productMap: map,
       );
       return null;
     } catch (ex) {

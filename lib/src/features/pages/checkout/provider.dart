@@ -1,24 +1,27 @@
 import 'dart:async';
 
+import 'package:aladdin_franchise/src/configs/const.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/network/repository/order/order_repository.dart';
+import 'package:aladdin_franchise/src/data/enum/print_type.dart';
 import 'package:aladdin_franchise/src/data/enum/printer_type.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
+import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'state.dart';
 
 final checkoutPageProvider =
-    StateNotifierProvider.autoDispose<CheckoutPageNotifier, CheckoutPageState>(
-        (ref) {
+    StateNotifierProvider.autoDispose<CheckoutPageNotifier, CheckoutPageState>((ref) {
   return CheckoutPageNotifier(ref, ref.read(orderRepositoryProvider));
 });
 
 class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
-  CheckoutPageNotifier(this.ref, this._orderRepository)
-      : super(const CheckoutPageState());
+  CheckoutPageNotifier(this.ref, this._orderRepository) : super(const CheckoutPageState());
   final Ref ref;
   final OrderRepository _orderRepository;
   void init(List<ProductCheckoutModel> products) async {
@@ -66,8 +69,7 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
   }
 
   void changeCancelQuantity(ProductCheckoutModel item) {
-    var productsCheckout =
-        List<ProductCheckoutModel>.from(state.productsCheckout);
+    var productsCheckout = List<ProductCheckoutModel>.from(state.productsCheckout);
 
     var index = productsCheckout.indexWhere((e) => e.id == item.id);
     if (index != -1) {
@@ -91,6 +93,86 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
             printerSelect: printerSelect,
             useDefaultPrinter: useDefaultPrinter,
           );
+      var menu = ref.read(menuProvider);
+
+      Set<PrinterModel> foodPrinterDefault = <PrinterModel>{}, barPrinterDefault = <PrinterModel>{};
+      for (var item in state.defaultPrinters) {
+        switch (item.type) {
+          case ProductPrinterType.drink:
+            barPrinterDefault.add(item);
+            break;
+          case ProductPrinterType.food:
+            foodPrinterDefault.add(item);
+            break;
+        }
+      }
+
+      Set<ProductModel> foods = <ProductModel>{}, drinks = <ProductModel>{};
+      Set<ProductModel> productPrint = {};
+      for (var item in productCheckout) {
+        var p = menu.products.firstWhereOrNull((e) => e.id == item.id);
+        if (p != null) {
+          var _product = p.copyWith(
+            numberSelecting: item.quantityCancel,
+            unitPrice: item.unitPrice,
+          );
+          productPrint.add(_product);
+          switch (p.printerType) {
+            case ProductPrinterType.drink:
+              drinks.add(_product);
+              break;
+            case ProductPrinterType.food:
+              foods.add(_product);
+              break;
+          }
+        } else {
+          var pChange = ProductModel(
+            id: item.id,
+            printerType: item.printerType,
+            name: item.name,
+            unit: item.unit,
+            unitPrice: item.unitPrice,
+            numberSelecting: item.quantityCancel,
+          );
+          productPrint.add(pChange);
+          switch (item.printerType) {
+            case ProductPrinterType.drink:
+              drinks.add(pChange);
+              break;
+            case ProductPrinterType.food:
+              foods.add(pChange);
+              break;
+          }
+        }
+      }
+      if (useDefaultPrinter) {
+        if (drinks.isNotEmpty) {
+          ref.read(homeProvider.notifier).sendPrintData(
+                type: PrintTypeEnum.cancel,
+                note: reason,
+                products: drinks.toList(),
+                printers: barPrinterDefault.toList(),
+                timeOrder: 1,
+              );
+        }
+        if (foods.isNotEmpty) {
+          ref.read(homeProvider.notifier).sendPrintData(
+                type: PrintTypeEnum.cancel,
+                note: reason,
+                products: foods.toList(),
+                printers: foodPrinterDefault.toList(),
+                timeOrder: 1,
+              );
+        }
+      } else {
+        ref.read(homeProvider.notifier).sendPrintData(
+              type: PrintTypeEnum.cancel,
+              note: reason,
+              products: productPrint.toList(),
+              printers: printerSelect.toList(),
+              timeOrder: 1,
+            );
+      }
       return result.error;
     } catch (ex) {
       return ex.toString();

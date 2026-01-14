@@ -26,6 +26,7 @@ import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/data/enum/payment_status.dart';
+import 'package:aladdin_franchise/src/data/enum/print_type.dart';
 import 'package:aladdin_franchise/src/data/enum/printer_type.dart';
 import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
 import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
@@ -35,6 +36,7 @@ import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/request_order.dart';
 import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
+import 'package:aladdin_franchise/src/data/response/close_shift.dart';
 import 'package:aladdin_franchise/src/features/common/process_state.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
@@ -83,8 +85,7 @@ enum HomePaymentError {
   complete,
 }
 
-final homeProvider =
-    StateNotifierProvider.autoDispose<HomeNotifier, HomeState>((ref) {
+final homeProvider = StateNotifierProvider.autoDispose<HomeNotifier, HomeState>((ref) {
   return HomeNotifier(
     ref,
     ref.read(orderRepositoryProvider),
@@ -115,7 +116,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
     AppConfig.initHomeProvider = true;
     // confirm dùng redis hay không?
     listenRedisChannel();
-    ref.read(cartPageProvider.notifier).init([]);
+    listenRedisPrintChannel();
+    pubRedisPrintChannel();
   }
 
   final Ref ref;
@@ -141,9 +143,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
   final selectingItemsScrollCtrl = ItemScrollController();
   final selectingItemsPositionsListener = ItemPositionsListener.create();
 
+  Command? pubCommand;
+
   @override
   void dispose() {
     AppConfig.initHomeProvider = false;
+    pubCommand = null;
     super.dispose();
   }
 
@@ -187,8 +192,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   void onLoadProductSelecting() {
     var order = state.orderSelect;
     if (order == null) return;
-    var productSelectingMap =
-        LocalStorage.getOrderItemSelectingForOrder(order.id);
+    var productSelectingMap = LocalStorage.getOrderItemSelectingForOrder(order.id);
 
     List<ProductModel> selecting = [];
     var _products = ref.read(menuProvider).products;
@@ -204,8 +208,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   void getListPrinters() async {
     try {
-      state = state.copyWith(
-          printerState: const PageState(status: PageCommonState.loading));
+      state = state.copyWith(printerState: const PageState(status: PageCommonState.loading));
       var printers = await _restaurantRepository.getListPrinters();
 
       state = state.copyWith(
@@ -275,16 +278,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
           if (orderSelect == null) {
             if (loadingHome) updateEvent(null);
             state = state.copyWith(
-              productCheckoutState:
-                  const PageState(status: PageCommonState.success),
+              productCheckoutState: const PageState(status: PageCommonState.success),
             );
             _resetOrder();
             return;
           }
           final data = await _orderRepository.getProductCheckout(orderSelect);
 
-          final pc =
-              List<ProductCheckoutModel>.from(data.data?.first.orderItem ?? []);
+          final pc = List<ProductCheckoutModel>.from(data.data?.first.orderItem ?? []);
 
           final coupons = List<CustomerPolicyModel>.from(data.coupons ?? []);
           final customer = data.customer;
@@ -330,29 +331,23 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
                 for (final pt in c.promotionItems) {
                   if (pt.menuItemId.toString() == dcIndex.id) {
-                    discountUpdate[dc] =
-                        dcIndex.copyWith(numberSelect: pt.quantity);
+                    discountUpdate[dc] = dcIndex.copyWith(numberSelect: pt.quantity);
                     // cập nhật số lượng món tặng 0 đồng
-                    var ps = productsSelected
-                        .firstWhereOrNull((e) => e.id == pt.menuItemId);
+                    var ps = productsSelected.firstWhereOrNull((e) => e.id == pt.menuItemId);
 
                     if (ps != null) {
                       try {
                         productsSelected[productsSelected.indexOf(ps)] =
-                            ps.copyWith(
-                                quantityPromotion:
-                                    ps.quantityPromotion + pt.quantity);
+                            ps.copyWith(quantityPromotion: ps.quantityPromotion + pt.quantity);
                       } catch (ex) {
                         //
                       }
                     }
-                    var pcout =
-                        pc.firstWhereOrNull((e) => e.id == pt.menuItemId);
+                    var pcout = pc.firstWhereOrNull((e) => e.id == pt.menuItemId);
                     if (pcout != null) {
                       try {
                         pc[pc.indexOf(pcout)] = pcout.copyWith(
-                            quantityPromotion:
-                                (ps?.quantityPromotion ?? 0) + pt.quantity);
+                            quantityPromotion: (ps?.quantityPromotion ?? 0) + pt.quantity);
                       } catch (ex) {
                         //
                       }
@@ -360,13 +355,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
                   }
                 }
               }
-              coupons[coupons.indexOf(c)] =
-                  c.copyWith(discount: discountUpdate);
+              coupons[coupons.indexOf(c)] = c.copyWith(discount: discountUpdate);
             }
           }
 
-          var productSelectingMap =
-              LocalStorage.getOrderItemSelectingForOrder(orderSelect.id);
+          var productSelectingMap = LocalStorage.getOrderItemSelectingForOrder(orderSelect.id);
 
           List<ProductModel> selecting = [];
           var _products = ref.read(menuProvider).products;
@@ -395,8 +388,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
           }
 
           state = state.copyWith(
-              productCheckoutState:
-                  const PageState(status: PageCommonState.success));
+              productCheckoutState: const PageState(status: PageCommonState.success));
           if (loadingHome) updateEvent(HomeEvent.normal);
           if (applyPolicy) {
             applyCustomerPolicy(loadingHome: false);
@@ -692,7 +684,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       ]);
       final stream = pubSub.getStream();
       streamSubscription = stream.listen(
-        _hanleRedisEvent,
+        _handleRedisEvent,
         onError: (_, __) async {
           showLog("onError listing $_ $__");
           await streamSubscription?.cancel();
@@ -717,139 +709,227 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void _hanleRedisEvent(dynamic event) async {
+  void listenRedisPrintChannel() async {
+    StreamSubscription<dynamic>? streamSubscription;
+    try {
+      var info = LocalStorage.getDataLogin()?.restaurant?.redisGatewayPayment;
+      if (info == null) return;
+      var ip = '10.0.2.2';
+      var port = 6379;
+      final redisConnection = RedisConnection();
+      showLog("$ip:$port", flags: "Connecting to");
+      var command = await redisConnection.connect(ip, port);
+
+      final pubSub = PubSub(command);
+      pubSub.subscribe([
+        kPrintChannel,
+      ]);
+      final stream = pubSub.getStream();
+      streamSubscription = stream.listen(
+        _handleRedisEvent,
+        onError: (_, __) async {
+          showLog("onError listing $_ $__");
+          await streamSubscription?.cancel();
+          _reconnectRedis(redisConnection: redisConnection);
+        },
+        onDone: () async {
+          showLog("end listing");
+          await streamSubscription?.cancel();
+          _reconnectRedis(redisConnection: redisConnection);
+        },
+      );
+      showLog("$ip:$port", flags: "On start listen");
+      state = state.copyWith(
+        reconnectRedis: false,
+        realtimeStatus: true,
+      );
+      showLog(state.realtimeStatus, flags: "realtimeStatus");
+    } catch (ex) {
+      showLog(ex, flags: 'RedisConnection error');
+      await streamSubscription?.cancel();
+      _reconnectRedis();
+    }
+  }
+
+  void pubRedisPrintChannel() async {
+    try {
+      var info = LocalStorage.getDataLogin()?.restaurant?.redisGatewayPayment;
+      if (info == null) return;
+      var ip = '10.0.2.2';
+      var port = 6379;
+      final redisConnection = RedisConnection();
+      showLog("$ip:$port", flags: "Connecting to");
+      pubCommand = await redisConnection.connect(ip, port);
+    } catch (ex) {
+      showLog(ex, flags: 'RedisConnection error');
+    }
+  }
+
+  void sendPrintData({
+    required PrintTypeEnum type,
+    List<ProductModel> products = const [],
+    List<ProductCheckoutModel> productCheckout = const [],
+    String note = '',
+    List<PrinterModel> printers = const [],
+    int? timeOrder,
+    CloseShiftResponseModel? closeShiftData,
+  }) async {
+    try {
+      var order = state.orderSelect;
+      var data = {
+        'type': type.name,
+        'mode': LocalStorage.getPrintSetting().appPrinterType.name,
+        'order': order,
+        'products': products,
+        'note': note,
+        'printers': printers,
+        'close_shift': closeShiftData,
+      };
+      var result = await pubCommand?.send_object([
+        'PUBLISH',
+        kPrintChannel,
+        jsonEncode(data),
+      ]);
+      showLogs(result, flags: 'count');
+      if (result == 0) {}
+    } catch (ex) {
+      showLogs(ex, flags: 'send print data to redis');
+    }
+  }
+
+  void _handleRedisEvent(dynamic event) async {
     showLog(event, flags: "New event");
     //[message, item-channel, {"event":"App\\Events\\ItemCreated","data":{"data":"created item","socket":null},"socket":null}]
     try {
       if (event[0] == "message") {
         showLog('run', flags: "Test reload");
         switch (event[1]) {
+          case kPrintChannel:
+            _handlePrintRedisEvent(event);
+            break;
           case kRedisUpdateItemChannel:
             ref.read(menuProvider.notifier).updateReloadWhenHiddenApp(true);
             ref.read(menuProvider.notifier).getProducts();
             break;
-          case kLockOrderChannel:
-            // ref.read(homeProvider.notifier).setUnlockOrder();
-            break;
-
-          default:
-        }
-
-        /// handle o2o
-        final loginData = LocalStorage.getDataLogin();
-        bool useO2O = loginData?.restaurant?.o2oStatus ?? false;
-        if (!useO2O) return;
-        dynamic dataDecode = jsonDecode(event[2])['data'];
-        dynamic data = dataDecode['data'];
-        showLogs(data, flags: 'data event');
-        int? restaurantId = loginData?.restaurant?.id;
-        int? userId = loginData?.user?.id;
-        dynamic eventRestaurantId = data['restaurant_id'];
-        dynamic waiterId = data['waiter_id'];
-        if (userId == null) return;
-        if (restaurantId != eventRestaurantId) return;
-        switch (event[1]) {
           case kUserCreateOrderChannel:
-            ref.refresh(orderToOnlineProvider);
-            break;
           case kUserUpdateOrderChannel:
-            ref.refresh(orderToOnlineProvider);
-
-            /// tự động duyệt yêu cầu của KH
-            if (ref.read(printSettingProvider).autoAcceptO2o) {
-              var orderId = data['order_id'] as int?;
-              var status = data['status'] as int?;
-              if (status != 1) return;
-              var notes = data['notes'] as String?;
-              var itemsData =
-                  (jsonDecode(data['items']) as Map<String, dynamic>?) ?? {};
-              List<RequestOrderItemModel> items = itemsData.values
-                  .toList()
-                  .map((e) =>
-                      RequestOrderItemModel.fromJson(e as Map<String, dynamic>))
-                  .toList();
-
-              Map<int, List<ProductModel>> productPrint = ref
-                  .read(menuProvider.notifier)
-                  .mapO2oItemWithPrintType(items);
-              ref.read(tablesAndOrdersProvider).whenData(
-                (value) async {
-                  var order = value.offline?.userUsing
-                      .firstWhereOrNull((e) => e.id == orderId);
-                  if (order == null) return;
-
-                  List<int> printerCheck = productPrint.keys.toList();
-                  List<IpOrderModel> printers = [];
-                  if (printerCheck.isNotEmpty) {
-                    int retry = 0;
-
-                    while (retry < 3) {
-                      try {
-                        printers = await _orderRepository.getIpPrinterOrder(
-                          order,
-                          productPrint.keys.toList(),
-                        );
-                        break;
-                      } catch (ex) {
-                        retry++;
-                      }
-                    }
-                  }
-                  showLogs(productPrint, flags: 'productPrint');
-                  ref.read(menuProvider.notifier).printO2oRequest(
-                        order: order,
-                        data: productPrint,
-                        note: notes,
-                        printers: printers,
-                      );
-                },
-              );
-            }
-            break;
-
           case kCallStaffChannel:
-            if (userId != waiterId) return;
-            final note = data['note'];
-            if (Platform.isAndroid) {
-              appLocalNotificationService?.showLocalNotification(
-                  S.current.request_service,
-                  '${S.current.table} ${note == null ? '' : '\n$note'}');
-            } else if (Platform.isWindows) {
-              try {
-                LocalNotification notification = LocalNotification(
-                  title: S.current.request_service,
-                  body: '${S.current.table} ${note == null ? '' : '\n$note'}',
-                );
-                notification.show();
-              } catch (ex) {
-                //
-              }
-            }
-            break;
-
           case kPaymentRequestChannel:
-            if (userId != waiterId) return;
-            final table = data['table'];
-            if (Platform.isAndroid) {
-              appLocalNotificationService?.showLocalNotification(
-                  S.current.request_payment,
-                  '${S.current.table} $table gọi thanh toán');
-            } else if (Platform.isWindows) {
-              try {
-                LocalNotification notification = LocalNotification(
-                  title: S.current.request_payment,
-                  body: '${S.current.table} $table gọi thanh toán',
-                );
-                notification.show();
-              } catch (ex) {
-                //
-              }
-            }
+            _handleO2oEvent(event);
             break;
+          default:
         }
       }
     } catch (ex) {
       showLog(ex, flags: "Error listen redis");
+    }
+  }
+
+  void _handleO2oEvent(dynamic event) {
+    final loginData = LocalStorage.getDataLogin();
+    bool useO2O = loginData?.restaurant?.o2oStatus ?? false;
+    if (!useO2O) return;
+    dynamic dataDecode = jsonDecode(event[2])['data'];
+    dynamic data = dataDecode['data'];
+    showLogs(data, flags: 'data event');
+    int? restaurantId = loginData?.restaurant?.id;
+    int? userId = loginData?.user?.id;
+    dynamic eventRestaurantId = data['restaurant_id'];
+    dynamic waiterId = data['waiter_id'];
+    if (userId == null) return;
+    if (restaurantId != eventRestaurantId) return;
+    switch (event[1]) {
+      case kUserCreateOrderChannel:
+        ref.refresh(orderToOnlineProvider);
+        break;
+      case kUserUpdateOrderChannel:
+        ref.refresh(orderToOnlineProvider);
+
+        /// tự động duyệt yêu cầu của KH
+        if (ref.read(printSettingProvider).autoAcceptO2o) {
+          var orderId = data['order_id'] as int?;
+          var status = data['status'] as int?;
+          if (status != 1) return;
+          var notes = data['notes'] as String?;
+          var itemsData = (jsonDecode(data['items']) as Map<String, dynamic>?) ?? {};
+          List<RequestOrderItemModel> items = itemsData.values
+              .toList()
+              .map((e) => RequestOrderItemModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+
+          Map<int, List<ProductModel>> productPrint =
+              ref.read(menuProvider.notifier).mapO2oItemWithPrintType(items);
+          ref.read(tablesAndOrdersProvider).whenData(
+            (value) async {
+              var order = value.offline?.userUsing.firstWhereOrNull((e) => e.id == orderId);
+              if (order == null) return;
+
+              List<int> printerCheck = productPrint.keys.toList();
+              List<IpOrderModel> printers = [];
+              if (printerCheck.isNotEmpty) {
+                int retry = 0;
+
+                while (retry < 3) {
+                  try {
+                    printers = await _orderRepository.getIpPrinterOrder(
+                      order,
+                      productPrint.keys.toList(),
+                    );
+                    break;
+                  } catch (ex) {
+                    retry++;
+                  }
+                }
+              }
+              showLogs(productPrint, flags: 'productPrint');
+              ref.read(menuProvider.notifier).printO2oRequest(
+                    order: order,
+                    data: productPrint,
+                    note: notes,
+                    printers: printers,
+                  );
+            },
+          );
+        }
+        break;
+
+      case kCallStaffChannel:
+        if (userId != waiterId) return;
+        final note = data['note'];
+        if (Platform.isAndroid) {
+          appLocalNotificationService?.showLocalNotification(
+              S.current.request_service, '${S.current.table} ${note == null ? '' : '\n$note'}');
+        } else if (Platform.isWindows) {
+          try {
+            LocalNotification notification = LocalNotification(
+              title: S.current.request_service,
+              body: '${S.current.table} ${note == null ? '' : '\n$note'}',
+            );
+            notification.show();
+          } catch (ex) {
+            //
+          }
+        }
+        break;
+
+      case kPaymentRequestChannel:
+        if (userId != waiterId) return;
+        final table = data['table'];
+        if (Platform.isAndroid) {
+          appLocalNotificationService?.showLocalNotification(
+              S.current.request_payment, '${S.current.table} $table gọi thanh toán');
+        } else if (Platform.isWindows) {
+          try {
+            LocalNotification notification = LocalNotification(
+              title: S.current.request_payment,
+              body: '${S.current.table} $table gọi thanh toán',
+            );
+            notification.show();
+          } catch (ex) {
+            //
+          }
+        }
+        break;
     }
   }
 
@@ -865,6 +945,236 @@ class HomeNotifier extends StateNotifier<HomeState> {
       const Duration(seconds: 5),
       () => listenRedisChannel(),
     );
+  }
+
+  void _handlePrintRedisEvent(dynamic event) {
+    try {
+      dynamic dataDecode = jsonDecode(event[2]);
+      var type = dataDecode['type'] as String?;
+      var printType = type == null ? null : PrintTypeEnum.values.byName(type);
+      switch (printType) {
+        case PrintTypeEnum.order:
+        case PrintTypeEnum.cancel:
+          _handlePrintProcessItem(dataDecode, printType);
+          break;
+        case PrintTypeEnum.closeShift:
+          _handlePrintCloseShift(dataDecode);
+          break;
+        default:
+      }
+    } catch (ex) {
+      showLogs(ex, flags: '_handlePrintRedisEvent ex');
+    }
+  }
+
+  void _handlePrintCloseShift(dynamic dataDecode) async {
+    try {
+      var mode = dataDecode['mode'] as String?;
+      var printMode = mode == null
+          ? LocalStorage.getPrintSetting().appPrinterType
+          : AppPrinterSettingTypeEnum.values.byName(mode);
+      var data = dataDecode['close_shift'] == null
+          ? null
+          : CloseShiftResponseModel.fromJson(dataDecode['close_shift']);
+      var printers = ((dataDecode['printers'] ?? []) as List<dynamic>)
+          .map((e) => PrinterModel.fromJson(e))
+          .toList();
+
+      showLogs(data, flags: 'data');
+      showLogs(printers, flags: 'printers');
+      if (data == null || printers.isEmpty) return;
+
+      var bytes = printMode == AppPrinterSettingTypeEnum.normal
+          ? await AppPrinterNormalUtils.instance.getCloseShift(data)
+          : await AppPrinterHtmlUtils.instance.getCloseShiftContent(data);
+      for (var printer in printers) {
+        PrintQueue.instance.addTask(
+          ip: printer.ip!,
+          port: printer.port!,
+          buildReceipt: (generator) async {
+            return bytes;
+          },
+          onComplete: (success, error) async {
+            if (success) {
+              showLogs(null, flags: "✅ In thành công");
+            } else {
+              showLogs(error, flags: '❌ In thất bại');
+            }
+          },
+        );
+      }
+    } catch (ex) {
+      showLogs(ex, flags: '_handlePrintProcessItem ex');
+    }
+  }
+
+  void _handlePrintProcessItem(dynamic dataDecode, PrintTypeEnum? printType) async {
+    try {
+      if (printType == null) return;
+      var note = (dataDecode['note'] ?? '') as String;
+      var mode = dataDecode['mode'] as String?;
+      var printMode = mode == null
+          ? LocalStorage.getPrintSetting().appPrinterType
+          : AppPrinterSettingTypeEnum.values.byName(mode);
+      var order = dataDecode['order'] == null ? null : OrderModel.fromJson(dataDecode['order']);
+      var products = ((dataDecode['products'] ?? []) as List<dynamic>)
+          .map((e) => ProductModel.fromJson(e))
+          .toList();
+      var printers = ((dataDecode['printers'] ?? []) as List<dynamic>)
+          .map((e) => PrinterModel.fromJson(e))
+          .toList();
+      if (order == null || printers.isEmpty || products.isEmpty) return;
+      bool cancel = printType == PrintTypeEnum.cancel;
+
+      var bytes = printMode == AppPrinterSettingTypeEnum.normal
+          ? await AppPrinterNormalUtils.instance.generateBill(
+              order: order,
+              billSingle: false,
+              cancel: cancel,
+              timeOrder: 1,
+              totalNote: note,
+              products: products,
+              title: 'HUY DO',
+            )
+          : await AppPrinterHtmlUtils.instance
+              .generateImageBill(AppPrinterHtmlUtils.instance.kitchenBillContent(
+              order: order,
+              product: products,
+              note: note,
+              timeOrders: 1,
+              cancel: cancel,
+              totalBill: true,
+            ));
+      for (var printer in printers) {
+        PrintQueue.instance.addTask(
+          ip: printer.ip!,
+          port: printer.port!,
+          buildReceipt: (generator) async {
+            return bytes;
+          },
+          onComplete: (success, error) async {
+            if (success) {
+              showLogs(null, flags: "✅ In thành công");
+              //   // chỉ in bill lẻ với bếp
+              //   String? errorPrintOdd;
+              //   if (printer.type == 2 && setting.billReturnSetting.useOddBill) {
+              //     for (var item in productPrinter) {
+              //       List<int> byteDatas;
+
+              //       var listComboItemPrint = ProductHelper().getComboDescription(item);
+
+              //       if (listComboItemPrint == null || listComboItemPrint.isEmpty) {
+              //         // món thường
+              //         byteDatas = printNormal
+              //             ? await AppPrinterNormalUtils.instance.generateBill(
+              //                 order: state.orderSelect!,
+              //                 billSingle: true,
+              //                 cancel: false,
+              //                 timeOrder: 1,
+              //                 totalNote: kitchenNote,
+              //                 products: [item],
+              //                 title: '',
+              //               )
+              //             : await AppPrinterHtmlUtils.instance
+              //                 .generateImageBill(AppPrinterHtmlUtils.instance.kitchenBillContent(
+              //                 product: [item],
+              //                 totalBill: false,
+              //                 order: state.orderSelect!,
+              //                 note: kitchenNote,
+              //                 timeOrders: 1,
+              //               ));
+              //         PrintQueue.instance.addTask(
+              //           ip: printer.ip,
+              //           port: printer.port,
+              //           buildReceipt: (generator) async {
+              //             return byteDatas;
+              //           },
+              //           onComplete: (success, error) {
+              //             if (success) {
+              //               showLogs("✅ In thành công\n$item", flags: 'BILL LẺ');
+              //             } else {
+              //               errorPrintOdd = error;
+              //               errors.add(item);
+              //               showLogs("❌ In thất bại\n$item", flags: 'BILL LẺ');
+              //             }
+              //           },
+              //         );
+              //       } else {
+              //         // in từng món trong combo
+              //         for (var ci in listComboItemPrint) {
+              //           byteDatas = printNormal
+              //               ? await AppPrinterNormalUtils.instance.generateBill(
+              //                   order: state.orderSelect!,
+              //                   billSingle: true,
+              //                   cancel: false,
+              //                   timeOrder: 1,
+              //                   totalNote: kitchenNote,
+              //                   products: [
+              //                     item.copyWith(description: jsonEncode([ci]))
+              //                   ],
+              //                   title: '',
+              //                 )
+              //               : await AppPrinterHtmlUtils.instance.generateImageBill(
+              //                   AppPrinterHtmlUtils.instance.kitchenBillContent(
+              //                     product: [
+              //                       item.copyWith(description: jsonEncode([ci]))
+              //                     ],
+              //                     totalBill: false,
+              //                     order: state.orderSelect!,
+              //                     note: kitchenNote,
+              //                     timeOrders: 1,
+              //                   ),
+              //                 );
+              //           PrintQueue.instance.addTask(
+              //             ip: printer.ip,
+              //             port: printer.port,
+              //             buildReceipt: (generator) async {
+              //               return byteDatas;
+              //             },
+              //             onComplete: (success, error) {
+              //               if (success) {
+              //                 showLogs("✅ In thành công\n${item.copyWith(description: jsonEncode(ci))}",
+              //                     flags: 'BILL LẺ');
+              //               } else {
+              //                 errorPrintOdd = error;
+              //                 errors.add(
+              //                   item.copyWith(
+              //                     description: jsonEncode([ci]),
+              //                   ),
+              //                 );
+              //                 showLogs("❌ In thất bại\n${item.copyWith(description: jsonEncode(ci))}",
+              //                     flags: 'BILL LẺ');
+              //               }
+              //             },
+              //           );
+              //         }
+              //       }
+              //     }
+              //     if (errors.isNotEmpty && context.mounted) {
+              //       showMessageDialog(
+              //         context,
+              //         message: "Không thể in bill lẻ xuống bếp\n"
+              //             '$errorPrintOdd\n'
+              //             'Danh sách các món không thể ra bill lẻ:\n${errors.map((e) => e.name).join(', ')}',
+              //       );
+              //     }
+              //   }
+            } else {
+              showLogs(error, flags: '❌ In thất bại');
+              //   if (error != null && context.mounted) {
+              //     showMessageDialog(
+              //       context,
+              //       message: "Món đã được thêm vào hóa đơn nhưng không thể in bill xuống bếp\n"
+              //           'Lỗi:\n$error',
+              //     );
+              //   }
+            }
+          },
+        );
+      }
+    } catch (ex) {
+      showLogs(ex, flags: '_handlePrintProcessItem ex');
+    }
   }
 
   // void checkReloadMenu() {
@@ -884,8 +1194,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       if (loadingHome) updateEvent(HomeEvent.findingCustomer);
       await _checkOrderSelect();
       int countRetry = 0;
-      CustomerResponseData result = await _customerRepository.findCustomer(
-          phoneNumber: phone, order: state.orderSelect!);
+      CustomerResponseData result =
+          await _customerRepository.findCustomer(phoneNumber: phone, order: state.orderSelect!);
       // do {
       //   try {
       //     result =
@@ -906,14 +1216,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
         // syncInfoForCustomer();
         return FindCustomerStatus.success;
       }
-      state = state.copyWith(
-          messageError: "${S.current.find_customer_not_found} ($phone)");
+      state = state.copyWith(messageError: "${S.current.find_customer_not_found} ($phone)");
       return FindCustomerStatus.notFound;
     } catch (ex) {
       _lockOrder(ex);
-      var errorMessage = ex is AppException
-          ? ex.toString()
-          : AppException.fromStatusCode(-1).toString();
+      var errorMessage =
+          ex is AppException ? ex.toString() : AppException.fromStatusCode(-1).toString();
       if (loadingHome) {
         state = state.copyWith(
           event: HomeEvent.normal,
@@ -971,8 +1279,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
     bool applyPolicy = true,
   }) async {
     try {
-      if (state.coupons.any((element) =>
-          element.name.trim().toLowerCase() == code.trim().toLowerCase())) {
+      if (state.coupons
+          .any((element) => element.name.trim().toLowerCase() == code.trim().toLowerCase())) {
         return (
           error: S.current.discount_code_already_exists,
           titleError: null,
@@ -984,20 +1292,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
       final couponRepo = await _couponRepository.addCoupon(
         code: code,
         order: state.orderSelect!,
-        totalOrder:
-            AppUtils.convertToDouble(getFinalPaymentPrice.totalPrice) ?? 0.0,
+        totalOrder: AppUtils.convertToDouble(getFinalPaymentPrice.totalPrice) ?? 0.0,
         numberOfAdults: state.numberOfAdults,
       );
 
       if (loadingHome) updateEvent(null);
-      List<CustomerPolicyModel> coupons =
-          List<CustomerPolicyModel>.from(couponRepo.data);
+      List<CustomerPolicyModel> coupons = List<CustomerPolicyModel>.from(couponRepo.data);
       if (coupons.isEmpty) {
         final errorMessage = couponRepo.message;
         return (
-          titleError: errorMessage.isEmpty
-              ? null
-              : "${S.current.discount_code_is_not_valid} ($code)",
+          titleError:
+              errorMessage.isEmpty ? null : "${S.current.discount_code_is_not_valid} ($code)",
           error: errorMessage.isEmpty
               ? "${S.current.discount_code_is_not_valid} ($code)"
               : errorMessage,
@@ -1123,8 +1428,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }
 
   ///
-  Future<({String? error, List<IpOrderModel> printers, bool errorGetPrinter})>
-      cancelProductOrder(
+  Future<({String? error, List<IpOrderModel> printers, bool errorGetPrinter})> cancelProductOrder(
     List<ProductCheckoutModel> cancelProductCheckouts, {
     String contentCancelOrder = 'Khách chọn nhầm',
     bool ignoreGetPrinter = false,
@@ -1147,16 +1451,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
             );
           }
 
-          showLogs(printerCheck,
-              flags: 'cancelProductOrder - lấy ds máy in theo kiểu món');
+          showLogs(printerCheck, flags: 'cancelProductOrder - lấy ds máy in theo kiểu món');
           // nếu ds sp có chứa đồ uống hoặc k sử dụng KDS thì mới cần lấy ds máy in
           if (printers.isEmpty &&
               !ignoreGetPrinter &&
               printerCheck.isNotEmpty &&
               (printerCheck.contains(4) || !AppConfig.useKds)) {
             try {
-              var resultCheckPrinter = await _orderRepository.getPrinterBill(
-                  state.orderSelect!, printerCheck.toList());
+              var resultCheckPrinter =
+                  await _orderRepository.getPrinterBill(state.orderSelect!, printerCheck.toList());
 
               // if (resultCheckPrinter.error != null) {
               //   throw resultCheckPrinter.error!;
@@ -1182,34 +1485,28 @@ class HomeNotifier extends StateNotifier<HomeState> {
             productCheckout: cancelProductCheckouts,
           );
 
-          var productCheckout =
-              List<ProductCheckoutModel>.from(state.productCheckout);
-          var productsSelected =
-              List<ProductModel>.from(state.productsSelected);
+          var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
+          var productsSelected = List<ProductModel>.from(state.productsSelected);
           for (var item in cancelProductCheckouts) {
-            var check =
-                productCheckout.firstWhereOrNull((e) => e.id == item.id);
+            var check = productCheckout.firstWhereOrNull((e) => e.id == item.id);
             int remain = 0;
             if (check != null) {
               remain = max(0, check.quantity + item.quantityCancel);
               var index = productCheckout.indexOf(check);
               if (index != -1) {
                 if (remain > 0) {
-                  productCheckout[index] =
-                      check.copyWith(quantityCancel: 0, quantity: remain);
+                  productCheckout[index] = check.copyWith(quantityCancel: 0, quantity: remain);
                 } else {
                   productCheckout.removeAt(index);
                 }
               }
 
-              var pCheck =
-                  productsSelected.firstWhereOrNull((e) => e.id == item.id);
+              var pCheck = productsSelected.firstWhereOrNull((e) => e.id == item.id);
               if (pCheck != null) {
                 var ind = productsSelected.indexOf(pCheck);
                 if (ind != -1) {
                   if (remain > 0) {
-                    productsSelected[ind] =
-                        pCheck.copyWith(numberSelecting: remain);
+                    productsSelected[ind] = pCheck.copyWith(numberSelecting: remain);
                   } else {
                     productsSelected.removeAt(ind);
                   }
@@ -1293,8 +1590,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
     try {
       if (state.orderSelect == null) return S.current.noOrderSelect;
       updateEvent(HomeEvent.removeCoupon);
-      final result = await _couponRepository.deleteCoupon(
-          idCode: coupon.id, order: state.orderSelect!);
+      final result =
+          await _couponRepository.deleteCoupon(idCode: coupon.id, order: state.orderSelect!);
 
       updateEvent(null);
       if (result) {
@@ -1339,8 +1636,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(ignoreCheckCodeWaiter: !state.ignoreCheckCodeWaiter);
   }
 
-  Future<(MInvoiceInfo? mInvoiceInfo, String? error)> searchTaxCodeInfo(
-      String taxCode) async {
+  Future<(MInvoiceInfo? mInvoiceInfo, String? error)> searchTaxCodeInfo(String taxCode) async {
     try {
       updateEvent(HomeEvent.findingTaxCode);
       final result = await _invoiceRepository.getMInvoiceTaxInfo(taxCode);
@@ -1428,8 +1724,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<bool> unlockOrder(
-      {bool loadingHome = true, String? messageError}) async {
+  Future<bool> unlockOrder({bool loadingHome = true, String? messageError}) async {
     try {
       state = state.copyWith(lockedOrder: true);
       if (loadingHome) updateEvent(HomeEvent.unlockOrder);
@@ -1535,10 +1830,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       return (coupons: [], error: null);
     } catch (ex) {
       updateEvent(HomeEvent.normal);
-      return (
-        coupons: [],
-        error: "${S.current.can_not_check_payment_method}\n${ex.toString()}"
-      );
+      return (coupons: [], error: "${S.current.can_not_check_payment_method}\n${ex.toString()}");
     }
   }
 
@@ -1557,15 +1849,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
       );
       syncInfoCustomerPage(method: WindowsMethodEnum.bank);
       await _checkOrderSelect();
-      final apiBankParam = ApiBankParam(
-          state.dataBill.order, getFinalPaymentPrice.totalPriceFinal);
+      final apiBankParam = ApiBankParam(state.dataBill.order, getFinalPaymentPrice.totalPriceFinal);
       final paymentMethodSelect = state.paymentMethodSelected;
       final result = await _restaurantRepository.getBanks(apiBankParam);
 
       var bankView = List<UserBankModel>.from(result ?? []);
       // Loại bỏ những bank không hỗ trợ PTTT
-      bankView.removeWhere((element) =>
-          element.listPaymentId.contains(paymentMethodSelect?.key) == false);
+      bankView.removeWhere(
+          (element) => element.listPaymentId.contains(paymentMethodSelect?.key) == false);
 
       if (bankView.length == 1) {
         state = state.copyWith(bankSelect: bankView.first);
@@ -1692,16 +1983,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
       //   return null;
       // }
       state = state.copyWith(
-        applyPolicyState:
-            const PageState(status: PageCommonState.loading, messageError: ''),
+        applyPolicyState: const PageState(status: PageCommonState.loading, messageError: ''),
       );
       if (loadingHome) state = state.copyWith(event: HomeEvent.applyPolicy);
       if (!requireApply) {
         if (state.coupons.isEmpty) {
           if (loadingHome) updateEvent(null);
           state = state.copyWith(
-            applyPolicyState: const PageState(
-                status: PageCommonState.success, messageError: ''),
+            applyPolicyState: const PageState(status: PageCommonState.success, messageError: ''),
           );
           if (!ignoreGetDataBill) await getDataBill(loadingHome: loadingHome);
           return null;
@@ -1710,11 +1999,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
       int retryTimes = 0;
       while (retryTimes < (retry ? 3 : 1)) {
         try {
-          List<CustomerPolicyModel> couponsApply =
-              List<CustomerPolicyModel>.from(state.coupons);
+          List<CustomerPolicyModel> couponsApply = List<CustomerPolicyModel>.from(state.coupons);
 
-          var productCheckout =
-              List<ProductCheckoutModel>.from(state.productCheckout);
+          var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
 
           var totalOrder = getFinalPaymentPrice.totalPrice * 1.0;
 
@@ -1726,23 +2013,21 @@ class HomeNotifier extends StateNotifier<HomeState> {
               for (var dc in c.discount) {
                 if (dc.numberSelect > 0) {
                   discount.add(dc);
-                  var p = productCheckout.firstWhereOrNull(
-                      (e) => e.id == int.tryParse(dc.id ?? '0'));
+                  var p =
+                      productCheckout.firstWhereOrNull((e) => e.id == int.tryParse(dc.id ?? '0'));
                   if (p != null) {
                     var index = productCheckout.indexOf(p);
 
                     if (index != -1) {
                       productCheckout[index] = p.copyWith(
-                        quantityPromotion:
-                            p.quantityPromotion + dc.numberSelect,
+                        quantityPromotion: p.quantityPromotion + dc.numberSelect,
                       );
                     }
                   }
                 }
               }
 
-              couponsApply[couponsApply.indexOf(c)] =
-                  c.copyWith(discount: discount);
+              couponsApply[couponsApply.indexOf(c)] = c.copyWith(discount: discount);
             }
           }
 
@@ -1775,8 +2060,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
           );
 
           state = state.copyWith(
-            applyPolicyState: const PageState(
-                status: PageCommonState.success, messageError: ''),
+            applyPolicyState: const PageState(status: PageCommonState.success, messageError: ''),
           );
           if (loadingHome) updateEvent(null);
           if (!ignoreGetDataBill) await getDataBill(loadingHome: loadingHome);
@@ -1794,8 +2078,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         }
       }
       state = state.copyWith(
-        applyPolicyState:
-            const PageState(status: PageCommonState.success, messageError: ''),
+        applyPolicyState: const PageState(status: PageCommonState.success, messageError: ''),
       );
       return null;
     } catch (ex) {
@@ -1806,8 +2089,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       state = state.copyWith(
         applyPolicyState: PageState(
             status: PageCommonState.error,
-            messageError:
-                ex.toString().replaceAll(kIgnoreRetryApplyPolicy, "")),
+            messageError: ex.toString().replaceAll(kIgnoreRetryApplyPolicy, "")),
       );
       if (!ignoreGetDataBill) await getDataBill(loadingHome: loadingHome);
       return ex.toString().replaceAll(kIgnoreRetryApplyPolicy, "");
@@ -1815,12 +2097,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }
 
   /// tạm tính
-  Future<
-      ({
-        HomePaymentError? errorType,
-        String msg,
-        List<IpOrderModel> tmpPrinters
-      })> onPayment(BuildContext context) async {
+  Future<({HomePaymentError? errorType, String msg, List<IpOrderModel> tmpPrinters})> onPayment(
+      BuildContext context) async {
     List<IpOrderModel> printers = [];
     try {
       updateEvent(HomeEvent.paymentProcess);
@@ -1847,8 +2125,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
             );
           }
           if (printers.isEmpty) {
-            final resultPrinter =
-                await _orderRepository.getPrinterBill(state.orderSelect!, [1]);
+            final resultPrinter = await _orderRepository.getPrinterBill(state.orderSelect!, [1]);
 
             printers = List.from(resultPrinter ?? []);
           }
@@ -1879,9 +2156,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
             paymentMethod: state.paymentMethodSelected?.key,
             customerPortrait: state.customerPortraitSelect,
             statusPaymentCompleted: state.statusPaymentGateway,
-            totalPaymentCompleted: state.statusPaymentGateway
-                ? state.totalPaymentGateway
-                : price.totalPriceFinal,
+            totalPaymentCompleted:
+                state.statusPaymentGateway ? state.totalPaymentGateway : price.totalPriceFinal,
           );
 
           try {
@@ -1995,9 +2271,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
             amountAdult: state.numberOfAdults,
             amountChildren: state.numberOfChildren,
             description: state.completeNote,
-            arrMethod: [
-              '${paymentMethodSelected.key}--${price.totalPriceFinal}'
-            ],
+            arrMethod: ['${paymentMethodSelected.key}--${price.totalPriceFinal}'],
             totalPrice: price.totalPrice,
             totalPriceFinal: price.totalPriceFinal,
             totalPriceTax: price.totalPriceTax,
@@ -2009,8 +2283,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
           );
 
           List<LineItemDataBill> productPrint = [];
-          for (var e in (state.dataBill.print?.orderLineItems ??
-              <LineItemDataBill>[])) {
+          for (var e in (state.dataBill.print?.orderLineItems ?? <LineItemDataBill>[])) {
             productPrint.add(LineItemDataBill(
               name: e.name,
               price: e.price,
@@ -2037,9 +2310,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
             receiptType: ReceiptTypeEnum.paymentReceipt,
             paymentMethod: state.paymentMethodSelected,
             paymentAmount: state.statusPaymentGateway
-                ? (double.tryParse(
-                        (state.totalPaymentGateway ?? 0.0).toString()) ??
-                    0.0)
+                ? (double.tryParse((state.totalPaymentGateway ?? 0.0).toString()) ?? 0.0)
                 : price.totalPriceFinal * 1.0,
             numberPrintCompleted: 1,
             numberPrintTemporary: 0,
@@ -2060,8 +2331,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
           if (check != null) {
             if (loadingHome) updateEvent(null);
             if (context.mounted) {
-              await showMessageDialog(context,
-                  message: 'Không thể in phiếu thanh toán\n$check');
+              await showMessageDialog(context, message: 'Không thể in phiếu thanh toán\n$check');
             }
             return null;
           }
@@ -2118,21 +2388,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
     return 'Chưa triển khai';
   }
 
-  Future<
-      ({
-        String? url,
-        String? qr,
-        int? expiryMin,
-        String? error,
-        int? statusCode
-      })> getPaymentGateway() async {
+  Future<({String? url, String? qr, int? expiryMin, String? error, int? statusCode})>
+      getPaymentGateway() async {
     String? url, qr, error;
     int? statusCode;
     int? expiryMin;
     try {
       updateEvent(HomeEvent.getPaymentGateway);
-      final apiBankParam = ApiBankParam(
-          state.dataBill.order, getFinalPaymentPrice.totalPriceFinal);
+      final apiBankParam = ApiBankParam(state.dataBill.order, getFinalPaymentPrice.totalPriceFinal);
 
       final paymentMethodSelect = state.paymentMethodSelected;
       if (paymentMethodSelect == null) {
@@ -2180,8 +2443,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       );
     } catch (ex) {
       state = state.copyWith(
-        listAtmPosState: PageState(
-            status: PageCommonState.error, messageError: ex.toString()),
+        listAtmPosState: PageState(status: PageCommonState.error, messageError: ex.toString()),
       );
     }
   }
@@ -2227,30 +2489,43 @@ class HomeNotifier extends StateNotifier<HomeState> {
       var checkPrinter = await AppPrinterCommon.checkPrinter(printer);
       if (checkPrinter != null) throw checkPrinter;
       updateEvent(HomeEvent.normal);
-      var setting = LocalStorage.getPrintSetting();
-      bool printNormal =
-          setting.appPrinterType == AppPrinterSettingTypeEnum.normal;
-      var bytes = printNormal
-          ? await AppPrinterNormalUtils.instance.getCloseShift(res)
-          : await AppPrinterHtmlUtils.instance.getCloseShiftContent(res);
-      PrintQueue.instance.addTask(
-        ip: printer.ip,
-        port: printer.port,
-        buildReceipt: (generator) async {
-          return bytes;
-        },
-        onComplete: (success, error) {
-          if (success) {
-            showLogs("✅ In thành công");
-          } else {
-            showLogs("❌ In thất bại");
-
-            if (error != null) {
-              showMessageDialog(context, message: error);
-            }
-          }
-        },
+      showLogs(res, flags: 'res');
+      ref.read(homeProvider.notifier).sendPrintData(
+        type: PrintTypeEnum.closeShift,
+        closeShiftData: res,
+        printers: [
+          PrinterModel(
+            ip: printer.ip,
+            port: printer.port,
+            name: printer.name,
+            type: printer.type,
+            typeAreaLocation: printer.typeAreaLocation,
+          )
+        ],
       );
+      // var setting = LocalStorage.getPrintSetting();
+      // bool printNormal = setting.appPrinterType == AppPrinterSettingTypeEnum.normal;
+      // var bytes = printNormal
+      //     ? await AppPrinterNormalUtils.instance.getCloseShift(res)
+      //     : await AppPrinterHtmlUtils.instance.getCloseShiftContent(res);
+      // PrintQueue.instance.addTask(
+      //   ip: printer.ip,
+      //   port: printer.port,
+      //   buildReceipt: (generator) async {
+      //     return bytes;
+      //   },
+      //   onComplete: (success, error) {
+      //     if (success) {
+      //       showLogs("✅ In thành công");
+      //     } else {
+      //       showLogs("❌ In thất bại");
+
+      //       if (error != null) {
+      //         showMessageDialog(context, message: error);
+      //       }
+      //     }
+      //   },
+      // );
 
       return null;
     } catch (ex) {
@@ -2300,12 +2575,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
   Future<String?> getDataBill({bool loadingHome = false}) async {
     try {
       if (loadingHome) updateEvent(HomeEvent.getDataBill);
-      state = state.copyWith(
-          dataBillState: const PageState(status: PageCommonState.loading));
+      state = state.copyWith(dataBillState: const PageState(status: PageCommonState.loading));
       await _checkOrderSelect();
-      final result = await ref
-          .read(orderRepositoryProvider)
-          .getDataBill(orderId: state.orderSelect!.id);
+      final result =
+          await ref.read(orderRepositoryProvider).getDataBill(orderId: state.orderSelect!.id);
 
       // if (result == null) {
       //   state = state.copyWith(
@@ -2320,13 +2593,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
       var data = result;
       var orderLineItems = data.orderLineItems;
 
-      var productCheckout =
-          List<ProductCheckoutModel>.from(state.productCheckout);
+      var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
 
       var length = productCheckout.length;
       for (var i = 0; i < length; i++) {
-        var p = orderLineItems
-            .firstWhereOrNull((e) => e.id == productCheckout[i].id);
+        var p = orderLineItems.firstWhereOrNull((e) => e.id == productCheckout[i].id);
         if (p != null) {
           productCheckout[i] = productCheckout[i].copyWith(
             tax: double.tryParse(p.tax) ?? 0.0,
@@ -2387,15 +2658,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
     DiscountPolicy discountUpdate = discount.copyWith(numberSelect: amount);
     CustomerPolicyModel couponUpdate = coupon.copyWith();
 
-    List<DiscountPolicy> listDiscountUpdate =
-        List<DiscountPolicy>.from(couponUpdate.discount);
-    listDiscountUpdate[listDiscountUpdate.indexWhere(
-        (element) => element.id == discountUpdate.id)] = discountUpdate;
+    List<DiscountPolicy> listDiscountUpdate = List<DiscountPolicy>.from(couponUpdate.discount);
+    listDiscountUpdate[listDiscountUpdate
+        .indexWhere((element) => element.id == discountUpdate.id)] = discountUpdate;
 
     couponUpdate = couponUpdate.copyWith(discount: listDiscountUpdate);
     List<CustomerPolicyModel> couponState = List.from(state.coupons);
-    couponState[couponState
-        .indexWhere((element) => element.id == couponUpdate.id)] = couponUpdate;
+    couponState[couponState.indexWhere((element) => element.id == couponUpdate.id)] = couponUpdate;
 
     state = state.copyWith(coupons: couponState);
     applyCustomerPolicy();
@@ -2443,8 +2712,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     while (retry < 3) {
       try {
         // lấy phương thức tiền mặt để phân bổ lại thuế
-        var paymentCheck =
-            _listPaymentMethods.firstWhereOrNull((e) => e.isCash);
+        var paymentCheck = _listPaymentMethods.firstWhereOrNull((e) => e.isCash);
         error = await onUpdateTax(pc,
             paymentMethod: paymentCheck ??
                 const PaymentMethod(
@@ -2488,8 +2756,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }
 
   void onChangeDisplayOrderHistory(bool? value) {
-    state = state.copyWith(
-        displayOrderHistory: value ?? !state.displayOrderHistory);
+    state = state.copyWith(displayOrderHistory: value ?? !state.displayOrderHistory);
   }
 
   Future<String?> addItemToOrder1({
@@ -2519,23 +2786,20 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   /// gọi món
   Future<String?> addItemsToOrder(BuildContext context) async {
-    var note = LocalStorage.getNotePerOrderItem(
-        order: state.orderSelect ?? const OrderModel());
+    var note = LocalStorage.getNotePerOrderItem(order: state.orderSelect ?? const OrderModel());
 
     Set<int> printerCheck = {};
 
     Map<int, List<ProductModel>> printerMapProducts = {};
     double total = 0.0;
     List<ProductModel> productPrintBill = (state.productsSelecting).map((e) {
-      total +=
-          (double.tryParse(e.unitPrice) ?? 0.0) * max(0, e.numberSelecting);
+      total += (double.tryParse(e.unitPrice) ?? 0.0) * max(0, e.numberSelecting);
 
       var product = e.copyWith(note: note?[e.id.toString()] ?? '');
       var comboItems = ProductHelper().getComboDescription(product);
       if (comboItems == null || comboItems.isEmpty) {
         if (product.printerType != null) {
-          var items = List<ProductModel>.from(
-              printerMapProducts[product.printerType] ?? []);
+          var items = List<ProductModel>.from(printerMapProducts[product.printerType] ?? []);
           // coi combo k có thành phần như là món thường để in
           items.add(product.copyWith(description: null));
           printerMapProducts[product.printerType!] = items;
@@ -2545,8 +2809,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         for (var ci in comboItems) {
           var printerType = ci.printerType;
           if (printerType != null) {
-            var items =
-                List<ComboItemModel>.from(printComboItem[printerType] ?? []);
+            var items = List<ComboItemModel>.from(printComboItem[printerType] ?? []);
             items.add(ci);
             printComboItem[printerType] = items;
           }
@@ -2598,8 +2861,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       );
 
       try {
-        await LocalStorage.setOrderItemSelectingForOrder(
-            orderId: state.orderSelect!.id, data: {});
+        await LocalStorage.setOrderItemSelectingForOrder(orderId: state.orderSelect!.id, data: {});
       } catch (ex) {
         //
       }
@@ -2614,8 +2876,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
       try {
         var setting = LocalStorage.getPrintSetting();
-        bool printNormal =
-            setting.appPrinterType == AppPrinterSettingTypeEnum.normal;
+        bool printNormal = setting.appPrinterType == AppPrinterSettingTypeEnum.normal;
 
         for (var printer in (listPrinters ?? <IpOrderModel>[])) {
           List<ProductModel> productPrinter =
@@ -2638,8 +2899,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
                   products: productPrinter,
                   title: '',
                 )
-              : await AppPrinterHtmlUtils.instance.generateImageBill(
-                  AppPrinterHtmlUtils.instance.kitchenBillContent(
+              : await AppPrinterHtmlUtils.instance
+                  .generateImageBill(AppPrinterHtmlUtils.instance.kitchenBillContent(
                   order: state.orderSelect!,
                   product: productPrinter,
                   note: kitchenNote,
@@ -2663,11 +2924,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
                   for (var item in productPrinter) {
                     List<int> byteDatas;
 
-                    var listComboItemPrint =
-                        ProductHelper().getComboDescription(item);
+                    var listComboItemPrint = ProductHelper().getComboDescription(item);
 
-                    if (listComboItemPrint == null ||
-                        listComboItemPrint.isEmpty) {
+                    if (listComboItemPrint == null || listComboItemPrint.isEmpty) {
                       // món thường
                       byteDatas = printNormal
                           ? await AppPrinterNormalUtils.instance.generateBill(
@@ -2680,8 +2939,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                               title: '',
                             )
                           : await AppPrinterHtmlUtils.instance
-                              .generateImageBill(AppPrinterHtmlUtils.instance
-                                  .kitchenBillContent(
+                              .generateImageBill(AppPrinterHtmlUtils.instance.kitchenBillContent(
                               product: [item],
                               totalBill: false,
                               order: state.orderSelect!,
@@ -2696,8 +2954,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                         },
                         onComplete: (success, error) {
                           if (success) {
-                            showLogs("✅ In thành công\n$item",
-                                flags: 'BILL LẺ');
+                            showLogs("✅ In thành công\n$item", flags: 'BILL LẺ');
                           } else {
                             errorPrintOdd = error;
                             errors.add(item);
@@ -2720,8 +2977,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                                 ],
                                 title: '',
                               )
-                            : await AppPrinterHtmlUtils.instance
-                                .generateImageBill(
+                            : await AppPrinterHtmlUtils.instance.generateImageBill(
                                 AppPrinterHtmlUtils.instance.kitchenBillContent(
                                   product: [
                                     item.copyWith(description: jsonEncode([ci]))
@@ -2773,8 +3029,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                 if (error != null && context.mounted) {
                   showMessageDialog(
                     context,
-                    message:
-                        "Món đã được thêm vào hóa đơn nhưng không thể in bill xuống bếp\n"
+                    message: "Món đã được thêm vào hóa đơn nhưng không thể in bill xuống bếp\n"
                         'Lỗi:\n$error',
                   );
                 }
@@ -2790,8 +3045,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         if (context.mounted) {
           showMessageDialog(
             context,
-            message:
-                'Món đã được thêm vào hóa đơn nhưng không thể in bill xuống bếp\n'
+            message: 'Món đã được thêm vào hóa đơn nhưng không thể in bill xuống bếp\n'
                 'Lỗi:\n${ex.toString()}',
           );
         }
@@ -2806,15 +3060,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   void cancelProductCheckout(ProductModel p, int count) {
     try {
-      var productCheckout =
-          List<ProductCheckoutModel>.from(state.productCheckout);
+      var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
 
       var productCheck = productCheckout.firstWhereOrNull((e) => e.id == p.id);
       if (productCheck != null) {
         var index = productCheckout.indexOf(productCheck);
         if (index != -1) {
-          productCheck = productCheck.copyWith(
-              quantityCancel: productCheck.quantityCancel + count);
+          productCheck = productCheck.copyWith(quantityCancel: productCheck.quantityCancel + count);
           productCheckout[index] = productCheck;
         }
       }
@@ -2964,9 +3216,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       'customer': state.customer,
       'payment_method': state.paymentMethodSelected,
       'price': state.dataBill.price.copyWith(
-        receivedAmount: (state.paymentMethodSelected?.isCash ?? false)
-            ? state.cashReceivedAmount
-            : 0,
+        receivedAmount:
+            (state.paymentMethodSelected?.isCash ?? false) ? state.cashReceivedAmount : 0,
       ),
       'bank': state.bankSelect,
       'product': state.productsSelected,
@@ -2975,8 +3226,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     };
   }
 
-  dynamic _tranferDataToCustomerPage(
-      {WindowsMethodEnum method = WindowsMethodEnum.data}) {
+  dynamic _tranferDataToCustomerPage({WindowsMethodEnum method = WindowsMethodEnum.data}) {
     switch (method) {
       case WindowsMethodEnum.data:
         return getAllDataToCustomerPage();
@@ -2986,9 +3236,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
         return state.customer;
       case WindowsMethodEnum.price:
         return state.dataBill.price.copyWith(
-          receivedAmount: (state.paymentMethodSelected?.isCash ?? false)
-              ? state.cashReceivedAmount
-              : 0,
+          receivedAmount:
+              (state.paymentMethodSelected?.isCash ?? false) ? state.cashReceivedAmount : 0,
         );
       case WindowsMethodEnum.paymentMethod:
         return state.paymentMethodSelected;

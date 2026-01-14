@@ -30,7 +30,10 @@ mixin _$OrderModel {
   List<String> get qrO2O =>
       throw _privateConstructorUsedError; // @Default('') @JsonKey(includeToJson: false) String orderCode,
   /// chuỗi "1,2"
-  String get tableId => throw _privateConstructorUsedError;
+  String get tableId => throw _privateConstructorUsedError; // @JsonKey(
+//   fromJson: ParsingUtils.parseDateTime,
+//   toJson: ParsingUtils.toDateTime,
+// )
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(includeToJson: false, includeFromJson: false)
   int get typeOrder => throw _privateConstructorUsedError;
@@ -272,6 +275,10 @@ class _$OrderModelImpl extends _OrderModel with DiagnosticableTreeMixin {
   @override
   @JsonKey()
   final String tableId;
+// @JsonKey(
+//   fromJson: ParsingUtils.parseDateTime,
+//   toJson: ParsingUtils.toDateTime,
+// )
   @override
   final DateTime? createdAt;
   @override
@@ -389,7 +396,10 @@ abstract class _OrderModel extends OrderModel {
   @override // @Default('') @JsonKey(includeToJson: false) String orderCode,
   /// chuỗi "1,2"
   String get tableId;
-  @override
+  @override // @JsonKey(
+//   fromJson: ParsingUtils.parseDateTime,
+//   toJson: ParsingUtils.toDateTime,
+// )
   DateTime? get createdAt;
   @override
   @JsonKey(includeToJson: false, includeFromJson: false)

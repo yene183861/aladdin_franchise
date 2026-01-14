@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:intl/intl.dart';
 
 class ParsingUtils {
@@ -35,5 +36,21 @@ class ParsingUtils {
 
   static String formatDateTime(DateTime value) {
     return DateFormat('yyyy-MM-dd').format(value);
+  }
+
+  static DateTime? parseDateTime(dynamic value) {
+    if (value == null) {
+      return null;
+    }
+    if (value is String) {
+      if (value == 'null') return null;
+      return DateFormat('yyyy-MM-ddTHH:mm:ss.SSSSZ').parse(value);
+    }
+    return value;
+  }
+
+  static String? toDateTime(DateTime? value) {
+    if (value == null) return null;
+    return DateFormat('yyyy-MM-ddTHH:mm:ss.SSSSZ').format(value);
   }
 }

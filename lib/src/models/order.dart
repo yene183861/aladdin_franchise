@@ -4,6 +4,7 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/parsing_util.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -34,13 +35,11 @@ class OrderModel with _$OrderModel {
     @Default(null) @JsonKey(includeToJson: false) dynamic reservationCrmId,
   }) = _OrderModel;
 
-  factory OrderModel.fromJson(Map<String, dynamic> json) =>
-      _$OrderModelFromJson(json);
+  factory OrderModel.fromJson(Map<String, dynamic> json) => _$OrderModelFromJson(json);
 
   const OrderModel._();
 
-  String getNameView() =>
-      (isRestore == 1) ? "$name (${S.current.restore.toUpperCase()})" : name;
+  String getNameView() => (isRestore == 1) ? "$name (${S.current.restore.toUpperCase()})" : name;
 
   bool isInvalid() => id == -1;
 
@@ -58,12 +57,8 @@ class OrderModel with _$OrderModel {
 
   List<int> get getTableIds {
     if (tableId.trim().isEmpty) return [];
-    var str = tableId
-        .trim()
-        .split(',')
-        .map((e) => int.tryParse(e.trim()))
-        .whereType<int>()
-        .toList();
+    var str =
+        tableId.trim().split(',').map((e) => int.tryParse(e.trim())).whereType<int>().toList();
     return str;
   }
 }
