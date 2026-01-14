@@ -30,12 +30,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'state.dart';
 
-final cartPageProvider = StateNotifierProvider.autoDispose<CartPageNotifier, CartPageState>((ref) {
+final cartPageProvider =
+    StateNotifierProvider.autoDispose<CartPageNotifier, CartPageState>((ref) {
   return CartPageNotifier(ref, ref.read(orderRepositoryProvider));
 });
 
 class CartPageNotifier extends StateNotifier<CartPageState> {
-  CartPageNotifier(this.ref, this._orderRepository) : super(const CartPageState());
+  CartPageNotifier(this.ref, this._orderRepository)
+      : super(const CartPageState());
   final Ref ref;
   final OrderRepository _orderRepository;
   void init(List<ProductModel> products) async {
@@ -276,15 +278,18 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
     if (order == null) return null;
     var productSelecting = List<ProductModel>.from(state.productsSelecting);
     var productIdSelect = Set<int>.from(state.productIdSelect);
-    var products = productSelecting.where((e) => productIdSelect.contains(e.id)).toList();
+    var products =
+        productSelecting.where((e) => productIdSelect.contains(e.id)).toList();
     var kitchenNote = note;
 
     try {
-      await ref.read(homeProvider.notifier).addItemToOrder1(
+      await ref.read(homeProvider.notifier).addItemToOrder(
             products: products,
             kitchenNote: kitchenNote,
             total: products.fold(
-                0.0, (previousValue, p) => previousValue + p.getUnitPriceNum() * p.numberSelecting),
+                0.0,
+                (previousValue, p) =>
+                    previousValue + p.getUnitPriceNum() * p.numberSelecting),
           );
       if (useDefaultPrinter) {
         Set<PrinterModel> foodPrinterDefault = <PrinterModel>{},

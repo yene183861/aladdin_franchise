@@ -10,6 +10,8 @@ import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/services/print_queue.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
+import 'package:aladdin_franchise/src/data/enum/print_type.dart';
+import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -144,6 +146,99 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
         event: OrderToOnlineEvent.error,
         message: ex.toString(),
       );
+    }
+  }
+
+  Future<String?> acceptRequest1({
+    String note = '',
+    Set<PrinterModel> printerSelect = const <PrinterModel>{},
+    bool useDefaultPrinter = true,
+  }) async {
+    try {
+      var orderSelect = state.orderSelect;
+      var requestSelect = state.requestSelect;
+      var listItem = state.requestSelect?.listItem ?? [];
+
+      if (orderSelect == null || requestSelect == null || listItem.isEmpty) {
+        return null;
+      }
+
+      Map<int, List<ProductModel>> productPrint =
+          ref.read(menuProvider.notifier).mapO2oItemWithPrintType(listItem);
+
+      var order = OrderModel(
+        id: orderSelect.orderId,
+        name: orderSelect.tableName,
+        misc: '{"order_code":"${orderSelect.orderCode}","remarks":""}',
+      );
+
+      state = state.copyWith(event: OrderToOnlineEvent.loading, message: S.current.processing);
+      List<int> printerCheck = productPrint.keys.toList();
+      List<IpOrderModel> printers = [];
+      if (printerCheck.isNotEmpty) {
+        printers = await _orderRepository.getIpPrinterOrder(
+          order,
+          productPrint.keys.toList(),
+        );
+      }
+
+      await _o2oRepository.processO2oRequest(
+        orderId: orderSelect.orderId,
+        orderItemId: requestSelect.id,
+        orderItems: listItem,
+        status: 1,
+        notes: note,
+      );
+      state = state.copyWith(
+        event: OrderToOnlineEvent.success,
+        message: '',
+        requestSelect: null,
+      );
+      if (useDefaultPrinter) {
+        for (var printer in printers) {
+          var products = productPrint[printer.type] ?? [];
+          if (products.isEmpty) continue;
+          ref.read(homeProvider.notifier).sendPrintData(
+                type: PrintTypeEnum.order,
+                products: products,
+                printers: printers
+                    .map((e) => PrinterModel(ip: e.ip, port: e.port, name: e.name))
+                    .toList(),
+              );
+        }
+      } else {
+        var allData = productPrint.values.expand((list) => list).toList();
+
+        ref.read(homeProvider.notifier).sendPrintData(
+              type: PrintTypeEnum.order,
+              products: allData,
+              printers: printerSelect.toList(),
+            );
+      }
+
+      if (!ref.read(homeProvider).realtimeStatus) {
+        ref.refresh(orderToOnlineProvider);
+      }
+      // if (!ref.read(homeProvider).realtimeStatus || !ref.read(printSettingProvider).autoAcceptO2o) {
+      //   ref.read(menuProvider.notifier).printO2oRequest(
+      //         order: order,
+      //         context: context,
+      //         data: productPrint,
+      //         note: note,
+      //         printers: printers,
+      //       );
+      // }
+
+      if (orderSelect.orderId == ref.read(homeProvider).orderSelect?.id) {
+        ref.read(homeProvider.notifier).getOrderProductCheckout();
+      }
+      return null;
+    } catch (ex) {
+      state = state.copyWith(
+        event: OrderToOnlineEvent.error,
+        message: ex.toString(),
+      );
+      return ex.toString();
     }
   }
 

@@ -280,11 +280,10 @@ class OrderRepositoryImpl extends OrderRepository {
       ignoreCheckStatus: true,
       ignoreResponse: true,
       parser: (json) {
-        if (int.tryParse(json) != 1) {
-          /// 200 - nhưng response k phải 1
-          throw AppException(
-              statusCode: 200, message: "Thanh toán in bill lỗi");
-        }
+        // if (int.tryParse(json) != 1) {
+        //   /// 200 - nhưng response k phải 1
+        //   throw AppException(statusCode: 200, message: "Thanh toán in bill lỗi");
+        // }
         return true;
       },
       log: ErrorLogModel(
@@ -516,7 +515,7 @@ class OrderRepositoryImpl extends OrderRepository {
   }
 
   @override
-  Future<void> completeBill({
+  Future<String?> completeBill({
     required OrderModel order,
     String description = '',
     // // cấu trúc: keyPaymentMethod--priceFinal,
@@ -555,6 +554,10 @@ class OrderRepositoryImpl extends OrderRepository {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
       },
+      dataKey: 'data',
+      parser: (json) {
+        return (json ?? '') as String?;
+      },
       log: ErrorLogModel(
         action: AppLogAction.completeBill,
         api: apiUrl,
@@ -568,17 +571,19 @@ class OrderRepositoryImpl extends OrderRepository {
         message: result.error,
       );
     }
+
+    return result.data;
   }
 
   @override
   Future<List<ProductCheckoutUpdateTaxModel>> updateTax(
       {required OrderModel order,
       required List<ProductCheckoutModel> pc,
-      required PaymentMethod paymentMethod}) async {
+      PaymentMethod? paymentMethod}) async {
     final apiUrl = '${ApiConfig.apiUrl}/api/v2/update-tax-waiter';
     var body = jsonEncode({
       "order_id": order.id,
-      "method": paymentMethod.key,
+      "method": paymentMethod?.key,
       "data": pc
           .map((e) => {
                 'menu_item_id': e.id,

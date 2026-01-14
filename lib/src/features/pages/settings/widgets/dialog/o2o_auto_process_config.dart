@@ -2,123 +2,31 @@ import 'dart:math';
 
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
-import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/o2o_config.dart';
-import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
-import 'package:aladdin_franchise/src/features/dialogs/message.dart';
-import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/settings/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../widgets/dialog/o2o_auto_process_config.dart';
-import 'normal.dart';
-import 'with_html.dart';
-
-class BillSettingsWidget extends ConsumerStatefulWidget {
-  const BillSettingsWidget({super.key});
-  @override
-  ConsumerState createState() => _BillSettingsWidgetState();
+Future<O2oConfigModel?> showO2oAutoProcessConfigDialog(
+  BuildContext context,
+  O2oConfigModel config,
+) {
+  return showDialog<O2oConfigModel?>(
+    context: context,
+    builder: (context) {
+      return _O2oAutoProcessConfigDialog(
+        enable: config.isEnabled,
+        timeConfig: config.confirmTimeout,
+      );
+    },
+  );
 }
 
-class _BillSettingsWidgetState extends ConsumerState<BillSettingsWidget> {
-  @override
-  Widget build(BuildContext context) {
-    final typePrinter = ref.watch(settingsPageProvider
-        .select((value) => value.printSetting.appPrinterType));
-    return Container(
-      color: Colors.grey.shade100,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Consumer(builder: (context, ref, child) {
-            var o2oConfig = ref.watch(o2oConfigProvider).when(
-                  data: (data) => data,
-                  error: (error, stackTrace) => O2oConfigModel(),
-                  loading: () => O2oConfigModel(),
-                );
-            return Row(
-              children: [
-                Checkbox(
-                  value: o2oConfig?.isEnabled ?? false,
-                  onChanged: (value) async {
-                    var config = await showO2oAutoProcessConfigDialog(
-                      context,
-                      o2oConfig,
-                    );
-                    showLogs(config, flags: 'config');
-                    if (config != null) {
-                      var result = await ref
-                          .read(homeProvider.notifier)
-                          .saveO2oAutoProcessConfig(config);
-                      if (result != null) {
-                        showMessageDialog(context, message: result);
-                      }
-                    }
-                  },
-                ),
-                Expanded(
-                  child: Text(
-                    "Tự động xác nhận yêu cầu gọi món tại bàn",
-                    style: AppTextStyle.bold(),
-                  ),
-                ),
-              ],
-            );
-            // return SwitchListTile(
-            //   title: Text(
-            //     "Tự động xác nhận yêu cầu gọi món tại bàn",
-            //     style: AppTextStyle.bold(),
-            //     maxLines: 2,
-            //     overflow: TextOverflow.ellipsis,
-            //   ),
-            //   controlAffinity: ListTileControlAffinity.leading,
-            //   value: autoAcceptO2o,
-            //   onChanged: (value) {
-            //     ref
-            //         .read(settingsPageProvider.notifier)
-            //         .onChangeSetting(autoAcceptO2o: !autoAcceptO2o);
-            //   },
-            // );
-          }),
-          SwitchListTile(
-            title: Text(
-              "Gọi món/ Hủy món - Bill Tiếng Việt có dấu",
-              style: AppTextStyle.bold(),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            controlAffinity: ListTileControlAffinity.leading,
-            value: typePrinter == AppPrinterSettingTypeEnum.withHtml,
-            onChanged: (value) {
-              final typePrinterNew = value
-                  ? AppPrinterSettingTypeEnum.withHtml
-                  : AppPrinterSettingTypeEnum.normal;
-              ref
-                  .read(settingsPageProvider.notifier)
-                  .onChangeSetting(appPrinterType: typePrinterNew);
-            },
-          ),
-          Flexible(
-            child: typePrinter == AppPrinterSettingTypeEnum.normal
-                ? const BillSettingForNormalWidget()
-                : const BillSettingForHtmlWidget(),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class AutoConfirmConfigDialog extends StatefulWidget {
-  const AutoConfirmConfigDialog({
-    super.key,
+class _O2oAutoProcessConfigDialog extends ConsumerStatefulWidget {
+  const _O2oAutoProcessConfigDialog({
     this.enable = false,
     this.timeConfig = 30,
   });
@@ -126,11 +34,12 @@ class AutoConfirmConfigDialog extends StatefulWidget {
   final int timeConfig;
 
   @override
-  State<AutoConfirmConfigDialog> createState() =>
-      _AutoConfirmConfigDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      __O2oAutoProcessConfigDialogState();
 }
 
-class _AutoConfirmConfigDialogState extends State<AutoConfirmConfigDialog> {
+class __O2oAutoProcessConfigDialogState
+    extends ConsumerState<_O2oAutoProcessConfigDialog> {
   late TextEditingController _timeController;
   bool enable = true;
 

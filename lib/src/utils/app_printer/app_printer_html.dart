@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
+import 'package:aladdin_franchise/src/data/request/payment_receipt_print.dart';
 import 'package:aladdin_franchise/src/data/response/close_shift.dart';
 import 'package:aladdin_franchise/src/models/combo_item.dart';
 import 'package:aladdin_franchise/src/models/data_bill.dart';
@@ -60,46 +61,49 @@ class AppPrinterHtmlUtils {
     return bytes;
   }
 
-  Future<List<int>> getReceptBillContent({
-    required OrderModel order,
-    List<LineItemDataBill> orderLineItems = const [],
-    required PriceDataBill price,
-    String? note,
-    PaymentMethod? paymentMethod,
-    List<HistoryPolicyResultModel> vouchers = const [],
-    required ReceiptTypeEnum receiptType,
-    bool printNumberOfPeople = false,
-    String customerPhone = '',
-    int numberOfPeople = 1,
-    double paymentAmount = 0.0,
-    int numberPrintCompleted = 1,
-    int numberPrintTemporary = 1,
-    String cashierCompleted = '',
-    DateTime? timeCompleted,
-    DateTime? timeCreatedAt,
-    String cashierPrint = '',
-    String invoiceQr = '',
-  }) async {
-    var htmlData = _receiptBillContent(
-      order: order,
-      orderLineItems: orderLineItems,
-      price: price,
-      receiptType: receiptType,
-      note: note ?? '',
-      customerPhone: customerPhone,
-      numberOfPeople: numberOfPeople,
-      paymentAmount: paymentAmount,
-      paymentMethod: paymentMethod,
-      printNumberOfPeople: printNumberOfPeople,
-      vouchers: vouchers,
-      numberPrintCompleted: numberPrintCompleted,
-      numberPrintTemporary: numberPrintTemporary,
-      cashierCompleted: cashierCompleted,
-      timeCompleted: timeCompleted,
-      timeCreatedAt: timeCreatedAt,
-      cashierPrint: cashierPrint,
-      invoiceQr: invoiceQr,
-    );
+  Future<List<int>> getReceptBillContent(
+    PaymentReceiptPrintRequest data,
+    // {
+    // required OrderModel order,
+    // List<LineItemDataBill> orderLineItems = const [],
+    // required PriceDataBill price,
+    // String? note,
+    // PaymentMethod? paymentMethod,
+    // List<HistoryPolicyResultModel> vouchers = const [],
+    // required ReceiptTypeEnum receiptType,
+    // bool printNumberOfPeople = false,
+    // String customerPhone = '',
+    // int numberOfPeople = 1,
+    // double paymentAmount = 0.0,
+    // int numberPrintCompleted = 1,
+    // int numberPrintTemporary = 1,
+    // String cashierCompleted = '',
+    // DateTime? timeCompleted,
+    // DateTime? timeCreatedAt,
+    // String cashierPrint = '',
+    // String invoiceQr = '',
+    // }
+  ) async {
+    var htmlData = _receiptBillContent(data
+        // order: order,
+        // orderLineItems: orderLineItems,
+        // price: price,
+        // receiptType: receiptType,
+        // note: note ?? '',
+        // customerPhone: customerPhone,
+        // numberOfPeople: numberOfPeople,
+        // paymentAmount: paymentAmount,
+        // paymentMethod: paymentMethod,
+        // printNumberOfPeople: printNumberOfPeople,
+        // vouchers: vouchers,
+        // numberPrintCompleted: numberPrintCompleted,
+        // numberPrintTemporary: numberPrintTemporary,
+        // cashierCompleted: cashierCompleted,
+        // timeCompleted: timeCompleted,
+        // timeCreatedAt: timeCreatedAt,
+        // cashierPrint: cashierPrint,
+        // invoiceQr: invoiceQr,
+        );
     var bytes = await generateImageBill(htmlData);
     return bytes;
   }
@@ -243,34 +247,37 @@ ${_getTime()}
 ''';
   }
 
-  String _receiptBillContent({
-    List<LineItemDataBill> orderLineItems = const [],
-    List<HistoryPolicyResultModel> vouchers = const [],
-    required OrderModel order,
-    String note = '',
-    required ReceiptTypeEnum receiptType,
-    bool printNumberOfPeople = false,
-    String customerPhone = '',
-    int numberOfPeople = 1,
-    PaymentMethod? paymentMethod,
-    double paymentAmount = 0,
-    required PriceDataBill price,
-    int numberPrintCompleted = 1,
-    int numberPrintTemporary = 1,
-    String cashierCompleted = '',
-    DateTime? timeCompleted,
-    DateTime? timeCreatedAt,
-    String cashierPrint = '',
-    String invoiceQr = '',
-  }) {
+  String _receiptBillContent(
+    PaymentReceiptPrintRequest data,
+    //   {
+    //   List<LineItemDataBill> orderLineItems = const [],
+    //   List<HistoryPolicyResultModel> vouchers = const [],
+    //   required OrderModel order,
+    //   String note = '',
+    //   required ReceiptTypeEnum receiptType,
+    //   bool printNumberOfPeople = false,
+    //   String customerPhone = '',
+    //   int numberOfPeople = 1,
+    //   PaymentMethod? paymentMethod,
+    //   double paymentAmount = 0,
+    //   required PriceDataBill price,
+    //   int numberPrintCompleted = 1,
+    //   int numberPrintTemporary = 1,
+    //   String cashierCompleted = '',
+    //   DateTime? timeCompleted,
+    //   DateTime? timeCreatedAt,
+    //   String cashierPrint = '',
+    //   String invoiceQr = '',
+    // }
+  ) {
     var user = LocalStorage.getDataLogin()?.user;
     String dishTable = "";
 
-    bool isPaymentReceipt = receiptType == ReceiptTypeEnum.paymentReceipt;
+    bool isPaymentReceipt = data.receiptType == ReceiptTypeEnum.paymentReceipt;
 
     Map<double, double> mapTax = {};
 
-    for (final pc in orderLineItems) {
+    for (final pc in data.orderLineItems) {
       var tax = pc.getTaxView();
       if (tax > 0) {
         mapTax[tax] = (mapTax[tax] ?? 0.0) +
@@ -294,7 +301,7 @@ ${_getTime()}
     String voucherDetail = "";
     if (isPaymentReceipt)
       // ignore: curly_braces_in_flow_control_structures
-      for (final v in vouchers) {
+      for (final v in data.vouchers) {
         var amount = v.total;
         if (amount < 0) continue;
 
@@ -396,39 +403,39 @@ ${_getTime()}
             display: inline-block;
         }
     </style>
-     ${invoiceQr.trim().isNotEmpty ? '<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>' : ''}
+     ${data.invoiceQr.trim().isNotEmpty ? '<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>' : ''}
 
 </head>
 
 <body style="margin: 0px;padding: 0px;">
 ${_getRestaurantInfo()}
-    <h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">${receiptType.title}</h2>
-    <h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">Bill ${order.getOrderMisc()} Bàn ${order.name}</h2>
-    <h3 style="text-align: center;word-wrap: break-word;">${receiptType.note}</h3>
+    <h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">${data.receiptType.title}</h2>
+    <h2 style="text-align: center;text-transform: uppercase;word-wrap: break-word;">Bill ${data.order.getOrderMisc()} Bàn ${data.order.name}</h2>
+    <h3 style="text-align: center;word-wrap: break-word;">${data.receiptType.note}</h3>
     <table class="infobill">
         <tr>
             <th width="50%">Người in bill:</th>
-            <td width="50%">${cashierPrint.trim().isEmpty ? (user?.name ?? '') : cashierPrint.trim()}</td>
+            <td width="50%">${data.cashierPrint.trim().isEmpty ? (user?.name ?? '') : data.cashierPrint.trim()}</td>
         </tr>
         <tr>
             <th width="50%">Người hoàn thành:</th>
-            <td width="50%">${cashierCompleted.trim().isEmpty ? (user?.name ?? '') : cashierCompleted.trim()}</td>
+            <td width="50%">${data.cashierCompleted.trim().isEmpty ? (user?.name ?? '') : data.cashierCompleted.trim()}</td>
         </tr>
         <tr>
             <th width="50%">Giờ vào:</th>
-            <td width="50%">${_printDateTime(timeCreatedAt ?? DateTime.now())}</td>
+            <td width="50%">${_printDateTime(data.timeCreatedAt ?? DateTime.now())}</td>
         </tr>
         <tr>
             <th width="50%">Giờ ra:</th>
-            <td width="50%">${_printDateTime(timeCompleted ?? DateTime.now())}</td>
+            <td width="50%">${_printDateTime(data.timeCompleted ?? DateTime.now())}</td>
         </tr>
         <tr>
             <th width="50%">Điện thoại KH:</th>
-            <td width="50%">$customerPhone</td>
+            <td width="50%">${data.customerPhone}</td>
         </tr>
         <tr>
             <th width="50%">Số khách:</th>
-            <td width="50%">${printNumberOfPeople ? max(0, numberOfPeople).toString() : ''}</td>
+            <td width="50%">${data.printNumberOfPeople ? max(0, data.numberOfPeople).toString() : ''}</td>
         </tr>
     </table>
     <p></p>
@@ -445,17 +452,17 @@ ${_getRestaurantInfo()}
     <table class="total" style="margin-top: 10px;">
         <tr>
             <td style="font-weight: bold" width="80%" colspan="4">T.Tiền trước thuế</td>
-            <td width="20%" style="text-align: right">${AppUtils.formatCurrency(value: price.totalPrice)}</td>
+            <td width="20%" style="text-align: right">${AppUtils.formatCurrency(value: data.price.totalPrice)}</td>
         </tr>
         <tr>
             <td style="font-weight: bold" colspan="4">Giảm tiền trước thuế</td>
-            <td style="text-align: right">${AppUtils.formatCurrency(value: price.totalPriceVoucher)}</td>
+            <td style="text-align: right">${AppUtils.formatCurrency(value: data.price.totalPriceVoucher)}</td>
         </tr>
         $voucherDetail
 
         <tr>
             <td colspan="4" style="font-weight: bold">Tổng tiền thuế</td>
-            <td style="text-align: right">${AppUtils.formatCurrency(value: price.totalPriceTax)}</td>
+            <td style="text-align: right">${AppUtils.formatCurrency(value: data.price.totalPriceTax)}</td>
         </tr>
         $taxDetail
 
@@ -466,40 +473,40 @@ ${_getRestaurantInfo()}
 
         <tr>
             <td style="font-weight: bold" colspan="4">Tiền thanh toán</td>
-            <td style="text-align: right">${AppUtils.formatCurrency(value: price.totalPriceFinal)}</td>
+            <td style="text-align: right">${AppUtils.formatCurrency(value: data.price.totalPriceFinal)}</td>
         </tr>
     </table>
     <hr>
     <span>
         <b>Ghi chú:</b> <br>
-        $note
+        ${data.note}
 
     </span>
     <p></p>
     <br>
     <span>
         <b>Hình thức thanh toán</b>:<br>
-        ${receiptType.showPaymentMethod ? '${paymentMethod?.name ?? ''}:${AppUtils.formatCurrency(value: paymentAmount)}' : ''}<br>
+        ${data.receiptType.showPaymentMethod ? '${data.paymentMethod?.name ?? ''}:${AppUtils.formatCurrency(value: data.paymentAmount)}' : ''}<br>
     </span>
 
     <hr>
     <p style="word-wrap: break-word;text-align: justify;">
-        ${invoiceQr.trim().isNotEmpty ? 'Quý khách vui lòng quét QR để nhập thông tin hoá đơn:'
+        ${data.invoiceQr.trim().isNotEmpty ? 'Quý khách vui lòng quét QR để nhập thông tin hoá đơn:'
             ' Trong 60 phút sau khi in bill và trước 23h30 cùng ngày.'
             'Trường hợp khách hàng không nhập thông tin xuất hoá đơn GTGT trong khung giờ nêu trên'
             ' thì Công ty sẽ xuất hoá đơn Khách lẻ và không xuất lại hoá đơn trong mọi trường hợp sau đó. Xin cảm ơn Quý khách!' : 'Khách hàng vui lòng cung cấp thông tin xuất hóa đơn GTGT tại thời điểm thanh toán.'
             'Trường hợp khách hàng không cung cấp thông tin xuất hóa đơn GTGT thì công ty'
             'sẽ xuất hóa đơn Khách Lẻ và không xuất lại hóa đơn trong mọi trường hợp sau đó.'}
-        ${invoiceQr.trim().isNotEmpty ? '<div id="qrcode"></div>' : ''}
+        ${data.invoiceQr.trim().isNotEmpty ? '<div id="qrcode"></div>' : ''}
 ${_getTime()}
     <p style="text-align: center">
-        ${isPaymentReceipt ? '' : 'Lần in tạm tính: $numberPrintTemporary<br>'}
-        ${isPaymentReceipt ? 'Lần in hoàn thành: $numberPrintCompleted' : ''}
+        ${isPaymentReceipt ? '' : 'Lần in tạm tính: ${data.numberPrintTemporary}<br>'}
+        ${isPaymentReceipt ? 'Lần in hoàn thành: ${data.numberPrintCompleted}' : ''}
     </p>
-    ${invoiceQr.trim().isNotEmpty ? '''
+    ${data.invoiceQr.trim().isNotEmpty ? '''
     <script>
       window.onload = function() {
-        const url = "${invoiceQr.trim()}";
+        const url = "${data.invoiceQr.trim()}";
         new QRCode(document.getElementById("qrcode"), {
             text: url,
             width: 128,

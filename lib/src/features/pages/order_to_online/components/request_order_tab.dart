@@ -2,6 +2,7 @@ import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment_cancel.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/widgets/dialog/confirm_add_items.dart';
 // import 'package:aladdin_franchise/src/features/dialogs/detail_product_checkout.dart';
 // import 'package:aladdin_franchise/src/features/dialogs/payment_cancel.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
@@ -26,6 +27,7 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
+import 'confirm_order_dialog.dart';
 import 'custom_checkbox.dart';
 import 'chat_message_item.dart';
 import 'request_order_item.dart';
@@ -201,21 +203,26 @@ class _ListRequestWidget extends ConsumerWidget {
                   final orderItems =
                       ref.read(orderToOnlinePageProvider).requestSelect?.listItem ?? [];
                   if (orderItems.isEmpty) return;
-
-                  var orderNote = await showConfirmInputDialog(
-                    context,
-                    title: S.current.confirm,
-                    message: S.current.orderConfirm,
-                    textAction: S.current.agree,
-                    hintText: S.current.notes,
-                    labelInput: S.current.notes,
-                    maxLineInput: 3,
+                  await showDialog(
+                    context: context,
+                    builder: (context) {
+                      return ConfirmOrderPrinterDialog1();
+                    },
                   );
-                  if (orderNote != null) {
-                    ref
-                        .read(orderToOnlinePageProvider.notifier)
-                        .acceptRequest(note: orderNote, context: context);
-                  }
+                  // var orderNote = await showConfirmInputDialog(
+                  //   context,
+                  //   title: S.current.confirm,
+                  //   message: S.current.orderConfirm,
+                  //   textAction: S.current.agree,
+                  //   hintText: S.current.notes,
+                  //   labelInput: S.current.notes,
+                  //   maxLineInput: 3,
+                  // );
+                  // if (orderNote != null) {
+                  //   ref
+                  //       .read(orderToOnlinePageProvider.notifier)
+                  //       .acceptRequest(note: orderNote, context: context);
+                  // }
                 },
               ),
               const Gap(8),

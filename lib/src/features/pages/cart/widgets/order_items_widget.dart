@@ -129,8 +129,7 @@ class OrderItemsWidget extends ConsumerWidget {
                     ),
                   ),
                 ],
-                if (!priceSidebar) 
-                const PreviewPriceWidget(),
+                if (!priceSidebar) const PreviewPriceWidget(),
                 const Gap(4),
               ],
             ),

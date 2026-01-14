@@ -4,9 +4,11 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/detail_product.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/widgets/tag_view.dart';
+import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
@@ -23,14 +25,14 @@ class ProductBox extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var productsSelected =
-        ref.watch(homeProvider.select((value) => value.productsSelected));
+    var productsCheckout = ref
+        .watch(checkoutPageProvider.select((value) => value.productsCheckout));
     var productsSelecting =
         ref.watch(cartPageProvider.select((value) => value.productsSelecting));
 
-    int ordered = (productsSelected
+    int ordered = (productsCheckout
             .firstWhereOrNull((e) => e.id == product.id)
-            ?.numberSelecting ??
+            ?.quantity ??
         0);
 
     int ordering = productsSelecting
@@ -50,6 +52,9 @@ class ProductBox extends ConsumerWidget {
         if (ref.read(homeProvider).orderSelect != null) {
           ref.read(cartPageProvider.notifier).addProductToCart(
               product.copyWith(numberSelecting: ordering + 1));
+          ref
+              .read(homeProvider.notifier)
+              .onChangeOrderTabSelect(OrderTabEnum.ordering);
         }
       },
       onLongPress: () {

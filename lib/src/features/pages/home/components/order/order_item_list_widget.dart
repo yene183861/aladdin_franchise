@@ -21,6 +21,7 @@ import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/custom_dropdown_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
+import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/models/order_history.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
@@ -64,174 +65,285 @@ class _OrderProductItem extends ConsumerWidget {
           : () {
               onTap?.call(item);
             },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200, width: 0.5),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
+                AppImageCacheNetworkWidget(
+                  imageUrl: item.image ?? '',
+                  width: 50,
+                  height: 50,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                const Gap(8),
                 Expanded(
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Flexible(
-                        child: Text(
-                          item.getNameView(),
-                          style: AppTextStyle.bold(),
-                        ),
-                      ),
-                      const Gap(12),
-                      Text.rich(TextSpan(
-                        text: '( ',
+                      Row(
                         children: [
-                          TextSpan(
-                            text:
-                                AppUtils.formatCurrency(value: item.unitPrice),
-                            // AppConfig.formatCurrency().format(double.tryParse(item.unitPrice) ?? 0),
-                            style: AppTextStyle.bold(
-                              color: AppColors.redColor,
-                              fontStyle: FontStyle.italic,
-                              rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                          Expanded(
+                            child: Text(
+                              item.getNameView(),
+                              style: AppTextStyle.bold(),
                             ),
                           ),
-                          TextSpan(
-                            text: ' / ${item.unit.trim()}',
-                            style: AppTextStyle.bold(
-                              fontStyle: FontStyle.italic,
-                              rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          TextSpan(
-                            text: ' )',
-                            style: AppTextStyle.bold(
-                              fontStyle: FontStyle.italic,
-                              rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                              color: Colors.black,
+                          const Gap(12),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                // TextSpan(
+                                //   text: 'Thành tiền: ',
+                                //   style: AppTextStyle.medium(
+                                //     color: Colors.grey,
+                                //     rawFontSize:
+                                //         AppConfig.defaultRawTextSize - 1.5,
+                                //   ),
+                                // ),
+                                TextSpan(
+                                  text: AppUtils.formatCurrency(
+                                      value:
+                                          double.tryParse(item.unitPrice) ?? 0,
+                                      symbol: 'đ'),
+                                  style: AppTextStyle.bold(
+                                    rawFontSize:
+                                        AppConfig.defaultRawTextSize - 0.5,
+                                  ),
+                                ),
+                                const TextSpan(text: ' / '),
+                                TextSpan(
+                                  text: item.getUnitView(),
+                                ),
+                              ],
+                              style: AppTextStyle.medium(
+                                color: Colors.grey,
+                                rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                              ),
                             ),
                           ),
                         ],
-                        style: AppTextStyle.bold(
-                          fontStyle: FontStyle.italic,
-                          rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                          color: Colors.black,
-                        ),
-                      )),
+                      ),
+                      const Gap(2),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text.rich(TextSpan(children: [
+                              TextSpan(
+                                text: 'Thành tiền:  ',
+                                style: AppTextStyle.medium(
+                                  color: Colors.grey,
+                                  rawFontSize:
+                                      AppConfig.defaultRawTextSize - 1.5,
+                                ),
+                              ),
+                              TextSpan(
+                                text: AppUtils.formatCurrency(
+                                    value:
+                                        (double.tryParse(item.unitPrice) ?? 0) *
+                                            (item.numberSelecting -
+                                                item.quantityPromotion),
+                                    symbol: 'đ'),
+                                style: AppTextStyle.bold(
+                                  color: AppColors.mainColor,
+                                  rawFontSize:
+                                      AppConfig.defaultRawTextSize - 0.5,
+                                ),
+                              ),
+                            ])),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFf1f4fa),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade300),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                _qtyButton(
+                                  Icons.remove,
+                                  () {
+                                    var count =
+                                        max(0, item.numberSelecting - 1);
+                                    ref
+                                        .read(cartPageProvider.notifier)
+                                        .addProductToCart(item.copyWith(
+                                            numberSelecting: count));
+                                  },
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Text(
+                                    item.numberSelecting.toString(),
+                                    style: AppTextStyle.bold(),
+                                  ),
+                                ),
+                                _qtyButton(
+                                  Icons.add,
+                                  () {
+                                    var count =
+                                        max(0, item.numberSelecting + 1);
+                                    ref
+                                        .read(cartPageProvider.notifier)
+                                        .addProductToCart(item.copyWith(
+                                            numberSelecting: count));
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-                const Gap(12),
-                SizedBox(
-                  width: 18,
-                  child: allowExtraItem && item.numberSelecting > 1
-                      ? InkWell(
-                          onTap: () {
-                            if (lockedOrder) return;
-                            var state = ref.read(homeProvider);
-                            if (state.orderTabSelect == OrderTabEnum.ordering) {
-                              // ref.read(homeProvider.notifier).changeProductInCart(item, 0);
-                              ref
-                                  .read(cartPageProvider.notifier)
-                                  .addProductToCart(
-                                      item.copyWith(numberSelecting: 0));
-                              return;
-                            }
-                            var pc = state.productCheckout
-                                .firstWhereOrNull((e) => e.id == item.id);
-                            if (pc != null) {
-                              onPressedCancelItem(context, ref, productCancel: [
-                                pc.copyWith(quantityCancel: -pc.quantity)
-                              ]);
-                            }
-                          },
-                          child: const Icon(
-                            CupertinoIcons.delete_simple,
-                            size: 18,
-                          ),
-                        )
-                      : Container(),
-                ),
-                const Gap(8),
-                if (allowExtraItem)
-                  SizedBox(
-                    // width: 100,
-                    child: SpinBoxWidget(item: item, lockedOrder: lockedOrder),
-                  )
-                else
-                  Text.rich(TextSpan(
-                      text: 'SL: ${item.numberSelecting}',
-                      style: AppTextStyle.bold(color: Colors.blue))),
+                // const Gap(12),
+                // SizedBox(
+                //   width: 18,
+                //   child: allowExtraItem && item.numberSelecting > 1
+                //       ? InkWell(
+                //           onTap: () {
+                //             // if (lockedOrder) return;
+                //             // var state = ref.read(homeProvider);
+                //             // if (state.orderTabSelect == OrderTabEnum.ordering) {
+                //             //   // ref.read(homeProvider.notifier).changeProductInCart(item, 0);
+                //             //   ref
+                //             //       .read(cartPageProvider.notifier)
+                //             //       .addProductToCart(
+                //             //           item.copyWith(numberSelecting: 0));
+                //             //   return;
+                //             // }
+                //             // var pc = state.productCheckout
+                //             //     .firstWhereOrNull((e) => e.id == item.id);
+                //             // if (pc != null) {
+                //             //   onPressedCancelItem(context, ref, productCancel: [
+                //             //     pc.copyWith(quantityCancel: -pc.quantity)
+                //             //   ]);
+                //             // }
+                //           },
+                //           child: const Icon(
+                //             CupertinoIcons.delete_simple,
+                //             size: 18,
+                //           ),
+                //         )
+                //       : Container(),
+                // ),
+                // const Gap(8),
+                // if (allowExtraItem)
+                //   SizedBox(
+                //     // width: 100,
+                //     child: SpinBoxWidget(item: item, lockedOrder: lockedOrder),
+                //   )
+                // else
+                //   Text.rich(TextSpan(
+                //       text: 'SL: ${item.numberSelecting}',
+                //       style: AppTextStyle.bold(color: Colors.blue))),
               ],
             ),
-            if (item.quantityPromotion > 0)
-              Text(
-                '${S.current.complimentary_gift} ${item.quantityPromotion != item.numberSelecting ? '(${S.current.quantityCut}: ${item.quantityPromotion})' : ''}',
-                style: AppTextStyle.regular(
-                    rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                    color: const Color(0xff0168fe)),
-              ),
-            const Gap(8),
-            SizedBox(
-              height: 36,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: allowEnterNote
-                        ? _NotePerItemWidget(
-                            item: item, lockedOrder: lockedOrder)
-                        : Consumer(builder: (context, ref, child) {
-                            // var cancelItem = ref.watch(homeProvider
-                            //     .select((value) => value.cancelOrderItem));
-                            // if (cancelItem) {
-                            return Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    'Hủy: ${0}',
-                                    style: AppTextStyle.semiBold(
-                                        color: AppColors.redColor),
-                                  ),
-                                ),
-                                const Gap(4),
-                                InkWell(
-                                  onTap: () {},
-                                  borderRadius: AppConfig.borderRadiusSecond,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade300,
-                                      borderRadius:
-                                          AppConfig.borderRadiusSecond,
-                                    ),
-                                    child: Icon(Icons.remove),
-                                  ),
-                                ),
-                              ],
-                            );
-                            // }
-                            // return Text(
-                            //   DateTimeUtils.formatToString(
-                            //       time: DateTime.now(),
-                            //       newPattern: DateTimePatterns.dateTime),
-                            // );
-                          }),
-                  ),
-                  const Gap(50),
-                  Text(
-                    AppUtils.formatCurrency(
-                        value: (double.tryParse(item.unitPrice) ?? 0) *
-                            (item.numberSelecting - item.quantityPromotion)),
-                    // AppConfig.formatCurrency().format((double.tryParse(item.unitPrice) ?? 0) *
-                    //     (item.numberSelecting - item.quantityPromotion)),
-                    style: AppTextStyle.bold(),
-                  ),
-                ],
-              ),
-            ),
+
+            // if (item.quantityPromotion > 0)
+            //   Text(
+            //     '${S.current.complimentary_gift} ${item.quantityPromotion != item.numberSelecting ? '(${S.current.quantityCut}: ${item.quantityPromotion})' : ''}',
+            //     style: AppTextStyle.regular(
+            //         rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+            //         color: const Color(0xff0168fe)),
+            //   ),
+            // const Gap(8),
+            // SizedBox(
+            //   height: 36,
+            //   child: Row(
+            //     children: [
+            //       Expanded(
+            //         child: allowEnterNote
+            //             ? _NotePerItemWidget(
+            //                 item: item, lockedOrder: lockedOrder)
+
+            //             : Consumer(builder: (context, ref, child) {
+            //                 // var cancelItem = ref.watch(homeProvider
+            //                 //     .select((value) => value.cancelOrderItem));
+            //                 // if (cancelItem) {
+            //                 return Row(
+            //                   children: [
+            //                     Flexible(
+            //                       child: Text(
+            //                         'Hủy: ${0}',
+            //                         style: AppTextStyle.semiBold(
+            //                             color: AppColors.redColor),
+            //                       ),
+            //                     ),
+            //                     const Gap(4),
+            //                     InkWell(
+            //                       onTap: () {},
+            //                       borderRadius: AppConfig.borderRadiusSecond,
+            //                       child: Container(
+            //                         padding: const EdgeInsets.all(6),
+            //                         decoration: BoxDecoration(
+            //                           color: Colors.grey.shade300,
+            //                           borderRadius:
+            //                               AppConfig.borderRadiusSecond,
+            //                         ),
+            //                         child: Icon(Icons.remove),
+            //                       ),
+            //                     ),
+            //                   ],
+            //                 );
+            //                 // }
+            //                 // return Text(
+            //                 //   DateTimeUtils.formatToString(
+            //                 //       time: DateTime.now(),
+            //                 //       newPattern: DateTimePatterns.dateTime),
+            //                 // );
+            //               }),
+            //       ),
+            //       const Gap(50),
+            //       Text(
+            //         AppUtils.formatCurrency(
+            //             value: (double.tryParse(item.unitPrice) ?? 0) *
+            //                 (item.numberSelecting - item.quantityPromotion)),
+            //         // AppConfig.formatCurrency().format((double.tryParse(item.unitPrice) ?? 0) *
+            //         //     (item.numberSelecting - item.quantityPromotion)),
+            //         style: AppTextStyle.bold(),
+            //       ),
+            //     ],
+            //   ),
+            // ),
             const Gap(8),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _qtyButton(IconData icon, VoidCallback onTap) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.all(1),
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, size: 16),
       ),
     );
   }
@@ -334,14 +446,15 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final productCheckoutState =
         ref.watch(homeProvider.select((value) => value.productCheckoutState));
-    var items =
-        ref.watch(homeProvider.select((value) => value.productsSelected));
+    // var items =
+    //     ref.watch(homeProvider.select((value) => value.productsSelected));
     var orderHistory =
         ref.watch(homeProvider.select((value) => value.orderHistory));
-    var displayOrderHistory =
-        ref.watch(homeProvider.select((value) => value.displayOrderHistory));
-    var productCheckout = ref
+    // var displayOrderHistory =
+    //     ref.watch(homeProvider.select((value) => value.displayOrderHistory));
+    var productsCheckout = ref
         .watch(checkoutPageProvider.select((value) => value.productsCheckout));
+    var products = ref.watch(menuProvider.select((value) => value.products));
 
     var orderHistoryData = List<OrderHistory>.from(orderHistory);
     orderHistoryData.sort((a, b) => b.timesOrder.compareTo(a.timesOrder));
@@ -368,355 +481,262 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
       default:
     }
     var notifier = ref.read(homeProvider.notifier);
-    return displayOrderHistory
-        ? ScrollablePositionedList.separated(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            itemBuilder: (context, index) {
-              var orderTime = orderHistoryData[index];
-              bool isCancel = orderTime.products.any((e) => e.cancel);
-              return Card(
-                elevation: 0,
-                shadowColor: Colors.white,
-                color: Colors.grey.shade50,
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppConfig.borderRadiusMain,
+    return productsCheckout.isEmpty
+        ? Center(
+            child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const ResponsiveIconWidget(
+                iconData: Icons.restaurant_rounded,
+                color: Colors.grey,
+              ),
+              Text(
+                'Danh sách món đã gọi đang trống',
+                style: AppTextStyle.regular(
+                  color: Colors.grey,
+                  rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                 ),
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: const ResponsiveIconWidget(iconData: Icons.tag),
-                      tileColor: isCancel
-                          ? Colors.red.shade50
-                          : Colors.blueGrey.shade50,
-                      title: Text(
-                        "${S.current.turn} ${orderTime.timesOrder} ${isCancel ? " - ${S.current.cancelDish}" : ""}",
-                        style: AppTextStyle.medium(),
-                      ),
-                      subtitle: orderTime.notes.isEmpty
-                          ? null
-                          : Text(
-                              orderTime.notes,
-                              style: AppTextStyle.medium(),
-                            ),
-                      trailing: Text(
-                        appConfig.dateFormatHhMmSsDDMMYYYY
-                            .format(orderTime.createdAt),
-                        style: AppTextStyle.regular(
-                            rawFontSize: AppConfig.defaultRawTextSize - 1.0),
-                      ),
+              ),
+            ],
+          ))
+        : NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification is UserScrollNotification) {
+                ref
+                    .read(homeProvider.notifier)
+                    .onChangeAutoScrollProducts(false);
+              }
+              return true;
+            },
+            child: Container(
+              color: Colors.grey.shade50,
+              child: ScrollablePositionedList.separated(
+                itemScrollController:
+                    itemScrollController ?? notifier.selectedItemsScrollCtrl,
+                itemPositionsListener: itemPositionsListener ??
+                    notifier.selectedItemsPositionsListener,
+                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                itemBuilder: (context, index) {
+                  var p = productsCheckout[index];
+// var p = products.firstWhereOrNull((e) => )
+                  // var cancelCount = productCheckout
+                  //         .firstWhereOrNull((e) => e.id == p.id)
+                  //         ?.quantityCancel ??
+                  //     0;
+
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border:
+                          Border.all(color: Colors.grey.shade200, width: 0.5),
                     ),
-                    ...orderTime.products.map(
-                      (e) => Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Row(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
                             Expanded(
-                              flex: 2,
-                              child: ListTile(
-                                title: Text(
-                                  e.getNameView(),
-                                  style: AppTextStyle.medium(),
+                              child: Text.rich(
+                                TextSpan(
+                                  text: p.name,
+                                  children: [
+                                    TextSpan(
+                                      text:
+                                          '  (${AppUtils.formatCurrency(value: p.unitPrice, symbol: 'đ')
+                                          // NumberFormat.currency(locale: 'vi', symbol: 'đ').format(double.tryParse(p.unitPrice) ?? 0)
+                                          }/${p.unit.trim()})',
+                                      style: AppTextStyle.medium(
+                                          rawFontSize:
+                                              AppConfig.defaultRawTextSize -
+                                                  1.5,
+                                          color: Colors.grey.shade400),
+                                    ),
+                                  ],
                                 ),
-                                subtitle: e.notes.isEmpty
-                                    ? null
-                                    : Text(
-                                        e.notes,
-                                        style: AppTextStyle.regular(),
-                                      ),
-                                trailing: Text(
-                                  "${S.current.quantityCut}: ${e.quantity}",
-                                  style: AppTextStyle.regular(),
-                                ),
+                                style: AppTextStyle.medium(),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            AppConfig.useKds
-                                ? Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          e.cancel
-                                              ? S.current.cancel
-                                              : appConfig
-                                                  .getNameByStatus(e.status),
-                                          style: AppTextStyle.medium(),
-                                        ),
-                                        const Gap(12),
-                                      ],
-                                    ),
-                                  )
-                                : Container(),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-            separatorBuilder: (context, index) => const Gap(4),
-            itemCount: orderHistoryData.length,
-          )
-        : productCheckout.isEmpty
-            ? Center(
-                child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const ResponsiveIconWidget(
-                    iconData: Icons.restaurant_rounded,
-                    color: Colors.grey,
-                  ),
-                  Text(
-                    'Danh sách món đã gọi đang trống',
-                    style: AppTextStyle.regular(
-                      color: Colors.grey,
-                      rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                    ),
-                  ),
-                ],
-              ))
-            : NotificationListener<ScrollNotification>(
-                onNotification: (notification) {
-                  if (notification is UserScrollNotification) {
-                    ref
-                        .read(homeProvider.notifier)
-                        .onChangeAutoScrollProducts(false);
-                  }
-                  return true;
-                },
-                child: Container(
-                  color: Colors.grey.shade50,
-                  child: ScrollablePositionedList.separated(
-                    itemScrollController: itemScrollController ??
-                        notifier.selectedItemsScrollCtrl,
-                    itemPositionsListener: itemPositionsListener ??
-                        notifier.selectedItemsPositionsListener,
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                    itemBuilder: (context, index) {
-                      var p = items[index];
-
-                      var cancelCount = productCheckout
-                              .firstWhereOrNull((e) => e.id == p.id)
-                              ?.quantityCancel ??
-                          0;
-
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                              color: Colors.grey.shade200, width: 0.5),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text.rich(
-                                    TextSpan(
-                                      text: p.name,
-                                      children: [
-                                        TextSpan(
-                                          text:
-                                              '  (${AppUtils.formatCurrency(value: p.unitPrice, symbol: 'đ')
-                                              // NumberFormat.currency(locale: 'vi', symbol: 'đ').format(double.tryParse(p.unitPrice) ?? 0)
-                                              }/${p.unit.trim()})',
-                                          style: AppTextStyle.medium(
-                                              rawFontSize:
-                                                  AppConfig.defaultRawTextSize -
-                                                      1.5,
-                                              color: Colors.grey.shade400),
-                                        ),
-                                      ],
-                                    ),
-                                    style: AppTextStyle.medium(),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const Gap(4),
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade100,
-                                    borderRadius: AppConfig.borderRadiusSecond,
-                                    border:
-                                        Border.all(color: Colors.grey.shade200),
-                                  ),
-                                  child: Text(
-                                    'x${p.numberSelecting}',
-                                    style: AppTextStyle.bold(),
-                                  ),
-                                ),
-                                // Text.rich(
-                                //   TextSpan(
-                                //     text: 'SL: ',
-                                //     children: [
-                                //       TextSpan(
-                                //         text: p.numberSelecting.toString(),
-                                //         style: AppTextStyle.bold(),
-                                //       ),
-                                //     ],
-                                //     style: AppTextStyle.bold(
-                                //       color: Colors.grey.shade500,
-                                //       rawFontSize:
-                                //           AppConfig.defaultRawTextSize - 1.0,
-                                //     ),
-                                //   ),
-                                // ),
-                              ],
-                            ),
                             const Gap(4),
-                            Row(
-                              children: [
-                                Text('Thuế'), const Gap(4),
-                                DropdownTaxWidget(
-                                  taxs: [0.0, 0.08, 0.1],
-                                  taxSelect: 0.08,
-                                  yIndex: 1,
-                                  onChangeTax: (value) {},
-                                  widthBtn: TextUtil.getTextSize(
-                                              text: S.current.default_1,
-                                              textStyle: AppTextStyle.regular())
-                                          .width +
-                                      12 * 2,
-                                  oddRowColor: Colors.grey.shade200,
-                                ),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: AppConfig.borderRadiusSecond,
+                                border: Border.all(color: Colors.grey.shade200),
+                              ),
+                              child: Text(
+                                'x${p.quantity}',
+                                style: AppTextStyle.bold(),
+                              ),
+                            ),
+                            // Text.rich(
+                            //   TextSpan(
+                            //     text: 'SL: ',
+                            //     children: [
+                            //       TextSpan(
+                            //         text: p.numberSelecting.toString(),
+                            //         style: AppTextStyle.bold(),
+                            //       ),
+                            //     ],
+                            //     style: AppTextStyle.bold(
+                            //       color: Colors.grey.shade500,
+                            //       rawFontSize:
+                            //           AppConfig.defaultRawTextSize - 1.0,
+                            //     ),
+                            //   ),
+                            // ),
+                          ],
+                        ),
+                        const Gap(4),
+                        Row(
+                          children: [
+                            // Text('Thuế'), const Gap(4),
+                            // DropdownTaxWidget(
+                            //   taxs: [0.0, 0.08, 0.1],
+                            //   taxSelect: 0.08,
+                            //   yIndex: 1,
+                            //   onChangeTax: (value) {},
+                            //   widthBtn: TextUtil.getTextSize(
+                            //               text: S.current.default_1,
+                            //               textStyle: AppTextStyle.regular())
+                            //           .width +
+                            //       12 * 2,
+                            //   oddRowColor: Colors.grey.shade200,
+                            // ),
 
-                                Expanded(
-                                  child: Container(),
-                                ),
-                                // Text('Hủy', style: AppTextStyle.regular()),
-                                // const Gap(6),
-                                // Expanded(
-                                //   child: Row(
-                                //     mainAxisSize: MainAxisSize.min,
-                                //     children: [
-                                //       InkWell(
-                                //         onTap: () {
-                                //           if (-cancelCount < 1) return;
-                                //           ref
-                                //               .read(homeProvider.notifier)
-                                //               .cancelProductCheckout(p, 1);
-                                //         },
-                                //         child: Container(
-                                //           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                //           decoration: BoxDecoration(
-                                //             color: Colors.grey.shade50,
-                                //             // border: Border(
-                                //             //   top: BorderSide(
-                                //             //       color: Colors.grey.shade300),
-                                //             //   bottom: BorderSide(
-                                //             //       color: Colors.grey.shade300),
-                                //             //   left: BorderSide(
-                                //             //       color: Colors.grey.shade300),
-                                //             // ),
-                                //             borderRadius: BorderRadius.horizontal(
-                                //               left: Radius.circular(6),
-                                //             ),
-                                //           ),
-                                //           child: Row(
-                                //             children: [
-                                //               Text('', style: AppTextStyle.bold()),
-                                //               Icon(
-                                //                 Icons.remove,
-                                //                 size: 16,
-                                //                 color:
-                                //                     -cancelCount < 1 ? Colors.grey.shade300 : null,
-                                //               ),
-                                //             ],
-                                //           ),
-                                //         ),
-                                //       ),
-                                //       Container(
-                                //         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                //         decoration: BoxDecoration(
-                                //           color: Colors.grey.shade50,
-                                //           // border: Border.symmetric(
-                                //           //   horizontal: BorderSide(
-                                //           //       color: Colors.grey.shade300),
-                                //           // ),
-                                //         ),
-                                //         child: Text((-cancelCount).toString(),
-                                //             style: AppTextStyle.bold(color: Colors.red)),
-                                //       ),
-                                //       InkWell(
-                                //         onTap: () {
-                                //           if (-cancelCount >= p.numberSelecting) {
-                                //             return;
-                                //           }
-                                //           ref
-                                //               .read(homeProvider.notifier)
-                                //               .cancelProductCheckout(p, -1);
-                                //         },
-                                //         child: Container(
-                                //           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                //           decoration: BoxDecoration(
-                                //             color: Colors.grey.shade50,
-                                //             // border: Border(
-                                //             //   top: BorderSide(
-                                //             //       color: Colors.grey.shade300),
-                                //             //   bottom: BorderSide(
-                                //             //       color: Colors.grey.shade300),
-                                //             //   right: BorderSide(
-                                //             //       color: Colors.grey.shade300),
-                                //             // ),
-                                //             borderRadius: BorderRadius.horizontal(
-                                //               right: Radius.circular(6),
-                                //             ),
-                                //           ),
-                                //           child: Row(
-                                //             children: [
-                                //               Text('', style: AppTextStyle.bold()),
-                                //               Icon(
-                                //                 Icons.add,
-                                //                 size: 16,
-                                //                 color: -cancelCount >= p.numberSelecting
-                                //                     ? Colors.grey.shade300
-                                //                     : null,
-                                //               ),
-                                //             ],
-                                //           ),
-                                //         ),
-                                //       ),
-                                //     ],
-                                //   ),
-                                // ),
-                                // const Gap(4),
-                                Text(
-                                  AppUtils.formatCurrency(
-                                      value:
-                                          (double.tryParse(p.unitPrice) ?? 0) *
-                                              p.numberSelecting,
-                                      symbol: 'đ'),
-                                  // NumberFormat.currency(locale: 'vi', symbol: 'đ').format(
-                                  //     (double.tryParse(p.unitPrice) ?? 0) * p.numberSelecting),
-                                  style: AppTextStyle.bold(),
-                                ),
-                              ],
+                            // Expanded(
+                            //   child: Container(),
+                            // ),
+                            // Text('Hủy', style: AppTextStyle.regular()),
+                            // const Gap(6),
+                            // Expanded(
+                            //   child: Row(
+                            //     mainAxisSize: MainAxisSize.min,
+                            //     children: [
+                            //       InkWell(
+                            //         onTap: () {
+                            //           if (-cancelCount < 1) return;
+                            //           ref
+                            //               .read(homeProvider.notifier)
+                            //               .cancelProductCheckout(p, 1);
+                            //         },
+                            //         child: Container(
+                            //           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            //           decoration: BoxDecoration(
+                            //             color: Colors.grey.shade50,
+                            //             // border: Border(
+                            //             //   top: BorderSide(
+                            //             //       color: Colors.grey.shade300),
+                            //             //   bottom: BorderSide(
+                            //             //       color: Colors.grey.shade300),
+                            //             //   left: BorderSide(
+                            //             //       color: Colors.grey.shade300),
+                            //             // ),
+                            //             borderRadius: BorderRadius.horizontal(
+                            //               left: Radius.circular(6),
+                            //             ),
+                            //           ),
+                            //           child: Row(
+                            //             children: [
+                            //               Text('', style: AppTextStyle.bold()),
+                            //               Icon(
+                            //                 Icons.remove,
+                            //                 size: 16,
+                            //                 color:
+                            //                     -cancelCount < 1 ? Colors.grey.shade300 : null,
+                            //               ),
+                            //             ],
+                            //           ),
+                            //         ),
+                            //       ),
+                            //       Container(
+                            //         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            //         decoration: BoxDecoration(
+                            //           color: Colors.grey.shade50,
+                            //           // border: Border.symmetric(
+                            //           //   horizontal: BorderSide(
+                            //           //       color: Colors.grey.shade300),
+                            //           // ),
+                            //         ),
+                            //         child: Text((-cancelCount).toString(),
+                            //             style: AppTextStyle.bold(color: Colors.red)),
+                            //       ),
+                            //       InkWell(
+                            //         onTap: () {
+                            //           if (-cancelCount >= p.numberSelecting) {
+                            //             return;
+                            //           }
+                            //           ref
+                            //               .read(homeProvider.notifier)
+                            //               .cancelProductCheckout(p, -1);
+                            //         },
+                            //         child: Container(
+                            //           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            //           decoration: BoxDecoration(
+                            //             color: Colors.grey.shade50,
+                            //             // border: Border(
+                            //             //   top: BorderSide(
+                            //             //       color: Colors.grey.shade300),
+                            //             //   bottom: BorderSide(
+                            //             //       color: Colors.grey.shade300),
+                            //             //   right: BorderSide(
+                            //             //       color: Colors.grey.shade300),
+                            //             // ),
+                            //             borderRadius: BorderRadius.horizontal(
+                            //               right: Radius.circular(6),
+                            //             ),
+                            //           ),
+                            //           child: Row(
+                            //             children: [
+                            //               Text('', style: AppTextStyle.bold()),
+                            //               Icon(
+                            //                 Icons.add,
+                            //                 size: 16,
+                            //                 color: -cancelCount >= p.numberSelecting
+                            //                     ? Colors.grey.shade300
+                            //                     : null,
+                            //               ),
+                            //             ],
+                            //           ),
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
+                            // const Gap(4),
+                            Text(
+                              AppUtils.formatCurrency(
+                                  value: (double.tryParse(p.unitPrice) ?? 0) *
+                                      p.quantity,
+                                  symbol: 'đ'),
+                              // NumberFormat.currency(locale: 'vi', symbol: 'đ').format(
+                              //     (double.tryParse(p.unitPrice) ?? 0) * p.numberSelecting),
+                              style: AppTextStyle.bold(),
                             ),
                           ],
                         ),
-                      );
-                      return _OrderProductItem(
-                        item: items[index],
-                        allowEnterNote: true,
-                        allowExtraItem: true,
-                        onTap: null,
-                      );
-                    },
-                    separatorBuilder: (context, index) => const Gap(6),
-                    itemCount: items.length,
-                  ),
-                ),
-              );
+                      ],
+                    ),
+                  );
+                  // return _OrderProductItem(
+                  //   item: items[index],
+                  //   allowEnterNote: true,
+                  //   allowExtraItem: true,
+                  //   onTap: null,
+                  // );
+                },
+                separatorBuilder: (context, index) => const Gap(6),
+                itemCount: productsCheckout.length,
+              ),
+            ),
+          );
   }
 
   void showProductInfoAndHistory(BuildContext context, ProductModel item) {
@@ -869,18 +889,21 @@ class _ListItemWidget extends ConsumerWidget {
         }
         return true;
       },
-      child: ScrollablePositionedList.separated(
-        itemScrollController: scrollController,
-        itemPositionsListener: positionsListener,
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        itemBuilder: (context, index) => _OrderProductItem(
-          item: items[index],
-          allowEnterNote: allowEnterNote,
-          allowExtraItem: allowExtraItem,
-          onTap: onTapItem,
+      child: Container(
+        color: Colors.grey.shade50,
+        child: ScrollablePositionedList.separated(
+          itemScrollController: scrollController,
+          itemPositionsListener: positionsListener,
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+          itemBuilder: (context, index) => _OrderProductItem(
+            item: items[index],
+            allowEnterNote: allowEnterNote,
+            allowExtraItem: allowExtraItem,
+            onTap: onTapItem,
+          ),
+          separatorBuilder: (context, index) => const Divider(),
+          itemCount: items.length,
         ),
-        separatorBuilder: (context, index) => const Divider(),
-        itemCount: items.length,
       ),
     );
   }

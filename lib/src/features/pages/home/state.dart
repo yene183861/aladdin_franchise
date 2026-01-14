@@ -89,6 +89,7 @@ enum HomeEvent {
 
   // coupon, voucher
   addCoupon,
+  saveO2oConfig,
 }
 
 enum PageCommonState {
@@ -143,15 +144,16 @@ class HomeState with _$HomeState {
     /// đơn bàn
     OrderModel? orderSelect,
     @Default(false) bool lockedOrder,
-    @Default([]) List<ProductModel> productsSelecting,
-    @Default([]) List<ProductModel> productsSelected,
-    @Default([]) List<ProductCheckoutModel> productCheckout,
+    // @Default([]) List<ProductModel> productsSelecting,
+    // @Default([]) List<ProductModel> productsSelected,
+    // @Default([]) List<ProductCheckoutModel> productCheckout,
     @Default(PageState()) PageState productCheckoutState,
     CustomerModel? customer,
     @Default([]) List<CustomerPolicyModel> coupons,
     @Default([]) List<PolicyResultModel> vouchers,
     dynamic createVouchers,
-    @Default(PageState(status: PageCommonState.success)) PageState applyPolicyState,
+    @Default(PageState(status: PageCommonState.success))
+    PageState applyPolicyState,
     @Default([]) List<PaymentMethod> paymentMethods,
     @Default(PageState()) PageState paymentMethodState,
     PaymentMethod? paymentMethodSelected,
@@ -182,14 +184,16 @@ class HomeState with _$HomeState {
     int? changedProductId,
     @Default(false) bool pinnedOrder,
     @Default(OrderTabEnum.ordered) OrderTabEnum orderTabSelect,
-    @Default([OrderTabEnum.ordering, OrderTabEnum.ordered]) List<OrderTabEnum> orderTabs,
-    @Default(false) bool displayOrderHistory,
+    @Default([OrderTabEnum.ordering, OrderTabEnum.ordered])
+    List<OrderTabEnum> orderTabs,
+    // @Default(false) bool displayOrderHistory,
     @Default([]) List<OrderHistory> orderHistory,
     // o2o
     // @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
     // @Default(PageState()) PageState getO2ODataState,
     @Default([]) List<ChatMessageModel> chatMessages,
-    @Default(PageState(status: PageCommonState.loading)) PageState getChatMessageState,
+    @Default(PageState(status: PageCommonState.loading))
+    PageState getChatMessageState,
     @Default(DiscountTypeEnum.vnd) DiscountTypeEnum discountTypeSelect,
     @Default([]) List<PrinterModel> printers,
     @Default(PageState(status: PageCommonState.loading)) PageState printerState,

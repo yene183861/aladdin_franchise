@@ -1,4 +1,5 @@
 import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/o2o_config.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/models/atm_pos.dart';
 import 'package:aladdin_franchise/src/models/employee_sale.dart';
@@ -34,4 +35,8 @@ abstract class RestaurantRepository {
   });
 
   Future<List<PrinterModel>> getListPrinters();
+  Future<O2oConfigModel> getO2oAutoAcceptConfig();
+
+  /// confirmTimeout = [0; 300]
+  Future<void> setO2oAutoAcceptConfig(O2oConfigModel config);
 }

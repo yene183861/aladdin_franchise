@@ -60,70 +60,6 @@ Future<void> onSelectPaymentMethod({
         return;
       }
 
-      // có ít nhất 1 món có thể sửa thuế
-      List<ProductCheckoutModel> pc = [];
-
-      ref.read(homeProvider).dataBill.orderLineItems.forEach(
-        (item) {
-          var p = productCheckout.firstWhereOrNull((e) => e.id == item.id);
-          if (p != null) {
-            pc.add(p);
-          }
-        },
-      );
-      // if (pc.isNotEmpty) {
-      //   bool isChangedTax = false;
-      await showConfirmActionWithChild(
-        context,
-        noTitle: true,
-        title: S.current.edit_tax_information,
-        closeDialog: false,
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          child: EditTaxDialog(
-              products: ref.read(menuProvider).products,
-              productCheckouts: pc,
-              onSave: (List<ProductCheckoutModel> changedPc) {
-                pc = changedPc;
-              }),
-        ),
-        onCheckAction: () {
-          if (paymentMethodSelect.requireEditTax && pc.any((e) => e.tax == 0)) {
-            showMessageDialog(context,
-                canPop: false, message: S.current.error_edit_tax);
-            return false;
-          }
-          return true;
-        },
-        actionTitle: S.current.save_and_continue_payment,
-        action: () async {
-          var res = await ref.read(homeProvider.notifier).onUpdateTax(pc);
-          if (res != null) {
-            showMessageDialog(context, message: res, canPop: false);
-            return;
-          }
-          pop(context);
-          // isChangedTax = true;
-        },
-      );
-      // if (!isChangedTax) {
-      //   return;
-      // }
-      final result =
-          await ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
-      if (result != null) {
-        showMessageDialog(context, message: result);
-        return;
-      }
-      // }
-      var resultCheck = checkItemBeforeCompleteBill(
-        orderLineItems: ref.read(homeProvider).dataBill.orderLineItems,
-        paymentMethodSelect: paymentMethodSelect,
-      );
-      if (resultCheck != null) {
-        showMessageDialog(context, message: resultCheck);
-        return;
-      }
       if (paymentMethodSelect.isBank) {
         if (ref.read(homeProvider).bankSelect == null) {
           showMessageDialog(context, message: S.current.no_bank_select);
@@ -182,70 +118,9 @@ Future<void> onSelectPaymentMethod({
       ref.read(homeProvider.notifier).onChangeCashReceivedAmount(0);
       // unlock đơn bàn (mặc định get phương thức thanh toán thì bàn đã khóa)
       await ref.read(homeProvider.notifier).unlockOrder();
-      ref.read(homeProvider.notifier).onUpdateDefaultTax();
+      // ref.read(homeProvider.notifier).onUpdateDefaultTax();
     },
   );
-}
-
-String? checkItemBeforeCompleteBill({
-  required List<LineItemDataBill> orderLineItems,
-  required PaymentMethod paymentMethodSelect,
-}) {
-  return null;
-
-  /// ktra điều kiện in bill
-  /// - Grab, Shopee: có món thuế = 0 thì k được in bill
-  /// - các PTTT khác
-  ///   + Được in bill nếu các món thuế = 0 là món có cấu hình “Món được phép sửa thuế”
-  ///   + Không được in bill nếu có các món thuế 0 và khác 0
-  ///
-  Set<LineItemDataBill> zeroTaxs = {};
-  Set<LineItemDataBill> allowChangeTaxs = {};
-  Set<LineItemDataBill> notZeroTaxs = {};
-  showLogs(null, flags: 'checkItemBeforeCompleteBill');
-  for (var item in orderLineItems) {
-    showLog(item, flags: 'orderLineItems');
-    if (item.isChangeTax == 1) {
-      allowChangeTaxs.add(item);
-    }
-    if (item.getTax1() == 0) {
-      zeroTaxs.add(item);
-    } else {
-      notZeroTaxs.add(item);
-    }
-  }
-
-  if (paymentMethodSelect.requireEditTax) {
-    if (zeroTaxs.isNotEmpty) {
-      return 'Đơn bàn có các món thuế 0 nên không được phép hoàn thành đơn\n'
-              'Vui lòng xóa các món không phù hợp hoặc chọn hình thức thanh toán khác để tiếp tục thanh toán'
-          // '${zeroTaxs.map((e) => e.name).toList().join(', ')}'
-          ;
-    }
-  } else {
-    //  Không được in bill nếu có các món thuế 0 và khác 0
-    if (zeroTaxs.isNotEmpty && notZeroTaxs.isNotEmpty) {
-      return 'Đơn bàn đang có đồng thời cả các món thuế 0 và khác 0 nên không được phép hoàn thành đơn'
-          // 'Xóa các món mà bạn thấy không phù hợp với hình thức thanh toán này:\n'
-          // 'Món thuế 0: ${zeroTaxs.map((e) => e.name).toList().join(', ')}\n'
-          // 'Món thuế khác 0: ${notZeroTaxs.map((e) => e.name).toList().join(', ')}'
-          ;
-      //  Được in bill nếu các món thuế = 0 là món có cấu hình “Món được phép sửa thuế”
-    } else if (zeroTaxs.isNotEmpty) {
-      if (allowChangeTaxs.isEmpty) {
-        return 'Hình thức thanh toán không hợp lệ do danh sách món không đáp ứng điều kiện thanh toán.';
-      } else if (!const SetEquality().equals(allowChangeTaxs, zeroTaxs)) {
-        return 'Đơn bàn không thể hoàn thành vì có món thuế 0 không được phép sửa.\n'
-                'Hệ thống chỉ cho phép hoàn thành đơn khi tất cả món thuế 0 (sau khi sửa)'
-                ' đều thuộc nhóm được cấu hình cho phép sửa thuế.'
-            // 'Xóa các món không phù hợp:\n'
-            // 'Món được cấu hình cho phép sửa thuế: ${allowChangeTaxs.map((e) => e.name).join(', ')}\n'
-            // 'Món KHÔNG được cấu hình cho phép sửa thuế: ${zeroTaxs.difference(allowChangeTaxs).join(', ')}'
-            ;
-      }
-    }
-  }
-  return null;
 }
 
 ///
@@ -350,7 +225,7 @@ Future<void> showConfirmCompleteBillDialog(
       }
     },
     actionCancel: () {
-      ref.read(homeProvider.notifier).onUpdateDefaultTax();
+      // ref.read(homeProvider.notifier).onUpdateDefaultTax();
     },
   );
 }

@@ -9,6 +9,7 @@ import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
 import 'package:aladdin_franchise/src/core/network/repository/restaurant/restaurant_repository.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/printer_type.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/o2o_config.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/models/atm_pos.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
@@ -302,26 +303,6 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
 
   @override
   Future<List<PrinterModel>> getListPrinters() async {
-    // return [
-    //   PrinterModel(
-    //     ip: '192.136.10.89',
-    //     port: 9100,
-    //     name: 'Máy in bếp',
-    //     type: PrinterTypeEnum.kitchen.key,
-    //   ),
-    //   PrinterModel(
-    //     ip: '192.136.10.89',
-    //     port: 9100,
-    //     name: 'Máy in bar',
-    //     type: PrinterTypeEnum.bar.key,
-    //   ),
-    //   PrinterModel(
-    //     ip: '192.136.10.88',
-    //     port: 9100,
-    //     name: 'Máy in tạm tính',
-    //     type: PrinterTypeEnum.tmp.key,
-    //   ),
-    // ];
     final apiUrl = '${ApiConfig.apiUrl}/api/v2/printers-list';
     var result = await safeCallApiList(
       () async {
@@ -342,5 +323,52 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       );
     }
     return result.data ?? [];
+  }
+
+  @override
+  Future<O2oConfigModel> getO2oAutoAcceptConfig() async {
+    final apiUrl = '${ApiConfig.apiUrl}/api/v1/o2o/settings/auto-confirm';
+    var result = await safeCallApi(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.get(url);
+      },
+      parser: (json) => O2oConfigModel.fromJson(json),
+      log: ErrorLogModel(
+        action: AppLogAction.historyOrder,
+        api: apiUrl,
+      ),
+    );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+
+    return result.data ?? const O2oConfigModel();
+  }
+
+  @override
+  Future<void> setO2oAutoAcceptConfig(O2oConfigModel config) async {
+    final apiUrl = '${ApiConfig.apiUrl}/api/v1/o2o/settings/auto-confirm';
+    var body = jsonEncode(config.toJson());
+    var result = await safeCallApi(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      log: ErrorLogModel(
+        action: AppLogAction.historyOrder,
+        api: apiUrl,
+        request: body,
+      ),
+    );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
   }
 }

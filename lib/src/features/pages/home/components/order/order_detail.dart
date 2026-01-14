@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
@@ -171,30 +172,30 @@ class _SpinBoxWidgetState extends ConsumerState<SpinBoxWidget> {
               children: [
                 InkWell(
                   onTap: () async {
-                    var state = ref.read(homeProvider);
-                    if (widget.lockedOrder) return;
+                    // var state = ref.read(homeProvider);
+                    // if (widget.lockedOrder) return;
                     int count = currentCount - 1;
-                    if (count == 0) {
-                      if (state.orderTabSelect == OrderTabEnum.ordering) {
-                        ref.read(cartPageProvider.notifier).addProductToCart(
-                            widget.item.copyWith(numberSelecting: 0));
-                        // ref.read(homeProvider.notifier).changeProductInCart(widget.item, 0);
-                        return;
-                      }
-                      var pc = state.productCheckout
-                          .firstWhereOrNull((e) => e.id == widget.item.id);
-                      if (pc == null) return;
-                      onPressedCancelItem(context, ref,
-                          productCancel: [
-                            pc.copyWith(quantityCancel: -pc.quantity)
-                          ],
-                          setStateFunc: setState);
-                      // onPressedPaymentCancel(
-                      //     context, ref, widget.item, setState);
-                      return;
-                    }
+                    // if (count == 0) {
+                    //   if (state.orderTabSelect == OrderTabEnum.ordering) {
+                    //     ref.read(cartPageProvider.notifier).addProductToCart(
+                    //         widget.item.copyWith(numberSelecting: 0));
+                    //     // ref.read(homeProvider.notifier).changeProductInCart(widget.item, 0);
+                    //     return;
+                    //   }
+                    //   var pc = state.productCheckout
+                    //       .firstWhereOrNull((e) => e.id == widget.item.id);
+                    //   if (pc == null) return;
+                    //   onPressedCancelItem(context, ref,
+                    //       productCancel: [
+                    //         pc.copyWith(quantityCancel: -pc.quantity)
+                    //       ],
+                    // setStateFunc: setState);
+                    // onPressedPaymentCancel(
+                    //     context, ref, widget.item, setState);
+                    //   return;
+                    // }
                     ref.read(cartPageProvider.notifier).addProductToCart(
-                        widget.item.copyWith(numberSelecting: count));
+                        widget.item.copyWith(numberSelecting: max(0, count)));
                     // ref.read(homeProvider.notifier).changeProductInCart(widget.item, count);
                   },
                   borderRadius: AppConfig.borderRadiusSecond,
@@ -216,10 +217,9 @@ class _SpinBoxWidgetState extends ConsumerState<SpinBoxWidget> {
                 const Gap(12),
                 InkWell(
                   onTap: () async {
-                    // if (widget.lockedOrder) return;
                     ref.read(cartPageProvider.notifier).addProductToCart(widget
                         .item
-                        .copyWith(numberSelecting: currentCount + 1));
+                        .copyWith(numberSelecting: max(0, currentCount + 1)));
                     // ref
                     //     .read(homeProvider.notifier)
                     //     .changeProductInCart(widget.item, currentCount + 1);
@@ -297,367 +297,367 @@ class _OrderInfoWidget extends ConsumerWidget {
   }
 }
 
-Future<void> onPressedCancelItem(
-  BuildContext context,
-  WidgetRef ref, {
-  List<ProductCheckoutModel> productCancel = const [],
-  Function? setStateFunc,
-}) async {
-  var state = ref.read(homeProvider);
-  var menuState = ref.read(menuProvider);
-  List<ProductCheckoutModel> listProductCancel = [];
-  List<ProductCheckoutModel> checkProductCancel = [];
-  List<int> cancelItemIds = [];
-  List<String> cancelItemNames = [];
-  Map<int, List<ProductModel>> productMapPrinter = {};
+// Future<void> onPressedCancelItem(
+//   BuildContext context,
+//   WidgetRef ref, {
+//   List<ProductCheckoutModel> productCancel = const [],
+//   Function? setStateFunc,
+// }) async {
+//   var state = ref.read(homeProvider);
+//   var menuState = ref.read(menuProvider);
+//   List<ProductCheckoutModel> listProductCancel = [];
+//   List<ProductCheckoutModel> checkProductCancel = [];
+//   List<int> cancelItemIds = [];
+//   List<String> cancelItemNames = [];
+//   Map<int, List<ProductModel>> productMapPrinter = {};
 
-  for (var p in productCancel) {
-    if (p.quantityCancel >= 0) continue;
-    var pCheck = menuState.products.firstWhereOrNull((e) => e.id == p.id);
-    if (pCheck != null) {
-      var cbItems = ProductHelper().getComboDescription(pCheck);
-      if (cbItems == null || cbItems.isEmpty) {
-        var printerType = pCheck.printerType ?? p.printerType;
-        if (printerType != null) {
-          var items =
-              List<ProductModel>.from(productMapPrinter[printerType] ?? []);
-          items.add(pCheck.copyWith(numberSelecting: p.quantityCancel.abs()));
-          productMapPrinter[printerType] = items;
-        }
-      } else {
-        // combo
-        List<ComboItemModel> comboItems = [];
-        for (var ci in cbItems) {
-          if (ci.printerType != null) {
-            if (ci.printerType == 4) {
-              var items = List<ProductModel>.from(
-                  productMapPrinter[ci.printerType] ?? []);
-              items.add(ProductModel(
-                id: ci.id ?? -1,
-                categoryId: 1,
-                numberSelecting: ci.quantity.abs(),
-                printerType: 4,
-                unit: ci.unit,
-                name: ci.name,
-              ));
-              productMapPrinter[ci.printerType!] = items;
-            } else {
-              comboItems.add(ci);
-            }
-          }
-        }
-        if (comboItems.isNotEmpty) {
-          var items = List<ProductModel>.from(productMapPrinter[2] ?? []);
-          items.add(pCheck.copyWith(
-            numberSelecting: p.quantityCancel.abs(),
-            description: jsonEncode(comboItems),
-          ));
-          productMapPrinter[2] = items;
-        }
-      }
-    } else {
-      if (p.printerType != null) {
-        var items =
-            List<ProductModel>.from(productMapPrinter[p.printerType!] ?? []);
-        items.add(ProductModel(
-          id: p.id,
-          categoryId: 1,
-          numberSelecting: p.quantityCancel.abs(),
-          printerType: p.printerType,
-          unit: p.unit,
-          name: p.name,
-        ));
-        productMapPrinter[p.printerType!] = items;
-      }
-    }
+//   for (var p in productCancel) {
+//     if (p.quantityCancel >= 0) continue;
+//     var pCheck = menuState.products.firstWhereOrNull((e) => e.id == p.id);
+//     if (pCheck != null) {
+//       var cbItems = ProductHelper().getComboDescription(pCheck);
+//       if (cbItems == null || cbItems.isEmpty) {
+//         var printerType = pCheck.printerType ?? p.printerType;
+//         if (printerType != null) {
+//           var items =
+//               List<ProductModel>.from(productMapPrinter[printerType] ?? []);
+//           items.add(pCheck.copyWith(numberSelecting: p.quantityCancel.abs()));
+//           productMapPrinter[printerType] = items;
+//         }
+//       } else {
+//         // combo
+//         List<ComboItemModel> comboItems = [];
+//         for (var ci in cbItems) {
+//           if (ci.printerType != null) {
+//             if (ci.printerType == 4) {
+//               var items = List<ProductModel>.from(
+//                   productMapPrinter[ci.printerType] ?? []);
+//               items.add(ProductModel(
+//                 id: ci.id ?? -1,
+//                 categoryId: 1,
+//                 numberSelecting: ci.quantity.abs(),
+//                 printerType: 4,
+//                 unit: ci.unit,
+//                 name: ci.name,
+//               ));
+//               productMapPrinter[ci.printerType!] = items;
+//             } else {
+//               comboItems.add(ci);
+//             }
+//           }
+//         }
+//         if (comboItems.isNotEmpty) {
+//           var items = List<ProductModel>.from(productMapPrinter[2] ?? []);
+//           items.add(pCheck.copyWith(
+//             numberSelecting: p.quantityCancel.abs(),
+//             description: jsonEncode(comboItems),
+//           ));
+//           productMapPrinter[2] = items;
+//         }
+//       }
+//     } else {
+//       if (p.printerType != null) {
+//         var items =
+//             List<ProductModel>.from(productMapPrinter[p.printerType!] ?? []);
+//         items.add(ProductModel(
+//           id: p.id,
+//           categoryId: 1,
+//           numberSelecting: p.quantityCancel.abs(),
+//           printerType: p.printerType,
+//           unit: p.unit,
+//           name: p.name,
+//         ));
+//         productMapPrinter[p.printerType!] = items;
+//       }
+//     }
 
-    if (p.quantityCancel < 0) {
-      listProductCancel.add(p);
-      if (p.quantity + p.quantityCancel == 0) {
-        checkProductCancel.add(p);
-        cancelItemIds.add(p.id);
-        cancelItemNames.add(p.name);
-      }
-    }
-  }
+//     if (p.quantityCancel < 0) {
+//       listProductCancel.add(p);
+//       if (p.quantity + p.quantityCancel == 0) {
+//         checkProductCancel.add(p);
+//         cancelItemIds.add(p.id);
+//         cancelItemNames.add(p.name);
+//       }
+//     }
+//   }
 
-  if (kDebugMode) {
-    showLogs(null, flags: 'ds món hủy');
-    listProductCancel.forEach((e) {
-      showLog(
-          'id: ${e.id}, name: ${e.name}, SL gọi: ${e.quantity}, type: ${e.printerType},'
-          ' SL hủy: ${e.quantityCancel}, SL hoàn thành: ${e.quantityCompleted}, SL tặng: ${e.quantityPromotion}',
-          flags: 'sp');
-    });
-    checkProductCancel.forEach((e) {
-      showLog(
-          'id: ${e.id}, name: ${e.name}, SL gọi: ${e.quantity},'
-          ' SL hủy: ${e.quantityCancel}, SL hoàn thành: ${e.quantityCompleted}, SL tặng: ${e.quantityPromotion}',
-          flags: 'sp cần check');
-    });
-  }
+//   if (kDebugMode) {
+//     showLogs(null, flags: 'ds món hủy');
+//     listProductCancel.forEach((e) {
+//       showLog(
+//           'id: ${e.id}, name: ${e.name}, SL gọi: ${e.quantity}, type: ${e.printerType},'
+//           ' SL hủy: ${e.quantityCancel}, SL hoàn thành: ${e.quantityCompleted}, SL tặng: ${e.quantityPromotion}',
+//           flags: 'sp');
+//     });
+//     checkProductCancel.forEach((e) {
+//       showLog(
+//           'id: ${e.id}, name: ${e.name}, SL gọi: ${e.quantity},'
+//           ' SL hủy: ${e.quantityCancel}, SL hoàn thành: ${e.quantityCompleted}, SL tặng: ${e.quantityPromotion}',
+//           flags: 'sp cần check');
+//     });
+//   }
 
-  if (listProductCancel.isEmpty) return;
+//   if (listProductCancel.isEmpty) return;
 
-  // Kiếm tra món huỷ có nằm trong danh sách đang được giảm giá hay không
-  bool checkDishInCouponOnly = false;
+//   // Kiếm tra món huỷ có nằm trong danh sách đang được giảm giá hay không
+//   bool checkDishInCouponOnly = false;
 
-  /// Món tặng 0 đồng
-  bool checkDishInCouponFree = false;
-  for (var coupon in state.coupons) {
-    if (coupon.isPromotion()) {
-      if (coupon.promotionItems
-          .any((e) => cancelItemIds.contains(e.menuItemId))) {
-        checkDishInCouponFree = true;
-      }
-    }
-    if (coupon.only) {
-      if (coupon.discount.any((d) => cancelItemNames.contains(d.name))) {
-        checkDishInCouponOnly = true;
-      }
-    }
-    if (checkDishInCouponFree && checkDishInCouponOnly) {
-      break;
-    }
-  }
+//   /// Món tặng 0 đồng
+//   bool checkDishInCouponFree = false;
+//   for (var coupon in state.coupons) {
+//     if (coupon.isPromotion()) {
+//       if (coupon.promotionItems
+//           .any((e) => cancelItemIds.contains(e.menuItemId))) {
+//         checkDishInCouponFree = true;
+//       }
+//     }
+//     if (coupon.only) {
+//       if (coupon.discount.any((d) => cancelItemNames.contains(d.name))) {
+//         checkDishInCouponOnly = true;
+//       }
+//     }
+//     if (checkDishInCouponFree && checkDishInCouponOnly) {
+//       break;
+  //   }
+  // }
 
-  showLogs(checkDishInCouponOnly, flags: '--- mã only cần hủy');
-  showLogs(checkDishInCouponFree, flags: '--- mã giảm 0 đồng cần chọn sp lại');
+  // showLogs(checkDishInCouponOnly, flags: '--- mã only cần hủy');
+  // showLogs(checkDishInCouponFree, flags: '--- mã giảm 0 đồng cần chọn sp lại');
 
-  // Thông báo khi có mã giảm giá nằm trong danh sách món huỷ
-  bool confirmCancel = true;
-  if (checkDishInCouponOnly) {
-    confirmCancel = await _confirmCancelWarning(context);
-  } else if (checkDishInCouponFree) {
-    confirmCancel = await _confirmCancelWithFreeProduct(context);
-  }
-  if (confirmCancel) {
-    String? reason = await showReasonCancelItemDialog(context);
-    showLogs(reason, flags: '--- Lý do hủy món');
-    if (reason == null) {
-      return;
-    }
+  // // Thông báo khi có mã giảm giá nằm trong danh sách món huỷ
+  // bool confirmCancel = true;
+  // if (checkDishInCouponOnly) {
+  //   confirmCancel = await _confirmCancelWarning(context);
+  // } else if (checkDishInCouponFree) {
+  //   confirmCancel = await _confirmCancelWithFreeProduct(context);
+  // }
+  // if (confirmCancel) {
+  //   String? reason = await showReasonCancelItemDialog(context);
+  //   showLogs(reason, flags: '--- Lý do hủy món');
+  //   if (reason == null) {
+  //     return;
+  //   }
 
-    var result = await ref.read(homeProvider.notifier).cancelProductOrder(
-          listProductCancel,
-          contentCancelOrder: reason,
-          printerCheck: productMapPrinter.keys.toList(),
-        );
-    showLogs(result, flags: '--- KQ hủy món');
-    if (result.error != null) {
-      // lỗi lấy danh sách máy in
-      if (result.errorGetPrinter) {
-        var confirm = await showConfirmAction(context,
-            message: 'Không thể lấy danh sách máy in\n'
-                'Sự cố: ${result.error!}\n'
-                'Bạn có muốn tiếp tục hủy món mà không in bill hủy (xuống bếp, bar)?');
-        if (confirm ?? false) {
-          result = await ref.read(homeProvider.notifier).cancelProductOrder(
-                listProductCancel,
-                contentCancelOrder: reason,
-                ignoreGetPrinter: true,
-                printerCheck: productMapPrinter.keys.toList(),
-              );
-        } else {
-          return;
-        }
-      } else {
-        if (context.mounted) {
-          await showMessageDialog(
-            context,
-            message: result.error!,
-          );
-        }
-        return;
-      }
+    // var result = await ref.read(homeProvider.notifier).cancelProductOrder(
+    //       listProductCancel,
+    //       contentCancelOrder: reason,
+    //       printerCheck: productMapPrinter.keys.toList(),
+    //     );
+    // showLogs(result, flags: '--- KQ hủy món');
+    // if (result.error != null) {
+    //   // lỗi lấy danh sách máy in
+    //   if (result.errorGetPrinter) {
+    //     var confirm = await showConfirmAction(context,
+    //         message: 'Không thể lấy danh sách máy in\n'
+    //             'Sự cố: ${result.error!}\n'
+    //             'Bạn có muốn tiếp tục hủy món mà không in bill hủy (xuống bếp, bar)?');
+    //     if (confirm ?? false) {
+    //       result = await ref.read(homeProvider.notifier).cancelProductOrder(
+    //             listProductCancel,
+    //             contentCancelOrder: reason,
+    //             ignoreGetPrinter: true,
+    //             printerCheck: productMapPrinter.keys.toList(),
+    //           );
+    //     } else {
+    //       return;
+    //     }
+    //   } else {
+    //     if (context.mounted) {
+    //       await showMessageDialog(
+    //         context,
+    //         message: result.error!,
+    //       );
+    //     }
+    //     return;
+    //   }
 
-      setStateFunc?.call();
-    }
+    //   setStateFunc?.call();
+    // }
 
-    var check = await AppPrinterCommon.checkPrinters(result.printers);
-    if (check != null) {
-      showMessageDialog(
-        context,
-        message:
-            'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
-            '$check',
-      );
-      return;
-    }
-    if (result.printers.isNotEmpty) {
-      try {
-        List<ProductModel> kitchenProductPrint = productMapPrinter[2] ?? [];
-        List<int> kitchenByteDatas = [];
-        bool printNormal = LocalStorage.getPrintSetting().appPrinterType ==
-            AppPrinterSettingTypeEnum.normal;
-        // bỏ qua in bếp nếu sử dụng KDS
-        if (!AppConfig.useKds && kitchenProductPrint.isNotEmpty) {
-          kitchenByteDatas = printNormal
-              ? await AppPrinterNormalUtils.instance.generateBill(
-                  order: state.orderSelect!,
-                  billSingle: false,
-                  cancel: true,
-                  products: kitchenProductPrint,
-                  timeOrder: 1,
-                  title: 'HUY DO',
-                  totalNote: reason,
-                )
-              : await AppPrinterHtmlUtils.instance.generateImageBill(
-                  AppPrinterHtmlUtils.instance.kitchenBillContent(
-                  product: kitchenProductPrint,
-                  totalBill: true,
-                  order: state.orderSelect!,
-                  note: reason,
-                  timeOrders: 1,
-                  cancel: true,
-                ));
-        }
-        // var check = await AppPrinterCommon.checkPrinters(result.printers);
-        // if (check != null) {
-        //   showMessageDialog(
-        //     context,
-        //     message: 'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
-        //         '$check',
-        //   );
-        //   return;
+    // var check = await AppPrinterCommon.checkPrinters(result.printers);
+    // if (check != null) {
+    //   showMessageDialog(
+    //     context,
+    //     message:
+    //         'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
+    //         '$check',
+    //   );
+    //   return;
+    // }
+    // if (result.printers.isNotEmpty) {
+    //   try {
+    //     List<ProductModel> kitchenProductPrint = productMapPrinter[2] ?? [];
+    //     List<int> kitchenByteDatas = [];
+    //     bool printNormal = LocalStorage.getPrintSetting().appPrinterType ==
+    //         AppPrinterSettingTypeEnum.normal;
+    //     // bỏ qua in bếp nếu sử dụng KDS
+    //     if (!AppConfig.useKds && kitchenProductPrint.isNotEmpty) {
+    //       kitchenByteDatas = printNormal
+    //           ? await AppPrinterNormalUtils.instance.generateBill(
+    //               order: state.orderSelect!,
+    //               billSingle: false,
+    //               cancel: true,
+    //               products: kitchenProductPrint,
+    //               timeOrder: 1,
+    //               title: 'HUY DO',
+    //               totalNote: reason,
+    //             )
+    //           : await AppPrinterHtmlUtils.instance.generateImageBill(
+    //               AppPrinterHtmlUtils.instance.kitchenBillContent(
+    //               product: kitchenProductPrint,
+    //               totalBill: true,
+    //               order: state.orderSelect!,
+    //               note: reason,
+    //               timeOrders: 1,
+    //               cancel: true,
+    //             ));
+    //     }
+    //     // var check = await AppPrinterCommon.checkPrinters(result.printers);
+    //     // if (check != null) {
+    //     //   showMessageDialog(
+    //     //     context,
+    //     //     message: 'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
+    //     //         '$check',
+    //     //   );
+    //     //   return;
+    //     // }
+    //     for (var printer in result.printers) {
+    //       if (printer.type == 2) {
+    //         if (kitchenByteDatas.isNotEmpty) {
+    //           PrintQueue.instance.addTask(
+    //             ip: printer.ip,
+    //             port: printer.port,
+    //             buildReceipt: (generator) async {
+    //               return kitchenByteDatas;
+    //             },
+    //             onComplete: (success, error) {
+    //               if (success == false) {
+    //                 showMessageDialog(
+    //                   context,
+    //                   message:
+    //                       'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
+    //                       '$error',
+    //                 );
+    //               }
+    //             },
+    //           );
+    //         }
+    //       } else {
+    //         List<ProductModel> productPrint =
+    //             productMapPrinter[printer.type] ?? [];
+    //         if (productPrint.isNotEmpty) {
+    //           var byteDatas = printNormal
+    //               ? await AppPrinterNormalUtils.instance.generateBill(
+    //                   order: state.orderSelect!,
+    //                   billSingle: false,
+    //                   cancel: true,
+    //                   products: productPrint,
+    //                   timeOrder: 1,
+    //                   title: 'HUY DO',
+    //                   totalNote: reason,
+    //                 )
+    //               : await AppPrinterHtmlUtils.instance.generateImageBill(
+    //                   AppPrinterHtmlUtils.instance.kitchenBillContent(
+    //                     product: productPrint,
+    //                     totalBill: true,
+    //                     order: state.orderSelect!,
+    //                     note: reason,
+    //                     timeOrders: 1,
+    //                     cancel: true,
+    //                   ),
+    //                 );
+
+    //           PrintQueue.instance.addTask(
+    //             ip: printer.ip,
+    //             port: printer.port,
+    //             buildReceipt: (generator) async {
+    //               return byteDatas;
+    //             },
+    //             onComplete: (success, error) {
+    //               if (success == false) {
+    //                 showMessageDialog(
+    //                   context,
+    //                   message:
+    //                       'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ\n'
+    //                       '$error',
+    //                 );
+    //               }
+    //             },
+    //           );
+    //         }
+    //       }
+    //     }
+    //   } catch (ex) {
+    //     //
+    //   }
+    // }
+
+    // if (checkDishInCouponOnly) {
+    //   for (var coupon in state.coupons) {
+    //     bool checkFoodCancelInCoupon = false;
+    //     for (var discount in coupon.discount) {
+    //       for (var itemCancel in checkProductCancel) {
+    //         var product = menuState.products
+    //             .firstWhereOrNull((element) => element.id == itemCancel.id);
+    //         if (product != null) {
+    //           // copy từ apos sang đoạn này
+    //           // đối với món thông thường
+    //           if (product.id.toString() == discount.id) {
+    //             checkFoodCancelInCoupon = true;
+    //             break;
+    //           } else {
+    //             // kiểm tra combo
+    //             List<ComboItemModel>? comboItems =
+    //                 ProductHelper().getComboDescription(product);
+    //             if (comboItems != null) {
+    //               // chỉ dùng để check với combo
+    //               List<ProductModel> productFromDiscount = [];
+    //               // lọc danh sách món map với tất cả món tại nhà hàng
+    //               for (var itemCb in comboItems) {
+    //                 if (itemCb.name == discount.name) {
+    //                   var productCheckDiscount = menuState.products
+    //                       .firstWhereOrNull((e) => e.name == discount.name);
+    //                   if (productCheckDiscount != null &&
+    //                       productFromDiscount.contains(productCheckDiscount) ==
+    //                           false) {
+    //                     productFromDiscount.add(productCheckDiscount);
+        //               }
+        //             }
+        //           }
+        //           if (productFromDiscount
+        //               .any((element) => element.id.toString() == discount.id)) {
+        //             checkFoodCancelInCoupon = true;
+        //             break;
+        //           }
+        //         }
+        //       }
+        //     }
+        //     if (checkFoodCancelInCoupon) break;
+        //   }
+        //   if (checkFoodCancelInCoupon) break;
         // }
-        for (var printer in result.printers) {
-          if (printer.type == 2) {
-            if (kitchenByteDatas.isNotEmpty) {
-              PrintQueue.instance.addTask(
-                ip: printer.ip,
-                port: printer.port,
-                buildReceipt: (generator) async {
-                  return kitchenByteDatas;
-                },
-                onComplete: (success, error) {
-                  if (success == false) {
-                    showMessageDialog(
-                      context,
-                      message:
-                          'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ xuống bếp\n'
-                          '$error',
-                    );
-                  }
-                },
-              );
-            }
-          } else {
-            List<ProductModel> productPrint =
-                productMapPrinter[printer.type] ?? [];
-            if (productPrint.isNotEmpty) {
-              var byteDatas = printNormal
-                  ? await AppPrinterNormalUtils.instance.generateBill(
-                      order: state.orderSelect!,
-                      billSingle: false,
-                      cancel: true,
-                      products: productPrint,
-                      timeOrder: 1,
-                      title: 'HUY DO',
-                      totalNote: reason,
-                    )
-                  : await AppPrinterHtmlUtils.instance.generateImageBill(
-                      AppPrinterHtmlUtils.instance.kitchenBillContent(
-                        product: productPrint,
-                        totalBill: true,
-                        order: state.orderSelect!,
-                        note: reason,
-                        timeOrders: 1,
-                        cancel: true,
-                      ),
-                    );
-
-              PrintQueue.instance.addTask(
-                ip: printer.ip,
-                port: printer.port,
-                buildReceipt: (generator) async {
-                  return byteDatas;
-                },
-                onComplete: (success, error) {
-                  if (success == false) {
-                    showMessageDialog(
-                      context,
-                      message:
-                          'Món đã được xóa khỏi đơn nhưng không thể in bill hủy đồ\n'
-                          '$error',
-                    );
-                  }
-                },
-              );
-            }
-          }
-        }
-      } catch (ex) {
-        //
-      }
-    }
-
-    if (checkDishInCouponOnly) {
-      for (var coupon in state.coupons) {
-        bool checkFoodCancelInCoupon = false;
-        for (var discount in coupon.discount) {
-          for (var itemCancel in checkProductCancel) {
-            var product = menuState.products
-                .firstWhereOrNull((element) => element.id == itemCancel.id);
-            if (product != null) {
-              // copy từ apos sang đoạn này
-              // đối với món thông thường
-              if (product.id.toString() == discount.id) {
-                checkFoodCancelInCoupon = true;
-                break;
-              } else {
-                // kiểm tra combo
-                List<ComboItemModel>? comboItems =
-                    ProductHelper().getComboDescription(product);
-                if (comboItems != null) {
-                  // chỉ dùng để check với combo
-                  List<ProductModel> productFromDiscount = [];
-                  // lọc danh sách món map với tất cả món tại nhà hàng
-                  for (var itemCb in comboItems) {
-                    if (itemCb.name == discount.name) {
-                      var productCheckDiscount = menuState.products
-                          .firstWhereOrNull((e) => e.name == discount.name);
-                      if (productCheckDiscount != null &&
-                          productFromDiscount.contains(productCheckDiscount) ==
-                              false) {
-                        productFromDiscount.add(productCheckDiscount);
-                      }
-                    }
-                  }
-                  if (productFromDiscount
-                      .any((element) => element.id.toString() == discount.id)) {
-                    checkFoodCancelInCoupon = true;
-                    break;
-                  }
-                }
-              }
-            }
-            if (checkFoodCancelInCoupon) break;
-          }
-          if (checkFoodCancelInCoupon) break;
-        }
-        if (checkFoodCancelInCoupon && coupon.only) {
-          var resultRemove =
-              await ref.read(homeProvider.notifier).deleteCoupon(coupon);
-          if (resultRemove != null) {
-            // ignore: use_build_context_synchronously
-            showMessageDialog(
-              context,
-              message:
-                  "$resultRemove\nHãy xoá và nhập lại mã giảm giá (${coupon.name}) rồi áp dụng!",
-            );
-          }
-        }
-      }
-    } else if (checkDishInCouponFree) {
-      // áp dụng lại mã giảm giá nếu mã giảm giá: Tặng khách 0 đồng (is_type == 5)
-      var error = await ref.read(homeProvider.notifier).applyCustomerPolicy();
-      if (error != null) {
-        await showMessageDialog(
-          context,
-          message: error,
-        );
-      }
-    }
-  }
-}
+        // if (checkFoodCancelInCoupon && coupon.only) {
+    //       var resultRemove =
+    //           await ref.read(homeProvider.notifier).deleteCoupon(coupon);
+    //       if (resultRemove != null) {
+    //         // ignore: use_build_context_synchronously
+    //         showMessageDialog(
+    //           context,
+    //           message:
+    //               "$resultRemove\nHãy xoá và nhập lại mã giảm giá (${coupon.name}) rồi áp dụng!",
+    //         );
+    //       }
+    //     }
+    //   }
+    // } else if (checkDishInCouponFree) {
+    //   // áp dụng lại mã giảm giá nếu mã giảm giá: Tặng khách 0 đồng (is_type == 5)
+    //   var error = await ref.read(homeProvider.notifier).applyCustomerPolicy();
+    //   if (error != null) {
+    //     await showMessageDialog(
+    //       context,
+    //       message: error,
+      //   );
+      // }
+  //   }
+  // }
+// }

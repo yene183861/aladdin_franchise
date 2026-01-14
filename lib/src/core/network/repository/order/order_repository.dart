@@ -38,7 +38,8 @@ abstract class OrderRepository {
   /// Lấy ip máy in
   ///
   /// printerType: [1] in thanh toán, [2,4] in bếp & bar
-  Future<List<IpOrderModel>> getIpPrinterOrder(OrderModel order, List<int> printerType);
+  Future<List<IpOrderModel>> getIpPrinterOrder(
+      OrderModel order, List<int> printerType);
 
   /// Success => true
   ///
@@ -94,11 +95,10 @@ abstract class OrderRepository {
     required int statusLock,
   });
 
-// hoàn thành bill
-  Future<void> completeBill({
+  /// [arrMethod] : keyPaymentMethod--priceFinal
+  Future<String?> completeBill({
     required OrderModel order,
     String description = '',
-    // cấu trúc: keyPaymentMethod--priceFinal,
     List<String> arrMethod = const [],
     int amountChildren = 0,
     int amountAdult = 1,
@@ -117,12 +117,13 @@ abstract class OrderRepository {
   Future<List<ProductCheckoutUpdateTaxModel>> updateTax({
     required OrderModel order,
     required List<ProductCheckoutModel> pc,
-    required PaymentMethod paymentMethod,
+    PaymentMethod? paymentMethod,
   });
 
   Future<bool> checkStatusLockOrder(int orderId);
 
-  Future<({String? qrData, String? message, dynamic status})> getQrBankDynamicPayment({
+  Future<({String? qrData, String? message, dynamic status})>
+      getQrBankDynamicPayment({
     required ApiBankParam apiBankParam,
     required int keyPaymentMethod,
     required String bankCode,

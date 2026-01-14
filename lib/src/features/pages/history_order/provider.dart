@@ -9,8 +9,11 @@ import 'package:aladdin_franchise/src/core/network/repository/order/order_reposi
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/data_bill.dart';
 import 'package:aladdin_franchise/src/core/services/print_queue.dart';
+import 'package:aladdin_franchise/src/data/enum/print_type.dart';
 import 'package:aladdin_franchise/src/data/enum/receipt_type.dart';
 import 'package:aladdin_franchise/src/data/enum/status.dart';
+import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
+import 'package:aladdin_franchise/src/data/request/payment_receipt_print.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/edit_tax_dialog.dart';
@@ -38,7 +41,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'state.dart';
 
 final historyOrderPageProvider =
-    StateNotifierProvider.autoDispose<HistoryOrderNotifier, HistoryOrderState>((ref) {
+    StateNotifierProvider.autoDispose<HistoryOrderNotifier, HistoryOrderState>(
+        (ref) {
   return HistoryOrderNotifier(ref, ref.read(orderRepositoryProvider));
 });
 
@@ -64,19 +68,24 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
     );
   }
 
-  Future<({String? error, bool refreshData})> printBillForCustomer(BuildContext context,
+  Future<({String? error, bool refreshData})> printBillForCustomer(
+      BuildContext context,
       {bool completeBillAction = false}) async {
     String? error;
     bool refreshData = false;
     try {
       state = state.copyWith(
-          event: completeBillAction ? HistoryOrderEvent.completeBill : HistoryOrderEvent.printBill);
+          event: completeBillAction
+              ? HistoryOrderEvent.completeBill
+              : HistoryOrderEvent.printBill);
       var historyOrderSelect = state.historyOrderSelect;
       if (historyOrderSelect == null) {
         throw S.current.msg_select_order_before_print_receipt;
       }
-      bool requireCompleteBill = historyOrderSelect.status == OrderStatusEnum.waiting;
-      bool isOnline = historyOrderSelect.orderType == AppConfig.orderOnlineValue;
+      bool requireCompleteBill =
+          historyOrderSelect.status == OrderStatusEnum.waiting;
+      bool isOnline =
+          historyOrderSelect.orderType == AppConfig.orderOnlineValue;
       var order = orderSelect;
       if (order == null) {
         state = state.copyWith(event: HistoryOrderEvent.normal);
@@ -94,7 +103,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
           if (dataBill.error != null) {
             throw dataBill.error!;
           }
-          List<LineItemDataBill> itemsPrint = List<LineItemDataBill>.from(dataBill.itemsPrint);
+          List<LineItemDataBill> itemsPrint =
+              List<LineItemDataBill>.from(dataBill.itemsPrint);
 
           PriceDataBill price = dataBill.price;
 
@@ -122,7 +132,9 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             while (_count < 3) {
               try {
                 if (listPaymentMethods.isEmpty) {
-                  var pm = await ref.read(restaurantRepositoryProvider).getPaymentMethod(
+                  var pm = await ref
+                      .read(restaurantRepositoryProvider)
+                      .getPaymentMethod(
                         orderId: order.id,
                       );
 
@@ -139,8 +151,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             if (errorGetPaymentMethods != null) {
               throw 'Không thể tải danh sách phương thức thanh toán';
             }
-            paymentMethodSelect =
-                listPaymentMethods.firstWhereOrNull((e) => e.key == paymentMethodSelect?.key);
+            paymentMethodSelect = listPaymentMethods
+                .firstWhereOrNull((e) => e.key == paymentMethodSelect?.key);
           }
 
           if (paymentMethodSelect == null) {
@@ -150,7 +162,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             if (paymentMethodSelect.isGateway) {
               paymentAmount = 0.0;
             } else {
-              paymentAmount = double.tryParse(price.totalPriceFinal.toString()) ?? 0.0;
+              paymentAmount =
+                  double.tryParse(price.totalPriceFinal.toString()) ?? 0.0;
             }
           }
           showLogs(paymentAmount, flags: 'paymentAmount 1');
@@ -168,7 +181,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                     try {
                       var result = await ref
                           .read(menuRepositoryProvider)
-                          .getProduct(null, typeOrder: TypeOrderEnum.online.type);
+                          .getProduct(null,
+                              typeOrder: TypeOrderEnum.online.type);
 
                       onlineProducts = List<ProductModel>.from(result);
                       break;
@@ -194,7 +208,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                     try {
                       var result = await ref
                           .read(menuRepositoryProvider)
-                          .getProduct(null, typeOrder: TypeOrderEnum.offline.type);
+                          .getProduct(null,
+                              typeOrder: TypeOrderEnum.offline.type);
                       offlineProducts = List<ProductModel>.from(result);
                       break;
                     } catch (ex) {
@@ -232,7 +247,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                       codeProduct: e.codeProduct,
                       tax: e.getTax1(),
                       unitPrice: e.price.toString(),
-                      totalOrdered: e.count * (double.tryParse(e.price.toString()) ?? 0),
+                      totalOrdered:
+                          e.count * (double.tryParse(e.price.toString()) ?? 0),
                     ));
                   }
                 }
@@ -259,8 +275,10 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                     List<ProductCheckoutModel> pcMustChangeTax = [];
                     for (var pc in productCheckouts) {
                       var taxProduct = tax[pc.id];
-                      var useDefault = (taxProduct?['use_default'] ?? false) as bool;
-                      var valueDefault = (taxProduct?['default'] ?? 0.0) as double;
+                      var useDefault =
+                          (taxProduct?['use_default'] ?? false) as bool;
+                      var valueDefault =
+                          (taxProduct?['default'] ?? 0.0) as double;
 
                       if (useDefault) {
                         if (pc.tax != valueDefault) {
@@ -268,7 +286,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                           pcMustDefaultTax.add(pc);
                         }
                       } else {
-                        if (pc.tax == 0 && (paymentMethodSelect?.requireEditTax ?? false)) {
+                        if (pc.tax == 0 &&
+                            (paymentMethodSelect?.requireEditTax ?? false)) {
                           check = false;
                           pcMustChangeTax.add(pc);
                         }
@@ -307,7 +326,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                   state = state.copyWith(event: HistoryOrderEvent.normal);
 
                   return (
-                    error: 'Chỉnh sửa thuế không thành công\n${resultUpdateTax.error}',
+                    error:
+                        'Chỉnh sửa thuế không thành công\n${resultUpdateTax.error}',
                     refreshData: refreshData
                   );
                 } else {
@@ -340,121 +360,153 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                 }
               }
             }
-
-            var checkItemBeforePrint = checkItemBeforeCompleteBill(
-              orderLineItems: itemsPrint,
-              paymentMethodSelect: paymentMethodSelect,
-            );
-            showLogs(checkItemBeforePrint, flags: 'checkItemBeforePrint');
-            if (checkItemBeforePrint != null) {
-              state = state.copyWith(event: HistoryOrderEvent.normal);
-
-              return (
-                error: '$checkItemBeforePrint\n'
-                    'Vui lòng mở web thu ngân, chuyển trạng thái đơn bàn này sang "Đang xử lý"'
-                    ' để có thể thay đổi danh sách món!',
-                refreshData: refreshData
-              );
-            }
           }
           showLogs(requireCompleteBill, flags: 'requireCompleteBill');
-          if (requireCompleteBill) {
-            var result = await _orderRepository.completeBill(
-                order: order,
-                description: dataBill.description,
-                isPrintPeople: orderPrint.isPrintPeople ? 1 : 0,
-                amountAdult: orderPrint.amountAdult,
-                amountChildren: orderPrint.amountChildren,
-                portrait: portrait,
-                totalPrice: price.totalPrice,
-                totalPriceTax: price.totalPriceTax,
-                totalPriceVoucher: price.totalPriceVoucher,
-                totalPriceFinal: price.totalPriceFinal,
-                eSaleName: '',
-                eSaleCode: '',
-                arrMethod: ['${paymentMethodSelect.key}--$paymentAmount']);
+          var invoiceQr = await _orderRepository.completeBill(
+              order: order,
+              description: dataBill.description,
+              isPrintPeople: orderPrint.isPrintPeople ? 1 : 0,
+              amountAdult: orderPrint.amountAdult,
+              amountChildren: orderPrint.amountChildren,
+              portrait: portrait,
+              totalPrice: price.totalPrice,
+              totalPriceTax: price.totalPriceTax,
+              totalPriceVoucher: price.totalPriceVoucher,
+              totalPriceFinal: price.totalPriceFinal,
+              eSaleName: '',
+              eSaleCode: '',
+              arrMethod: ['${paymentMethodSelect.key}--$paymentAmount']);
 
-            if (requireCompleteBill) {
-              refreshData = true;
-            }
+          if (requireCompleteBill) {
+            refreshData = true;
           }
           String? resPrint;
           try {
-            var check = await AppPrinterCommon.checkPrinter(
-                IpOrderModel(ip: infoPrinter.ip, port: infoPrinter.port, type: 1));
+            var check = await AppPrinterCommon.checkPrinter(IpOrderModel(
+                ip: infoPrinter.ip, port: infoPrinter.port, type: 1));
             if (check != null) {
               throw check;
             }
-
-            PrintQueue.instance.addTask(
-              ip: infoPrinter.ip,
-              port: infoPrinter.port,
-              buildReceipt: (generator) async {
-                List<int> bytes = [];
-                List<LineItemDataBill> _itemsPrint = [];
-                try {
-                  for (var e in itemsPrint) {
-                    _itemsPrint.add(LineItemDataBill(
-                      name: e.name,
-                      price: e.price,
-                      tax: e.tax,
-                      unit: e.unit,
-                      count: e.count,
-                    ));
-                    if (e.listItem.isNotEmpty) {
-                      for (var item in e.listItem) {
-                        _itemsPrint.add(LineItemDataBill(
-                          name: ' - ${item.name}',
-                          price: '0',
-                          tax: '0',
-                          unit: '',
-                          count: 0,
-                        ));
-                      }
-                    }
-                  }
-                  bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(
-                    order: order,
-                    price: price,
-                    receiptType: ReceiptTypeEnum.paymentReceipt,
-                    paymentMethod: paymentMethodSelect,
-                    paymentAmount: paymentAmount,
-                    numberPrintCompleted: (orderPrint?.numberPrintCompleted ?? 0) + 1,
-                    numberPrintTemporary: (orderPrint?.numberPrintTemporary ?? 0) + 1,
-                    orderLineItems: _itemsPrint,
-                    vouchers: dataBill.vouchers,
-                    note: dataBill.description,
-                    printNumberOfPeople: orderPrint?.isPrintPeople ?? false,
-                    customerPhone: orderPrint?.phoneNumber ?? '',
-                    numberOfPeople: orderPrint?.amountPeople ?? 0,
-                    cashierCompleted: orderPrint?.cashierCompleted ?? '',
-                    cashierPrint: orderPrint?.cashierPrint ?? '',
-                    timeCompleted: orderPrint?.timeCompleted,
-                    timeCreatedAt: orderPrint?.createdAt,
-                    invoiceQr: AppConfig.useInvoiceQr ? '' : '',
-                  );
-                  if (bytes.isEmpty) {
-                    return <int>[];
-                  } else {
-                    return bytes;
-                  }
-                } catch (ex) {
-                  rethrow;
+            List<LineItemDataBill> _itemsPrint = [];
+            for (var e in itemsPrint) {
+              _itemsPrint.add(LineItemDataBill(
+                name: e.name,
+                price: e.price,
+                tax: e.tax,
+                unit: e.unit,
+                count: e.count,
+              ));
+              if (e.listItem.isNotEmpty) {
+                for (var item in e.listItem) {
+                  _itemsPrint.add(LineItemDataBill(
+                    name: ' - ${item.name}',
+                    price: '0',
+                    tax: '0',
+                    unit: '',
+                    count: 0,
+                  ));
                 }
-              },
-              onComplete: (success, error) {
-                if (success) {
-                  showLogs("✅ In thành công");
-                } else {
-                  resPrint = error;
-                  showLogs("❌ In thất bại");
-
-                  if (error != null) {
-                    showMessageDialog(context, message: error);
-                  }
-                }
-              },
+              }
+            }
+            var data = PaymentReceiptPrintRequest(
+              order: order,
+              price: price,
+              receiptType: ReceiptTypeEnum.paymentReceipt,
+              paymentMethod: paymentMethodSelect,
+              paymentAmount: paymentAmount,
+              numberPrintCompleted: orderPrint.numberPrintCompleted + 1,
+              numberPrintTemporary: orderPrint.numberPrintTemporary + 1,
+              orderLineItems: _itemsPrint,
+              vouchers: dataBill.vouchers,
+              note: dataBill.description,
+              printNumberOfPeople: orderPrint.isPrintPeople,
+              customerPhone: orderPrint.phoneNumber,
+              numberOfPeople: orderPrint.amountPeople,
+              cashierCompleted: orderPrint.cashierCompleted,
+              cashierPrint: orderPrint.cashierPrint,
+              timeCompleted: orderPrint.timeCompleted,
+              timeCreatedAt: orderPrint.createdAt,
+              invoiceQr: invoiceQr ?? '',
             );
+            ref.read(homeProvider.notifier).sendPrintData(
+              type: PrintTypeEnum.payment,
+              paymentData: data,
+              printers: [
+                PrinterModel(
+                  ip: infoPrinter.ip,
+                  port: infoPrinter.port,
+                ),
+              ],
+            );
+            // PrintQueue.instance.addTask(
+            //   ip: infoPrinter.ip,
+            //   port: infoPrinter.port,
+            //   buildReceipt: (generator) async {
+            //     List<int> bytes = [];
+            //     List<LineItemDataBill> _itemsPrint = [];
+            //     try {
+            //       for (var e in itemsPrint) {
+            //         _itemsPrint.add(LineItemDataBill(
+            //           name: e.name,
+            //           price: e.price,
+            //           tax: e.tax,
+            //           unit: e.unit,
+            //           count: e.count,
+            //         ));
+            //         if (e.listItem.isNotEmpty) {
+            //           for (var item in e.listItem) {
+            //             _itemsPrint.add(LineItemDataBill(
+            //               name: ' - ${item.name}',
+            //               price: '0',
+            //               tax: '0',
+            //               unit: '',
+            //               count: 0,
+            //             ));
+            //           }
+            //         }
+            //       }
+            //       bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(
+            //         order: order,
+            //         price: price,
+            //         receiptType: ReceiptTypeEnum.paymentReceipt,
+            //         paymentMethod: paymentMethodSelect,
+            //         paymentAmount: paymentAmount,
+            //         numberPrintCompleted: (orderPrint?.numberPrintCompleted ?? 0) + 1,
+            //         numberPrintTemporary: (orderPrint?.numberPrintTemporary ?? 0) + 1,
+            //         orderLineItems: _itemsPrint,
+            //         vouchers: dataBill.vouchers,
+            //         note: dataBill.description,
+            //         printNumberOfPeople: orderPrint?.isPrintPeople ?? false,
+            //         customerPhone: orderPrint?.phoneNumber ?? '',
+            //         numberOfPeople: orderPrint?.amountPeople ?? 0,
+            //         cashierCompleted: orderPrint?.cashierCompleted ?? '',
+            //         cashierPrint: orderPrint?.cashierPrint ?? '',
+            //         timeCompleted: orderPrint?.timeCompleted,
+            //         timeCreatedAt: orderPrint?.createdAt,
+            //         invoiceQr: AppConfig.useInvoiceQr ? '' : '',
+            //       );
+            //       if (bytes.isEmpty) {
+            //         return <int>[];
+            //       } else {
+            //         return bytes;
+            //       }
+            //     } catch (ex) {
+            //       rethrow;
+            //     }
+            //   },
+            //   onComplete: (success, error) {
+            //     if (success) {
+            //       showLogs("✅ In thành công");
+            //     } else {
+            //       resPrint = error;
+            //       showLogs("❌ In thất bại");
+
+            //       if (error != null) {
+            //         showMessageDialog(context, message: error);
+            //       }
+            //     }
+            //   },
+            // );
           } catch (ex) {
             resPrint = ex.toString();
             showLogs(ex.toString(), flags: 'in hoàn thành lỗi');
@@ -622,7 +674,9 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
 
   void getDetailOrder() async {
     try {
-      state = state.copyWith(getOrderDetailState: const PageState(status: PageCommonState.loading));
+      state = state.copyWith(
+          getOrderDetailState:
+              const PageState(status: PageCommonState.loading));
       var historyOrderSelect = state.historyOrderSelect;
       if (historyOrderSelect == null) {
         return;

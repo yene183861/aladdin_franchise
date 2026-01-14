@@ -11,30 +11,39 @@ import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/coupon/button_add_coupon.dart';
 import 'package:aladdin_franchise/src/features/dialogs/create_invoice_order_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
+import 'package:aladdin_franchise/src/features/dialogs/payment/edit_tax_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
+import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:aladdin_franchise/src/utils/subwindows_moniter.dart';
+import 'package:collection/collection.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../menu/provider.dart';
 
 class OrderFeatureButtonGroupWidget extends ConsumerWidget {
   const OrderFeatureButtonGroupWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var defaultPaddingFeatureBtn = const EdgeInsets.symmetric(horizontal: 2, vertical: 12);
+    var defaultPaddingFeatureBtn =
+        const EdgeInsets.symmetric(horizontal: 2, vertical: 12);
     return Column(
       children: [
         _FeatureGroupWidget(defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
         const Gap(4),
-        _BottomFeatureGroupWidget(defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
+        _BottomFeatureGroupWidget(
+            defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
       ],
     );
   }
@@ -45,7 +54,8 @@ class _FeatureGroupWidget extends ConsumerStatefulWidget {
   final EdgeInsets defaultPaddingFeatureBtn;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => __FeatureGroupWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      __FeatureGroupWidgetState();
 }
 
 class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
@@ -101,7 +111,8 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
               valueListenable: _hasSubWindows,
               builder: (context, hasWindows, child) {
                 return Consumer(builder: (context, ref, child) {
-                  var pinned = ref.watch(homeProvider.select((value) => value.pinnedOrder));
+                  var pinned = ref
+                      .watch(homeProvider.select((value) => value.pinnedOrder));
 
                   return ButtonSimpleWidget(
                     textAction: S.of(context).customer_screen,
@@ -151,21 +162,31 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
                       // //   },
                       // // };
                       if (Platform.isWindows) {
-                        final subWindows = await DesktopMultiWindow.getAllSubWindowIds();
+                        final subWindows =
+                            await DesktopMultiWindow.getAllSubWindowIds();
 
                         if (subWindows.isNotEmpty) {
                           // pin/ unpin màn hình KH
-                          ref.read(homeProvider.notifier).onChangePinnedOrder(!pinned);
+                          ref
+                              .read(homeProvider.notifier)
+                              .onChangePinnedOrder(!pinned);
                           if (pinned) {
-                            ref.read(homeProvider.notifier).syncInfoCustomerPage();
+                            ref
+                                .read(homeProvider.notifier)
+                                .syncInfoCustomerPage();
                           }
                           return;
                         }
 
-                        ref.read(homeProvider.notifier).onChangePinnedOrder(false);
-                        var restaurant = LocalStorage.getDataLogin()?.restaurant;
+                        ref
+                            .read(homeProvider.notifier)
+                            .onChangePinnedOrder(false);
+                        var restaurant =
+                            LocalStorage.getDataLogin()?.restaurant;
                         final window = await DesktopMultiWindow.createWindow(
-                            jsonEncode(ref.read(homeProvider.notifier).getAllDataToCustomerPage()));
+                            jsonEncode(ref
+                                .read(homeProvider.notifier)
+                                .getAllDataToCustomerPage()));
                         window
                           ..setFrame(Offset(1920, 0) & const Size(1920, 1080))
                           ..center()
@@ -182,10 +203,13 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
           Expanded(
             flex: 1,
             child: Consumer(builder: (context, ref, child) {
-              var customer = ref.watch(homeProvider.select((value) => value.customer));
+              var customer =
+                  ref.watch(homeProvider.select((value) => value.customer));
 
               return Tooltip(
-                message: customer == null ? '' : '${customer.name} - ${customer.phoneNumber}',
+                message: customer == null
+                    ? ''
+                    : '${customer.name} - ${customer.phoneNumber}',
                 child: ButtonSimpleWidget(
                   textAction: customer == null
                       ? S.of(context).customers
@@ -213,9 +237,11 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
             flex: 1,
             child: Consumer(
               builder: (context, ref, child) {
-                var invoice = ref.watch(homeProvider.select((value) => value.invoice));
+                var invoice =
+                    ref.watch(homeProvider.select((value) => value.invoice));
 
-                var state = ref.watch(homeProvider.select((value) => value.orderInvoiceState));
+                var state = ref.watch(
+                    homeProvider.select((value) => value.orderInvoiceState));
 
                 return ButtonSimpleWidget(
                   textAction: S.of(context).invoice,
@@ -276,7 +302,8 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
         const Gap(8),
         Expanded(
           child: Consumer(builder: (context, ref, child) {
-            var coupons = ref.watch(homeProvider.select((value) => value.coupons));
+            var coupons =
+                ref.watch(homeProvider.select((value) => value.coupons));
             return ButtonSimpleWidget(
               padding: defaultPaddingFeatureBtn,
               onPressed: () async {
@@ -320,13 +347,15 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
             padding: defaultPaddingFeatureBtn,
             color: const Color(0xFF2FA7E7),
             onPressed: () async {
-              final res = await ref.read(homeProvider.notifier).closeShift(context);
+              final res =
+                  await ref.read(homeProvider.notifier).closeShift(context);
 
               if (res != null) {
                 showMessageDialog(context, message: res);
                 return;
               }
-              showDoneSnackBar(context: context, message: S.current.closing_shift_success);
+              showDoneSnackBar(
+                  context: context, message: S.current.closing_shift_success);
             },
           ),
         ),
@@ -353,8 +382,9 @@ void paymentBtnCallback({
   }
 
   state = ref.read(homeProvider);
-  bool emptyProductCheckout = state.productCheckout.isEmpty;
-  if (emptyProductCheckout) {
+  List<ProductCheckoutModel> productsCheckout = List<ProductCheckoutModel>.from(
+      ref.read(checkoutPageProvider).productsCheckout);
+  if (productsCheckout.isEmpty) {
     showMessageDialog(context, message: S.current.order_before_payment);
     return;
   }
@@ -389,75 +419,69 @@ void paymentBtnCallback({
     ref.read(homeProvider.notifier).resetPaymentAndBank();
 
     state = ref.read(homeProvider);
-    // khóa thao tác trên các thiết bị khác
     await ref.read(homeProvider.notifier).lockOrder(loadingHome: true);
 
-    // if (ref.read(homeProvider).needApplyAgainOnlyCoupons.isNotEmpty) {
-    //   // với mã only thì xóa mã đi áp dụng lại
-    //   var error = await ref.read(homeProvider.notifier).applyAgainOnlyCounpon();
-    //   if (error != null) {
-    //     if (context.mounted) {
-    //       showMessageDialog(context, message: error.toString());
-    //     }
-    //     return;
-    //   }
-    // } else {
-    //   var notifier = ref.read(homeProvider.notifier);
-    //   if (notifier.requireApplyPolicy) {
-    //     showLogs(null, flags: 'Thanh toán - áp dụng lại các mã giảm giá');
-    //     await ref.read(homeProvider.notifier).applyCustomerPolicy(retry: false);
-    //   } else if (notifier.requireGetDataBill) {
-    //     showLogs(null, flags: 'Thanh toán - get lại data bill');
-    //     await ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
-    //   }
-    // }
-
-    String? errorMsg;
-    showLogs(null, flags: 'Cập nhật ds món đã gọi');
     await ref.read(homeProvider.notifier).getOrderProductCheckout(
           applyPolicy: false,
           loadingHome: true,
           ignoreGetDataBill: true,
         );
-
-    errorMsg = checkLatestPaymentInfo(ref).errorGetProductCheckout;
-
-    if (errorMsg != null) {
-      showMessageDialog(context, message: errorMsg);
-      ref.read(homeProvider.notifier).unlockOrder(loadingHome: false);
-      return;
-    }
-    // check thêm cho chắc :)))
-    emptyProductCheckout = ref.read(homeProvider).productCheckout.isEmpty;
-    if (emptyProductCheckout) {
-      ref.read(homeProvider.notifier).unlockOrder(loadingHome: false);
+    productsCheckout = List<ProductCheckoutModel>.from(
+        ref.read(checkoutPageProvider).productsCheckout);
+    if (productsCheckout.isEmpty) {
       showMessageDialog(context, message: S.current.order_before_payment);
       return;
     }
-    showLogs(errorMsg, flags: 'Cập nhật ds món đã gọi lỗi');
-    await ref.read(homeProvider.notifier).applyCustomerPolicy(
-          loadingHome: true,
-          ignoreGetDataBill: true,
-          requireApply: true,
-        );
 
-    errorMsg = checkLatestPaymentInfo(ref).errorApplyPolicy;
-    if (errorMsg != null) {
-      showMessageDialog(context, message: errorMsg);
-      ref.read(homeProvider.notifier).unlockOrder(loadingHome: false);
-      return;
-    }
-    showLogs(null, flags: 'Cập nhật lại data bill');
-    await ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
-
-    errorMsg = checkLatestPaymentInfo(ref).errorGetDataBill;
-    if (errorMsg != null) {
-      showMessageDialog(context, message: errorMsg);
-      ref.read(homeProvider.notifier).unlockOrder(loadingHome: false);
-      return;
-    }
-    showLogs(DateTime.now(), flags: 'unlock đơn');
-    if (context.mounted) {
+    bool updateSuccess = false;
+    await showConfirmActionWithChild(
+      context,
+      noTitle: true,
+      title: S.current.edit_tax_information,
+      closeDialog: false,
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        child: EditTaxDialog(
+            products: ref.read(menuProvider).products,
+            productCheckouts: productsCheckout,
+            onSave: (List<ProductCheckoutModel> changedPc) {
+              productsCheckout = changedPc;
+            }),
+      ),
+      onCheckAction: () {
+        return true;
+      },
+      actionTitle: S.current.save_and_continue_payment,
+      action: () async {
+        var res =
+            await ref.read(homeProvider.notifier).onUpdateTax(productsCheckout);
+        if (res.error != null) {
+          showMessageDialog(context, message: res.error ?? '', canPop: false);
+          return;
+        } else {
+          updateSuccess = true;
+        }
+        pop(context);
+      },
+    );
+    if (updateSuccess && context.mounted) {
+      await ref.read(homeProvider.notifier).getOrderProductCheckout(
+            applyPolicy: false,
+            loadingHome: true,
+            ignoreGetDataBill: false,
+          );
+      await ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
+      var check = checkLatestPaymentInfo(ref);
+      if (check.errorApplyPolicy != null ||
+          check.errorGetProductCheckout != null ||
+          check.errorGetDataBill != null) {
+        showMessageDialog(context,
+            message: check.errorApplyPolicy ??
+                check.errorGetProductCheckout ??
+                check.errorGetDataBill ??
+                '');
+        return;
+      }
       await onSelectPaymentMethod(
         context: context,
         ref: ref,
@@ -487,7 +511,7 @@ void paymentBtnCallback({
       errorGetProductCheckout = 'Danh sách món đã gọi chưa được đồng bộ.';
       break;
     case PageCommonState.success:
-      if (ref.read(homeProvider).productCheckout.isEmpty) {
+      if (ref.read(checkoutPageProvider).productsCheckout.isEmpty) {
         errorGetProductCheckout = 'Vui lòng gọi món trước khi bấm thanh toán.';
       }
       break;
@@ -503,7 +527,8 @@ void paymentBtnCallback({
   }
   switch (state.applyPolicyState.status) {
     case PageCommonState.loading:
-      errorApplyPolicy = 'Đang tiến hành áp dụng lại mã giảm giá, vui lòng chờ trong giây lát.';
+      errorApplyPolicy =
+          'Đang tiến hành áp dụng lại mã giảm giá, vui lòng chờ trong giây lát.';
       break;
     case PageCommonState.error:
       errorApplyPolicy =
@@ -525,7 +550,8 @@ void paymentBtnCallback({
           'Hệ thống đang cập nhật thông tin thanh toán, vui lòng đợi trong giây lát.';
       break;
     case PageCommonState.error:
-      errorGetDataBill = 'Hệ thống hiện chưa thể lấy thông tin thanh toán. Vui lòng thử lại sau.';
+      errorGetDataBill =
+          'Hệ thống hiện chưa thể lấy thông tin thanh toán. Vui lòng thử lại sau.';
       break;
     default:
   }

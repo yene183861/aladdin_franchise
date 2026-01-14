@@ -5,6 +5,7 @@ import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/detail_coupon.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/view.dart';
@@ -40,8 +41,10 @@ class CouponInfoWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var allProduct = ref.watch(menuProvider.select((value) => value.products));
     var coupons = ref.watch(homeProvider.select((value) => value.coupons));
-    var productCheckouts = ref.watch(homeProvider.select((value) => value.productCheckout));
-    final numberOfAdults = ref.watch(homeProvider.select((value) => value.numberOfAdults));
+    var productCheckouts = ref
+        .watch(checkoutPageProvider.select((value) => value.productsCheckout));
+    final numberOfAdults =
+        ref.watch(homeProvider.select((value) => value.numberOfAdults));
     if (coupons.isEmpty) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 12),
@@ -59,12 +62,14 @@ class CouponInfoWidget extends ConsumerWidget {
       itemBuilder: (context, index) {
         CustomerPolicyModel coupon = coupons[index];
 
-        showLogs('name: ${coupon.name}, isType: ${coupon.isType}', flags: '==== View Mã giảm giá');
+        showLogs('name: ${coupon.name}, isType: ${coupon.isType}',
+            flags: '==== View Mã giảm giá');
 
         List<DiscountPolicy> discountView = [];
         List<ProductModel> productForXPeople = [];
         // Đối với các mã giảm giá tổng bill thì add luôn không phải check
-        bool notTotalBill = coupon.discount.any((element) => element.name != null);
+        bool notTotalBill =
+            coupon.discount.any((element) => element.name != null);
         if (coupon.isTotalBill()) {
           discountView = coupon.discount;
         } else {
@@ -72,8 +77,8 @@ class CouponInfoWidget extends ConsumerWidget {
           if (coupon.isType == 6) {
             for (final discount in coupon.discount) {
               for (final pCheckout in productCheckouts) {
-                final product =
-                    allProduct.firstWhereOrNull((element) => element.id == pCheckout.id);
+                final product = allProduct
+                    .firstWhereOrNull((element) => element.id == pCheckout.id);
                 if (product == null) continue;
                 ProductModel? productDiscount;
                 if (pCheckout.id.toString() == discount.id) {
@@ -87,27 +92,29 @@ class CouponInfoWidget extends ConsumerWidget {
                   for (final cbi in comboItems) {
                     if (cbi.id.toString() == discount.id) {
                       final cbiQuantity = cbi.quantity * pCheckout.quantity;
-                      productDiscount =
-                          allProduct.firstWhereOrNull((element) => element.id == cbi.id)?.copyWith(
-                                withComboDiscount: cbiQuantity,
-                                quantityDiscount: cbiQuantity,
-                                unitPriceDiscount: discount.amount.toInt(),
-                              );
+                      productDiscount = allProduct
+                          .firstWhereOrNull((element) => element.id == cbi.id)
+                          ?.copyWith(
+                            withComboDiscount: cbiQuantity,
+                            quantityDiscount: cbiQuantity,
+                            unitPriceDiscount: discount.amount.toInt(),
+                          );
                     }
                   }
                 }
                 if (productDiscount != null &&
                     productDiscount.getUnitPriceNum() >= discount.amount) {
                   // kiểm tra tồn tại chưa
-                  final xProductPeople = productForXPeople
-                      .firstWhereOrNull((element) => element.id == productDiscount?.id);
+                  final xProductPeople = productForXPeople.firstWhereOrNull(
+                      (element) => element.id == productDiscount?.id);
                   if (xProductPeople != null) {
-                    final indexPXPeople = productForXPeople.indexOf(xProductPeople);
+                    final indexPXPeople =
+                        productForXPeople.indexOf(xProductPeople);
                     productForXPeople[indexPXPeople] = xProductPeople.copyWith(
-                      quantityDiscount:
-                          xProductPeople.quantityDiscount + productDiscount.quantityDiscount,
-                      withComboDiscount:
-                          xProductPeople.withComboDiscount + productDiscount.withComboDiscount,
+                      quantityDiscount: xProductPeople.quantityDiscount +
+                          productDiscount.quantityDiscount,
+                      withComboDiscount: xProductPeople.withComboDiscount +
+                          productDiscount.withComboDiscount,
                     );
                   } else {
                     productForXPeople.add(productDiscount);
@@ -120,7 +127,8 @@ class CouponInfoWidget extends ConsumerWidget {
             // duyệt danh sách được giảm giá trong danh sách món đã gọi để kiểm tra
             for (var discount in coupon.discount) {
               for (var e in productCheckouts) {
-                var product = allProduct.firstWhereOrNull((element) => element.id == e.id);
+                var product = allProduct
+                    .firstWhereOrNull((element) => element.id == e.id);
                 if (product == null) {
                   continue; // Không muốn check cái này đâu nhưng mà =))
                 }
@@ -133,10 +141,12 @@ class CouponInfoWidget extends ConsumerWidget {
                 } else if (coupon.applyComboItem) {
                   // check combo
                   // nếu món là combo, cần lấy danh sách món trong combo trong description để check tiếp
-                  List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(product);
+                  List<ComboItemModel>? comboItems =
+                      ProductHelper().getComboDescription(product);
                   if (comboItems != null) {
                     // kiểm tra danh sách món trong combo với món discount
-                    if (comboItems.any((cbi) => cbi.id.toString() == discount.id)) {
+                    if (comboItems
+                        .any((cbi) => cbi.id.toString() == discount.id)) {
                       discountView.add(discount);
                       flagCheckAddDiscountView = true;
                       break;
@@ -161,7 +171,8 @@ class CouponInfoWidget extends ConsumerWidget {
         }
         if (coupon.isType == 6 && productForXPeople.isNotEmpty) {
           // sắp xếp theo giá giảm dần (cao tới thấp)
-          productForXPeople.sort((a, b) => b.getUnitPriceNum().compareTo(a.getUnitPriceNum()));
+          productForXPeople.sort(
+              (a, b) => b.getUnitPriceNum().compareTo(a.getUnitPriceNum()));
           // Kiểm tra nếu danh sách mã có mã only, cần giảm sl món trong món đồng giá
           for (final couponCheck in coupons) {
             if (couponCheck.only && couponCheck.discount.isNotEmpty) {
@@ -172,7 +183,9 @@ class CouponInfoWidget extends ConsumerWidget {
                   if (pfp.quantityDiscount > 0) {
                     productForXPeople[i] = pfp.copyWith(
                       quantityDiscount: pfp.quantityDiscount - 1,
-                      withComboDiscount: pfp.withComboDiscount > 0 ? pfp.withComboDiscount - 1 : 0,
+                      withComboDiscount: pfp.withComboDiscount > 0
+                          ? pfp.withComboDiscount - 1
+                          : 0,
                     );
                   }
                 }
@@ -233,7 +246,8 @@ class CouponInfoWidget extends ConsumerWidget {
                               Text(
                                 S.current.conditions_and_products_apply,
                                 style: AppTextStyle.bold(
-                                  rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                                  rawFontSize:
+                                      AppConfig.defaultRawTextSize - 1.0,
                                   color: AppColors.mainColor,
                                 ),
                               ),
@@ -255,7 +269,8 @@ class CouponInfoWidget extends ConsumerWidget {
                                   child: Text(
                                     "${S.current.select_up_to} ${coupon.maxNumberSelected} ${S.current.product.toLowerCase()}. ${S.current.selected} $totalNumberSelected/${coupon.maxNumberSelected}",
                                     style: AppTextStyle.regular(
-                                      rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                                      rawFontSize:
+                                          AppConfig.defaultRawTextSize - 1.0,
                                     ),
                                   ),
                                 )
@@ -277,7 +292,9 @@ class CouponInfoWidget extends ConsumerWidget {
                                   .deleteVoucher(coupon: coupon);
                             } else {
                               /// đang k có trường để xác định gọi deleteVoucher hay deleteCoupon
-                              result = await ref.read(homeProvider.notifier).deleteCoupon(coupon);
+                              result = await ref
+                                  .read(homeProvider.notifier)
+                                  .deleteCoupon(coupon);
                             }
                             var homeContext = homeKey.currentContext;
                             if (result != null && homeContext != null) {
@@ -302,8 +319,9 @@ class CouponInfoWidget extends ConsumerWidget {
                     ? Column(
                         children: discountView.map(
                           (discount) {
-                            final productCheckout = productCheckouts
-                                .firstWhereOrNull((p) => p.id.toString() == discount.id);
+                            final productCheckout =
+                                productCheckouts.firstWhereOrNull(
+                                    (p) => p.id.toString() == discount.id);
                             // mã này đang không áp dụng trong combo
                             if (productCheckout == null) {
                               return const SizedBox.shrink();
@@ -330,7 +348,8 @@ class CouponInfoWidget extends ConsumerWidget {
                                 (totalSelectByDish <
                                         productCheckout.getQuantityFinal() +
                                             discount.numberSelect &&
-                                    totalNumberSelected < coupon.maxNumberSelected);
+                                    totalNumberSelected <
+                                        coupon.maxNumberSelected);
 
                             return Row(
                               children: [
@@ -340,8 +359,10 @@ class CouponInfoWidget extends ConsumerWidget {
                                     dense: true,
                                     enabled: enabled,
                                     shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12)),
-                                    controlAffinity: ListTileControlAffinity.leading,
+                                        borderRadius:
+                                            BorderRadius.circular(12)),
+                                    controlAffinity:
+                                        ListTileControlAffinity.leading,
                                     title: Text(
                                       "${discount.name}",
                                       style: AppTextStyle.regular(),
@@ -351,7 +372,9 @@ class CouponInfoWidget extends ConsumerWidget {
                                       style: AppTextStyle.regular(),
                                     ),
                                     onChanged: (value) {
-                                      ref.read(homeProvider.notifier).changeSelectDiscountPromotion(
+                                      ref
+                                          .read(homeProvider.notifier)
+                                          .changeSelectDiscountPromotion(
                                             coupon,
                                             discount,
                                             value == true ? 1 : 0,
@@ -366,7 +389,8 @@ class CouponInfoWidget extends ConsumerWidget {
                                         child: SpinBox(
                                           min: 0,
                                           max: maxDiscountSelect.toDouble(),
-                                          enabled: totalNumberSelected < coupon.maxNumberSelected,
+                                          enabled: totalNumberSelected <
+                                              coupon.maxNumberSelected,
                                           showButtons: maxDiscountSelect > 1,
                                           incrementIcon: const Icon(
                                             CupertinoIcons.add,
@@ -377,7 +401,8 @@ class CouponInfoWidget extends ConsumerWidget {
                                             size: 22,
                                           ),
                                           textStyle: AppTextStyle.bold(),
-                                          value: discount.numberSelect.toDouble(),
+                                          value:
+                                              discount.numberSelect.toDouble(),
                                           decoration: const InputDecoration(
                                             contentPadding: EdgeInsets.zero,
                                           ),
@@ -429,7 +454,8 @@ class CouponInfoWidget extends ConsumerWidget {
                                   amountView =
                                       '${e.amount.toInt() == e.amount ? e.amount.toInt() : e.amount}%';
                                 } else {
-                                  amountView = AppUtils.formatCurrency(value: e.amount);
+                                  amountView =
+                                      AppUtils.formatCurrency(value: e.amount);
                                   // amountView = AppHelper.parseToPrice(e.amount);
                                 }
                               } else {
@@ -443,16 +469,20 @@ class CouponInfoWidget extends ConsumerWidget {
                                     case 3:
                                       // showLogs(null, flags: '====Giảm lũy kế');
                                       int xQuantity = 0;
-                                      for (final pCheckout in productCheckouts) {
-                                        final product = allProduct.firstWhereOrNull(
-                                            (element) => element.id == pCheckout.id);
+                                      for (final pCheckout
+                                          in productCheckouts) {
+                                        final product = allProduct
+                                            .firstWhereOrNull((element) =>
+                                                element.id == pCheckout.id);
 
                                         if (product == null) continue;
                                         if (product.id.toString() == e.id) {
-                                          xQuantity += pCheckout.getQuantityFinal();
+                                          xQuantity +=
+                                              pCheckout.getQuantityFinal();
                                         } else if (coupon.applyComboItem) {
                                           List<ComboItemModel>? comboItems =
-                                              ProductHelper().getComboDescription(product);
+                                              ProductHelper()
+                                                  .getComboDescription(product);
                                           if (comboItems != null) {
                                             // kiểm tra danh sách món trong combo với món discount
                                             for (final cbi in comboItems) {
@@ -483,7 +513,8 @@ class CouponInfoWidget extends ConsumerWidget {
                               }
 
                               return Padding(
-                                padding: const EdgeInsets.only(left: 16, top: 12, right: 16),
+                                padding: const EdgeInsets.only(
+                                    left: 16, top: 12, right: 16),
                                 child: Row(
                                   children: [
                                     Expanded(
@@ -542,7 +573,8 @@ class CouponInfoWidget extends ConsumerWidget {
         if (total >= max) break;
 
         int remaining = max - total;
-        int take = p.withComboDiscount <= remaining ? p.withComboDiscount : remaining;
+        int take =
+            p.withComboDiscount <= remaining ? p.withComboDiscount : remaining;
 
         if (take > 0) {
           // Kiểm tra xem đã tồn tại trong result chưa

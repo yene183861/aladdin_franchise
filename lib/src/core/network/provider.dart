@@ -24,6 +24,7 @@ import 'package:aladdin_franchise/src/core/network/repository/user/user_repo_imp
 import 'package:aladdin_franchise/src/core/network/repository/user/user_repository.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/o2o_config.dart';
 import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/data/request/reservation_request.dart';
 import 'package:aladdin_franchise/src/features/pages/history_order/provider.dart';
@@ -276,111 +277,6 @@ final orderToOnlineProvider =
     };
   }
 
-  // return {
-  //   O2OOrderModel(
-  //     orderId: 1,
-  //     tableName: 'Test 01',
-  //     userId: 6,
-  //     orderCode: 'Test01',
-  //     qrOrderO2o: [],
-  //     items: [],
-  //   ): {
-  //     'items': [
-  //       RequestOrderModel(
-  //         id: 1,
-  //         status: 1,
-  //         timeOrder: DateTime.now(),
-  //         orderTimes: 1,
-  //         listItem: [
-  //           RequestOrderItemModel(
-  //             id: 1,
-  //             codeProduct: 'CHCMP028',
-  //             menuItemId: 82,
-  //             quantity: 1,
-  //             noteRestaurant: 'note 111',
-  //             name: 'Cơm niêu ba chỉ heo kho ngũ hương',
-  //             image: 'http://192.168.10.136:85/storage/3055/CHCMP033.jpg?3055',
-  //             // printerType: 2,
-  //             // unit: 'Suất',
-  //           ),
-  //           RequestOrderItemModel(
-  //             id: 2,
-  //             codeProduct: 'CHDSU001',
-  //             menuItemId: 82,
-  //             quantity: 1,
-  //             noteRestaurant: 'note 111',
-  //             name: 'Há cảo tôm thịt 3 chiếc',
-  //             image: 'https://o2o.aladdin-jsc.com/storage/4564/CHDSU001_1754401345.jpg',
-  //             // printerType: 2,
-  //             // unit: 'Suất',
-  //           ),
-  //         ],
-  //       ),
-  //       RequestOrderModel(
-  //         id: 2,
-  //         status: 2,
-  //         timeOrder: DateTime.now(),
-  //         orderTimes: 2,
-  //         listItem: [
-  //           RequestOrderItemModel(
-  //             id: 3,
-  //             codeProduct: 'CHCMP028',
-  //             menuItemId: 82,
-  //             quantity: 1,
-  //             noteRestaurant: 'note 111',
-  //             name: 'Cơm niêu ba chỉ heo kho ngũ hương',
-  //             image: 'http://192.168.10.136:85/storage/3055/CHCMP033.jpg?3055',
-  //             // printerType: 2,
-  //             // unit: 'Suất',
-  //           ),
-  //           RequestOrderItemModel(
-  //             id: 4,
-  //             codeProduct: 'CHDSU001',
-  //             menuItemId: 82,
-  //             quantity: 1,
-  //             noteRestaurant: 'note 111',
-  //             name: 'Há cảo tôm thịt 3 chiếc',
-  //             image: 'https://o2o.aladdin-jsc.com/storage/4564/CHDSU001_1754401345.jpg',
-  //             // printerType: 2,
-  //             // unit: 'Suất',
-  //           ),
-  //         ],
-  //       ),
-  //       RequestOrderModel(
-  //         id: 3,
-  //         status: 0,
-  //         timeOrder: DateTime.now(),
-  //         orderTimes: 3,
-  //         listItem: [
-  //           RequestOrderItemModel(
-  //             id: 5,
-  //             codeProduct: 'CHCMP028',
-  //             menuItemId: 82,
-  //             quantity: 1,
-  //             noteRestaurant: 'note 111',
-  //             name: 'Cơm niêu ba chỉ heo kho ngũ hương',
-  //             image: 'http://192.168.10.136:85/storage/3055/CHCMP033.jpg?3055',
-  //             // printerType: 2,
-  //             // unit: 'Suất',
-  //           ),
-  //           RequestOrderItemModel(
-  //             id: 6,
-  //             codeProduct: 'CHDSU001',
-  //             menuItemId: 82,
-  //             quantity: 1,
-  //             noteRestaurant: 'note 111',
-  //             name: 'Há cảo tôm thịt 3 chiếc',
-  //             image: 'https://o2o.aladdin-jsc.com/storage/4564/CHDSU001_1754401345.jpg',
-  //             // printerType: 2,
-  //             // unit: 'Suất',
-  //           ),
-  //         ],
-  //       ),
-  //     ],
-  //     'count': 1,
-  //   },
-  // };
-
   return orders;
 });
 // final employeeSalesProvider = FutureProvider.autoDispose<List<EmployeeSaleModel>>((ref) async {
@@ -400,5 +296,12 @@ final todayHistoryOrderProvider = FutureProvider.autoDispose<List<HistoryOrderMo
       .read(restaurantRepositoryProvider)
       .getOrderHistoryList(startDate: today.subtract(const Duration(days: 1)), endDate: today);
 
+  return result;
+});
+
+/// lấy cấu hình thiết lập o2o
+final o2oConfigProvider = FutureProvider<O2oConfigModel>((ref) async {
+  var result = await ref.read(restaurantRepositoryProvider).getO2oAutoAcceptConfig();
+  showLogs(result, flags: 'result');
   return result;
 });

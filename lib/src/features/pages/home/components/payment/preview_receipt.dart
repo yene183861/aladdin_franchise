@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/price_data_bill_preview.dart';
@@ -49,10 +50,12 @@ class _PreviewProductCheckoutWidget extends ConsumerStatefulWidget {
   const _PreviewProductCheckoutWidget();
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => __PreviewProductCheckoutWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      __PreviewProductCheckoutWidgetState();
 }
 
-class __PreviewProductCheckoutWidgetState extends ConsumerState<_PreviewProductCheckoutWidget> {
+class __PreviewProductCheckoutWidgetState
+    extends ConsumerState<_PreviewProductCheckoutWidget> {
   final titleRowColor = Colors.grey.shade200;
   final colSettings = [
     {
@@ -93,17 +96,10 @@ class __PreviewProductCheckoutWidgetState extends ConsumerState<_PreviewProductC
 
   @override
   Widget build(BuildContext context) {
-    productCheckouts = ref.watch(homeProvider.select((value) => value.productCheckout));
-    // productCheckoutUpdateTax = ref
-    //     .watch(homeProvider.select((value) => value.productCheckoutUpdateTax));
-    requireUpdateTax = ref.read(homeProvider.notifier).requireUpdateTax;
+    productCheckouts = ref
+        .watch(checkoutPageProvider.select((value) => value.productsCheckout));
 
-    var count = (
-            // requireUpdateTax
-            //       ? productCheckoutUpdateTax.length
-            //       :
-            productCheckouts.length) +
-        1;
+    var count = productCheckouts.length + 1;
     return LayoutBuilder(builder: (context, constraint) {
       var maxWidth = constraint.maxWidth;
       return SizedBox(
@@ -118,15 +114,17 @@ class __PreviewProductCheckoutWidgetState extends ConsumerState<_PreviewProductC
             return _buildColumnSpan(index, maxWidth);
           },
           rowBuilder: _buildRowSpan,
-          cellBuilder: (context, vicinity) => _buildCell(context, vicinity, productCheckouts),
+          cellBuilder: (context, vicinity) =>
+              _buildCell(context, vicinity, productCheckouts),
         ),
       );
     });
   }
 
-  TableViewCell _buildCell(
-      BuildContext context, TableVicinity vicinity, List<ProductCheckoutModel> productCheckout) {
-    var decoration = BoxDecoration(border: Border.all(color: Colors.grey, width: 0.5));
+  TableViewCell _buildCell(BuildContext context, TableVicinity vicinity,
+      List<ProductCheckoutModel> productCheckout) {
+    var decoration =
+        BoxDecoration(border: Border.all(color: Colors.grey, width: 0.5));
     if (vicinity.yIndex == 0) {
       String colTitle = '';
       try {
@@ -153,7 +151,9 @@ class __PreviewProductCheckoutWidgetState extends ConsumerState<_PreviewProductC
     var xIndex = vicinity.xIndex;
 
     List<String> contents = [];
-    var i = (requireUpdateTax ? productCheckoutUpdateTax : productCheckouts)[vicinity.yIndex - 1];
+    var i = (requireUpdateTax
+        ? productCheckoutUpdateTax
+        : productCheckouts)[vicinity.yIndex - 1];
 
     if (requireUpdateTax) {
       var item = i as ProductCheckoutUpdateTaxModel;
@@ -205,7 +205,9 @@ class __PreviewProductCheckoutWidgetState extends ConsumerState<_PreviewProductC
       remain = max(remain - (size ?? 0), 200);
     }
     return TableSpan(
-      extent: maxValue == null ? FixedTableSpanExtent(remain) : FixedTableSpanExtent(maxValue),
+      extent: maxValue == null
+          ? FixedTableSpanExtent(remain)
+          : FixedTableSpanExtent(maxValue),
     );
   }
 
