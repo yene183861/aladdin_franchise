@@ -22,8 +22,7 @@ class ProductHelper {
     return result;
   }
 
-  static List<ProductHistory> getHistory(
-      List<OrderHistory> orderHistory, int productId) {
+  static List<ProductHistory> getHistory(List<OrderHistory> orderHistory, int productId) {
     List<ProductHistory> history = [];
 
     for (var orderTime in orderHistory) {
@@ -35,8 +34,7 @@ class ProductHelper {
             productChange = productChange.copyWith(notes: orderTime.notes);
           }
           // Lấy thời gian gọi của lượt
-          productChange =
-              productChange.copyWith(timeByOrderHistory: orderTime.createdAt);
+          productChange = productChange.copyWith(timeByOrderHistory: orderTime.createdAt);
           history.add(productChange);
         }
       }

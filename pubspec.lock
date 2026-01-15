@@ -1791,8 +1791,8 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "1ce38d422af54e57d868db3cf247e3335f4daf86"
-      url: "https://github.com/yenlt183861/webcontent_converter.git"
+      resolved-ref: d0ed2e82f1757d3aac35b2ef3b0be21c71896c3a
+      url: "https://github.com/aladdin-pos/webcontent_converter.git"
     source: git
     version: "0.0.9+3"
   webview_flutter:

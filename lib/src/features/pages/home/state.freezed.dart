@@ -223,6 +223,8 @@ mixin _$HomeState {
   DiscountTypeEnum get discountTypeSelect => throw _privateConstructorUsedError;
   List<PrinterModel> get printers => throw _privateConstructorUsedError;
   PageState get printerState => throw _privateConstructorUsedError;
+  List<TestNotificationModel> get notifications =>
+      throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $HomeStateCopyWith<HomeState> get copyWith =>
@@ -281,7 +283,8 @@ abstract class $HomeStateCopyWith<$Res> {
       PageState getChatMessageState,
       DiscountTypeEnum discountTypeSelect,
       List<PrinterModel> printers,
-      PageState printerState});
+      PageState printerState,
+      List<TestNotificationModel> notifications});
 
   $OrderModelCopyWith<$Res>? get orderSelect;
   $PageStateCopyWith<$Res> get productCheckoutState;
@@ -362,6 +365,7 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? discountTypeSelect = null,
     Object? printers = null,
     Object? printerState = null,
+    Object? notifications = null,
   }) {
     return _then(_value.copyWith(
       event: null == event
@@ -552,6 +556,10 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.printerState
           : printerState // ignore: cast_nullable_to_non_nullable
               as PageState,
+      notifications: null == notifications
+          ? _value.notifications
+          : notifications // ignore: cast_nullable_to_non_nullable
+              as List<TestNotificationModel>,
     ) as $Val);
   }
 
@@ -776,7 +784,8 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       PageState getChatMessageState,
       DiscountTypeEnum discountTypeSelect,
       List<PrinterModel> printers,
-      PageState printerState});
+      PageState printerState,
+      List<TestNotificationModel> notifications});
 
   @override
   $OrderModelCopyWith<$Res>? get orderSelect;
@@ -872,6 +881,7 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? discountTypeSelect = null,
     Object? printers = null,
     Object? printerState = null,
+    Object? notifications = null,
   }) {
     return _then(_$HomeStateImpl(
       event: null == event
@@ -1062,6 +1072,10 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.printerState
           : printerState // ignore: cast_nullable_to_non_nullable
               as PageState,
+      notifications: null == notifications
+          ? _value._notifications
+          : notifications // ignore: cast_nullable_to_non_nullable
+              as List<TestNotificationModel>,
     ));
   }
 }
@@ -1120,7 +1134,8 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
           const PageState(status: PageCommonState.loading),
       this.discountTypeSelect = DiscountTypeEnum.vnd,
       final List<PrinterModel> printers = const [],
-      this.printerState = const PageState(status: PageCommonState.loading)})
+      this.printerState = const PageState(status: PageCommonState.loading),
+      final List<TestNotificationModel> notifications = const []})
       : _coupons = coupons,
         _vouchers = vouchers,
         _paymentMethods = paymentMethods,
@@ -1130,7 +1145,8 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         _orderTabs = orderTabs,
         _orderHistory = orderHistory,
         _chatMessages = chatMessages,
-        _printers = printers;
+        _printers = printers,
+        _notifications = notifications;
 
   @override
   @JsonKey()
@@ -1338,10 +1354,18 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final PageState printerState;
+  final List<TestNotificationModel> _notifications;
+  @override
+  @JsonKey()
+  List<TestNotificationModel> get notifications {
+    if (_notifications is EqualUnmodifiableListView) return _notifications;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_notifications);
+  }
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, completeNote: $completeNote, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, discountTypeSelect: $discountTypeSelect, printers: $printers, printerState: $printerState)';
+    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, productCheckoutState: $productCheckoutState, customer: $customer, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, applyPolicyState: $applyPolicyState, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, cashReceivedAmount: $cashReceivedAmount, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, invoice: $invoice, orderInvoiceState: $orderInvoiceState, dataBill: $dataBill, dataBillState: $dataBillState, imageBills: $imageBills, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, kitchenNote: $kitchenNote, customerPortraitSelect: $customerPortraitSelect, completeNote: $completeNote, printNumberOfPeople: $printNumberOfPeople, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, orderHistory: $orderHistory, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, discountTypeSelect: $discountTypeSelect, printers: $printers, printerState: $printerState, notifications: $notifications)';
   }
 
   @override
@@ -1396,7 +1420,8 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       ..add(DiagnosticsProperty('getChatMessageState', getChatMessageState))
       ..add(DiagnosticsProperty('discountTypeSelect', discountTypeSelect))
       ..add(DiagnosticsProperty('printers', printers))
-      ..add(DiagnosticsProperty('printerState', printerState));
+      ..add(DiagnosticsProperty('printerState', printerState))
+      ..add(DiagnosticsProperty('notifications', notifications));
   }
 
   @override
@@ -1491,7 +1516,9 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
                 other.discountTypeSelect == discountTypeSelect) &&
             const DeepCollectionEquality().equals(other._printers, _printers) &&
             (identical(other.printerState, printerState) ||
-                other.printerState == printerState));
+                other.printerState == printerState) &&
+            const DeepCollectionEquality()
+                .equals(other._notifications, _notifications));
   }
 
   @override
@@ -1543,7 +1570,8 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
         getChatMessageState,
         discountTypeSelect,
         const DeepCollectionEquality().hash(_printers),
-        printerState
+        printerState,
+        const DeepCollectionEquality().hash(_notifications)
       ]);
 
   @JsonKey(ignore: true)
@@ -1601,7 +1629,8 @@ abstract class _HomeState implements HomeState {
       final PageState getChatMessageState,
       final DiscountTypeEnum discountTypeSelect,
       final List<PrinterModel> printers,
-      final PageState printerState}) = _$HomeStateImpl;
+      final PageState printerState,
+      final List<TestNotificationModel> notifications}) = _$HomeStateImpl;
 
   @override
   HomeEvent get event;
@@ -1703,6 +1732,8 @@ abstract class _HomeState implements HomeState {
   List<PrinterModel> get printers;
   @override
   PageState get printerState;
+  @override
+  List<TestNotificationModel> get notifications;
   @override
   @JsonKey(ignore: true)
   _$$HomeStateImplCopyWith<_$HomeStateImpl> get copyWith =>

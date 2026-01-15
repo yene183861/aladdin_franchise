@@ -137,7 +137,8 @@ class AppPrinterHtmlUtils {
         </tr>
       ''';
       }
-      List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(pc);
+      List<ComboItemModel>? comboItems =
+          ProductHelper().getComboDescription(pc);
       // showLogs(comboItems, flags: 'comboItems');
       if (comboItems != null) {
         // check xem có cần nhân số lượng combo với món trong combo k
@@ -282,8 +283,8 @@ ${_getTime()}
       if (tax > 0) {
         mapTax[tax] = (mapTax[tax] ?? 0.0) +
             pc.count *
-                (AppUtils.convertToDouble(pc.price) ?? 0.0) *
-                (AppUtils.convertToDouble(pc.tax) ?? 0.0);
+                (AppUtils.convertToDouble(pc.price ?? 0.0) ?? 0.0) *
+                (AppUtils.convertToDouble(pc.tax ?? 0.0) ?? 0.0);
       }
 
       dishTable += '''
@@ -298,10 +299,13 @@ ${_getTime()}
 
       /// combo item
     }
+    showLogs(mapTax, flags: 'mapTax');
     String voucherDetail = "";
     if (isPaymentReceipt)
+
       // ignore: curly_braces_in_flow_control_structures
       for (final v in data.vouchers) {
+        showLogs(mapTax, flags: 'mapTax 111');
         var amount = v.total;
         if (amount < 0) continue;
 
@@ -317,6 +321,7 @@ ${_getTime()}
     if (isPaymentReceipt) {
       mapTax.forEach(
         (key, value) {
+          showLogs(mapTax, flags: 'mapTax 345');
           if (key > 0) {
             taxDetail += '''
               <tr>
@@ -329,7 +334,9 @@ ${_getTime()}
       );
     }
 
-    return '''
+    showLogs(mapTax, flags: 'mapTax 2');
+
+    var result = '''
 <!DOCTYPE HTML>
 <html style="margin: 0px;padding: 0px;">
 
@@ -452,17 +459,17 @@ ${_getRestaurantInfo()}
     <table class="total" style="margin-top: 10px;">
         <tr>
             <td style="font-weight: bold" width="80%" colspan="4">T.Tiền trước thuế</td>
-            <td width="20%" style="text-align: right">${AppUtils.formatCurrency(value: data.price.totalPrice)}</td>
+            <td width="20%" style="text-align: right">${AppUtils.formatCurrency(value: data.price.totalPrice ?? 0.0)}</td>
         </tr>
         <tr>
             <td style="font-weight: bold" colspan="4">Giảm tiền trước thuế</td>
-            <td style="text-align: right">${AppUtils.formatCurrency(value: data.price.totalPriceVoucher)}</td>
+            <td style="text-align: right">${AppUtils.formatCurrency(value: data.price.totalPriceVoucher ?? 0.0)}</td>
         </tr>
         $voucherDetail
 
         <tr>
             <td colspan="4" style="font-weight: bold">Tổng tiền thuế</td>
-            <td style="text-align: right">${AppUtils.formatCurrency(value: data.price.totalPriceTax)}</td>
+            <td style="text-align: right">${AppUtils.formatCurrency(value: data.price.totalPriceTax ?? 0.0)}</td>
         </tr>
         $taxDetail
 
@@ -473,7 +480,7 @@ ${_getRestaurantInfo()}
 
         <tr>
             <td style="font-weight: bold" colspan="4">Tiền thanh toán</td>
-            <td style="text-align: right">${AppUtils.formatCurrency(value: data.price.totalPriceFinal)}</td>
+            <td style="text-align: right">${AppUtils.formatCurrency(value: data.price.totalPriceFinal ?? 0.0)}</td>
         </tr>
     </table>
     <hr>
@@ -520,10 +527,13 @@ ${_getTime()}
 
 </html>
 ''';
+    showLogs(result, flags: 'result');
+    return result;
   }
 
   String _printDateTime(DateTime? value) {
-    return DateTimeUtils.formatToString(time: value, newPattern: DateTimePatterns.dateTime1);
+    return DateTimeUtils.formatToString(
+        time: value, newPattern: DateTimePatterns.dateTime1);
   }
 
   Future<List<int>> getCloseShiftContent(CloseShiftResponseModel data) async {

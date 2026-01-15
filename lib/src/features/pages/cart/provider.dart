@@ -31,12 +31,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'state.dart';
 
-final cartPageProvider = StateNotifierProvider.autoDispose<CartPageNotifier, CartPageState>((ref) {
+final cartPageProvider =
+    StateNotifierProvider.autoDispose<CartPageNotifier, CartPageState>((ref) {
   return CartPageNotifier(ref, ref.read(orderRepositoryProvider));
 });
 
 class CartPageNotifier extends StateNotifier<CartPageState> {
-  CartPageNotifier(this.ref, this._orderRepository) : super(const CartPageState());
+  CartPageNotifier(this.ref, this._orderRepository)
+      : super(const CartPageState());
   final Ref ref;
   final OrderRepository _orderRepository;
   void init(List<ProductModel> products) async {
@@ -278,18 +280,27 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
     if (order == null) return (error: null, resultSendPrintData: null);
     var productSelecting = List<ProductModel>.from(state.productsSelecting);
     var productIdSelect = Set<int>.from(state.productIdSelect);
-    var products = productSelecting.where((e) => productIdSelect.contains(e.id)).toList();
+    var products =
+        productSelecting.where((e) => productIdSelect.contains(e.id)).toList();
     var kitchenNote = note;
     String? resultSendPrintData;
     try {
+      showLogs(kitchenNote, flags: 'kitchenNote');
+      products.forEach(
+        (element) {
+          showLogs(element, flags: 'element');
+        },
+      );
+
       if (processOrder) {
-        ref
-            .read(homeProvider.notifier)
-            .updateEvent(processOrder ? HomeEvent.processOrder : HomeEvent.sendPrintData);
+        ref.read(homeProvider.notifier).updateEvent(
+            processOrder ? HomeEvent.processOrder : HomeEvent.sendPrintData);
         await _orderRepository.processOrderItem(
           order: order,
           total: products.fold(
-              0.0, (previousValue, p) => previousValue + p.getUnitPriceNum() * p.numberSelecting),
+              0.0,
+              (previousValue, p) =>
+                  previousValue + p.getUnitPriceNum() * p.numberSelecting),
           products: products,
           note: kitchenNote,
           cancel: false,
@@ -297,20 +308,18 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
         ref.read(homeProvider.notifier).getOrderProductCheckout();
         ref.read(homeProvider.notifier).getDataBill();
       }
+      Set<ProductModel> foods = <ProductModel>{}, drinks = <ProductModel>{};
+      for (var item in products) {
+        switch (item.printerType) {
+          case ProductPrinterType.drink:
+            drinks.add(item);
+            break;
+          case ProductPrinterType.food:
+            foods.add(item);
+            break;
+        }
+      }
 
-      //   updateEvent(HomeEvent.normal);
-      //   return null;
-      // } catch (ex) {
-      //   updateEvent(HomeEvent.normal);
-      //   _lockOrder(ex);
-      //   return ex.toString();
-      // }
-      // await ref.read(homeProvider.notifier).addItemToOrder(
-      //       products: products,
-      //       kitchenNote: kitchenNote,
-      //       total: products.fold(
-      //           0.0, (previousValue, p) => previousValue + p.getUnitPriceNum() * p.numberSelecting),
-      //     );
       if (useDefaultPrinter) {
         Set<PrinterModel> foodPrinterDefault = <PrinterModel>{},
             barPrinterDefault = <PrinterModel>{};
@@ -325,48 +334,44 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
           }
         }
 
-        Set<ProductModel> foods = <ProductModel>{}, drinks = <ProductModel>{};
-
-        for (var item in products) {
-          switch (item.printerType) {
-            case ProductPrinterType.drink:
-              drinks.add(item);
-              break;
-            case ProductPrinterType.food:
-              foods.add(item);
-              break;
-          }
-        }
-
         if (drinks.isNotEmpty) {
-          resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
-                type: PrintTypeEnum.order,
-                note: kitchenNote,
-                products: drinks.toList(),
-                printers: barPrinterDefault.toList(),
-                timeOrder: 1,
-                printDirectly: !processOrder,
-              );
+          resultSendPrintData =
+              await ref.read(homeProvider.notifier).sendPrintData(
+                    type: PrintTypeEnum.order,
+                    note: kitchenNote,
+                    products: drinks.toList(),
+                    printers: barPrinterDefault.toList(),
+                    timeOrder: 1,
+                    printDirectly: !processOrder,
+                    useDefaultPrinters: true,
+                    totalBill: true,
+                  );
         }
         if (foods.isNotEmpty) {
-          resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
-                type: PrintTypeEnum.order,
-                note: kitchenNote,
-                products: foods.toList(),
-                printers: foodPrinterDefault.toList(),
-                timeOrder: 1,
-                printDirectly: !processOrder,
-              );
+          resultSendPrintData =
+              await ref.read(homeProvider.notifier).sendPrintData(
+                    type: PrintTypeEnum.order,
+                    note: kitchenNote,
+                    products: foods.toList(),
+                    printers: foodPrinterDefault.toList(),
+                    timeOrder: 1,
+                    printDirectly: !processOrder,
+                    useDefaultPrinters: true,
+                    totalBill: true,
+                  );
         }
       } else {
-        resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
-              type: PrintTypeEnum.order,
-              note: kitchenNote,
-              products: products,
-              printers: printers.toList(),
-              timeOrder: 1,
-              printDirectly: !processOrder,
-            );
+        resultSendPrintData =
+            await ref.read(homeProvider.notifier).sendPrintData(
+                  type: PrintTypeEnum.order,
+                  note: kitchenNote,
+                  products: products,
+                  printers: printers.toList(),
+                  timeOrder: 1,
+                  printDirectly: !processOrder,
+                  useDefaultPrinters: false,
+                  totalBill: true,
+                );
       }
       if (processOrder) {
         productSelecting.removeWhere((e) => productIdSelect.contains(e.id));
@@ -375,11 +380,13 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
           productIdSelect: <int>{},
         );
       }
-      if (processOrder) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
+      if (processOrder)
+        ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
 
       return (error: null, resultSendPrintData: resultSendPrintData);
     } catch (ex) {
-      if (processOrder) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
+      if (processOrder)
+        ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
 
       return (error: ex.toString(), resultSendPrintData: resultSendPrintData);
     }

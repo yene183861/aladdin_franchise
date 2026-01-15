@@ -77,6 +77,9 @@ class AppConfig {
   static final navigatorKey = GlobalKey<NavigatorState>();
   final String codeVerifyDefault = '123123';
 
+  static const String notificationBoxName = "notifications";
+  static const String testNotificationBoxName = "test_notifications";
+
   // gender
   /// [0] => male (Nam)
   ///

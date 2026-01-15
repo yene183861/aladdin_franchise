@@ -14,7 +14,7 @@ class ComboItemModel with _$ComboItemModel {
     @Default('') String name,
     @Default('') String nameEn,
     @Default('') String image,
-    @Default(1) int quantity,
+    dynamic quantity,
 
     /// check trường này
     int? printerType,

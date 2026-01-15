@@ -310,7 +310,7 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                 const Gap(8),
               ] else ...[
                 const ButtonO2oData(),
-                // const ButtonNotification(),
+                const ButtonNotification(),
                 Consumer(
                   builder: (context, ref, child) {
                     ref.watch(typeOrderWaiterProvider);
@@ -362,8 +362,8 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                                 Gap(8),
                                 ButtonRefreshData(),
                                 ButtonO2oData(),
-                                // Gap(8),
-                                // ButtonNotification(),
+                                Gap(8),
+                                ButtonNotification(),
                               ],
                               const Gap(8),
                               const TypeOrderWidget(),

@@ -24,7 +24,7 @@ mixin _$ComboItemModel {
   String get name => throw _privateConstructorUsedError;
   String get nameEn => throw _privateConstructorUsedError;
   String get image => throw _privateConstructorUsedError;
-  int get quantity => throw _privateConstructorUsedError;
+  dynamic get quantity => throw _privateConstructorUsedError;
 
   /// check trường này
   int? get printerType => throw _privateConstructorUsedError;
@@ -49,7 +49,7 @@ abstract class $ComboItemModelCopyWith<$Res> {
       String name,
       String nameEn,
       String image,
-      int quantity,
+      dynamic quantity,
       int? printerType,
       String unit});
 }
@@ -71,7 +71,7 @@ class _$ComboItemModelCopyWithImpl<$Res, $Val extends ComboItemModel>
     Object? name = null,
     Object? nameEn = null,
     Object? image = null,
-    Object? quantity = null,
+    Object? quantity = freezed,
     Object? printerType = freezed,
     Object? unit = null,
   }) {
@@ -92,10 +92,10 @@ class _$ComboItemModelCopyWithImpl<$Res, $Val extends ComboItemModel>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String,
-      quantity: null == quantity
+      quantity: freezed == quantity
           ? _value.quantity
           : quantity // ignore: cast_nullable_to_non_nullable
-              as int,
+              as dynamic,
       printerType: freezed == printerType
           ? _value.printerType
           : printerType // ignore: cast_nullable_to_non_nullable
@@ -121,7 +121,7 @@ abstract class _$$ComboItemModelImplCopyWith<$Res>
       String name,
       String nameEn,
       String image,
-      int quantity,
+      dynamic quantity,
       int? printerType,
       String unit});
 }
@@ -141,7 +141,7 @@ class __$$ComboItemModelImplCopyWithImpl<$Res>
     Object? name = null,
     Object? nameEn = null,
     Object? image = null,
-    Object? quantity = null,
+    Object? quantity = freezed,
     Object? printerType = freezed,
     Object? unit = null,
   }) {
@@ -162,10 +162,10 @@ class __$$ComboItemModelImplCopyWithImpl<$Res>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String,
-      quantity: null == quantity
+      quantity: freezed == quantity
           ? _value.quantity
           : quantity // ignore: cast_nullable_to_non_nullable
-              as int,
+              as dynamic,
       printerType: freezed == printerType
           ? _value.printerType
           : printerType // ignore: cast_nullable_to_non_nullable
@@ -188,7 +188,7 @@ class _$ComboItemModelImpl extends _ComboItemModel
       this.name = '',
       this.nameEn = '',
       this.image = '',
-      this.quantity = 1,
+      this.quantity,
       this.printerType,
       this.unit = ''})
       : super._();
@@ -208,8 +208,7 @@ class _$ComboItemModelImpl extends _ComboItemModel
   @JsonKey()
   final String image;
   @override
-  @JsonKey()
-  final int quantity;
+  final dynamic quantity;
 
   /// check trường này
   @override
@@ -248,8 +247,7 @@ class _$ComboItemModelImpl extends _ComboItemModel
             (identical(other.name, name) || other.name == name) &&
             (identical(other.nameEn, nameEn) || other.nameEn == nameEn) &&
             (identical(other.image, image) || other.image == image) &&
-            (identical(other.quantity, quantity) ||
-                other.quantity == quantity) &&
+            const DeepCollectionEquality().equals(other.quantity, quantity) &&
             (identical(other.printerType, printerType) ||
                 other.printerType == printerType) &&
             (identical(other.unit, unit) || other.unit == unit));
@@ -257,8 +255,8 @@ class _$ComboItemModelImpl extends _ComboItemModel
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, name, nameEn, image, quantity, printerType, unit);
+  int get hashCode => Object.hash(runtimeType, id, name, nameEn, image,
+      const DeepCollectionEquality().hash(quantity), printerType, unit);
 
   @JsonKey(ignore: true)
   @override
@@ -281,7 +279,7 @@ abstract class _ComboItemModel extends ComboItemModel {
       final String name,
       final String nameEn,
       final String image,
-      final int quantity,
+      final dynamic quantity,
       final int? printerType,
       final String unit}) = _$ComboItemModelImpl;
   const _ComboItemModel._() : super._();
@@ -298,7 +296,7 @@ abstract class _ComboItemModel extends ComboItemModel {
   @override
   String get image;
   @override
-  int get quantity;
+  dynamic get quantity;
   @override
 
   /// check trường này

@@ -10,6 +10,7 @@ import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/services/local_notification.dart';
 import 'package:aladdin_franchise/src/core/services/send_log/discord_service.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/data/model/notification.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/notification_model.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
@@ -124,13 +125,27 @@ Future<void> _initHive() async {
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(NotificationModelAdapter());
     }
-
-    final isOpenBox = Hive.isBoxOpen('notifications');
-    if (!isOpenBox) {
-      await Hive.openBox<NotificationModel>('notifications');
+    if (!Hive.isAdapterRegistered(1)) {
+      Hive.registerAdapter(TestNotificationModelAdapter());
     }
+    // await safeOpenBoxNotification<NotificationModel>(AppConfig.notificationBoxName);
+    await safeOpenBoxNotification<TestNotificationModel>(AppConfig.testNotificationBoxName);
   } catch (ex) {
-    showLog(ex, flags: "_initHiveFunction");
+    showLog(ex, flags: "_initHive");
+  }
+}
+
+Future<Box<T>> safeOpenBoxNotification<T>(String name) async {
+  try {
+    if (Hive.isBoxOpen(name)) {
+      return Hive.box<T>(name);
+    }
+    return await Hive.openBox<T>(name);
+  } catch (e) {
+    if (e is HiveError && e.message.contains('is already open')) {
+      return Hive.box<T>(name);
+    }
+    rethrow;
   }
 }
 

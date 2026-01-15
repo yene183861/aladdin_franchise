@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:aladdin_franchise/src/core/network/repository/responses/data_bill.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
+import 'package:aladdin_franchise/src/data/model/notification.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/models/atm_pos.dart';
 import 'package:aladdin_franchise/src/models/category.dart';
@@ -195,5 +196,6 @@ class HomeState with _$HomeState {
     @Default(DiscountTypeEnum.vnd) DiscountTypeEnum discountTypeSelect,
     @Default([]) List<PrinterModel> printers,
     @Default(PageState(status: PageCommonState.loading)) PageState printerState,
+    @Default([]) List<TestNotificationModel> notifications,
   }) = _HomeState;
 }

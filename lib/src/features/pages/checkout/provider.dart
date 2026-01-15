@@ -17,12 +17,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'state.dart';
 
 final checkoutPageProvider =
-    StateNotifierProvider.autoDispose<CheckoutPageNotifier, CheckoutPageState>((ref) {
+    StateNotifierProvider.autoDispose<CheckoutPageNotifier, CheckoutPageState>(
+        (ref) {
   return CheckoutPageNotifier(ref, ref.read(orderRepositoryProvider));
 });
 
 class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
-  CheckoutPageNotifier(this.ref, this._orderRepository) : super(const CheckoutPageState());
+  CheckoutPageNotifier(this.ref, this._orderRepository)
+      : super(const CheckoutPageState());
   final Ref ref;
   final OrderRepository _orderRepository;
   void init(List<ProductCheckoutModel> products) async {
@@ -70,7 +72,8 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
   }
 
   void changeCancelQuantity(ProductCheckoutModel item) {
-    var productsCheckout = List<ProductCheckoutModel>.from(state.productsCheckout);
+    var productsCheckout =
+        List<ProductCheckoutModel>.from(state.productsCheckout);
 
     var index = productsCheckout.indexWhere((e) => e.id == item.id);
     if (index != -1) {
@@ -91,9 +94,9 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
     if (order == null) return (error: null, resultSendPrintData: null);
     try {
       if (processOrder) {
-        ref
-            .read(homeProvider.notifier)
-            .updateEvent(processOrder ? HomeEvent.cancelProductsCheckout : HomeEvent.sendPrintData);
+        ref.read(homeProvider.notifier).updateEvent(processOrder
+            ? HomeEvent.cancelProductsCheckout
+            : HomeEvent.sendPrintData);
         await _orderRepository.processOrderItem(
           order: order,
           total: 0,
@@ -106,7 +109,8 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
       }
       var menu = ref.read(menuProvider);
 
-      Set<PrinterModel> foodPrinterDefault = <PrinterModel>{}, barPrinterDefault = <PrinterModel>{};
+      Set<PrinterModel> foodPrinterDefault = <PrinterModel>{},
+          barPrinterDefault = <PrinterModel>{};
       for (var item in state.defaultPrinters) {
         switch (item.type) {
           case ProductPrinterType.drink:
@@ -158,40 +162,51 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
       }
       if (useDefaultPrinter) {
         if (drinks.isNotEmpty) {
-          resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
-                type: PrintTypeEnum.cancel,
-                note: reason,
-                products: drinks.toList(),
-                printers: barPrinterDefault.toList(),
-                timeOrder: 1,
-                printDirectly: !processOrder,
-              );
+          resultSendPrintData =
+              await ref.read(homeProvider.notifier).sendPrintData(
+                    type: PrintTypeEnum.cancel,
+                    note: reason,
+                    products: drinks.toList(),
+                    printers: barPrinterDefault.toList(),
+                    timeOrder: 1,
+                    printDirectly: !processOrder,
+                    useDefaultPrinters: true,
+                    totalBill: true,
+                  );
         }
         if (foods.isNotEmpty) {
-          resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
-                type: PrintTypeEnum.cancel,
-                note: reason,
-                products: foods.toList(),
-                printers: foodPrinterDefault.toList(),
-                timeOrder: 1,
-                printDirectly: !processOrder,
-              );
+          resultSendPrintData =
+              await ref.read(homeProvider.notifier).sendPrintData(
+                    type: PrintTypeEnum.cancel,
+                    note: reason,
+                    products: foods.toList(),
+                    printers: foodPrinterDefault.toList(),
+                    timeOrder: 1,
+                    printDirectly: !processOrder,
+                    useDefaultPrinters: true,
+                    totalBill: true,
+                  );
         }
       } else {
-        resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
-              type: PrintTypeEnum.cancel,
-              note: reason,
-              products: productPrint.toList(),
-              printers: printerSelect.toList(),
-              timeOrder: 1,
-              printDirectly: !processOrder,
-            );
+        resultSendPrintData =
+            await ref.read(homeProvider.notifier).sendPrintData(
+                  type: PrintTypeEnum.cancel,
+                  note: reason,
+                  products: productPrint.toList(),
+                  printers: printerSelect.toList(),
+                  timeOrder: 1,
+                  printDirectly: !processOrder,
+                  useDefaultPrinters: false,
+                  totalBill: true,
+                );
       }
-      if (processOrder) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
+      if (processOrder)
+        ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
 
       return (error: null, resultSendPrintData: resultSendPrintData);
     } catch (ex) {
-      if (processOrder) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
+      if (processOrder)
+        ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
 
       return (error: ex.toString(), resultSendPrintData: resultSendPrintData);
     }

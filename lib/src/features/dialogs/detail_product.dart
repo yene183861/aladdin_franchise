@@ -9,12 +9,14 @@ import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/models/combo_item.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../generated/l10n.dart';
@@ -53,12 +55,9 @@ class DetailProductDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const double valueRadius = 12;
-    List<ComboItemModel>? comboItems =
-        ProductHelper().getComboDescription(product);
-    bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
-
+    bool smallDevice = ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
     return FractionallySizedBox(
-      widthFactor: isSmallDevice ? 0.97 : 0.5,
+      widthFactor: smallDevice ? 0.97 : 0.5,
       heightFactor: 0.95,
       child: AlertDialog(
         contentPadding: const EdgeInsets.all(0),
@@ -68,7 +67,7 @@ class DetailProductDialog extends StatelessWidget {
         content: Stack(
           alignment: Alignment.topRight,
           children: [
-            ProductDetailWidget(
+            _ProductDetail(
               product: product,
               valueRadius: valueRadius,
             ),
@@ -90,9 +89,8 @@ class DetailProductDialog extends StatelessWidget {
   }
 }
 
-class ProductDetailWidget extends StatelessWidget {
-  const ProductDetailWidget({
-    super.key,
+class _ProductDetail extends StatelessWidget {
+  const _ProductDetail({
     this.valueRadius = 12,
     required this.product,
   });
@@ -102,8 +100,8 @@ class ProductDetailWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<ComboItemModel>? comboItems =
-        ProductHelper().getComboDescription(product);
+    List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(product);
+    showLogs(comboItems, flags: 'comboItems');
     return SingleChildScrollView(
       child: SizedBox(
         width: double.maxFinite,
@@ -151,16 +149,14 @@ class ProductDetailWidget extends StatelessWidget {
                           ),
                           children: [
                             WidgetSpan(
-                              alignment: PlaceholderAlignment
-                                  .middle, // dùng middle thôi
+                              alignment: PlaceholderAlignment.middle, // dùng middle thôi
                               child: Baseline(
                                 baseline: 20,
                                 baselineType: TextBaseline.alphabetic,
-                                child: Text(" / ${product.unit}",
+                                child: Text(" / ${product.getUnitView()}",
                                     style: AppTextStyle.regular(
                                       color: Colors.grey,
-                                      rawFontSize:
-                                          AppConfig.defaultRawTextSize - 1.0,
+                                      rawFontSize: AppConfig.defaultRawTextSize - 0.5,
                                     )),
                               ),
                             ),
@@ -200,13 +196,13 @@ class ProductDetailWidget extends StatelessWidget {
                                   onTap: () {
                                     showImageWidget(
                                       context: context,
-                                      imageUrl: comboItem.image ?? '',
+                                      imageUrl: comboItem.image,
                                     );
                                   },
                                   child: AppImageCacheNetworkWidget(
                                     width: 100,
                                     height: 50,
-                                    imageUrl: comboItem.image ?? '',
+                                    imageUrl: comboItem.image,
                                     memCacheHeight: 250,
                                     memCacheWidth: 350,
                                   ),

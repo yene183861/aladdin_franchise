@@ -8,6 +8,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
+import 'package:aladdin_franchise/src/data/model/notification.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/info_restaurant.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
@@ -47,6 +48,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -307,6 +310,18 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     kToken = "";
     kTypeOrder = 0;
     super.dispose();
+  }
+
+  void listenNotificationsData() async {
+    if (Hive.isBoxOpen(AppConfig.testNotificationBoxName)) {
+      Hive.box<TestNotificationModel>(AppConfig.testNotificationBoxName)
+          .listenable()
+          .addListener(() {
+        if (mounted) {
+          ref.read(homeProvider.notifier).loadNotifications();
+        }
+      });
+    }
   }
 
   @override

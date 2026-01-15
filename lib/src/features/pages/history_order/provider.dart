@@ -41,7 +41,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'state.dart';
 
 final historyOrderPageProvider =
-    StateNotifierProvider.autoDispose<HistoryOrderNotifier, HistoryOrderState>((ref) {
+    StateNotifierProvider.autoDispose<HistoryOrderNotifier, HistoryOrderState>(
+        (ref) {
   return HistoryOrderNotifier(ref, ref.read(orderRepositoryProvider));
 });
 
@@ -67,19 +68,24 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
     );
   }
 
-  Future<({String? error, bool refreshData})> printBillForCustomer(BuildContext context,
+  Future<({String? error, bool refreshData})> printBillForCustomer(
+      BuildContext context,
       {bool completeBillAction = false}) async {
     String? error;
     bool refreshData = false;
     try {
       state = state.copyWith(
-          event: completeBillAction ? HistoryOrderEvent.completeBill : HistoryOrderEvent.printBill);
+          event: completeBillAction
+              ? HistoryOrderEvent.completeBill
+              : HistoryOrderEvent.printBill);
       var historyOrderSelect = state.historyOrderSelect;
       if (historyOrderSelect == null) {
         throw S.current.msg_select_order_before_print_receipt;
       }
-      bool requireCompleteBill = historyOrderSelect.status == OrderStatusEnum.waiting;
-      bool isOnline = historyOrderSelect.orderType == AppConfig.orderOnlineValue;
+      bool requireCompleteBill =
+          historyOrderSelect.status == OrderStatusEnum.waiting;
+      bool isOnline =
+          historyOrderSelect.orderType == AppConfig.orderOnlineValue;
       var order = orderSelect;
       if (order == null) {
         state = state.copyWith(event: HistoryOrderEvent.normal);
@@ -97,7 +103,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
           if (dataBill.error != null) {
             throw dataBill.error!;
           }
-          List<LineItemDataBill> itemsPrint = List<LineItemDataBill>.from(dataBill.itemsPrint);
+          List<LineItemDataBill> itemsPrint =
+              List<LineItemDataBill>.from(dataBill.itemsPrint);
 
           PriceDataBill price = dataBill.price;
 
@@ -125,7 +132,9 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             while (_count < 3) {
               try {
                 if (listPaymentMethods.isEmpty) {
-                  var pm = await ref.read(restaurantRepositoryProvider).getPaymentMethod(
+                  var pm = await ref
+                      .read(restaurantRepositoryProvider)
+                      .getPaymentMethod(
                         orderId: order.id,
                       );
 
@@ -142,8 +151,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             if (errorGetPaymentMethods != null) {
               throw 'Không thể tải danh sách phương thức thanh toán';
             }
-            paymentMethodSelect =
-                listPaymentMethods.firstWhereOrNull((e) => e.key == paymentMethodSelect?.key);
+            paymentMethodSelect = listPaymentMethods
+                .firstWhereOrNull((e) => e.key == paymentMethodSelect?.key);
           }
 
           if (paymentMethodSelect == null) {
@@ -153,197 +162,198 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             if (paymentMethodSelect.isGateway) {
               paymentAmount = 0.0;
             } else {
-              paymentAmount = double.tryParse(price.totalPriceFinal.toString()) ?? 0.0;
+              paymentAmount =
+                  double.tryParse(price.totalPriceFinal.toString()) ?? 0.0;
             }
           }
-          showLogs(paymentAmount, flags: 'paymentAmount 1');
-          if (requireCompleteBill) {
-            var homeState = ref.read(menuProvider);
-            List<ProductModel> products = [];
-            if (isOnline) {
-              if (kTypeOrder == AppConfig.orderOnlineValue &&
-                  homeState.productState.status == StatusEnum.success) {
-                onlineProducts = List<ProductModel>.from(homeState.products);
-              } else {
-                if (onlineProducts.isEmpty) {
-                  int retry = 0;
-                  while (retry < 3) {
-                    try {
-                      var result = await ref
-                          .read(menuRepositoryProvider)
-                          .getProduct(null, typeOrder: TypeOrderEnum.online.type);
+          // showLogs(paymentAmount, flags: 'paymentAmount 1');
+          // if (requireCompleteBill) {
+          //   var homeState = ref.read(menuProvider);
+          //   List<ProductModel> products = [];
+          //   if (isOnline) {
+          //     if (kTypeOrder == AppConfig.orderOnlineValue &&
+          //         homeState.productState.status == StatusEnum.success) {
+          //       onlineProducts = List<ProductModel>.from(homeState.products);
+          //     } else {
+          //       if (onlineProducts.isEmpty) {
+          //         int retry = 0;
+          //         while (retry < 3) {
+          //           try {
+          //             var result = await ref
+          //                 .read(menuRepositoryProvider)
+          //                 .getProduct(null, typeOrder: TypeOrderEnum.online.type);
 
-                      onlineProducts = List<ProductModel>.from(result);
-                      break;
-                    } catch (ex) {
-                      retry++;
-                    }
-                  }
-                }
+          //             onlineProducts = List<ProductModel>.from(result);
+          //             break;
+          //           } catch (ex) {
+          //             retry++;
+          //           }
+          //         }
+          //       }
 
-                if (onlineProducts.isEmpty) {
-                  throw 'Không có thông tin món mang về!';
-                }
-              }
-              products = List<ProductModel>.from(onlineProducts);
-            } else {
-              if (kTypeOrder == AppConfig.orderOfflineValue &&
-                  homeState.productState.status == StatusEnum.success) {
-                offlineProducts = List<ProductModel>.from(homeState.products);
-              } else {
-                if (offlineProducts.isEmpty) {
-                  int retry = 0;
-                  while (retry < 3) {
-                    try {
-                      var result = await ref
-                          .read(menuRepositoryProvider)
-                          .getProduct(null, typeOrder: TypeOrderEnum.offline.type);
-                      offlineProducts = List<ProductModel>.from(result);
-                      break;
-                    } catch (ex) {
-                      retry++;
-                    }
-                  }
-                }
+          //       if (onlineProducts.isEmpty) {
+          //         throw 'Không có thông tin món mang về!';
+          //       }
+          //     }
+          //     products = List<ProductModel>.from(onlineProducts);
+          //   } else {
+          //     if (kTypeOrder == AppConfig.orderOfflineValue &&
+          //         homeState.productState.status == StatusEnum.success) {
+          //       offlineProducts = List<ProductModel>.from(homeState.products);
+          //     } else {
+          //       if (offlineProducts.isEmpty) {
+          //         int retry = 0;
+          //         while (retry < 3) {
+          //           try {
+          //             var result = await ref
+          //                 .read(menuRepositoryProvider)
+          //                 .getProduct(null, typeOrder: TypeOrderEnum.offline.type);
+          //             offlineProducts = List<ProductModel>.from(result);
+          //             break;
+          //           } catch (ex) {
+          //             retry++;
+          //           }
+          //         }
+          //       }
 
-                if (offlineProducts.isEmpty) {
-                  throw 'Không có thông tin món bán tại nhà hàng!';
-                }
-              }
-              products = List<ProductModel>.from(offlineProducts);
-            }
-            showLogs(null, flags: 'checkTax 1');
-            var checkTax = _checkValidTaxItemsPrint(
-              requireUpdateTax: paymentMethodSelect.requireEditTax,
-              itemsPrint: itemsPrint,
-              products: products,
-            );
-            showLogs(checkTax, flags: 'checkTax');
-            var tax = Map<int, Map<String, dynamic>>.from(checkTax.tax);
-            if (!checkTax.valid) {
-              // dialog sửa thuế
-              if (context.mounted) {
-                List<ProductCheckoutModel> productCheckouts = [];
-                for (var e in itemsPrint) {
-                  if (tax[e.id] != null) {
-                    productCheckouts.add(ProductCheckoutModel(
-                      id: e.id,
-                      name: e.name,
-                      nameEn: e.nameEn,
-                      quantity: e.count,
-                      unit: e.unit,
-                      codeProduct: e.codeProduct,
-                      tax: e.getTax1(),
-                      unitPrice: e.price.toString(),
-                      totalOrdered: e.count * (double.tryParse(e.price.toString()) ?? 0),
-                    ));
-                  }
-                }
+          //       if (offlineProducts.isEmpty) {
+          //         throw 'Không có thông tin món bán tại nhà hàng!';
+          //       }
+          //     }
+          //     products = List<ProductModel>.from(offlineProducts);
+          //   }
+          //   // showLogs(null, flags: 'checkTax 1');
+          //   // var checkTax = _checkValidTaxItemsPrint(
+          //   //   requireUpdateTax: paymentMethodSelect.requireEditTax,
+          //   //   itemsPrint: itemsPrint,
+          //   //   products: products,
+          //   // );
+          //   showLogs(checkTax, flags: 'checkTax');
+          //   var tax = Map<int, Map<String, dynamic>>.from(checkTax.tax);
+          //   if (!checkTax.valid) {
+          //     // dialog sửa thuế
+          //     if (context.mounted) {
+          //       List<ProductCheckoutModel> productCheckouts = [];
+          //       for (var e in itemsPrint) {
+          //         if (tax[e.id] != null) {
+          //           productCheckouts.add(ProductCheckoutModel(
+          //             id: e.id,
+          //             name: e.name,
+          //             nameEn: e.nameEn,
+          //             quantity: e.count,
+          //             unit: e.unit,
+          //             codeProduct: e.codeProduct,
+          //             tax: e.getTax1(),
+          //             unitPrice: e.price.toString(),
+          //             totalOrdered: e.count * (double.tryParse(e.price.toString()) ?? 0),
+          //           ));
+          //         }
+          //       }
 
-                bool editTax = false;
+          //       bool editTax = false;
 
-                var taxDialog = await showConfirmActionWithChild(
-                  context,
-                  noTitle: true,
-                  title: '',
-                  closeDialog: true,
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: EditTaxDialog(
-                        products: products,
-                        productCheckouts: productCheckouts,
-                        onSave: (List<ProductCheckoutModel> changedPc) {
-                          productCheckouts = changedPc;
-                        }),
-                  ),
-                  onCheckAction: () {
-                    var check = true;
-                    List<ProductCheckoutModel> pcMustDefaultTax = [];
-                    List<ProductCheckoutModel> pcMustChangeTax = [];
-                    for (var pc in productCheckouts) {
-                      var taxProduct = tax[pc.id];
-                      var useDefault = (taxProduct?['use_default'] ?? false) as bool;
-                      var valueDefault = (taxProduct?['default'] ?? 0.0) as double;
+          //       var taxDialog = await showConfirmActionWithChild(
+          //         context,
+          //         noTitle: true,
+          //         title: '',
+          //         closeDialog: true,
+          //         child: SizedBox(
+          //           width: MediaQuery.of(context).size.width,
+          //           child: EditTaxDialog(
+          //               products: products,
+          //               productCheckouts: productCheckouts,
+          //               onSave: (List<ProductCheckoutModel> changedPc) {
+          //                 productCheckouts = changedPc;
+          //               }),
+          //         ),
+          //         onCheckAction: () {
+          //           var check = true;
+          //           List<ProductCheckoutModel> pcMustDefaultTax = [];
+          //           List<ProductCheckoutModel> pcMustChangeTax = [];
+          //           for (var pc in productCheckouts) {
+          //             var taxProduct = tax[pc.id];
+          //             var useDefault = (taxProduct?['use_default'] ?? false) as bool;
+          //             var valueDefault = (taxProduct?['default'] ?? 0.0) as double;
 
-                      if (useDefault) {
-                        if (pc.tax != valueDefault) {
-                          check = false;
-                          pcMustDefaultTax.add(pc);
-                        }
-                      } else {
-                        if (pc.tax == 0 && (paymentMethodSelect?.requireEditTax ?? false)) {
-                          check = false;
-                          pcMustChangeTax.add(pc);
-                        }
-                      }
-                    }
-                    if (!check) {
-                      showMessageDialog(
-                        context,
-                        canPop: false,
-                        message:
-                            '${pcMustDefaultTax.isNotEmpty ? 'Các món ${pcMustDefaultTax.map((e) => e.name).join(', ')} không được phép sửa thuế. Hãy chọn về thuế mặc định của món!\n' : ''}'
-                            '${pcMustChangeTax.isNotEmpty ? 'Các món ${pcMustChangeTax.map((e) => e.name).join(', ')} bắt buộc phải sửa thuế # 0.' : ''}',
-                      );
-                      return false;
-                    }
+          //             if (useDefault) {
+          //               if (pc.tax != valueDefault) {
+          //                 check = false;
+          //                 pcMustDefaultTax.add(pc);
+          //               }
+          //             } else {
+          //               if (pc.tax == 0 && (paymentMethodSelect?.requireEditTax ?? false)) {
+          //                 check = false;
+          //                 pcMustChangeTax.add(pc);
+          //               }
+          //             }
+          //           }
+          //           if (!check) {
+          //             showMessageDialog(
+          //               context,
+          //               canPop: false,
+          //               message:
+          //                   '${pcMustDefaultTax.isNotEmpty ? 'Các món ${pcMustDefaultTax.map((e) => e.name).join(', ')} không được phép sửa thuế. Hãy chọn về thuế mặc định của món!\n' : ''}'
+          //                   '${pcMustChangeTax.isNotEmpty ? 'Các món ${pcMustChangeTax.map((e) => e.name).join(', ')} bắt buộc phải sửa thuế # 0.' : ''}',
+          //             );
+          //             return false;
+          //           }
 
-                    return check;
-                  },
-                  action: () async {},
-                  actionCancel: () {
-                    editTax = false;
-                  },
-                  actionTitle: 'Cập nhật',
-                );
-                if (!(taxDialog ?? false)) {
-                  state = state.copyWith(event: HistoryOrderEvent.normal);
-                  return (error: null, refreshData: refreshData);
-                }
+          //           return check;
+          //         },
+          //         action: () async {},
+          //         actionCancel: () {
+          //           editTax = false;
+          //         },
+          //         actionTitle: 'Cập nhật',
+          //       );
+          //       if (!(taxDialog ?? false)) {
+          //         state = state.copyWith(event: HistoryOrderEvent.normal);
+          //         return (error: null, refreshData: refreshData);
+          //       }
 
-                var resultUpdateTax = await updateTax(
-                  paymentMethod: paymentMethodSelect,
-                  item: productCheckouts,
-                  order: order,
-                );
-                if (resultUpdateTax.error != null) {
-                  state = state.copyWith(event: HistoryOrderEvent.normal);
+          //       var resultUpdateTax = await updateTax(
+          //         paymentMethod: paymentMethodSelect,
+          //         item: productCheckouts,
+          //         order: order,
+          //       );
+          //       if (resultUpdateTax.error != null) {
+          //         state = state.copyWith(event: HistoryOrderEvent.normal);
 
-                  return (
-                    error: 'Chỉnh sửa thuế không thành công\n${resultUpdateTax.error}',
-                    refreshData: refreshData
-                  );
-                } else {
-                  refreshData = true;
-                  editTax = true;
-                }
-                if (!editTax) {
-                  state = state.copyWith(event: HistoryOrderEvent.normal);
-                  return (error: null, refreshData: refreshData);
-                }
+          //         return (
+          //           error: 'Chỉnh sửa thuế không thành công\n${resultUpdateTax.error}',
+          //           refreshData: refreshData
+          //         );
+          //       } else {
+          //         refreshData = true;
+          //         editTax = true;
+          //       }
+          //       if (!editTax) {
+          //         state = state.copyWith(event: HistoryOrderEvent.normal);
+          //         return (error: null, refreshData: refreshData);
+          //       }
 
-                itemsPrint = [];
-                dataBill = await _getDataBill(orderId: order.id);
-                if (dataBill.error != null) {
-                  throw dataBill.error!;
-                }
+          //       itemsPrint = [];
+          //       dataBill = await _getDataBill(orderId: order.id);
+          //       if (dataBill.error != null) {
+          //         throw dataBill.error!;
+          //       }
 
-                itemsPrint = List<LineItemDataBill>.from(dataBill.itemsPrint);
+          //       itemsPrint = List<LineItemDataBill>.from(dataBill.itemsPrint);
 
-                price = dataBill.price;
+          //       price = dataBill.price;
 
-                infoPrinter = dataBill.infoPrinter;
-                orderPrint = dataBill.order;
-                portrait = dataBill.portrait;
-                if (infoPrinter == null) {
-                  throw 'Không có thông tin máy in';
-                }
-                if (orderPrint == null) {
-                  throw 'Không có thông tin in';
-                }
-              }
-            }
-          }
+          //       infoPrinter = dataBill.infoPrinter;
+          //       orderPrint = dataBill.order;
+          //       portrait = dataBill.portrait;
+          //       if (infoPrinter == null) {
+          //         throw 'Không có thông tin máy in';
+          //       }
+          //       if (orderPrint == null) {
+          //         throw 'Không có thông tin in';
+          //       }
+          //     }
+          //   }
+          // }
           showLogs(requireCompleteBill, flags: 'requireCompleteBill');
           var invoiceQr = await _orderRepository.completeBill(
               order: order,
@@ -365,8 +375,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
           }
           String? resPrint;
           try {
-            var check = await AppPrinterCommon.checkPrinter(
-                IpOrderModel(ip: infoPrinter.ip, port: infoPrinter.port, type: 1));
+            var check = await AppPrinterCommon.checkPrinter(IpOrderModel(
+                ip: infoPrinter.ip, port: infoPrinter.port, type: 1));
             if (check != null) {
               throw check;
             }
@@ -411,7 +421,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
               timeCreatedAt: orderPrint.createdAt,
               invoiceQr: invoiceQr ?? '',
             );
-            var resultSend = await ref.read(homeProvider.notifier).sendPrintData(
+            var resultSend =
+                await ref.read(homeProvider.notifier).sendPrintData(
               type: PrintTypeEnum.payment,
               paymentData: data,
               printers: [
@@ -657,7 +668,9 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
 
   void getDetailOrder() async {
     try {
-      state = state.copyWith(getOrderDetailState: const PageState(status: PageCommonState.loading));
+      state = state.copyWith(
+          getOrderDetailState:
+              const PageState(status: PageCommonState.loading));
       var historyOrderSelect = state.historyOrderSelect;
       if (historyOrderSelect == null) {
         return;

@@ -22,7 +22,8 @@ class SettingBillUseBillOdd extends ConsumerWidget {
           controlAffinity: ListTileControlAffinity.leading,
           onChanged: (value) {
             ref.read(settingsPageProvider.notifier).onChangeSetting(
-                  billReturnSetting: printSetting.billReturnSetting.copyWith(useOddBill: value),
+                  billReturnSetting: printSetting.billReturnSetting
+                      .copyWith(useOddBill: value),
                 );
           },
         ),

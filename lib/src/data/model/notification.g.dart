@@ -9,7 +9,7 @@ part of 'notification.dart';
 class TestNotificationModelAdapter
     extends TypeAdapter<_$TestNotificationModelImpl> {
   @override
-  final int typeId = 0;
+  final int typeId = 1;
 
   @override
   _$TestNotificationModelImpl read(BinaryReader reader) {
@@ -22,15 +22,16 @@ class TestNotificationModelAdapter
       body: fields[1] == null ? '' : fields[1] as String,
       datetime: fields[2] as DateTime?,
       read: fields[3] == null ? false : fields[3] as bool,
-      orderId: fields[4] == null ? -1 : fields[4] as int,
+      orderId: fields[4] as int?,
       data: fields[5] as dynamic,
+      type: fields[6] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, _$TestNotificationModelImpl obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
@@ -42,7 +43,9 @@ class TestNotificationModelAdapter
       ..writeByte(4)
       ..write(obj.orderId)
       ..writeByte(5)
-      ..write(obj.data);
+      ..write(obj.data)
+      ..writeByte(6)
+      ..write(obj.type);
   }
 
   @override
@@ -63,14 +66,15 @@ class TestNotificationModelAdapter
 _$TestNotificationModelImpl _$$TestNotificationModelImplFromJson(
         Map<String, dynamic> json) =>
     _$TestNotificationModelImpl(
-      title: json['title'] as String,
-      body: json['body'] as String,
+      title: json['title'] as String? ?? '',
+      body: json['body'] as String? ?? '',
       datetime: json['datetime'] == null
           ? null
           : DateTime.parse(json['datetime'] as String),
       read: json['read'] as bool? ?? false,
-      orderId: (json['orderId'] as num).toInt(),
+      orderId: (json['orderId'] as num?)?.toInt(),
       data: json['data'],
+      type: json['type'] as String?,
     );
 
 Map<String, dynamic> _$$TestNotificationModelImplToJson(
@@ -82,4 +86,5 @@ Map<String, dynamic> _$$TestNotificationModelImplToJson(
       'read': instance.read,
       'orderId': instance.orderId,
       'data': instance.data,
+      'type': instance.type,
     };

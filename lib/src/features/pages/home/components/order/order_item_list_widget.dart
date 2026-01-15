@@ -57,8 +57,7 @@ class _OrderProductItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     return InkWell(
       onTap: onTap == null
           ? null
@@ -111,12 +110,9 @@ class _OrderProductItem extends ConsumerWidget {
                                 // ),
                                 TextSpan(
                                   text: AppUtils.formatCurrency(
-                                      value:
-                                          double.tryParse(item.unitPrice) ?? 0,
-                                      symbol: 'đ'),
+                                      value: double.tryParse(item.unitPrice) ?? 0, symbol: 'đ'),
                                   style: AppTextStyle.bold(
-                                    rawFontSize:
-                                        AppConfig.defaultRawTextSize - 0.5,
+                                    rawFontSize: AppConfig.defaultRawTextSize - 0.5,
                                   ),
                                 ),
                                 const TextSpan(text: ' / '),
@@ -142,21 +138,17 @@ class _OrderProductItem extends ConsumerWidget {
                                 text: 'Thành tiền:  ',
                                 style: AppTextStyle.medium(
                                   color: Colors.grey,
-                                  rawFontSize:
-                                      AppConfig.defaultRawTextSize - 1.5,
+                                  rawFontSize: AppConfig.defaultRawTextSize - 1.5,
                                 ),
                               ),
                               TextSpan(
                                 text: AppUtils.formatCurrency(
-                                    value:
-                                        (double.tryParse(item.unitPrice) ?? 0) *
-                                            (item.numberSelecting -
-                                                item.quantityPromotion),
+                                    value: (double.tryParse(item.unitPrice) ?? 0) *
+                                        (item.numberSelecting - item.quantityPromotion),
                                     symbol: 'đ'),
                                 style: AppTextStyle.bold(
                                   color: AppColors.mainColor,
-                                  rawFontSize:
-                                      AppConfig.defaultRawTextSize - 0.5,
+                                  rawFontSize: AppConfig.defaultRawTextSize - 0.5,
                                 ),
                               ),
                             ])),
@@ -179,17 +171,14 @@ class _OrderProductItem extends ConsumerWidget {
                                 _qtyButton(
                                   Icons.remove,
                                   () {
-                                    var count =
-                                        max(0, item.numberSelecting - 1);
+                                    var count = max(0, item.numberSelecting - 1);
                                     ref
                                         .read(cartPageProvider.notifier)
-                                        .addProductToCart(item.copyWith(
-                                            numberSelecting: count));
+                                        .addProductToCart(item.copyWith(numberSelecting: count));
                                   },
                                 ),
                                 Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
                                   child: Text(
                                     item.numberSelecting.toString(),
                                     style: AppTextStyle.bold(),
@@ -198,12 +187,10 @@ class _OrderProductItem extends ConsumerWidget {
                                 _qtyButton(
                                   Icons.add,
                                   () {
-                                    var count =
-                                        max(0, item.numberSelecting + 1);
+                                    var count = max(0, item.numberSelecting + 1);
                                     ref
                                         .read(cartPageProvider.notifier)
-                                        .addProductToCart(item.copyWith(
-                                            numberSelecting: count));
+                                        .addProductToCart(item.copyWith(numberSelecting: count));
                                   },
                                 ),
                               ],
@@ -359,8 +346,7 @@ class _NotePerItemWidget extends ConsumerStatefulWidget {
   final bool lockedOrder;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __NotePerItemWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __NotePerItemWidgetState();
 }
 
 class __NotePerItemWidgetState extends ConsumerState<_NotePerItemWidget> {
@@ -396,9 +382,7 @@ class __NotePerItemWidgetState extends ConsumerState<_NotePerItemWidget> {
       _textChange.value = _controller.text.trim();
     });
     _textChange.debounceTime(const Duration(milliseconds: 300)).listen((value) {
-      ref
-          .read(homeProvider.notifier)
-          .onChangeNotePerItem(widget.item, _controller.text.trim());
+      ref.read(homeProvider.notifier).onChangeNotePerItem(widget.item, _controller.text.trim());
     });
   }
 
@@ -419,14 +403,11 @@ class __NotePerItemWidgetState extends ConsumerState<_NotePerItemWidget> {
         enabled: !(widget.lockedOrder),
         hintText: "${S.current.add_notes}...",
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        hintStyle: AppTextStyle.regular(
-            rawFontSize: AppConfig.defaultRawTextSize - 1.5),
+        hintStyle: AppTextStyle.regular(rawFontSize: AppConfig.defaultRawTextSize - 1.5),
       ),
       onTapOutside: (event) {
         FocusManager.instance.primaryFocus?.unfocus();
-        ref
-            .read(homeProvider.notifier)
-            .onChangeNotePerItem(widget.item, _controller.text.trim());
+        ref.read(homeProvider.notifier).onChangeNotePerItem(widget.item, _controller.text.trim());
       },
     );
   }
@@ -448,12 +429,11 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
         ref.watch(homeProvider.select((value) => value.productCheckoutState));
     // var items =
     //     ref.watch(homeProvider.select((value) => value.productsSelected));
-    var orderHistory =
-        ref.watch(homeProvider.select((value) => value.orderHistory));
+    var orderHistory = ref.watch(homeProvider.select((value) => value.orderHistory));
     // var displayOrderHistory =
     //     ref.watch(homeProvider.select((value) => value.displayOrderHistory));
-    var productsCheckout = ref
-        .watch(checkoutPageProvider.select((value) => value.productsCheckout));
+    var productsCheckout =
+        ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
     var products = ref.watch(menuProvider.select((value) => value.products));
 
     var orderHistoryData = List<OrderHistory>.from(orderHistory);
@@ -502,19 +482,16 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
         : NotificationListener<ScrollNotification>(
             onNotification: (notification) {
               if (notification is UserScrollNotification) {
-                ref
-                    .read(homeProvider.notifier)
-                    .onChangeAutoScrollProducts(false);
+                ref.read(homeProvider.notifier).onChangeAutoScrollProducts(false);
               }
               return true;
             },
             child: Container(
               color: Colors.grey.shade50,
               child: ScrollablePositionedList.separated(
-                itemScrollController:
-                    itemScrollController ?? notifier.selectedItemsScrollCtrl,
-                itemPositionsListener: itemPositionsListener ??
-                    notifier.selectedItemsPositionsListener,
+                itemScrollController: itemScrollController ?? notifier.selectedItemsScrollCtrl,
+                itemPositionsListener:
+                    itemPositionsListener ?? notifier.selectedItemsPositionsListener,
                 padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                 itemBuilder: (context, index) {
                   var p = productsCheckout[index];
@@ -525,13 +502,11 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                   //     0;
 
                   return Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border:
-                          Border.all(color: Colors.grey.shade200, width: 0.5),
+                      border: Border.all(color: Colors.grey.shade200, width: 0.5),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -550,9 +525,7 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                                           // NumberFormat.currency(locale: 'vi', symbol: 'đ').format(double.tryParse(p.unitPrice) ?? 0)
                                           }/${p.unit.trim()})',
                                       style: AppTextStyle.medium(
-                                          rawFontSize:
-                                              AppConfig.defaultRawTextSize -
-                                                  1.5,
+                                          rawFontSize: AppConfig.defaultRawTextSize - 1.5,
                                           color: Colors.grey.shade400),
                                     ),
                                   ],
@@ -564,8 +537,7 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                             ),
                             const Gap(4),
                             Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 2),
+                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade100,
                                 borderRadius: AppConfig.borderRadiusSecond,
@@ -713,8 +685,7 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                             // const Gap(4),
                             Text(
                               AppUtils.formatCurrency(
-                                  value: (double.tryParse(p.unitPrice) ?? 0) *
-                                      p.quantity,
+                                  value: (double.tryParse(p.unitPrice) ?? 0) * p.quantity,
                                   symbol: 'đ'),
                               // NumberFormat.currency(locale: 'vi', symbol: 'đ').format(
                               //     (double.tryParse(p.unitPrice) ?? 0) * p.numberSelecting),
@@ -739,81 +710,81 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
           );
   }
 
-  void showProductInfoAndHistory(BuildContext context, ProductModel item) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return _ProductInfoAndHistoryDialog(
-          product: item,
-        );
-      },
-    );
-  }
+  // void showProductInfoAndHistory(BuildContext context, ProductModel item) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return _ProductInfoAndHistoryDialog(
+  //         product: item,
+  //       );
+  //     },
+  //   );
+  // }
 }
 
-class _ProductInfoAndHistoryDialog extends ConsumerWidget {
-  const _ProductInfoAndHistoryDialog({
-    required this.product,
-  });
+// class _ProductInfoAndHistoryDialog extends ConsumerWidget {
+//   const _ProductInfoAndHistoryDialog({
+//     required this.product,
+//   });
 
-  final ProductModel product;
+//   final ProductModel product;
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var size = MediaQuery.of(context).size;
-    return AlertDialog(
-      content: SizedBox(
-        width: size.width * 0.8,
-        height: size.height * 0.8,
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  Text(
-                    'Thông tin món',
-                    style: AppTextStyle.bold(),
-                  ),
-                  const Gap(12),
-                  Expanded(
-                    child: ProductDetailWidget(
-                      product: product,
-                      valueRadius: 0,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const VerticalDivider(),
-            Expanded(
-              child: Column(
-                children: [
-                  Text(
-                    'Lịch sử gọi món',
-                    style: AppTextStyle.bold(),
-                  ),
-                  const Gap(12),
-                  Expanded(
-                    child: _ProductHistoryWidget(
-                      productId: product.id,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        AppButtonWidget(
-          textAction: S.current.close,
-          onTap: Navigator.of(context).pop,
-        ),
-      ],
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     var size = MediaQuery.of(context).size;
+//     return AlertDialog(
+//       content: SizedBox(
+//         width: size.width * 0.8,
+//         height: size.height * 0.8,
+//         child: Row(
+//           children: [
+//             Expanded(
+//               child: Column(
+//                 children: [
+//                   Text(
+//                     'Thông tin món',
+//                     style: AppTextStyle.bold(),
+//                   ),
+//                   const Gap(12),
+//                   Expanded(
+//                     child: ProductDetailWidget(
+//                       product: product,
+//                       valueRadius: 0,
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//             const VerticalDivider(),
+//             Expanded(
+//               child: Column(
+//                 children: [
+//                   Text(
+//                     'Lịch sử gọi món',
+//                     style: AppTextStyle.bold(),
+//                   ),
+//                   const Gap(12),
+//                   Expanded(
+//                     child: _ProductHistoryWidget(
+//                       productId: product.id,
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             )
+//           ],
+//         ),
+//       ),
+//       actionsAlignment: MainAxisAlignment.center,
+//       actions: [
+//         AppButtonWidget(
+//           textAction: S.current.close,
+//           onTap: Navigator.of(context).pop,
+//         ),
+//       ],
+//     );
+//   }
+// }
 
 ///  tab đang chọn
 class OrderItemsSelectingWidget extends ConsumerWidget {
@@ -827,14 +798,11 @@ class OrderItemsSelectingWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var notifier = ref.read(homeProvider.notifier);
-    var items =
-        ref.watch(cartPageProvider.select((value) => value.productsSelecting));
+    var items = ref.watch(cartPageProvider.select((value) => value.productsSelecting));
     return _ListItemWidget(
       items: items,
-      scrollController:
-          itemScrollController ?? notifier.selectingItemsScrollCtrl,
-      positionsListener:
-          itemPositionsListener ?? notifier.selectingItemsPositionsListener,
+      scrollController: itemScrollController ?? notifier.selectingItemsScrollCtrl,
+      positionsListener: itemPositionsListener ?? notifier.selectingItemsPositionsListener,
       allowEnterNote: true,
       allowExtraItem: true,
     );
@@ -958,8 +926,7 @@ class _ProductHistoryWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var orderHistory =
-        ref.watch(homeProvider.select((value) => value.orderHistory));
+    var orderHistory = ref.watch(homeProvider.select((value) => value.orderHistory));
     final history = ProductHelper.getHistory(orderHistory, productId);
     if (history.isEmpty) {
       return Padding(
@@ -991,8 +958,7 @@ class _ProductHistoryWidget extends ConsumerWidget {
               trailing: e.timeByOrderHistory == null
                   ? null
                   : Text(DateTimeUtils.formatToString(
-                      time: e.timeByOrderHistory,
-                      newPattern: DateTimePatterns.dateTime2)),
+                      time: e.timeByOrderHistory, newPattern: DateTimePatterns.dateTime2)),
             ),
           );
         }).toList(),
