@@ -207,11 +207,12 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
                             if (result.resultSendPrintData != null) {
                               await showConfirmAction(
                                 context,
-                                message: 'Món đã được lưu vào đơn.\n'
-                                    'Tuy nhiên, không gửi được yêu cầu in lên hệ thống.\n'
+                                message: 'Món đã được thêm vào đơn.\n\n'
+                                    'Tuy nhiên, hệ thống chưa nhận được yêu cầu in.\n'
                                     'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
                                 actionTitle: 'In ngay',
                                 textCancel: 'Đóng',
+                                title: 'Thông báo',
                                 action: () {
                                   ref.read(cartPageProvider.notifier).addItemToOrder(
                                         note: note,

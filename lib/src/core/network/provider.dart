@@ -24,6 +24,7 @@ import 'package:aladdin_franchise/src/core/network/repository/user/user_repo_imp
 import 'package:aladdin_franchise/src/core/network/repository/user/user_repository.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
+import 'package:aladdin_franchise/src/data/model/notification.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/o2o_config.dart';
 import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/data/request/reservation_request.dart';
@@ -306,6 +307,6 @@ final o2oConfigProvider = FutureProvider<O2oConfigModel>((ref) async {
   return result;
 });
 
-final printerDeviceProvider = Provider<bool>((ref) {
-  return LocalStorage.getPrinterDevice();
+final notificationProvider = FutureProvider<List<TestNotificationModel>>((ref) async {
+  return <TestNotificationModel>[];
 });

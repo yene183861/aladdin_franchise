@@ -39,6 +39,7 @@ import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
+import 'package:aladdin_franchise/src/utils/subwindows_moniter%20copy.dart';
 import 'package:collection/collection.dart';
 import 'package:diacritic/diacritic.dart';
 import 'package:float_bubble/float_bubble.dart';
@@ -294,7 +295,14 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
   double chatPopupWidth = 600;
 
   @override
+  void initState() {
+    super.initState();
+    PrinterMonitor.instance.init();
+  }
+
+  @override
   void dispose() {
+    PrinterMonitor.instance.stop();
     isCheckTypeOrderInit = false;
     kToken = "";
     kTypeOrder = 0;

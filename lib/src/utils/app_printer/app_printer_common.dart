@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -24,8 +25,7 @@ class AppPrinterCommon {
     // if (kDebugMode) return null;
     if (Platform.isAndroid) {
       try {
-        final bool result =
-            await _channel.invokeMethod('ping', {'ip': printer.ip});
+        final bool result = await _channel.invokeMethod('ping', {'ip': printer.ip});
         if (result) {
           return null;
         }
@@ -47,19 +47,59 @@ class AppPrinterCommon {
     }
   }
 
+  static Future<String?> checkPrinterStatus(PrinterModel printer) async {
+    final commonError = "Không kết nối được máy in\n${printer.name}\n"
+        "${"Vui lòng kiểm tra & đảm bảo".toUpperCase()}\n"
+        "- Thiết bị và máy in kết nối cùng mạng\n"
+        "- Máy in đã bật và không bị kẹt giấy\n"
+        "- Dây mạng kết nối với máy in đã sáng";
+    if (Platform.isAndroid) {
+      try {
+        final bool result = await _channel.invokeMethod('ping', {'ip': printer.ip});
+        if (result) {
+          return null;
+        }
+
+        throw Exception();
+      } catch (ex) {
+        showLog(ex, flags: 'checkPrinter pingAndroid');
+        return commonError;
+      }
+    } else if (Platform.isWindows) {
+      try {
+        final resultPingWin = await _pingWindows(printer.ip ?? '');
+        return resultPingWin ? null : commonError;
+      } catch (_) {
+        return commonError;
+      }
+    } else {
+      return "Lỗi ping cmd máy in!";
+    }
+  }
+
+  static Future<bool> pingPrinter(String ip, {int port = 9100}) async {
+    try {
+      final socket = await Socket.connect(
+        ip,
+        port,
+        timeout: const Duration(seconds: 2),
+      );
+      socket.destroy();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   static Future<bool> _pingWindows(String ip) async {
     try {
-      final process =
-          await Process.start('ping', ['-n', '4', '-w', '1000', ip]);
+      final process = await Process.start('ping', ['-n', '4', '-w', '1000', ip]);
       bool hasReply = false;
 
-      final stdoutLines = process.stdout
-          .transform(utf8.decoder)
-          .transform(const LineSplitter());
+      final stdoutLines = process.stdout.transform(utf8.decoder).transform(const LineSplitter());
 
       await for (final line in stdoutLines) {
-        if (line.toLowerCase().contains('reply from') &&
-            line.toLowerCase().contains("ttl=")) {
+        if (line.toLowerCase().contains('reply from') && line.toLowerCase().contains("ttl=")) {
           hasReply = true;
           break;
         }

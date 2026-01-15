@@ -199,7 +199,7 @@ class _AddOrderSheetState extends ConsumerState<AddOrderSheet> {
                     : () async {
                         var reason = await showReasonCancelItemDialog(context);
 
-                        if (reason != null) {
+                        if (reason != null && context.mounted) {
                           var result =
                               await ref.read(checkoutPageProvider.notifier).cancelProductCheckout(
                                     reason: reason,
@@ -210,14 +210,15 @@ class _AddOrderSheetState extends ConsumerState<AddOrderSheet> {
                           if (result.error != null) {
                             showMessageDialog(context, message: result.error ?? '');
                           } else {
-                            if (result.resultSendPrintData != null) {
+                            if (result.resultSendPrintData != null && context.mounted) {
                               await showConfirmAction(
                                 context,
-                                message: 'Món đã được huỷ.\n'
-                                    'Tuy nhiên, không gửi được yêu cầu in lên hệ thống.\n'
+                                message: 'Đã huỷ món thành công!\n\n'
+                                    'Hệ thống chưa nhận được yêu cầu in.\n'
                                     'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
                                 actionTitle: 'In ngay',
                                 textCancel: 'Đóng',
+                                title: 'Thông báo',
                                 action: () {
                                   ref.read(checkoutPageProvider.notifier).cancelProductCheckout(
                                         reason: reason,
@@ -229,7 +230,7 @@ class _AddOrderSheetState extends ConsumerState<AddOrderSheet> {
                                 },
                               );
                             }
-                            pop(context);
+                            // pop(context);
                           }
                         }
                       },

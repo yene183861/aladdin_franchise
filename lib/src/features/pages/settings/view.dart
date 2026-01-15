@@ -1,5 +1,6 @@
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/settings/bill/view.dart';
 import 'package:aladdin_franchise/src/features/pages/settings/provider.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,6 +20,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       ref.read(settingsPageProvider.notifier).initialize();
+      ref.refresh(o2oConfigProvider);
     });
   }
 

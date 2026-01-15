@@ -70,6 +70,7 @@ import 'package:aladdin_franchise/src/utils/app_printer/app_printer_normal.dart'
 import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/ip_config_helper.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
+import 'package:aladdin_franchise/src/utils/subwindows_moniter%20copy.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/cupertino.dart';
@@ -213,7 +214,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     try {
       state = state.copyWith(printerState: const PageState(status: PageCommonState.loading));
       var printers = await _restaurantRepository.getListPrinters();
-
+      PrinterMonitor.instance.checkPrinters(printers);
       state = state.copyWith(
         printers: printers,
         printerState: const PageState(status: PageCommonState.success),
@@ -799,15 +800,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
         'payment_data': paymentData,
       };
       if (printDirectly) {
-        _handleRedisEvent(jsonEncode(data));
+        _handlePrintRedisEvent([
+          null,
+          null,
+          jsonEncode({
+            'data': data,
+            'printer_device_id': kDeviceId,
+          })
+        ]);
       } else {
         await _restaurantRepository.sendPrintData(data);
       }
-      // var result = await pubCommand?.send_object([
-      //   'PUBLISH',
-      //   kPrintChannel,
-      //   jsonEncode(data),
-      // ]);
 
       return null;
     } catch (ex) {
@@ -1009,15 +1012,35 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   void _handlePrintPaymentReceipt(dynamic dataDecode) async {
     try {
-      var data = dataDecode['payment_data'] == null
-          ? null
-          : PaymentReceiptPrintRequest.fromJson(dataDecode['payment_data']);
       var printers = ((dataDecode['printers'] ?? []) as List<dynamic>)
           .map((e) => PrinterModel.fromJson(e))
           .toList();
 
-      if (data == null || printers.isEmpty) return;
+      PaymentReceiptPrintRequest? data;
+      var paymentData = Map<String, dynamic>.from(dataDecode['payment_data'] ?? {});
+      /// k biết tại sao mà orderLineItems k parse được, còn vouchers lại parse được :)))
+      if (paymentData.isNotEmpty) {
+        /// parse order_line_items
+        List<LineItemDataBill> orderLineItems =
+            (paymentData['order_line_items'] as List<dynamic>).map((e) {
+          var json = Map<String, dynamic>.from(e);
+          var listItem = (e['list_item'] as List<dynamic>)
+              .map((e) => SubLineItemDataBill.fromJson(e as Map<String, dynamic>))
+              .toList();
+          json.remove('list_item');
+          // // bao giờ nó có data thì tính tiếp
+          json.remove('language');
 
+          var result = LineItemDataBill.fromJson(json).copyWith(listItem: listItem, language: {});
+          return result;
+        }).toList();
+        paymentData.remove('order_line_items');
+        data = PaymentReceiptPrintRequest.fromJson(paymentData)
+            .copyWith(orderLineItems: orderLineItems);
+      }
+      showLogs(data?.vouchers, flags: 'data _handlePrintPaymentReceipt');
+
+      if (data == null || printers.isEmpty) return;
       var bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(data);
       for (var printer in printers) {
         PrintQueue.instance.addTask(
@@ -1036,7 +1059,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         );
       }
     } catch (ex) {
-      showLogs(ex, flags: '_handlePrintProcessItem ex');
+      showLogs(ex, flags: '_handlePrintPaymentReceipt ex');
     }
   }
 

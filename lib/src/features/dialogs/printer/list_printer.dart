@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
@@ -7,7 +9,9 @@ import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/components/custom_checkbox.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
+import 'package:aladdin_franchise/src/utils/subwindows_moniter%20copy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -51,8 +55,7 @@ class ListPrintersDialog extends ConsumerStatefulWidget {
   final double width;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _ListPrintersDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _ListPrintersDialogState();
 }
 
 class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
@@ -60,7 +63,8 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
 
   Set<PrinterModel> printerSelect = {};
   bool useDefaultPrinter = true;
-
+  late StreamSubscription printerSub;
+  late ValueNotifier<Map<PrinterModel, bool>> printerStatusNotifier;
   void onChangeUseDefaultPrinter([bool? value]) {
     setState(() {
       useDefaultPrinter = value ?? !useDefaultPrinter;
@@ -86,6 +90,14 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
   void initState() {
     super.initState();
     printerSelect.addAll(printerSelect);
+    printerStatusNotifier =
+        ValueNotifier<Map<PrinterModel, bool>>(PrinterMonitor.instance.printerCheck);
+    printerSub = PrinterMonitor.instance.printerBoardcastController.stream.listen(
+      (event) {
+        showLogs(event, flags: 'event');
+        printerStatusNotifier.value = event;
+      },
+    );
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
         if (!widget.dialog) {
@@ -93,6 +105,13 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
         }
       },
     );
+  }
+
+  @override
+  void dispose() {
+    printerSub.cancel();
+    printerStatusNotifier.dispose();
+    super.dispose();
   }
 
   @override
@@ -146,12 +165,10 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
             if (!useDefaultPrinter)
               Consumer(
                 builder: (context, ref, child) {
-                  var printers =
-                      ref.watch(homeProvider.select((value) => value.printers));
+                  var printers = ref.watch(homeProvider.select((value) => value.printers));
                   return Expanded(
                     child: ListView.separated(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 12, horizontal: 4),
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                       itemCount: printers.length,
                       separatorBuilder: (context, index) => const Gap(12),
                       itemBuilder: (context, index) {
@@ -162,8 +179,7 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                             onChangePrinterSelect(printer, !selected);
                           },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               border: Border.all(
@@ -192,8 +208,7 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                                 // Gap(12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         printer.name,
@@ -202,40 +217,61 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                                       Text(
                                         '${printer.ip ?? ''} : ${printer.port ?? ''}',
                                         style: AppTextStyle.regular(
-                                          rawFontSize:
-                                              AppConfig.defaultRawTextSize -
-                                                  1.0,
+                                          rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                                           color: Colors.grey.shade400,
                                         ),
                                       ),
-                                      Row(
-                                        children: [
-                                          Container(
-                                            height: 8,
-                                            width: 8,
-                                            decoration: BoxDecoration(
-                                              color: printer.pingStatus
-                                                  ? Colors.green
-                                                  : AppColors.redColor,
-                                              shape: BoxShape.circle,
-                                            ),
-                                          ),
-                                          const Gap(4),
-                                          Text(
-                                            printer.pingStatus
-                                                ? 'Online'
-                                                : 'Offline',
-                                            style: AppTextStyle.bold(
-                                              rawFontSize:
-                                                  AppConfig.defaultRawTextSize -
-                                                      1.0,
-                                              color: printer.pingStatus
-                                                  ? Colors.green
-                                                  : AppColors.redColor,
-                                            ),
-                                          ),
-                                        ],
+                                      ValueListenableBuilder(
+                                        valueListenable: printerStatusNotifier,
+                                        builder: (context, value, child) {
+                                          var status = value[printer] ?? false;
+                                          showLog(status, flags: 'status');
+                                          return Row(
+                                            children: [
+                                              Container(
+                                                height: 8,
+                                                width: 8,
+                                                decoration: BoxDecoration(
+                                                  color: status ? Colors.green : AppColors.redColor,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                              const Gap(4),
+                                              Text(
+                                                status ? 'Online' : 'Offline',
+                                                style: AppTextStyle.bold(
+                                                  rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                                                  color: status ? Colors.green : AppColors.redColor,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
                                       ),
+                                      // Row(
+                                      //   children: [
+                                      //     Container(
+                                      //       height: 8,
+                                      //       width: 8,
+                                      //       decoration: BoxDecoration(
+                                      //         color: printer.pingStatus
+                                      //             ? Colors.green
+                                      //             : AppColors.redColor,
+                                      //         shape: BoxShape.circle,
+                                      //       ),
+                                      //     ),
+                                      //     const Gap(4),
+                                      //     Text(
+                                      //       printer.pingStatus ? 'Online' : 'Offline',
+                                      //       style: AppTextStyle.bold(
+                                      //         rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                                      //         color: printer.pingStatus
+                                      //             ? Colors.green
+                                      //             : AppColors.redColor,
+                                      //       ),
+                                      //     ),
+                                      //   ],
+                                      // ),
                                     ],
                                   ),
                                 ),
@@ -270,8 +306,7 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                     color: AppColors.secondColor,
                     onPressed: () {
                       pop(context);
-                      widget.onChangePrinterConfig
-                          ?.call(printerSelect, useDefaultPrinter);
+                      widget.onChangePrinterConfig?.call(printerSelect, useDefaultPrinter);
                     },
                   ),
                 ],

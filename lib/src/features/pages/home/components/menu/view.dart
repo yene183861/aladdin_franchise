@@ -6,6 +6,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/data/enum/status.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/action/btn_notification.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/action/btn_o2o.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/action/btn_refresh_data.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/action/history_order.dart';
@@ -309,6 +310,7 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                 const Gap(8),
               ] else ...[
                 const ButtonO2oData(),
+                // const ButtonNotification(),
                 Consumer(
                   builder: (context, ref, child) {
                     ref.watch(typeOrderWaiterProvider);
@@ -360,6 +362,8 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                                 Gap(8),
                                 ButtonRefreshData(),
                                 ButtonO2oData(),
+                                // Gap(8),
+                                // ButtonNotification(),
                               ],
                               const Gap(8),
                               const TypeOrderWidget(),

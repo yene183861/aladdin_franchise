@@ -88,7 +88,6 @@ class LocalStorage {
   static const String tableLayoutSetting = "table_layout_setting";
 
   static const String orderItemSelecting = "order_item_selecting";
-  static const String _printerDevice = "printer_device";
 
   static String getToken() {
     return _prefs.getString(_tokenKey) ?? "";
@@ -1114,13 +1113,5 @@ class LocalStorage {
     } catch (ex) {
       //
     }
-  }
-
-  static bool getPrinterDevice() {
-    return _prefs.getBool(_printerDevice) ?? false;
-  }
-
-  static Future<void> setPrinterDevice(bool value) async {
-    await _prefs.setBool(_printerDevice, value);
   }
 }
