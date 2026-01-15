@@ -11,6 +11,7 @@ class O2oConfigModel with _$O2oConfigModel {
   const factory O2oConfigModel({
     @Default(false) bool isEnabled,
     @Default(0) int confirmTimeout,
+    String? printerDeviceId,
   }) = _O2oConfigModel;
 
   const O2oConfigModel._();

@@ -6,15 +6,19 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/o2o_config.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/processing.dart';
+import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/components/barrel_components.dart';
+import 'package:aladdin_franchise/src/features/pages/settings/widgets/dialog/o2o_auto_process_config.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/request_order.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
@@ -129,6 +133,27 @@ class _OrderToOnlinePageState extends ConsumerState<OrderToOnlinePage> {
 
               ref.refresh(orderToOnlineProvider);
               ref.read(orderToOnlinePageProvider.notifier).getChatMessages();
+            },
+          ),
+          ResponsiveIconButtonWidget(
+            iconData: Icons.settings,
+            onPressed: () async {
+              var o2oConfig = ref.read(o2oConfigProvider).when(
+                    data: (data) => data,
+                    error: (error, stackTrace) => O2oConfigModel(),
+                    loading: () => O2oConfigModel(),
+                  );
+              var config = await showO2oAutoProcessConfigDialog(
+                context,
+                o2oConfig,
+              );
+              showLogs(config, flags: 'config');
+              if (config != null) {
+                var result = await ref.read(homeProvider.notifier).saveO2oAutoProcessConfig(config);
+                if (result != null) {
+                  showMessageDialog(context, message: result);
+                }
+              }
             },
           ),
         ],

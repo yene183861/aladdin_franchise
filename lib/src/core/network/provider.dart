@@ -305,3 +305,7 @@ final o2oConfigProvider = FutureProvider<O2oConfigModel>((ref) async {
   showLogs(result, flags: 'result');
   return result;
 });
+
+final printerDeviceProvider = Provider<bool>((ref) {
+  return LocalStorage.getPrinterDevice();
+});

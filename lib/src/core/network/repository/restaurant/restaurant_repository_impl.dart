@@ -18,6 +18,7 @@ import 'package:aladdin_franchise/src/models/param_family/bank_param.dart';
 import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart';
 import 'package:aladdin_franchise/src/models/user_bank.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 
 class RestaurantRepositoryImpl extends RestaurantRepository {
@@ -345,19 +346,55 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         message: result.error,
       );
     }
-
+    showLogs(result.data ?? const O2oConfigModel(),
+        flags: ' result.data ?? const O2oConfigModel()');
     return result.data ?? const O2oConfigModel();
   }
 
   @override
-  Future<void> setO2oAutoAcceptConfig(O2oConfigModel config) async {
+  Future<void> setO2oAutoAcceptConfig({
+    bool? isEnabled,
+    int? confirmTimeout,
+    bool? changePrintDeviceId = false,
+  }) async {
     final apiUrl = '${ApiConfig.apiUrl}/api/v1/o2o/settings/auto-confirm';
-    var body = jsonEncode(config.toJson());
+    var body = jsonEncode({
+      if (isEnabled != null) 'is_enabled': isEnabled,
+      if (confirmTimeout != null) 'confirm_timeout': confirmTimeout,
+      if (changePrintDeviceId != null) 'printer_device_id': changePrintDeviceId ? kDeviceId : null,
+    });
     var result = await safeCallApi(
       () async {
         final url = Uri.parse(apiUrl);
         return _client.post(url, body: body);
       },
+      log: ErrorLogModel(
+        action: AppLogAction.historyOrder,
+        api: apiUrl,
+        request: body,
+      ),
+    );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+  }
+
+  @override
+  Future<void> sendPrintData(dynamic data) async {
+    final apiUrl = '${ApiConfig.apiUrl}/api/v2/broadcast-pos-print';
+    var body = jsonEncode({
+      'restaurant_id': LocalStorage.getDataLogin()?.restaurant?.id,
+      'data': data,
+    });
+    var result = await safeCallApi(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.post(url, body: body);
+      },
+      ignoreResponse: true,
       log: ErrorLogModel(
         action: AppLogAction.historyOrder,
         api: apiUrl,

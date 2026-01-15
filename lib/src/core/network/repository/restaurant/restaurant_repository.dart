@@ -38,5 +38,10 @@ abstract class RestaurantRepository {
   Future<O2oConfigModel> getO2oAutoAcceptConfig();
 
   /// confirmTimeout = [0; 300]
-  Future<void> setO2oAutoAcceptConfig(O2oConfigModel config);
+  Future<void> setO2oAutoAcceptConfig({
+    bool? isEnabled,
+    int? confirmTimeout,
+    bool? changePrintDeviceId,
+  });
+  Future<void> sendPrintData(dynamic data);
 }

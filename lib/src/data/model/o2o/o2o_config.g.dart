@@ -10,6 +10,7 @@ _$O2oConfigModelImpl _$$O2oConfigModelImplFromJson(Map<String, dynamic> json) =>
     _$O2oConfigModelImpl(
       isEnabled: json['is_enabled'] as bool? ?? false,
       confirmTimeout: (json['confirm_timeout'] as num?)?.toInt() ?? 0,
+      printerDeviceId: json['printer_device_id'] as String?,
     );
 
 Map<String, dynamic> _$$O2oConfigModelImplToJson(
@@ -17,4 +18,5 @@ Map<String, dynamic> _$$O2oConfigModelImplToJson(
     <String, dynamic>{
       'is_enabled': instance.isEnabled,
       'confirm_timeout': instance.confirmTimeout,
+      'printer_device_id': instance.printerDeviceId,
     };

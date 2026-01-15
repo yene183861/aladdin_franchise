@@ -22,6 +22,7 @@ O2oConfigModel _$O2oConfigModelFromJson(Map<String, dynamic> json) {
 mixin _$O2oConfigModel {
   bool get isEnabled => throw _privateConstructorUsedError;
   int get confirmTimeout => throw _privateConstructorUsedError;
+  String? get printerDeviceId => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -35,7 +36,7 @@ abstract class $O2oConfigModelCopyWith<$Res> {
           O2oConfigModel value, $Res Function(O2oConfigModel) then) =
       _$O2oConfigModelCopyWithImpl<$Res, O2oConfigModel>;
   @useResult
-  $Res call({bool isEnabled, int confirmTimeout});
+  $Res call({bool isEnabled, int confirmTimeout, String? printerDeviceId});
 }
 
 /// @nodoc
@@ -53,6 +54,7 @@ class _$O2oConfigModelCopyWithImpl<$Res, $Val extends O2oConfigModel>
   $Res call({
     Object? isEnabled = null,
     Object? confirmTimeout = null,
+    Object? printerDeviceId = freezed,
   }) {
     return _then(_value.copyWith(
       isEnabled: null == isEnabled
@@ -63,6 +65,10 @@ class _$O2oConfigModelCopyWithImpl<$Res, $Val extends O2oConfigModel>
           ? _value.confirmTimeout
           : confirmTimeout // ignore: cast_nullable_to_non_nullable
               as int,
+      printerDeviceId: freezed == printerDeviceId
+          ? _value.printerDeviceId
+          : printerDeviceId // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -75,7 +81,7 @@ abstract class _$$O2oConfigModelImplCopyWith<$Res>
       __$$O2oConfigModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({bool isEnabled, int confirmTimeout});
+  $Res call({bool isEnabled, int confirmTimeout, String? printerDeviceId});
 }
 
 /// @nodoc
@@ -91,6 +97,7 @@ class __$$O2oConfigModelImplCopyWithImpl<$Res>
   $Res call({
     Object? isEnabled = null,
     Object? confirmTimeout = null,
+    Object? printerDeviceId = freezed,
   }) {
     return _then(_$O2oConfigModelImpl(
       isEnabled: null == isEnabled
@@ -101,6 +108,10 @@ class __$$O2oConfigModelImplCopyWithImpl<$Res>
           ? _value.confirmTimeout
           : confirmTimeout // ignore: cast_nullable_to_non_nullable
               as int,
+      printerDeviceId: freezed == printerDeviceId
+          ? _value.printerDeviceId
+          : printerDeviceId // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -110,7 +121,8 @@ class __$$O2oConfigModelImplCopyWithImpl<$Res>
 @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
 class _$O2oConfigModelImpl extends _O2oConfigModel
     with DiagnosticableTreeMixin {
-  const _$O2oConfigModelImpl({this.isEnabled = false, this.confirmTimeout = 0})
+  const _$O2oConfigModelImpl(
+      {this.isEnabled = false, this.confirmTimeout = 0, this.printerDeviceId})
       : super._();
 
   factory _$O2oConfigModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -122,10 +134,12 @@ class _$O2oConfigModelImpl extends _O2oConfigModel
   @override
   @JsonKey()
   final int confirmTimeout;
+  @override
+  final String? printerDeviceId;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'O2oConfigModel(isEnabled: $isEnabled, confirmTimeout: $confirmTimeout)';
+    return 'O2oConfigModel(isEnabled: $isEnabled, confirmTimeout: $confirmTimeout, printerDeviceId: $printerDeviceId)';
   }
 
   @override
@@ -134,7 +148,8 @@ class _$O2oConfigModelImpl extends _O2oConfigModel
     properties
       ..add(DiagnosticsProperty('type', 'O2oConfigModel'))
       ..add(DiagnosticsProperty('isEnabled', isEnabled))
-      ..add(DiagnosticsProperty('confirmTimeout', confirmTimeout));
+      ..add(DiagnosticsProperty('confirmTimeout', confirmTimeout))
+      ..add(DiagnosticsProperty('printerDeviceId', printerDeviceId));
   }
 
   @override
@@ -145,12 +160,15 @@ class _$O2oConfigModelImpl extends _O2oConfigModel
             (identical(other.isEnabled, isEnabled) ||
                 other.isEnabled == isEnabled) &&
             (identical(other.confirmTimeout, confirmTimeout) ||
-                other.confirmTimeout == confirmTimeout));
+                other.confirmTimeout == confirmTimeout) &&
+            (identical(other.printerDeviceId, printerDeviceId) ||
+                other.printerDeviceId == printerDeviceId));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, isEnabled, confirmTimeout);
+  int get hashCode =>
+      Object.hash(runtimeType, isEnabled, confirmTimeout, printerDeviceId);
 
   @JsonKey(ignore: true)
   @override
@@ -169,7 +187,9 @@ class _$O2oConfigModelImpl extends _O2oConfigModel
 
 abstract class _O2oConfigModel extends O2oConfigModel {
   const factory _O2oConfigModel(
-      {final bool isEnabled, final int confirmTimeout}) = _$O2oConfigModelImpl;
+      {final bool isEnabled,
+      final int confirmTimeout,
+      final String? printerDeviceId}) = _$O2oConfigModelImpl;
   const _O2oConfigModel._() : super._();
 
   factory _O2oConfigModel.fromJson(Map<String, dynamic> json) =
@@ -179,6 +199,8 @@ abstract class _O2oConfigModel extends O2oConfigModel {
   bool get isEnabled;
   @override
   int get confirmTimeout;
+  @override
+  String? get printerDeviceId;
   @override
   @JsonKey(ignore: true)
   _$$O2oConfigModelImplCopyWith<_$O2oConfigModelImpl> get copyWith =>

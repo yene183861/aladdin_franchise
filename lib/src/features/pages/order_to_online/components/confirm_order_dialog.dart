@@ -1,4 +1,3 @@
-
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
@@ -127,14 +126,29 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
                   )),
                 ],
               )),
-              const VerticalDivider(width: 1),
-              ListPrintersDialog(
-                title: 'Tùy chọn máy in',
-                onChangePrinterConfig: (p0, p1) {
-                  printerSelect = Set<PrinterModel>.from(p0);
-                  useDefaultPrinter = p1;
+              Consumer(
+                builder: (context, ref, child) {
+                  var o2oConfig = ref.watch(o2oConfigProvider);
+                  bool isEnabled = o2oConfig.when(
+                    data: (data) => data.isEnabled,
+                    error: (error, stackTrace) => false,
+                    loading: () => false,
+                  );
+                  if (isEnabled) return const SizedBox.shrink();
+                  return Row(
+                    children: [
+                      const VerticalDivider(width: 1),
+                      ListPrintersDialog(
+                        title: 'Tùy chọn máy in',
+                        onChangePrinterConfig: (p0, p1) {
+                          printerSelect = Set<PrinterModel>.from(p0);
+                          useDefaultPrinter = p1;
+                        },
+                      ),
+                    ],
+                  );
                 },
-              ),
+              )
             ],
           )),
           const Gap(12),

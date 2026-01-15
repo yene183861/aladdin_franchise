@@ -17,6 +17,7 @@ import 'package:aladdin_franchise/src/data/enum/print_type.dart';
 import 'package:aladdin_franchise/src/data/enum/printer_type.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/login/state.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
@@ -30,14 +31,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'state.dart';
 
-final cartPageProvider =
-    StateNotifierProvider.autoDispose<CartPageNotifier, CartPageState>((ref) {
+final cartPageProvider = StateNotifierProvider.autoDispose<CartPageNotifier, CartPageState>((ref) {
   return CartPageNotifier(ref, ref.read(orderRepositoryProvider));
 });
 
 class CartPageNotifier extends StateNotifier<CartPageState> {
-  CartPageNotifier(this.ref, this._orderRepository)
-      : super(const CartPageState());
+  CartPageNotifier(this.ref, this._orderRepository) : super(const CartPageState());
   final Ref ref;
   final OrderRepository _orderRepository;
   void init(List<ProductModel> products) async {
@@ -269,28 +268,49 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
     return null;
   }
 
-  Future<String?> addItemToOrder({
+  Future<({String? error, String? resultSendPrintData})> addItemToOrder({
     String note = '',
     Set<PrinterModel> printers = const {},
     bool useDefaultPrinter = true,
+    bool processOrder = true,
   }) async {
     var order = ref.read(homeProvider).orderSelect;
-    if (order == null) return null;
+    if (order == null) return (error: null, resultSendPrintData: null);
     var productSelecting = List<ProductModel>.from(state.productsSelecting);
     var productIdSelect = Set<int>.from(state.productIdSelect);
-    var products =
-        productSelecting.where((e) => productIdSelect.contains(e.id)).toList();
+    var products = productSelecting.where((e) => productIdSelect.contains(e.id)).toList();
     var kitchenNote = note;
-
+    String? resultSendPrintData;
     try {
-      await ref.read(homeProvider.notifier).addItemToOrder(
-            products: products,
-            kitchenNote: kitchenNote,
-            total: products.fold(
-                0.0,
-                (previousValue, p) =>
-                    previousValue + p.getUnitPriceNum() * p.numberSelecting),
-          );
+      if (processOrder) {
+        ref
+            .read(homeProvider.notifier)
+            .updateEvent(processOrder ? HomeEvent.processOrder : HomeEvent.sendPrintData);
+        await _orderRepository.processOrderItem(
+          order: order,
+          total: products.fold(
+              0.0, (previousValue, p) => previousValue + p.getUnitPriceNum() * p.numberSelecting),
+          products: products,
+          note: kitchenNote,
+          cancel: false,
+        );
+        ref.read(homeProvider.notifier).getOrderProductCheckout();
+        ref.read(homeProvider.notifier).getDataBill();
+      }
+
+      //   updateEvent(HomeEvent.normal);
+      //   return null;
+      // } catch (ex) {
+      //   updateEvent(HomeEvent.normal);
+      //   _lockOrder(ex);
+      //   return ex.toString();
+      // }
+      // await ref.read(homeProvider.notifier).addItemToOrder(
+      //       products: products,
+      //       kitchenNote: kitchenNote,
+      //       total: products.fold(
+      //           0.0, (previousValue, p) => previousValue + p.getUnitPriceNum() * p.numberSelecting),
+      //     );
       if (useDefaultPrinter) {
         Set<PrinterModel> foodPrinterDefault = <PrinterModel>{},
             barPrinterDefault = <PrinterModel>{};
@@ -317,42 +337,51 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
               break;
           }
         }
+
         if (drinks.isNotEmpty) {
-          ref.read(homeProvider.notifier).sendPrintData(
+          resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
                 type: PrintTypeEnum.order,
                 note: kitchenNote,
                 products: drinks.toList(),
                 printers: barPrinterDefault.toList(),
                 timeOrder: 1,
+                printDirectly: !processOrder,
               );
         }
         if (foods.isNotEmpty) {
-          ref.read(homeProvider.notifier).sendPrintData(
+          resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
                 type: PrintTypeEnum.order,
                 note: kitchenNote,
                 products: foods.toList(),
                 printers: foodPrinterDefault.toList(),
                 timeOrder: 1,
+                printDirectly: !processOrder,
               );
         }
       } else {
-        ref.read(homeProvider.notifier).sendPrintData(
+        resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
               type: PrintTypeEnum.order,
               note: kitchenNote,
               products: products,
               printers: printers.toList(),
               timeOrder: 1,
+              printDirectly: !processOrder,
             );
       }
+      if (processOrder) {
+        productSelecting.removeWhere((e) => productIdSelect.contains(e.id));
+        state = state.copyWith(
+          productsSelecting: productSelecting,
+          productIdSelect: <int>{},
+        );
+      }
+      if (processOrder) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
 
-      productSelecting.removeWhere((e) => productIdSelect.contains(e.id));
-      state = state.copyWith(
-        productsSelecting: productSelecting,
-        productIdSelect: <int>{},
-      );
-      return null;
+      return (error: null, resultSendPrintData: resultSendPrintData);
     } catch (ex) {
-      return ex.toString();
+      if (processOrder) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
+
+      return (error: ex.toString(), resultSendPrintData: resultSendPrintData);
     }
   }
 

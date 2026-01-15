@@ -8,6 +8,7 @@ import 'package:aladdin_franchise/src/data/enum/printer_type.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:collection/collection.dart';
@@ -78,21 +79,31 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
     state = state.copyWith(productsCheckout: productsCheckout);
   }
 
-  Future<String?> cancelProductCheckout({
+  Future<({String? error, String? resultSendPrintData})> cancelProductCheckout({
     List<ProductCheckoutModel> productCheckout = const [],
     String reason = '',
     Set<PrinterModel> printerSelect = const <PrinterModel>{},
     bool useDefaultPrinter = true,
+    bool processOrder = true,
   }) async {
+    String? resultSendPrintData;
     var order = ref.read(homeProvider).orderSelect;
-    if (order == null) return null;
+    if (order == null) return (error: null, resultSendPrintData: null);
     try {
-      var result = await ref.read(homeProvider.notifier).cancelProductOrder1(
-            productCheckout: productCheckout,
-            reason: reason,
-            printerSelect: printerSelect,
-            useDefaultPrinter: useDefaultPrinter,
-          );
+      if (processOrder) {
+        ref
+            .read(homeProvider.notifier)
+            .updateEvent(processOrder ? HomeEvent.cancelProductsCheckout : HomeEvent.sendPrintData);
+        await _orderRepository.processOrderItem(
+          order: order,
+          total: 0,
+          note: reason,
+          cancel: true,
+          productCheckout: productCheckout,
+        );
+        ref.read(homeProvider.notifier).getOrderProductCheckout();
+        ref.read(homeProvider.notifier).getDataBill();
+      }
       var menu = ref.read(menuProvider);
 
       Set<PrinterModel> foodPrinterDefault = <PrinterModel>{}, barPrinterDefault = <PrinterModel>{};
@@ -147,35 +158,42 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
       }
       if (useDefaultPrinter) {
         if (drinks.isNotEmpty) {
-          ref.read(homeProvider.notifier).sendPrintData(
+          resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
                 type: PrintTypeEnum.cancel,
                 note: reason,
                 products: drinks.toList(),
                 printers: barPrinterDefault.toList(),
                 timeOrder: 1,
+                printDirectly: !processOrder,
               );
         }
         if (foods.isNotEmpty) {
-          ref.read(homeProvider.notifier).sendPrintData(
+          resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
                 type: PrintTypeEnum.cancel,
                 note: reason,
                 products: foods.toList(),
                 printers: foodPrinterDefault.toList(),
                 timeOrder: 1,
+                printDirectly: !processOrder,
               );
         }
       } else {
-        ref.read(homeProvider.notifier).sendPrintData(
+        resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
               type: PrintTypeEnum.cancel,
               note: reason,
               products: productPrint.toList(),
               printers: printerSelect.toList(),
               timeOrder: 1,
+              printDirectly: !processOrder,
             );
       }
-      return result.error;
+      if (processOrder) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
+
+      return (error: null, resultSendPrintData: resultSendPrintData);
     } catch (ex) {
-      return ex.toString();
+      if (processOrder) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
+
+      return (error: ex.toString(), resultSendPrintData: resultSendPrintData);
     }
   }
 }

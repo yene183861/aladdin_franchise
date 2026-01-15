@@ -82,4 +82,4 @@ const String kStatusOrderChannel = 'order-change-status';
 
 /// channel lock order
 const String kLockOrderChannel = 'block-order';
-const String kPrintChannel = 'print';
+const String kPrintChannel = 'pos-print';

@@ -198,7 +198,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
         for (var printer in printers) {
           var products = productPrint[printer.type] ?? [];
           if (products.isEmpty) continue;
-          ref.read(homeProvider.notifier).sendPrintData(
+          var resultSend = await ref.read(homeProvider.notifier).sendPrintData(
                 type: PrintTypeEnum.order,
                 products: products,
                 printers: printers
@@ -209,7 +209,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
       } else {
         var allData = productPrint.values.expand((list) => list).toList();
 
-        ref.read(homeProvider.notifier).sendPrintData(
+        var resultSend = await ref.read(homeProvider.notifier).sendPrintData(
               type: PrintTypeEnum.order,
               products: allData,
               printers: printerSelect.toList(),

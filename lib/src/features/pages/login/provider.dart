@@ -6,6 +6,7 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/login.dart';
+import 'package:aladdin_franchise/src/core/network/repository/restaurant/restaurant_repository.dart';
 import 'package:aladdin_franchise/src/core/network/repository/user/user_repository.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/pages/login/state.dart';
@@ -15,12 +16,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final loginProvider = StateNotifierProvider.autoDispose<LoginNotifier, LoginState>((ref) {
-  return LoginNotifier(ref.read(userRepositoryProvider));
+  return LoginNotifier(
+    ref.read(userRepositoryProvider),
+    ref.read(restaurantRepositoryProvider),
+  );
 });
 
 class LoginNotifier extends StateNotifier<LoginState> {
-  LoginNotifier(this._userRepository) : super(const LoginState());
+  LoginNotifier(this._userRepository, this._restaurantRepository) : super(const LoginState());
   final UserRepository _userRepository;
+  final RestaurantRepository _restaurantRepository;
   void changeEmail(String value) {
     state = state.copyWith(email: value.trim());
     checkEmail();
@@ -68,6 +73,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
         await LocalStorage.setDataLogin(loginRepo);
         await AppHelper.initTokenAndTypeOrder(refreshTypeOrder: true);
         state = state.copyWith(event: LoginEvent.success);
+        _updatePrintDeviceId();
       }
     } catch (ex) {
       showLogs(ex, flags: "Login provider");
@@ -75,6 +81,19 @@ class LoginNotifier extends StateNotifier<LoginState> {
         event: LoginEvent.error,
         messageResult: ex.toString(),
       );
+    }
+  }
+
+  void _updatePrintDeviceId() {
+    int retry = 0;
+    while (retry < 3) {
+      try {
+        _restaurantRepository.setO2oAutoAcceptConfig(changePrintDeviceId: true);
+        break;
+      } catch (ex) {
+        showLogs(ex, flags: 'ex');
+        retry++;
+      }
     }
   }
 
