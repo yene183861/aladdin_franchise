@@ -18,7 +18,7 @@ import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/custom_dropdown_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';

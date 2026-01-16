@@ -4,8 +4,9 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/models/order_invoice/order_invoice.dart';
@@ -240,10 +241,11 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    ButtonCancelWidget(
-                      onPressed: () => Navigator.pop(context),
-                      textAction: S.current.close,
-                    ),
+                    const AppCloseButton(),
+                    // ButtonCancelWidget(
+                    //   onPressed: () => Navigator.pop(context),
+                    //   textAction: S.current.close,
+                    // ),
                     if (widget.orderInvoice != null &&
                         !widget.orderInvoice!.isEmpty() &&
                         enable) ...[

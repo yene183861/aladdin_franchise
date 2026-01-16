@@ -16,7 +16,7 @@ import 'package:aladdin_franchise/src/features/pages/order_to_online/components/
 import 'package:aladdin_franchise/src/features/pages/settings/widgets/dialog/o2o_auto_process_config.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/request_order.dart';

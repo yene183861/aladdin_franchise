@@ -8,7 +8,7 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_with_icon.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/btn_with_icon.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/payment_method/payment_method.dart';

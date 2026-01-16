@@ -1,7 +1,7 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/provider.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/cupertino.dart';

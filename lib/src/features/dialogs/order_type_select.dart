@@ -5,7 +5,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_with_icon.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/btn_with_icon.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter/cupertino.dart';
@@ -102,8 +102,7 @@ Future<void> showOrderTypeSelectDialog(
           content: OrderTypeSelectWidget(
             showMessage: showMessage,
           ),
-          shape:
-              RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
+          shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
         ),
       ),
     ),

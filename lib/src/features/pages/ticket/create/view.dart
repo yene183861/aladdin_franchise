@@ -6,7 +6,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/view_image.dart';
 import 'package:aladdin_franchise/src/features/pages/login/view.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';

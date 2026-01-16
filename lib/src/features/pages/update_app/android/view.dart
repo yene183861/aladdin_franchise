@@ -11,7 +11,7 @@ import 'package:aladdin_franchise/src/core/services/provider.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/update_app/android/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/change_server_config.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';

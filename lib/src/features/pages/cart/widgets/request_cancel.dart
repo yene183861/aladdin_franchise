@@ -6,7 +6,7 @@ import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/title_line.dart';
 import 'package:aladdin_franchise/src/models/product_cancel.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';

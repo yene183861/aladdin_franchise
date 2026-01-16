@@ -10,7 +10,7 @@ import 'package:aladdin_franchise/src/features/dialogs/printer/list_printer.dart
 import 'package:aladdin_franchise/src/features/pages/order_to_online/components/custom_checkbox.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';

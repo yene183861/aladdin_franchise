@@ -12,7 +12,7 @@ import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';

@@ -1,10 +1,9 @@
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:flutter/material.dart';
-
-import '../../../generated/l10n.dart';
 
 class ButtonWithIconWidget extends StatelessWidget {
   final VoidCallback? onPressed;
@@ -44,17 +43,14 @@ class ButtonWithIconWidget extends StatelessWidget {
       onPressed: () {
         onPressed?.call();
       },
-      shape: shape ??
-          RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
+      shape: shape ?? RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
       child: Padding(
         padding: padding ?? const EdgeInsets.all(12),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             iconWidget ??
-                (icon != null
-                    ? ResponsiveIconWidget(iconData: icon!)
-                    : const SizedBox.shrink()),
+                (icon != null ? ResponsiveIconWidget(iconData: icon!) : const SizedBox.shrink()),
             const SizedBox(width: 8),
             Text(
               textAction ?? S.current.confirm,

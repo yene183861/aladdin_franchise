@@ -1,7 +1,7 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';

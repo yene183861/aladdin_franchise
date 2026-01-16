@@ -6,7 +6,7 @@ import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_with_icon.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/btn_with_icon.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/title_line.dart';

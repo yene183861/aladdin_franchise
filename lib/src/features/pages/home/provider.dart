@@ -799,8 +799,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
     try {
       var order = state.orderSelect;
       var data = {
-        'id': DateTimeUtils.formatToString(
-            time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
+        // 'id': DateTimeUtils.formatToString(
+        //     time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
         'type': type.name,
         'mode': LocalStorage.getPrintSetting().appPrinterType.name,
         'order': order,
@@ -812,8 +812,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
         'use_odd_bill': ref.read(printSettingProvider).billReturnSetting.useOddBill,
         'use_default_printers': useDefaultPrinters,
         'total_bill': totalBill,
-        'status': false,
-        'ref_id': null,
+        // 'status': false,
+        // 'ref_id': null,
       };
       if (printDirectly) {
         _handlePrintRedisEvent([
@@ -1078,12 +1078,16 @@ class HomeNotifier extends StateNotifier<HomeState> {
       //   order: data.order,
       // );
       // return;
-      var bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(data);
+      // if (data == null) return;
+      // var bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(data);
+      final receiptData = data;
       for (var printer in printers) {
         PrintQueue.instance.addTask(
           ip: printer.ip!,
           port: printer.port!,
           buildReceipt: (generator) async {
+            showLogs(receiptData, flags: 'data');
+            var bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(receiptData);
             return bytes;
           },
           onComplete: (success, error) async {

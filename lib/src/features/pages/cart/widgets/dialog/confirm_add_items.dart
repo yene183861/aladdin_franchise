@@ -13,7 +13,8 @@ import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 
 import 'package:aladdin_franchise/src/features/pages/order_to_online/components/custom_checkbox.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/custom_dropdown_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
@@ -171,15 +172,7 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
           ),
           const Gap(16),
           const Spacer(),
-          ButtonCancelWidget(
-            textAction: 'Đóng',
-            color: Colors.white,
-            borderSide: const BorderSide(color: AppColors.mainColor),
-            textColor: AppColors.textColor,
-            onPressed: () {
-              pop(context);
-            },
-          ),
+          const AppCloseButton(),
           const Gap(12),
           Expanded(
             child: Consumer(builder: (context, ref, child) {

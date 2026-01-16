@@ -2,7 +2,7 @@ import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/features/pages/history_order/view.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_with_icon.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/btn_with_icon.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

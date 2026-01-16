@@ -5,7 +5,7 @@ import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-import '../../../generated/l10n.dart';
+import '../../../../generated/l10n.dart';
 
 class ButtonSimpleWidget extends StatelessWidget {
   final VoidCallback? onPressed;

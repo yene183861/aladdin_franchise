@@ -3,7 +3,7 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:flutter/material.dart';
 
-import '../../../generated/l10n.dart';
+import '../../../../generated/l10n.dart';
 
 class ButtonCancelWidget extends StatelessWidget {
   final VoidCallback? onPressed;

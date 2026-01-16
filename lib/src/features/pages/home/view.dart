@@ -28,7 +28,7 @@ import 'package:aladdin_franchise/src/features/pages/order_to_online/components/
 import 'package:aladdin_franchise/src/features/pages/table_layout/view.dart';
 import 'package:aladdin_franchise/src/features/pages/table_layout/view_test.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/models/category.dart';

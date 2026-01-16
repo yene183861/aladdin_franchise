@@ -4,7 +4,7 @@ import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_with_icon.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/btn_with_icon.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

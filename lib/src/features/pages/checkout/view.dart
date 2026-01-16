@@ -20,8 +20,8 @@ import 'package:aladdin_franchise/src/features/pages/home/components/order/order
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_square_menu.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_main.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_square_menu.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/order_invoice/order_invoice.dart';
 import 'package:flutter/cupertino.dart';

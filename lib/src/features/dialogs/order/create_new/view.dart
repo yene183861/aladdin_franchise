@@ -16,8 +16,8 @@ import 'package:aladdin_franchise/src/features/pages/order_to_online/components/
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
-import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
