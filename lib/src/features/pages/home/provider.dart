@@ -89,6 +89,7 @@ enum HomePaymentError {
   printBill,
   temp,
   complete,
+  printCompleteError,
 }
 
 final homeProvider = StateNotifierProvider.autoDispose<HomeNotifier, HomeState>((ref) {
@@ -811,6 +812,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
         'use_odd_bill': ref.read(printSettingProvider).billReturnSetting.useOddBill,
         'use_default_printers': useDefaultPrinters,
         'total_bill': totalBill,
+        'status': false,
+        'ref_id': null,
       };
       if (printDirectly) {
         _handlePrintRedisEvent([
@@ -830,6 +833,16 @@ class HomeNotifier extends StateNotifier<HomeState> {
       return ex.toString();
     }
   }
+
+  // Map<String, dynamic> convertPrintData(dynamic data) {
+  //   Map<String, dynamic> result = {};
+  //   var printers =
+  //       ((data['printers'] ?? []) as List<dynamic>).map((e) => PrinterModel.fromJson(e)).toList();
+  //   // var printers =
+  //   //     ((data['printers'] ?? []) as List<dynamic>).map((e) => PrinterModel.fromJson(e)).toList();
+
+  //   return result;
+  // }
 
   void _handleRedisEvent(dynamic event) async {
     showLog(event, flags: "New event");
@@ -1402,6 +1415,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
       return;
     }
     var box = Hive.box<TestNotificationModel>(AppConfig.testNotificationBoxName);
+    try {
+      showLogs(event, flags: 'event');
+      showLogs(event.runtimeType, flags: 'event runtimeType');
+      // await _restaurantRepository.sendPrintData(data);
+    } catch (ex) {}
 
     try {
       await box.add(TestNotificationModel(
@@ -2226,8 +2244,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }
 
   /// tạm tính
-  Future<({HomePaymentError? errorType, String msg, List<IpOrderModel> tmpPrinters})> onPayment(
-      BuildContext context) async {
+  Future<
+      ({
+        HomePaymentError? errorType,
+        String msg,
+        List<IpOrderModel> tmpPrinters,
+        PaymentReceiptPrintRequest? requestPrint,
+      })> onPayment(BuildContext context) async {
     List<IpOrderModel> printers = [];
     try {
       updateEvent(HomeEvent.paymentProcess);
@@ -2251,6 +2274,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
               errorType: HomePaymentError.temp,
               msg: S.current.noOrderSelect,
               tmpPrinters: <IpOrderModel>[],
+              requestPrint: null,
             );
           }
           if (printers.isEmpty) {
@@ -2311,6 +2335,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
               errorType: HomePaymentError.temp,
               msg: ex.toString(),
               tmpPrinters: <IpOrderModel>[],
+              requestPrint: null,
             );
           }
         }
@@ -2327,21 +2352,31 @@ class HomeNotifier extends StateNotifier<HomeState> {
         arguments: PaymentStatusEnum.success.name,
       );
 
-      if (completeStatus != null) {
+      if (completeStatus.error != null) {
         updateEvent(null);
         return (
           errorType: HomePaymentError.complete,
-          msg: completeStatus,
+          msg: completeStatus.error!,
           tmpPrinters: printers,
+          requestPrint: completeStatus.requestPrint,
         );
       }
       clearImageBill();
-
+      if (completeStatus.errorSendPrint != null) {
+        updateEvent(null);
+        return (
+          errorType: HomePaymentError.printCompleteError,
+          msg: completeStatus.errorSendPrint!,
+          tmpPrinters: printers,
+          requestPrint: completeStatus.requestPrint,
+        );
+      }
       updateEvent(null);
       return (
         errorType: null,
         msg: '',
         tmpPrinters: printers,
+        requestPrint: null,
       );
     } catch (ex) {
       updateEvent(null);
@@ -2349,6 +2384,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         errorType: HomePaymentError.temp,
         msg: ex.toString(),
         tmpPrinters: <IpOrderModel>[],
+        requestPrint: null,
       );
     }
   }
@@ -2374,13 +2410,20 @@ class HomeNotifier extends StateNotifier<HomeState> {
     );
   }
 
-  Future<String?> completeBill({
+  Future<
+      ({
+        String? error,
+        String? errorSendPrint,
+        PaymentReceiptPrintRequest? requestPrint,
+      })> completeBill({
     required BuildContext context,
     bool loadingHome = true,
     List<IpOrderModel> printers = const [],
     bool printKitchenBill = false,
   }) async {
     try {
+      PaymentReceiptPrintRequest? requestPrint;
+      String? errorSendPrint;
       if (loadingHome) updateEvent(HomeEvent.completeBillAgain);
 
       int retry = 0;
@@ -2389,7 +2432,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
           PriceDataBill price = getFinalPaymentPrice;
           if (state.orderSelect == null) {
             if (loadingHome) updateEvent(null);
-            return S.current.noOrderSelect;
+            return (error: S.current.noOrderSelect, errorSendPrint: null, requestPrint: null);
           }
           var paymentMethodSelected = state.paymentMethodSelected;
           if (paymentMethodSelected == null) {
@@ -2433,7 +2476,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
               }
             }
           }
-          var request = PaymentReceiptPrintRequest(
+          requestPrint = PaymentReceiptPrintRequest(
             order: state.orderSelect!,
             price: price,
             receiptType: ReceiptTypeEnum.paymentReceipt,
@@ -2456,9 +2499,25 @@ class HomeNotifier extends StateNotifier<HomeState> {
             invoiceQr: result ?? '',
           );
 
-          ref
-              .read(homeProvider.notifier)
-              .sendPrintData(type: PrintTypeEnum.payment, paymentData: request);
+          try {
+            errorSendPrint = await ref.read(homeProvider.notifier).sendPrintData(
+                  type: PrintTypeEnum.payment,
+                  paymentData: requestPrint,
+                  printers: printers
+                      .map(
+                        (e) => PrinterModel(
+                            ip: e.ip,
+                            port: e.port,
+                            name: e.name,
+                            type: e.type,
+                            typeAreaLocation: e.typeAreaLocation),
+                      )
+                      .toList(),
+                );
+          } catch (ex) {
+            errorSendPrint = ex.toString();
+          }
+
           // var bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(
           //   order: state.orderSelect!,
           //   price: price,
@@ -2519,6 +2578,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
           //     },
           //   );
           // }
+
           break;
         } catch (ex) {
           retry++;
@@ -2528,10 +2588,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
         }
       }
       if (loadingHome) updateEvent(null);
-      return null;
+      return (error: null, errorSendPrint: errorSendPrint, requestPrint: requestPrint);
     } catch (ex) {
       if (loadingHome) updateEvent(null);
-      return ex.toString();
+      return (error: ex.toString(), errorSendPrint: null, requestPrint: null);
     }
   }
 

@@ -13,4 +13,7 @@ enum PrintTypeEnum {
 
   /// chốt ca
   closeShift,
+
+  /// qr o2o
+  qrO2o,
 }

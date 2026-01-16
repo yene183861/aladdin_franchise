@@ -2,6 +2,7 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/data/enum/payment_status.dart';
+import 'package:aladdin_franchise/src/data/enum/print_type.dart';
 import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
@@ -63,6 +64,37 @@ void onConfirmPayment({
           printers: result.tmpPrinters,
         );
         break;
+      case HomePaymentError.printCompleteError:
+        if (result.requestPrint != null) {
+          await showConfirmAction(
+            context,
+            message: 'Đơn đã được hoàn thành\n\n'
+                'Tuy nhiên, hệ thống chưa nhận được yêu cầu in.\n'
+                'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
+            actionTitle: 'In ngay',
+            textCancel: 'Đóng',
+            title: 'Thông báo',
+            action: () {
+              ref.read(homeProvider.notifier).sendPrintData(
+                    type: PrintTypeEnum.payment,
+                    printDirectly: true,
+                    paymentData: result.requestPrint,
+                  );
+            },
+          );
+        }
+        for (int i = 0; i < (2 + (openCheckoutPage ? 1 : 0)); i++) {
+          pop(context);
+        }
+
+        showDoneSnackBar(
+          context: context,
+          message: S.current.payment_success,
+        );
+        ref.invalidate(tablesAndOrdersProvider);
+
+        ref.read(homeProvider.notifier).changeOrderSelect(null);
+        break;
 
       default:
     }
@@ -101,9 +133,29 @@ void onConfirmCompleteAgain({
             printKitchenBill: true,
             printers: printers,
           );
-      if (res != null) {
-        onConfirmCompleteAgain(ref: ref, context: context, errorMessage: res);
+      if (res.error != null) {
+        onConfirmCompleteAgain(ref: ref, context: context, errorMessage: res.error);
         return;
+      }
+      if (res.errorSendPrint != null) {
+        if (res.requestPrint != null) {
+          await showConfirmAction(
+            context,
+            message: 'Đơn đã được hoàn thành\n\n'
+                'Tuy nhiên, hệ thống chưa nhận được yêu cầu in.\n'
+                'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
+            actionTitle: 'In ngay',
+            textCancel: 'Đóng',
+            title: 'Thông báo',
+            action: () {
+              ref.read(homeProvider.notifier).sendPrintData(
+                    type: PrintTypeEnum.payment,
+                    printDirectly: true,
+                    paymentData: res.requestPrint,
+                  );
+            },
+          );
+        }
       }
       for (var i = 0; i < 2 + (openCheckoutPage ? 1 : 0); i++) {
         pop(context);
