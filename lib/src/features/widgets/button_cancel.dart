@@ -14,6 +14,7 @@ class ButtonCancelWidget extends StatelessWidget {
   final double? height;
   final EdgeInsetsGeometry? padding;
   final double? textSize;
+  final BorderSide? borderSide;
   const ButtonCancelWidget({
     Key? key,
     this.onPressed,
@@ -24,6 +25,7 @@ class ButtonCancelWidget extends StatelessWidget {
     this.height,
     this.padding,
     this.textSize,
+    this.borderSide,
   }) : super(key: key);
 
   @override
@@ -36,13 +38,14 @@ class ButtonCancelWidget extends StatelessWidget {
       onPressed: () {
         onPressed?.call();
       },
-      shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
+      shape: RoundedRectangleBorder(
+          borderRadius: AppConfig.borderRadiusMain, side: borderSide ?? BorderSide.none),
       child: Padding(
         padding: padding ?? const EdgeInsets.all(12),
         child: Text(
           textAction ?? S.current.cancel,
           style: AppTextStyle.regular(
-            color: AppColors.white,
+            color: textColor ?? AppColors.white,
             rawFontSize: textSize,
           ),
         ),

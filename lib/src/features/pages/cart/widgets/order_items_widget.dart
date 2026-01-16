@@ -12,6 +12,7 @@ import 'package:aladdin_franchise/src/features/pages/home/components/order/order
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/components/custom_checkbox.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
@@ -91,6 +92,19 @@ class OrderItemsWidget extends ConsumerWidget {
                             if (productsSelecting.isEmpty) {
                               return const SizedBox.shrink();
                             }
+
+                            return AppButton(
+                              textAction: 'Gửi bếp',
+                              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                              onPressed: () async {
+                                await showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return ConfirmOrderPrinterDialog();
+                                  },
+                                );
+                              },
+                            );
                             return InkWell(
                               onTap: () async {
                                 await showDialog(

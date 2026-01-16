@@ -137,8 +137,7 @@ class AppPrinterHtmlUtils {
         </tr>
       ''';
       }
-      List<ComboItemModel>? comboItems =
-          ProductHelper().getComboDescription(pc);
+      List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(pc);
       // showLogs(comboItems, flags: 'comboItems');
       if (comboItems != null) {
         // check xem có cần nhân số lượng combo với món trong combo k
@@ -148,7 +147,7 @@ class AppPrinterHtmlUtils {
           dishTable += '''
         <tr>
             <td width="75%">${'${totalBill ? '  ' : ''}- ${ci.getNameView()}'}</td>
-            <td width="10%" class="center">${cancel ? '-' : ''}${(ci.quantity * pc.numberSelecting).abs()}</td>
+            <td width="10%" class="center">${cancel ? '-' : ''}${((AppUtils.convertToDouble(ci.quantity) ?? 0).toInt() * pc.numberSelecting).abs()}</td>
             <td width="15%" style="text-align: right">${ci.unit}</td>
         </tr>
       ''';
@@ -532,8 +531,7 @@ ${_getTime()}
   }
 
   String _printDateTime(DateTime? value) {
-    return DateTimeUtils.formatToString(
-        time: value, newPattern: DateTimePatterns.dateTime1);
+    return DateTimeUtils.formatToString(time: value, newPattern: DateTimePatterns.dateTime1);
   }
 
   Future<List<int>> getCloseShiftContent(CloseShiftResponseModel data) async {

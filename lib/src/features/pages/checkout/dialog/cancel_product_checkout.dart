@@ -180,7 +180,9 @@ class _AddOrderSheetState extends ConsumerState<AddOrderSheet> {
           const Spacer(),
           ButtonCancelWidget(
             textAction: 'Đóng',
-            color: Colors.grey.shade400,
+            color: Colors.white,
+            borderSide: const BorderSide(color: AppColors.mainColor),
+            textColor: AppColors.textColor,
             onPressed: () {
               pop(context);
             },
@@ -230,7 +232,7 @@ class _AddOrderSheetState extends ConsumerState<AddOrderSheet> {
                                 },
                               );
                             }
-                            // pop(context);
+                            pop(context);
                           }
                         }
                       },
@@ -355,56 +357,88 @@ class __ProductCheckoutLineState extends ConsumerState<_ProductCheckoutLine> {
                           ],
                         ),
                       ),
-                      Row(
+                      Column(
                         children: [
-                          Text('Hủy'),
-                          Gap(20),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFf1f4fa),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade300),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
+                          Row(
+                            children: [
+                              // Text(
+                              //   'SL: ${item.quantity}',
+                              //   style: AppTextStyle.bold(),
+                              // ),
+                              // AppButton(
+                              //   icon: Icons.remove,
+                              //   textAction: '',
+                              //   onPressed: () {
+                              //     var count = item.quantityCancel;
+                              //     if (count >= item.quantity) return;
+                              //     ref.read(checkoutPageProvider.notifier).changeCancelQuantity(
+                              //         item.copyWith(quantityCancel: max(0, count + 1)));
+                              //   },
+                              // ),
+                              Text('Hủy'),
+                              Gap(20),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFf1f4fa),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.grey.shade300),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                _qtyButton(
-                                  Icons.remove,
-                                  () {
-                                    var count = item.quantityCancel;
-                                    if (count <= 0) return;
-                                    ref.read(checkoutPageProvider.notifier).changeCancelQuantity(
-                                        item.copyWith(quantityCancel: max(0, count - 1)));
-                                  },
-                                  item.quantityCancel > 0,
+                                child: Row(
+                                  children: [
+                                    _qtyButton(
+                                      Icons.add,
+                                      () {
+                                        var count = item.quantityCancel;
+                                        if (count <= 0) return;
+                                        ref
+                                            .read(checkoutPageProvider.notifier)
+                                            .changeCancelQuantity(
+                                                item.copyWith(quantityCancel: max(0, count - 1)));
+                                      },
+                                      item.quantityCancel > 0,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                                      child: Text(
+                                        item.quantityCancel.toString(),
+                                        style: AppTextStyle.bold(
+                                            color: item.quantityCancel > 0
+                                                ? AppColors.redColor
+                                                : null),
+                                      ),
+                                    ),
+                                    _qtyButton(
+                                      Icons.remove,
+                                      () {
+                                        var count = item.quantityCancel;
+                                        if (count >= item.quantity) return;
+                                        ref
+                                            .read(checkoutPageProvider.notifier)
+                                            .changeCancelQuantity(
+                                                item.copyWith(quantityCancel: max(0, count + 1)));
+                                      },
+                                      item.quantityCancel < item.quantity,
+                                    ),
+                                  ],
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Text(
-                                    item.quantityCancel.toString(),
-                                    style: AppTextStyle.bold(
-                                        color: item.quantityCancel > 0 ? AppColors.redColor : null),
-                                  ),
-                                ),
-                                _qtyButton(
-                                  Icons.add,
-                                  () {
-                                    var count = item.quantityCancel;
-                                    if (count >= item.quantity) return;
-                                    ref.read(checkoutPageProvider.notifier).changeCancelQuantity(
-                                        item.copyWith(quantityCancel: max(0, count + 1)));
-                                  },
-                                  item.quantityCancel < item.quantity,
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
+                          // Row(
+                          //   children: [
+                          //     Text(
+                          //       'Huỷ: ${item.quantityCancel}',
+                          //       style: AppTextStyle.bold(),
+                          //     ),
+                          //   ],
+                          // ),
                         ],
                       ),
                       // Text(

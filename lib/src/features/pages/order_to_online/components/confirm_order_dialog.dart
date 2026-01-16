@@ -1,4 +1,5 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
+import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/request_order.dart';
@@ -195,10 +196,12 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
           const Gap(16),
           ButtonCancelWidget(
             textAction: 'Đóng',
-            color: Colors.grey.shade400,
+            color: Colors.white,
             onPressed: () {
               pop(context);
             },
+            borderSide: BorderSide(color: AppColors.mainColor),
+            textColor: AppColors.textColor,
           ),
           const Gap(12),
           Consumer(builder: (context, ref, child) {

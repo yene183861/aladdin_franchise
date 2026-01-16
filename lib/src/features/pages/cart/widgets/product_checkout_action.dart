@@ -25,11 +25,9 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var productCheckout = ref
-        .watch(checkoutPageProvider.select((value) => value.productsCheckout));
+    var productCheckout = ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
 
-    var orderHistoryData =
-        ref.watch(homeProvider.select((value) => value.orderHistory));
+    var orderHistoryData = ref.watch(homeProvider.select((value) => value.orderHistory));
     if (orderHistoryData.isEmpty) return const SizedBox.shrink();
     return Container(
       color: Colors.white,
@@ -79,8 +77,7 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         itemBuilder: (context, index) {
                           var orderTime = orderHistoryData[index];
-                          bool isCancel =
-                              orderTime.products.any((e) => e.cancel);
+                          bool isCancel = orderTime.products.any((e) => e.cancel);
                           return Card(
                             elevation: 0,
                             shadowColor: Colors.white,
@@ -91,11 +88,9 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
                             child: Column(
                               children: [
                                 ListTile(
-                                  leading: const ResponsiveIconWidget(
-                                      iconData: Icons.tag),
-                                  tileColor: isCancel
-                                      ? Colors.red.shade50
-                                      : Colors.blueGrey.shade50,
+                                  leading: const ResponsiveIconWidget(iconData: Icons.tag),
+                                  tileColor:
+                                      isCancel ? Colors.red.shade50 : Colors.blueGrey.shade50,
                                   title: Text(
                                     "${S.current.turn} ${orderTime.timesOrder} ${isCancel ? " - ${S.current.cancelDish}" : ""}",
                                     style: AppTextStyle.medium(),
@@ -107,11 +102,9 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
                                           style: AppTextStyle.medium(),
                                         ),
                                   trailing: Text(
-                                    appConfig.dateFormatHhMmSsDDMMYYYY
-                                        .format(orderTime.createdAt),
+                                    appConfig.dateFormatHhMmSsDDMMYYYY.format(orderTime.createdAt),
                                     style: AppTextStyle.regular(
-                                        rawFontSize:
-                                            AppConfig.defaultRawTextSize - 1.0),
+                                        rawFontSize: AppConfig.defaultRawTextSize - 1.0),
                                   ),
                                 ),
                                 ...orderTime.products.map(
@@ -130,8 +123,7 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
                                                 ? null
                                                 : Text(
                                                     e.notes,
-                                                    style:
-                                                        AppTextStyle.regular(),
+                                                    style: AppTextStyle.regular(),
                                                   ),
                                             trailing: Text(
                                               "${S.current.quantityCut}: ${e.quantity}",
@@ -143,17 +135,13 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
                                             ? Expanded(
                                                 flex: 1,
                                                 child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
+                                                  mainAxisAlignment: MainAxisAlignment.end,
                                                   children: [
                                                     Text(
                                                       e.cancel
                                                           ? S.current.cancel
-                                                          : appConfig
-                                                              .getNameByStatus(
-                                                                  e.status),
-                                                      style:
-                                                          AppTextStyle.medium(),
+                                                          : appConfig.getNameByStatus(e.status),
+                                                      style: AppTextStyle.medium(),
                                                     ),
                                                     const Gap(12),
                                                   ],

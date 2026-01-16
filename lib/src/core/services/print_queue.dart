@@ -35,7 +35,6 @@ class PrintQueue {
       buildReceipt: buildReceipt,
       onComplete: onComplete,
     );
-
     _queue.add(task);
     _tryProcessNext();
   }

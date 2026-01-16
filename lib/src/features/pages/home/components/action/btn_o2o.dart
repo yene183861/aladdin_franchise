@@ -1,6 +1,7 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
+import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
@@ -32,6 +33,7 @@ class ButtonO2oData extends ConsumerWidget {
     return Tooltip(
       message: S.current.order_to_online,
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           InkWell(
             onTap: () {
@@ -58,11 +60,42 @@ class ButtonO2oData extends ConsumerWidget {
             ),
           ),
           if ((count ?? 0) > 0)
-            Badge.count(
-              count: count ?? 0,
-              backgroundColor: AppColors.redColor,
-              padding: const EdgeInsets.all(8),
-            )
+            Positioned(
+              top: -10,
+              right: -10,
+              child: InkWell(
+                onTap: () {
+                  var orderSelect = ref.read(homeProvider).orderSelect;
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => OrderToOnlinePage(
+                        orderId: orderSelect?.id,
+                      ),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(50),
+                child: Container(
+                  padding: EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: AppColors.redColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    (count ?? 0) > 99 ? '99+' : count.toString(),
+                    style: AppTextStyle.bold(
+                      color: Colors.white,
+                      rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          // Badge.count(
+          //   count: count ?? 0,
+          //   backgroundColor: AppColors.redColor,
+          //   padding: const EdgeInsets.all(8),
+          // )
         ],
       ),
     );

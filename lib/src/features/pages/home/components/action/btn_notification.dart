@@ -16,15 +16,15 @@ class ButtonNotification extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final orderToOnline = ref.watch(orderToOnlineProvider);
-    int? count = orderToOnline.when(
-      data: (data) => data.values.fold(
-        0,
-        (previousValue, element) => (previousValue ?? 0) + ((element['count'] as int?) ?? 0),
-      ),
-      error: (error, stackTrace) => null,
-      loading: () => null,
-    );
+    // final orderToOnline = ref.watch(orderToOnlineProvider);
+    // int? count = orderToOnline.when(
+    //   data: (data) => data.values.fold(
+    //     0,
+    //     (previousValue, element) => (previousValue ?? 0) + ((element['count'] as int?) ?? 0),
+    //   ),
+    //   error: (error, stackTrace) => null,
+    //   loading: () => null,
+    // );
     return Tooltip(
       message: S.current.order_to_online,
       child: Stack(
@@ -50,12 +50,12 @@ class ButtonNotification extends ConsumerWidget {
               ),
             ),
           ),
-          if ((count ?? 0) > 0)
-            Badge.count(
-              count: count ?? 0,
-              backgroundColor: AppColors.redColor,
-              padding: const EdgeInsets.all(8),
-            )
+          // if ((count ?? 0) > 0)
+          //   Badge.count(
+          //     count: count ?? 0,
+          //     backgroundColor: AppColors.redColor,
+          //     padding: const EdgeInsets.all(8),
+          //   )
         ],
       ),
     );

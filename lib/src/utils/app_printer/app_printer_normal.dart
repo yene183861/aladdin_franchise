@@ -495,7 +495,7 @@ class AppPrinterNormalUtils {
           ),
         ),
         PosColumn(
-          text: "${cancel ? '-' : ''}${item.quantity.abs()}",
+          text: "${cancel ? '-' : ''}${(AppUtils.convertToDouble(item.quantity) ?? 0).abs()}",
           width: 1,
           styles: const PosStyles(
             align: PosAlign.center,

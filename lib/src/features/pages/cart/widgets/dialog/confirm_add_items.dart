@@ -173,7 +173,9 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
           const Spacer(),
           ButtonCancelWidget(
             textAction: 'Đóng',
-            color: Colors.grey.shade400,
+            color: Colors.white,
+            borderSide: const BorderSide(color: AppColors.mainColor),
+            textColor: AppColors.textColor,
             onPressed: () {
               pop(context);
             },

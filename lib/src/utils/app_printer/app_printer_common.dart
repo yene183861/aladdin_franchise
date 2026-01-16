@@ -22,11 +22,9 @@ class AppPrinterCommon {
         "- Thiết bị và máy in kết nối cùng mạng\n"
         "- Máy in đã bật và không bị kẹt giấy\n"
         "- Dây mạng kết nối với máy in đã sáng";
-    if (kDebugMode) return null;
     if (Platform.isAndroid) {
       try {
-        final bool result =
-            await _channel.invokeMethod('ping', {'ip': printer.ip});
+        final bool result = await _channel.invokeMethod('ping', {'ip': printer.ip});
         if (result) {
           return null;
         }
@@ -54,11 +52,9 @@ class AppPrinterCommon {
         "- Thiết bị và máy in kết nối cùng mạng\n"
         "- Máy in đã bật và không bị kẹt giấy\n"
         "- Dây mạng kết nối với máy in đã sáng";
-    if (kDebugMode) return null;
     if (Platform.isAndroid) {
       try {
-        final bool result =
-            await _channel.invokeMethod('ping', {'ip': printer.ip});
+        final bool result = await _channel.invokeMethod('ping', {'ip': printer.ip});
         if (result) {
           return null;
         }
@@ -96,17 +92,13 @@ class AppPrinterCommon {
 
   static Future<bool> _pingWindows(String ip) async {
     try {
-      final process =
-          await Process.start('ping', ['-n', '4', '-w', '1000', ip]);
+      final process = await Process.start('ping', ['-n', '4', '-w', '1000', ip]);
       bool hasReply = false;
 
-      final stdoutLines = process.stdout
-          .transform(utf8.decoder)
-          .transform(const LineSplitter());
+      final stdoutLines = process.stdout.transform(utf8.decoder).transform(const LineSplitter());
 
       await for (final line in stdoutLines) {
-        if (line.toLowerCase().contains('reply from') &&
-            line.toLowerCase().contains("ttl=")) {
+        if (line.toLowerCase().contains('reply from') && line.toLowerCase().contains("ttl=")) {
           hasReply = true;
           break;
         }
@@ -129,6 +121,28 @@ class AppPrinterCommon {
     // if (kDebugMode) return null;
     for (var printer in printers) {
       final check = await checkPrinter(printer);
+      if (check != null) {
+        printerChecks.add(printer);
+      }
+    }
+    var infoPrinterError = "";
+    for (var element in printerChecks) {
+      infoPrinterError += "${element.name}\n";
+    }
+    return printerChecks.isEmpty
+        ? null
+        : "Không kết nối được máy in\n$infoPrinterError\n"
+            "${"Vui lòng kiểm tra & đảm bảo".toUpperCase()}\n"
+            "- Thiết bị và máy in kết nối cùng mạng\n"
+            "- Máy in đã bật và không bị kẹt giấy\n"
+            "- Dây mạng kết nối với máy in đã sáng";
+  }
+
+  static Future<String?> checkListPrintersStatus(List<PrinterModel> printers) async {
+    List<PrinterModel> printerChecks = [];
+    // if (kDebugMode) return null;
+    for (var printer in printers) {
+      final check = await checkPrinterStatus(printer);
       if (check != null) {
         printerChecks.add(printer);
       }
