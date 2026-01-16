@@ -5,6 +5,7 @@ import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/detail_coupon.dart';
+import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -283,10 +284,14 @@ class CouponInfoWidget extends ConsumerWidget {
                             }
                             var homeContext = homeKey.currentContext;
                             if (result != null && homeContext != null) {
-                              showErrorDialog(
+                              // showErrorDialog(
+                              //   homeContext,
+                              //   message: result,
+                              //   isNotifier: true,
+                              // );
+                              showMessageDialog(
                                 homeContext,
                                 message: result,
-                                isNotifier: true,
                               );
                             }
                           },

@@ -8,6 +8,7 @@ part 'notification.g.dart';
 
 enum NotificationTypeEnum {
   print,
+  printError,
   other,
 }
 

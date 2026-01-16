@@ -178,14 +178,14 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
           case HomeEvent.processError:
             Navigator.pop(context);
 
-            showErrorDialog(
-              context,
-              message: ref.read(homeProvider.notifier).getMessageError(),
-            );
-            // showMessageDialog(
+            // showErrorDialog(
             //   context,
             //   message: ref.read(homeProvider.notifier).getMessageError(),
             // );
+            showMessageDialog(
+              context,
+              message: ref.read(homeProvider.notifier).getMessageError(),
+            );
             break;
           case HomeEvent.checkPaymentMethod:
             showProcessingDialog(

@@ -489,7 +489,7 @@
   "completing_payment_verification": "Completing payment verification...",
   "dialog_auto_close_after": "The dialog will automatically close after",
   "payment_successful": "Payment completed successfully!",
-  "msg_thanks_customer": "Thank you for choosing [{restaurant_name}]! We wish you a delicious meal!",
+  "msg_thanks_customer": "Thank you for choosing {restaurant_name}! We wish you a delicious meal!",
   "@msg_thanks_customer": {
     "placeholders": {
       "restaurant_name": {

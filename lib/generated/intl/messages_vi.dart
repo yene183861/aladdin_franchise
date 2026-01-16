@@ -36,7 +36,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Hãy xoá và nhập lại mã giảm giá ([${coupon}]) rồi áp dụng!";
 
   static String m5(restaurant_name) =>
-      "Thank you for choosing [${restaurant_name}]! We wish you a delicious meal!";
+      "Cảm ơn đã lựa chọn ${restaurant_name}. Chúc quý khách ngon miệng!";
 
   static String m6(count) =>
       "Có ${count} lịch đặt bàn đã được lễ tân tiếp nhận ứng với các bàn bạn đã chọn.\nNếu là khách đã đặt bàn trước, vui lòng chọn lịch đặt bàn trước khi bấm xác nhận!";

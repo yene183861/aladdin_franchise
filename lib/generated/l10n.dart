@@ -4631,10 +4631,10 @@ class S {
     );
   }
 
-  /// `Thank you for choosing [{restaurant_name}]! We wish you a delicious meal!`
+  /// `Thank you for choosing {restaurant_name}! We wish you a delicious meal!`
   String msg_thanks_customer(String restaurant_name) {
     return Intl.message(
-      'Thank you for choosing [$restaurant_name]! We wish you a delicious meal!',
+      'Thank you for choosing $restaurant_name! We wish you a delicious meal!',
       name: 'msg_thanks_customer',
       desc: '',
       args: [restaurant_name],

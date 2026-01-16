@@ -4,8 +4,10 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/features/dialogs/coupon_info.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/button_simple.dart';
@@ -19,9 +21,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinbox/material.dart';
-import 'package:intl/intl.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:rxdart/subjects.dart';
 
 import '../../../../../../generated/l10n.dart';
 import '../error.dart';
@@ -30,8 +31,12 @@ showCouponDialog(BuildContext context) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return const Dialog(
-        child: _CouponDialogContent(),
+      bool smallDevice = ResponsiveBreakpoints.of(context).smallerThan(TABLET);
+      return FractionallySizedBox(
+        widthFactor: smallDevice ? 0.9 : 0.75,
+        child: const Dialog(
+          child: _CouponDialogContent(),
+        ),
       );
     },
   );
@@ -160,37 +165,37 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
               S.current.discountCode,
               style: Theme.of(context).dialogTheme.titleTextStyle,
             ),
-            const Gap(20),
-            const _NumberOfAdultsWidget(),
+            // const Gap(20),
+            // const _NumberOfAdultsWidget(),
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Row(
                 children: [
-                  if (AppConfig.useCoupon) ...[
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Nhập mã giảm'),
-                          const Gap(4),
-                          AppTextFormField(
-                            textInputType: TextInputType.number,
-                            focusNode: _couponFocusNode,
-                            hintText: S.current.inputCode,
-                            prefixIcon: const ResponsiveIconWidget(
-                              iconData: Icons.keyboard_alt_outlined,
-                            ),
-                            textController: _couponCtrl,
-                            onEditingComplete: () async {
-                              FocusManager.instance.primaryFocus?.unfocus();
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Gap(12),
-                  ],
-                  Expanded(
+                  // if (AppConfig.useCoupon) ...[
+                  //   Expanded(
+                  //     child: Column(
+                  //       crossAxisAlignment: CrossAxisAlignment.start,
+                  //       children: [
+                  //         const Text('Nhập mã giảm'),
+                  //         const Gap(4),
+                  //         AppTextFormField(
+                  //           textInputType: TextInputType.number,
+                  //           focusNode: _couponFocusNode,
+                  //           hintText: S.current.inputCode,
+                  //           prefixIcon: const ResponsiveIconWidget(
+                  //             iconData: Icons.keyboard_alt_outlined,
+                  //           ),
+                  //           textController: _couponCtrl,
+                  //           onEditingComplete: () async {
+                  //             FocusManager.instance.primaryFocus?.unfocus();
+                  //           },
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  //   const Gap(12),
+                  // ],
+                  Flexible(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -247,6 +252,13 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                   Consumer(
                     builder: (context, ref, child) {
                       var coupons = ref.watch(homeProvider.select((value) => value.coupons));
+                      return AppButton(
+                        textAction: S.current.confirm,
+                        color: !AppConfig.useCoupon && coupons.isNotEmpty
+                            ? Colors.grey
+                            : AppColors.secondColor,
+                        onPressed: !AppConfig.useCoupon && coupons.isNotEmpty ? null : _submit,
+                      );
                       return AppButtonWidget(
                         textAction: S.current.confirm,
                         color: !AppConfig.useCoupon && coupons.isNotEmpty
@@ -365,27 +377,41 @@ class _CounponActionWidget extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (AppConfig.useCoupon) ...[
-          ButtonSimpleWidget(
-            textAction: S.current.apply_policy_again,
-            onPressed: () async {
+        // if (AppConfig.useCoupon) ...[
+        ButtonSimpleWidget(
+          textAction: S.current.apply_policy_again,
+          onPressed: () async {
+            if (AppConfig.useCoupon) {
               var res =
                   await ref.read(homeProvider.notifier).applyCustomerPolicy(requireApply: true);
 
               if (res != null && context.mounted) {
-                showErrorDialog(
+                showMessageDialog(
                   context,
                   message: res,
-                  isNotifier: true,
                 );
+                // showErrorDialog(
+                //   context,
+                //   message: res,
+                //   isNotifier: true,
+                // );
               }
-            },
-          ),
-          const Gap(12),
-        ],
+            } else {
+              var res = await ref.read(homeProvider.notifier).applyAgainVoucher();
+              if (res.errorRemove != null || res.errorRemove != null) {
+                showMessageDialog(context, message: 'Áp dụng lại mã giảm giá thất bại!\n$res');
+              }
+            }
+          },
+        ),
+        const Gap(12),
+        // ],
         ButtonCancelWidget(
           onPressed: () => Navigator.pop(context),
           textAction: S.current.close,
+          borderSide: BorderSide(color: AppColors.mainColor),
+          color: Colors.white,
+          textColor: AppColors.textColor,
         ),
       ],
     );

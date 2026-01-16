@@ -184,7 +184,11 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
               Navigator.pop(context, result.orderId);
             } else {
               if (context.mounted) {
-                showErrorDialog(context, message: result.error.toString());
+                await showMessageDialog(
+                  context,
+                  message: result.error.toString(),
+                );
+                // showErrorDialog(context, message: result.error.toString());
               }
             }
           },

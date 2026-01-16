@@ -69,6 +69,7 @@ import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart'
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_html.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_normal.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
+import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/ip_config_helper.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:aladdin_franchise/src/utils/subwindows_moniter%20copy.dart';
@@ -797,6 +798,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
     try {
       var order = state.orderSelect;
       var data = {
+        'id': DateTimeUtils.formatToString(
+            time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
         'type': type.name,
         'mode': LocalStorage.getPrintSetting().appPrinterType.name,
         'order': order,
@@ -1569,6 +1572,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     double value = 0,
     bool loadingHome = true,
     bool applyPolicy = true,
+    DiscountTypeEnum? discountType,
   }) async {
     try {
       if (loadingHome) updateEvent(HomeEvent.addCoupon);
@@ -1577,7 +1581,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         order: state.orderSelect!,
         totalBill: getFinalPaymentPrice.totalPrice * 1.0,
         amount: value,
-        type: state.discountTypeSelect,
+        type: discountType ?? state.discountTypeSelect,
       );
 
       if (loadingHome) updateEvent(null);
@@ -3539,5 +3543,81 @@ class HomeNotifier extends StateNotifier<HomeState> {
     data = List.from(data.reversed);
     data.sort((a, b) => (b.datetime ?? DateTime.now()).compareTo((a.datetime ?? DateTime.now())));
     state = state.copyWith(notifications: data);
+  }
+
+  /// áp dụng lại mã giảm giá (mã giảm nhập số tiền, %)
+  Future<({String? errorRemove, String? errorAdd})> applyAgainVoucher() async {
+    var coupon = state.coupons.firstOrNull;
+    String? errorRemove, errorAdd;
+    if (coupon == null) {
+      return (errorRemove: null, errorAdd: null);
+    } else {
+      var discount = coupon.discount.firstOrNull;
+      if (discount == null) return (errorRemove: null, errorAdd: null);
+      int retry = 0;
+      updateEvent(HomeEvent.applyPolicy);
+      while (retry < 3) {
+        try {
+          await _couponRepository.deleteVoucher(coupon.id);
+          var coupons = List<CustomerPolicyModel>.from(state.coupons);
+          coupons.removeWhere((e) => e.id == coupon.id);
+          state = state.copyWith(coupons: coupons);
+          retry = 0;
+          errorRemove = null;
+          break;
+        } catch (ex) {
+          errorRemove = ex.toString();
+          retry++;
+        }
+      }
+
+      if (retry == 3) {
+        updateEvent(null);
+        return (errorRemove: errorRemove, errorAdd: errorAdd);
+      }
+      while (retry < 3) {
+        try {
+          final result = await _couponRepository.addVoucher(
+            order: state.orderSelect!,
+            totalBill: getFinalPaymentPrice.totalPrice * 1.0,
+            amount: discount.amount,
+            type: discount.type == DiscountTypeEnum.percent.key
+                ? DiscountTypeEnum.percent
+                : DiscountTypeEnum.vnd,
+          );
+          retry = 0;
+          errorAdd = null;
+          state = state.copyWith(
+            coupons: [
+              CustomerPolicyModel(
+                id: result.id,
+                name: result.name,
+                type: null,
+                isType: 3,
+                discount: [
+                  DiscountPolicy(
+                    id: null,
+                    name: null,
+                    // do response trả về lại là số tiền giảm nên type sẽ là DiscountTypeEnum.vnd
+                    // getOrderProductCheckout sẽ ghi đè lại thông in mã giảm
+                    type: DiscountTypeEnum.vnd.key,
+                    amount: result.amount,
+                  ),
+                ],
+              ),
+              ...state.coupons
+            ],
+          );
+          getOrderProductCheckout();
+          getDataBill();
+          break;
+        } catch (ex) {
+          errorAdd = ex.toString();
+          retry++;
+        }
+      }
+      updateEvent(null);
+      return (errorRemove: errorRemove, errorAdd: errorAdd);
+    }
   }
 }

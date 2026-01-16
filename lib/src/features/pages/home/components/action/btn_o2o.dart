@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
@@ -5,6 +6,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
+import 'package:aladdin_franchise/src/data/model/notification.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/view.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +56,7 @@ class ButtonO2oData extends ConsumerWidget {
               ),
               padding: const EdgeInsets.all(4.0),
               child: const ResponsiveIconWidget(
-                iconData: Icons.notifications_none_rounded,
+                svgPath: Assets.iconsTray,
                 color: AppColors.mainColor,
               ),
             ),

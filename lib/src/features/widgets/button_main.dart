@@ -70,6 +70,7 @@ class AppButtonWidget extends StatelessWidget {
     this.borderRadius,
     this.padding,
     this.width,
+    this.height,
     this.color,
     this.child,
   });
@@ -81,6 +82,7 @@ class AppButtonWidget extends StatelessWidget {
   final BorderRadius? borderRadius;
   final EdgeInsets? padding;
   final double? width;
+  final double? height;
 
   final Color? color;
 
@@ -107,6 +109,7 @@ class AppButtonWidget extends StatelessWidget {
         ),
         child: Container(
           width: width,
+          height: height,
           padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             borderRadius: br,

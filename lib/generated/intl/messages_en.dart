@@ -36,7 +36,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Please remove and re-enter the discount code ([${coupon}]) before applying!";
 
   static String m5(restaurant_name) =>
-      "Thank you for choosing [${restaurant_name}]! We wish you a delicious meal!";
+      "Thank you for choosing ${restaurant_name}! We wish you a delicious meal!";
 
   static String m6(count) =>
       "There is/are ${count} reservation(s) that has already been received by the receptionist for the selected tables.\nIf the customer has made a reservation in advance, please select the reservation before confirming!";

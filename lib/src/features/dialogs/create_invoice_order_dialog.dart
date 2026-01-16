@@ -298,15 +298,15 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
         });
       } else {
         if (context.mounted) {
-          await showErrorDialog(
-            context,
-            message: error.toString(),
-            isNotifier: true,
-          );
-          // showMessageDialog(
+          // await showErrorDialog(
           //   context,
           //   message: error.toString(),
+          //   isNotifier: true,
           // );
+          showMessageDialog(
+            context,
+            message: error.toString(),
+          );
         }
       }
     }

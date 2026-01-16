@@ -390,45 +390,45 @@ class HistoryOrderDetailBody extends ConsumerWidget {
                 );
               },
             ),
-            const Gap(12),
-            Consumer(
-              builder: (context, ref, child) {
-                var portrait = ref.watch(historyOrderPageProvider
-                        .select((value) => value.dataBill?.order.portrait)) ??
-                    '';
-                var customerPortraits = LocalStorage.getDataLogin()?.customerPortraits ?? [];
-                CustomerPortrait? portraitSelect = portrait.trim().isEmpty
-                    ? null
-                    : customerPortraits.firstWhereOrNull(
-                        (element) => element.key.trim() == portrait.trim(),
-                      );
+            // const Gap(12),
+            // Consumer(
+            //   builder: (context, ref, child) {
+            //     var portrait = ref.watch(historyOrderPageProvider
+            //             .select((value) => value.dataBill?.order.portrait)) ??
+            //         '';
+            //     var customerPortraits = LocalStorage.getDataLogin()?.customerPortraits ?? [];
+            //     CustomerPortrait? portraitSelect = portrait.trim().isEmpty
+            //         ? null
+            //         : customerPortraits.firstWhereOrNull(
+            //             (element) => element.key.trim() == portrait.trim(),
+            //           );
 
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status)) {
-                  return const SizedBox.shrink();
-                }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Gap(12),
-                    _TitleWidget(
-                      maxWidth: maxWidth,
-                      title: S.current.customer_portrait,
-                    ),
-                    SizedBox(
-                      width: 400,
-                      child: AppTextFormField(
-                        label: '',
-                        enabled: false,
-                        readOnly: true,
-                        initialValue: portraitSelect == null
-                            ? S.current.customer_portrait_has_not_been_selected
-                            : portraitSelect.value,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
+            //     if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status)) {
+            //       return const SizedBox.shrink();
+            //     }
+            //     return Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         const Gap(12),
+            //         _TitleWidget(
+            //           maxWidth: maxWidth,
+            //           title: S.current.customer_portrait,
+            //         ),
+            //         SizedBox(
+            //           width: 400,
+            //           child: AppTextFormField(
+            //             label: '',
+            //             enabled: false,
+            //             readOnly: true,
+            //             initialValue: portraitSelect == null
+            //                 ? S.current.customer_portrait_has_not_been_selected
+            //                 : portraitSelect.value,
+            //           ),
+            //         ),
+            //       ],
+            //     );
+            //   },
+            // ),
             Consumer(
               builder: (context, ref, child) {
                 var imageConfirms = ref.watch(historyOrderPageProvider

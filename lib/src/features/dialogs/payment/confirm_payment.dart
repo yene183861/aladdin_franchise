@@ -134,6 +134,7 @@ class _MorePaymentInfoWidget extends StatelessWidget {
                 onTap: ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
                 child: Row(
                   children: [
+                    const Gap(12),
                     CustomCheckbox(
                       onChange: ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
                       checked: checked,
@@ -151,8 +152,8 @@ class _MorePaymentInfoWidget extends StatelessWidget {
             },
           ),
           const CheckoutNumberOfPeopleWidget(),
-          const GapH(12),
-          const CheckoutCustomerPortraitSelectWidget(),
+          // const GapH(12),
+          // const CheckoutCustomerPortraitSelectWidget(),
           // const GapH(12),
           // const EmployeeSaleSelectWidget(),
           const GapH(12),

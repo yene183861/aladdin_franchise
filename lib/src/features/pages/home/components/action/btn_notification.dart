@@ -26,7 +26,7 @@ class ButtonNotification extends ConsumerWidget {
     //   loading: () => null,
     // );
     return Tooltip(
-      message: S.current.order_to_online,
+      message: S.current.notification,
       child: Stack(
         children: [
           InkWell(

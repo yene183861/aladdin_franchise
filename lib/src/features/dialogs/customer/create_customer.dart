@@ -33,6 +33,8 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
   String inputBirthday = "";
   late TextEditingController ctrlPhone, ctrlFirstName, ctrlLastName, ctrlBirthday;
   bool _noBOD = true;
+
+  final _formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
@@ -69,137 +71,157 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
             ),
             content: SizedBox(
               width: smallDevice ? 95.w : 50.w,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppTextFormField(
-                    label: S.current.phone,
-                    textController: ctrlPhone,
-                    textInputAction: TextInputAction.next,
-                    textInputType: TextInputType.number,
-                    required: true,
-                    enabled: enable,
-                    maxLength: 12,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  ),
-                  const SizedBox(height: 16),
-                  // if (Platform.isAndroid && enable) ...[
-                  //   ButtonWithIconWidget(
-                  //     icon: CupertinoIcons.creditcard,
-                  //     textAction: S.current.scan_info_from_id,
-                  //     color: AppColors.secondColor,
-                  //     onPressed: () => _onScanIdCard(context),
-                  //   ),
-                  //   const SizedBox(height: 16),
-                  // ],
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AppTextFormField(
-                          label: S.current.firstName,
-                          textController: ctrlFirstName,
-                          textInputAction: TextInputAction.next,
-                          required: true,
-                          enabled: enable,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: AppTextFormField(
-                          label: S.current.lastName,
-                          textController: ctrlLastName,
-                          textInputAction: TextInputAction.next,
-                          required: true,
-                          enabled: enable,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    S.current.gender,
-                    style: AppTextStyle.regular(),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: RadioListTile(
-                          toggleable: enable,
-                          tileColor: Colors.grey.shade100,
-                          shape: AppConfig.shapeBorderMain,
-                          value: appConfig.gender[0],
-                          groupValue: gender,
-                          title: Text(
-                            S.current.male,
-                            style: AppTextStyle.regular(),
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              gender = value;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: RadioListTile(
-                          tileColor: Colors.grey.shade100,
-                          toggleable: true,
-                          shape: AppConfig.shapeBorderMain,
-                          value: appConfig.gender[1],
-                          groupValue: gender,
-                          title: Text(
-                            S.current.female,
-                            style: AppTextStyle.regular(),
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              gender = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  AppTextFormField(
-                    label: S.current.bod,
-                    hintText: "dd/MM/yyyy",
-                    enabled: !_noBOD && enable,
-                    textInputType: TextInputType.number,
-                    textController: ctrlBirthday,
-                    inputFormatters: [
-                      DateText2Formatter(),
-                    ],
-                    required: !_noBOD,
-                    validator: (value) {
-                      if (value?.isNotEmpty ?? false) {
-                        return checkInputDate(value!);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  CheckboxListTile(
-                    value: _noBOD,
-                    enabled: enable,
-                    //tileColor: Colors.grey.shade200,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppTextFormField(
+                      label: S.current.phone,
+                      textController: ctrlPhone,
+                      textInputAction: TextInputAction.next,
+                      textInputType: TextInputType.number,
+                      required: true,
+                      enabled: enable,
+                      maxLength: 12,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      validator: (value) {
+                        if ((value?.trim() ?? '').isEmpty) return 'Vui lòng nhập thông tin';
+                        return null;
+                      },
                     ),
-                    title: Text(S.current.no_identified_bod),
-                    onChanged: (value) {
-                      setState(() {
-                        _noBOD = value ?? true;
-                        if (_noBOD) {
-                          ctrlBirthday.text = '';
+                    const SizedBox(height: 16),
+                    // if (Platform.isAndroid && enable) ...[
+                    //   ButtonWithIconWidget(
+                    //     icon: CupertinoIcons.creditcard,
+                    //     textAction: S.current.scan_info_from_id,
+                    //     color: AppColors.secondColor,
+                    //     onPressed: () => _onScanIdCard(context),
+                    //   ),
+                    //   const SizedBox(height: 16),
+                    // ],
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppTextFormField(
+                            label: S.current.firstName,
+                            textController: ctrlFirstName,
+                            textInputAction: TextInputAction.next,
+                            required: true,
+                            enabled: enable,
+                            validator: (value) {
+                              if ((value?.trim() ?? '').isEmpty) return 'Vui lòng nhập thông tin';
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: AppTextFormField(
+                            label: S.current.lastName,
+                            textController: ctrlLastName,
+                            textInputAction: TextInputAction.next,
+                            required: true,
+                            enabled: enable,
+                            validator: (value) {
+                              if ((value?.trim() ?? '').isEmpty) return 'Vui lòng nhập thông tin';
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      S.current.gender,
+                      style: AppTextStyle.regular(),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: RadioListTile(
+                            toggleable: enable,
+                            tileColor: Colors.grey.shade100,
+                            shape: AppConfig.shapeBorderMain,
+                            value: appConfig.gender[0],
+                            groupValue: gender,
+                            title: Text(
+                              S.current.male,
+                              style: AppTextStyle.regular(),
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                gender = value;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: RadioListTile(
+                            tileColor: Colors.grey.shade100,
+                            toggleable: true,
+                            shape: AppConfig.shapeBorderMain,
+                            value: appConfig.gender[1],
+                            groupValue: gender,
+                            title: Text(
+                              S.current.female,
+                              style: AppTextStyle.regular(),
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                gender = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    AppTextFormField(
+                      label: S.current.bod,
+                      hintText: "dd/MM/yyyy",
+                      enabled: !_noBOD && enable,
+                      textInputType: TextInputType.number,
+                      textController: ctrlBirthday,
+                      inputFormatters: [
+                        DateText2Formatter(),
+                      ],
+                      required: !_noBOD,
+                      validator: (value) {
+                        var text = value?.trim() ?? '';
+                        if (_noBOD == false || text.isNotEmpty) {
+                          if (text.isEmpty) {
+                            return 'Vui lòng nhập thông tin';
+                          }
+                          return checkInputDate(value!);
                         }
-                      });
-                    },
-                  )
-                ],
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    CheckboxListTile(
+                      value: _noBOD,
+                      enabled: enable,
+                      //tileColor: Colors.grey.shade200,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      title: Text(S.current.no_identified_bod),
+                      onChanged: (value) {
+                        setState(() {
+                          _noBOD = value ?? true;
+                          if (_noBOD) {
+                            ctrlBirthday.text = '';
+                          }
+                        });
+                        _formKey.currentState?.validate();
+                      },
+                    )
+                  ],
+                ),
               ),
             ),
             actionsAlignment: MainAxisAlignment.spaceEvenly,
@@ -211,6 +233,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
               if (enable)
                 ButtonSimpleWidget(
                   onPressed: () async {
+                    if (!(_formKey.currentState?.validate() ?? false)) return;
                     String phone = ctrlPhone.text.trim();
                     String firstName = ctrlFirstName.text.trim();
                     String lastName = ctrlLastName.text.trim();
@@ -236,12 +259,10 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                         );
                     if (result != null) {
                       if (context.mounted) {
-                        await showErrorDialog(
+                        await showMessageDialog(
                           context,
                           message: result,
-                          isNotifier: true,
                         );
-                        // showMessageDialog(context, message: result);
                       }
                       return;
                     }

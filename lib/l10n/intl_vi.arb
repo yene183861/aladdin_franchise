@@ -489,7 +489,7 @@
   "completing_payment_verification": "Đang hoàn tất xác nhận thanh toán...",
   "dialog_auto_close_after": "Hộp thoại sẽ tự động đóng sau",
   "payment_successful": "Thanh toán thành công!",
-  "msg_thanks_customer": "Thank you for choosing [{restaurant_name}]! We wish you a delicious meal!",
+  "msg_thanks_customer": "Cảm ơn đã lựa chọn {restaurant_name}. Chúc quý khách ngon miệng!",
   "@msg_thanks_customer": {
     "placeholders": {
       "restaurant_name": {
