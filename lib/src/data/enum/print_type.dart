@@ -16,4 +16,5 @@ enum PrintTypeEnum {
 
   /// qr o2o
   qrO2o,
+  printStatus,
 }

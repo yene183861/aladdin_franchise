@@ -35,6 +35,8 @@ mixin _$TestNotificationModel {
   dynamic get data => throw _privateConstructorUsedError;
   @HiveField(6, defaultValue: null)
   String? get type => throw _privateConstructorUsedError;
+  @HiveField(7, defaultValue: '')
+  String get id => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -55,7 +57,8 @@ abstract class $TestNotificationModelCopyWith<$Res> {
       @HiveField(3, defaultValue: false) bool read,
       @HiveField(4, defaultValue: null) int? orderId,
       @HiveField(5, defaultValue: null) dynamic data,
-      @HiveField(6, defaultValue: null) String? type});
+      @HiveField(6, defaultValue: null) String? type,
+      @HiveField(7, defaultValue: '') String id});
 }
 
 /// @nodoc
@@ -79,6 +82,7 @@ class _$TestNotificationModelCopyWithImpl<$Res,
     Object? orderId = freezed,
     Object? data = freezed,
     Object? type = freezed,
+    Object? id = null,
   }) {
     return _then(_value.copyWith(
       title: null == title
@@ -109,6 +113,10 @@ class _$TestNotificationModelCopyWithImpl<$Res,
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
               as String?,
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
     ) as $Val);
   }
 }
@@ -129,7 +137,8 @@ abstract class _$$TestNotificationModelImplCopyWith<$Res>
       @HiveField(3, defaultValue: false) bool read,
       @HiveField(4, defaultValue: null) int? orderId,
       @HiveField(5, defaultValue: null) dynamic data,
-      @HiveField(6, defaultValue: null) String? type});
+      @HiveField(6, defaultValue: null) String? type,
+      @HiveField(7, defaultValue: '') String id});
 }
 
 /// @nodoc
@@ -151,6 +160,7 @@ class __$$TestNotificationModelImplCopyWithImpl<$Res>
     Object? orderId = freezed,
     Object? data = freezed,
     Object? type = freezed,
+    Object? id = null,
   }) {
     return _then(_$TestNotificationModelImpl(
       title: null == title
@@ -181,6 +191,10 @@ class __$$TestNotificationModelImplCopyWithImpl<$Res>
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
               as String?,
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -196,7 +210,8 @@ class _$TestNotificationModelImpl extends _TestNotificationModel {
       @HiveField(3, defaultValue: false) this.read = false,
       @HiveField(4, defaultValue: null) this.orderId,
       @HiveField(5, defaultValue: null) this.data,
-      @HiveField(6, defaultValue: null) this.type})
+      @HiveField(6, defaultValue: null) this.type,
+      @HiveField(7, defaultValue: '') this.id = ''})
       : super._();
 
   factory _$TestNotificationModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -226,10 +241,14 @@ class _$TestNotificationModelImpl extends _TestNotificationModel {
   @override
   @HiveField(6, defaultValue: null)
   final String? type;
+  @override
+  @JsonKey()
+  @HiveField(7, defaultValue: '')
+  final String id;
 
   @override
   String toString() {
-    return 'TestNotificationModel(title: $title, body: $body, datetime: $datetime, read: $read, orderId: $orderId, data: $data, type: $type)';
+    return 'TestNotificationModel(title: $title, body: $body, datetime: $datetime, read: $read, orderId: $orderId, data: $data, type: $type, id: $id)';
   }
 
   @override
@@ -244,13 +263,14 @@ class _$TestNotificationModelImpl extends _TestNotificationModel {
             (identical(other.read, read) || other.read == read) &&
             (identical(other.orderId, orderId) || other.orderId == orderId) &&
             const DeepCollectionEquality().equals(other.data, data) &&
-            (identical(other.type, type) || other.type == type));
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.id, id) || other.id == id));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, title, body, datetime, read,
-      orderId, const DeepCollectionEquality().hash(data), type);
+      orderId, const DeepCollectionEquality().hash(data), type, id);
 
   @JsonKey(ignore: true)
   @override
@@ -275,7 +295,8 @@ abstract class _TestNotificationModel extends TestNotificationModel {
           @HiveField(3, defaultValue: false) final bool read,
           @HiveField(4, defaultValue: null) final int? orderId,
           @HiveField(5, defaultValue: null) final dynamic data,
-          @HiveField(6, defaultValue: null) final String? type}) =
+          @HiveField(6, defaultValue: null) final String? type,
+          @HiveField(7, defaultValue: '') final String id}) =
       _$TestNotificationModelImpl;
   _TestNotificationModel._() : super._();
 
@@ -303,6 +324,9 @@ abstract class _TestNotificationModel extends TestNotificationModel {
   @override
   @HiveField(6, defaultValue: null)
   String? get type;
+  @override
+  @HiveField(7, defaultValue: '')
+  String get id;
   @override
   @JsonKey(ignore: true)
   _$$TestNotificationModelImplCopyWith<_$TestNotificationModelImpl>

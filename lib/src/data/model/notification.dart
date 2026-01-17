@@ -9,6 +9,7 @@ part 'notification.g.dart';
 enum NotificationTypeEnum {
   print,
   printError,
+  printStatus,
   other,
 }
 
@@ -43,6 +44,7 @@ class TestNotificationModel extends HiveObject with _$TestNotificationModel {
     @HiveField(4, defaultValue: null) int? orderId,
     @HiveField(5, defaultValue: null) dynamic data,
     @HiveField(6, defaultValue: null) String? type,
+    @Default('') @HiveField(7, defaultValue: '') String id,
   }) = _TestNotificationModel;
   TestNotificationModel._();
 

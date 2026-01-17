@@ -154,8 +154,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   Command? pubCommand;
 
+  Timer? timer;
+
   @override
   void dispose() {
+    timer?.cancel();
     AppConfig.initHomeProvider = false;
     pubCommand = null;
     super.dispose();
@@ -768,19 +771,19 @@ class HomeNotifier extends StateNotifier<HomeState> {
   //   }
   // }
 
-  void pubRedisPrintChannel() async {
-    try {
-      var info = LocalStorage.getDataLogin()?.restaurant?.redisGatewayPayment;
-      if (info == null) return;
-      var ip = '10.0.2.2';
-      var port = 6379;
-      final redisConnection = RedisConnection();
-      showLog("$ip:$port", flags: "Connecting to");
-      pubCommand = await redisConnection.connect(ip, port);
-    } catch (ex) {
-      showLog(ex, flags: 'RedisConnection error');
-    }
-  }
+  // void pubRedisPrintChannel() async {
+  //   try {
+  //     var info = LocalStorage.getDataLogin()?.restaurant?.redisGatewayPayment;
+  //     if (info == null) return;
+  //     var ip = '10.0.2.2';
+  //     var port = 6379;
+  //     final redisConnection = RedisConnection();
+  //     showLog("$ip:$port", flags: "Connecting to");
+  //     pubCommand = await redisConnection.connect(ip, port);
+  //   } catch (ex) {
+  //     showLog(ex, flags: 'RedisConnection error');
+  //   }
+  // }
 
   Future<String?> sendPrintData({
     required PrintTypeEnum type,
@@ -797,23 +800,28 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }) async {
     showLogs(null, flags: 'sendPrintData');
     try {
-      var order = state.orderSelect;
+      var order = state.orderSelect ?? const OrderModel();
       var data = {
-        // 'id': DateTimeUtils.formatToString(
-        //     time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
+        'id': DateTimeUtils.formatToString(
+            time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
         'type': type.name,
         'mode': LocalStorage.getPrintSetting().appPrinterType.name,
-        'order': order,
-        'products': products,
-        'note': note,
-        'printers': printers,
         'close_shift_data': closeShiftData,
         'payment_data': paymentData,
         'use_odd_bill': ref.read(printSettingProvider).billReturnSetting.useOddBill,
         'use_default_printers': useDefaultPrinters,
         'total_bill': totalBill,
-        // 'status': false,
-        // 'ref_id': null,
+        'status': false,
+        'error': false,
+        'ref_id': null,
+        'sender_device_id': kDeviceId,
+        'handle_device_id': null,
+        'order': order,
+        'products': products,
+        'note': note,
+        'printers': printers,
+
+        // 'print_device_ip': '',
       };
       if (printDirectly) {
         _handlePrintRedisEvent([
@@ -826,6 +834,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
         ]);
       } else {
         await _restaurantRepository.sendPrintData(data);
+        _saveNotificationPrintError(
+          title: 'Yêu cầu in chưa được xử lý',
+          dataDecode: data,
+          order: order,
+        );
+        // _saveNotificationPrintError(title: '',
+        // event: );
       }
 
       return null;
@@ -833,6 +848,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
       return ex.toString();
     }
   }
+
+  // void _listenUpdatePrintCommand() {
+  //   timer?.cancel();
+  //   timer = Timer(const Duration(seconds: 10), () {
+
+  //   },);
+  // }
 
   // Map<String, dynamic> convertPrintData(dynamic data) {
   //   Map<String, dynamic> result = {};
@@ -1012,25 +1034,84 @@ class HomeNotifier extends StateNotifier<HomeState> {
     );
   }
 
-  void _handlePrintRedisEvent(dynamic event, {bool ignoreCheckPrintDevice = false}) {
+  void _handlePrintRedisEvent(dynamic event, {bool ignoreCheckPrintDevice = false}) async {
     try {
+      showLogs(event, flags: 'event');
       dynamic dataDecode = jsonDecode(event[2])['data'];
       var type = dataDecode['type'] as String?;
       var printDeviceId = jsonDecode(event[2])['printer_device_id'] as String?;
       var printType = type == null ? null : PrintTypeEnum.values.byName(type);
-      if (!ignoreCheckPrintDevice) {
-        if (kDeviceId != printDeviceId) return;
-      }
+
       switch (printType) {
         case PrintTypeEnum.order:
         case PrintTypeEnum.cancel:
+          if (!ignoreCheckPrintDevice) {
+            if (kDeviceId != printDeviceId) return;
+          }
           _handlePrintProcessItem(event, dataDecode, printType);
           break;
         case PrintTypeEnum.closeShift:
+          if (!ignoreCheckPrintDevice) {
+            if (kDeviceId != printDeviceId) return;
+          }
           _handlePrintCloseShift(event, dataDecode);
           break;
         case PrintTypeEnum.payment:
+          if (!ignoreCheckPrintDevice) {
+            if (kDeviceId != printDeviceId) return;
+          }
           _handlePrintPaymentReceipt(event, dataDecode);
+          break;
+        case PrintTypeEnum.printStatus:
+          showLogs(event, flags: 'event printStatus');
+          var refId = dataDecode['ref_id'];
+          showLogs(refId, flags: 'event printStatus refId');
+          try {
+            var noti = state.notifications;
+            var check = noti.firstWhereOrNull((e) {
+              var json = jsonDecode(e.data);
+              if (json['sender_device_id']?.toString() == kDeviceId && refId == json['id']) {
+                return true;
+              }
+              return false;
+            });
+            showLogs(check, flags: 'check check not ti');
+            if (check != null) {
+              var json = Map<String, dynamic>.from(jsonDecode(check.data));
+              showLogs(json, flags: 'json');
+              var status = dataDecode['status'] ?? false;
+              showLogs(status, flags: 'status');
+              if (status) {
+                json['status'] = true;
+                try {
+                  if (!Hive.isBoxOpen(AppConfig.testNotificationBoxName)) return;
+                  var box = Hive.box<TestNotificationModel>(AppConfig.testNotificationBoxName);
+                  var values = box.values.toList();
+                  var valueIndex = values.indexWhere((e) => e.id == check.id);
+                  if (valueIndex != -1) {
+                    box.putAt(
+                      valueIndex,
+                      check.copyWith(data: jsonEncode(json), title: 'Xử lý lệnh in thành công'),
+                    );
+                  }
+                } catch (ex) {
+                  showLogs(ex, flags: 'PrintTypeEnum.printStatus status');
+                }
+              }
+            }
+          } catch (ex) {
+            showLogs(ex, flags: 'PrintTypeEnum.printStatus');
+            //
+          }
+
+          // int retry = 0;
+          // var data = Map<String, dynamic>.from(dataDecode);
+          // while (retry < 3) {
+          //   try {
+          //     await _restaurantRepository.sendPrintData(data);
+          //   } catch (ex) {}
+          // }
+          // _handlePrintPaymentReceipt(event, dataDecode);
           break;
         default:
       }
@@ -1071,15 +1152,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
       showLogs(data?.vouchers, flags: 'data _handlePrintPaymentReceipt');
 
       if (data == null || printers.isEmpty) return;
-      // _saveNotificationPrintError(
-      //   title: 'Không thể in phiếu thanh toán ${data.order.getOrderMisc()}',
-      //   error: '',
-      //   event: event,
-      //   order: data.order,
-      // );
-      // return;
-      // if (data == null) return;
-      // var bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(data);
       final receiptData = data;
       for (var printer in printers) {
         PrintQueue.instance.addTask(
@@ -1097,7 +1169,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
               _saveNotificationPrintError(
                 title: 'Không thể in phiếu thanh toán ${data?.order.getOrderMisc()}',
                 error: error,
-                event: event,
+                dataDecode: dataDecode,
                 order: data?.order,
               );
               // if (!Hive.isBoxOpen(AppConfig.testNotificationBoxName)) {
@@ -1162,7 +1234,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
               _saveNotificationPrintError(
                 title: 'Không thể in phiếu chốt ca',
                 error: error,
-                event: event,
+                dataDecode: dataDecode,
               );
               // if (!Hive.isBoxOpen(AppConfig.testNotificationBoxName)) {
               //   return;
@@ -1192,7 +1264,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   void _handlePrintProcessItem(dynamic event, dynamic dataDecode, PrintTypeEnum? printType) async {
     try {
-      if (printType == null) return;
       var note = (dataDecode['note'] ?? '') as String;
       var mode = dataDecode['mode'] as String?;
       var printMode = mode == null
@@ -1212,8 +1283,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       if (order == null || printers.isEmpty || products.isEmpty) return;
       bool cancel = printType == PrintTypeEnum.cancel;
       bool printNormal = printMode == AppPrinterSettingTypeEnum.normal;
-      showLogs(useOddBill, flags: 'useOddBill');
-      showLogs(printers, flags: 'printers');
+
       var bytes = printNormal
           ? await AppPrinterNormalUtils.instance.generateBill(
               order: order,
@@ -1236,7 +1306,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
       Map<ProductModel, List<int>> oddBillDatas = {};
       bool initOddBillData = false;
       for (var printer in printers) {
-        showLogs(printer, flags: 'printer check');
         PrintQueue.instance.addTask(
           ip: printer.ip!,
           port: printer.port!,
@@ -1244,9 +1313,24 @@ class HomeNotifier extends StateNotifier<HomeState> {
             return bytes;
           },
           onComplete: (success, error) async {
+            int retry = 0;
+            var callback = Map<String, dynamic>.from(dataDecode);
+            callback['ref_id'] = callback['id'];
+            callback['id'] = DateTimeUtils.formatToString(
+                time: DateTime.now(), newPattern: DateTimePatterns.dateTime3);
+            callback['type'] = PrintTypeEnum.printStatus.name;
+            callback['status'] = true;
+            while (retry < 3) {
+              try {
+                showLogs(callback['status'], flags: '✅ In bill món tổng thành công status');
+                await _restaurantRepository.sendPrintData(callback);
+                break;
+              } catch (ex) {
+                showLogs(ex, flags: 'callback print');
+              }
+            }
+            showLogs(null, flags: "✅ In bill món tổng thành công");
             if (success) {
-              showLogs(null, flags: "✅ In bill món tổng thành công");
-
               if (printType == PrintTypeEnum.order && useOddBill && totalBill) {
                 /// nếu có bill tổng có:
                 /// + đồ ăn + đồ uống => in bill lẻ tất cả
@@ -1358,7 +1442,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                       buildReceipt: (generator) async {
                         return value;
                       },
-                      onComplete: (success, error) {
+                      onComplete: (success, error) async {
                         if (success) {
                           showLogs(null, flags: "✅ In món lẻ thành công");
                         } else {
@@ -1366,7 +1450,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                             title: 'Không thể in bill lẻ xuống bếp, bar',
                             error: error,
                             order: order,
-                            event: event,
+                            dataDecode: dataDecode,
                           );
                           showLogs("❌ In bill lẻ thất bại\n$key", flags: 'BILL LẺ');
                         }
@@ -1398,7 +1482,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                 title: 'Không thể in bill tổng xuống bếp, bar',
                 error: error,
                 order: order,
-                event: event,
+                dataDecode: dataDecode,
               );
             }
           },
@@ -1413,25 +1497,23 @@ class HomeNotifier extends StateNotifier<HomeState> {
     required String title,
     String? error,
     OrderModel? order,
-    dynamic event,
+    dynamic dataDecode,
   }) async {
     if (!Hive.isBoxOpen(AppConfig.testNotificationBoxName)) {
       return;
     }
     var box = Hive.box<TestNotificationModel>(AppConfig.testNotificationBoxName);
-    try {
-      showLogs(event, flags: 'event');
-      showLogs(event.runtimeType, flags: 'event runtimeType');
-      // await _restaurantRepository.sendPrintData(data);
-    } catch (ex) {}
-
+    showLogs(title, flags: '_saveNotificationPrintError title');
+    showLogs(dataDecode, flags: '_saveNotificationPrintError');
     try {
       await box.add(TestNotificationModel(
+        id: DateTimeUtils.formatToString(
+            time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
         title: title,
         body: error ?? '',
         orderId: order?.id,
         datetime: DateTime.now(),
-        data: jsonEncode(event),
+        data: jsonEncode(dataDecode),
         type: NotificationTypeEnum.print.name,
       ));
     } catch (ex) {

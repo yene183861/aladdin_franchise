@@ -37,8 +37,7 @@ class NotificationPage extends ConsumerStatefulWidget {
   const NotificationPage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _NotificationPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _NotificationPageState();
 }
 
 class _NotificationPageState extends ConsumerState<NotificationPage> {
@@ -126,6 +125,15 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
         centerTitle: true,
         actions: [
           ResponsiveIconButtonWidget(
+            iconData: Icons.delete,
+            onPressed: () {
+              if (!Hive.isBoxOpen(AppConfig.testNotificationBoxName)) return;
+
+              var box = Hive.box<TestNotificationModel>(AppConfig.testNotificationBoxName);
+              box.clear();
+            },
+          ),
+          ResponsiveIconButtonWidget(
             iconData: Icons.refresh,
             onPressed: () {
               ref.read(homeProvider.notifier).loadNotifications();
@@ -156,8 +164,6 @@ class _BodyPage extends ConsumerWidget {
         }
         return InkWell(
           onTap: () {
-            showLogs(type, flags: 'type');
-            if (type != NotificationTypeEnum.other) return;
             showDialog(
               context: context,
               builder: (context) {
@@ -172,8 +178,7 @@ class _BodyPage extends ConsumerWidget {
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade300),
-              borderRadius:
-                  BorderRadius.circular(AppConfig.sizeBorderRadiusSecond),
+              borderRadius: BorderRadius.circular(AppConfig.sizeBorderRadiusSecond),
             ),
             child: Row(
               children: [
@@ -236,14 +241,28 @@ class NotificationDetailDialog extends StatelessWidget {
     showLogs(item, flags: 'item');
     var data = jsonDecode(item.data);
     // var products =
-    return AlertDialog(
-      title: Text('Thông báo: ${item.title}'),
-      content: Column(
+    return Dialog(
+      // title: Text('Thông báo: ${item.title}'),
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Sự cố: ${item.body}'),
-          Text(data.toString()),
+          if (data is Map<String, dynamic>)
+            Expanded(
+              child: ListView.separated(
+                  itemBuilder: (context, index) {
+                    var item = data.keys.toList()[index];
+                    var value = data.values.toList()[index];
+                    return ListTile(
+                      title: Text(item),
+                      subtitle: Text(value.toString()),
+                    );
+                  },
+                  separatorBuilder: (context, index) => Gap(4),
+                  itemCount: data.keys.toList().length),
+            ),
+          if (data is! Map) Text(data.toString()),
         ],
       ),
     );

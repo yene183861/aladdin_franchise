@@ -25,13 +25,14 @@ class TestNotificationModelAdapter
       orderId: fields[4] as int?,
       data: fields[5] as dynamic,
       type: fields[6] as String?,
+      id: fields[7] == null ? '' : fields[7] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, _$TestNotificationModelImpl obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
@@ -45,7 +46,9 @@ class TestNotificationModelAdapter
       ..writeByte(5)
       ..write(obj.data)
       ..writeByte(6)
-      ..write(obj.type);
+      ..write(obj.type)
+      ..writeByte(7)
+      ..write(obj.id);
   }
 
   @override
@@ -75,6 +78,7 @@ _$TestNotificationModelImpl _$$TestNotificationModelImplFromJson(
       orderId: (json['orderId'] as num?)?.toInt(),
       data: json['data'],
       type: json['type'] as String?,
+      id: json['id'] as String? ?? '',
     );
 
 Map<String, dynamic> _$$TestNotificationModelImplToJson(
@@ -87,4 +91,5 @@ Map<String, dynamic> _$$TestNotificationModelImplToJson(
       'orderId': instance.orderId,
       'data': instance.data,
       'type': instance.type,
+      'id': instance.id,
     };
