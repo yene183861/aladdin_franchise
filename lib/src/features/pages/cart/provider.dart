@@ -268,37 +268,80 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
     return null;
   }
 
-  Future<({String? error, String? resultSendPrintData})> addItemToOrder({
+  Future<({String? pingPrinters, String? error, String? resultSendPrintData})> addItemToOrder({
     String note = '',
-    Set<PrinterModel> printers = const {},
+    Set<PrinterModel> printerSelect = const {},
     bool useDefaultPrinter = true,
     bool processOrder = true,
+    bool ignorePrint = false,
   }) async {
+    String? checkPrinters;
+    String? resultSendPrintData;
     var order = ref.read(homeProvider).orderSelect;
-    if (order == null) return (error: null, resultSendPrintData: null);
+    if (order == null) return (pingPrinters: null, error: null, resultSendPrintData: null);
     var productSelecting = List<ProductModel>.from(state.productsSelecting);
     var productIdSelect = Set<int>.from(state.productIdSelect);
     var products = productSelecting.where((e) => productIdSelect.contains(e.id)).toList();
     var kitchenNote = note;
-    String? resultSendPrintData;
+    bool showLoading = processOrder || !ignorePrint;
+    Set<PrinterModel> printers = <PrinterModel>{};
+    Set<ProductModel> foods = <ProductModel>{}, drinks = <ProductModel>{};
+    for (var item in products) {
+      switch (item.printerType) {
+        case ProductPrinterType.drink:
+          drinks.add(item);
+          break;
+        case ProductPrinterType.food:
+          foods.add(item);
+          break;
+      }
+    }
+    Set<PrinterModel> foodPrinterDefault = <PrinterModel>{}, barPrinterDefault = <PrinterModel>{};
     try {
-      showLogs(kitchenNote, flags: 'kitchenNote');
-      products.forEach(
-        (element) {
-          showLogs(element, flags: 'element');
-        },
-      );
-      if (processOrder) {
+      if (showLoading) {
         ref
             .read(homeProvider.notifier)
             .updateEvent(processOrder ? HomeEvent.processOrder : HomeEvent.sendPrintData);
       }
+      if (!ignorePrint) {
+        if (useDefaultPrinter) {
+          for (var item in products) {
+            switch (item.printerType) {
+              case ProductPrinterType.drink:
+                drinks.add(item);
+                break;
+              case ProductPrinterType.food:
+                foods.add(item);
+                break;
+            }
+          }
 
-      var checkPrinters = await AppPrinterCommon.checkListPrintersStatus(printers.toList());
-      if (checkPrinters != null) throw checkPrinters;
+          for (var item in state.defaultPrinters) {
+            switch (item.type) {
+              case ProductPrinterType.drink:
+                barPrinterDefault.add(item);
+                break;
+              case ProductPrinterType.food:
+                foodPrinterDefault.add(item);
+                break;
+            }
+          }
+
+          if (drinks.isNotEmpty) {
+            printers.addAll(barPrinterDefault);
+          }
+          if (foods.isNotEmpty) {
+            printers.addAll(foodPrinterDefault);
+          }
+        } else {
+          printers = Set<PrinterModel>.from(printerSelect);
+        }
+        checkPrinters = await AppPrinterCommon.checkListPrintersStatus(printers.toList());
+        if (checkPrinters != null) throw checkPrinters;
+      }
 
       if (processOrder) {
-        var result = await _orderRepository.processOrderItem(
+        await _orderRepository.processOrderItem(
           order: order,
           total: products.fold(
               0.0, (previousValue, p) => previousValue + p.getUnitPriceNum() * p.numberSelecting),
@@ -307,72 +350,47 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
           cancel: false,
         );
 
-        showLogs(result, flags: 'result');
         ref.read(homeProvider.notifier).getOrderProductCheckout();
         ref.read(homeProvider.notifier).getDataBill();
       }
-      Set<ProductModel> foods = <ProductModel>{}, drinks = <ProductModel>{};
-      for (var item in products) {
-        switch (item.printerType) {
-          case ProductPrinterType.drink:
-            drinks.add(item);
-            break;
-          case ProductPrinterType.food:
-            foods.add(item);
-            break;
-        }
-      }
-
-      if (useDefaultPrinter) {
-        Set<PrinterModel> foodPrinterDefault = <PrinterModel>{},
-            barPrinterDefault = <PrinterModel>{};
-        for (var item in state.defaultPrinters) {
-          switch (item.type) {
-            case ProductPrinterType.drink:
-              barPrinterDefault.add(item);
-              break;
-            case ProductPrinterType.food:
-              foodPrinterDefault.add(item);
-              break;
+      if (!ignorePrint) {
+        if (useDefaultPrinter) {
+          if (drinks.isNotEmpty) {
+            resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
+                  type: PrintTypeEnum.order,
+                  note: kitchenNote,
+                  products: drinks.toList(),
+                  printers: barPrinterDefault.toList(),
+                  timeOrder: 1,
+                  printDirectly: !processOrder,
+                  useDefaultPrinters: true,
+                  totalBill: true,
+                );
           }
-        }
-
-        if (drinks.isNotEmpty) {
+          if (foods.isNotEmpty) {
+            resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
+                  type: PrintTypeEnum.order,
+                  note: kitchenNote,
+                  products: foods.toList(),
+                  printers: foodPrinterDefault.toList(),
+                  timeOrder: 1,
+                  printDirectly: !processOrder,
+                  useDefaultPrinters: true,
+                  totalBill: true,
+                );
+          }
+        } else {
           resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
                 type: PrintTypeEnum.order,
                 note: kitchenNote,
-                products: drinks.toList(),
-                printers: barPrinterDefault.toList(),
+                products: products,
+                printers: printers.toList(),
                 timeOrder: 1,
                 printDirectly: !processOrder,
-                useDefaultPrinters: true,
+                useDefaultPrinters: false,
                 totalBill: true,
               );
         }
-        if (foods.isNotEmpty) {
-          resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
-                type: PrintTypeEnum.order,
-                note: kitchenNote,
-                products: foods.toList(),
-                printers: foodPrinterDefault.toList(),
-                timeOrder: 1,
-                printDirectly: !processOrder,
-                useDefaultPrinters: true,
-                totalBill: true,
-              );
-        }
-      } else {
-        showLogs(null, flags: 'go hee');
-        resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
-              type: PrintTypeEnum.order,
-              note: kitchenNote,
-              products: products,
-              printers: printers.toList(),
-              timeOrder: 1,
-              printDirectly: !processOrder,
-              useDefaultPrinters: false,
-              totalBill: true,
-            );
       }
       if (processOrder) {
         productSelecting.removeWhere((e) => productIdSelect.contains(e.id));
@@ -381,267 +399,22 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
           productIdSelect: <int>{},
         );
       }
-      if (processOrder) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
+      if (showLoading) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
 
-      return (error: null, resultSendPrintData: resultSendPrintData);
+      return (
+        pingPrinters: checkPrinters,
+        error: null,
+        resultSendPrintData: resultSendPrintData,
+      );
     } catch (ex) {
-      if (processOrder) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
+      if (showLoading) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
 
-      return (error: ex.toString(), resultSendPrintData: resultSendPrintData);
+      return (
+        pingPrinters: checkPrinters,
+        error: ex.toString(),
+        resultSendPrintData: resultSendPrintData,
+      );
     }
-  }
-
-  Future<void> printOrderItems(
-    List<ProductModel> products, {
-    String kitchenNote = '',
-  }) async {
-    var order = ref.read(homeProvider).orderSelect;
-    // var productMap = Map<int, Map<String, dynamic>>.from(state.productMap);
-    // var setting = LocalStorage.getPrintSetting();
-    // bool printNormal =
-    //     setting.appPrinterType == AppPrinterSettingTypeEnum.normal;
-
-    // Map<PrinterModel, Set<ProductModel>> mapData = {};
-
-    // for (var p in products) {
-    //   var printers = (productMap[p.id]?['printers'] ?? <PrinterModel>{})
-    //       as Set<PrinterModel>;
-    //   var product = productMap[p.id]?['product'] as ProductModel?;
-    //   showLogs(printers, flags: 'printers');
-    //   if (product != null && printers.isNotEmpty) {
-    //     for (var p in printers) {
-    //       var currentData =
-    //           Set<ProductModel>.from(mapData[p] ?? <ProductModel>{});
-    //       currentData.add(product);
-    //       mapData[p] = currentData;
-    //     }
-    //   }
-    // }
-    // // productMap.forEach(
-    //   (key, value) {
-    //     var printers = (value['printers'] ?? <PrinterModel>{}) as Set<PrinterModel>;
-    //     var product = value['product'] as ProductModel?;
-    //     if (product != null && printers.isNotEmpty) {
-    //       for (var p in printers) {
-    //         var currentData = Set<ProductModel>.from(mapData[p] ?? <ProductModel>{});
-    //         currentData.add(product);
-    //         mapData[p] = currentData;
-    //       }
-    //     }
-    //   },
-    // );
-
-    // showLogs(mapData, flags: 'mapData');
-
-    // var check = await AppPrinterCommon.checkPrinters(mapData.keys
-    //     .toList()
-    //     .map((e) => IpOrderModel(
-    //           ip: e.ip ?? '',
-    //           port: e.port ?? 9100,
-    //           name: e.name,
-    //           type: e.type,
-    //           typeAreaLocation: e.typeAreaLocation,
-    //         ))
-    //     .toList());
-    // if (check != null) {
-    //   throw check;
-    // }
-
-    // showLogs(check, flags: 'check');
-    // mapData.forEach(
-    //   (key, value) async {
-    //     showLogs(key, flags: 'key');
-    //     showLogs(value, flags: 'value');
-    //     Set<ProductModel> productPrinter = Set<ProductModel>.from(value);
-    //     if ((key.ip ?? '').trim().isNotEmpty && productPrinter.isNotEmpty) {
-    //       String totalNote = kitchenNote;
-    //       if (totalNote.trim().isEmpty && productPrinter.length == 1) {
-    //         totalNote = productPrinter.firstOrNull?.note ?? '';
-    //       }
-
-    //       var bytes = printNormal
-    //           ? await AppPrinterNormalUtils.instance.generateBill(
-    //               order: order!,
-    //               billSingle: false,
-    //               cancel: false,
-    //               timeOrder: 1,
-    //               totalNote: kitchenNote,
-    //               products: productPrinter.toList(),
-    //               title: '',
-    //             )
-    //           : await AppPrinterHtmlUtils.instance.generateImageBill(
-    //               AppPrinterHtmlUtils.instance.kitchenBillContent(
-    //               order: order!,
-    //               product: productPrinter.toList(),
-    //               note: kitchenNote,
-    //               timeOrders: 1,
-    //               cancel: false,
-    //               totalBill: true,
-    //             ));
-    //       showLogs(bytes, flags: 'bytes');
-    //       PrintQueue.instance.addTask(
-    //         ip: key.ip!,
-    //         port: key.port ?? 9100,
-    //         buildReceipt: (generator) async {
-    //           return bytes;
-    //         },
-    //         onComplete: (success, error) async {
-    //           if (success) {
-    //             showLogs("✅ In thành công", flags: 'BILL TỔNG');
-    //             // chỉ in bill lẻ với bếp
-    //             String? errorPrintOdd;
-    //             // if (printer.type == 2 && setting.billReturnSetting.useOddBill) {
-    //             //   for (var item in productPrinter) {
-    //             //     List<int> byteDatas;
-
-    //             //     var listComboItemPrint = ProductHelper().getComboDescription(item);
-
-    //             //     if (listComboItemPrint == null || listComboItemPrint.isEmpty) {
-    //             //       // món thường
-    //             //       byteDatas = printNormal
-    //             //           ? await AppPrinterNormalUtils.instance.generateBill(
-    //             //               order: state.orderSelect!,
-    //             //               billSingle: true,
-    //             //               cancel: false,
-    //             //               timeOrder: 1,
-    //             //               totalNote: kitchenNote,
-    //             //               products: [item],
-    //             //               title: '',
-    //             //             )
-    //             //           : await AppPrinterHtmlUtils.instance
-    //             //               .generateImageBill(AppPrinterHtmlUtils.instance.kitchenBillContent(
-    //             //               product: [item],
-    //             //               totalBill: false,
-    //             //               order: state.orderSelect!,
-    //             //               note: kitchenNote,
-    //             //               timeOrders: 1,
-    //             //             ));
-    //             //       PrintQueue.instance.addTask(
-    //             //         ip: printer.ip,
-    //             //         port: printer.port,
-    //             //         buildReceipt: (generator) async {
-    //             //           return byteDatas;
-    //             //         },
-    //             //         onComplete: (success, error) {
-    //             //           if (success) {
-    //             //             showLogs("✅ In thành công\n$item", flags: 'BILL LẺ');
-    //             //           } else {
-    //             //             errorPrintOdd = error;
-    //             //             errors.add(item);
-    //             //             showLogs("❌ In thất bại\n$item", flags: 'BILL LẺ');
-    //             //           }
-    //             //         },
-    //             //       );
-    //             //     } else {
-    //             //       // in từng món trong combo
-    //             //       for (var ci in listComboItemPrint) {
-    //             //         byteDatas = printNormal
-    //             //             ? await AppPrinterNormalUtils.instance.generateBill(
-    //             //                 order: state.orderSelect!,
-    //             //                 billSingle: true,
-    //             //                 cancel: false,
-    //             //                 timeOrder: 1,
-    //             //                 totalNote: kitchenNote,
-    //             //                 products: [
-    //             //                   item.copyWith(description: jsonEncode([ci]))
-    //             //                 ],
-    //             //                 title: '',
-    //             //               )
-    //             //             : await AppPrinterHtmlUtils.instance.generateImageBill(
-    //             //                 AppPrinterHtmlUtils.instance.kitchenBillContent(
-    //             //                   product: [
-    //             //                     item.copyWith(description: jsonEncode([ci]))
-    //             //                   ],
-    //             //                   totalBill: false,
-    //             //                   order: state.orderSelect!,
-    //             //                   note: kitchenNote,
-    //             //                   timeOrders: 1,
-    //             //                 ),
-    //             //               );
-    //             //         PrintQueue.instance.addTask(
-    //             //           ip: printer.ip,
-    //             //           port: printer.port,
-    //             //           buildReceipt: (generator) async {
-    //             //             return byteDatas;
-    //             //           },
-    //             //           onComplete: (success, error) {
-    //             //             if (success) {
-    //             //               showLogs(
-    //             //                   "✅ In thành công\n${item.copyWith(description: jsonEncode(ci))}",
-    //             //                   flags: 'BILL LẺ');
-    //             //             } else {
-    //             //               errorPrintOdd = error;
-    //             //               errors.add(
-    //             //                 item.copyWith(
-    //             //                   description: jsonEncode([ci]),
-    //             //                 ),
-    //             //               );
-    //             //               showLogs(
-    //             //                   "❌ In thất bại\n${item.copyWith(description: jsonEncode(ci))}",
-    //             //                   flags: 'BILL LẺ');
-    //             //             }
-    //             //           },
-    //             //         );
-    //             //       }
-    //             //     }
-    //             //   }
-    //             //   if (errors.isNotEmpty && context.mounted) {
-    //             //     showMessageDialog(
-    //             //       context,
-    //             //       message: "Không thể in bill lẻ xuống bếp\n"
-    //             //           '$errorPrintOdd\n'
-    //             //           'Danh sách các món không thể ra bill lẻ:\n${errors.map((e) => e.name).join(', ')}',
-    //             //     );
-    //             //   }
-    //             // }
-    //           } else {
-    //             showLogs("❌ In thất bại", flags: 'BILL TỔNG');
-    //             // if (error != null && context.mounted) {
-    //             //   showMessageDialog(
-    //             //     context,
-    //             //     message: "Món đã được thêm vào hóa đơn nhưng không thể in bill xuống bếp\n"
-    //             //         'Lỗi:\n$error',
-    //             //   );
-    //             // }
-    //           }
-    //         },
-    //       );
-    //     }
-    //   },
-    // );
-    // // for (var printer in mapData.keys) {
-    //   List<ProductModel> productPrinter =
-    //       List<ProductModel>.from(printerMapProducts[printer.type] ?? []);
-
-    //   if (productPrinter.isEmpty) {
-    //     continue;
-    //   }
-    //   if (kitchenNote.trim().isEmpty && productPrinter.length == 1) {
-    //     kitchenNote = productPrinter.firstOrNull?.note ?? '';
-    //   }
-    //   showLogs(productPrinter.length, flags: 'check só lượng món in');
-    //   var bytes = printNormal
-    //       ? await AppPrinterNormalUtils.instance.generateBill(
-    //           order: order!,
-    //           billSingle: false,
-    //           cancel: false,
-    //           timeOrder: 1,
-    //           totalNote: kitchenNote,
-    //           products: productPrinter,
-    //           title: '',
-    //         )
-    //       : await AppPrinterHtmlUtils.instance
-    //           .generateImageBill(AppPrinterHtmlUtils.instance.kitchenBillContent(
-    //           order: order!,
-    //           product: productPrinter,
-    //           note: kitchenNote,
-    //           timeOrders: 1,
-    //           cancel: false,
-    //           totalBill: true,
-    //         ));
-    //   List<ProductModel> errors = [];
-
-    // }
   }
 
   void onChangeProductIdSelect(int id, bool selected) {

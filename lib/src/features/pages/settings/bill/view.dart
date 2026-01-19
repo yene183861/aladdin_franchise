@@ -43,38 +43,6 @@ class _BillSettingsWidgetState extends ConsumerState<BillSettingsWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Consumer(builder: (context, ref, child) {
-          //   var o2oConfig = ref.watch(o2oConfigProvider).when(
-          //         data: (data) => data,
-          //         error: (error, stackTrace) => O2oConfigModel(),
-          //         loading: () => O2oConfigModel(),
-          //       );
-          //   return Row(
-          //     children: [
-          //       Padding(
-          //         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          //         child: AppButton(
-          //           textAction: 'Cấu hình xác nhận yêu cầu gọi món tại bàn',
-          //           onPressed: () async {
-          //             var config = await showO2oAutoProcessConfigDialog(
-          //               context,
-          //               o2oConfig,
-          //             );
-          //             showLogs(config, flags: 'config');
-          //             if (config != null) {
-          //               var result =
-          //                   await ref.read(homeProvider.notifier).saveO2oAutoProcessConfig(config);
-          //               if (result != null) {
-          //                 showMessageDialog(context, message: result);
-          //               }
-          //             }
-          //           },
-          //         ),
-          //       ),
-          //     ],
-          //   );
-          // }),
-
           SwitchListTile(
             title: Text(
               "Cấu hình là thiết bị in",

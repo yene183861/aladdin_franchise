@@ -41,8 +41,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'state.dart';
 
 final historyOrderPageProvider =
-    StateNotifierProvider.autoDispose<HistoryOrderNotifier, HistoryOrderState>(
-        (ref) {
+    StateNotifierProvider.autoDispose<HistoryOrderNotifier, HistoryOrderState>((ref) {
   return HistoryOrderNotifier(ref, ref.read(orderRepositoryProvider));
 });
 
@@ -68,24 +67,19 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
     );
   }
 
-  Future<({String? error, bool refreshData})> printBillForCustomer(
-      BuildContext context,
+  Future<({String? error, bool refreshData})> printBillForCustomer(BuildContext context,
       {bool completeBillAction = false}) async {
     String? error;
     bool refreshData = false;
     try {
       state = state.copyWith(
-          event: completeBillAction
-              ? HistoryOrderEvent.completeBill
-              : HistoryOrderEvent.printBill);
+          event: completeBillAction ? HistoryOrderEvent.completeBill : HistoryOrderEvent.printBill);
       var historyOrderSelect = state.historyOrderSelect;
       if (historyOrderSelect == null) {
         throw S.current.msg_select_order_before_print_receipt;
       }
-      bool requireCompleteBill =
-          historyOrderSelect.status == OrderStatusEnum.waiting;
-      bool isOnline =
-          historyOrderSelect.orderType == AppConfig.orderOnlineValue;
+      bool requireCompleteBill = historyOrderSelect.status == OrderStatusEnum.waiting;
+      bool isOnline = historyOrderSelect.orderType == AppConfig.orderOnlineValue;
       var order = orderSelect;
       if (order == null) {
         state = state.copyWith(event: HistoryOrderEvent.normal);
@@ -103,8 +97,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
           if (dataBill.error != null) {
             throw dataBill.error!;
           }
-          List<LineItemDataBill> itemsPrint =
-              List<LineItemDataBill>.from(dataBill.itemsPrint);
+          List<LineItemDataBill> itemsPrint = List<LineItemDataBill>.from(dataBill.itemsPrint);
 
           PriceDataBill price = dataBill.price;
 
@@ -132,9 +125,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             while (_count < 3) {
               try {
                 if (listPaymentMethods.isEmpty) {
-                  var pm = await ref
-                      .read(restaurantRepositoryProvider)
-                      .getPaymentMethod(
+                  var pm = await ref.read(restaurantRepositoryProvider).getPaymentMethod(
                         orderId: order.id,
                       );
 
@@ -151,8 +142,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             if (errorGetPaymentMethods != null) {
               throw 'Không thể tải danh sách phương thức thanh toán';
             }
-            paymentMethodSelect = listPaymentMethods
-                .firstWhereOrNull((e) => e.key == paymentMethodSelect?.key);
+            paymentMethodSelect =
+                listPaymentMethods.firstWhereOrNull((e) => e.key == paymentMethodSelect?.key);
           }
 
           if (paymentMethodSelect == null) {
@@ -162,8 +153,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
             if (paymentMethodSelect.isGateway) {
               paymentAmount = 0.0;
             } else {
-              paymentAmount =
-                  double.tryParse(price.totalPriceFinal.toString()) ?? 0.0;
+              paymentAmount = double.tryParse(price.totalPriceFinal.toString()) ?? 0.0;
             }
           }
           // showLogs(paymentAmount, flags: 'paymentAmount 1');
@@ -375,8 +365,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
           }
           String? resPrint;
           try {
-            var check = await AppPrinterCommon.checkPrinter(IpOrderModel(
-                ip: infoPrinter.ip, port: infoPrinter.port, type: 1));
+            var check = await AppPrinterCommon.checkPrinter(
+                IpOrderModel(ip: infoPrinter.ip, port: infoPrinter.port, type: 1));
             if (check != null) {
               throw check;
             }
@@ -421,8 +411,7 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
               timeCreatedAt: orderPrint.createdAt,
               invoiceQr: invoiceQr ?? '',
             );
-            var resultSend =
-                await ref.read(homeProvider.notifier).sendPrintData(
+            var resultSend = await ref.read(homeProvider.notifier).sendPrintData(
               type: PrintTypeEnum.payment,
               paymentData: data,
               printers: [
@@ -613,64 +602,9 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
     }
   }
 
-  // ({bool valid, Map<int, double> tax})
-  ({bool valid, Map<int, Map<String, dynamic>> tax}) _checkValidTaxItemsPrint({
-    required List<ProductModel> products,
-    required List<LineItemDataBill> itemsPrint,
-    bool requireUpdateTax = false,
-  }) {
-    bool valid = true;
-    Map<int, Map<String, dynamic>> tax = {};
-    // Map<int, double> tax = {};
-    for (var item in itemsPrint) {
-      // tax[item.id] = item.getTax1();
-
-      var p = products.firstWhereOrNull((e) => e.id == item.id);
-      if (p != null) {
-        if (item.isChangeTax == 1) {
-          valid = false;
-          tax[item.id] = {
-            'use_default': false,
-            'default': p.getTax * 1.0,
-          };
-        } else {
-          // k cần phân bổ thuế
-          if (item.getTax1() != p.getTax) {
-            valid = false;
-            tax[item.id] = {
-              'use_default': true,
-              'default': p.getTax * 1.0,
-            };
-          }
-        }
-        // tax[item.id] = p.getTax;
-        // if (requireUpdateTax) {
-        //   if (item.getTax1() == 0) {
-        //     valid = false;
-        //   }
-        // } else {
-        //   if (item.getTax1() != p.getTax) {
-        //     valid = false;
-        //   }
-        // }
-      } else {
-        if (item.isChangeTax == 1 && requireUpdateTax && item.getTax1() == 0) {
-          valid = false;
-          tax[item.id] = {
-            'use_default': false,
-            'default': 0.0,
-          };
-        }
-      }
-    }
-    return (valid: valid, tax: tax);
-  }
-
   void getDetailOrder() async {
     try {
-      state = state.copyWith(
-          getOrderDetailState:
-              const PageState(status: PageCommonState.loading));
+      state = state.copyWith(getOrderDetailState: const PageState(status: PageCommonState.loading));
       var historyOrderSelect = state.historyOrderSelect;
       if (historyOrderSelect == null) {
         return;

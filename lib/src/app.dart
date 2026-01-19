@@ -13,7 +13,6 @@ import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/data/enum/language.dart';
 import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
 import 'package:aladdin_franchise/src/data/model/notification.dart';
-import 'package:aladdin_franchise/src/data/model/o2o/notification_model.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
 import 'package:aladdin_franchise/src/utils/subwindows_moniter.dart';
@@ -48,42 +47,6 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     SubWindowMonitor.instance.init();
     if (WebViewHelper.isDesktop) {
       windowManager.addListener(listener);
-    }
-    WidgetsBinding.instance.addObserver(this);
-    _syncNotifications();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _syncNotifications();
-    }
-  }
-
-  void _syncNotifications() async {
-    try {
-      // final mainBox =
-      //     await safeOpenBoxNotification<NotificationModel>(AppConfig.notificationBoxName);
-      // final testNofiBox =
-      //     await safeOpenBoxNotification<TestNotificationModel>(AppConfig.testNotificationBoxName);
-
-      // for (var item in secondBox.values) {
-      //   await mainBox.add(NotificationModel(
-      //     body: item.body,
-      //     title: item.title,
-      //     datetime: item.datetime,
-      //     isMineEdit: item.isMineEdit,
-      //     notificationId: item.notificationId,
-      //     read: item.read,
-      //     reservation: item.reservation,
-      //     reservationCrmId: item.reservationCrmId,
-      //     restaurantId: item.restaurantId,
-      //   ));
-      // }
-
-      // await secondBox.clear();
-    } catch (ex) {
-      //
     }
   }
 

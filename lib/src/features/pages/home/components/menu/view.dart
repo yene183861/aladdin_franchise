@@ -283,101 +283,104 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
     return Column(
       children: [
         Container(
-          height: 48,
-          width: double.maxFinite,
-          alignment: Alignment.center,
+          height: 48 * 2,
           child: Row(
             children: [
-              const Gap(8),
-              Builder(
-                builder: (context) {
-                  return InkWell(
-                    onTap: Scaffold.of(context).openDrawer,
-                    child: const ResponsiveIconWidget(
-                      iconData: CupertinoIcons.home,
+              Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          const Gap(8),
+                          Builder(
+                            builder: (context) {
+                              return InkWell(
+                                onTap: Scaffold.of(context).openDrawer,
+                                child: const ResponsiveIconWidget(
+                                  iconData: CupertinoIcons.home,
+                                ),
+                              );
+                            },
+                          ),
+                          const Gap(8),
+                          const Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+                              child: SearchDish(),
+                            ),
+                          ),
+                          // if (!isMobile)
+                          //   ...[]
+                          // else ...[
+                          //   const ButtonO2oData(),
+                          //   const ButtonNotification(),
+                          //   Consumer(
+                          //     builder: (context, ref, child) {
+                          //       ref.watch(typeOrderWaiterProvider);
+                          //       var useO2O =
+                          //           LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+                          //       if (useO2O || portraitOrientation) {
+                          //         return const SizedBox.shrink();
+                          //       }
+                          //       if (emptyTags) {
+                          //         return const TypeOrderWidget();
+                          //       }
+                          //       return const ButtonHistoryOrderWidget();
+                          //     },
+                          //   ),
+                          //   const Gap(8),
+                          //   const ButtonRefreshData(),
+                          // ],
+                        ],
+                      ),
                     ),
-                  );
-                },
-              ),
-              const Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  child: SearchDish(),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                const Gap(8),
+                                AppButtonWidget(
+                                  textAction: 'Layout nhà hàng',
+                                  onTap: () {
+                                    push(context, const TableLayoutPage());
+                                  },
+                                  color: AppColors.secondColor,
+                                ),
+                                const Expanded(
+                                  child: ListTagsWidget(),
+                                ),
+                                if (!isMobile) ...const [
+                                  Gap(8),
+                                  ButtonRefreshData(),
+                                  ButtonO2oData(),
+                                  Gap(12),
+                                  ButtonNotification(),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              if (!isMobile) ...[
-                const ButtonHistoryOrderWidget(),
-                const Gap(8),
-              ] else ...[
-                const ButtonO2oData(),
-                const ButtonNotification(),
-                Consumer(
-                  builder: (context, ref, child) {
-                    ref.watch(typeOrderWaiterProvider);
-                    var useO2O = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-                    if (useO2O || portraitOrientation) {
-                      return const SizedBox.shrink();
-                    }
-                    if (emptyTags) {
-                      return const TypeOrderWidget();
-                    }
-                    return const ButtonHistoryOrderWidget();
-                  },
-                ),
-                const Gap(8),
-                const ButtonRefreshData(),
-              ],
+              const Gap(8),
+              const IntrinsicWidth(
+                  child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ButtonHistoryOrderWidget(),
+                  TypeOrderWidget(),
+                ],
+              )),
+              const Gap(8),
             ],
           ),
-        ),
-        Consumer(
-          builder: (context, ref, child) {
-            // var tags = ref.watch(homeProvider.select((value) => value.tags));
-            // if (tags.isEmpty && isMobile) {
-            //   return const SizedBox.shrink();
-            // }
-
-            return SizedBox(
-              height: 48,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              const Gap(8),
-                              AppButtonWidget(
-                                textAction: 'Layout nhà hàng',
-                                onTap: () {
-                                  push(context, const TableLayoutPage());
-                                },
-                                color: AppColors.secondColor,
-                              ),
-                              const Expanded(
-                                child: ListTagsWidget(),
-                              ),
-                              if (!isMobile) ...const [
-                                Gap(8),
-                                ButtonRefreshData(),
-                                ButtonO2oData(),
-                                Gap(8),
-                                ButtonNotification(),
-                              ],
-                              const Gap(8),
-                              const TypeOrderWidget(),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
         ),
         Container(
           height: 42.px,

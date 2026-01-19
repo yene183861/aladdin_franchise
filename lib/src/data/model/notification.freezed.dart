@@ -14,13 +14,12 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-TestNotificationModel _$TestNotificationModelFromJson(
-    Map<String, dynamic> json) {
-  return _TestNotificationModel.fromJson(json);
+NotificationModel _$NotificationModelFromJson(Map<String, dynamic> json) {
+  return _NotificationModel.fromJson(json);
 }
 
 /// @nodoc
-mixin _$TestNotificationModel {
+mixin _$NotificationModel {
   @HiveField(0, defaultValue: '')
   String get title => throw _privateConstructorUsedError;
   @HiveField(1, defaultValue: '')
@@ -37,18 +36,20 @@ mixin _$TestNotificationModel {
   String? get type => throw _privateConstructorUsedError;
   @HiveField(7, defaultValue: '')
   String get id => throw _privateConstructorUsedError;
+  @HiveField(8, defaultValue: false)
+  bool get viewed => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
-  $TestNotificationModelCopyWith<TestNotificationModel> get copyWith =>
+  $NotificationModelCopyWith<NotificationModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $TestNotificationModelCopyWith<$Res> {
-  factory $TestNotificationModelCopyWith(TestNotificationModel value,
-          $Res Function(TestNotificationModel) then) =
-      _$TestNotificationModelCopyWithImpl<$Res, TestNotificationModel>;
+abstract class $NotificationModelCopyWith<$Res> {
+  factory $NotificationModelCopyWith(
+          NotificationModel value, $Res Function(NotificationModel) then) =
+      _$NotificationModelCopyWithImpl<$Res, NotificationModel>;
   @useResult
   $Res call(
       {@HiveField(0, defaultValue: '') String title,
@@ -58,14 +59,14 @@ abstract class $TestNotificationModelCopyWith<$Res> {
       @HiveField(4, defaultValue: null) int? orderId,
       @HiveField(5, defaultValue: null) dynamic data,
       @HiveField(6, defaultValue: null) String? type,
-      @HiveField(7, defaultValue: '') String id});
+      @HiveField(7, defaultValue: '') String id,
+      @HiveField(8, defaultValue: false) bool viewed});
 }
 
 /// @nodoc
-class _$TestNotificationModelCopyWithImpl<$Res,
-        $Val extends TestNotificationModel>
-    implements $TestNotificationModelCopyWith<$Res> {
-  _$TestNotificationModelCopyWithImpl(this._value, this._then);
+class _$NotificationModelCopyWithImpl<$Res, $Val extends NotificationModel>
+    implements $NotificationModelCopyWith<$Res> {
+  _$NotificationModelCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
@@ -83,6 +84,7 @@ class _$TestNotificationModelCopyWithImpl<$Res,
     Object? data = freezed,
     Object? type = freezed,
     Object? id = null,
+    Object? viewed = null,
   }) {
     return _then(_value.copyWith(
       title: null == title
@@ -117,17 +119,20 @@ class _$TestNotificationModelCopyWithImpl<$Res,
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      viewed: null == viewed
+          ? _value.viewed
+          : viewed // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$$TestNotificationModelImplCopyWith<$Res>
-    implements $TestNotificationModelCopyWith<$Res> {
-  factory _$$TestNotificationModelImplCopyWith(
-          _$TestNotificationModelImpl value,
-          $Res Function(_$TestNotificationModelImpl) then) =
-      __$$TestNotificationModelImplCopyWithImpl<$Res>;
+abstract class _$$NotificationModelImplCopyWith<$Res>
+    implements $NotificationModelCopyWith<$Res> {
+  factory _$$NotificationModelImplCopyWith(_$NotificationModelImpl value,
+          $Res Function(_$NotificationModelImpl) then) =
+      __$$NotificationModelImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -138,16 +143,16 @@ abstract class _$$TestNotificationModelImplCopyWith<$Res>
       @HiveField(4, defaultValue: null) int? orderId,
       @HiveField(5, defaultValue: null) dynamic data,
       @HiveField(6, defaultValue: null) String? type,
-      @HiveField(7, defaultValue: '') String id});
+      @HiveField(7, defaultValue: '') String id,
+      @HiveField(8, defaultValue: false) bool viewed});
 }
 
 /// @nodoc
-class __$$TestNotificationModelImplCopyWithImpl<$Res>
-    extends _$TestNotificationModelCopyWithImpl<$Res,
-        _$TestNotificationModelImpl>
-    implements _$$TestNotificationModelImplCopyWith<$Res> {
-  __$$TestNotificationModelImplCopyWithImpl(_$TestNotificationModelImpl _value,
-      $Res Function(_$TestNotificationModelImpl) _then)
+class __$$NotificationModelImplCopyWithImpl<$Res>
+    extends _$NotificationModelCopyWithImpl<$Res, _$NotificationModelImpl>
+    implements _$$NotificationModelImplCopyWith<$Res> {
+  __$$NotificationModelImplCopyWithImpl(_$NotificationModelImpl _value,
+      $Res Function(_$NotificationModelImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
@@ -161,8 +166,9 @@ class __$$TestNotificationModelImplCopyWithImpl<$Res>
     Object? data = freezed,
     Object? type = freezed,
     Object? id = null,
+    Object? viewed = null,
   }) {
-    return _then(_$TestNotificationModelImpl(
+    return _then(_$NotificationModelImpl(
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -195,15 +201,19 @@ class __$$TestNotificationModelImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      viewed: null == viewed
+          ? _value.viewed
+          : viewed // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
-@HiveType(typeId: 1, adapterName: 'TestNotificationModelAdapter')
-class _$TestNotificationModelImpl extends _TestNotificationModel {
-  _$TestNotificationModelImpl(
+@HiveType(typeId: 0, adapterName: 'NotificationModelAdapter')
+class _$NotificationModelImpl extends _NotificationModel {
+  _$NotificationModelImpl(
       {@HiveField(0, defaultValue: '') this.title = '',
       @HiveField(1, defaultValue: '') this.body = '',
       @HiveField(2, defaultValue: null) this.datetime,
@@ -211,11 +221,12 @@ class _$TestNotificationModelImpl extends _TestNotificationModel {
       @HiveField(4, defaultValue: null) this.orderId,
       @HiveField(5, defaultValue: null) this.data,
       @HiveField(6, defaultValue: null) this.type,
-      @HiveField(7, defaultValue: '') this.id = ''})
+      @HiveField(7, defaultValue: '') this.id = '',
+      @HiveField(8, defaultValue: false) this.viewed = false})
       : super._();
 
-  factory _$TestNotificationModelImpl.fromJson(Map<String, dynamic> json) =>
-      _$$TestNotificationModelImplFromJson(json);
+  factory _$NotificationModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$NotificationModelImplFromJson(json);
 
   @override
   @JsonKey()
@@ -245,17 +256,21 @@ class _$TestNotificationModelImpl extends _TestNotificationModel {
   @JsonKey()
   @HiveField(7, defaultValue: '')
   final String id;
+  @override
+  @JsonKey()
+  @HiveField(8, defaultValue: false)
+  final bool viewed;
 
   @override
   String toString() {
-    return 'TestNotificationModel(title: $title, body: $body, datetime: $datetime, read: $read, orderId: $orderId, data: $data, type: $type, id: $id)';
+    return 'NotificationModel(title: $title, body: $body, datetime: $datetime, read: $read, orderId: $orderId, data: $data, type: $type, id: $id, viewed: $viewed)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$TestNotificationModelImpl &&
+            other is _$NotificationModelImpl &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.body, body) || other.body == body) &&
             (identical(other.datetime, datetime) ||
@@ -264,31 +279,32 @@ class _$TestNotificationModelImpl extends _TestNotificationModel {
             (identical(other.orderId, orderId) || other.orderId == orderId) &&
             const DeepCollectionEquality().equals(other.data, data) &&
             (identical(other.type, type) || other.type == type) &&
-            (identical(other.id, id) || other.id == id));
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.viewed, viewed) || other.viewed == viewed));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, title, body, datetime, read,
-      orderId, const DeepCollectionEquality().hash(data), type, id);
+      orderId, const DeepCollectionEquality().hash(data), type, id, viewed);
 
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$TestNotificationModelImplCopyWith<_$TestNotificationModelImpl>
-      get copyWith => __$$TestNotificationModelImplCopyWithImpl<
-          _$TestNotificationModelImpl>(this, _$identity);
+  _$$NotificationModelImplCopyWith<_$NotificationModelImpl> get copyWith =>
+      __$$NotificationModelImplCopyWithImpl<_$NotificationModelImpl>(
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$TestNotificationModelImplToJson(
+    return _$$NotificationModelImplToJson(
       this,
     );
   }
 }
 
-abstract class _TestNotificationModel extends TestNotificationModel {
-  factory _TestNotificationModel(
+abstract class _NotificationModel extends NotificationModel {
+  factory _NotificationModel(
           {@HiveField(0, defaultValue: '') final String title,
           @HiveField(1, defaultValue: '') final String body,
           @HiveField(2, defaultValue: null) final DateTime? datetime,
@@ -296,12 +312,13 @@ abstract class _TestNotificationModel extends TestNotificationModel {
           @HiveField(4, defaultValue: null) final int? orderId,
           @HiveField(5, defaultValue: null) final dynamic data,
           @HiveField(6, defaultValue: null) final String? type,
-          @HiveField(7, defaultValue: '') final String id}) =
-      _$TestNotificationModelImpl;
-  _TestNotificationModel._() : super._();
+          @HiveField(7, defaultValue: '') final String id,
+          @HiveField(8, defaultValue: false) final bool viewed}) =
+      _$NotificationModelImpl;
+  _NotificationModel._() : super._();
 
-  factory _TestNotificationModel.fromJson(Map<String, dynamic> json) =
-      _$TestNotificationModelImpl.fromJson;
+  factory _NotificationModel.fromJson(Map<String, dynamic> json) =
+      _$NotificationModelImpl.fromJson;
 
   @override
   @HiveField(0, defaultValue: '')
@@ -328,7 +345,10 @@ abstract class _TestNotificationModel extends TestNotificationModel {
   @HiveField(7, defaultValue: '')
   String get id;
   @override
+  @HiveField(8, defaultValue: false)
+  bool get viewed;
+  @override
   @JsonKey(ignore: true)
-  _$$TestNotificationModelImplCopyWith<_$TestNotificationModelImpl>
-      get copyWith => throw _privateConstructorUsedError;
+  _$$NotificationModelImplCopyWith<_$NotificationModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }

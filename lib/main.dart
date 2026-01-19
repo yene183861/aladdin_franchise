@@ -12,7 +12,6 @@ import 'package:aladdin_franchise/src/core/services/send_log/discord_service.dar
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/model/notification.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
-import 'package:aladdin_franchise/src/data/model/o2o/notification_model.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
@@ -125,11 +124,8 @@ Future<void> _initHive() async {
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(NotificationModelAdapter());
     }
-    if (!Hive.isAdapterRegistered(1)) {
-      Hive.registerAdapter(TestNotificationModelAdapter());
-    }
-    // await safeOpenBoxNotification<NotificationModel>(AppConfig.notificationBoxName);
-    await safeOpenBoxNotification<TestNotificationModel>(AppConfig.testNotificationBoxName);
+
+    await safeOpenBoxNotification<NotificationModel>(AppConfig.notificationBoxName);
   } catch (ex) {
     showLog(ex, flags: "_initHive");
   }

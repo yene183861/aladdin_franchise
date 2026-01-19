@@ -194,8 +194,8 @@ class HomeState with _$HomeState {
     @Default([]) List<ChatMessageModel> chatMessages,
     @Default(PageState(status: PageCommonState.loading)) PageState getChatMessageState,
     @Default(DiscountTypeEnum.vnd) DiscountTypeEnum discountTypeSelect,
-    @Default([]) List<PrinterModel> printers,
-    @Default(PageState(status: PageCommonState.loading)) PageState printerState,
-    @Default([]) List<TestNotificationModel> notifications,
+    // @Default([]) List<PrinterModel> printers,
+    // @Default(PageState(status: PageCommonState.loading)) PageState printerState,
+    @Default([]) List<NotificationModel> notifications,
   }) = _HomeState;
 }

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
@@ -46,6 +47,8 @@ class _AddOrderSheetState extends ConsumerState<AddOrderSheet> {
   Set<PrinterModel> printerSelect = {};
   bool useDefaultPrinter = true;
 
+  bool useKds = LocalStorage.getDataLogin()?.restaurant?.posStatus ?? false;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -67,19 +70,20 @@ class _AddOrderSheetState extends ConsumerState<AddOrderSheet> {
               Expanded(
                   child: Column(
                 children: [
-                  Row(
-                    children: [
-                      const Gap(20),
-                      Icon(Icons.list_alt_outlined),
-                      const Gap(8),
-                      Expanded(
-                        child: Text(
-                          'Chọn món muốn huỷ',
-                          style: AppTextStyle.bold(),
+                  if (!useKds)
+                    Row(
+                      children: [
+                        const Gap(20),
+                        const Icon(Icons.list_alt_outlined),
+                        const Gap(8),
+                        Expanded(
+                          child: Text(
+                            'Chọn món muốn huỷ',
+                            style: AppTextStyle.bold(),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                   Expanded(child: Consumer(
                     builder: (context, ref, child) {
                       var items =
@@ -96,14 +100,16 @@ class _AddOrderSheetState extends ConsumerState<AddOrderSheet> {
                   )),
                 ],
               )),
-              const VerticalDivider(width: 1),
-              ListPrintersDialog(
-                title: 'Máy in hủy',
-                onChangePrinterConfig: (p0, p1) {
-                  printerSelect = Set<PrinterModel>.from(p0);
-                  useDefaultPrinter = p1;
-                },
-              ),
+              if (!useKds) ...[
+                const VerticalDivider(width: 1),
+                ListPrintersDialog(
+                  title: 'Máy in hủy',
+                  onChangePrinterConfig: (p0, p1) {
+                    printerSelect = Set<PrinterModel>.from(p0);
+                    useDefaultPrinter = p1;
+                  },
+                ),
+              ],
             ],
           )),
           const Gap(12),
@@ -202,38 +208,44 @@ class _AddOrderSheetState extends ConsumerState<AddOrderSheet> {
                         var reason = await showReasonCancelItemDialog(context);
 
                         if (reason != null && context.mounted) {
-                          var result =
-                              await ref.read(checkoutPageProvider.notifier).cancelProductCheckout(
-                                    reason: reason,
-                                    productCheckout: items,
-                                    printerSelect: printerSelect,
-                                    useDefaultPrinter: useDefaultPrinter,
-                                  );
-                          if (result.error != null) {
-                            showMessageDialog(context, message: result.error ?? '');
-                          } else {
-                            if (result.resultSendPrintData != null && context.mounted) {
-                              await showConfirmAction(
-                                context,
-                                message: 'Đã huỷ món thành công!\n\n'
-                                    'Hệ thống chưa nhận được yêu cầu in.\n'
-                                    'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
-                                actionTitle: 'In ngay',
-                                textCancel: 'Đóng',
-                                title: 'Thông báo',
-                                action: () {
-                                  ref.read(checkoutPageProvider.notifier).cancelProductCheckout(
-                                        reason: reason,
-                                        productCheckout: items,
-                                        printerSelect: printerSelect,
-                                        useDefaultPrinter: useDefaultPrinter,
-                                        processOrder: false,
-                                      );
-                                },
-                              );
-                            }
-                            pop(context);
-                          }
+                          _processOrder(
+                            context: context,
+                            reason: reason,
+                            ignorePrint: useKds,
+                            processOrder: true,
+                          );
+                          // var result =
+                          //     await ref.read(checkoutPageProvider.notifier).cancelProductCheckout(
+                          //           reason: reason,
+                          //           productCheckout: items,
+                          //           printerSelect: printerSelect,
+                          //           useDefaultPrinter: useDefaultPrinter,
+                          //         );
+                          // if (result.error != null) {
+                          //   showMessageDialog(context, message: result.error ?? '');
+                          // } else {
+                          //   if (result.resultSendPrintData != null && context.mounted) {
+                          //     await showConfirmAction(
+                          //       context,
+                          //       message: 'Đã huỷ món thành công!\n\n'
+                          //           'Hệ thống chưa nhận được yêu cầu in.\n'
+                          //           'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
+                          //       actionTitle: 'In ngay',
+                          //       textCancel: 'Đóng',
+                          //       title: 'Thông báo',
+                          //       action: () {
+                          //         ref.read(checkoutPageProvider.notifier).cancelProductCheckout(
+                          //               reason: reason,
+                          //               productCheckout: items,
+                          //               printerSelect: printerSelect,
+                          //               useDefaultPrinter: useDefaultPrinter,
+                          //               processOrder: false,
+                          //             );
+                          //       },
+                          //     );
+                          //   }
+                          //   pop(context);
+                          // }
                         }
                       },
                 disabledColor: Colors.grey.shade400,
@@ -243,6 +255,62 @@ class _AddOrderSheetState extends ConsumerState<AddOrderSheet> {
         ],
       ),
     );
+  }
+
+  void _processOrder({
+    required BuildContext context,
+    String? reason,
+    bool ignorePrint = false,
+    bool processOrder = true,
+    List<ProductCheckoutModel> items = const [],
+  }) async {
+    var result = await ref.read(checkoutPageProvider.notifier).cancelProductCheckout(
+          reason: reason ?? '',
+          productCheckout: items,
+          printerSelect: useKds ? <PrinterModel>{} : printerSelect,
+          useDefaultPrinter: useKds ? true : useDefaultPrinter,
+          ignorePrint: ignorePrint,
+        );
+    if (result.checkPrinters != null) {
+      await showConfirmAction(
+        context,
+        message:
+            '${result.checkPrinters ?? ''}\nBạn có muốn huỷ món mà không in bill xuống bếp, bar?',
+        actionTitle: 'Tiếp tục',
+        title: 'Thông báo',
+        action: () {
+          _processOrder(
+            context: context,
+            reason: reason,
+            ignorePrint: true,
+          );
+        },
+      );
+      return;
+    } else if (result.error != null) {
+      showMessageDialog(context, message: result.error ?? '');
+    } else {
+      if (result.resultSendPrintData != null) {
+        await showConfirmAction(
+          context,
+          message: 'Đã huỷ món thành công!\n\n'
+              'Hệ thống chưa nhận được yêu cầu in.\n'
+              'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
+          actionTitle: 'In ngay',
+          textCancel: 'Đóng',
+          title: 'Thông báo',
+          action: () {
+            _processOrder(
+              context: context,
+              reason: reason,
+              processOrder: false,
+              ignorePrint: ignorePrint,
+            );
+          },
+        );
+      }
+      pop(context);
+    }
   }
 }
 

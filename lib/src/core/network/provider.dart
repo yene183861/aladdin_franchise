@@ -27,6 +27,7 @@ import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/data/model/notification.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/o2o_config.dart';
 import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
+import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/data/request/reservation_request.dart';
 import 'package:aladdin_franchise/src/features/pages/history_order/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -250,9 +251,7 @@ final orderToOnlineProvider =
   if (!useO2O) return {};
   var loginUserId = LocalStorage.getDataLogin()?.user?.id;
   Map<O2OOrderModel, Map<String, dynamic>> orders = {};
-  orders = {};
   final result = await ref.read(o2oRepositoryProvider).getOrderToOnline();
-
   for (var e in result) {
     if (loginUserId != null && e.userId != loginUserId) continue;
 
@@ -264,32 +263,38 @@ final orderToOnlineProvider =
     var itemData = List<RequestOrderModel>.from(data['items'] ?? []);
 
     int count = data['count'] ?? 0;
+
+    DateTime? oldestTimeOrder;
     itemData.addAll(items);
 
     for (var i in items) {
       if (i.requestProcessingStatus == RequestProcessingStatus.waiting && i.listItem.isNotEmpty) {
         count++;
+        if (oldestTimeOrder == null || (i.timeOrder?.isBefore(oldestTimeOrder) ?? false)) {
+          oldestTimeOrder = i.timeOrder;
+        }
       }
     }
 
-    orders[order] = {
-      'items': itemData,
-      'count': count,
-    };
+    orders[order] = {'items': itemData, 'count': count, 'oldest_time_order': oldestTimeOrder};
   }
 
-  return orders;
+  final sortedEntries = orders.entries.toList()
+    ..sort((a, b) {
+      final DateTime? tA = a.value['oldest_time_order'];
+      final DateTime? tB = b.value['oldest_time_order'];
+
+      if (tA == null && tB == null) return 0;
+      if (tA == null) return 1;
+      if (tB == null) return -1;
+
+      return tA.compareTo(tB);
+    });
+
+  final sortedOrders = Map<O2OOrderModel, Map<String, dynamic>>.fromEntries(sortedEntries);
+
+  return sortedOrders;
 });
-// final employeeSalesProvider = FutureProvider.autoDispose<List<EmployeeSaleModel>>((ref) async {
-//   final result = await ref.read(restaurantRepositoryProvider).getEmployeeSales();
-//   if (ref.read(homeProvider.notifier).mounted) {
-//     var sale = ref.read(homeProvider).employeeSaleSelect;
-//     if (sale != null && !result.contains(sale)) {
-//       ref.read(homeProvider.notifier).onChangeEmployeeSaleSelect(null);
-//     }
-//   }
-//   return result;
-// });
 
 final todayHistoryOrderProvider = FutureProvider.autoDispose<List<HistoryOrderModel>>((ref) async {
   var today = DateTime.now().date;
@@ -307,6 +312,7 @@ final o2oConfigProvider = FutureProvider<O2oConfigModel>((ref) async {
   return result;
 });
 
-final notificationProvider = FutureProvider<List<TestNotificationModel>>((ref) async {
-  return <TestNotificationModel>[];
+final printersProvider = FutureProvider<List<PrinterModel>>((ref) async {
+  var result = await ref.read(restaurantRepositoryProvider).getListPrinters();
+  return result;
 });

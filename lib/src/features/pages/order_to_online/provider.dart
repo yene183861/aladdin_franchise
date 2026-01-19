@@ -19,7 +19,6 @@ import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/models/combo_item.dart';
 import 'package:aladdin_franchise/src/models/ip_order.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/local_notification_model.dart';
-import 'package:aladdin_franchise/src/data/model/o2o/notification_model.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/request_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
@@ -47,7 +46,11 @@ final orderToOnlinePageProvider =
 
 class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
   OrderToOnlinePageNotifier(this.ref, this._orderRepository, this._o2oRepository)
-      : super(const OrderToOnlineState()) {}
+      : super(const OrderToOnlineState()) {
+    var orderSelect = ref.read(homeProvider).orderSelect;
+    state = state.copyWith(
+        orderSelect: orderSelect?.id != null ? O2OOrderModel(orderId: orderSelect!.id) : null);
+  }
   final OrderRepository _orderRepository;
   final OrderToOnlineRepository _o2oRepository;
   final Ref ref;
@@ -56,52 +59,11 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     state = state.copyWith(showLoadingGetData: value);
   }
 
-  // Future<void> _getO2OData(Map<O2OOrderModel, Map<String, dynamic>> value) async {
-  //   try {
-  //     Map<O2OOrderModel, Map<String, dynamic>> orders = Map.from(value);
-  //     // sort theo value
-  //     var sortedEntries = orders.entries.toList()
-  //       ..sort((a, b) => b.value['count'].compareTo(a.value['count']));
-
-  //     var sortedMap = {for (var e in sortedEntries) e.key: e.value};
-
-  //     if (mounted) {
-  //       state = state.copyWith(orders: sortedMap);
-  //     }
-  //   } catch (ex) {
-  //     //
-  //   }
-  // }
-
-  void init({int? orderId}) async {
-    state = state.copyWith(orderSelect: orderId != null ? O2OOrderModel(orderId: orderId) : null);
-  }
-
-  void getNotifications() async {
-    final orderSelect = state.orderSelect;
-    if (orderSelect == null) {
-      state = state.copyWith(notifications: []);
-      return;
-    }
-    if (!Hive.isBoxOpen('notifications')) {
-      await Hive.openBox('notifications');
-    }
-    var box = Hive.box<NotificationModel>('notifications');
-    List<NotificationModel> data =
-        box.values.toList().where((e) => e.orderId == orderSelect.orderId).toList();
-    data.sort((a, b) => (b.datetime ?? DateTime.now()).compareTo((a.datetime ?? DateTime.now())));
-    if (mounted) {
-      data = data.where((e) => e.title.trim().isNotEmpty).toList();
-      state = state.copyWith(notifications: data);
-    }
-  }
-
   void changeOrderSelect(O2OOrderModel? order) async {
     state = state.copyWith(
       orderSelect: order,
       chatMessages: [],
       getChatMessageState: const PageState(status: PageCommonState.success, messageError: ''),
-      notifications: [],
     );
 
     if (order != null) {
@@ -110,7 +72,6 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
       } catch (ex) {
         //
       }
-      getNotifications();
       getChatMessages();
     }
   }

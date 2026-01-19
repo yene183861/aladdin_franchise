@@ -5,9 +5,11 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/o2o_config.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<O2oConfigModel?> showO2oAutoProcessConfigDialog(
@@ -34,12 +36,10 @@ class _O2oAutoProcessConfigDialog extends ConsumerStatefulWidget {
   final int timeConfig;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __O2oAutoProcessConfigDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __O2oAutoProcessConfigDialogState();
 }
 
-class __O2oAutoProcessConfigDialogState
-    extends ConsumerState<_O2oAutoProcessConfigDialog> {
+class __O2oAutoProcessConfigDialogState extends ConsumerState<_O2oAutoProcessConfigDialog> {
   late TextEditingController _timeController;
   bool enable = true;
 
@@ -93,20 +93,19 @@ class __O2oAutoProcessConfigDialogState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
-        color: Color(0xFF6C7CF5),
+        color: AppColors.mainColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
       child: Row(
         children: [
           const Icon(Icons.settings, color: Colors.white),
-          const SizedBox(width: 8),
-          const Expanded(
+          const Gap(8),
+          Expanded(
             child: Text(
               'Cấu hình tự động xác nhận đơn hàng',
-              style: TextStyle(
+              style: AppTextStyle.bold(
                 color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+                rawFontSize: AppConfig.defaultRawTextSize + 0.5,
               ),
             ),
           ),
@@ -200,11 +199,12 @@ class __O2oAutoProcessConfigDialogState
         SizedBox(
           width: 80,
           child: AppTextFormField(
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+            contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
             textController: _timeController,
             textInputType: TextInputType.number,
             textAlign: TextAlign.center,
+            maxLength: 3,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           ),
         )
       ],
@@ -217,14 +217,7 @@ class __O2oAutoProcessConfigDialogState
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          AppButton(
-            textAction: 'Đóng',
-            color: Colors.grey.shade300,
-            textColor: AppColors.textColor,
-            onPressed: () {
-              Navigator.pop(context, null);
-            },
-          ),
+          const AppCloseButton(),
           const Gap(12),
           AppButton(
             textAction: 'Lưu cấu hình',
@@ -233,8 +226,7 @@ class __O2oAutoProcessConfigDialogState
                 context,
                 O2oConfigModel(
                     isEnabled: enable,
-                    confirmTimeout:
-                        int.tryParse(_timeController.text.trim()) ?? 30),
+                    confirmTimeout: int.tryParse(_timeController.text.trim()) ?? 30),
               );
             },
           ),

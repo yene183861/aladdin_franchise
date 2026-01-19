@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/history_order/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -70,18 +71,52 @@ class HomeDrawer extends ConsumerWidget {
                 const Divider(height: 1),
                 ListTile(
                   onTap: () async {
-                    pop(context);
-                    final res = await ref.read(homeProvider.notifier).closeShift(context);
+                    await showConfirmAction(
+                      context,
+                      message: 'Bạn có muốn thực hiện chốt ca?',
+                      textCancel: S.current.close,
+                      action: () async {
+                        pop(context);
+                        final res = await ref.read(homeProvider.notifier).closeShift(context);
 
-                    if (res != null) {
-                      if (homeKey.currentContext != null) {
-                        showMessageDialog(homeKey.currentContext!, message: res);
-                        return;
-                      }
-                    }
-                    if (context.mounted) {
-                      showDoneSnackBar(context: context, message: S.current.closing_shift_success);
-                    }
+                        if (res.error != null) {
+                          if (homeKey.currentContext != null) {
+                            showMessageDialog(homeKey.currentContext!, message: res.error ?? '');
+                            return;
+                          }
+                        } else if (res.checkPrinters != null) {
+                          if (homeKey.currentContext != null) {
+                            showMessageDialog(homeKey.currentContext!,
+                                message: res.checkPrinters ?? '');
+                            return;
+                          }
+                        } else if (res.resultSendPrintData != null) {
+                          if (homeKey.currentContext != null) {
+                            await showConfirmAction(
+                              homeKey.currentContext!,
+                              message: 'Đã thực hiện chốt ca thành công!\n\n'
+                                  'Tuy nhiên, hệ thống chưa nhận được yêu cầu in.\n'
+                                  'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
+                              actionTitle: 'In ngay',
+                              textCancel: 'Đóng',
+                              title: 'Thông báo',
+                              action: () {
+                                ref.read(homeProvider.notifier).printCloseShiftBill(
+                                      printDirectly: true,
+                                      showLoading: true,
+                                      data: res.data,
+                                    );
+                              },
+                            );
+                            return;
+                          }
+                        }
+                        if (context.mounted) {
+                          showDoneSnackBar(
+                              context: context, message: S.current.closing_shift_success);
+                        }
+                      },
+                    );
                   },
                   leading: const ResponsiveIconWidget(
                     iconData: Icons.blinds_closed_outlined,

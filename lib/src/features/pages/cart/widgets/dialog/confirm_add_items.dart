@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
@@ -49,6 +50,7 @@ class _ConfirmOrderPrinterContent extends ConsumerStatefulWidget {
 class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrinterContent> {
   Set<PrinterModel> printerSelect = {};
   bool useDefaultPrinter = true;
+  bool useKds = LocalStorage.getDataLogin()?.restaurant?.posStatus ?? false;
 
   @override
   Widget build(BuildContext context) {
@@ -71,19 +73,20 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
               Expanded(
                   child: Column(
                 children: [
-                  Row(
-                    children: [
-                      const Gap(20),
-                      const Icon(Icons.list_alt_outlined),
-                      const Gap(8),
-                      Expanded(
-                        child: Text(
-                          'Danh sách món',
-                          style: AppTextStyle.bold(),
+                  if (!useKds)
+                    Row(
+                      children: [
+                        const Gap(20),
+                        const Icon(Icons.list_alt_outlined),
+                        const Gap(8),
+                        Expanded(
+                          child: Text(
+                            'Danh sách món',
+                            style: AppTextStyle.bold(),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                   Expanded(child: Consumer(
                     builder: (context, ref, child) {
                       var items =
@@ -100,14 +103,16 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
                   )),
                 ],
               )),
-              const VerticalDivider(width: 1),
-              ListPrintersDialog(
-                title: 'Tùy chọn máy in',
-                onChangePrinterConfig: (p0, p1) {
-                  printerSelect = Set<PrinterModel>.from(p0);
-                  useDefaultPrinter = p1;
-                },
-              ),
+              if (!useKds) ...[
+                const VerticalDivider(width: 1),
+                ListPrintersDialog(
+                  title: 'Tùy chọn máy in',
+                  onChangePrinterConfig: (p0, p1) {
+                    printerSelect = Set<PrinterModel>.from(p0);
+                    useDefaultPrinter = p1;
+                  },
+                ),
+              ],
             ],
           )),
           const Gap(12),
@@ -191,38 +196,11 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
                           hintText: 'Nhập ghi chú cho bếp, bar...',
                         );
                         if (note != null) {
-                          var result = await ref.read(cartPageProvider.notifier).addItemToOrder(
-                                note: note,
-                                printers: printerSelect,
-                                useDefaultPrinter: useDefaultPrinter,
-                              );
-                          if (result.error != null) {
-                            showMessageDialog(context, message: result.error ?? '');
-                          } else {
-                            if (result.resultSendPrintData != null) {
-                              await showConfirmAction(
-                                context,
-                                message: 'Món đã được thêm vào đơn.\n\n'
-                                    'Tuy nhiên, hệ thống chưa nhận được yêu cầu in.\n'
-                                    'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
-                                actionTitle: 'In ngay',
-                                textCancel: 'Đóng',
-                                title: 'Thông báo',
-                                action: () {
-                                  ref.read(cartPageProvider.notifier).addItemToOrder(
-                                        note: note,
-                                        printers: printerSelect,
-                                        useDefaultPrinter: useDefaultPrinter,
-                                        processOrder: false,
-                                      );
-                                },
-                              );
-                            }
-                            var state = ref.read(cartPageProvider);
-                            if (state.productsSelecting.isEmpty) {
-                              pop(context);
-                            }
-                          }
+                          _processOrder(
+                            context: context,
+                            note: note,
+                            ignorePrint: useKds,
+                          );
                         }
                       },
                 color: const Color.fromARGB(255, 57, 132, 194),
@@ -233,6 +211,63 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
         ],
       ),
     );
+  }
+
+  void _processOrder({
+    required BuildContext context,
+    String? note,
+    bool ignorePrint = false,
+    bool processOrder = true,
+  }) async {
+    var result = await ref.read(cartPageProvider.notifier).addItemToOrder(
+          note: note ?? '',
+          printerSelect: useKds ? <PrinterModel>{} : printerSelect,
+          useDefaultPrinter: useKds ? true : useDefaultPrinter,
+          ignorePrint: ignorePrint,
+        );
+    if (result.pingPrinters != null) {
+      await showConfirmAction(
+        context,
+        message:
+            '${result.pingPrinters ?? ''}\nBạn có muốn gọi món mà không in bill xuống bếp, bar?',
+        actionTitle: 'Tiếp tục',
+        title: 'Thông báo',
+        action: () {
+          _processOrder(
+            context: context,
+            note: note,
+            ignorePrint: true,
+          );
+        },
+      );
+      return;
+    } else if (result.error != null) {
+      showMessageDialog(context, message: result.error ?? '');
+    } else {
+      if (result.resultSendPrintData != null) {
+        await showConfirmAction(
+          context,
+          message: 'Món đã được thêm vào đơn.\n\n'
+              'Tuy nhiên, hệ thống chưa nhận được yêu cầu in.\n'
+              'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
+          actionTitle: 'In ngay',
+          textCancel: 'Đóng',
+          title: 'Thông báo',
+          action: () {
+            _processOrder(
+              context: context,
+              note: note,
+              processOrder: false,
+              ignorePrint: ignorePrint,
+            );
+          },
+        );
+      }
+      var state = ref.read(cartPageProvider);
+      if (state.productsSelecting.isEmpty) {
+        pop(context);
+      }
+    }
   }
 }
 

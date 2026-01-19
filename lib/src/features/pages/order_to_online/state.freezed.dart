@@ -42,8 +42,6 @@ mixin _$OrderToOnlineState {
 
   /// các đơn bàn đang khoá
   Set<int> get lockedOrderIds => throw _privateConstructorUsedError;
-  List<NotificationModel> get notifications =>
-      throw _privateConstructorUsedError;
   bool get showLoadingGetData => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -71,7 +69,6 @@ abstract class $OrderToOnlineStateCopyWith<$Res> {
       Map<O2OOrderModel, Map<String, dynamic>> orders,
       RequestOrderModel? requestSelect,
       Set<int> lockedOrderIds,
-      List<NotificationModel> notifications,
       bool showLoadingGetData});
 
   $O2OOrderModelCopyWith<$Res>? get orderSelect;
@@ -106,7 +103,6 @@ class _$OrderToOnlineStateCopyWithImpl<$Res, $Val extends OrderToOnlineState>
     Object? orders = null,
     Object? requestSelect = freezed,
     Object? lockedOrderIds = null,
-    Object? notifications = null,
     Object? showLoadingGetData = null,
   }) {
     return _then(_value.copyWith(
@@ -162,10 +158,6 @@ class _$OrderToOnlineStateCopyWithImpl<$Res, $Val extends OrderToOnlineState>
           ? _value.lockedOrderIds
           : lockedOrderIds // ignore: cast_nullable_to_non_nullable
               as Set<int>,
-      notifications: null == notifications
-          ? _value.notifications
-          : notifications // ignore: cast_nullable_to_non_nullable
-              as List<NotificationModel>,
       showLoadingGetData: null == showLoadingGetData
           ? _value.showLoadingGetData
           : showLoadingGetData // ignore: cast_nullable_to_non_nullable
@@ -240,7 +232,6 @@ abstract class _$$OrderToOnlineStateImplCopyWith<$Res>
       Map<O2OOrderModel, Map<String, dynamic>> orders,
       RequestOrderModel? requestSelect,
       Set<int> lockedOrderIds,
-      List<NotificationModel> notifications,
       bool showLoadingGetData});
 
   @override
@@ -277,7 +268,6 @@ class __$$OrderToOnlineStateImplCopyWithImpl<$Res>
     Object? orders = null,
     Object? requestSelect = freezed,
     Object? lockedOrderIds = null,
-    Object? notifications = null,
     Object? showLoadingGetData = null,
   }) {
     return _then(_$OrderToOnlineStateImpl(
@@ -333,10 +323,6 @@ class __$$OrderToOnlineStateImplCopyWithImpl<$Res>
           ? _value._lockedOrderIds
           : lockedOrderIds // ignore: cast_nullable_to_non_nullable
               as Set<int>,
-      notifications: null == notifications
-          ? _value._notifications
-          : notifications // ignore: cast_nullable_to_non_nullable
-              as List<NotificationModel>,
       showLoadingGetData: null == showLoadingGetData
           ? _value.showLoadingGetData
           : showLoadingGetData // ignore: cast_nullable_to_non_nullable
@@ -362,13 +348,11 @@ class _$OrderToOnlineStateImpl implements _OrderToOnlineState {
       final Map<O2OOrderModel, Map<String, dynamic>> orders = const {},
       this.requestSelect,
       final Set<int> lockedOrderIds = const {},
-      final List<NotificationModel> notifications = const [],
       this.showLoadingGetData = true})
       : _chatMessages = chatMessages,
         _printers = printers,
         _orders = orders,
-        _lockedOrderIds = lockedOrderIds,
-        _notifications = notifications;
+        _lockedOrderIds = lockedOrderIds;
 
   @override
   @JsonKey()
@@ -453,22 +437,13 @@ class _$OrderToOnlineStateImpl implements _OrderToOnlineState {
     return EqualUnmodifiableSetView(_lockedOrderIds);
   }
 
-  final List<NotificationModel> _notifications;
-  @override
-  @JsonKey()
-  List<NotificationModel> get notifications {
-    if (_notifications is EqualUnmodifiableListView) return _notifications;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_notifications);
-  }
-
   @override
   @JsonKey()
   final bool showLoadingGetData;
 
   @override
   String toString() {
-    return 'OrderToOnlineState(message: $message, event: $event, orderSelect: $orderSelect, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, statusFilter: $statusFilter, sortByNewestTime: $sortByNewestTime, showChatTab: $showChatTab, printers: $printers, printerSelect: $printerSelect, orders: $orders, requestSelect: $requestSelect, lockedOrderIds: $lockedOrderIds, notifications: $notifications, showLoadingGetData: $showLoadingGetData)';
+    return 'OrderToOnlineState(message: $message, event: $event, orderSelect: $orderSelect, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, statusFilter: $statusFilter, sortByNewestTime: $sortByNewestTime, showChatTab: $showChatTab, printers: $printers, printerSelect: $printerSelect, orders: $orders, requestSelect: $requestSelect, lockedOrderIds: $lockedOrderIds, showLoadingGetData: $showLoadingGetData)';
   }
 
   @override
@@ -498,8 +473,6 @@ class _$OrderToOnlineStateImpl implements _OrderToOnlineState {
                 other.requestSelect == requestSelect) &&
             const DeepCollectionEquality()
                 .equals(other._lockedOrderIds, _lockedOrderIds) &&
-            const DeepCollectionEquality()
-                .equals(other._notifications, _notifications) &&
             (identical(other.showLoadingGetData, showLoadingGetData) ||
                 other.showLoadingGetData == showLoadingGetData));
   }
@@ -520,7 +493,6 @@ class _$OrderToOnlineStateImpl implements _OrderToOnlineState {
       const DeepCollectionEquality().hash(_orders),
       requestSelect,
       const DeepCollectionEquality().hash(_lockedOrderIds),
-      const DeepCollectionEquality().hash(_notifications),
       showLoadingGetData);
 
   @JsonKey(ignore: true)
@@ -546,7 +518,6 @@ abstract class _OrderToOnlineState implements OrderToOnlineState {
       final Map<O2OOrderModel, Map<String, dynamic>> orders,
       final RequestOrderModel? requestSelect,
       final Set<int> lockedOrderIds,
-      final List<NotificationModel> notifications,
       final bool showLoadingGetData}) = _$OrderToOnlineStateImpl;
 
   @override
@@ -584,8 +555,6 @@ abstract class _OrderToOnlineState implements OrderToOnlineState {
 
   /// các đơn bàn đang khoá
   Set<int> get lockedOrderIds;
-  @override
-  List<NotificationModel> get notifications;
   @override
   bool get showLoadingGetData;
   @override

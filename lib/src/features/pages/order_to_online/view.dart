@@ -31,11 +31,7 @@ import 'provider.dart';
 import 'state.dart';
 
 class OrderToOnlinePage extends ConsumerStatefulWidget {
-  const OrderToOnlinePage({
-    super.key,
-    this.orderId,
-  });
-  final int? orderId;
+  const OrderToOnlinePage({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _OrderToOnlinePageState();
@@ -47,29 +43,15 @@ class _OrderToOnlinePageState extends ConsumerState<OrderToOnlinePage> {
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.read(orderToOnlinePageProvider.notifier).init(orderId: widget.orderId);
-      // streamSubscription = ref
-      //     .read(homeProvider.notifier)
-      //     .o2oStreamController
-      //     .stream
-      //     .listen((event) async {
-      //   ref.read(orderToOnlinePageProvider.notifier).getNotifications();
-      //   if (event.reloadDataO2O) {
-      //     try {
-      //       await Future.delayed(const Duration(milliseconds: 1500));
-      //       ref.read(orderToOnlinePageProvider.notifier).getChatMessages();
-      //     } catch (ex) {
-      //       //
-      //     }
-      //   } else if (event.order != null) {
-      //     ref
-      //         .read(orderToOnlinePageProvider.notifier)
-      //         .changeStatusOrder(context, event.order!);
-      //   }
-      // });
-    });
+    streamSubscription = ref.read(homeProvider.notifier).chatIdStreamController.stream.listen(
+      (event) {
+        var orderId = event;
+        var orderIdSelect = ref.read(orderToOnlinePageProvider).orderSelect?.orderId;
+        if (orderId == orderIdSelect) {
+          ref.read(orderToOnlinePageProvider.notifier).getChatMessages();
+        }
+      },
+    );
   }
 
   @override
@@ -129,10 +111,10 @@ class _OrderToOnlinePageState extends ConsumerState<OrderToOnlinePage> {
           ResponsiveIconButtonWidget(
             iconData: Icons.refresh,
             onPressed: () {
-              ref.read(orderToOnlinePageProvider.notifier).onChangeShowLoadingGetData(true);
+              // ref.read(orderToOnlinePageProvider.notifier).onChangeShowLoadingGetData(true);
 
               ref.refresh(orderToOnlineProvider);
-              ref.read(orderToOnlinePageProvider.notifier).getChatMessages();
+              // ref.read(orderToOnlinePageProvider.notifier).getChatMessages();
             },
           ),
           ResponsiveIconButtonWidget(
@@ -470,7 +452,7 @@ class _BodyPage extends ConsumerWidget {
         return Center(
           child: AppErrorSimpleWidget(
             onTryAgain: () {
-              ref.read(orderToOnlinePageProvider.notifier).onChangeShowLoadingGetData(true);
+              // ref.read(orderToOnlinePageProvider.notifier).onChangeShowLoadingGetData(true);
               ref.refresh(orderToOnlineProvider);
             },
           ),

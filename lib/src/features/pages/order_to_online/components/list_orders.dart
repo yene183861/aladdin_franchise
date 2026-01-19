@@ -3,6 +3,7 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,11 +33,9 @@ class _ListOrdersO2OState extends ConsumerState<ListOrdersO2O> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       List<O2OOrderModel> tables = data.keys.toList();
       final orderSelect = ref.read(orderToOnlinePageProvider).orderSelect;
-      var indexItem =
-          tables.indexWhere((e) => e.orderId == orderSelect?.orderId);
+      var indexItem = tables.indexWhere((e) => e.orderId == orderSelect?.orderId);
       if (indexItem != -1) {
-        _scrollController.scrollTo(
-            index: indexItem, duration: const Duration(milliseconds: 10));
+        _scrollController.scrollTo(index: indexItem, duration: const Duration(milliseconds: 10));
       } else {
         ref.read(orderToOnlinePageProvider.notifier).changeOrderSelect(null);
       }
@@ -56,18 +55,15 @@ class _ListOrdersO2OState extends ConsumerState<ListOrdersO2O> {
   @override
   Widget build(BuildContext context) {
     List<O2OOrderModel> orders = data.keys.toList();
-    final orderSelect = ref
-        .watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
+    final orderSelect = ref.watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
 
     bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       List<O2OOrderModel> tables = data.keys.toList();
       final orderSelect = ref.read(orderToOnlinePageProvider).orderSelect;
-      var indexItem =
-          tables.indexWhere((e) => e.orderId == orderSelect?.orderId);
+      var indexItem = tables.indexWhere((e) => e.orderId == orderSelect?.orderId);
       if (indexItem != -1) {
-        _scrollController.scrollTo(
-            index: indexItem, duration: const Duration(milliseconds: 300));
+        _scrollController.scrollTo(index: indexItem, duration: const Duration(milliseconds: 300));
       } else {
         ref.read(orderToOnlinePageProvider.notifier).changeOrderSelect(null);
       }
@@ -120,9 +116,7 @@ class _ListOrdersO2OState extends ConsumerState<ListOrdersO2O> {
 
     return ScrollablePositionedList.separated(
       scrollDirection: isSmallDevice ? Axis.horizontal : Axis.vertical,
-      padding: isSmallDevice
-          ? const EdgeInsets.symmetric(horizontal: 8, vertical: 4)
-          : null,
+      padding: isSmallDevice ? const EdgeInsets.symmetric(horizontal: 8, vertical: 4) : null,
       itemScrollController: _scrollController,
       itemCount: orders.length,
       itemBuilder: (context, index) {
@@ -136,23 +130,18 @@ class _ListOrdersO2OState extends ConsumerState<ListOrdersO2O> {
         }
         return InkWell(
           onTap: () {
-            ref
-                .read(orderToOnlinePageProvider.notifier)
-                .changeOrderSelect(order);
+            ref.read(orderToOnlinePageProvider.notifier).changeOrderSelect(order);
           },
           child: Container(
             constraints: BoxConstraints(minHeight: isSmallDevice ? 24 : 100.0),
             padding: EdgeInsets.symmetric(
-                horizontal: isSmallDevice ? 24 : 20,
-                vertical: isSmallDevice ? 0 : 20),
+                horizontal: isSmallDevice ? 24 : 20, vertical: isSmallDevice ? 0 : 20),
             decoration: BoxDecoration(
               color: selected
                   ? (isSmallDevice ? AppColors.mainColor : Colors.grey.shade300)
                   : Colors.white,
               borderRadius: BorderRadius.circular(isSmallDevice ? 12 : 0),
-              border: isSmallDevice && !selected
-                  ? Border.all(color: AppColors.mainColor)
-                  : null,
+              border: isSmallDevice && !selected ? Border.all(color: AppColors.mainColor) : null,
             ),
             alignment: Alignment.center,
             child: Row(
@@ -168,9 +157,7 @@ class _ListOrdersO2OState extends ConsumerState<ListOrdersO2O> {
                     : Flexible(
                         child: Text(
                           '${S.current.table} ${order.tableName}',
-                          style: selected
-                              ? AppTextStyle.bold()
-                              : AppTextStyle.regular(),
+                          style: selected ? AppTextStyle.bold() : AppTextStyle.regular(),
                         ),
                       ),
                 if (count > 0) ...[

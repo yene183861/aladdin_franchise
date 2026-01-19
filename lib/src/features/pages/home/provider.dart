@@ -126,7 +126,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     // listenRedisPrintChannel();
     // pubRedisPrintChannel();
     loadNotifications();
-    listenNotificationsData();
+    chatIdStreamController = StreamController<int?>.broadcast();
   }
 
   final Ref ref;
@@ -141,8 +141,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
   final InvoiceRepository _invoiceRepository;
   final ReservationRepository _reservationRepository;
 
-  List<PaymentMethod> _listPaymentMethods = [];
-
   /// bắt buộc update lại thuế với giá trị mặc định
   bool requireUpdateDefaultTax = false;
 
@@ -154,11 +152,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   Command? pubCommand;
 
-  Timer? timer;
+  late StreamController<int?> chatIdStreamController;
 
   @override
   void dispose() {
-    timer?.cancel();
+    chatIdStreamController.close();
     AppConfig.initHomeProvider = false;
     pubCommand = null;
     super.dispose();
@@ -191,11 +189,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
       paymentMethods: [],
       listAtmPos: [],
     );
-    getListPrinters();
     ref.refresh(o2oConfigProvider);
     _resetOrder();
     await ref.read(menuProvider.notifier).init(loadProducts: loadProducts);
     if (order != null) {
+      getO2OChatMessages();
       onLoadProductSelecting();
       getOrderProductCheckout();
       getOrderInvoice();
@@ -219,25 +217,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     ref.read(cartPageProvider.notifier).init(selecting);
   }
 
-  void getListPrinters() async {
-    try {
-      state = state.copyWith(printerState: const PageState(status: PageCommonState.loading));
-      var printers = await _restaurantRepository.getListPrinters();
-      PrinterMonitor.instance.checkPrinters(printers);
-      state = state.copyWith(
-        printers: printers,
-        printerState: const PageState(status: PageCommonState.success),
-      );
-    } catch (ex) {
-      state = state.copyWith(
-          printerState: PageState(
-        status: PageCommonState.error,
-        messageError: ex.toString(),
-      ));
-    }
-  }
-
-  /// checked
   void updateEvent(HomeEvent? event) {
     state = state.copyWith(event: event ?? HomeEvent.normal);
   }
@@ -266,6 +245,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         ref.refresh(typeOrderWaiterProvider);
         ref.read(homeProvider.notifier).initialize(order: orderModel);
       } else {
+        getO2OChatMessages();
         onLoadProductSelecting();
         getOrderProductCheckout();
         getOrderInvoice();
@@ -624,7 +604,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       printNumberOfPeople: false,
       autoScrollProducts: true,
       changedProductId: null,
-      // displayOrderHistory: false,
+      chatMessages: [],
+      getChatMessageState: const PageState(status: PageCommonState.success),
     );
 
     try {
@@ -632,8 +613,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     } catch (ex) {
       //
     }
-    _listPaymentMethods = [];
-    requireUpdateDefaultTax = false;
     for (var e in [
       WindowsMethodEnum.order,
       WindowsMethodEnum.paymentMethod,
@@ -729,62 +708,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  // void listenRedisPrintChannel() async {
-  //   StreamSubscription<dynamic>? streamSubscription;
-  //   try {
-  //     var info = LocalStorage.getDataLogin()?.restaurant?.redisGatewayPayment;
-  //     if (info == null) return;
-  //     var ip = '10.0.2.2';
-  //     var port = 6379;
-  //     final redisConnection = RedisConnection();
-  //     showLog("$ip:$port", flags: "Connecting to");
-  //     var command = await redisConnection.connect(ip, port);
-
-  //     final pubSub = PubSub(command);
-  //     pubSub.subscribe([
-  //       kPrintChannel,
-  //     ]);
-  //     final stream = pubSub.getStream();
-  //     streamSubscription = stream.listen(
-  //       _handleRedisEvent,
-  //       onError: (_, __) async {
-  //         showLog("onError listing $_ $__");
-  //         await streamSubscription?.cancel();
-  //         _reconnectRedis(redisConnection: redisConnection);
-  //       },
-  //       onDone: () async {
-  //         showLog("end listing");
-  //         await streamSubscription?.cancel();
-  //         _reconnectRedis(redisConnection: redisConnection);
-  //       },
-  //     );
-  //     showLog("$ip:$port", flags: "On start listen");
-  //     state = state.copyWith(
-  //       reconnectRedis: false,
-  //       realtimeStatus: true,
-  //     );
-  //     showLog(state.realtimeStatus, flags: "realtimeStatus");
-  //   } catch (ex) {
-  //     showLog(ex, flags: 'RedisConnection error');
-  //     await streamSubscription?.cancel();
-  //     _reconnectRedis();
-  //   }
-  // }
-
-  // void pubRedisPrintChannel() async {
-  //   try {
-  //     var info = LocalStorage.getDataLogin()?.restaurant?.redisGatewayPayment;
-  //     if (info == null) return;
-  //     var ip = '10.0.2.2';
-  //     var port = 6379;
-  //     final redisConnection = RedisConnection();
-  //     showLog("$ip:$port", flags: "Connecting to");
-  //     pubCommand = await redisConnection.connect(ip, port);
-  //   } catch (ex) {
-  //     showLog(ex, flags: 'RedisConnection error');
-  //   }
-  // }
-
   Future<String?> sendPrintData({
     required PrintTypeEnum type,
     List<ProductModel> products = const [],
@@ -798,12 +721,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
     bool useDefaultPrinters = true,
     bool totalBill = true,
   }) async {
-    showLogs(null, flags: 'sendPrintData');
     try {
       var order = state.orderSelect ?? const OrderModel();
+      var id = DateTimeUtils.formatToString(
+          time: DateTime.now(), newPattern: DateTimePatterns.dateTime3);
       var data = {
-        'id': DateTimeUtils.formatToString(
-            time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
+        'id': id,
         'type': type.name,
         'mode': LocalStorage.getPrintSetting().appPrinterType.name,
         'close_shift_data': closeShiftData,
@@ -820,27 +743,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
         'products': products,
         'note': note,
         'printers': printers,
-
-        // 'print_device_ip': '',
       };
-      if (printDirectly) {
-        _handlePrintRedisEvent([
-          null,
-          null,
-          jsonEncode({
-            'data': data,
-            'printer_device_id': kDeviceId,
-          })
-        ]);
-      } else {
-        await _restaurantRepository.sendPrintData(data);
-        _saveNotificationPrintError(
-          title: 'Yêu cầu in chưa được xử lý',
-          dataDecode: data,
-          order: order,
-        );
-        // _saveNotificationPrintError(title: '',
-        // event: );
+      var error = await _checkBeforeSendData(
+        data: data,
+        order: order,
+        ignoreSendEvent: printDirectly,
+      );
+      if (error != null) {
+        throw error;
       }
 
       return null;
@@ -849,22 +759,53 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  // void _listenUpdatePrintCommand() {
-  //   timer?.cancel();
-  //   timer = Timer(const Duration(seconds: 10), () {
-
-  //   },);
-  // }
-
-  // Map<String, dynamic> convertPrintData(dynamic data) {
-  //   Map<String, dynamic> result = {};
-  //   var printers =
-  //       ((data['printers'] ?? []) as List<dynamic>).map((e) => PrinterModel.fromJson(e)).toList();
-  //   // var printers =
-  //   //     ((data['printers'] ?? []) as List<dynamic>).map((e) => PrinterModel.fromJson(e)).toList();
-
-  //   return result;
-  // }
+  void _checkResponsePrintStatus(String? notiId) async {
+    if (notiId == null) return;
+    await Future.delayed(const Duration(seconds: 15));
+    try {
+      if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
+      var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
+      var values = box.values.toList();
+      var noti = values.firstWhereOrNull((e) => e.id == notiId);
+      if (noti != null) {
+        var json = Map<String, dynamic>.from(jsonDecode(noti.data) ?? {});
+        if (!((json['status'] as bool?) ?? false)) {
+          if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
+          box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
+          values = box.values.toList();
+          var valueIndex = values.indexWhere((e) => e.id == notiId);
+          var title =
+              'Chưa nhận được kết quả phản hồi yêu cầu xử lý in. Kiểm tra lại thiết bị được cài là thiết bị in chính.';
+          if (valueIndex != -1) {
+            try {
+              await box.putAt(
+                valueIndex,
+                noti.copyWith(
+                  data: jsonEncode(json),
+                  title: title,
+                ),
+              );
+            } catch (ex) {}
+          }
+          if (Platform.isAndroid || Platform.isIOS) {
+            appLocalNotificationService?.showLocalNotification(title, '');
+          } else if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+            try {
+              LocalNotification notification = LocalNotification(
+                title: title,
+                body: '',
+              );
+              notification.show();
+            } catch (ex) {
+              //
+            }
+          }
+        }
+      }
+    } catch (ex) {
+      showLogs(ex, flags: '_checkResponsePrintStatus ex');
+    }
+  }
 
   void _handleRedisEvent(dynamic event) async {
     showLog(event, flags: "New event");
@@ -900,6 +841,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     if (!useO2O) return;
     dynamic dataDecode = jsonDecode(event[2])['data'];
     dynamic data = dataDecode['data'];
+    showLogs(dataDecode, flags: 'dataDecode event');
     showLogs(data, flags: 'data event');
     int? restaurantId = loginData?.restaurant?.id;
     int? userId = loginData?.user?.id;
@@ -910,9 +852,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
     switch (event[1]) {
       case kUserCreateOrderChannel:
         ref.refresh(orderToOnlineProvider);
+        var orderId = data['order_id'] as int?;
+        chatIdStreamController.add(orderId);
         break;
       case kUserUpdateOrderChannel:
         ref.refresh(orderToOnlineProvider);
+        var orderId = data['order_id'] as int?;
+        chatIdStreamController.add(orderId);
         var o2oConfig = ref.read(o2oConfigProvider).when(
               data: (data) => data,
               error: (error, stackTrace) => O2oConfigModel(),
@@ -981,16 +927,26 @@ class HomeNotifier extends StateNotifier<HomeState> {
         break;
 
       case kCallStaffChannel:
-        if (userId != waiterId) return;
         final note = data['note'];
+        final table = data['table'];
+        var title = '${S.current.table} ${table ?? ''} ${S.current.request_service.toLowerCase()}';
+        var body = note ?? '';
+        _saveNotification(
+          title: title,
+          error: body,
+          type: NotificationTypeEnum.o2oWaiter,
+          order: OrderModel(
+            name: table ?? '',
+            id: data['order_id'] as int,
+          ),
+        );
         if (Platform.isAndroid) {
-          appLocalNotificationService?.showLocalNotification(
-              S.current.request_service, '${S.current.table} ${note == null ? '' : '\n$note'}');
+          appLocalNotificationService?.showLocalNotification(title, body);
         } else if (Platform.isWindows) {
           try {
             LocalNotification notification = LocalNotification(
-              title: S.current.request_service,
-              body: '${S.current.table} ${note == null ? '' : '\n$note'}',
+              title: title,
+              body: body,
             );
             notification.show();
           } catch (ex) {
@@ -1002,14 +958,23 @@ class HomeNotifier extends StateNotifier<HomeState> {
       case kPaymentRequestChannel:
         if (userId != waiterId) return;
         final table = data['table'];
+        var title = '${S.current.table} ${table ?? ''} gọi thanh toán';
+        _saveNotification(
+          title: title,
+          error: '',
+          type: NotificationTypeEnum.o2oPayment,
+          order: OrderModel(
+            name: table ?? '',
+            id: data['order_id'] as int,
+          ),
+        );
         if (Platform.isAndroid) {
-          appLocalNotificationService?.showLocalNotification(
-              S.current.request_payment, '${S.current.table} $table gọi thanh toán');
+          appLocalNotificationService?.showLocalNotification(title, '');
         } else if (Platform.isWindows) {
           try {
             LocalNotification notification = LocalNotification(
-              title: S.current.request_payment,
-              body: '${S.current.table} $table gọi thanh toán',
+              title: title,
+              body: '',
             );
             notification.show();
           } catch (ex) {
@@ -1034,9 +999,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
     );
   }
 
-  void _handlePrintRedisEvent(dynamic event, {bool ignoreCheckPrintDevice = false}) async {
+  void _handlePrintRedisEvent(dynamic event) async {
     try {
-      showLogs(event, flags: 'event');
+      showLogs(jsonDecode(event[2])['restaurant_id'], flags: 'event');
       dynamic dataDecode = jsonDecode(event[2])['data'];
       var type = dataDecode['type'] as String?;
       var printDeviceId = jsonDecode(event[2])['printer_device_id'] as String?;
@@ -1045,78 +1010,87 @@ class HomeNotifier extends StateNotifier<HomeState> {
       switch (printType) {
         case PrintTypeEnum.order:
         case PrintTypeEnum.cancel:
-          if (!ignoreCheckPrintDevice) {
-            if (kDeviceId != printDeviceId) return;
-          }
+          if (kDeviceId != printDeviceId) return;
           _handlePrintProcessItem(event, dataDecode, printType);
           break;
         case PrintTypeEnum.closeShift:
-          if (!ignoreCheckPrintDevice) {
-            if (kDeviceId != printDeviceId) return;
-          }
+          if (kDeviceId != printDeviceId) return;
           _handlePrintCloseShift(event, dataDecode);
           break;
         case PrintTypeEnum.payment:
-          if (!ignoreCheckPrintDevice) {
-            if (kDeviceId != printDeviceId) return;
-          }
+          if (kDeviceId != printDeviceId) return;
           _handlePrintPaymentReceipt(event, dataDecode);
           break;
         case PrintTypeEnum.printStatus:
-          showLogs(event, flags: 'event printStatus');
-          var refId = dataDecode['ref_id'];
-          showLogs(refId, flags: 'event printStatus refId');
-          try {
-            var noti = state.notifications;
-            var check = noti.firstWhereOrNull((e) {
-              var json = jsonDecode(e.data);
-              if (json['sender_device_id']?.toString() == kDeviceId && refId == json['id']) {
-                return true;
-              }
-              return false;
-            });
-            showLogs(check, flags: 'check check not ti');
-            if (check != null) {
-              var json = Map<String, dynamic>.from(jsonDecode(check.data));
-              showLogs(json, flags: 'json');
-              var status = dataDecode['status'] ?? false;
-              showLogs(status, flags: 'status');
-              if (status) {
-                json['status'] = true;
-                try {
-                  if (!Hive.isBoxOpen(AppConfig.testNotificationBoxName)) return;
-                  var box = Hive.box<TestNotificationModel>(AppConfig.testNotificationBoxName);
-                  var values = box.values.toList();
-                  var valueIndex = values.indexWhere((e) => e.id == check.id);
-                  if (valueIndex != -1) {
-                    box.putAt(
-                      valueIndex,
-                      check.copyWith(data: jsonEncode(json), title: 'Xử lý lệnh in thành công'),
-                    );
-                  }
-                } catch (ex) {
-                  showLogs(ex, flags: 'PrintTypeEnum.printStatus status');
-                }
-              }
-            }
-          } catch (ex) {
-            showLogs(ex, flags: 'PrintTypeEnum.printStatus');
-            //
-          }
-
-          // int retry = 0;
-          // var data = Map<String, dynamic>.from(dataDecode);
-          // while (retry < 3) {
-          //   try {
-          //     await _restaurantRepository.sendPrintData(data);
-          //   } catch (ex) {}
-          // }
-          // _handlePrintPaymentReceipt(event, dataDecode);
+          _handlePrintStatus(dataDecode);
           break;
         default:
       }
     } catch (ex) {
       showLogs(ex, flags: '_handlePrintRedisEvent ex');
+    }
+  }
+
+  void _handlePrintStatus(Map<String, dynamic> dataDecode) async {
+    var refId = dataDecode['ref_id'];
+    try {
+      var noti = state.notifications;
+      var check = noti.firstWhereOrNull((e) {
+        var json = jsonDecode(e.data);
+        if (json['sender_device_id']?.toString() == kDeviceId && refId == json['id']) {
+          return true;
+        }
+        return false;
+      });
+      if (check != null) {
+        var json = Map<String, dynamic>.from(jsonDecode(check.data));
+        var status = dataDecode['status'] ?? false;
+        try {
+          if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
+          var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
+          var values = box.values.toList();
+          var valueIndex = values.indexWhere((e) => e.id == check.id);
+          if (valueIndex != -1) {
+            json['status'] = status;
+            json['handle_device_id'] = dataDecode['handle_device_id'];
+            await box.putAt(
+              valueIndex,
+              check.copyWith(
+                data: jsonEncode(json),
+                title: status
+                    ? 'Xử lý lệnh in thành công'
+                    : 'Lệnh in chưa được xử lý,'
+                        ' vui lòng kiểm tra thiết bị được thiết lập in chính!',
+              ),
+            );
+          }
+        } catch (ex) {
+          showLogs(ex, flags: '_handlePrintStatus ex box hive');
+          return;
+        }
+        if (!status) {
+          if (Platform.isAndroid || Platform.isIOS) {
+            appLocalNotificationService?.showLocalNotification(
+                'Không in được bill',
+                'Lệnh in chưa được xử lý,'
+                    ' vui lòng kiểm tra thiết bị được thiết lập in chính!');
+          } else if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+            try {
+              LocalNotification notification = LocalNotification(
+                title: 'Không in được bill',
+                body: 'Lệnh in chưa được xử lý,'
+                    ' vui lòng kiểm tra thiết bị được thiết lập in chính!',
+              );
+              notification.show();
+            } catch (ex) {
+              //
+            }
+          }
+        }
+      }
+    } catch (ex) {
+      showLogs(ex, flags: '_handlePrintStatus ex');
+      //
     }
   }
 
@@ -1166,31 +1140,23 @@ class HomeNotifier extends StateNotifier<HomeState> {
             if (success) {
               showLogs(null, flags: "✅ In thành công");
             } else {
-              _saveNotificationPrintError(
-                title: 'Không thể in phiếu thanh toán ${data?.order.getOrderMisc()}',
-                error: error,
-                dataDecode: dataDecode,
-                order: data?.order,
-              );
-              // if (!Hive.isBoxOpen(AppConfig.testNotificationBoxName)) {
-              //   return;
-              // }
-              // var box = Hive.box<TestNotificationModel>(
-              //     AppConfig.testNotificationBoxName);
-
-              // try {
-              //   await box.add(TestNotificationModel(
-              //     title:
-              //         'Không thể in phiếu thanh toán ${data?.order.getOrderMisc()}',
-              //     body: error ?? '',
-              //     datetime: DateTime.now(),
-              //     orderId: data?.order.id,
-              //     data: event,
-              //   ));
-              // } catch (ex) {
-              //   showLogs(ex, flags: 'save error noti');
-              // }
               showLogs(error, flags: '❌ In thất bại');
+            }
+            var callback = Map<String, dynamic>.from(dataDecode ?? {});
+            callback['ref_id'] = callback['id'];
+            callback['id'] = DateTimeUtils.formatToString(
+                time: DateTime.now(), newPattern: DateTimePatterns.dateTime3);
+            callback['type'] = PrintTypeEnum.printStatus.name;
+            callback['status'] = success;
+            callback['handle_device_id'] = kDeviceId;
+            bool ignoreSendEvent = callback['sender_device_id'] == callback['handle_device_id'];
+            await _checkBeforeSendData(
+              data: callback,
+              ignoreSendEvent: ignoreSendEvent,
+              saveNotification: false,
+            );
+            if (ignoreSendEvent) {
+              _handlePrintStatus(callback);
             }
           },
         );
@@ -1213,8 +1179,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
           .map((e) => PrinterModel.fromJson(e))
           .toList();
 
-      showLogs(data, flags: 'data');
-      showLogs(printers, flags: 'printers');
       if (data == null || printers.isEmpty) return;
 
       var bytes = printMode == AppPrinterSettingTypeEnum.normal
@@ -1231,28 +1195,23 @@ class HomeNotifier extends StateNotifier<HomeState> {
             if (success) {
               showLogs(null, flags: "✅ In thành công");
             } else {
-              _saveNotificationPrintError(
-                title: 'Không thể in phiếu chốt ca',
-                error: error,
-                dataDecode: dataDecode,
-              );
-              // if (!Hive.isBoxOpen(AppConfig.testNotificationBoxName)) {
-              //   return;
-              // }
-              // var box = Hive.box<TestNotificationModel>(
-              //     AppConfig.testNotificationBoxName);
-
-              // try {
-              //   await box.add(TestNotificationModel(
-              //     title: 'Không thể in phiếu chốt ca',
-              //     body: error ?? '',
-              //     datetime: DateTime.now(),
-              //     data: jsonEncode(event),
-              //   ));
-              // } catch (ex) {
-              //   showLogs(ex, flags: 'save error noti');
-              // }
               showLogs(error, flags: '❌ In thất bại');
+            }
+            var callback = Map<String, dynamic>.from(dataDecode ?? {});
+            callback['ref_id'] = callback['id'];
+            callback['id'] = DateTimeUtils.formatToString(
+                time: DateTime.now(), newPattern: DateTimePatterns.dateTime3);
+            callback['type'] = PrintTypeEnum.printStatus.name;
+            callback['status'] = success;
+            callback['handle_device_id'] = kDeviceId;
+            bool ignoreSendEvent = callback['sender_device_id'] == callback['handle_device_id'];
+            await _checkBeforeSendData(
+              data: callback,
+              ignoreSendEvent: ignoreSendEvent,
+              saveNotification: false,
+            );
+            if (ignoreSendEvent) {
+              _handlePrintStatus(callback);
             }
           },
         );
@@ -1313,24 +1272,16 @@ class HomeNotifier extends StateNotifier<HomeState> {
             return bytes;
           },
           onComplete: (success, error) async {
-            int retry = 0;
-            var callback = Map<String, dynamic>.from(dataDecode);
+            var callback = Map<String, dynamic>.from(dataDecode ?? {});
             callback['ref_id'] = callback['id'];
             callback['id'] = DateTimeUtils.formatToString(
                 time: DateTime.now(), newPattern: DateTimePatterns.dateTime3);
             callback['type'] = PrintTypeEnum.printStatus.name;
-            callback['status'] = true;
-            while (retry < 3) {
-              try {
-                showLogs(callback['status'], flags: '✅ In bill món tổng thành công status');
-                await _restaurantRepository.sendPrintData(callback);
-                break;
-              } catch (ex) {
-                showLogs(ex, flags: 'callback print');
-              }
-            }
-            showLogs(null, flags: "✅ In bill món tổng thành công");
+            callback['status'] = success;
+            callback['handle_device_id'] = kDeviceId;
+            bool ignoreSendEvent = callback['sender_device_id'] == callback['handle_device_id'];
             if (success) {
+              showLogs(null, flags: "✅ In bill tổng thành công");
               if (printType == PrintTypeEnum.order && useOddBill && totalBill) {
                 /// nếu có bill tổng có:
                 /// + đồ ăn + đồ uống => in bill lẻ tất cả
@@ -1351,7 +1302,21 @@ class HomeNotifier extends StateNotifier<HomeState> {
                     default:
                   }
                 }
-                if (onlyDrinks) return;
+                if (onlyDrinks) {
+                  await _checkBeforeSendData(
+                    data: callback,
+                    ignoreSendEvent: ignoreSendEvent,
+                    order: order,
+                    saveNotification: false,
+                    titleError:
+                        'In bill tổng bếp, bar thành công - ${order.getOrderMisc() ?? ''} - ${order.name}',
+                    bodyError: error ?? '',
+                  );
+                  if (ignoreSendEvent) {
+                    _handlePrintStatus(callback);
+                  }
+                  return;
+                }
                 if (!initOddBillData) {
                   for (var item in foods) {
                     var listComboItemPrint = ProductHelper().getComboDescription(item);
@@ -1433,6 +1398,21 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
                   initOddBillData = true;
                 }
+                if (oddBillDatas.isEmpty) {
+                  await _checkBeforeSendData(
+                    data: callback,
+                    ignoreSendEvent: ignoreSendEvent,
+                    order: order,
+                    saveNotification: false,
+                    titleError:
+                        'In bill tổng bếp, bar thành công - ${order.getOrderMisc() ?? ''} - ${order.name}',
+                    bodyError: error ?? '',
+                  );
+                  if (ignoreSendEvent) {
+                    _handlePrintStatus(callback);
+                  }
+                  return;
+                }
 
                 oddBillDatas.forEach(
                   (key, value) {
@@ -1444,46 +1424,48 @@ class HomeNotifier extends StateNotifier<HomeState> {
                       },
                       onComplete: (success, error) async {
                         if (success) {
-                          showLogs(null, flags: "✅ In món lẻ thành công");
+                          showLogs(null, flags: "✅ In bill lẻ thành công");
                         } else {
-                          _saveNotificationPrintError(
-                            title: 'Không thể in bill lẻ xuống bếp, bar',
+                          showLogs("❌ In bill lẻ thất bại\n$key", flags: 'BILL LẺ');
+                          _saveNotification(
+                            title:
+                                'Không thể in bill lẻ xuống bếp, bar - ${order.getOrderMisc() ?? ''} - ${order.name}',
                             error: error,
                             order: order,
                             dataDecode: dataDecode,
                           );
-                          showLogs("❌ In bill lẻ thất bại\n$key", flags: 'BILL LẺ');
                         }
                       },
                     );
                   },
                 );
               }
-            } else {
-              // if (!Hive.isBoxOpen(AppConfig.testNotificationBoxName)) {
-              //   return;
-              // }
-              // var box = Hive.box<TestNotificationModel>(
-              //     AppConfig.testNotificationBoxName);
-
-              // try {
-              //   await box.add(TestNotificationModel(
-              //     title: 'Không thể in bill xuống bếp, bar',
-              //     body: error ?? '',
-              //     orderId: order.id,
-              //     datetime: DateTime.now(),
-              //     data: jsonEncode(event),
-              //   ));
-              // } catch (ex) {
-              //   showLogs(ex, flags: 'save error noti');
-              // }
-              showLogs(error, flags: '❌ In thất bại');
-              _saveNotificationPrintError(
-                title: 'Không thể in bill tổng xuống bếp, bar',
-                error: error,
+              await _checkBeforeSendData(
+                data: callback,
+                ignoreSendEvent: ignoreSendEvent,
                 order: order,
-                dataDecode: dataDecode,
+                saveNotification: false,
+                titleError:
+                    'In bill tổng xuống bếp, bar thành công - ${order.getOrderMisc() ?? ''} - ${order.name}',
+                bodyError: error ?? '',
               );
+              if (ignoreSendEvent) {
+                _handlePrintStatus(callback);
+              }
+            } else {
+              showLogs(error, flags: '❌ In bill tổng thất bại');
+              await _checkBeforeSendData(
+                data: callback,
+                ignoreSendEvent: ignoreSendEvent,
+                order: order,
+                saveNotification: false,
+                titleError:
+                    'Không thể in bill tổng xuống bếp, bar - ${order.getOrderMisc() ?? ''} - ${order.name}',
+                bodyError: error ?? '',
+              );
+              if (ignoreSendEvent) {
+                _handlePrintStatus(callback);
+              }
             }
           },
         );
@@ -1493,20 +1475,81 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void _saveNotificationPrintError({
+  Future<String?> _checkBeforeSendData({
+    Map<String, dynamic> data = const {},
+    OrderModel? order,
+    bool ignoreSendEvent = false,
+    bool saveNotification = true,
+    String? titleError,
+    String? bodyError,
+  }) async {
+    if (data.isEmpty) return null;
+    int retry = 0;
+    var printerDeviceId = ref.read(o2oConfigProvider).when(
+        data: (data) => data.printerDeviceId,
+        error: (error, stackTrace) => null,
+        loading: () => null);
+    String? error;
+    if (!ignoreSendEvent && printerDeviceId != kDeviceId) {
+      while (retry < 3) {
+        try {
+          await _restaurantRepository.sendPrintData(data);
+          error = null;
+          break;
+        } catch (ex) {
+          error = ex.toString();
+          retry++;
+          showLogs(ex, flags: 'send data print');
+        }
+      }
+      if (error != null) {
+        if (titleError != null) {
+          await _saveNotification(
+            title: titleError,
+            error: bodyError,
+            dataDecode: data,
+            order: order,
+          );
+        }
+        return error;
+      }
+    } else {
+      _handlePrintRedisEvent([
+        null,
+        null,
+        jsonEncode({
+          'data': data,
+          'printer_device_id': kDeviceId,
+        })
+      ]);
+    }
+    if (saveNotification) {
+      var notiId = await _saveNotification(
+        title: 'Yêu cầu in đã được gửi tới hệ thống và đang chờ xử lý.',
+        dataDecode: data,
+        order: order,
+      );
+      if (!ignoreSendEvent && printerDeviceId != kDeviceId) _checkResponsePrintStatus(notiId);
+    }
+
+    return null;
+  }
+
+  Future<String?> _saveNotification({
     required String title,
     String? error,
     OrderModel? order,
     dynamic dataDecode,
+    NotificationTypeEnum type = NotificationTypeEnum.print,
   }) async {
-    if (!Hive.isBoxOpen(AppConfig.testNotificationBoxName)) {
-      return;
+    if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) {
+      return null;
     }
-    var box = Hive.box<TestNotificationModel>(AppConfig.testNotificationBoxName);
-    showLogs(title, flags: '_saveNotificationPrintError title');
-    showLogs(dataDecode, flags: '_saveNotificationPrintError');
+    var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
     try {
-      await box.add(TestNotificationModel(
+      var id = DateTimeUtils.formatToString(
+          time: DateTime.now(), newPattern: DateTimePatterns.dateTime3);
+      await box.add(NotificationModel(
         id: DateTimeUtils.formatToString(
             time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
         title: title,
@@ -1514,20 +1557,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
         orderId: order?.id,
         datetime: DateTime.now(),
         data: jsonEncode(dataDecode),
-        type: NotificationTypeEnum.print.name,
+        type: type.name,
       ));
+      return id;
     } catch (ex) {
-      showLogs(ex, flags: '_saveNotificationPrintError ex');
+      showLogs(ex, flags: '_saveNotification ex');
+      return null;
     }
   }
-
-  // void checkReloadMenu() {
-  //   final lastTime = LocalStorage.getLastReloadMenu();
-  //   final now = DateTime.now();
-  //   if ((now.compareToWithoutTime(lastTime) == false) && now.hour >= 9 && now.minute >= 5) {
-  //     getProducts();
-  //   }
-  // }
 
   Future<FindCustomerStatus> findCustomer(
     String phone, {
@@ -1920,8 +1957,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
       final result = await _restaurantRepository.getPaymentMethod(
         orderId: state.orderSelect!.id,
       );
-
-      _listPaymentMethods = List<PaymentMethod>.from(result);
 
       state = state.copyWith(
         paymentMethodState: const PageState(status: PageCommonState.success),
@@ -2370,12 +2405,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
           }
 
           // // Kiểm tra tình trạng máy in
-          // for (var ipPrinter in printers) {
-          //   var checkPrinterAvailable = await AppPrinterCommon.checkPrinter(ipPrinter);
-          //   if (checkPrinterAvailable != null) {
-          //     throw checkPrinterAvailable;
-          //   }
-          // }
+          for (var ipPrinter in printers) {
+            var checkPrinterAvailable = await AppPrinterCommon.checkPrinter(ipPrinter);
+            if (checkPrinterAvailable != null) {
+              throw checkPrinterAvailable;
+            }
+          }
 
           var price = getFinalPaymentPrice;
           var checkoutState = ref.read(checkoutPageProvider);
@@ -2603,68 +2638,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
           } catch (ex) {
             errorSendPrint = ex.toString();
           }
-
-          // var bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(
-          //   order: state.orderSelect!,
-          //   price: price,
-          //   receiptType: ReceiptTypeEnum.paymentReceipt,
-          //   paymentMethod: state.paymentMethodSelected,
-          //   paymentAmount: state.statusPaymentGateway
-          //       ? (double.tryParse((state.totalPaymentGateway ?? 0.0).toString()) ?? 0.0)
-          //       : price.totalPriceFinal * 1.0,
-          //   numberPrintCompleted: 1,
-          //   numberPrintTemporary: 0,
-          //   orderLineItems: productPrint,
-          //   vouchers: state.dataBill.print?.vouchers ?? [],
-          //   note: state.completeNote,
-          //   printNumberOfPeople: state.printNumberOfPeople,
-          //   customerPhone: state.customer?.phoneNumber ?? '',
-          //   numberOfPeople: state.numberOfAdults,
-          //   cashierCompleted: '',
-          //   cashierPrint: '',
-          //   timeCompleted: null,
-          //   timeCreatedAt: null,
-          //   invoiceQr: AppConfig.useInvoiceQr ? '' : '',
-          // );
-
-          // var check = await AppPrinterCommon.checkPrinters(printers);
-          // if (check != null) {
-          //   if (loadingHome) updateEvent(null);
-          //   if (context.mounted) {
-          //     await showMessageDialog(context, message: 'Không thể in phiếu thanh toán\n$check');
-          //   }
-          //   return null;
-          // }
-
-          // for (var printer in printers) {
-          //   PrintQueue.instance.addTask(
-          //     ip: printer.ip,
-          //     port: printer.port,
-          //     buildReceipt: (generator) async {
-          //       return bytes;
-          //     },
-          //     onComplete: (success, error) {
-          //       if (success) {
-          //         showLogs('in thành công', flags: 'BILL THANH TOÁN');
-          //       } else {
-          //         showLogs('in thất bại $error', flags: 'BILL THANH TOÁN');
-          //         var homeState = homeKey.currentState;
-          //         var homeContext = homeKey.currentContext;
-
-          //         if (error != null &&
-          //             homeContext != null &&
-          //             homeState != null &&
-          //             homeState.mounted) {
-          //           showMessageDialog(
-          //             homeContext,
-          //             message: 'Không thể in phiếu thanh toán\nSự cố: $error',
-          //           );
-          //         }
-          //       }
-          //     },
-          //   );
-          // }
-
           break;
         } catch (ex) {
           retry++;
@@ -2774,64 +2747,92 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   void onChangeCashReceivedAmount(double amount) {
     state = state.copyWith(cashReceivedAmount: max(0.0, amount));
-    // syncInfoForCustomer();
     syncInfoCustomerPage(method: WindowsMethodEnum.price);
   }
 
-  Future<String?> closeShift(BuildContext context) async {
+  Future<
+      ({
+        String? error,
+        String? resultSendPrintData,
+        String? checkPrinters,
+        CloseShiftResponseModel? data,
+      })> closeShift(BuildContext context) async {
+    String? checkPrinters;
+    CloseShiftResponseModel? data;
     try {
       updateEvent(HomeEvent.closingShift);
-      var res = await _userRepository.closeShift();
+      var data = await _userRepository.closeShift();
 
-      var printer = res.infoPrint;
+      var printer = data.infoPrint;
       if (printer == null) {
         throw 'Chốt ca thành công nhưng không có thông tin máy in để in bill chốt ca.';
       }
-      var checkPrinter = await AppPrinterCommon.checkPrinter(printer);
-      if (checkPrinter != null) throw checkPrinter;
-      updateEvent(HomeEvent.normal);
-      showLogs(res, flags: 'res');
-      var resultSend = await ref.read(homeProvider.notifier).sendPrintData(
-        type: PrintTypeEnum.closeShift,
-        closeShiftData: res,
-        printers: [
-          PrinterModel(
-            ip: printer.ip,
-            port: printer.port,
-            name: printer.name,
-            type: printer.type,
-            typeAreaLocation: printer.typeAreaLocation,
-          )
-        ],
+      var result = await printCloseShiftBill(
+        data: data,
+        printDirectly: false,
+        showLoading: false,
       );
-      // var setting = LocalStorage.getPrintSetting();
-      // bool printNormal = setting.appPrinterType == AppPrinterSettingTypeEnum.normal;
-      // var bytes = printNormal
-      //     ? await AppPrinterNormalUtils.instance.getCloseShift(res)
-      //     : await AppPrinterHtmlUtils.instance.getCloseShiftContent(res);
-      // PrintQueue.instance.addTask(
-      //   ip: printer.ip,
-      //   port: printer.port,
-      //   buildReceipt: (generator) async {
-      //     return bytes;
-      //   },
-      //   onComplete: (success, error) {
-      //     if (success) {
-      //       showLogs("✅ In thành công");
-      //     } else {
-      //       showLogs("❌ In thất bại");
 
-      //       if (error != null) {
-      //         showMessageDialog(context, message: error);
-      //       }
-      //     }
-      //   },
-      // );
-
-      return null;
+      updateEvent(HomeEvent.normal);
+      return (
+        error: null,
+        resultSendPrintData: result.resultSendPrintData,
+        checkPrinters: result.checkPrinters,
+        data: data
+      );
     } catch (ex) {
       updateEvent(HomeEvent.normal);
-      return ex.toString();
+      return (
+        error: ex.toString(),
+        resultSendPrintData: null,
+        checkPrinters: checkPrinters,
+        data: data
+      );
+    }
+  }
+
+  Future<
+      ({
+        String? resultSendPrintData,
+        String? checkPrinters,
+      })> printCloseShiftBill({
+    CloseShiftResponseModel? data,
+    bool showLoading = false,
+    bool printDirectly = false,
+  }) async {
+    String? checkPrinter;
+    if (showLoading) updateEvent(HomeEvent.closingShift);
+
+    try {
+      var infoPrint = data?.infoPrint;
+      var printer = PrinterModel(
+        ip: infoPrint?.ip,
+        port: infoPrint?.port,
+        name: infoPrint?.name ?? '',
+        type: infoPrint?.type ?? 0,
+        typeAreaLocation: infoPrint?.typeAreaLocation ?? 1,
+      );
+      checkPrinter = await AppPrinterCommon.checkPrinterStatus(printer);
+      if (checkPrinter != null) {
+        throw checkPrinter;
+      }
+      var resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
+            type: PrintTypeEnum.closeShift,
+            closeShiftData: data,
+            printers: [printer],
+            printDirectly: printDirectly,
+          );
+      if (showLoading) updateEvent(HomeEvent.normal);
+      return (
+        resultSendPrintData: resultSendPrintData,
+        checkPrinters: null,
+      );
+    } catch (ex) {
+      if (showLoading) updateEvent(HomeEvent.normal);
+      return (
+        resultSendPrintData: null,
+        checkPrinters: checkPrinter,
+      );
     }
   }
 
@@ -3397,47 +3398,47 @@ class HomeNotifier extends StateNotifier<HomeState> {
   //   }
   // }
 
-  // void getO2OChatMessages() async {
-  //   try {
-  //     var useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-  //     if (!useO2o) {
-  //       state = state.copyWith(
-  //         getChatMessageState: const PageState(status: PageCommonState.success),
-  //         chatMessages: [],
-  //       );
-  //       return;
-  //     }
-  //     state = state.copyWith(
-  //       getChatMessageState: const PageState(status: PageCommonState.loading),
-  //     );
-  //     final loginData = LocalStorage.getDataLogin();
-  //     int? restaurantId = loginData?.restaurant?.id;
-  //     final orderSelect = state.orderSelect;
-  //     if (restaurantId == null || orderSelect == null) {
-  //       state = state.copyWith(
-  //         getChatMessageState:
-  //             PageState(status: PageCommonState.error, messageError: S.current.no_data),
-  //       );
-  //       return;
-  //     }
+  void getO2OChatMessages() async {
+    try {
+      var useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+      if (!useO2o) {
+        state = state.copyWith(
+          getChatMessageState: const PageState(status: PageCommonState.success),
+          chatMessages: [],
+        );
+        return;
+      }
+      state = state.copyWith(
+        getChatMessageState: const PageState(status: PageCommonState.loading),
+      );
+      final loginData = LocalStorage.getDataLogin();
+      int? restaurantId = loginData?.restaurant?.id;
+      final orderSelect = state.orderSelect;
+      if (restaurantId == null || orderSelect == null) {
+        state = state.copyWith(
+          getChatMessageState:
+              PageState(status: PageCommonState.error, messageError: S.current.no_data),
+        );
+        return;
+      }
 
-  //     final messages = await _o2oRepository.getChatMessages(
-  //       restaurantId: restaurantId,
-  //       orderId: orderSelect.id,
-  //     );
-  //     state = state.copyWith(
-  //       getChatMessageState: const PageState(status: PageCommonState.success),
-  //       chatMessages: messages,
-  //     );
-  //   } catch (ex) {
-  //     state = state.copyWith(
-  //       getChatMessageState: PageState(
-  //         status: PageCommonState.error,
-  //         messageError: ex.toString(),
-  //       ),
-  //     );
-  //   }
-  // }
+      final messages = await _o2oRepository.getChatMessages(
+        restaurantId: restaurantId,
+        orderId: orderSelect.id,
+      );
+      state = state.copyWith(
+        getChatMessageState: const PageState(status: PageCommonState.success),
+        chatMessages: messages,
+      );
+    } catch (ex) {
+      state = state.copyWith(
+        getChatMessageState: PageState(
+          status: PageCommonState.error,
+          messageError: ex.toString(),
+        ),
+      );
+    }
+  }
 
   void updateReservation(
     ReservationModel? reservation, {
@@ -3665,32 +3666,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void listenNotificationsData() async {
-    if (Hive.isBoxOpen(AppConfig.testNotificationBoxName)) {
-      Hive.box<TestNotificationModel>(AppConfig.testNotificationBoxName)
-          .listenable()
-          .addListener(() {
-        if (mounted) {
-          loadNotifications();
-        }
-      });
-    }
-  }
-
-  void loadNotifications() async {
-    if (!Hive.isBoxOpen(AppConfig.testNotificationBoxName)) {
-      return;
-    }
-    var box = Hive.box<TestNotificationModel>(AppConfig.testNotificationBoxName);
-    final values = box.values.toList();
-    List<TestNotificationModel> data = [];
-
-    data = values.where((e) => true).toList();
-    data = List.from(data.reversed);
-    data.sort((a, b) => (b.datetime ?? DateTime.now()).compareTo((a.datetime ?? DateTime.now())));
-    state = state.copyWith(notifications: data);
-  }
-
   /// áp dụng lại mã giảm giá (mã giảm nhập số tiền, %)
   Future<({String? errorRemove, String? errorAdd})> applyAgainVoucher() async {
     var coupon = state.coupons.firstOrNull;
@@ -3766,4 +3741,108 @@ class HomeNotifier extends StateNotifier<HomeState> {
       return (errorRemove: errorRemove, errorAdd: errorAdd);
     }
   }
+
+  /// start - notification
+  ///
+  void markViewAllNotification() async {
+    if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
+    var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
+    final Map<dynamic, NotificationModel> updates = {};
+
+    for (final key in box.keys) {
+      final item = box.get(key);
+      if (item != null) {
+        updates[key] = item.copyWith(viewed: true);
+      }
+    }
+
+    try {
+      await box.putAll(updates);
+    } catch (ex) {
+      //
+    }
+  }
+
+  void loadNotifications() async {
+    if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) {
+      return;
+    }
+    var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
+    final keysToDelete = box.keys.where((key) {
+      final item = box.get(key);
+      return item != null && item.datetime?.date != DateTime.now().date;
+    }).toList();
+
+    if (keysToDelete.isEmpty) {
+      final values = box.values.toList();
+      List<NotificationModel> data = [];
+
+      data = values.where((e) => true).toList();
+
+      data = List.from(data.reversed);
+      data.sort((a, b) => (b.datetime ?? DateTime.now()).compareTo((a.datetime ?? DateTime.now())));
+
+      state = state.copyWith(notifications: data);
+    } else {
+      try {
+        await box.deleteAll(keysToDelete);
+      } catch (ex) {
+        //
+      }
+    }
+  }
+
+  void markReadAllNotification(List<String> notiIds) async {
+    if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
+    var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
+    final Map<dynamic, NotificationModel> updates = {};
+
+    for (final key in box.keys) {
+      final item = box.get(key);
+      if (item != null && notiIds.contains(item.id)) {
+        updates[key] = item.markRead().copyWith(viewed: true);
+      }
+    }
+
+    try {
+      await box.putAll(updates);
+    } catch (ex) {
+      //
+    }
+  }
+
+  void markReadNotification(String id) async {
+    if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
+    var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
+    final Map<dynamic, NotificationModel> updates = {};
+
+    for (final key in box.keys) {
+      final item = box.get(key);
+      if (item != null && item.id == id) {
+        updates[key] = item.markRead().copyWith(viewed: true);
+      }
+    }
+
+    try {
+      await box.putAll(updates);
+    } catch (ex) {
+      //
+    }
+  }
+
+  void deleleNotification(List<String> notiIds) async {
+    if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
+    var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
+    final keysToDelete = box.keys.where((key) {
+      final item = box.get(key);
+      return item != null && notiIds.contains(item.id);
+    }).toList();
+    try {
+      await box.deleteAll(keysToDelete);
+    } catch (ex) {
+      //
+    }
+  }
+
+  /// end - notifications
 }

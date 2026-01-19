@@ -312,18 +312,6 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     super.dispose();
   }
 
-  void listenNotificationsData() async {
-    if (Hive.isBoxOpen(AppConfig.testNotificationBoxName)) {
-      Hive.box<TestNotificationModel>(AppConfig.testNotificationBoxName)
-          .listenable()
-          .addListener(() {
-        if (mounted) {
-          ref.read(homeProvider.notifier).loadNotifications();
-        }
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     checkUpdateApp(ref, context);
@@ -584,20 +572,20 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                           ],
                         ),
                       ),
-                      // Expanded(
-                      //   child: Consumer(builder: (context, ref, child) {
-                      //     final getChatMessageState =
-                      //         ref.watch(homeProvider.select((value) => value.getChatMessageState));
+                      Expanded(
+                        child: Consumer(builder: (context, ref, child) {
+                          final getChatMessageState =
+                              ref.watch(homeProvider.select((value) => value.getChatMessageState));
 
-                      //     final chatMessages =
-                      //         ref.watch(homeProvider.select((value) => value.chatMessages));
-                      //     return ListChatWidget(
-                      //       state: getChatMessageState,
-                      //       chatMessages: chatMessages,
-                      //       onReload: ref.read(homeProvider.notifier).getO2OChatMessages,
-                      //     );
-                      //   }),
-                      // ),
+                          final chatMessages =
+                              ref.watch(homeProvider.select((value) => value.chatMessages));
+                          return ListChatWidget(
+                            state: getChatMessageState,
+                            chatMessages: chatMessages,
+                            onReload: ref.read(homeProvider.notifier).getO2OChatMessages,
+                          );
+                        }),
+                      ),
                     ],
                   ),
                 ),
