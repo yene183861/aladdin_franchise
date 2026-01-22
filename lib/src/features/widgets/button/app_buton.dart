@@ -70,10 +70,12 @@ class AppButton extends StatelessWidget {
                 ),
                 const Gap(4),
               ],
-              Text(
-                textAction ?? S.current.confirm,
-                style: AppTextStyle.medium(color: textColor ?? Colors.white),
-              ),
+              Flexible(
+                child: Text(
+                  textAction ?? S.current.confirm,
+                  style: AppTextStyle.medium(color: textColor ?? Colors.white),
+                ),
+              )
             ],
           ),
         ),

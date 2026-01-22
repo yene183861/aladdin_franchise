@@ -6,7 +6,8 @@ import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:flutter/material.dart';
 
 class AppCloseButton extends StatelessWidget {
-  const AppCloseButton({super.key});
+  const AppCloseButton({super.key, this.onPressed});
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +19,7 @@ class AppCloseButton extends StatelessWidget {
         borderRadius: AppConfig.borderRadiusMain,
         side: const BorderSide(color: AppColors.mainColor),
       ),
-      onPressed: () {
-        pop(context);
-      },
+      onPressed: onPressed ?? () => pop(context),
     );
   }
 }

@@ -545,10 +545,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }) async {
     try {
       updateEvent(cancel ? HomeEvent.cancelOrder : HomeEvent.updateOrder);
-      await _checkOrderSelect();
       final result = await _orderRepository.createAndUpdateOrder(
         tableIds,
-        state.orderSelect!,
+        order,
         reservation: reservation,
         typeOrder: kTypeOrder,
         updateSaleInfo: false,
@@ -556,7 +555,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
       if (tableIds.isEmpty) {
         try {
-          LocalStorage.deleteNotePerOrderItem(order: state.orderSelect!);
+          LocalStorage.deleteNotePerOrderItem(order: order);
         } catch (ex) {
           //
         }

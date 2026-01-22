@@ -8,6 +8,7 @@ import 'package:aladdin_franchise/src/features/pages/home/components/order/locke
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_detail.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_tab_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_item_list_widget.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/order/price_payment.dart';
 
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
@@ -143,7 +144,8 @@ class OrderItemsWidget extends ConsumerWidget {
                     ),
                   ),
                 ],
-                if (!priceSidebar) const PreviewPriceWidget(),
+                PaymentSummarySection(),
+                // if (!priceSidebar) const PreviewPriceWidget(),
                 const Gap(4),
               ],
             ),
