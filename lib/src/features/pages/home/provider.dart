@@ -121,12 +121,20 @@ class HomeNotifier extends StateNotifier<HomeState> {
     this._reservationRepository,
   ) : super(const HomeState()) {
     AppConfig.initHomeProvider = true;
-    // confirm dùng redis hay không?
     listenRedisChannel();
-    // listenRedisPrintChannel();
-    // pubRedisPrintChannel();
     loadNotifications();
+    listenNotificationsChange();
     chatIdStreamController = StreamController<int?>.broadcast();
+  }
+
+  void listenNotificationsChange() async {
+    if (Hive.isBoxOpen(AppConfig.notificationBoxName)) {
+      Hive.box<NotificationModel>(AppConfig.notificationBoxName).listenable().addListener(() {
+        if (mounted) {
+          ref.read(homeProvider.notifier).loadNotifications();
+        }
+      });
+    }
   }
 
   final Ref ref;
@@ -835,7 +843,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void _handleO2oEvent(dynamic event) {
+  void _handleO2oEvent(dynamic event) async {
     final loginData = LocalStorage.getDataLogin();
     bool useO2O = loginData?.restaurant?.o2oStatus ?? false;
     if (!useO2O) return;
@@ -931,7 +939,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         final table = data['table'];
         var title = '${S.current.table} ${table ?? ''} ${S.current.request_service.toLowerCase()}';
         var body = note ?? '';
-        _saveNotification(
+        var id = await _saveNotification(
           title: title,
           error: body,
           type: NotificationTypeEnum.o2oWaiter,
@@ -940,6 +948,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
             id: data['order_id'] as int,
           ),
         );
+        showLogs(id, flags: 'id');
         if (Platform.isAndroid) {
           appLocalNotificationService?.showLocalNotification(title, body);
         } else if (Platform.isWindows) {
@@ -1550,8 +1559,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       var id = DateTimeUtils.formatToString(
           time: DateTime.now(), newPattern: DateTimePatterns.dateTime3);
       await box.add(NotificationModel(
-        id: DateTimeUtils.formatToString(
-            time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
+        id: id,
         title: title,
         body: error ?? '',
         orderId: order?.id,

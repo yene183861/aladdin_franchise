@@ -97,7 +97,6 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
         ValueNotifier<Map<PrinterModel, bool>>(PrinterMonitor.instance.printerCheck);
     printerSub = PrinterMonitor.instance.printerBoardcastController.stream.listen(
       (event) {
-        showLogs(event, flags: 'event');
         printerStatusNotifier.value = event;
       },
     );
