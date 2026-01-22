@@ -9,6 +9,7 @@ import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/data/model/notification.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/view.dart';
+import 'package:aladdin_franchise/src/features/pages/order_to_online_test/view.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,7 +29,8 @@ class ButtonO2oData extends ConsumerWidget {
     int? count = orderToOnline.when(
       data: (data) => data.values.fold(
         0,
-        (previousValue, element) => (previousValue ?? 0) + ((element['count'] as int?) ?? 0),
+        (previousValue, element) =>
+            (previousValue ?? 0) + ((element['count'] as int?) ?? 0),
       ),
       error: (error, stackTrace) => null,
       loading: () => null,
@@ -40,7 +42,9 @@ class ButtonO2oData extends ConsumerWidget {
         children: [
           InkWell(
             onTap: () {
-              push(context, const OrderToOnlinePage());
+              // push(context, const OrderToOnlinePage());
+              // push(context, const TableRequestPage());
+              push(context, const KanbanRequestPage());
             },
             borderRadius: BorderRadius.circular(50),
             child: Container(
