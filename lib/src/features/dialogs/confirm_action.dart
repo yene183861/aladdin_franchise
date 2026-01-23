@@ -1,8 +1,10 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -47,17 +49,26 @@ Future<bool?> showConfirmAction(
               style: AppTextStyle.regular(),
               textAlign: textAlign,
             ),
-            shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
-            actionsAlignment: notCancel ? MainAxisAlignment.center : MainAxisAlignment.spaceEvenly,
+            shape: RoundedRectangleBorder(
+                borderRadius: AppConfig.borderRadiusMain),
+            actionsAlignment: notCancel
+                ? MainAxisAlignment.center
+                : MainAxisAlignment.spaceEvenly,
             actions: [
               if (!notCancel) ...[
-                ButtonCancelWidget(
-                  textAction: textCancel,
+                AppCloseButton(
                   onPressed: () {
                     Navigator.pop(contextDialog, false);
                     actionCancel?.call();
                   },
                 ),
+                // ButtonCancelWidget(
+                //   textAction: textCancel,
+                //   onPressed: () {
+                //     Navigator.pop(contextDialog, false);
+                //     actionCancel?.call();
+                //   },
+                // ),
                 const GapW(16),
               ],
               if (extraAction.isNotEmpty) ...[
@@ -111,20 +122,28 @@ Future<bool?> showConfirmActionWithChild(
                     style: AppTextStyle.semiBold(),
                   ),
             content: child,
-            shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
+            shape: RoundedRectangleBorder(
+                borderRadius: AppConfig.borderRadiusMain),
             actionsAlignment: MainAxisAlignment.spaceEvenly,
             actions: [
               if (!notCancel)
-                ButtonCancelWidget(
+                AppCloseButton(
                   textAction: textCancel,
                   onPressed: () {
                     Navigator.pop(contextDialog, false);
                     actionCancel?.call();
                   },
                 ),
+              // ButtonCancelWidget(
+              //   textAction: textCancel,
+              //   onPressed: () {
+              //     Navigator.pop(contextDialog, false);
+              //     actionCancel?.call();
+              //   },
+              // ),
               if (!notCancel) const GapW(16),
               if (otherActions.isNotEmpty) ...otherActions,
-              ButtonSimpleWidget(
+              AppButton(
                 color: AppColors.bgButtonMain,
                 textColor: AppColors.tcButtonMain,
                 textAction: actionTitle ?? S.current.agree,

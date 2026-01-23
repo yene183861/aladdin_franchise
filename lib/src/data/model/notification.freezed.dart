@@ -352,3 +352,601 @@ abstract class _NotificationModel extends NotificationModel {
   _$$NotificationModelImplCopyWith<_$NotificationModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+NotificationDataModel _$NotificationDataModelFromJson(
+    Map<String, dynamic> json) {
+  return _NotificationDataModel.fromJson(json);
+}
+
+/// @nodoc
+mixin _$NotificationDataModel {
+  String? get id => throw _privateConstructorUsedError;
+  PrintTypeEnum get type => throw _privateConstructorUsedError;
+  AppPrinterSettingTypeEnum get mode =>
+      throw _privateConstructorUsedError; // @Default('') String type,
+// @Default('') String mode,
+  CloseShiftResponseModel? get closeShiftData =>
+      throw _privateConstructorUsedError;
+  PaymentReceiptPrintRequest? get paymentData =>
+      throw _privateConstructorUsedError;
+  bool get useOddBill => throw _privateConstructorUsedError;
+  bool get useDefaultPrinters => throw _privateConstructorUsedError;
+  bool get totalBill =>
+      throw _privateConstructorUsedError; // @Default(true) bool status,
+// @Default(false) bool error,
+  String? get refId => throw _privateConstructorUsedError;
+  String? get senderDeviceId => throw _privateConstructorUsedError;
+  String? get handleDeviceId => throw _privateConstructorUsedError;
+  OrderModel? get order => throw _privateConstructorUsedError;
+  List<ProductModel> get products => throw _privateConstructorUsedError;
+  String? get note => throw _privateConstructorUsedError;
+  List<PrinterModel> get printers => throw _privateConstructorUsedError;
+  PrintStatusEnum get printStatus => throw _privateConstructorUsedError;
+  String? get message => throw _privateConstructorUsedError;
+  String? get title => throw _privateConstructorUsedError;
+
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  @JsonKey(ignore: true)
+  $NotificationDataModelCopyWith<NotificationDataModel> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $NotificationDataModelCopyWith<$Res> {
+  factory $NotificationDataModelCopyWith(NotificationDataModel value,
+          $Res Function(NotificationDataModel) then) =
+      _$NotificationDataModelCopyWithImpl<$Res, NotificationDataModel>;
+  @useResult
+  $Res call(
+      {String? id,
+      PrintTypeEnum type,
+      AppPrinterSettingTypeEnum mode,
+      CloseShiftResponseModel? closeShiftData,
+      PaymentReceiptPrintRequest? paymentData,
+      bool useOddBill,
+      bool useDefaultPrinters,
+      bool totalBill,
+      String? refId,
+      String? senderDeviceId,
+      String? handleDeviceId,
+      OrderModel? order,
+      List<ProductModel> products,
+      String? note,
+      List<PrinterModel> printers,
+      PrintStatusEnum printStatus,
+      String? message,
+      String? title});
+
+  $CloseShiftResponseModelCopyWith<$Res>? get closeShiftData;
+  $PaymentReceiptPrintRequestCopyWith<$Res>? get paymentData;
+  $OrderModelCopyWith<$Res>? get order;
+}
+
+/// @nodoc
+class _$NotificationDataModelCopyWithImpl<$Res,
+        $Val extends NotificationDataModel>
+    implements $NotificationDataModelCopyWith<$Res> {
+  _$NotificationDataModelCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = freezed,
+    Object? type = null,
+    Object? mode = null,
+    Object? closeShiftData = freezed,
+    Object? paymentData = freezed,
+    Object? useOddBill = null,
+    Object? useDefaultPrinters = null,
+    Object? totalBill = null,
+    Object? refId = freezed,
+    Object? senderDeviceId = freezed,
+    Object? handleDeviceId = freezed,
+    Object? order = freezed,
+    Object? products = null,
+    Object? note = freezed,
+    Object? printers = null,
+    Object? printStatus = null,
+    Object? message = freezed,
+    Object? title = freezed,
+  }) {
+    return _then(_value.copyWith(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String?,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as PrintTypeEnum,
+      mode: null == mode
+          ? _value.mode
+          : mode // ignore: cast_nullable_to_non_nullable
+              as AppPrinterSettingTypeEnum,
+      closeShiftData: freezed == closeShiftData
+          ? _value.closeShiftData
+          : closeShiftData // ignore: cast_nullable_to_non_nullable
+              as CloseShiftResponseModel?,
+      paymentData: freezed == paymentData
+          ? _value.paymentData
+          : paymentData // ignore: cast_nullable_to_non_nullable
+              as PaymentReceiptPrintRequest?,
+      useOddBill: null == useOddBill
+          ? _value.useOddBill
+          : useOddBill // ignore: cast_nullable_to_non_nullable
+              as bool,
+      useDefaultPrinters: null == useDefaultPrinters
+          ? _value.useDefaultPrinters
+          : useDefaultPrinters // ignore: cast_nullable_to_non_nullable
+              as bool,
+      totalBill: null == totalBill
+          ? _value.totalBill
+          : totalBill // ignore: cast_nullable_to_non_nullable
+              as bool,
+      refId: freezed == refId
+          ? _value.refId
+          : refId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      senderDeviceId: freezed == senderDeviceId
+          ? _value.senderDeviceId
+          : senderDeviceId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      handleDeviceId: freezed == handleDeviceId
+          ? _value.handleDeviceId
+          : handleDeviceId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      order: freezed == order
+          ? _value.order
+          : order // ignore: cast_nullable_to_non_nullable
+              as OrderModel?,
+      products: null == products
+          ? _value.products
+          : products // ignore: cast_nullable_to_non_nullable
+              as List<ProductModel>,
+      note: freezed == note
+          ? _value.note
+          : note // ignore: cast_nullable_to_non_nullable
+              as String?,
+      printers: null == printers
+          ? _value.printers
+          : printers // ignore: cast_nullable_to_non_nullable
+              as List<PrinterModel>,
+      printStatus: null == printStatus
+          ? _value.printStatus
+          : printStatus // ignore: cast_nullable_to_non_nullable
+              as PrintStatusEnum,
+      message: freezed == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String?,
+      title: freezed == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $CloseShiftResponseModelCopyWith<$Res>? get closeShiftData {
+    if (_value.closeShiftData == null) {
+      return null;
+    }
+
+    return $CloseShiftResponseModelCopyWith<$Res>(_value.closeShiftData!,
+        (value) {
+      return _then(_value.copyWith(closeShiftData: value) as $Val);
+    });
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $PaymentReceiptPrintRequestCopyWith<$Res>? get paymentData {
+    if (_value.paymentData == null) {
+      return null;
+    }
+
+    return $PaymentReceiptPrintRequestCopyWith<$Res>(_value.paymentData!,
+        (value) {
+      return _then(_value.copyWith(paymentData: value) as $Val);
+    });
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $OrderModelCopyWith<$Res>? get order {
+    if (_value.order == null) {
+      return null;
+    }
+
+    return $OrderModelCopyWith<$Res>(_value.order!, (value) {
+      return _then(_value.copyWith(order: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$NotificationDataModelImplCopyWith<$Res>
+    implements $NotificationDataModelCopyWith<$Res> {
+  factory _$$NotificationDataModelImplCopyWith(
+          _$NotificationDataModelImpl value,
+          $Res Function(_$NotificationDataModelImpl) then) =
+      __$$NotificationDataModelImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {String? id,
+      PrintTypeEnum type,
+      AppPrinterSettingTypeEnum mode,
+      CloseShiftResponseModel? closeShiftData,
+      PaymentReceiptPrintRequest? paymentData,
+      bool useOddBill,
+      bool useDefaultPrinters,
+      bool totalBill,
+      String? refId,
+      String? senderDeviceId,
+      String? handleDeviceId,
+      OrderModel? order,
+      List<ProductModel> products,
+      String? note,
+      List<PrinterModel> printers,
+      PrintStatusEnum printStatus,
+      String? message,
+      String? title});
+
+  @override
+  $CloseShiftResponseModelCopyWith<$Res>? get closeShiftData;
+  @override
+  $PaymentReceiptPrintRequestCopyWith<$Res>? get paymentData;
+  @override
+  $OrderModelCopyWith<$Res>? get order;
+}
+
+/// @nodoc
+class __$$NotificationDataModelImplCopyWithImpl<$Res>
+    extends _$NotificationDataModelCopyWithImpl<$Res,
+        _$NotificationDataModelImpl>
+    implements _$$NotificationDataModelImplCopyWith<$Res> {
+  __$$NotificationDataModelImplCopyWithImpl(_$NotificationDataModelImpl _value,
+      $Res Function(_$NotificationDataModelImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = freezed,
+    Object? type = null,
+    Object? mode = null,
+    Object? closeShiftData = freezed,
+    Object? paymentData = freezed,
+    Object? useOddBill = null,
+    Object? useDefaultPrinters = null,
+    Object? totalBill = null,
+    Object? refId = freezed,
+    Object? senderDeviceId = freezed,
+    Object? handleDeviceId = freezed,
+    Object? order = freezed,
+    Object? products = null,
+    Object? note = freezed,
+    Object? printers = null,
+    Object? printStatus = null,
+    Object? message = freezed,
+    Object? title = freezed,
+  }) {
+    return _then(_$NotificationDataModelImpl(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String?,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as PrintTypeEnum,
+      mode: null == mode
+          ? _value.mode
+          : mode // ignore: cast_nullable_to_non_nullable
+              as AppPrinterSettingTypeEnum,
+      closeShiftData: freezed == closeShiftData
+          ? _value.closeShiftData
+          : closeShiftData // ignore: cast_nullable_to_non_nullable
+              as CloseShiftResponseModel?,
+      paymentData: freezed == paymentData
+          ? _value.paymentData
+          : paymentData // ignore: cast_nullable_to_non_nullable
+              as PaymentReceiptPrintRequest?,
+      useOddBill: null == useOddBill
+          ? _value.useOddBill
+          : useOddBill // ignore: cast_nullable_to_non_nullable
+              as bool,
+      useDefaultPrinters: null == useDefaultPrinters
+          ? _value.useDefaultPrinters
+          : useDefaultPrinters // ignore: cast_nullable_to_non_nullable
+              as bool,
+      totalBill: null == totalBill
+          ? _value.totalBill
+          : totalBill // ignore: cast_nullable_to_non_nullable
+              as bool,
+      refId: freezed == refId
+          ? _value.refId
+          : refId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      senderDeviceId: freezed == senderDeviceId
+          ? _value.senderDeviceId
+          : senderDeviceId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      handleDeviceId: freezed == handleDeviceId
+          ? _value.handleDeviceId
+          : handleDeviceId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      order: freezed == order
+          ? _value.order
+          : order // ignore: cast_nullable_to_non_nullable
+              as OrderModel?,
+      products: null == products
+          ? _value._products
+          : products // ignore: cast_nullable_to_non_nullable
+              as List<ProductModel>,
+      note: freezed == note
+          ? _value.note
+          : note // ignore: cast_nullable_to_non_nullable
+              as String?,
+      printers: null == printers
+          ? _value._printers
+          : printers // ignore: cast_nullable_to_non_nullable
+              as List<PrinterModel>,
+      printStatus: null == printStatus
+          ? _value.printStatus
+          : printStatus // ignore: cast_nullable_to_non_nullable
+              as PrintStatusEnum,
+      message: freezed == message
+          ? _value.message
+          : message // ignore: cast_nullable_to_non_nullable
+              as String?,
+      title: freezed == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+/// @nodoc
+
+@JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
+class _$NotificationDataModelImpl extends _NotificationDataModel {
+  _$NotificationDataModelImpl(
+      {this.id,
+      this.type = PrintTypeEnum.order,
+      this.mode = AppPrinterSettingTypeEnum.normal,
+      this.closeShiftData,
+      this.paymentData,
+      this.useOddBill = false,
+      this.useDefaultPrinters = false,
+      this.totalBill = true,
+      this.refId,
+      this.senderDeviceId,
+      this.handleDeviceId,
+      this.order,
+      final List<ProductModel> products = const [],
+      this.note,
+      final List<PrinterModel> printers = const [],
+      this.printStatus = PrintStatusEnum.done,
+      this.message,
+      this.title})
+      : _products = products,
+        _printers = printers,
+        super._();
+
+  factory _$NotificationDataModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$NotificationDataModelImplFromJson(json);
+
+  @override
+  final String? id;
+  @override
+  @JsonKey()
+  final PrintTypeEnum type;
+  @override
+  @JsonKey()
+  final AppPrinterSettingTypeEnum mode;
+// @Default('') String type,
+// @Default('') String mode,
+  @override
+  final CloseShiftResponseModel? closeShiftData;
+  @override
+  final PaymentReceiptPrintRequest? paymentData;
+  @override
+  @JsonKey()
+  final bool useOddBill;
+  @override
+  @JsonKey()
+  final bool useDefaultPrinters;
+  @override
+  @JsonKey()
+  final bool totalBill;
+// @Default(true) bool status,
+// @Default(false) bool error,
+  @override
+  final String? refId;
+  @override
+  final String? senderDeviceId;
+  @override
+  final String? handleDeviceId;
+  @override
+  final OrderModel? order;
+  final List<ProductModel> _products;
+  @override
+  @JsonKey()
+  List<ProductModel> get products {
+    if (_products is EqualUnmodifiableListView) return _products;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_products);
+  }
+
+  @override
+  final String? note;
+  final List<PrinterModel> _printers;
+  @override
+  @JsonKey()
+  List<PrinterModel> get printers {
+    if (_printers is EqualUnmodifiableListView) return _printers;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_printers);
+  }
+
+  @override
+  @JsonKey()
+  final PrintStatusEnum printStatus;
+  @override
+  final String? message;
+  @override
+  final String? title;
+
+  @override
+  String toString() {
+    return 'NotificationDataModel(id: $id, type: $type, mode: $mode, closeShiftData: $closeShiftData, paymentData: $paymentData, useOddBill: $useOddBill, useDefaultPrinters: $useDefaultPrinters, totalBill: $totalBill, refId: $refId, senderDeviceId: $senderDeviceId, handleDeviceId: $handleDeviceId, order: $order, products: $products, note: $note, printers: $printers, printStatus: $printStatus, message: $message, title: $title)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$NotificationDataModelImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.mode, mode) || other.mode == mode) &&
+            (identical(other.closeShiftData, closeShiftData) ||
+                other.closeShiftData == closeShiftData) &&
+            (identical(other.paymentData, paymentData) ||
+                other.paymentData == paymentData) &&
+            (identical(other.useOddBill, useOddBill) ||
+                other.useOddBill == useOddBill) &&
+            (identical(other.useDefaultPrinters, useDefaultPrinters) ||
+                other.useDefaultPrinters == useDefaultPrinters) &&
+            (identical(other.totalBill, totalBill) ||
+                other.totalBill == totalBill) &&
+            (identical(other.refId, refId) || other.refId == refId) &&
+            (identical(other.senderDeviceId, senderDeviceId) ||
+                other.senderDeviceId == senderDeviceId) &&
+            (identical(other.handleDeviceId, handleDeviceId) ||
+                other.handleDeviceId == handleDeviceId) &&
+            (identical(other.order, order) || other.order == order) &&
+            const DeepCollectionEquality().equals(other._products, _products) &&
+            (identical(other.note, note) || other.note == note) &&
+            const DeepCollectionEquality().equals(other._printers, _printers) &&
+            (identical(other.printStatus, printStatus) ||
+                other.printStatus == printStatus) &&
+            (identical(other.message, message) || other.message == message) &&
+            (identical(other.title, title) || other.title == title));
+  }
+
+  @JsonKey(ignore: true)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      type,
+      mode,
+      closeShiftData,
+      paymentData,
+      useOddBill,
+      useDefaultPrinters,
+      totalBill,
+      refId,
+      senderDeviceId,
+      handleDeviceId,
+      order,
+      const DeepCollectionEquality().hash(_products),
+      note,
+      const DeepCollectionEquality().hash(_printers),
+      printStatus,
+      message,
+      title);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$NotificationDataModelImplCopyWith<_$NotificationDataModelImpl>
+      get copyWith => __$$NotificationDataModelImplCopyWithImpl<
+          _$NotificationDataModelImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$NotificationDataModelImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _NotificationDataModel extends NotificationDataModel {
+  factory _NotificationDataModel(
+      {final String? id,
+      final PrintTypeEnum type,
+      final AppPrinterSettingTypeEnum mode,
+      final CloseShiftResponseModel? closeShiftData,
+      final PaymentReceiptPrintRequest? paymentData,
+      final bool useOddBill,
+      final bool useDefaultPrinters,
+      final bool totalBill,
+      final String? refId,
+      final String? senderDeviceId,
+      final String? handleDeviceId,
+      final OrderModel? order,
+      final List<ProductModel> products,
+      final String? note,
+      final List<PrinterModel> printers,
+      final PrintStatusEnum printStatus,
+      final String? message,
+      final String? title}) = _$NotificationDataModelImpl;
+  _NotificationDataModel._() : super._();
+
+  factory _NotificationDataModel.fromJson(Map<String, dynamic> json) =
+      _$NotificationDataModelImpl.fromJson;
+
+  @override
+  String? get id;
+  @override
+  PrintTypeEnum get type;
+  @override
+  AppPrinterSettingTypeEnum get mode;
+  @override // @Default('') String type,
+// @Default('') String mode,
+  CloseShiftResponseModel? get closeShiftData;
+  @override
+  PaymentReceiptPrintRequest? get paymentData;
+  @override
+  bool get useOddBill;
+  @override
+  bool get useDefaultPrinters;
+  @override
+  bool get totalBill;
+  @override // @Default(true) bool status,
+// @Default(false) bool error,
+  String? get refId;
+  @override
+  String? get senderDeviceId;
+  @override
+  String? get handleDeviceId;
+  @override
+  OrderModel? get order;
+  @override
+  List<ProductModel> get products;
+  @override
+  String? get note;
+  @override
+  List<PrinterModel> get printers;
+  @override
+  PrintStatusEnum get printStatus;
+  @override
+  String? get message;
+  @override
+  String? get title;
+  @override
+  @JsonKey(ignore: true)
+  _$$NotificationDataModelImplCopyWith<_$NotificationDataModelImpl>
+      get copyWith => throw _privateConstructorUsedError;
+}

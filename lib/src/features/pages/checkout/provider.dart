@@ -116,53 +116,53 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
       }
       if (!ignorePrint) {
         var menu = ref.read(menuProvider);
-        if (useDefaultPrinter) {
-          for (var item in state.defaultPrinters) {
-            switch (item.type) {
+        for (var item in state.defaultPrinters) {
+          switch (item.type) {
+            case ProductPrinterType.drink:
+              barPrinterDefault.add(item);
+              break;
+            case ProductPrinterType.food:
+              foodPrinterDefault.add(item);
+              break;
+          }
+        }
+        for (var item in productCheckout) {
+          var p = menu.products.firstWhereOrNull((e) => e.id == item.id);
+          if (p != null) {
+            var _product = p.copyWith(
+              numberSelecting: item.quantityCancel,
+              unitPrice: item.unitPrice,
+            );
+            productPrint.add(_product);
+            switch (p.printerType) {
               case ProductPrinterType.drink:
-                barPrinterDefault.add(item);
+                drinks.add(_product);
                 break;
               case ProductPrinterType.food:
-                foodPrinterDefault.add(item);
+                foods.add(_product);
+                break;
+            }
+          } else {
+            var pChange = ProductModel(
+              id: item.id,
+              printerType: item.printerType,
+              name: item.name,
+              unit: item.unit,
+              unitPrice: item.unitPrice,
+              numberSelecting: item.quantityCancel,
+            );
+            productPrint.add(pChange);
+            switch (item.printerType) {
+              case ProductPrinterType.drink:
+                drinks.add(pChange);
+                break;
+              case ProductPrinterType.food:
+                foods.add(pChange);
                 break;
             }
           }
-          for (var item in productCheckout) {
-            var p = menu.products.firstWhereOrNull((e) => e.id == item.id);
-            if (p != null) {
-              var _product = p.copyWith(
-                numberSelecting: item.quantityCancel,
-                unitPrice: item.unitPrice,
-              );
-              productPrint.add(_product);
-              switch (p.printerType) {
-                case ProductPrinterType.drink:
-                  drinks.add(_product);
-                  break;
-                case ProductPrinterType.food:
-                  foods.add(_product);
-                  break;
-              }
-            } else {
-              var pChange = ProductModel(
-                id: item.id,
-                printerType: item.printerType,
-                name: item.name,
-                unit: item.unit,
-                unitPrice: item.unitPrice,
-                numberSelecting: item.quantityCancel,
-              );
-              productPrint.add(pChange);
-              switch (item.printerType) {
-                case ProductPrinterType.drink:
-                  drinks.add(pChange);
-                  break;
-                case ProductPrinterType.food:
-                  foods.add(pChange);
-                  break;
-              }
-            }
-          }
+        }
+        if (useDefaultPrinter) {
           if (drinks.isNotEmpty) {
             printers.addAll(barPrinterDefault);
           }

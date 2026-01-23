@@ -1,4 +1,11 @@
 import 'package:aladdin_franchise/generated/assets.dart';
+import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
+import 'package:aladdin_franchise/src/data/enum/print_type.dart';
+import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
+import 'package:aladdin_franchise/src/data/request/payment_receipt_print.dart';
+import 'package:aladdin_franchise/src/data/response/close_shift.dart';
+import 'package:aladdin_franchise/src/models/order.dart';
+import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hive/hive.dart';
@@ -56,6 +63,13 @@ extension NotificationTypeEnumExt on NotificationTypeEnum {
   }
 }
 
+enum PrintStatusEnum {
+  waiting,
+  done,
+  error,
+  noResponse,
+}
+
 @freezed
 class NotificationModel extends HiveObject with _$NotificationModel {
   @HiveType(typeId: 0, adapterName: 'NotificationModelAdapter')
@@ -73,15 +87,42 @@ class NotificationModel extends HiveObject with _$NotificationModel {
   NotificationModel._();
 
   NotificationModel markRead() {
-    return NotificationModel(
-      body: body,
-      datetime: datetime,
-      title: title,
-      read: true,
-      orderId: orderId,
-    );
+    return copyWith(read: true, viewed: true);
   }
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) =>
       _$NotificationModelFromJson(json);
+}
+
+@freezed
+class NotificationDataModel with _$NotificationDataModel {
+  @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
+  factory NotificationDataModel({
+    String? id,
+    @Default(PrintTypeEnum.order) PrintTypeEnum type,
+    @Default(AppPrinterSettingTypeEnum.normal) AppPrinterSettingTypeEnum mode,
+    // @Default('') String type,
+    // @Default('') String mode,
+    CloseShiftResponseModel? closeShiftData,
+    PaymentReceiptPrintRequest? paymentData,
+    @Default(false) bool useOddBill,
+    @Default(false) bool useDefaultPrinters,
+    @Default(true) bool totalBill,
+    // @Default(true) bool status,
+    // @Default(false) bool error,
+    String? refId,
+    String? senderDeviceId,
+    String? handleDeviceId,
+    OrderModel? order,
+    @Default([]) List<ProductModel> products,
+    String? note,
+    @Default([]) List<PrinterModel> printers,
+    @Default(PrintStatusEnum.done) PrintStatusEnum printStatus,
+    String? message,
+    String? title,
+  }) = _NotificationDataModel;
+  NotificationDataModel._();
+
+  factory NotificationDataModel.fromJson(Map<String, dynamic> json) =>
+      _$NotificationDataModelFromJson(json);
 }

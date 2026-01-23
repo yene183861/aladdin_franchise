@@ -21,11 +21,14 @@ void showCouponDetailDialog(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            "${S.current.discountCode}: ${coupon.name}",
-            style: Theme.of(context).dialogTheme.titleTextStyle,
+          Expanded(
+            child: Text(
+              "${S.current.discountCode}: ${coupon.name}",
+              style: Theme.of(context).dialogTheme.titleTextStyle,
+            ),
           ),
-          const CloseButton(color: AppColors.redColor),
+          //color: AppColors.redColor
+          const CloseButton(),
         ],
       ),
       content: _CouponInfoWidget(coupon: coupon),

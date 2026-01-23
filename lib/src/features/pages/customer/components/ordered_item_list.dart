@@ -175,21 +175,18 @@ class _ProductItem extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text.rich(
-                            TextSpan(
-                                text: (kDebugMode ? '${item.id} ' : '') +
-                                    item.getNameView(),
-                                children: [
-                                  if (freeGiftCount < 1)
-                                    TextSpan(
-                                      text:
-                                          ' (${AppUtils.formatCurrency(value: item.unitPrice)}/${item.unit})',
-                                      style: AppTextStyle.regular(
-                                        rawFontSize:
-                                            AppConfig.defaultRawTextSize - 1.5,
-                                        color: AppColors.redColor,
-                                      ),
-                                    )
-                                ]),
+                            TextSpan(text: item.getNameView(), children: [
+                              if (freeGiftCount < 1)
+                                TextSpan(
+                                  text:
+                                      ' (${AppUtils.formatCurrency(value: item.unitPrice)}/${item.unit})',
+                                  style: AppTextStyle.regular(
+                                    rawFontSize:
+                                        AppConfig.defaultRawTextSize - 1.5,
+                                    color: AppColors.redColor,
+                                  ),
+                                )
+                            ]),
                             style: AppTextStyle.bold(),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

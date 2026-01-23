@@ -97,3 +97,89 @@ Map<String, dynamic> _$$NotificationModelImplToJson(
       'id': instance.id,
       'viewed': instance.viewed,
     };
+
+_$NotificationDataModelImpl _$$NotificationDataModelImplFromJson(
+        Map<String, dynamic> json) =>
+    _$NotificationDataModelImpl(
+      id: json['id'] as String?,
+      type: $enumDecodeNullable(_$PrintTypeEnumEnumMap, json['type']) ??
+          PrintTypeEnum.order,
+      mode: $enumDecodeNullable(
+              _$AppPrinterSettingTypeEnumEnumMap, json['mode']) ??
+          AppPrinterSettingTypeEnum.normal,
+      closeShiftData: json['close_shift_data'] == null
+          ? null
+          : CloseShiftResponseModel.fromJson(
+              json['close_shift_data'] as Map<String, dynamic>),
+      paymentData: json['payment_data'] == null
+          ? null
+          : PaymentReceiptPrintRequest.fromJson(
+              json['payment_data'] as Map<String, dynamic>),
+      useOddBill: json['use_odd_bill'] as bool? ?? false,
+      useDefaultPrinters: json['use_default_printers'] as bool? ?? false,
+      totalBill: json['total_bill'] as bool? ?? true,
+      refId: json['ref_id'] as String?,
+      senderDeviceId: json['sender_device_id'] as String?,
+      handleDeviceId: json['handle_device_id'] as String?,
+      order: json['order'] == null
+          ? null
+          : OrderModel.fromJson(json['order'] as Map<String, dynamic>),
+      products: (json['products'] as List<dynamic>?)
+              ?.map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      note: json['note'] as String?,
+      printers: (json['printers'] as List<dynamic>?)
+              ?.map((e) => PrinterModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      printStatus:
+          $enumDecodeNullable(_$PrintStatusEnumEnumMap, json['print_status']) ??
+              PrintStatusEnum.done,
+      message: json['message'] as String?,
+      title: json['title'] as String?,
+    );
+
+Map<String, dynamic> _$$NotificationDataModelImplToJson(
+        _$NotificationDataModelImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'type': _$PrintTypeEnumEnumMap[instance.type]!,
+      'mode': _$AppPrinterSettingTypeEnumEnumMap[instance.mode]!,
+      'close_shift_data': instance.closeShiftData?.toJson(),
+      'payment_data': instance.paymentData?.toJson(),
+      'use_odd_bill': instance.useOddBill,
+      'use_default_printers': instance.useDefaultPrinters,
+      'total_bill': instance.totalBill,
+      'ref_id': instance.refId,
+      'sender_device_id': instance.senderDeviceId,
+      'handle_device_id': instance.handleDeviceId,
+      'order': instance.order?.toJson(),
+      'products': instance.products.map((e) => e.toJson()).toList(),
+      'note': instance.note,
+      'printers': instance.printers.map((e) => e.toJson()).toList(),
+      'print_status': _$PrintStatusEnumEnumMap[instance.printStatus]!,
+      'message': instance.message,
+      'title': instance.title,
+    };
+
+const _$PrintTypeEnumEnumMap = {
+  PrintTypeEnum.order: 'order',
+  PrintTypeEnum.cancel: 'cancel',
+  PrintTypeEnum.qr: 'qr',
+  PrintTypeEnum.payment: 'payment',
+  PrintTypeEnum.closeShift: 'closeShift',
+  PrintTypeEnum.qrO2o: 'qrO2o',
+};
+
+const _$AppPrinterSettingTypeEnumEnumMap = {
+  AppPrinterSettingTypeEnum.normal: 'normal',
+  AppPrinterSettingTypeEnum.withHtml: 'withHtml',
+};
+
+const _$PrintStatusEnumEnumMap = {
+  PrintStatusEnum.waiting: 'waiting',
+  PrintStatusEnum.done: 'done',
+  PrintStatusEnum.error: 'error',
+  PrintStatusEnum.noResponse: 'noResponse',
+};

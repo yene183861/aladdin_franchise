@@ -41,7 +41,8 @@ class MenuPage extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _MenuPageState();
 }
 
-class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver {
+class _MenuPageState extends ConsumerState<MenuPage>
+    with WidgetsBindingObserver {
   late ScrollController _productScrollController;
   late ScrollController _categoryScrollController;
   Map<dynamic, GlobalKey> categoryKeys = {};
@@ -87,8 +88,9 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
           final pos = box.localToGlobal(Offset.zero);
           if (pos.dy <= 250) {
             if (isSubCategory && item != subCategorySelect) {
-              var category = categories.firstWhereOrNull(
-                  (e) => (e.children ?? []).firstWhereOrNull((i) => i.id == item.id) != null);
+              var category = categories.firstWhereOrNull((e) =>
+                  (e.children ?? []).firstWhereOrNull((i) => i.id == item.id) !=
+                  null);
               if (category != categorySelect) {
                 ref.read(menuProvider.notifier).changeCategorySelect(category);
               }
@@ -119,7 +121,8 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
         .categoryPositionsListener
         .itemPositions
         .value
-        .where((position) => position.itemLeadingEdge < 1 && position.itemTrailingEdge > 0)
+        .where((position) =>
+            position.itemLeadingEdge < 1 && position.itemTrailingEdge > 0)
         .map((e) => e.index)
         .toList();
     List<dynamic> dataView = List.from(menuCategoryItem);
@@ -138,7 +141,10 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
     if (!items.contains(item)) {
       var index = dataView.indexOf(item);
       if (index != -1) {
-        ref.read(menuProvider.notifier).categoryScrollController.jumpTo(index: index);
+        ref
+            .read(menuProvider.notifier)
+            .categoryScrollController
+            .jumpTo(index: index);
       }
     }
   }
@@ -181,17 +187,20 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
 
   @override
   Widget build(BuildContext context) {
-    var categories = ref.watch(menuProvider.select((value) => value.categories));
+    var categories =
+        ref.watch(menuProvider.select((value) => value.categories));
     categoryKeys = ref.read(menuProvider.notifier).categoryKeys;
     var products = ref.watch(menuProvider.select((value) => value.products));
     var tags = ref.watch(menuProvider.select((value) => value.tags));
 
     var productsView = List<ProductModel>.from(products);
-    var keyword = ref.watch(menuProvider.select((value) => value.search)).trim();
+    var keyword =
+        ref.watch(menuProvider.select((value) => value.search)).trim();
     var tagSelect = ref.watch(menuProvider.select((value) => value.tagSelect));
     if (tagSelect != null) {
-      productsView =
-          productsView.where((product) => (product.tags ?? []).contains(tagSelect.id)).toList();
+      productsView = productsView
+          .where((product) => (product.tags ?? []).contains(tagSelect.id))
+          .toList();
     }
     if (keyword.isNotEmpty) {
       var search = removeDiacritics(keyword).toLowerCase();
@@ -208,7 +217,8 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
       var subCategory = List<SubCategoryModel>.from((cate.children ?? []));
       Map<SubCategoryModel, List<ProductModel>> subCategoryProducts = {};
       for (var subCate in subCategory) {
-        var data = productsView.where((e) => e.categoryId == subCate.id).toList();
+        var data =
+            productsView.where((e) => e.categoryId == subCate.id).toList();
 
         if (data.isNotEmpty) {
           subCategoryProducts[subCate] = data;
@@ -237,7 +247,8 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                 crossAxisSpacing: 10,
                 childAspectRatio: 0.8,
               ),
-              itemBuilder: (context, index) => ProductBox(product: categoryProducts[index]),
+              itemBuilder: (context, index) =>
+                  ProductBox(product: categoryProducts[index]),
               itemCount: categoryProducts.length,
             ),
           ));
@@ -251,7 +262,8 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
               child: Container(
                 key: categoryKeys[key],
                 decoration: const BoxDecoration(color: Colors.white),
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
                 alignment: Alignment.centerLeft,
                 child: Text(
                   key.getNameView(),
@@ -268,7 +280,8 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                   crossAxisSpacing: 10,
                   childAspectRatio: 0.8,
                 ),
-                itemBuilder: (context, index) => ProductBox(product: value[index]),
+                itemBuilder: (context, index) =>
+                    ProductBox(product: value[index]),
                 itemCount: value.length,
               ),
             ));
@@ -277,7 +290,8 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
       );
     }
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
-    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation =
+        AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool emptyTags = tags.isEmpty;
     return Column(
@@ -306,7 +320,8 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                           const Gap(8),
                           const Expanded(
                             child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 4),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 0, vertical: 4),
                               child: SearchDish(),
                             ),
                           ),
@@ -374,8 +389,11 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  ButtonHistoryOrderWidget(),
-                  TypeOrderWidget(),
+                  Gap(6),
+                  Expanded(child: ButtonHistoryOrderWidget()),
+                  Gap(8),
+                  Expanded(child: TypeOrderWidget()),
+                  Gap(6),
                 ],
               )),
               const Gap(8),
@@ -393,15 +411,20 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                 await Future.delayed(const Duration(milliseconds: 350));
                 // ref.read(homeProvider.notifier).ctrlSearch.text = '';
                 if (category is CategoryModel) {
-                  ref.read(menuProvider.notifier).changeCategorySelect(category);
+                  ref
+                      .read(menuProvider.notifier)
+                      .changeCategorySelect(category);
                   return;
                 }
-                ref.read(menuProvider.notifier).changeSubCategorySelect(category);
+                ref
+                    .read(menuProvider.notifier)
+                    .changeSubCategorySelect(category);
               }),
         ),
         Expanded(
           child: Consumer(builder: (context, ref, child) {
-            var productState = ref.watch(menuProvider.select((value) => value.productState));
+            var productState =
+                ref.watch(menuProvider.select((value) => value.productState));
 
             switch (productState.status) {
               case StatusEnum.normal:

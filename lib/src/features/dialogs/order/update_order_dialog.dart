@@ -18,6 +18,8 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 
+import '../../widgets/button/close_button.dart';
+
 Future<int?> showUpdateOrderDialog(BuildContext context) async {
   final result = await showDialog(
     context: context,
@@ -50,8 +52,20 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
     final orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
 
     return AlertDialog(
-      title: Text(
-        S.current.updateAndChoseTable,
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(
+              S.current.updateAndChoseTable,
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.pop(context, null);
+            },
+            icon: Icon(Icons.close),
+          ),
+        ],
       ),
       content: SizedBox(
         width: double.maxFinite,
@@ -75,20 +89,28 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
             });
             var messageView = "Đơn bàn hiện tại [${orderSelect?.name}]";
 
-            List<TableModel> tableNewSelect =
-                tableSelected.where((element) => !tableCurrentSelect.contains(element)).toList();
+            List<TableModel> tableNewSelect = tableSelected
+                .where((element) => !tableCurrentSelect.contains(element))
+                .toList();
 
-            List<TableModel> tableRemoveSelect =
-                tableCurrentSelect.where((element) => !tableSelected.contains(element)).toList();
-            if (tableCurrentSelect.every((element) => tableSelected.contains(element)) &&
+            List<TableModel> tableRemoveSelect = tableCurrentSelect
+                .where((element) => !tableSelected.contains(element))
+                .toList();
+            if (tableCurrentSelect
+                    .every((element) => tableSelected.contains(element)) &&
                 tableNewSelect.isNotEmpty) {
-              messageView += " gộp thêm bàn ${tableNewSelect.map((e) => e.name).toList()}";
-            } else if (tableSelected.any((element) => tableCurrentSelect.contains(element)) &&
+              messageView +=
+                  " gộp thêm bàn ${tableNewSelect.map((e) => e.name).toList()}";
+            } else if (tableSelected
+                    .any((element) => tableCurrentSelect.contains(element)) &&
                 tableRemoveSelect.isNotEmpty &&
                 tableNewSelect.isEmpty) {
-              messageView += " bỏ bàn ${tableRemoveSelect.map((e) => e.name).toList()}";
-            } else if (tableSelected.any((element) => !tableCurrentSelect.contains(element))) {
-              messageView += " được chuyển thành ${tableSelected.map((e) => e.name).toList()}";
+              messageView +=
+                  " bỏ bàn ${tableRemoveSelect.map((e) => e.name).toList()}";
+            } else if (tableSelected
+                .any((element) => !tableCurrentSelect.contains(element))) {
+              messageView +=
+                  " được chuyển thành ${tableSelected.map((e) => e.name).toList()}";
             }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,10 +171,15 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
       ),
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: [
-        ButtonCancelWidget(
-          textAction: S.current.close,
-          onPressed: () => Navigator.pop(context, null),
+        AppCloseButton(
+          onPressed: () {
+            Navigator.pop(context, null);
+          },
         ),
+        // ButtonCancelWidget(
+        //   textAction: S.current.close,
+        //   onPressed: () => Navigator.pop(context, null),
+        // ),
         ButtonSimpleWidget(
           onPressed: () async {
             if (tableSelected.isEmpty) {
@@ -160,9 +187,10 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
               return;
             }
             final tableIds = tableSelected.map<int>((e) => e.id).toList();
-            ReservationModel? reservation = orderSelect?.reservationCrmId == null
-                ? null
-                : ReservationModel(id: orderSelect?.reservationCrmId);
+            ReservationModel? reservation =
+                orderSelect?.reservationCrmId == null
+                    ? null
+                    : ReservationModel(id: orderSelect?.reservationCrmId);
 
             var result = await ref.read(homeProvider.notifier).updateOrder(
                   tableIds,
@@ -172,7 +200,8 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
 
             if (result.error == null) {
               if (context.mounted) {
-                showDoneSnackBar(context: context, message: S.current.updateSuccess);
+                showDoneSnackBar(
+                    context: context, message: S.current.updateSuccess);
               }
               if (reservation != null) {
                 ref.read(homeProvider.notifier).updateReservationStatus(

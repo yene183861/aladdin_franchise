@@ -8,6 +8,7 @@ import 'package:aladdin_franchise/src/features/dialogs/order/create_new/view.dar
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
@@ -58,7 +59,8 @@ class ReservationList extends ConsumerStatefulWidget {
   })? onConfirm;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _ReservationListState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _ReservationListState();
 }
 
 class _ReservationListState extends ConsumerState<ReservationList> {
@@ -111,12 +113,15 @@ class _ReservationListState extends ConsumerState<ReservationList> {
           ),
           suffixIcon: Consumer(
             builder: (context, ref, child) {
-              var text = ref.watch(reservationSectionProvider.select((value) => value.textSearch));
+              var text = ref.watch(reservationSectionProvider
+                  .select((value) => value.textSearch));
               if (text.trim().isEmpty) return const SizedBox.shrink();
               return InkWell(
                 onTap: () {
                   searchCtrl.text = '';
-                  ref.read(reservationSectionProvider.notifier).onChangeTextSearch('');
+                  ref
+                      .read(reservationSectionProvider.notifier)
+                      .onChangeTextSearch('');
                 },
                 child: const ResponsiveIconWidget(
                   iconData: Icons.close,
@@ -129,7 +134,9 @@ class _ReservationListState extends ConsumerState<ReservationList> {
             FocusManager.instance.primaryFocus?.unfocus();
           },
           onChanged: (value) {
-            ref.read(reservationSectionProvider.notifier).onChangeTextSearch(value);
+            ref
+                .read(reservationSectionProvider.notifier)
+                .onChangeTextSearch(value);
           },
         ),
         Expanded(
@@ -137,12 +144,12 @@ class _ReservationListState extends ConsumerState<ReservationList> {
             skipError: false,
             skipLoadingOnRefresh: false,
             data: (data) {
-              var reservationSelect =
-                  ref.watch(reservationSectionProvider.select((value) => value.reservationSelect));
-              var textSearch =
-                  ref.watch(reservationSectionProvider.select((value) => value.textSearch));
-              var typeOrder =
-                  ref.watch(reservationSectionProvider.select((value) => value.typeOrder));
+              var reservationSelect = ref.watch(reservationSectionProvider
+                  .select((value) => value.reservationSelect));
+              var textSearch = ref.watch(reservationSectionProvider
+                  .select((value) => value.textSearch));
+              var typeOrder = ref.watch(reservationSectionProvider
+                  .select((value) => value.typeOrder));
               List<ReservationModel> inTimeShift = [];
               List<ReservationModel> dataView = [];
               List<ReservationModel> reservations = [];
@@ -182,22 +189,31 @@ class _ReservationListState extends ConsumerState<ReservationList> {
                 }
                 return true;
               }).toList();
-              inTimeShift.sorted((a, b) => a.startDateTime.compareTo(b.startDateTime));
-              dataView.sorted((a, b) => a.startDateTime.compareTo(b.startDateTime));
+              inTimeShift
+                  .sorted((a, b) => a.startDateTime.compareTo(b.startDateTime));
+              dataView
+                  .sorted((a, b) => a.startDateTime.compareTo(b.startDateTime));
               dataView = [...inTimeShift, ...dataView];
               bool isNotEmpty = dataView.isNotEmpty;
               WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                var reservationInit = ref.read(reservationSectionProvider).reservationInit;
+                var reservationInit =
+                    ref.read(reservationSectionProvider).reservationInit;
                 if (reservationInit != null) {
-                  var check = data.firstWhereOrNull((e) => e.id == reservationInit.id);
+                  var check =
+                      data.firstWhereOrNull((e) => e.id == reservationInit.id);
                   if (check != reservationInit) {
-                    ref.read(reservationSectionProvider.notifier).onChangeReservationInit(check);
+                    ref
+                        .read(reservationSectionProvider.notifier)
+                        .onChangeReservationInit(check);
                   }
                 }
                 if (reservationSelect != null) {
-                  var check = data.firstWhereOrNull((e) => e.id == reservationSelect.id);
+                  var check = data
+                      .firstWhereOrNull((e) => e.id == reservationSelect.id);
                   if (check != reservationSelect) {
-                    ref.read(reservationSectionProvider.notifier).onChangeReservationSelect(
+                    ref
+                        .read(reservationSectionProvider.notifier)
+                        .onChangeReservationSelect(
                           check,
                           widget.onChangeItem,
                         );
@@ -226,10 +242,12 @@ class _ReservationListState extends ConsumerState<ReservationList> {
                                 },
                                 selected: selected,
                                 item: item,
-                                linkedOrder: widget.order?.reservationCrmId == item.id,
+                                linkedOrder:
+                                    widget.order?.reservationCrmId == item.id,
                               );
                             },
-                            separatorBuilder: (context, index) => const GapH(12),
+                            separatorBuilder: (context, index) =>
+                                const GapH(12),
                             itemCount: dataView.length,
                           )
                         : Center(
@@ -243,22 +261,36 @@ class _ReservationListState extends ConsumerState<ReservationList> {
                   ),
                   if (widget.showAction)
                     Row(
-                      mainAxisAlignment:
-                          isNotEmpty ? MainAxisAlignment.end : MainAxisAlignment.center,
+                      mainAxisAlignment: isNotEmpty
+                          ? MainAxisAlignment.end
+                          : MainAxisAlignment.center,
                       children: [
-                        ButtonCancelWidget(
-                          textAction: isNotEmpty ? null : S.current.close,
+                        AppCloseButton(
                           onPressed: () {
-                            var result = ref.read(reservationSectionProvider).reservationInit;
-                            Navigator.pop(context, (reservation: result, initReservation: result));
+                            var result = ref
+                                .read(reservationSectionProvider)
+                                .reservationInit;
+                            Navigator.pop(context,
+                                (reservation: result, initReservation: result));
                           },
                         ),
+                        // ButtonCancelWidget(
+                        //   textAction: isNotEmpty ? null : S.current.close,
+                        //   onPressed: () {
+                        //     var result = ref
+                        //         .read(reservationSectionProvider)
+                        //         .reservationInit;
+                        //     Navigator.pop(context,
+                        //         (reservation: result, initReservation: result));
+                        //   },
+                        // ),
                         if (isNotEmpty) ...[
                           const GapW(20),
                           ButtonSimpleWidget(
                             onPressed: () async {
-                              var reservationInit =
-                                  ref.read(reservationSectionProvider).reservationInit;
+                              var reservationInit = ref
+                                  .read(reservationSectionProvider)
+                                  .reservationInit;
                               if (widget.onConfirm != null) {
                                 var back = await widget.onConfirm?.call(
                                   item: reservationSelect,
@@ -303,12 +335,23 @@ class _ReservationListState extends ConsumerState<ReservationList> {
                     ),
                   ),
                   if (widget.showAction)
-                    ButtonCancelWidget(
+                    AppCloseButton(
                       onPressed: () {
-                        var result = ref.read(reservationSectionProvider).reservationInit;
-                        Navigator.pop(context, (reservation: result, initReservation: result));
+                        var result = ref
+                            .read(reservationSectionProvider)
+                            .reservationInit;
+                        Navigator.pop(context,
+                            (reservation: result, initReservation: result));
                       },
                     ),
+                  // ButtonCancelWidget(
+                  //   onPressed: () {
+                  //     var result =
+                  //         ref.read(reservationSectionProvider).reservationInit;
+                  //     Navigator.pop(context,
+                  //         (reservation: result, initReservation: result));
+                  //   },
+                  // ),
                 ],
               );
             },

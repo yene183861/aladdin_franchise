@@ -402,6 +402,7 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       ),
     );
     if (!result.isSuccess) {
+      showLogs(result.error, flags: 'érrror send sendPrintData');
       throw AppException(
         statusCode: result.statusCode,
         message: result.error,

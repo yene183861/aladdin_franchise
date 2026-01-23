@@ -5,11 +5,19 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/core/network/provider.dart';
+import 'package:aladdin_franchise/src/data/enum/print_type.dart';
 import 'package:aladdin_franchise/src/data/model/notification.dart';
+import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
+import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
+import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/date_time.dart';
+import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,7 +27,8 @@ class NotificationPage extends ConsumerStatefulWidget {
   const NotificationPage({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _NotificationPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _NotificationPageState();
 }
 
 class _NotificationPageState extends ConsumerState<NotificationPage> {
@@ -75,19 +84,21 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
     var data = ref.watch(homeProvider.select((value) => value.notifications));
     var dataView = List<NotificationModel>.from(data);
     dataView = dataView.where((e) {
-      if (e.type == NotificationTypeEnum.print.name) {
-        try {
-          var json = (jsonDecode(e.data ?? {})) as Map<String, dynamic>;
-          if (((json['status'] as bool?) ?? false)) {
-            return false;
-          }
-        } catch (ex) {
-          //
-        }
-      }
+      // if (e.type == NotificationTypeEnum.print.name) {
+      //   try {
+      //     var json = (jsonDecode(e.data ?? {})) as Map<String, dynamic>;
+      //     if (((json['status'] as bool?) ?? false)) {
+      //       return false;
+      //     }
+      //   } catch (ex) {
+      //     //
+      //   }
+      // }
       return true;
     }).toList();
-
+    dataView.sort(
+      (a, b) => b.datetime?.compareTo(a.datetime ?? DateTime.now()) ?? 0,
+    );
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -112,7 +123,9 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                   context,
                   message: 'Bạn có muốn đánh dấu tất cả là đã đọc?',
                   action: () {
-                    ref.read(homeProvider.notifier).markReadAllNotification(ids);
+                    ref
+                        .read(homeProvider.notifier)
+                        .markReadAllNotification(ids);
                   },
                 );
               },
@@ -165,20 +178,21 @@ class _BodyPage extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       itemBuilder: (context, index) {
         var item = dataView[index];
-        var type = NotificationTypeEnum.other;
+        var notiType = NotificationTypeEnum.other;
         try {
-          type = NotificationTypeEnum.values.byName(item.type ?? '');
+          notiType = NotificationTypeEnum.values.byName(item.type ?? '');
         } catch (ex) {
           //
         }
         return InkWell(
           onTap: () {
-            // showDialog(
-            //   context: context,
-            //   builder: (context) {
-            //     return NotificationDetailDialog(item: item);
-            //   },
-            // );
+            ref.read(homeProvider.notifier).markReadNotification(item.id);
+            showDialog(
+              context: context,
+              builder: (context) {
+                return _NotificationDetailDialog(item: item);
+              },
+            );
           },
           borderRadius: BorderRadius.circular(AppConfig.sizeBorderRadiusSecond),
           child: Container(
@@ -186,14 +200,17 @@ class _BodyPage extends ConsumerWidget {
             decoration: BoxDecoration(
               color: !item.read ? AppColors.mainColor.withOpacity(0.1) : null,
               border: Border.all(
-                  color: !item.read ? AppColors.mainColor.withOpacity(0.15) : Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(AppConfig.sizeBorderRadiusSecond),
+                  color: !item.read
+                      ? AppColors.mainColor.withOpacity(0.2)
+                      : Colors.grey.shade300),
+              borderRadius:
+                  BorderRadius.circular(AppConfig.sizeBorderRadiusSecond),
             ),
             child: Row(
               children: [
                 ResponsiveIconWidget(
-                  svgPath: type.icon,
-                  color: type.color,
+                  svgPath: notiType.icon,
+                  color: notiType.color,
                 ),
                 const Gap(12),
                 Expanded(
@@ -204,25 +221,92 @@ class _BodyPage extends ConsumerWidget {
                         item.title,
                         style: AppTextStyle.bold(),
                       ),
-                      Text(
-                        item.body,
-                        style: AppTextStyle.regular(
-                          rawFontSize: AppConfig.defaultRawTextSize - 0.5,
-                          color: Colors.grey.shade600,
+                      if (item.body.trim().isNotEmpty)
+                        Text(
+                          item.body,
+                          style: AppTextStyle.regular(
+                            rawFontSize: AppConfig.defaultRawTextSize - 0.5,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
-                      ),
+                      if (item.datetime != null)
+                        Text(
+                          DateTimeUtils.formatToString(
+                              time: item.datetime,
+                              newPattern: DateTimePatterns.dateTime2),
+                          style: AppTextStyle.regular(
+                            rawFontSize: AppConfig.defaultRawTextSize - 1.2,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
                     ],
                   ),
                 ),
-                if ([NotificationTypeEnum.print].contains(type)) ...[
+                if ([NotificationTypeEnum.print].contains(notiType)) ...[
                   const Gap(12),
-                  Tooltip(
+                  Consumer(builder: (context, ref, child) {
+                    var isPrintDevice = ref.watch(o2oConfigProvider).when(
+                          skipError: false,
+                          data: (data) => data.printerDeviceId == kDeviceId,
+                          error: (error, stackTrace) => false,
+                          loading: () => false,
+                        );
+                    var data =
+                        NotificationDataModel.fromJson(jsonDecode(item.data));
+                    var printStatus = data.printStatus;
+                    if ([PrintStatusEnum.waiting, PrintStatusEnum.done]
+                        .contains(printStatus)) {
+                      return const SizedBox.shrink();
+                    }
+                    if (printStatus == PrintStatusEnum.noResponse &&
+                        !isPrintDevice) {
+                      return AppButton(
+                        textAction: 'Thiết lập máy in chính',
+                        onPressed: () async {
+                          ref
+                              .read(homeProvider.notifier)
+                              .markReadNotification(item.id);
+                          var result = await ref
+                              .read(homeProvider.notifier)
+                              .savePrintDevice(true);
+                          if (result != null) {
+                            showMessageDialog(context, message: result);
+                          }
+                        },
+                      );
+                    }
+                    return Tooltip(
                       message: 'In lại',
                       child: IconButton(
-                          onPressed: () {
-                            // ref.read(homeProvider.notifier).sendPrintData(type: type)
-                          },
-                          icon: Icon(Icons.print))),
+                        style: ButtonStyle(
+                          backgroundColor:
+                              WidgetStatePropertyAll(Colors.grey.shade300),
+                        ),
+                        onPressed: () async {
+                          ref.read(homeProvider.notifier).sendPrintData(
+                                type: data.type,
+                                note: data.note ?? '',
+                                order: data.order,
+                                closeShiftData: data.closeShiftData,
+                                paymentData: data.paymentData,
+                                printDirectly: true,
+                                printers: data.printers,
+                                products: data.products,
+                                timeOrder: 1,
+                                totalBill: data.totalBill,
+                                useDefaultPrinters: data.useDefaultPrinters,
+                                useOddBill: data.useOddBill,
+                                appPrinterType: data.mode,
+                              );
+
+                          ref
+                              .read(homeProvider.notifier)
+                              .deleleNotification([item.id]);
+                        },
+                        icon: Icon(Icons.print),
+                      ),
+                    );
+                  }),
                 ],
               ],
             ),
@@ -235,45 +319,169 @@ class _BodyPage extends ConsumerWidget {
   }
 }
 
-class NotificationDetailDialog extends ConsumerWidget {
-  const NotificationDetailDialog({
-    super.key,
-    required this.item,
-  });
-
+class _NotificationDetailDialog extends ConsumerWidget {
+  const _NotificationDetailDialog({super.key, required this.item});
   final NotificationModel item;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var data = jsonDecode(item.data);
+    NotificationDataModel? data;
 
-    WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) {
-        ref.read(homeProvider.notifier).markReadNotification(item.id);
-      },
-    );
+    try {
+      data = NotificationDataModel.fromJson(jsonDecode(item.data));
+    } catch (ex) {
+      //
+    }
+    NotificationTypeEnum notiType = NotificationTypeEnum.other;
+    try {
+      notiType = NotificationTypeEnum.values.byName(item.type ?? '');
+    } catch (ex) {
+      //
+    }
     return Dialog(
-      // title: Text('Thông báo: ${item.title}'),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.warning_amber_rounded,
+                    color: Colors.orange, size: 32),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    item.title,
+                    style: AppTextStyle.bold(
+                      rawFontSize: AppConfig.defaultRawTextSize + 0.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Gap(12),
+            Text(item.body),
+            if (notiType == NotificationTypeEnum.print && data != null) ...[
+              const Gap(12),
+              Row(
+                children: [
+                  const Spacer(),
+                  AppButton(
+                    icon: Icons.refresh,
+                    textAction: 'Thử lại',
+                    onPressed: () async {
+                      var res =
+                          await ref.read(homeProvider.notifier).sendPrintData(
+                                type: data!.type,
+                                note: data.note ?? '',
+                                order: data.order,
+                                closeShiftData: data.closeShiftData,
+                                paymentData: data.paymentData,
+                                printDirectly: false,
+                                printers: data.printers,
+                                products: data.products,
+                                timeOrder: 1,
+                                totalBill: data.totalBill,
+                                useDefaultPrinters: data.useDefaultPrinters,
+                                useOddBill: data.useOddBill,
+                                appPrinterType: data.mode,
+                              );
+                      if (res != null) {
+                        showMessageDialog(context, message: res);
+                        return;
+                      }
+                      pop(context);
+                      ref
+                          .read(homeProvider.notifier)
+                          .deleleNotification([item.id]);
+                    },
+                  ),
+                  const Gap(12),
+                  AppButton(
+                    icon: Icons.print,
+                    textAction: 'In trực tiếp',
+                    color: AppColors.secondColor,
+                    onPressed: () {
+                      pop(context);
+                      ref.read(homeProvider.notifier).sendPrintData(
+                            type: data!.type,
+                            note: data.note ?? '',
+                            order: data.order,
+                            closeShiftData: data.closeShiftData,
+                            paymentData: data.paymentData,
+                            printDirectly: true,
+                            printers: data.printers,
+                            products: data.products,
+                            timeOrder: 1,
+                            totalBill: data.totalBill,
+                            useDefaultPrinters: data.useDefaultPrinters,
+                            useOddBill: data.useOddBill,
+                            appPrinterType: data.mode,
+                          );
+
+                      ref
+                          .read(homeProvider.notifier)
+                          .deleleNotification([item.id]);
+                    },
+                  ),
+                ],
+              ),
+              const Gap(12),
+              ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                title: Text(
+                  'Xem chi tiết món in không thành công',
+                  style: AppTextStyle.bold(
+                      rawFontSize: AppConfig.defaultRawTextSize - 0.5),
+                ),
+                children: [
+                  _buildTechRow('Hành động', data.type.title),
+                  _buildTechRow(
+                      'Danh sách máy in',
+                      data.printers
+                          .map((e) =>
+                              '${e.name} (${e.ip ?? ''}:${e.port ?? ''})')
+                          .join(', ')),
+                  _buildTechRow('Đơn bàn', data.order?.getOrderMisc() ?? ''),
+                  _buildTechRow(
+                      'Loại bill', data.totalBill ? 'Bill tổng' : 'BIll lẻ'),
+                  _buildTechRow('Ghi chú', data.note ?? ''),
+                  _buildTechRow(
+                      'Danh sách món',
+                      data.products
+                          .map((e) =>
+                              '${e.getNameView()} (x${e.numberSelecting})${(e.note ?? '').trim().isNotEmpty ? ' (Ghi chú món: ${e.note ?? ''})' : ''}')
+                          .join(', ')),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTechRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Sự cố: ${item.body}'),
-          if (data is Map<String, dynamic>)
-            Expanded(
-              child: ListView.separated(
-                  itemBuilder: (context, index) {
-                    var item = data.keys.toList()[index];
-                    var value = data.values.toList()[index];
-                    return ListTile(
-                      title: Text(item),
-                      subtitle: Text(value.toString()),
-                    );
-                  },
-                  separatorBuilder: (context, index) => Gap(4),
-                  itemCount: data.keys.toList().length),
+          SizedBox(
+              width: 150,
+              child: Text(label,
+                  style: AppTextStyle.regular(
+                      rawFontSize: AppConfig.defaultRawTextSize - 1.0))),
+          Expanded(
+            child: Text(
+              value,
+              style: AppTextStyle.regular(
+                      rawFontSize: AppConfig.defaultRawTextSize - 1.0)
+                  .copyWith(fontFamily: 'monospace'),
             ),
-          if (data is! Map) Text(data.toString()),
+          ),
         ],
       ),
     );

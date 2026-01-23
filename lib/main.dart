@@ -23,6 +23,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:local_notifier/local_notifier.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -40,8 +41,9 @@ void main(List<String> args) async {
   }
   if (args.firstOrNull == 'multi_window' && Platform.isWindows) {
     final windowId = int.parse(args[1]);
-    final argument =
-        args[2].isEmpty ? const <String, dynamic>{} : jsonDecode(args[2]) as Map<String, dynamic>;
+    final argument = args[2].isEmpty
+        ? const <String, dynamic>{}
+        : jsonDecode(args[2]) as Map<String, dynamic>;
     await LocalStorage.initialize();
     runApp(ProviderScope(
         child: MySecondApp(
@@ -96,10 +98,23 @@ Future<void> _initializeApp() async {
 
   await _initForAndroidDevice();
 
-  // await _initForWindowsDevice();
+  await _initForWindowsDevice();
 
   // Yêu cầu quyền thiết bị
   await _initPermissionRequest();
+}
+
+Future<void> _initForWindowsDevice() async {
+  try {
+    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+      await localNotifier.setup(
+        appName: 'Aladdin Franchise',
+        shortcutPolicy: ShortcutPolicy.ignore,
+      );
+    }
+  } catch (ex) {
+    showLog(ex, flags: "_initForWindowsDevice");
+  }
 }
 
 Future<void> _initFirebase() async {
@@ -125,7 +140,8 @@ Future<void> _initHive() async {
       Hive.registerAdapter(NotificationModelAdapter());
     }
 
-    await safeOpenBoxNotification<NotificationModel>(AppConfig.notificationBoxName);
+    await safeOpenBoxNotification<NotificationModel>(
+        AppConfig.notificationBoxName);
   } catch (ex) {
     showLog(ex, flags: "_initHive");
   }
@@ -177,11 +193,13 @@ Future<void> _initWebContentConverter() async {
   try {
     if (WebViewHelper.isDesktop) {
       await windowManager.ensureInitialized();
-      var executablePath = await ChromeDesktopDirectoryHelper.saveChromeFromAssetToApp(
+      var executablePath =
+          await ChromeDesktopDirectoryHelper.saveChromeFromAssetToApp(
         assetPath: 'assets/1056772_chrome-win.zip',
       );
       WebViewHelper.customBrowserPath = [executablePath];
-      await WebcontentConverter.ensureInitialized(executablePath: executablePath);
+      await WebcontentConverter.ensureInitialized(
+          executablePath: executablePath);
     }
   } catch (ex) {
     showLogs(ex.toString(), flags: '_initWebContentConverter');

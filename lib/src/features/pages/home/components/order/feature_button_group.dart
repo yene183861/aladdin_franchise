@@ -36,12 +36,14 @@ class OrderFeatureButtonGroupWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var defaultPaddingFeatureBtn = const EdgeInsets.symmetric(horizontal: 2, vertical: 12);
+    var defaultPaddingFeatureBtn =
+        const EdgeInsets.symmetric(horizontal: 2, vertical: 12);
     return Column(
       children: [
         _FeatureGroupWidget(defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
         const Gap(4),
-        _BottomFeatureGroupWidget(defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
+        _BottomFeatureGroupWidget(
+            defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
       ],
     );
   }
@@ -52,7 +54,8 @@ class _FeatureGroupWidget extends ConsumerStatefulWidget {
   final EdgeInsets defaultPaddingFeatureBtn;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => __FeatureGroupWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      __FeatureGroupWidgetState();
 }
 
 class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
@@ -77,14 +80,18 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
     super.initState();
     _hasSubWindows = ValueNotifier<bool>(SubWindowMonitor.instance.value);
 
-    SubWindowMonitor.instance.hasSubWindowController.stream.listen(
-      (event) {
-        _hasSubWindows.value = event;
-        if (event == false) {
-          if (mounted) {
-            ref.read(homeProvider.notifier).onChangePinnedOrder(false);
-          }
-        }
+    WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) {
+        SubWindowMonitor.instance.hasSubWindowController.stream.listen(
+          (event) {
+            _hasSubWindows.value = event;
+            if (event == false) {
+              if (mounted) {
+                ref.read(homeProvider.notifier).onChangePinnedOrder(false);
+              }
+            }
+          },
+        );
       },
     );
   }
@@ -108,7 +115,8 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
               valueListenable: _hasSubWindows,
               builder: (context, hasWindows, child) {
                 return Consumer(builder: (context, ref, child) {
-                  var pinned = ref.watch(homeProvider.select((value) => value.pinnedOrder));
+                  var pinned = ref
+                      .watch(homeProvider.select((value) => value.pinnedOrder));
 
                   return ButtonSimpleWidget(
                     textAction: S.of(context).customer_screen,
@@ -158,21 +166,31 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
                       // //   },
                       // // };
                       if (Platform.isWindows) {
-                        final subWindows = await DesktopMultiWindow.getAllSubWindowIds();
+                        final subWindows =
+                            await DesktopMultiWindow.getAllSubWindowIds();
 
                         if (subWindows.isNotEmpty) {
                           // pin/ unpin màn hình KH
-                          ref.read(homeProvider.notifier).onChangePinnedOrder(!pinned);
+                          ref
+                              .read(homeProvider.notifier)
+                              .onChangePinnedOrder(!pinned);
                           if (pinned) {
-                            ref.read(homeProvider.notifier).syncInfoCustomerPage();
+                            ref
+                                .read(homeProvider.notifier)
+                                .syncInfoCustomerPage();
                           }
                           return;
                         }
 
-                        ref.read(homeProvider.notifier).onChangePinnedOrder(false);
-                        var restaurant = LocalStorage.getDataLogin()?.restaurant;
+                        ref
+                            .read(homeProvider.notifier)
+                            .onChangePinnedOrder(false);
+                        var restaurant =
+                            LocalStorage.getDataLogin()?.restaurant;
                         final window = await DesktopMultiWindow.createWindow(
-                            jsonEncode(ref.read(homeProvider.notifier).getAllDataToCustomerPage()));
+                            jsonEncode(ref
+                                .read(homeProvider.notifier)
+                                .getAllDataToCustomerPage()));
                         window
                           ..setFrame(Offset(1920, 0) & const Size(1920, 1080))
                           ..center()
@@ -189,10 +207,13 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
           Expanded(
             flex: 1,
             child: Consumer(builder: (context, ref, child) {
-              var customer = ref.watch(homeProvider.select((value) => value.customer));
+              var customer =
+                  ref.watch(homeProvider.select((value) => value.customer));
 
               return Tooltip(
-                message: customer == null ? '' : '${customer.name} - ${customer.phoneNumber}',
+                message: customer == null
+                    ? ''
+                    : '${customer.name} - ${customer.phoneNumber}',
                 child: ButtonSimpleWidget(
                   textAction: customer == null
                       ? S.of(context).customers
@@ -220,9 +241,11 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
             flex: 1,
             child: Consumer(
               builder: (context, ref, child) {
-                var invoice = ref.watch(homeProvider.select((value) => value.invoice));
+                var invoice =
+                    ref.watch(homeProvider.select((value) => value.invoice));
 
-                var state = ref.watch(homeProvider.select((value) => value.orderInvoiceState));
+                var state = ref.watch(
+                    homeProvider.select((value) => value.orderInvoiceState));
 
                 return ButtonSimpleWidget(
                   textAction: S.of(context).invoice,
@@ -283,7 +306,8 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
         const Gap(8),
         Expanded(
           child: Consumer(builder: (context, ref, child) {
-            var coupons = ref.watch(homeProvider.select((value) => value.coupons));
+            var coupons =
+                ref.watch(homeProvider.select((value) => value.coupons));
             return ButtonSimpleWidget(
               padding: defaultPaddingFeatureBtn,
               onPressed: () async {
@@ -332,13 +356,15 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
                 message: 'Bạn có muốn thực hiện chốt ca?',
                 textCancel: S.current.close,
                 action: () async {
-                  final res = await ref.read(homeProvider.notifier).closeShift(context);
+                  final res =
+                      await ref.read(homeProvider.notifier).closeShift(context);
 
                   if (res.error != null) {
                     showMessageDialog(context, message: res.error ?? '');
                     return;
                   } else if (res.checkPrinters != null) {
-                    showMessageDialog(context, message: res.checkPrinters ?? '');
+                    showMessageDialog(context,
+                        message: res.checkPrinters ?? '');
                     return;
                   } else if (res.resultSendPrintData != null) {
                     await showConfirmAction(
@@ -360,7 +386,9 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
                     return;
                   }
                   if (context.mounted) {
-                    showDoneSnackBar(context: context, message: S.current.closing_shift_success);
+                    showDoneSnackBar(
+                        context: context,
+                        message: S.current.closing_shift_success);
                   }
                   // },
                   // final res = await ref.read(homeProvider.notifier).closeShift(context);
@@ -398,8 +426,8 @@ void paymentBtnCallback({
   }
 
   state = ref.read(homeProvider);
-  List<ProductCheckoutModel> productsCheckout =
-      List<ProductCheckoutModel>.from(ref.read(checkoutPageProvider).productsCheckout);
+  List<ProductCheckoutModel> productsCheckout = List<ProductCheckoutModel>.from(
+      ref.read(checkoutPageProvider).productsCheckout);
   if (productsCheckout.isEmpty) {
     showMessageDialog(context, message: S.current.order_before_payment);
     return;
@@ -442,8 +470,8 @@ void paymentBtnCallback({
           loadingHome: true,
           ignoreGetDataBill: true,
         );
-    productsCheckout =
-        List<ProductCheckoutModel>.from(ref.read(checkoutPageProvider).productsCheckout);
+    productsCheckout = List<ProductCheckoutModel>.from(
+        ref.read(checkoutPageProvider).productsCheckout);
     if (productsCheckout.isEmpty) {
       showMessageDialog(context, message: S.current.order_before_payment);
       return;
@@ -469,7 +497,8 @@ void paymentBtnCallback({
       },
       actionTitle: S.current.save_and_continue_payment,
       action: () async {
-        var res = await ref.read(homeProvider.notifier).onUpdateTax(productsCheckout);
+        var res =
+            await ref.read(homeProvider.notifier).onUpdateTax(productsCheckout);
         if (res.error != null) {
           showMessageDialog(context, message: res.error ?? '', canPop: false);
           return;
@@ -542,7 +571,8 @@ void paymentBtnCallback({
   }
   switch (state.applyPolicyState.status) {
     case PageCommonState.loading:
-      errorApplyPolicy = 'Đang tiến hành áp dụng lại mã giảm giá, vui lòng chờ trong giây lát.';
+      errorApplyPolicy =
+          'Đang tiến hành áp dụng lại mã giảm giá, vui lòng chờ trong giây lát.';
       break;
     case PageCommonState.error:
       errorApplyPolicy =
@@ -564,7 +594,8 @@ void paymentBtnCallback({
           'Hệ thống đang cập nhật thông tin thanh toán, vui lòng đợi trong giây lát.';
       break;
     case PageCommonState.error:
-      errorGetDataBill = 'Hệ thống hiện chưa thể lấy thông tin thanh toán. Vui lòng thử lại sau.';
+      errorGetDataBill =
+          'Hệ thống hiện chưa thể lấy thông tin thanh toán. Vui lòng thử lại sau.';
       break;
     default:
   }

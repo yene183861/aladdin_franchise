@@ -374,9 +374,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
           state = state.copyWith(
             coupons: coupons,
             customer: customer,
-            // productsSelected: productsSelected,
-            // productsSelecting: selecting,
-            // productCheckout: pc,
             numberOfAdults: max(data.numberOfAdults, 1),
             orderHistory: orderHistory,
           );
@@ -419,94 +416,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
       if (loadingHome) updateEvent(HomeEvent.normal);
     }
   }
-
-  // void changeCategorySelect(CategoryModel? categoryModel) {
-  //   state = state.copyWith(categorySelect: categoryModel);
-
-  //   if ((categoryModel?.children ?? []).isEmpty) {
-  //     changeSubCategorySelect(null);
-  //   } else {
-  //     var subCategorySelect = state.subCategorySelect;
-  //     var checkSubCategorySelect =
-  //         categoryModel?.children?.firstWhereOrNull((e) => e == subCategorySelect);
-  //     if (subCategorySelect == null || checkSubCategorySelect == null) {
-  //       changeSubCategorySelect(
-  //           (categoryModel?.children?.isEmpty ?? true) ? null : categoryModel!.children!.first);
-  //     }
-  //   }
-  // }
-
-  // void changeSubCategorySelect(SubCategoryModel? subCategoryModel) {
-  //   state = state.copyWith(subCategorySelect: subCategoryModel);
-  // }
-
-  /// thêm sp vào giỏ hàng (số lượng 1)
-  // void addProductToCart({required ProductModel product}) async {
-  //   var orderSelect = state.orderSelect;
-  //   if (orderSelect == null) return;
-  //   var productsSelecting = List<ProductModel>.from(state.productsSelecting);
-
-  //   // var index = productsSelecting.indexWhere((e) => e.id == product.id);
-  //   // if (index != -1) {
-  //   //   var item = productsSelecting[index];
-  //   //   productsSelecting[index] =
-  //   //       product.copyWith(numberSelecting: max(0, item.numberSelecting) + 1);
-  //   // } else {
-  //   //   productsSelecting.add(product.copyWith(numberSelecting: 1));
-  //   // }
-  //   // state = state.copyWith(
-  //   //   productsSelecting: productsSelecting,
-  //   //   changedProductId: product.id,
-  //   // );
-
-  //   // onChangeAutoScrollProducts(true);
-  //   // state = state.copyWith(orderTabSelect: OrderTabEnum.ordering);
-
-  //   // Map<String, int> data = {};
-  //   // for (var e in productsSelecting) {
-  //   //   data[e.id.toString()] = e.numberSelecting;
-  //   // }
-  //   // try {
-  //   //   await LocalStorage.setOrderItemSelectingForOrder(orderId: orderSelect.id, data: data);
-  //   // } catch (ex) {
-  //   //   showLogs(ex, flags: 'addProductToCart - K lưu được món đang chọn');
-  //   // }
-  //   // ref.read(cartPageProvider.notifier).addProductToCart(product: product);
-  //   return null;
-  // }
-
-  /// thay đổi số lượng sp trong cart
-  // void changeProductInCart(ProductModel productModel, int count) async {
-  //   var orderSelect = state.orderSelect;
-  //   if (orderSelect == null) return;
-  //   var productsSelecting = List<ProductModel>.from(state.productsSelecting);
-  //   var item = productsSelecting.firstWhereOrNull((e) => e.id == productModel.id);
-  //   if (item != null) {
-  //     if (count > 0) {
-  //       var index = productsSelecting.indexOf(item);
-  //       if (index != -1) {
-  //         productsSelecting[index] = productModel.copyWith(numberSelecting: count);
-  //       }
-  //     } else {
-  //       productsSelecting.remove(item);
-  //     }
-  //   }
-  //   productsSelecting.removeWhere((e) => e.numberSelecting < 1);
-  //   state = state.copyWith(
-  //     productsSelecting: productsSelecting,
-  //     changedProductId: productModel.id,
-  //   );
-  //   onChangeAutoScrollProducts(true);
-  //   Map<String, int> data = {};
-  //   for (var e in productsSelecting) {
-  //     data[e.id.toString()] = e.numberSelecting;
-  //   }
-  //   try {
-  //     await LocalStorage.setOrderItemSelectingForOrder(orderId: orderSelect.id, data: data);
-  //   } catch (ex) {
-  //     showLogs(ex, flags: 'changeProductInCart - K lưu được món đang chọn');
-  //   }
-  // }
 
   /// Tạo đơn hàng mới
   /// [0]: orderId, -1 là lỗi tạo đơn mới
@@ -719,7 +628,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
   Future<String?> sendPrintData({
     required PrintTypeEnum type,
     List<ProductModel> products = const [],
-    List<ProductCheckoutModel> productCheckout = const [],
     String note = '',
     List<PrinterModel> printers = const [],
     int? timeOrder,
@@ -728,34 +636,42 @@ class HomeNotifier extends StateNotifier<HomeState> {
     bool printDirectly = false,
     bool useDefaultPrinters = true,
     bool totalBill = true,
+    OrderModel? order,
+    bool? useOddBill,
+    AppPrinterSettingTypeEnum? appPrinterType,
   }) async {
     try {
-      var order = state.orderSelect ?? const OrderModel();
+      var orderPrint = order ?? state.orderSelect ?? const OrderModel();
       var id = DateTimeUtils.formatToString(
           time: DateTime.now(), newPattern: DateTimePatterns.dateTime3);
-      var data = {
-        'id': id,
-        'type': type.name,
-        'mode': LocalStorage.getPrintSetting().appPrinterType.name,
-        'close_shift_data': closeShiftData,
-        'payment_data': paymentData,
-        'use_odd_bill': ref.read(printSettingProvider).billReturnSetting.useOddBill,
-        'use_default_printers': useDefaultPrinters,
-        'total_bill': totalBill,
-        'status': false,
-        'error': false,
-        'ref_id': null,
-        'sender_device_id': kDeviceId,
-        'handle_device_id': null,
-        'order': order,
-        'products': products,
-        'note': note,
-        'printers': printers,
-      };
+      var data = NotificationDataModel(
+        id: id,
+        type: type,
+        mode: appPrinterType ?? LocalStorage.getPrintSetting().appPrinterType,
+        closeShiftData: closeShiftData,
+        paymentData: paymentData,
+        useOddBill: useOddBill ?? ref.read(printSettingProvider).billReturnSetting.useOddBill,
+        useDefaultPrinters: useDefaultPrinters,
+        totalBill: totalBill,
+        refId: null,
+        senderDeviceId: kDeviceId,
+        handleDeviceId: null,
+        note: note,
+        order: orderPrint,
+        printers: printers,
+        products: products,
+        printStatus: PrintStatusEnum.waiting,
+      );
+      var printerDeviceId = ref.read(o2oConfigProvider).when(
+          skipError: false,
+          data: (data) => data.printerDeviceId,
+          error: (error, stackTrace) => null,
+          loading: () => null);
       var error = await _checkBeforeSendData(
-        data: data,
-        order: order,
-        ignoreSendEvent: printDirectly,
+        data: data.toJson(),
+        order: orderPrint,
+        ignoreSendEvent: printDirectly || printerDeviceId == kDeviceId,
+        saveNotification: !(printDirectly || printerDeviceId == kDeviceId),
       );
       if (error != null) {
         throw error;
@@ -767,6 +683,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
+  /// sau 15s k nhận được phản hồi kq in thì show thông báo
   void _checkResponsePrintStatus(String? notiId) async {
     if (notiId == null) return;
     await Future.delayed(const Duration(seconds: 15));
@@ -776,24 +693,29 @@ class HomeNotifier extends StateNotifier<HomeState> {
       var values = box.values.toList();
       var noti = values.firstWhereOrNull((e) => e.id == notiId);
       if (noti != null) {
-        var json = Map<String, dynamic>.from(jsonDecode(noti.data) ?? {});
-        if (!((json['status'] as bool?) ?? false)) {
+        var data = NotificationDataModel.fromJson(jsonDecode(noti.data));
+        showLogs(data, flags: '_checkResponsePrintStatus notiId');
+        if (data.printStatus == PrintStatusEnum.waiting) {
           if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
           box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
           values = box.values.toList();
           var valueIndex = values.indexWhere((e) => e.id == notiId);
-          var title =
-              'Chưa nhận được kết quả phản hồi yêu cầu xử lý in. Kiểm tra lại thiết bị được cài là thiết bị in chính.';
+          var title = 'Chưa nhận được kết quả phản hồi yêu cầu xử lý in.';
+          var body = 'Kiểm tra lại thiết bị được cài là thiết bị in chính';
+          data = data.copyWith(printStatus: PrintStatusEnum.noResponse);
           if (valueIndex != -1) {
             try {
               await box.putAt(
                 valueIndex,
                 noti.copyWith(
-                  data: jsonEncode(json),
+                  data: jsonEncode(data.toJson()),
                   title: title,
+                  body: body,
                 ),
               );
-            } catch (ex) {}
+            } catch (ex) {
+              //
+            }
           }
           if (Platform.isAndroid || Platform.isIOS) {
             appLocalNotificationService?.showLocalNotification(title, '');
@@ -1010,29 +932,51 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   void _handlePrintRedisEvent(dynamic event) async {
     try {
-      showLogs(jsonDecode(event[2])['restaurant_id'], flags: 'event');
-      dynamic dataDecode = jsonDecode(event[2])['data'];
-      var type = dataDecode['type'] as String?;
-      var printDeviceId = jsonDecode(event[2])['printer_device_id'] as String?;
-      var printType = type == null ? null : PrintTypeEnum.values.byName(type);
+      var data = jsonDecode(event[2]);
+      var restaurantId = data['restaurant_id'];
+      if (restaurantId != LocalStorage.getDataLogin()?.restaurant?.id) return;
+      dynamic dataDecode = data['data'];
+      List<LineItemDataBill> lineItems = [];
+      if (dataDecode['payment_data'] != null) {
+        lineItems = (dataDecode['payment_data']['order_line_items'] as List<dynamic>).map((e) {
+          var json = Map<String, dynamic>.from(e);
+          var listItem = (e['list_item'] as List<dynamic>)
+              .map((e) => SubLineItemDataBill.fromJson(e as Map<String, dynamic>))
+              .toList();
+          var result = LineItemDataBill.fromJson(json).copyWith(listItem: listItem, language: {});
+          return result;
+        }).toList();
+        dataDecode['payment_data']['order_line_items'] = null;
+        dataDecode['payment_data']['language'] = null;
+      }
 
+      var notificationData = NotificationDataModel.fromJson(dataDecode);
+      notificationData = notificationData.copyWith(
+          paymentData: notificationData.paymentData?.copyWith(orderLineItems: lineItems));
+      var printDeviceId = data['printer_device_id'] as String?;
+
+      var printType = notificationData.type;
+      var printStatus = notificationData.printStatus;
+      if ([PrintStatusEnum.done, PrintStatusEnum.error].contains(printStatus)) {
+        if (notificationData.handleDeviceId != kDeviceId) _handlePrintStatus(notificationData);
+        return;
+      }
       switch (printType) {
         case PrintTypeEnum.order:
         case PrintTypeEnum.cancel:
           if (kDeviceId != printDeviceId) return;
-          _handlePrintProcessItem(event, dataDecode, printType);
+          _handlePrintProcessItem(notificationData);
+
           break;
         case PrintTypeEnum.closeShift:
           if (kDeviceId != printDeviceId) return;
-          _handlePrintCloseShift(event, dataDecode);
+          _handlePrintCloseShift(notificationData);
           break;
         case PrintTypeEnum.payment:
           if (kDeviceId != printDeviceId) return;
-          _handlePrintPaymentReceipt(event, dataDecode);
+          _handlePrintPaymentReceipt(notificationData);
           break;
-        case PrintTypeEnum.printStatus:
-          _handlePrintStatus(dataDecode);
-          break;
+
         default:
       }
     } catch (ex) {
@@ -1040,36 +984,42 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void _handlePrintStatus(Map<String, dynamic> dataDecode) async {
-    var refId = dataDecode['ref_id'];
+  void _handlePrintStatus(NotificationDataModel data) async {
+    var refId = data.refId;
+
     try {
       var noti = state.notifications;
-      var check = noti.firstWhereOrNull((e) {
-        var json = jsonDecode(e.data);
-        if (json['sender_device_id']?.toString() == kDeviceId && refId == json['id']) {
+      var checks = noti.where((e) {
+        var notiData = NotificationDataModel.fromJson(jsonDecode(e.data) as Map<String, dynamic>);
+        if (notiData.senderDeviceId == kDeviceId && refId == notiData.id) {
           return true;
         }
         return false;
-      });
+      }).toList();
+      var check = checks.firstOrNull;
       if (check != null) {
-        var json = Map<String, dynamic>.from(jsonDecode(check.data));
-        var status = dataDecode['status'] ?? false;
+        var notiData =
+            NotificationDataModel.fromJson(jsonDecode(check.data) as Map<String, dynamic>);
+        String title = data.title ?? '';
+        String body = data.message ?? '';
         try {
           if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
           var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
           var values = box.values.toList();
           var valueIndex = values.indexWhere((e) => e.id == check.id);
           if (valueIndex != -1) {
-            json['status'] = status;
-            json['handle_device_id'] = dataDecode['handle_device_id'];
+            notiData = notiData.copyWith(
+              printStatus: data.printStatus,
+              handleDeviceId: data.handleDeviceId,
+            );
             await box.putAt(
               valueIndex,
               check.copyWith(
-                data: jsonEncode(json),
-                title: status
-                    ? 'Xử lý lệnh in thành công'
-                    : 'Lệnh in chưa được xử lý,'
-                        ' vui lòng kiểm tra thiết bị được thiết lập in chính!',
+                data: jsonEncode(notiData),
+                title: title,
+                body: body,
+                viewed: false,
+                read: false,
               ),
             );
           }
@@ -1077,18 +1027,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
           showLogs(ex, flags: '_handlePrintStatus ex box hive');
           return;
         }
-        if (!status) {
+        if (data.printStatus == PrintStatusEnum.error) {
           if (Platform.isAndroid || Platform.isIOS) {
-            appLocalNotificationService?.showLocalNotification(
-                'Không in được bill',
-                'Lệnh in chưa được xử lý,'
-                    ' vui lòng kiểm tra thiết bị được thiết lập in chính!');
+            appLocalNotificationService?.showLocalNotification(title, body);
           } else if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
             try {
               LocalNotification notification = LocalNotification(
-                title: 'Không in được bill',
-                body: 'Lệnh in chưa được xử lý,'
-                    ' vui lòng kiểm tra thiết bị được thiết lập in chính!',
+                title: title,
+                body: body,
               );
               notification.show();
             } catch (ex) {
@@ -1103,38 +1049,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void _handlePrintPaymentReceipt(dynamic event, dynamic dataDecode) async {
+  void _handlePrintPaymentReceipt(NotificationDataModel data) async {
     try {
-      var printers = ((dataDecode['printers'] ?? []) as List<dynamic>)
-          .map((e) => PrinterModel.fromJson(e))
-          .toList();
+      var printers = data.printers;
+      var order = data.order;
 
-      PaymentReceiptPrintRequest? data;
-      var paymentData = Map<String, dynamic>.from(dataDecode['payment_data'] ?? {});
-
-      /// k biết tại sao mà orderLineItems k parse được, còn vouchers lại parse được :)))
-      if (paymentData.isNotEmpty) {
-        /// parse order_line_items
-        List<LineItemDataBill> orderLineItems =
-            (paymentData['order_line_items'] as List<dynamic>).map((e) {
-          var json = Map<String, dynamic>.from(e);
-          var listItem = (e['list_item'] as List<dynamic>)
-              .map((e) => SubLineItemDataBill.fromJson(e as Map<String, dynamic>))
-              .toList();
-          json.remove('list_item');
-          // bao giờ nó có data thì tính tiếp
-          json.remove('language');
-
-          var result = LineItemDataBill.fromJson(json).copyWith(listItem: listItem, language: {});
-          return result;
-        }).toList();
-        paymentData.remove('order_line_items');
-        data = PaymentReceiptPrintRequest.fromJson(paymentData)
-            .copyWith(orderLineItems: orderLineItems);
-      }
-      showLogs(data?.vouchers, flags: 'data _handlePrintPaymentReceipt');
-
-      if (data == null || printers.isEmpty) return;
+      showLogs(printers, flags: 'printers');
+      showLogs(data.paymentData, flags: 'data.paymentData');
+      if (data.paymentData == null || printers.isEmpty) return;
       final receiptData = data;
       for (var printer in printers) {
         PrintQueue.instance.addTask(
@@ -1142,7 +1064,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
           port: printer.port!,
           buildReceipt: (generator) async {
             showLogs(receiptData, flags: 'data');
-            var bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(receiptData);
+            var bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(data.paymentData!);
             return bytes;
           },
           onComplete: (success, error) async {
@@ -1151,18 +1073,23 @@ class HomeNotifier extends StateNotifier<HomeState> {
             } else {
               showLogs(error, flags: '❌ In thất bại');
             }
-            var callback = Map<String, dynamic>.from(dataDecode ?? {});
-            callback['ref_id'] = callback['id'];
-            callback['id'] = DateTimeUtils.formatToString(
-                time: DateTime.now(), newPattern: DateTimePatterns.dateTime3);
-            callback['type'] = PrintTypeEnum.printStatus.name;
-            callback['status'] = success;
-            callback['handle_device_id'] = kDeviceId;
-            bool ignoreSendEvent = callback['sender_device_id'] == callback['handle_device_id'];
+            var callback = data.copyWith(
+              refId: data.id,
+              id: DateTimeUtils.formatToString(
+                  time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
+              handleDeviceId: kDeviceId,
+              printStatus: success ? PrintStatusEnum.done : PrintStatusEnum.error,
+              message: error,
+            );
+            bool ignoreSendEvent = callback.senderDeviceId == callback.handleDeviceId;
             await _checkBeforeSendData(
-              data: callback,
+              data: callback.toJson(),
               ignoreSendEvent: ignoreSendEvent,
-              saveNotification: false,
+              saveNotification: !ignoreSendEvent || !success,
+              title: ignoreSendEvent
+                  ? 'Sự cố in hoá đơn thanh toán (Đơn bàn ${order?.getNameView() ?? ''} - ${order?.getOrderMisc() ?? ''})'
+                  : null,
+              message: error,
             );
             if (ignoreSendEvent) {
               _handlePrintStatus(callback);
@@ -1175,24 +1102,16 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void _handlePrintCloseShift(dynamic event, dynamic dataDecode) async {
+  void _handlePrintCloseShift(NotificationDataModel data) async {
     try {
-      var mode = dataDecode['mode'] as String?;
-      var printMode = mode == null
-          ? LocalStorage.getPrintSetting().appPrinterType
-          : AppPrinterSettingTypeEnum.values.byName(mode);
-      var data = dataDecode['close_shift_data'] == null
-          ? null
-          : CloseShiftResponseModel.fromJson(dataDecode['close_shift_data']);
-      var printers = ((dataDecode['printers'] ?? []) as List<dynamic>)
-          .map((e) => PrinterModel.fromJson(e))
-          .toList();
+      var printMode = data.mode;
 
-      if (data == null || printers.isEmpty) return;
+      var printers = data.printers;
+      if (data.closeShiftData == null || printers.isEmpty) return;
 
       var bytes = printMode == AppPrinterSettingTypeEnum.normal
-          ? await AppPrinterNormalUtils.instance.getCloseShift(data)
-          : await AppPrinterHtmlUtils.instance.getCloseShiftContent(data);
+          ? await AppPrinterNormalUtils.instance.getCloseShift(data.closeShiftData!)
+          : await AppPrinterHtmlUtils.instance.getCloseShiftContent(data.closeShiftData!);
       for (var printer in printers) {
         PrintQueue.instance.addTask(
           ip: printer.ip!,
@@ -1206,18 +1125,22 @@ class HomeNotifier extends StateNotifier<HomeState> {
             } else {
               showLogs(error, flags: '❌ In thất bại');
             }
-            var callback = Map<String, dynamic>.from(dataDecode ?? {});
-            callback['ref_id'] = callback['id'];
-            callback['id'] = DateTimeUtils.formatToString(
-                time: DateTime.now(), newPattern: DateTimePatterns.dateTime3);
-            callback['type'] = PrintTypeEnum.printStatus.name;
-            callback['status'] = success;
-            callback['handle_device_id'] = kDeviceId;
-            bool ignoreSendEvent = callback['sender_device_id'] == callback['handle_device_id'];
+            var callback = data.copyWith(
+              refId: data.id,
+              id: DateTimeUtils.formatToString(
+                  time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
+              handleDeviceId: kDeviceId,
+              printStatus: success ? PrintStatusEnum.done : PrintStatusEnum.error,
+              message: error,
+            );
+
+            bool ignoreSendEvent = callback.senderDeviceId == callback.handleDeviceId;
             await _checkBeforeSendData(
-              data: callback,
+              data: callback.toJson(),
               ignoreSendEvent: ignoreSendEvent,
-              saveNotification: false,
+              saveNotification: !ignoreSendEvent || !success,
+              title: ignoreSendEvent ? 'Sự cố in phiếu chốt ca' : null,
+              message: error,
             );
             if (ignoreSendEvent) {
               _handlePrintStatus(callback);
@@ -1230,26 +1153,23 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void _handlePrintProcessItem(dynamic event, dynamic dataDecode, PrintTypeEnum? printType) async {
+  void _handlePrintProcessItem(NotificationDataModel data) async {
     try {
-      var note = (dataDecode['note'] ?? '') as String;
-      var mode = dataDecode['mode'] as String?;
-      var printMode = mode == null
-          ? LocalStorage.getPrintSetting().appPrinterType
-          : AppPrinterSettingTypeEnum.values.byName(mode);
-      var order = dataDecode['order'] == null ? null : OrderModel.fromJson(dataDecode['order']);
-      var products = ((dataDecode['products'] ?? []) as List<dynamic>)
-          .map((e) => ProductModel.fromJson(e))
-          .toList();
-      var printers = ((dataDecode['printers'] ?? []) as List<dynamic>)
-          .map((e) => PrinterModel.fromJson(e))
-          .toList();
+      var note = data.note ?? '';
 
-      bool useOddBill = (dataDecode['use_odd_bill'] as bool?) ?? false;
-      bool useDefaultPrinters = (dataDecode['use_default_printers'] as bool?) ?? false;
-      bool totalBill = (dataDecode['total_bill'] as bool?) ?? false;
+      var printMode = data.mode;
+
+      var order = data.order;
+      var products = data.products;
+
+      var printers = data.printers;
+
+      bool useOddBill = data.useOddBill;
+      bool useDefaultPrinters = data.useDefaultPrinters;
+      bool totalBill = data.totalBill;
+
       if (order == null || printers.isEmpty || products.isEmpty) return;
-      bool cancel = printType == PrintTypeEnum.cancel;
+      bool cancel = data.type == PrintTypeEnum.cancel;
       bool printNormal = printMode == AppPrinterSettingTypeEnum.normal;
 
       var bytes = printNormal
@@ -1273,6 +1193,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
             ));
       Map<ProductModel, List<int>> oddBillDatas = {};
       bool initOddBillData = false;
+
       for (var printer in printers) {
         PrintQueue.instance.addTask(
           ip: printer.ip!,
@@ -1281,17 +1202,28 @@ class HomeNotifier extends StateNotifier<HomeState> {
             return bytes;
           },
           onComplete: (success, error) async {
-            var callback = Map<String, dynamic>.from(dataDecode ?? {});
-            callback['ref_id'] = callback['id'];
-            callback['id'] = DateTimeUtils.formatToString(
-                time: DateTime.now(), newPattern: DateTimePatterns.dateTime3);
-            callback['type'] = PrintTypeEnum.printStatus.name;
-            callback['status'] = success;
-            callback['handle_device_id'] = kDeviceId;
-            bool ignoreSendEvent = callback['sender_device_id'] == callback['handle_device_id'];
+            var titleNoti = cancel ? 'Huỷ đồ' : 'Gọi món';
+
+            String title = '$titleNoti ';
+            var callback = data.copyWith(
+              refId: data.id,
+              id: DateTimeUtils.formatToString(
+                  time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
+              handleDeviceId: kDeviceId,
+              printStatus: success ? PrintStatusEnum.done : PrintStatusEnum.error,
+              message: error,
+            );
+            bool ignoreSendEvent = callback.senderDeviceId == callback.handleDeviceId;
+            showLogs(ignoreSendEvent, flags: "ignoreSendEvent");
             if (success) {
+              title =
+                  '$titleNoti - In bill ${totalBill ? 'tổng' : 'lẻ'} xuống bếp, bar thành công: Đơn bàn ${order.getNameView()} (${order.getOrderMisc() ?? ''})';
+              callback = callback.copyWith(
+                title: title,
+                message: error,
+              );
               showLogs(null, flags: "✅ In bill tổng thành công");
-              if (printType == PrintTypeEnum.order && useOddBill && totalBill) {
+              if (!cancel && useOddBill && totalBill) {
                 /// nếu có bill tổng có:
                 /// + đồ ăn + đồ uống => in bill lẻ tất cả
                 /// + chỉ có đồ uống => bỏ qua
@@ -1313,13 +1245,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
                 }
                 if (onlyDrinks) {
                   await _checkBeforeSendData(
-                    data: callback,
+                    data: callback.toJson(),
                     ignoreSendEvent: ignoreSendEvent,
                     order: order,
-                    saveNotification: false,
-                    titleError:
-                        'In bill tổng bếp, bar thành công - ${order.getOrderMisc() ?? ''} - ${order.name}',
-                    bodyError: error ?? '',
+                    saveNotification: !ignoreSendEvent,
+                    title: title,
+                    message: error ?? '',
                   );
                   if (ignoreSendEvent) {
                     _handlePrintStatus(callback);
@@ -1409,13 +1340,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
                 }
                 if (oddBillDatas.isEmpty) {
                   await _checkBeforeSendData(
-                    data: callback,
+                    data: callback.toJson(),
                     ignoreSendEvent: ignoreSendEvent,
                     order: order,
-                    saveNotification: false,
-                    titleError:
-                        'In bill tổng bếp, bar thành công - ${order.getOrderMisc() ?? ''} - ${order.name}',
-                    bodyError: error ?? '',
+                    saveNotification: !ignoreSendEvent,
+                    title: title,
+                    message: error ?? '',
                   );
                   if (ignoreSendEvent) {
                     _handlePrintStatus(callback);
@@ -1432,16 +1362,24 @@ class HomeNotifier extends StateNotifier<HomeState> {
                         return value;
                       },
                       onComplete: (success, error) async {
+                        var subTitle =
+                            '$titleNoti - Không thể in bill lẻ xuống bếp, bar: Đơn bàn ${order.getNameView()} (${order.getOrderMisc() ?? ''})';
                         if (success) {
                           showLogs(null, flags: "✅ In bill lẻ thành công");
                         } else {
                           showLogs("❌ In bill lẻ thất bại\n$key", flags: 'BILL LẺ');
                           _saveNotification(
-                            title:
-                                'Không thể in bill lẻ xuống bếp, bar - ${order.getOrderMisc() ?? ''} - ${order.name}',
+                            title: subTitle,
                             error: error,
                             order: order,
-                            dataDecode: dataDecode,
+                            dataDecode: callback
+                                .copyWith(
+                                  printStatus: PrintStatusEnum.error,
+                                  totalBill: false,
+                                  title: subTitle,
+                                  message: error,
+                                )
+                                .toJson(),
                           );
                         }
                       },
@@ -1450,27 +1388,31 @@ class HomeNotifier extends StateNotifier<HomeState> {
                 );
               }
               await _checkBeforeSendData(
-                data: callback,
+                data: callback.toJson(),
                 ignoreSendEvent: ignoreSendEvent,
                 order: order,
-                saveNotification: false,
-                titleError:
-                    'In bill tổng xuống bếp, bar thành công - ${order.getOrderMisc() ?? ''} - ${order.name}',
-                bodyError: error ?? '',
+                saveNotification: !ignoreSendEvent,
+                title: title,
+                message: error ?? '',
               );
               if (ignoreSendEvent) {
                 _handlePrintStatus(callback);
               }
             } else {
               showLogs(error, flags: '❌ In bill tổng thất bại');
+              title =
+                  '$titleNoti - Không thể in bill ${totalBill ? 'tổng' : 'lẻ'} xuống bếp, bar: Đơn bàn ${order.getNameView()} (${order.getOrderMisc() ?? ''})';
+              callback = callback.copyWith(
+                title: title,
+                message: error,
+              );
               await _checkBeforeSendData(
-                data: callback,
+                data: callback.toJson(),
                 ignoreSendEvent: ignoreSendEvent,
                 order: order,
-                saveNotification: false,
-                titleError:
-                    'Không thể in bill tổng xuống bếp, bar - ${order.getOrderMisc() ?? ''} - ${order.name}',
-                bodyError: error ?? '',
+                saveNotification: true,
+                title: title,
+                message: error ?? '',
               );
               if (ignoreSendEvent) {
                 _handlePrintStatus(callback);
@@ -1489,18 +1431,28 @@ class HomeNotifier extends StateNotifier<HomeState> {
     OrderModel? order,
     bool ignoreSendEvent = false,
     bool saveNotification = true,
-    String? titleError,
-    String? bodyError,
+    // String? titleError,
+    // String? bodyError,
+
+    String? title,
+    String? message,
   }) async {
     if (data.isEmpty) return null;
     int retry = 0;
-    var printerDeviceId = ref.read(o2oConfigProvider).when(
-        data: (data) => data.printerDeviceId,
-        error: (error, stackTrace) => null,
-        loading: () => null);
+    // var printerDeviceId = ref.read(o2oConfigProvider).when(
+    //     data: (data) => data.printerDeviceId,
+    //     error: (error, stackTrace) => null,
+    //     loading: () => null);
     String? error;
-    if (!ignoreSendEvent && printerDeviceId != kDeviceId) {
-      while (retry < 3) {
+    bool sendEvent = !ignoreSendEvent
+        // &&
+        //     !(kDeviceId == printerDeviceId && kDeviceId == data['sender_device_id']
+        // )
+        ;
+
+    showLogs(sendEvent, flags: 'sendEvent _checkBeforeSendData');
+    if (sendEvent) {
+      while (retry < 1) {
         try {
           await _restaurantRepository.sendPrintData(data);
           error = null;
@@ -1512,33 +1464,49 @@ class HomeNotifier extends StateNotifier<HomeState> {
         }
       }
       if (error != null) {
-        if (titleError != null) {
-          await _saveNotification(
-            title: titleError,
-            error: bodyError,
-            dataDecode: data,
-            order: order,
-          );
-        }
+        // if (titleError != null) {
+        //   await _saveNotification(
+        //     title: titleError,
+        //     error: bodyError,
+        //     dataDecode: data,
+        //     order: order,
+        //     viewed: true,
+        //   );
+        // }
+        // if (saveNotification) {
+        //   var notiId = await _saveNotification(
+        //     title: 'Yêu cầu in đã được gửi tới hệ thống và đang chờ xử lý.',
+        //     dataDecode: data,
+        //     order: order,
+        //     viewed: true,
+        //   );
+        //   if (sendEvent) _checkResponsePrintStatus(notiId);
+        // }
         return error;
       }
-    } else {
+    }
+    if (saveNotification) {
+      var notiId = await _saveNotification(
+        title: title ?? 'Yêu cầu in đã được gửi tới hệ thống và đang chờ xử lý.',
+        error: message ?? '',
+        dataDecode: data,
+        order: order,
+        viewed: title == null,
+      );
+
+      showLogs(notiId, flags: 'notiId _checkBeforeSendData');
+      if (sendEvent) _checkResponsePrintStatus(notiId);
+    }
+    if (!sendEvent) {
       _handlePrintRedisEvent([
         null,
         null,
         jsonEncode({
           'data': data,
           'printer_device_id': kDeviceId,
+          'restaurant_id': LocalStorage.getDataLogin()?.restaurant?.id,
         })
       ]);
-    }
-    if (saveNotification) {
-      var notiId = await _saveNotification(
-        title: 'Yêu cầu in đã được gửi tới hệ thống và đang chờ xử lý.',
-        dataDecode: data,
-        order: order,
-      );
-      if (!ignoreSendEvent && printerDeviceId != kDeviceId) _checkResponsePrintStatus(notiId);
     }
 
     return null;
@@ -1550,6 +1518,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     OrderModel? order,
     dynamic dataDecode,
     NotificationTypeEnum type = NotificationTypeEnum.print,
+    bool viewed = false,
   }) async {
     if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) {
       return null;
@@ -1566,6 +1535,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         datetime: DateTime.now(),
         data: jsonEncode(dataDecode),
         type: type.name,
+        viewed: viewed,
       ));
       return id;
     } catch (ex) {
@@ -3098,313 +3068,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
       return ex.toString();
     }
   }
-
-  /// gọi món
-  // Future<String?> addItemsToOrder(BuildContext context) async {
-  //   var note = LocalStorage.getNotePerOrderItem(
-  //       order: state.orderSelect ?? const OrderModel());
-
-  //   Set<int> printerCheck = {};
-
-  //   Map<int, List<ProductModel>> printerMapProducts = {};
-  //   double total = 0.0;
-  //   List<ProductModel> productPrintBill = (state.productsSelecting).map((e) {
-  //     total +=
-  //         (double.tryParse(e.unitPrice) ?? 0.0) * max(0, e.numberSelecting);
-
-  //     var product = e.copyWith(note: note?[e.id.toString()] ?? '');
-  //     var comboItems = ProductHelper().getComboDescription(product);
-  //     if (comboItems == null || comboItems.isEmpty) {
-  //       if (product.printerType != null) {
-  //         var items = List<ProductModel>.from(
-  //             printerMapProducts[product.printerType] ?? []);
-  //         // coi combo k có thành phần như là món thường để in
-  //         items.add(product.copyWith(description: null));
-  //         printerMapProducts[product.printerType!] = items;
-  //       }
-  //     } else {
-  //       Map<int, List<ComboItemModel>> printComboItem = {};
-  //       for (var ci in comboItems) {
-  //         var printerType = ci.printerType;
-  //         if (printerType != null) {
-  //           var items =
-  //               List<ComboItemModel>.from(printComboItem[printerType] ?? []);
-  //           items.add(ci);
-  //           printComboItem[printerType] = items;
-  //         }
-  //       }
-
-  //       printComboItem.forEach(
-  //         (key, value) {
-  //           var items = List<ProductModel>.from(printerMapProducts[key] ?? []);
-  //           items.add(product.copyWith(description: jsonEncode(value)));
-  //           printerMapProducts[key] = items;
-  //         },
-  //       );
-  //     }
-
-  //     if (product.printerType != null) {
-  //       printerCheck.add(product.printerType!);
-  //     }
-  //     return product;
-  //   }).toList();
-
-  //   try {
-  //     updateEvent(HomeEvent.processOrder);
-  //     showLogs(printerCheck, flags: 'ds printerType gọi món');
-  //     var listPrinters = await _orderRepository.getPrinterBill(
-  //       state.orderSelect!,
-  //       printerCheck.toList(),
-  //     );
-
-  //     showLogs(listPrinters, flags: 'danh sách máy in - gọi món');
-  //     var kitchenNote = state.kitchenNote;
-  //     await _checkOrderSelect();
-  //     var result = await _orderRepository.processOrderItem(
-  //       order: state.orderSelect!,
-  //       total: total,
-  //       // orderNote: kitchenNote,
-  //       products: productPrintBill,
-  //       note: kitchenNote,
-  //       cancel: false,
-  //     );
-
-  //     try {
-  //       await LocalStorage.deleteNotePerOrderItem(order: state.orderSelect!);
-  //     } catch (ex) {
-  //       //
-  //     }
-  //     state = state.copyWith(
-  //       productsSelecting: [],
-  //       orderTabSelect: OrderTabEnum.ordered,
-  //     );
-
-  //     try {
-  //       await LocalStorage.setOrderItemSelectingForOrder(
-  //           orderId: state.orderSelect!.id, data: {});
-  //     } catch (ex) {
-  //       //
-  //     }
-  //     getOrderProductCheckout(applyPolicy: true);
-
-  //     state = state.copyWith(kitchenNote: '');
-  //     // sử dụng kds thì k cần in
-  //     if (AppConfig.useKds) {
-  //       updateEvent(HomeEvent.normal);
-  //       return null;
-  //     }
-
-  //     try {
-  //       var setting = LocalStorage.getPrintSetting();
-  //       bool printNormal =
-  //           setting.appPrinterType == AppPrinterSettingTypeEnum.normal;
-
-  //       for (var printer in (listPrinters ?? <IpOrderModel>[])) {
-  //         List<ProductModel> productPrinter =
-  //             List<ProductModel>.from(printerMapProducts[printer.type] ?? []);
-
-  //         if (productPrinter.isEmpty) {
-  //           continue;
-  //         }
-  //         if (kitchenNote.trim().isEmpty && productPrinter.length == 1) {
-  //           kitchenNote = productPrinter.firstOrNull?.note ?? '';
-  //         }
-  //         showLogs(productPrinter.length, flags: 'check só lượng món in');
-  //         var bytes = printNormal
-  //             ? await AppPrinterNormalUtils.instance.generateBill(
-  //                 order: state.orderSelect!,
-  //                 billSingle: false,
-  //                 cancel: false,
-  //                 timeOrder: 1,
-  //                 totalNote: kitchenNote,
-  //                 products: productPrinter,
-  //                 title: '',
-  //               )
-  //             : await AppPrinterHtmlUtils.instance.generateImageBill(
-  //                 AppPrinterHtmlUtils.instance.kitchenBillContent(
-  //                 order: state.orderSelect!,
-  //                 product: productPrinter,
-  //                 note: kitchenNote,
-  //                 timeOrders: 1,
-  //                 cancel: false,
-  //                 totalBill: true,
-  //               ));
-  //         List<ProductModel> errors = [];
-  //         PrintQueue.instance.addTask(
-  //           ip: printer.ip,
-  //           port: printer.port,
-  //           buildReceipt: (generator) async {
-  //             return bytes;
-  //           },
-  //           onComplete: (success, error) async {
-  //             if (success) {
-  //               showLogs("✅ In thành công", flags: 'BILL TỔNG');
-  //               // chỉ in bill lẻ với bếp
-  //               String? errorPrintOdd;
-  //               if (printer.type == 2 && setting.billReturnSetting.useOddBill) {
-  //                 for (var item in productPrinter) {
-  //                   List<int> byteDatas;
-
-  //                   var listComboItemPrint =
-  //                       ProductHelper().getComboDescription(item);
-
-  //                   if (listComboItemPrint == null ||
-  //                       listComboItemPrint.isEmpty) {
-  //                     // món thường
-  //                     byteDatas = printNormal
-  //                         ? await AppPrinterNormalUtils.instance.generateBill(
-  //                             order: state.orderSelect!,
-  //                             billSingle: true,
-  //                             cancel: false,
-  //                             timeOrder: 1,
-  //                             totalNote: kitchenNote,
-  //                             products: [item],
-  //                             title: '',
-  //                           )
-  //                         : await AppPrinterHtmlUtils.instance
-  //                             .generateImageBill(AppPrinterHtmlUtils.instance
-  //                                 .kitchenBillContent(
-  //                             product: [item],
-  //                             totalBill: false,
-  //                             order: state.orderSelect!,
-  //                             note: kitchenNote,
-  //                             timeOrders: 1,
-  //                           ));
-  //                     PrintQueue.instance.addTask(
-  //                       ip: printer.ip,
-  //                       port: printer.port,
-  //                       buildReceipt: (generator) async {
-  //                         return byteDatas;
-  //                       },
-  //                       onComplete: (success, error) {
-  //                         if (success) {
-  //                           showLogs("✅ In thành công\n$item",
-  //                               flags: 'BILL LẺ');
-  //                         } else {
-  //                           errorPrintOdd = error;
-  //                           errors.add(item);
-  //                           showLogs("❌ In thất bại\n$item", flags: 'BILL LẺ');
-  //                         }
-  //                       },
-  //                     );
-  //                   } else {
-  //                     // in từng món trong combo
-  //                     for (var ci in listComboItemPrint) {
-  //                       byteDatas = printNormal
-  //                           ? await AppPrinterNormalUtils.instance.generateBill(
-  //                               order: state.orderSelect!,
-  //                               billSingle: true,
-  //                               cancel: false,
-  //                               timeOrder: 1,
-  //                               totalNote: kitchenNote,
-  //                               products: [
-  //                                 item.copyWith(description: jsonEncode([ci]))
-  //                               ],
-  //                               title: '',
-  //                             )
-  //                           : await AppPrinterHtmlUtils.instance
-  //                               .generateImageBill(
-  //                               AppPrinterHtmlUtils.instance.kitchenBillContent(
-  //                                 product: [
-  //                                   item.copyWith(description: jsonEncode([ci]))
-  //                                 ],
-  //                                 totalBill: false,
-  //                                 order: state.orderSelect!,
-  //                                 note: kitchenNote,
-  //                                 timeOrders: 1,
-  //                               ),
-  //                             );
-  //                       PrintQueue.instance.addTask(
-  //                         ip: printer.ip,
-  //                         port: printer.port,
-  //                         buildReceipt: (generator) async {
-  //                           return byteDatas;
-  //                         },
-  //                         onComplete: (success, error) {
-  //                           if (success) {
-  //                             showLogs(
-  //                                 "✅ In thành công\n${item.copyWith(description: jsonEncode(ci))}",
-  //                                 flags: 'BILL LẺ');
-  //                           } else {
-  //                             errorPrintOdd = error;
-  //                             errors.add(
-  //                               item.copyWith(
-  //                                 description: jsonEncode([ci]),
-  //                               ),
-  //                             );
-  //                             showLogs(
-  //                                 "❌ In thất bại\n${item.copyWith(description: jsonEncode(ci))}",
-  //                                 flags: 'BILL LẺ');
-  //                           }
-  //                         },
-  //                       );
-  //                     }
-  //                   }
-  //                 }
-  //                 if (errors.isNotEmpty && context.mounted) {
-  //                   showMessageDialog(
-  //                     context,
-  //                     message: "Không thể in bill lẻ xuống bếp\n"
-  //                         '$errorPrintOdd\n'
-  //                         'Danh sách các món không thể ra bill lẻ:\n${errors.map((e) => e.name).join(', ')}',
-  //                   );
-  //                 }
-  //               }
-  //             } else {
-  //               showLogs("❌ In thất bại", flags: 'BILL TỔNG');
-  //               if (error != null && context.mounted) {
-  //                 showMessageDialog(
-  //                   context,
-  //                   message:
-  //                       "Món đã được thêm vào hóa đơn nhưng không thể in bill xuống bếp\n"
-  //                       'Lỗi:\n$error',
-  //                 );
-  //               }
-  //             }
-  //           },
-  //         );
-  //       }
-
-  //       updateEvent(HomeEvent.normal);
-  //       return null;
-  //     } catch (ex) {
-  //       updateEvent(HomeEvent.normal);
-  //       if (context.mounted) {
-  //         showMessageDialog(
-  //           context,
-  //           message:
-  //               'Món đã được thêm vào hóa đơn nhưng không thể in bill xuống bếp\n'
-  //               'Lỗi:\n${ex.toString()}',
-  //         );
-  //       }
-  //       return null;
-  //     }
-  //   } catch (ex) {
-  //     updateEvent(HomeEvent.normal);
-  //     _lockOrder(ex);
-  //     return ex.toString();
-  //   }
-  // }
-
-  // void cancelProductCheckout(ProductModel p, int count) {
-  //   try {
-  //     var productCheckout = List<ProductCheckoutModel>.from(
-  //         ref.read(checkoutPageProvider).productsCheckout);
-
-  //     var productCheck = productCheckout.firstWhereOrNull((e) => e.id == p.id);
-  //     if (productCheck != null) {
-  //       var index = productCheckout.indexOf(productCheck);
-  //       if (index != -1) {
-  //         productCheck = productCheck.copyWith(
-  //             quantityCancel: productCheck.quantityCancel + count);
-  //         productCheckout[index] = productCheck;
-  //       }
-  //     }
-  //     state = state.copyWith(productCheckout: productCheckout);
-  //   } catch (ex) {
-  //     showLogs(ex.toString(), flags: 'check');
-  //   }
-  // }
 
   void getO2OChatMessages() async {
     try {

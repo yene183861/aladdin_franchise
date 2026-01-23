@@ -10,6 +10,7 @@ import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/models/waiter.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:collection/collection.dart';
@@ -51,13 +52,28 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
   Widget build(BuildContext context) {
     var notifier = ref.read(transferOrderProvider.notifier);
     var state = ref.watch(transferOrderProvider);
-    final tableAndWaiterTransferAvailable = ref.watch(tableAvailableAndWaiterTransferOrderProvider);
+    final tableAndWaiterTransferAvailable =
+        ref.watch(tableAvailableAndWaiterTransferOrderProvider);
     final orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
-    final waiterSelect = ref.watch(transferOrderProvider.select((value) => value.waiterSelect));
-    bool smallDevice = ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
+    final waiterSelect =
+        ref.watch(transferOrderProvider.select((value) => value.waiterSelect));
+    bool smallDevice =
+        ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
     return AlertDialog(
-      title: Text(
-        S.current.transferUpdateOrder,
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(
+              S.current.transferUpdateOrder,
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.pop(context, null);
+            },
+            icon: Icon(Icons.close),
+          ),
+        ],
       ),
       content: tableAndWaiterTransferAvailable.when(
         skipLoadingOnRefresh: false,
@@ -67,11 +83,13 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
           final waiter = data.waiters;
           var waiterView = List<WaiterModel>.from(waiter);
           final waiterCurrent = waiterView.firstWhereOrNull((element) =>
-              element.id == ref.read(homeProvider.notifier).getOrderSelect()?.waiterId);
+              element.id ==
+              ref.read(homeProvider.notifier).getOrderSelect()?.waiterId);
           waiterView.remove(waiterCurrent);
           if (state.searchWaiter.isNotEmpty) {
             waiterView = waiterView
-                .where((element) => element.name.toLowerCase().contains(state.searchWaiter))
+                .where((element) =>
+                    element.name.toLowerCase().contains(state.searchWaiter))
                 .toList();
           }
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -86,8 +104,8 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
 
           double iconSize = smallDevice ? 20 : 24;
 
-          Widget tableSection =
-              ListTableSection(tablesAvailable: tablesAvailable, iconSize: iconSize);
+          Widget tableSection = ListTableSection(
+              tablesAvailable: tablesAvailable, iconSize: iconSize);
           Widget waiterSection = ListWaiterSection(
             waiters: waiterView,
             waiterCurrent: waiterCurrent,
@@ -97,7 +115,8 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
           if (smallDevice) {
             return Consumer(
               builder: (context, ref, child) {
-                var tabSelect = ref.watch(transferOrderProvider.select((value) => value.tabSelect));
+                var tabSelect = ref.watch(
+                    transferOrderProvider.select((value) => value.tabSelect));
                 return Column(
                   children: [
                     const TransferOrderTab(),
@@ -137,10 +156,15 @@ class _TransferOrderDialogState extends ConsumerState<TransferOrderDialog> {
       ),
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: [
-        ButtonCancelWidget(
-          textAction: S.current.close,
-          onPressed: () => Navigator.pop(context, null),
+        AppCloseButton(
+          onPressed: () {
+            Navigator.pop(context, null);
+          },
         ),
+        // ButtonCancelWidget(
+        //   textAction: S.current.close,
+        //   onPressed: () => Navigator.pop(context, null),
+        // ),
         ButtonSimpleWidget(
           onPressed: () {
             if (state.tableSelects.isEmpty) {
@@ -162,14 +186,17 @@ ${S.current.waiter_service}: ${state.waiterSelect?.name}
                 var reservation = orderSelect?.reservationCrmId == null
                     ? null
                     : ReservationModel(id: orderSelect?.reservationCrmId);
-                final result = await ref.read(homeProvider.notifier).transferOrder(
-                      listTableIds,
-                      orderSelect!,
-                      waiterSelect!,
-                      reservation: reservation,
-                    );
+                final result =
+                    await ref.read(homeProvider.notifier).transferOrder(
+                          listTableIds,
+                          orderSelect!,
+                          waiterSelect!,
+                          reservation: reservation,
+                        );
                 if (result == null) {
-                  showDoneSnackBar(context: context, message: S.current.transferOrderSuccess);
+                  showDoneSnackBar(
+                      context: context,
+                      message: S.current.transferOrderSuccess);
                   if (reservation != null) {
                     ref.read(homeProvider.notifier).updateReservationStatus(
                           reservation.id,

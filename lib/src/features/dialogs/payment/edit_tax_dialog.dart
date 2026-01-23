@@ -8,6 +8,7 @@ import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
+import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:collection/collection.dart';
@@ -46,21 +47,21 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
     // },
     {
       'title': S.current.product,
-      'size': null,
+      // 'size': null,
       'align': Alignment.centerLeft,
       'percent': null,
     },
-    {
-      'title': S.current.code,
-      'size': 100.0,
-      'align': Alignment.center,
-      'percent': 12.0,
-    },
+    // {
+    //   'title': S.current.code,
+    //   'size': 100.0,
+    //   'align': Alignment.center,
+    //   'percent': 12.0,
+    // },
     {
       'title': S.current.price,
-      'size': 250.0,
+      // 'size': 250.0,
       'align': Alignment.center,
-      'percent': 15.0,
+      'percent': 10.0,
     },
     {
       'title': S.current.quantityCut,
@@ -70,16 +71,16 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
     },
     {
       'title': S.current.tax,
-      'size': 100.0,
+      // 'size': 100.0,
       'align': Alignment.center,
-      'percent': 15.0,
+      'percent': 20.0,
       'is_tax': true,
     },
     {
       'title': S.current.total,
-      'size': 180.0,
+      // 'size': 180.0,
       'align': Alignment.centerRight,
-      'percent': 10.0,
+      'percent': 15.0,
     },
   ];
   List<ProductCheckoutModel> productCheckouts = [];
@@ -99,102 +100,116 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
   Widget build(BuildContext context) {
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation =
+        AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool smallDevice = (isMobile || (isTablet && portraitOrientation));
-    double maxWidth = MediaQuery.of(context).size.width;
+    // double maxWidth = MediaQuery.of(context).size.width;
+    double maxWidth = MediaQuery.of(context).size.width - 24 * 2;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                S.current.edit_tax_information,
-                style: AppTextStyle.bold(),
-              ),
-            ),
-            if ((isMobile) && !portraitOrientation) ...[
-              Row(
-                children: [
-                  Text(S.current.apply_all),
-                  const Gap(8),
-                  DropdownTaxWidget(
-                    taxs: [defaultTax, 0.0, 0.08, 0.1],
-                    taxSelect: applyAllTax,
-                    oddRowColor: oddRowColor,
-                    yIndex: 1,
-                    onChangeTax: (value) {
-                      applyAllTax = value ?? defaultTax;
-                      _applyAllTaxValue();
-                    },
-                    defaultTax: defaultTax,
-                    widthBtn: TextUtil.getTextSize(
-                                text: S.current.default_1, textStyle: AppTextStyle.regular())
-                            .width +
-                        22 +
-                        16 * 2,
-                  ),
-                ],
-              ),
-            ],
-          ],
-        ),
-        const Gap(8),
-        if (!((isMobile) && !portraitOrientation)) ...[
+    return LayoutBuilder(builder: (context, constraint) {
+      maxWidth = constraint.maxWidth;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
             children: [
-              Text(S.current.apply_all),
-              const Gap(8),
-              DropdownTaxWidget(
-                taxs: [defaultTax, 0.0, 0.08, 0.1],
-                taxSelect: applyAllTax,
-                oddRowColor: oddRowColor,
-                yIndex: 1,
-                onChangeTax: (value) {
-                  applyAllTax = value ?? defaultTax;
-                  _applyAllTaxValue();
+              Expanded(
+                child: Text(
+                  S.current.edit_tax_information,
+                  style: AppTextStyle.bold(
+                    rawFontSize: AppConfig.defaultRawTextSize + 1.0,
+                  ),
+                ),
+              ),
+              if ((isMobile) && !portraitOrientation) ...[
+                Row(
+                  children: [
+                    Text(S.current.apply_all),
+                    const Gap(8),
+                    DropdownTaxWidget(
+                      taxs: [defaultTax, 0.0, 0.08, 0.1],
+                      taxSelect: applyAllTax,
+                      oddRowColor: oddRowColor,
+                      yIndex: 1,
+                      onChangeTax: (value) {
+                        applyAllTax = value ?? defaultTax;
+                        _applyAllTaxValue();
+                      },
+                      defaultTax: defaultTax,
+                      widthBtn: TextUtil.getTextSize(
+                                  text: S.current.default_1,
+                                  textStyle: AppTextStyle.regular())
+                              .width +
+                          22 +
+                          16 * 2,
+                    ),
+                  ],
+                ),
+              ],
+              CloseButton(
+                onPressed: () {
+                  pop(context, false);
                 },
-                defaultTax: defaultTax,
-                widthBtn: TextUtil.getTextSize(
-                            text: S.current.default_1, textStyle: AppTextStyle.regular())
-                        .width +
-                    22 +
-                    16 * 2,
               ),
             ],
           ),
           const Gap(8),
-        ],
-        Expanded(
-          child: SizedBox(
-            width: double.maxFinite,
-            height: (productCheckouts.length + 1) * 50,
-            child: TableView.builder(
-              pinnedRowCount: 1,
-              pinnedColumnCount: 0,
-              columnCount: colSettings.length,
-              rowCount: productCheckouts.length + 1,
-              columnBuilder: (index) {
-                return _buildColumnSpan(
-                  index,
-                  maxWidth,
+          if (!((isMobile) && !portraitOrientation)) ...[
+            Row(
+              children: [
+                Text(S.current.apply_all),
+                const Gap(8),
+                DropdownTaxWidget(
+                  taxs: [defaultTax, 0.0, 0.08, 0.1],
+                  taxSelect: applyAllTax,
+                  oddRowColor: oddRowColor,
+                  yIndex: 1,
+                  onChangeTax: (value) {
+                    applyAllTax = value ?? defaultTax;
+                    _applyAllTaxValue();
+                  },
+                  defaultTax: defaultTax,
+                  widthBtn: TextUtil.getTextSize(
+                              text: S.current.default_1,
+                              textStyle: AppTextStyle.regular())
+                          .width +
+                      22 +
+                      16 * 2,
+                ),
+              ],
+            ),
+            const Gap(8),
+          ],
+          Expanded(
+            child: SizedBox(
+              width: double.maxFinite,
+              height: (productCheckouts.length + 1) * 50,
+              child: TableView.builder(
+                pinnedRowCount: 1,
+                pinnedColumnCount: 0,
+                columnCount: colSettings.length,
+                rowCount: productCheckouts.length + 1,
+                columnBuilder: (index) {
+                  return _buildColumnSpan(
+                    index,
+                    maxWidth,
+                    smallDevice: smallDevice,
+                  );
+                },
+                rowBuilder: _buildRowSpan,
+                cellBuilder: (context, vicinity) => _buildCell(
+                  context,
+                  vicinity,
+                  productCheckouts,
                   smallDevice: smallDevice,
-                );
-              },
-              rowBuilder: _buildRowSpan,
-              cellBuilder: (context, vicinity) => _buildCell(
-                context,
-                vicinity,
-                productCheckouts,
-                smallDevice: smallDevice,
+                ),
               ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   void _applyAllTaxValue() {
@@ -228,8 +243,8 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
     }
   }
 
-  TableViewCell _buildCell(
-      BuildContext context, TableVicinity vicinity, List<ProductCheckoutModel> productCheckout,
+  TableViewCell _buildCell(BuildContext context, TableVicinity vicinity,
+      List<ProductCheckoutModel> productCheckout,
       {bool smallDevice = false}) {
     if (vicinity.yIndex == 0) {
       String colTitle = '';
@@ -261,7 +276,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
 
     var contents = [
       i.getNameView(),
-      i.codeProduct,
+      // i.codeProduct,
       AppUtils.formatCurrency(value: i.unitPrice),
       // AppConfig.formatCurrency().format(double.tryParse(i.unitPrice) ?? 0.0),
       i.quantity.toString(),
@@ -269,7 +284,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
       AppUtils.formatCurrency(value: i.totalOrdered),
       // AppConfig.formatCurrency().format(i.totalOrdered),
     ];
-    if (xIndex == 4) {
+    if (xIndex == 3) {
       return TableViewCell(
         child: Align(
           alignment: colSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
@@ -314,26 +329,40 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
   }) {
     bool isTax = colSettings[index]['is_tax'] as bool? ?? false;
     double? percent = colSettings[index]['percent'] as double?;
-    double? size = colSettings[index]['size'] as double?;
-    if (isTax) {
-      return TableSpan(
-          extent: FixedTableSpanExtent((colSettings[index]['size'] as double?) ?? 100.0));
-    }
-    if (smallDevice) {
-      return TableSpan(extent: FixedTableSpanExtent(size ?? 250));
-    }
 
-    double width = max((percent ?? 0) / 100 * maxWidth, 60);
+    double width = maxWidth * (percent ?? 0) / 100;
 
     double w = 0.0;
     for (var e in colSettings) {
-      bool isTax = colSettings[index]['is_tax'] as bool? ?? false;
-      w += isTax ? 100 : max((e['percent'] as double? ?? 0) / 100 * maxWidth, 60);
+      w += maxWidth * (e['percent'] as double? ?? 0) / 100;
     }
 
-    width = percent == null ? max(maxWidth - w, 120.0) : width;
-
+    width = percent == null ? maxWidth - w : width;
     return TableSpan(extent: FixedTableSpanExtent(width));
+
+    // double? size = colSettings[index]['size'] as double?;
+    // if (isTax) {
+    //   return TableSpan(
+    //       extent: FixedTableSpanExtent(
+    //           (colSettings[index]['size'] as double?) ?? 100.0));
+    // }
+    // if (smallDevice) {
+    //   return TableSpan(extent: FixedTableSpanExtent(size ?? 250));
+    // }
+
+    // double width = max((percent ?? 0) / 100 * maxWidth, 60);
+
+    // double w = 0.0;
+    // for (var e in colSettings) {
+    //   bool isTax = colSettings[index]['is_tax'] as bool? ?? false;
+    //   w += isTax
+    //       ? 100
+    //       : max((e['percent'] as double? ?? 0) / 100 * maxWidth, 60);
+    // }
+
+    // width = percent == null ? max(maxWidth - w, 120.0) : width;
+
+    // return TableSpan(extent: FixedTableSpanExtent(width));
   }
 
   TableSpan _buildRowSpan(int index, {bool smallDevice = false}) {
@@ -423,7 +452,9 @@ class DropdownTaxWidget extends StatelessWidget {
               height: double.maxFinite,
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: yIndex % 2 == 0 ? Colors.white : (oddRowColor ?? Colors.white),
+                  color: yIndex % 2 == 0
+                      ? Colors.white
+                      : (oddRowColor ?? Colors.white),
                 ),
                 borderRadius: AppConfig.borderRadiusSecond,
                 color: yIndex % 2 == 0 ? Colors.white : null,
@@ -440,7 +471,9 @@ class DropdownTaxWidget extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyle.regular(
-                        color: notAllowTaxs.contains(value) ? AppColors.redColor : null,
+                        color: notAllowTaxs.contains(value)
+                            ? AppColors.redColor
+                            : null,
                       ),
                     ),
                   ),

@@ -6,6 +6,7 @@ import 'package:aladdin_franchise/src/features/pages/history_order/provider.dart
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/custom_checkbox.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
@@ -25,10 +26,12 @@ class HistoryOrderDetailDialog extends ConsumerStatefulWidget {
 
   final Future<bool> Function()? completeBillAction;
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _HistoryOrderDetailDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _HistoryOrderDetailDialogState();
 }
 
-class _HistoryOrderDetailDialogState extends ConsumerState<HistoryOrderDetailDialog> {
+class _HistoryOrderDetailDialogState
+    extends ConsumerState<HistoryOrderDetailDialog> {
   @override
   void initState() {
     super.initState();
@@ -54,7 +57,8 @@ class _HistoryOrderDetailDialogState extends ConsumerState<HistoryOrderDetailDia
                 ),
                 const Gap(20),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                   decoration: BoxDecoration(
                     borderRadius: AppConfig.borderRadiusMain,
                     color: widget.item.status.color,
@@ -72,23 +76,25 @@ class _HistoryOrderDetailDialogState extends ConsumerState<HistoryOrderDetailDia
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                ButtonCancelWidget(
-                  textAction: S.current.close,
-                  onPressed: () {
-                    pop(context);
-                  },
-                ),
+                AppCloseButton(),
+                // ButtonCancelWidget(
+                //   textAction: S.current.close,
+                //   onPressed: () {
+                //     pop(context);
+                //   },
+                // ),
                 if (widget.item.status == OrderStatusEnum.waiting)
                   Consumer(builder: (context, ref, child) {
-                    var statusLoading = ref.watch(
-                        historyOrderPageProvider.select((value) => value.getOrderDetailState));
+                    var statusLoading = ref.watch(historyOrderPageProvider
+                        .select((value) => value.getOrderDetailState));
                     if (statusLoading.status == PageCommonState.success) {
                       return Padding(
                         padding: const EdgeInsets.only(left: 8),
                         child: ButtonSimpleWidget(
                           textAction: S.current.complete_order,
                           onPressed: () async {
-                            var refreshData = await widget.completeBillAction?.call();
+                            var refreshData =
+                                await widget.completeBillAction?.call();
                             if (refreshData ?? false) {
                               pop(context);
                             }

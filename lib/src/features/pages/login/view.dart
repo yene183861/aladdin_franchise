@@ -102,6 +102,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             0);
     return Scaffold(
       extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: false,
       appBar: _buildAppBar(),
       body: Center(
         child: Column(

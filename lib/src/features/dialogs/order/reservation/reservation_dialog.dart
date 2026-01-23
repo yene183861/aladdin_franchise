@@ -27,8 +27,21 @@ Future<bool> showSelectReservationDialog({
         canPop: false,
         child: AlertDialog(
           backgroundColor: Colors.white,
-          title: Text(
-            title ?? S.current.choose_reservation,
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title ?? S.current.choose_reservation,
+                ),
+              ),
+              // CloseButton(
+              //   onPressed: () {
+              //     var result = ref.read(homeProvider).orderSelect;
+              //     Navigator.pop(
+              //         context, (reservation: result, initReservation: result));
+              //   },
+              // ),
+            ],
           ),
           content: Material(
             color: Colors.white,
@@ -55,7 +68,8 @@ Future<bool> showSelectReservationDialog({
                                 ButtonSimpleWidget(
                                   color: AppColors.secondColor,
                                   textColor: AppColors.tcButtonMain,
-                                  textAction: 'Tiếp tục mà không đổi thông tin KH',
+                                  textAction:
+                                      'Tiếp tục mà không đổi thông tin KH',
                                   onPressed: () {
                                     updateCustomer = false;
                                     Navigator.of(context).pop(true);
@@ -71,7 +85,9 @@ Future<bool> showSelectReservationDialog({
                         if (orderSelect == null) return false;
                         var tableNames = orderSelect.name;
                         var tableIds = orderSelect.getTableIds;
-                        final error = await ref.read(homeProvider.notifier).updateOrderReservation(
+                        final error = await ref
+                            .read(homeProvider.notifier)
+                            .updateOrderReservation(
                               tableIds: tableIds,
                               newReservation: item,
                             );
@@ -84,7 +100,9 @@ Future<bool> showSelectReservationDialog({
                               table: tableNames,
                             );
 
-                            ref.read(homeProvider.notifier).updateReservation(model);
+                            ref
+                                .read(homeProvider.notifier)
+                                .updateReservation(model);
                           }
                           if (itemInit != null) {
                             final model = itemInit.copyWith(
@@ -93,14 +111,19 @@ Future<bool> showSelectReservationDialog({
                               tableId: tableIds,
                               table: tableNames,
                             );
-                            ref.read(homeProvider.notifier).updateReservation(model);
+                            ref
+                                .read(homeProvider.notifier)
+                                .updateReservation(model);
                           }
 
                           if (updateCustomer && item != null) {
-                            var phone =
-                                TextUtil.convertPhone(item.customer?.phoneNumber ?? '').trim();
+                            var phone = TextUtil.convertPhone(
+                                    item.customer?.phoneNumber ?? '')
+                                .trim();
                             if (phone.isNotEmpty) {
-                              var result = await ref.read(homeProvider.notifier).findCustomer(
+                              var result = await ref
+                                  .read(homeProvider.notifier)
+                                  .findCustomer(
                                     phone,
                                     loadingHome: true,
                                   );
@@ -108,7 +131,8 @@ Future<bool> showSelectReservationDialog({
                                 if (context.mounted) {
                                   await showMessageDialog(
                                     context,
-                                    message: 'Hệ thống không thể cập nhật thông tin khách hàng.'
+                                    message:
+                                        'Hệ thống không thể cập nhật thông tin khách hàng.'
                                         '\n${ref.read(homeProvider).messageError}'
                                         '\n\nBạn vui lòng cập nhật thông tin khách hàng thủ công.',
                                   );

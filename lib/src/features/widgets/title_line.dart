@@ -1,4 +1,5 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
+import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
@@ -56,7 +57,8 @@ class TitleDialogWithCloseWidget extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: AppTextStyle.bold(rawFontSize: 15),
+            style: AppTextStyle.bold(
+                rawFontSize: AppConfig.defaultRawTextSize + 1.0),
           ),
         ),
         const GapW(16),

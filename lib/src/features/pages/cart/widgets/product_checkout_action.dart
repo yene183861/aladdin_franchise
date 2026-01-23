@@ -53,8 +53,8 @@ void showHistoryOrderItemDialog(BuildContext context) async {
             ),
             Flexible(
               child: Consumer(builder: (context, ref, child) {
-                var orderHistoryData =
-                    ref.watch(homeProvider.select((value) => value.orderHistory));
+                var orderHistoryData = ref
+                    .watch(homeProvider.select((value) => value.orderHistory));
                 var dataView = List<OrderHistory>.from(orderHistoryData);
                 dataView.sort((a, b) => b.createdAt.compareTo(a.createdAt));
                 if (dataView.isEmpty) {
@@ -83,8 +83,11 @@ void showHistoryOrderItemDialog(BuildContext context) async {
                       child: Column(
                         children: [
                           ListTile(
-                            leading: const ResponsiveIconWidget(iconData: Icons.tag),
-                            tileColor: isCancel ? Colors.red.shade50 : Colors.blueGrey.shade50,
+                            leading:
+                                const ResponsiveIconWidget(iconData: Icons.tag),
+                            tileColor: isCancel
+                                ? Colors.red.shade50
+                                : Colors.blueGrey.shade50,
                             title: Text(
                               "${S.current.turn} ${orderTime.timesOrder} ${isCancel ? " - ${S.current.cancelDish}" : ""}",
                               style: AppTextStyle.medium(),
@@ -96,9 +99,11 @@ void showHistoryOrderItemDialog(BuildContext context) async {
                                     style: AppTextStyle.medium(),
                                   ),
                             trailing: Text(
-                              appConfig.dateFormatHhMmSsDDMMYYYY.format(orderTime.createdAt),
+                              appConfig.dateFormatHhMmSsDDMMYYYY
+                                  .format(orderTime.createdAt),
                               style: AppTextStyle.regular(
-                                  rawFontSize: AppConfig.defaultRawTextSize - 1.0),
+                                  rawFontSize:
+                                      AppConfig.defaultRawTextSize - 1.0),
                             ),
                           ),
                           ...orderTime.products.map(
@@ -129,12 +134,14 @@ void showHistoryOrderItemDialog(BuildContext context) async {
                                       ? Expanded(
                                           flex: 1,
                                           child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
                                             children: [
                                               Text(
                                                 e.cancel
                                                     ? S.current.cancel
-                                                    : appConfig.getNameByStatus(e.status),
+                                                    : appConfig.getNameByStatus(
+                                                        e.status),
                                                 style: AppTextStyle.medium(),
                                               ),
                                               const Gap(12),
@@ -171,9 +178,11 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var productCheckout = ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
+    var productCheckout = ref
+        .watch(checkoutPageProvider.select((value) => value.productsCheckout));
 
-    var orderHistoryData = ref.watch(homeProvider.select((value) => value.orderHistory));
+    var orderHistoryData =
+        ref.watch(homeProvider.select((value) => value.orderHistory));
     if (orderHistoryData.isEmpty) return const SizedBox.shrink();
     return Container(
       color: Colors.white,

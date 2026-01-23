@@ -3,8 +3,10 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/utils/date_input.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +33,10 @@ class CreateCustomerDialog extends ConsumerStatefulWidget {
 class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
   String? gender, address, idCardNumber;
   String inputBirthday = "";
-  late TextEditingController ctrlPhone, ctrlFirstName, ctrlLastName, ctrlBirthday;
+  late TextEditingController ctrlPhone,
+      ctrlFirstName,
+      ctrlLastName,
+      ctrlBirthday;
   bool _noBOD = true;
 
   final _formKey = GlobalKey<FormState>();
@@ -59,15 +64,23 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
     // var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     // bool enable = !lockedOrder;
     bool enable = true;
-    var smallDevice = ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
+    var smallDevice =
+        ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
     return Scaffold(
       backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: false,
       body: Center(
         child: SingleChildScrollView(
           child: AlertDialog(
-            title: Text(
-              S.current.createNewCustomers,
+            title: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    S.current.createNewCustomers,
+                  ),
+                ),
+                const CloseButton(),
+              ],
             ),
             content: SizedBox(
               width: smallDevice ? 95.w : 50.w,
@@ -87,7 +100,8 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                       maxLength: 12,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       validator: (value) {
-                        if ((value?.trim() ?? '').isEmpty) return 'Vui lòng nhập thông tin';
+                        if ((value?.trim() ?? '').isEmpty)
+                          return 'Vui lòng nhập thông tin';
                         return null;
                       },
                     ),
@@ -111,7 +125,8 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                             required: true,
                             enabled: enable,
                             validator: (value) {
-                              if ((value?.trim() ?? '').isEmpty) return 'Vui lòng nhập thông tin';
+                              if ((value?.trim() ?? '').isEmpty)
+                                return 'Vui lòng nhập thông tin';
                               return null;
                             },
                           ),
@@ -125,7 +140,8 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                             required: true,
                             enabled: enable,
                             validator: (value) {
-                              if ((value?.trim() ?? '').isEmpty) return 'Vui lòng nhập thông tin';
+                              if ((value?.trim() ?? '').isEmpty)
+                                return 'Vui lòng nhập thông tin';
                               return null;
                             },
                           ),
@@ -226,12 +242,15 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
             ),
             actionsAlignment: MainAxisAlignment.spaceEvenly,
             actions: [
-              ButtonCancelWidget(
-                textAction: S.current.close,
+              AppCloseButton(
                 onPressed: () => Navigator.pop(context, null),
               ),
+              // ButtonCancelWidget(
+              //   textAction: S.current.close,
+              //   onPressed: () => Navigator.pop(context, null),
+              // ),
               if (enable)
-                ButtonSimpleWidget(
+                AppButton(
                   onPressed: () async {
                     if (!(_formKey.currentState?.validate() ?? false)) return;
                     String phone = ctrlPhone.text.trim();
@@ -241,22 +260,25 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                     if (_noBOD == false) {
                       var checkDob = checkInputDate(ctrlBirthday.text);
                       if (checkDob != null) {
-                        showMessageDialog(context, message: S.current.dob_not_format);
+                        showMessageDialog(context,
+                            message: S.current.dob_not_format);
                         return;
                       }
-                      final dob = DateFormat("dd/MM/yyyy").parse(ctrlBirthday.text);
+                      final dob =
+                          DateFormat("dd/MM/yyyy").parse(ctrlBirthday.text);
                       inputBirthday = appConfig.dateFormatYYYYMMDD.format(dob);
                     }
-                    final result = await ref.read(homeProvider.notifier).createCustomer(
-                          phone: phone,
-                          firstName: firstName,
-                          lastName: lastName,
-                          birthday: inputBirthday,
-                          gender: gender,
-                          idCardNumber: idCardNumber,
-                          address: address,
-                          noBOD: _noBOD,
-                        );
+                    final result =
+                        await ref.read(homeProvider.notifier).createCustomer(
+                              phone: phone,
+                              firstName: firstName,
+                              lastName: lastName,
+                              birthday: inputBirthday,
+                              gender: gender,
+                              idCardNumber: idCardNumber,
+                              address: address,
+                              noBOD: _noBOD,
+                            );
                     if (result != null) {
                       if (context.mounted) {
                         await showMessageDialog(

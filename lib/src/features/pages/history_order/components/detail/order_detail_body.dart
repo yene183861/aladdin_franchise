@@ -92,16 +92,17 @@ class HistoryOrderDetailBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var state = ref.watch(historyOrderPageProvider.select((value) => value.getOrderDetailState));
-    var vouchers = ref
-        .watch(historyOrderPageProvider.select((value) => value.dataBill?.print?.vouchers ?? []));
-    var orderLineItems =
-        ref.watch(historyOrderPageProvider.select((value) => value.dataBill?.orderLineItems ?? []));
+    var state = ref.watch(
+        historyOrderPageProvider.select((value) => value.getOrderDetailState));
+    var vouchers = ref.watch(historyOrderPageProvider
+        .select((value) => value.dataBill?.print?.vouchers ?? []));
+    var orderLineItems = ref.watch(historyOrderPageProvider
+        .select((value) => value.dataBill?.orderLineItems ?? []));
     List<ProductCheckoutHistoryModel> products = List.from(item.orderItems);
     List<ProductCheckoutHistoryModel> productsView = [];
 
-    var promotionVouchers =
-        vouchers.where((element) => element.isType == 5 && element.listUse.isNotEmpty);
+    var promotionVouchers = vouchers
+        .where((element) => element.isType == 5 && element.listUse.isNotEmpty);
     for (var e in products) {
       var quantity = e.count;
       var promotion = 0;
@@ -116,14 +117,15 @@ class HistoryOrderDetailBody extends ConsumerWidget {
         }
       }
       if (quantity - promotion > 0) {
-        var pc = orderLineItems.firstWhereOrNull((element) => element.id == e.id);
+        var pc =
+            orderLineItems.firstWhereOrNull((element) => element.id == e.id);
 
         productsView.add(
           e.copyWith(
             count: quantity - promotion,
             price: pc?.price ?? e.price ?? '0',
-            totalPrice:
-                (double.tryParse(pc?.price ?? e.price ?? 0.0) ?? 0) * (quantity - promotion),
+            totalPrice: (double.tryParse(pc?.price ?? e.price ?? 0.0) ?? 0) *
+                (quantity - promotion),
           ),
         );
       }
@@ -133,7 +135,8 @@ class HistoryOrderDetailBody extends ConsumerWidget {
               count: promotion,
               price: '0',
               totalPrice: 0.0,
-              name: '${e.name}${promotionName.trim().isNotEmpty ? '\n$promotionName' : ''}'),
+              name:
+                  '${e.name}${promotionName.trim().isNotEmpty ? '\n$promotionName' : ''}'),
         );
       }
     }
@@ -179,7 +182,8 @@ class HistoryOrderDetailBody extends ConsumerWidget {
                   return _buildColumnSpan(index, maxWidth);
                 },
                 rowBuilder: _buildRowSpan,
-                cellBuilder: (context, vicinity) => _buildCell(context, vicinity, productsView),
+                cellBuilder: (context, vicinity) =>
+                    _buildCell(context, vicinity, productsView),
               ),
             ),
             if (item.orderItems.isEmpty)
@@ -239,20 +243,22 @@ class HistoryOrderDetailBody extends ConsumerWidget {
               return SizedBox(
                 width: double.maxFinite,
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 0, top: 12),
+                  padding: const EdgeInsets.only(right: 10, top: 12),
                   child: PriceDataBillPreview(
                     dataBill: billInfo,
                     titleTextAlign: TextAlign.end,
-                    amountMinWidth:
-                        maxWidth * 1.0 * ((colSettings.last['percent'] as double?) ?? 15) / 100,
+                    amountMinWidth: maxWidth *
+                        1.0 *
+                        ((colSettings.last['percent'] as double?) ?? 15) /
+                        100,
                   ),
                 ),
               );
             }),
             Consumer(
               builder: (context, ref, child) {
-                var customer =
-                    ref.watch(historyOrderPageProvider.select((value) => value.customer));
+                var customer = ref.watch(
+                    historyOrderPageProvider.select((value) => value.customer));
                 if (customer == null) return const SizedBox.shrink();
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,10 +277,11 @@ class HistoryOrderDetailBody extends ConsumerWidget {
             const Gap(12),
             Consumer(
               builder: (context, ref, child) {
-                var paymentMethods = ref.watch(historyOrderPageProvider
-                        .select((value) => value.dataBill?.order.listPaymentMethod)) ??
+                var paymentMethods = ref.watch(historyOrderPageProvider.select(
+                        (value) => value.dataBill?.order.listPaymentMethod)) ??
                     [];
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status)) {
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
+                    .contains(item.status)) {
                   return const SizedBox.shrink();
                 }
                 if (paymentMethods.isEmpty) return const SizedBox.shrink();
@@ -307,7 +314,8 @@ class HistoryOrderDetailBody extends ConsumerWidget {
                             enabled: false,
                             readOnly: true,
                             initialValue: AppUtils.formatCurrency(
-                                value: paymentMethods.first.paymentAmount.toDouble()),
+                                value: paymentMethods.first.paymentAmount
+                                    .toDouble()),
                           ),
                         ),
                       ],
@@ -319,19 +327,22 @@ class HistoryOrderDetailBody extends ConsumerWidget {
             const Gap(12),
             Consumer(
               builder: (context, ref, child) {
-                var amountAdult = ref.watch(historyOrderPageProvider
-                        .select((value) => value.dataBill?.order.amountAdult)) ??
+                var amountAdult = ref.watch(historyOrderPageProvider.select(
+                        (value) => value.dataBill?.order.amountAdult)) ??
                     0;
-                var amountChildren = ref.watch(historyOrderPageProvider
-                        .select((value) => value.dataBill?.order.amountChildren)) ??
+                var amountChildren = ref.watch(historyOrderPageProvider.select(
+                        (value) => value.dataBill?.order.amountChildren)) ??
                     0;
-                var description = ref.watch(
-                        historyOrderPageProvider.select((value) => value.dataBill?.description)) ??
+                var description = ref.watch(historyOrderPageProvider
+                        .select((value) => value.dataBill?.description)) ??
                     '';
-                if (amountAdult <= 0 && amountChildren <= 0 && description.trim().isEmpty) {
+                if (amountAdult <= 0 &&
+                    amountChildren <= 0 &&
+                    description.trim().isEmpty) {
                   return const SizedBox.shrink();
                 }
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status)) {
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
+                    .contains(item.status)) {
                   return const SizedBox.shrink();
                 }
                 return Column(
@@ -354,7 +365,8 @@ class HistoryOrderDetailBody extends ConsumerWidget {
                               label: S.current.number_of_people,
                               enabled: false,
                               readOnly: true,
-                              initialValue: (amountAdult + amountChildren).toString(),
+                              initialValue:
+                                  (amountAdult + amountChildren).toString(),
                             ),
                           ),
                         SizedBox(
@@ -431,10 +443,11 @@ class HistoryOrderDetailBody extends ConsumerWidget {
             // ),
             Consumer(
               builder: (context, ref, child) {
-                var imageConfirms = ref.watch(historyOrderPageProvider
-                        .select((value) => value.dataBill?.order.imageConfirms)) ??
+                var imageConfirms = ref.watch(historyOrderPageProvider.select(
+                        (value) => value.dataBill?.order.imageConfirms)) ??
                     [];
-                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status) ||
+                if (![OrderStatusEnum.waiting, OrderStatusEnum.completed]
+                        .contains(item.status) ||
                     imageConfirms.isEmpty) {
                   return const SizedBox.shrink();
                 }
@@ -467,8 +480,8 @@ class HistoryOrderDetailBody extends ConsumerWidget {
     });
   }
 
-  TableViewCell _buildCell(
-      BuildContext context, TableVicinity vicinity, List<ProductCheckoutHistoryModel> products) {
+  TableViewCell _buildCell(BuildContext context, TableVicinity vicinity,
+      List<ProductCheckoutHistoryModel> products) {
     if (vicinity.yIndex == 0) {
       String colTitle = '';
       try {
@@ -484,7 +497,8 @@ class HistoryOrderDetailBody extends ConsumerWidget {
             ? titleAlign
             : colSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
         child: Padding(
-          padding: EdgeInsets.only(right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
+          padding: EdgeInsets.only(
+              right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
           child: Text(
             colTitle,
             maxLines: 2,
@@ -513,7 +527,8 @@ class HistoryOrderDetailBody extends ConsumerWidget {
         child: Align(
       alignment: colSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
       child: Padding(
-        padding: EdgeInsets.only(right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
+        padding: EdgeInsets.only(
+            right: vicinity.xIndex == colSettings.length - 1 ? 10 : 0),
         child: Text(
           contents[xIndex],
           maxLines: 2,
@@ -561,9 +576,11 @@ class HistoryOrderDetailBody extends ConsumerWidget {
       }
       return TableViewCell(
           child: Align(
-        alignment: couponSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
+        alignment:
+            couponSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
         child: Padding(
-          padding: EdgeInsets.only(right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
+          padding: EdgeInsets.only(
+              right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
           child: Text(
             colTitle,
             maxLines: 2,
@@ -586,7 +603,8 @@ class HistoryOrderDetailBody extends ConsumerWidget {
         child: Align(
       alignment: couponSettings[vicinity.xIndex]['align'] as AlignmentGeometry,
       child: Padding(
-        padding: EdgeInsets.only(right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
+        padding: EdgeInsets.only(
+            right: vicinity.xIndex == couponSettings.length - 1 ? 10 : 0),
         child: Text(
           contents[xIndex],
           maxLines: 2,

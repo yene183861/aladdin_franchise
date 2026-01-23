@@ -421,75 +421,8 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
                 ),
               ],
             );
-            // PrintQueue.instance.addTask(
-            //   ip: infoPrinter.ip,
-            //   port: infoPrinter.port,
-            //   buildReceipt: (generator) async {
-            //     List<int> bytes = [];
-            //     List<LineItemDataBill> _itemsPrint = [];
-            //     try {
-            //       for (var e in itemsPrint) {
-            //         _itemsPrint.add(LineItemDataBill(
-            //           name: e.name,
-            //           price: e.price,
-            //           tax: e.tax,
-            //           unit: e.unit,
-            //           count: e.count,
-            //         ));
-            //         if (e.listItem.isNotEmpty) {
-            //           for (var item in e.listItem) {
-            //             _itemsPrint.add(LineItemDataBill(
-            //               name: ' - ${item.name}',
-            //               price: '0',
-            //               tax: '0',
-            //               unit: '',
-            //               count: 0,
-            //             ));
-            //           }
-            //         }
-            //       }
-            //       bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(
-            //         order: order,
-            //         price: price,
-            //         receiptType: ReceiptTypeEnum.paymentReceipt,
-            //         paymentMethod: paymentMethodSelect,
-            //         paymentAmount: paymentAmount,
-            //         numberPrintCompleted: (orderPrint?.numberPrintCompleted ?? 0) + 1,
-            //         numberPrintTemporary: (orderPrint?.numberPrintTemporary ?? 0) + 1,
-            //         orderLineItems: _itemsPrint,
-            //         vouchers: dataBill.vouchers,
-            //         note: dataBill.description,
-            //         printNumberOfPeople: orderPrint?.isPrintPeople ?? false,
-            //         customerPhone: orderPrint?.phoneNumber ?? '',
-            //         numberOfPeople: orderPrint?.amountPeople ?? 0,
-            //         cashierCompleted: orderPrint?.cashierCompleted ?? '',
-            //         cashierPrint: orderPrint?.cashierPrint ?? '',
-            //         timeCompleted: orderPrint?.timeCompleted,
-            //         timeCreatedAt: orderPrint?.createdAt,
-            //         invoiceQr: AppConfig.useInvoiceQr ? '' : '',
-            //       );
-            //       if (bytes.isEmpty) {
-            //         return <int>[];
-            //       } else {
-            //         return bytes;
-            //       }
-            //     } catch (ex) {
-            //       rethrow;
-            //     }
-            //   },
-            //   onComplete: (success, error) {
-            //     if (success) {
-            //       showLogs("✅ In thành công");
-            //     } else {
-            //       resPrint = error;
-            //       showLogs("❌ In thất bại");
 
-            //       if (error != null) {
-            //         showMessageDialog(context, message: error);
-            //       }
-            //     }
-            //   },
-            // );
+            showLogs(resultSend, flags: 'resultSend');
           } catch (ex) {
             resPrint = ex.toString();
             showLogs(ex.toString(), flags: 'in hoàn thành lỗi');
