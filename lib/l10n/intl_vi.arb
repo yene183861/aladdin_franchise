@@ -764,5 +764,6 @@
   "error_price_because_tax_reallocated": "Thông tin hóa đơn sai do chưa được phân bổ lại thuế",
   "action_when_ping_printer_error": "VUI LÒNG KIỂM TRA & ĐẢM BẢO\n- Tablet và máy tính đã kết nối mạng Order\n- Máy in đã bật và không bị kẹt giấy\n- Dây mạng kết nối với máy in đã sáng",
   "unable_connect_printer": "Không kết nối được máy in",
-  "error_print_kitechen_bill": "Không in được bill xuống bếp"
+  "error_print_kitechen_bill": "Không in được bill xuống bếp",
+  "send_to_the_kitchen": "Gửi bếp"
 }

@@ -2,6 +2,7 @@
 /// Created 23/02/2023 at 10:05
 
 import 'package:flutter/material.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 
 class Gap extends StatelessWidget {
   final double? dimension;
@@ -15,7 +16,7 @@ class Gap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
-      dimension: dimension,
+      dimension: (dimension ?? 0).sp,
       child: child,
     );
   }

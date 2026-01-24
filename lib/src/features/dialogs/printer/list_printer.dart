@@ -17,6 +17,7 @@ import 'package:aladdin_franchise/src/utils/subwindows_moniter%20copy.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 Future<PrinterModel?> showPrinterDialog(
   BuildContext context,
@@ -58,8 +59,7 @@ class ListPrintersDialog extends ConsumerStatefulWidget {
   final double width;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _ListPrintersDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _ListPrintersDialogState();
 }
 
 class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
@@ -94,10 +94,9 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
   void initState() {
     super.initState();
     printerSelect.addAll(printerSelect);
-    printerStatusNotifier = ValueNotifier<Map<PrinterModel, bool>>(
-        PrinterMonitor.instance.printerCheck);
-    printerSub =
-        PrinterMonitor.instance.printerBoardcastController.stream.listen(
+    printerStatusNotifier =
+        ValueNotifier<Map<PrinterModel, bool>>(PrinterMonitor.instance.printerCheck);
+    printerSub = PrinterMonitor.instance.printerBoardcastController.stream.listen(
       (event) {
         printerStatusNotifier.value = event;
       },
@@ -120,137 +119,141 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: widget.width,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (widget.title.trim().isNotEmpty)
-              Row(
-                children: [
-                  Icon(
-                    Icons.print,
-                    color: Colors.grey.shade500,
-                  ),
-                  const Gap(4),
-                  Expanded(
-                    child: Text(
-                      widget.title.trim(),
-                      style: AppTextStyle.bold(),
+    bool smallDevice = ResponsiveBreakpoints.of(context).smallerThan(TABLET);
+    return Theme(
+      data: Theme.of(context).copyWith(
+        listTileTheme: const ListTileThemeData(
+          contentPadding: EdgeInsets.zero,
+          horizontalTitleGap: 8,
+          minLeadingWidth: 0,
+          dense: true,
+          minVerticalPadding: 0,
+          visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+        ),
+      ),
+      child: SizedBox(
+        width: widget.width,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (widget.title.trim().isNotEmpty)
+                Row(
+                  children: [
+                    const Icon(Icons.print),
+                    const Gap(8),
+                    Expanded(
+                      child: Text(
+                        widget.title.trim(),
+                        style: AppTextStyle.bold(),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              RadioListTile(
+                value: true,
+                groupValue: useDefaultPrinter,
+                onChanged: (value) {
+                  onChangeUseDefaultPrinter(true);
+                },
+                title: Text(
+                  'Sử dụng máy in mặc định theo món',
+                  style: AppTextStyle.regular(),
+                ),
               ),
-            RadioListTile(
-              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-              value: true,
-              groupValue: useDefaultPrinter,
-              onChanged: (value) {
-                onChangeUseDefaultPrinter(true);
-              },
-              title: Text(
-                'Sử dụng máy in mặc định theo món',
-                style: AppTextStyle.regular(),
-              ),
-            ),
-            RadioListTile(
-              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-              value: false,
-              groupValue: useDefaultPrinter,
-              onChanged: (value) {
-                onChangeUseDefaultPrinter(false);
-              },
-              title: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Chọn máy in khác',
-                      style: AppTextStyle.regular(),
+              RadioListTile(
+                value: false,
+                groupValue: useDefaultPrinter,
+                onChanged: (value) {
+                  onChangeUseDefaultPrinter(false);
+                },
+                title: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Chọn máy in khác',
+                        style: AppTextStyle.regular(),
+                      ),
                     ),
-                  ),
-                  if (!useDefaultPrinter)
-                    Consumer(builder: (context, ref, child) {
-                      var printers = ref.watch(printersProvider);
-                      bool show = printers.when(
-                        data: (data) => true,
-                        error: (error, stackTrace) => true,
-                        loading: () => false,
-                      );
-                      if (!show) return const SizedBox.shrink();
-                      return Tooltip(
-                        message: 'Tải lại danh sách máy in',
-                        child: IconButton(
-                          onPressed: () {
-                            ref.refresh(printersProvider);
-                          },
-                          icon: const Icon(Icons.cloud_sync_outlined),
-                        ),
-                      );
-                    })
-                ],
-              ),
-            ),
-            Expanded(
-              child: useDefaultPrinter
-                  ? Container()
-                  : Consumer(
-                      builder: (context, ref, child) {
+                    if (!useDefaultPrinter)
+                      Consumer(builder: (context, ref, child) {
                         var printers = ref.watch(printersProvider);
-                        return printers.when(
-                          skipError: false,
-                          skipLoadingOnRefresh: false,
-                          skipLoadingOnReload: false,
-                          data: (data) {
-                            if (data.isEmpty) {
-                              return Center(
-                                child: Text(
-                                  'Danh sách máy in trống',
-                                  style: AppTextStyle.regular(
-                                    color: Colors.grey.shade400,
-                                    rawFontSize:
-                                        AppConfig.defaultRawTextSize - 1.0,
+                        bool show = printers.when(
+                          data: (data) => true,
+                          error: (error, stackTrace) => true,
+                          loading: () => false,
+                        );
+                        if (!show) return const SizedBox.shrink();
+                        return Tooltip(
+                          message: 'Tải lại danh sách máy in',
+                          child: IconButton(
+                            onPressed: () {
+                              ref.refresh(printersProvider);
+                            },
+                            icon: const Icon(Icons.cloud_sync_outlined),
+                            style: !smallDevice
+                                ? null
+                                : const ButtonStyle(
+                                    padding: WidgetStatePropertyAll(EdgeInsets.all(0))),
+                          ),
+                        );
+                      })
+                  ],
+                ),
+              ),
+              Expanded(
+                child: useDefaultPrinter
+                    ? Container()
+                    : Consumer(
+                        builder: (context, ref, child) {
+                          var printers = ref.watch(printersProvider);
+                          return printers.when(
+                            skipError: false,
+                            skipLoadingOnRefresh: false,
+                            skipLoadingOnReload: false,
+                            data: (data) {
+                              if (data.isEmpty) {
+                                return Center(
+                                  child: Text(
+                                    'Danh sách máy in trống',
+                                    style: AppTextStyle.regular(
+                                      color: Colors.grey.shade400,
+                                      rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                                    ),
                                   ),
-                                ),
-                              );
-                            }
+                                );
+                              }
 
-                            WidgetsBinding.instance.addPostFrameCallback(
-                              (timeStamp) {
-                                PrinterMonitor.instance.checkPrinters(data);
-                              },
-                            );
-                            return Expanded(
-                              child: ListView.separated(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 4),
+                              WidgetsBinding.instance.addPostFrameCallback(
+                                (timeStamp) {
+                                  PrinterMonitor.instance.checkPrinters(data);
+                                },
+                              );
+                              return ListView.separated(
+                                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
                                 itemCount: data.length,
-                                separatorBuilder: (context, index) =>
-                                    const Gap(12),
+                                separatorBuilder: (context, index) => const Gap(12),
                                 itemBuilder: (context, index) {
                                   var printer = data[index];
-                                  bool selected =
-                                      printerSelect.contains(printer);
+                                  bool selected = printerSelect.contains(printer);
                                   return InkWell(
                                     onTap: () {
                                       onChangePrinterSelect(printer, !selected);
                                     },
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 8),
+                                      padding:
+                                          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         border: Border.all(
                                           color: selected
-                                              ? Color.fromARGB(
-                                                  255, 57, 132, 194)
+                                              ? Color.fromARGB(255, 57, 132, 194)
                                               : Colors.grey.shade200,
                                           width: 1.5,
                                         ),
-                                        borderRadius:
-                                            AppConfig.borderRadiusMain,
+                                        borderRadius: AppConfig.borderRadiusMain,
                                         boxShadow: [
                                           BoxShadow(
                                             color: Colors.grey.withOpacity(0.2),
@@ -260,8 +263,7 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                                         ],
                                       ),
                                       child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           // Icon(
                                           //   Icons.print,
@@ -271,8 +273,7 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                                           // Gap(12),
                                           Expanded(
                                             child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   printer.name,
@@ -281,9 +282,7 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                                                 Text(
                                                   '${printer.ip ?? ''} : ${printer.port ?? ''}',
                                                   style: AppTextStyle.regular(
-                                                    rawFontSize: AppConfig
-                                                            .defaultRawTextSize -
-                                                        1.0,
+                                                    rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                                                     color: Colors.grey.shade400,
                                                   ),
                                                 ),
@@ -349,124 +348,122 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                                           if (selected)
                                             Icon(
                                               Icons.check_circle_rounded,
-                                              color: Color.fromARGB(
-                                                  255, 57, 132, 194),
+                                              color: Color.fromARGB(255, 57, 132, 194),
                                             ),
                                         ],
                                       ),
                                     ),
                                   );
                                 },
-                              ),
-                            );
-                          },
-                          error: (error, stackTrace) {
-                            return Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Tooltip(
-                                    message: 'Nhấn để thử lại',
-                                    child: IconButton(
-                                      onPressed: () {
-                                        ref.refresh(printersProvider);
-                                      },
-                                      icon: Icon(
-                                        Icons.refresh,
-                                        size: 32,
-                                        color: AppColors.redColor,
+                              );
+                            },
+                            error: (error, stackTrace) {
+                              return Center(
+                                child: SingleChildScrollView(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Tooltip(
+                                        message: 'Nhấn để thử lại',
+                                        child: IconButton(
+                                          onPressed: () {
+                                            ref.refresh(printersProvider);
+                                          },
+                                          icon: const Icon(
+                                            Icons.refresh,
+                                            color: AppColors.redColor,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      Text(
+                                        'Không thể tải danh sách máy in',
+                                        style: AppTextStyle.medium(
+                                          rawFontSize: AppConfig.defaultRawTextSize,
+                                          color: AppColors.redColor,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Text(
+                                        error.toString(),
+                                        style: AppTextStyle.regular(
+                                          color: Colors.grey.shade500,
+                                          rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                                        ),
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
                                   ),
-                                  Text(
-                                    'Không thể tải danh sách máy in',
-                                    style: AppTextStyle.medium(
-                                      rawFontSize: AppConfig.defaultRawTextSize,
-                                      color: AppColors.redColor,
-                                    ),
+                                ),
+                              );
+                            },
+                            loading: () {
+                              return Center(
+                                child: SingleChildScrollView(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const SizedBox(
+                                        height: 18,
+                                        width: 18,
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                      const Gap(8),
+                                      Text(
+                                        'Đang tải danh sách máy in',
+                                        style: AppTextStyle.regular(
+                                            rawFontSize: AppConfig.defaultRawTextSize),
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
                                   ),
-                                  Text(
-                                    error.toString(),
-                                    style: AppTextStyle.regular(
-                                      color: Colors.grey.shade500,
-                                      rawFontSize:
-                                          AppConfig.defaultRawTextSize - 1.0,
-                                    ),
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                          loading: () {
-                            return Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                  const Gap(8),
-                                  Text(
-                                    'Đang tải danh sách máy in',
-                                    style: AppTextStyle.regular(
-                                      rawFontSize: AppConfig.defaultRawTextSize,
-                                    ),
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        );
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+              ),
+
+              if (widget.dialog) ...[
+                const Gap(16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const AppCloseButton(),
+                    AppButton(
+                      textAction: 'Lưu',
+                      color: AppColors.secondColor,
+                      onPressed: () {
+                        pop(context);
+                        widget.onChangePrinterConfig?.call(printerSelect, useDefaultPrinter);
                       },
                     ),
-            ),
+                  ],
+                ),
+              ],
+              // const SizedBox(height: 16),
 
-            if (widget.dialog) ...[
-              const Gap(16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  AppButton(
-                    textAction: 'Đóng',
-                    color: Colors.grey.shade400,
-                    onPressed: () {
-                      pop(context);
-                    },
-                  ),
-                  AppButton(
-                    textAction: 'Lưu',
-                    color: AppColors.secondColor,
-                    onPressed: () {
-                      pop(context);
-                      widget.onChangePrinterConfig
-                          ?.call(printerSelect, useDefaultPrinter);
-                    },
-                  ),
-                ],
-              ),
+              // // _buildActions(context), const SizedBox(height: 16),
+              // AppButton(
+              //   textAction: 'Lưu thiết lập',
+              //   color: AppColors.secondColor,
+              //   onPressed: () {
+              //     ref
+              //         .read(cartPageProvider.notifier)
+              //         .mapProductWithPrinter(saveConfigPrinter: true);
+              //   },
+              // ),
             ],
-            // const SizedBox(height: 16),
-
-            // // _buildActions(context), const SizedBox(height: 16),
-            // AppButton(
-            //   textAction: 'Lưu thiết lập',
-            //   color: AppColors.secondColor,
-            //   onPressed: () {
-            //     ref
-            //         .read(cartPageProvider.notifier)
-            //         .mapProductWithPrinter(saveConfigPrinter: true);
-            //   },
-            // ),
-          ],
+          ),
         ),
+        // ),
       ),
-      // ),
     );
   }
 

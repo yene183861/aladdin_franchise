@@ -5,6 +5,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:flutter/material.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 class AppButton extends StatelessWidget {
   final double? widthFactor;
@@ -49,12 +50,20 @@ class AppButton extends StatelessWidget {
         visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
         minWidth: minWidth,
         height: height,
-        shape: shape ?? RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
+        shape: shape ??
+            RoundedRectangleBorder(
+              borderRadius: AppConfig.borderRadiusMain,
+              side: BorderSide(
+                color: onPressed != null
+                    ? (color ?? AppColors.mainColor)
+                    : (disabledColor ?? Colors.grey.shade400),
+              ),
+            ),
         onPressed: onPressed,
         onLongPress: onLongPress,
         color: color ?? AppColors.mainColor,
         textColor: Colors.white,
-        disabledColor: disabledColor ?? AppColors.mainColor,
+        disabledColor: disabledColor ?? Colors.grey.shade400,
         child: Padding(
           padding: padding ?? const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
           child: Row(
@@ -66,9 +75,10 @@ class AppButton extends StatelessWidget {
                   iconData: icon,
                   color: iconColor ?? Colors.white,
                   svgPath: svgPath,
-                  iconSize: iconSize ?? 22,
+                  iconSize:
+                      iconSize ?? (ResponsiveBreakpoints.of(context).smallerThan(TABLET) ? 14 : 18),
                 ),
-                const Gap(4),
+                const Gap(6),
               ],
               Text(
                 textAction ?? S.current.confirm,

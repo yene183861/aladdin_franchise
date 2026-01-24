@@ -7000,6 +7000,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Send to the kitchen`
+  String get send_to_the_kitchen {
+    return Intl.message(
+      'Send to the kitchen',
+      name: 'send_to_the_kitchen',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

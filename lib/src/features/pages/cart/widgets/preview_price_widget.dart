@@ -1,7 +1,6 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/components/order_price_widget.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/order/price_order_widget.dart';
 
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';

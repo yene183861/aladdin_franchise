@@ -764,5 +764,6 @@
   "error_price_because_tax_reallocated": "The invoice information is incorrect because taxes have not been reallocated",
   "action_when_ping_printer_error": "PLEASE CHECK & ENSURE\n- The tablet and computer are connected to the Order network\n- The printer is powered on and not jammed\n- The network cable connected to the printer is active (indicator light is on)",
   "unable_connect_printer": "Unable to connect to the printer",
-  "error_print_kitechen_bill": "Unable to print the kitchen bill"
+  "error_print_kitechen_bill": "Unable to print the kitchen bill",
+  "send_to_the_kitchen": "Send to the kitchen"
 }

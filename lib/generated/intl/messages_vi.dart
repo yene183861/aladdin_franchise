@@ -1029,6 +1029,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "selectedDish": MessageLookupByLibrary.simpleMessage("Món đã gọi"),
         "selectingDish": MessageLookupByLibrary.simpleMessage("Món đang chọn"),
         "send_ticket": MessageLookupByLibrary.simpleMessage("Gửi ticket"),
+        "send_to_the_kitchen": MessageLookupByLibrary.simpleMessage("Gửi bếp"),
         "sending_bill_kitchen":
             MessageLookupByLibrary.simpleMessage("Đang gửi bill xuống bếp..."),
         "sending_command_pos": MessageLookupByLibrary.simpleMessage(

@@ -2,11 +2,11 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/dialog/cancel_product_checkout.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
@@ -25,7 +25,6 @@ void showHistoryOrderItemDialog(BuildContext context) async {
         child: Dialog(
             child: Column(
           children: [
-            const Gap(20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -33,28 +32,25 @@ void showHistoryOrderItemDialog(BuildContext context) async {
                   const Icon(
                     Icons.history,
                     color: AppColors.mainColor,
-                    size: 20,
                   ),
                   const Gap(8),
-                  Text(
-                    'Lịch sử gọi - hủy đồ',
-                    style: AppTextStyle.bold(
-                      rawFontSize: AppConfig.defaultRawTextSize + 1.0,
-                      color: AppColors.mainColor,
+                  Expanded(
+                    child: Text(
+                      'Lịch sử gọi - hủy đồ',
+                      style: AppTextStyle.bold(
+                        rawFontSize: AppConfig.defaultRawTextSize + 1.0,
+                        color: AppColors.mainColor,
+                      ),
                     ),
                   ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  ),
+                  const CloseButton(),
                 ],
               ),
             ),
             Flexible(
               child: Consumer(builder: (context, ref, child) {
-                var orderHistoryData = ref
-                    .watch(homeProvider.select((value) => value.orderHistory));
+                var orderHistoryData =
+                    ref.watch(homeProvider.select((value) => value.orderHistory));
                 var dataView = List<OrderHistory>.from(orderHistoryData);
                 dataView.sort((a, b) => b.createdAt.compareTo(a.createdAt));
                 if (dataView.isEmpty) {
@@ -69,7 +65,6 @@ void showHistoryOrderItemDialog(BuildContext context) async {
                   );
                 }
                 return ScrollablePositionedList.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
                   itemBuilder: (context, index) {
                     var orderTime = dataView[index];
                     bool isCancel = orderTime.products.any((e) => e.cancel);
@@ -83,11 +78,8 @@ void showHistoryOrderItemDialog(BuildContext context) async {
                       child: Column(
                         children: [
                           ListTile(
-                            leading:
-                                const ResponsiveIconWidget(iconData: Icons.tag),
-                            tileColor: isCancel
-                                ? Colors.red.shade50
-                                : Colors.blueGrey.shade50,
+                            leading: const Icon(Icons.tag),
+                            tileColor: isCancel ? Colors.red.shade50 : Colors.blueGrey.shade50,
                             title: Text(
                               "${S.current.turn} ${orderTime.timesOrder} ${isCancel ? " - ${S.current.cancelDish}" : ""}",
                               style: AppTextStyle.medium(),
@@ -96,14 +88,12 @@ void showHistoryOrderItemDialog(BuildContext context) async {
                                 ? null
                                 : Text(
                                     orderTime.notes,
-                                    style: AppTextStyle.medium(),
+                                    style: AppTextStyle.regular(),
                                   ),
                             trailing: Text(
-                              appConfig.dateFormatHhMmSsDDMMYYYY
-                                  .format(orderTime.createdAt),
+                              appConfig.dateFormatHhMmSsDDMMYYYY.format(orderTime.createdAt),
                               style: AppTextStyle.regular(
-                                  rawFontSize:
-                                      AppConfig.defaultRawTextSize - 1.0),
+                                  rawFontSize: AppConfig.defaultRawTextSize - 1.0),
                             ),
                           ),
                           ...orderTime.products.map(
@@ -130,18 +120,16 @@ void showHistoryOrderItemDialog(BuildContext context) async {
                                       ),
                                     ),
                                   ),
-                                  AppConfig.useKds
+                                  LocalStorage.getKdsStatus()
                                       ? Expanded(
                                           flex: 1,
                                           child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
+                                            mainAxisAlignment: MainAxisAlignment.end,
                                             children: [
                                               Text(
                                                 e.cancel
                                                     ? S.current.cancel
-                                                    : appConfig.getNameByStatus(
-                                                        e.status),
+                                                    : appConfig.getNameByStatus(e.status),
                                                 style: AppTextStyle.medium(),
                                               ),
                                               const Gap(12),
@@ -162,6 +150,7 @@ void showHistoryOrderItemDialog(BuildContext context) async {
                 );
               }),
             ),
+            const Gap(16),
           ],
         )),
       );
@@ -178,11 +167,9 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var productCheckout = ref
-        .watch(checkoutPageProvider.select((value) => value.productsCheckout));
+    var productCheckout = ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
 
-    var orderHistoryData =
-        ref.watch(homeProvider.select((value) => value.orderHistory));
+    var orderHistoryData = ref.watch(homeProvider.select((value) => value.orderHistory));
     if (orderHistoryData.isEmpty) return const SizedBox.shrink();
     return Container(
       color: Colors.white,
@@ -190,7 +177,6 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
       child: Row(children: [
         AppButton(
           icon: Icons.history,
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
           textAction: 'Lịch sử gọi - hủy',
           color: Colors.orange,
           onPressed: () async {
@@ -202,7 +188,6 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
           const Gap(12),
           AppButton(
             textAction: 'Hủy món',
-            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
             onPressed: () async {
               await showDialog(
                 context: context,
@@ -212,38 +197,6 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
               );
             },
           ),
-          // InkWell(
-          //   onTap: () async {
-          //     await showDialog(
-          //       context: context,
-          //       builder: (context) {
-          //         return CancelProductCheckoutDialog();
-          //       },
-          //     );
-          //     // var state = ref.read(homeProvider);
-          //     // if (state.displayOrderHistory) return;
-          //     // await onPressedCancelItem(
-          //     //   context,
-          //     //   ref,
-          //     //   productCancel: state.productCheckout,
-          //     // );
-          //   },
-          //   borderRadius: AppConfig.borderRadiusMain,
-          //   child: Container(
-          //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          //     decoration: BoxDecoration(
-          //       color: AppColors.mainColor,
-          //       borderRadius: AppConfig.borderRadiusMain,
-          //     ),
-          //     child: Text(
-          //       'Hủy món',
-          //       style: AppTextStyle.regular(
-          //         rawFontSize: AppConfig.defaultRawTextSize - 1.5,
-          //         color: Colors.white,
-          //       ),
-          //     ),
-          //   ),
-          // ),
         ],
       ]),
     );

@@ -28,6 +28,7 @@ import 'package:aladdin_franchise/src/features/pages/order_to_online/components/
 import 'package:aladdin_franchise/src/features/pages/table_layout/view.dart';
 import 'package:aladdin_franchise/src/features/pages/table_layout/view_test.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
@@ -327,23 +328,23 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool showOrderInfo = !(isMobile || (isTablet && portraitOrientation));
-
+    bool orderDetailSidePanel = ResponsiveBreakpoints.of(context).largerThan(TABLET);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       drawer: const HomeDrawer(),
       body: Stack(
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(viewPadding.left, 0, 0, 0),
+            padding: EdgeInsets.fromLTRB(viewPadding.left, viewPadding.top, 0, 0),
             child: Row(
               children: [
                 const Expanded(flex: 1, child: MenuPage()),
-                !showOrderInfo
-                    ? const SizedBox.shrink()
-                    : Container(
+                orderDetailSidePanel
+                    ? Container(
                         constraints: const BoxConstraints(maxWidth: 500),
                         child: const OrderPanelWidget(),
-                      ),
+                      )
+                    : const SizedBox.shrink(),
               ],
             ),
           ),
@@ -445,12 +446,9 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                           ),
                         ),
                         const Gap(8),
-                        AppButtonWidget(
-                          textAction: 'Thanh toán',
-                          color: AppColors.mainColor,
-                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                          borderRadius: BorderRadius.circular(8),
-                          onTap: () async {
+                        AppButton(
+                          textAction: S.of(context).payment,
+                          onPressed: () async {
                             if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
                               showMessageDialog(context, message: S.current.noOrderSelect);
                               return;
@@ -460,6 +458,21 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                                 .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
                           },
                         ),
+                        // AppButtonWidget(
+                        //   textAction: 'Thanh toán',
+                        //   color: AppColors.mainColor,
+                        //   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        //   borderRadius: BorderRadius.circular(8),
+                        //   onTap: () async {
+                        //     if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
+                        //       showMessageDialog(context, message: S.current.noOrderSelect);
+                        //       return;
+                        //     }
+
+                        //     final OrderModel? order = await Navigator.of(context)
+                        //         .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
+                        //   },
+                        // ),
                         const Gap(8),
                       ]);
                     },

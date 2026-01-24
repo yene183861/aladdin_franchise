@@ -12,6 +12,7 @@ import 'package:aladdin_franchise/src/features/pages/home/components/action/btn_
 import 'package:aladdin_franchise/src/features/pages/home/components/action/history_order.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/action/type_order.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/home/view.dart';
 import 'package:aladdin_franchise/src/features/pages/table_layout/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -27,6 +28,7 @@ import 'package:diacritic/diacritic.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import 'widgets/list_category.dart';
@@ -41,8 +43,7 @@ class MenuPage extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _MenuPageState();
 }
 
-class _MenuPageState extends ConsumerState<MenuPage>
-    with WidgetsBindingObserver {
+class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver {
   late ScrollController _productScrollController;
   late ScrollController _categoryScrollController;
   Map<dynamic, GlobalKey> categoryKeys = {};
@@ -88,9 +89,8 @@ class _MenuPageState extends ConsumerState<MenuPage>
           final pos = box.localToGlobal(Offset.zero);
           if (pos.dy <= 250) {
             if (isSubCategory && item != subCategorySelect) {
-              var category = categories.firstWhereOrNull((e) =>
-                  (e.children ?? []).firstWhereOrNull((i) => i.id == item.id) !=
-                  null);
+              var category = categories.firstWhereOrNull(
+                  (e) => (e.children ?? []).firstWhereOrNull((i) => i.id == item.id) != null);
               if (category != categorySelect) {
                 ref.read(menuProvider.notifier).changeCategorySelect(category);
               }
@@ -121,8 +121,7 @@ class _MenuPageState extends ConsumerState<MenuPage>
         .categoryPositionsListener
         .itemPositions
         .value
-        .where((position) =>
-            position.itemLeadingEdge < 1 && position.itemTrailingEdge > 0)
+        .where((position) => position.itemLeadingEdge < 1 && position.itemTrailingEdge > 0)
         .map((e) => e.index)
         .toList();
     List<dynamic> dataView = List.from(menuCategoryItem);
@@ -141,10 +140,7 @@ class _MenuPageState extends ConsumerState<MenuPage>
     if (!items.contains(item)) {
       var index = dataView.indexOf(item);
       if (index != -1) {
-        ref
-            .read(menuProvider.notifier)
-            .categoryScrollController
-            .jumpTo(index: index);
+        ref.read(menuProvider.notifier).categoryScrollController.jumpTo(index: index);
       }
     }
   }
@@ -187,20 +183,17 @@ class _MenuPageState extends ConsumerState<MenuPage>
 
   @override
   Widget build(BuildContext context) {
-    var categories =
-        ref.watch(menuProvider.select((value) => value.categories));
+    var categories = ref.watch(menuProvider.select((value) => value.categories));
     categoryKeys = ref.read(menuProvider.notifier).categoryKeys;
     var products = ref.watch(menuProvider.select((value) => value.products));
     var tags = ref.watch(menuProvider.select((value) => value.tags));
 
     var productsView = List<ProductModel>.from(products);
-    var keyword =
-        ref.watch(menuProvider.select((value) => value.search)).trim();
+    var keyword = ref.watch(menuProvider.select((value) => value.search)).trim();
     var tagSelect = ref.watch(menuProvider.select((value) => value.tagSelect));
     if (tagSelect != null) {
-      productsView = productsView
-          .where((product) => (product.tags ?? []).contains(tagSelect.id))
-          .toList();
+      productsView =
+          productsView.where((product) => (product.tags ?? []).contains(tagSelect.id)).toList();
     }
     if (keyword.isNotEmpty) {
       var search = removeDiacritics(keyword).toLowerCase();
@@ -217,8 +210,7 @@ class _MenuPageState extends ConsumerState<MenuPage>
       var subCategory = List<SubCategoryModel>.from((cate.children ?? []));
       Map<SubCategoryModel, List<ProductModel>> subCategoryProducts = {};
       for (var subCate in subCategory) {
-        var data =
-            productsView.where((e) => e.categoryId == subCate.id).toList();
+        var data = productsView.where((e) => e.categoryId == subCate.id).toList();
 
         if (data.isNotEmpty) {
           subCategoryProducts[subCate] = data;
@@ -247,8 +239,7 @@ class _MenuPageState extends ConsumerState<MenuPage>
                 crossAxisSpacing: 10,
                 childAspectRatio: 0.8,
               ),
-              itemBuilder: (context, index) =>
-                  ProductBox(product: categoryProducts[index]),
+              itemBuilder: (context, index) => ProductBox(product: categoryProducts[index]),
               itemCount: categoryProducts.length,
             ),
           ));
@@ -262,8 +253,7 @@ class _MenuPageState extends ConsumerState<MenuPage>
               child: Container(
                 key: categoryKeys[key],
                 decoration: const BoxDecoration(color: Colors.white),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
                 alignment: Alignment.centerLeft,
                 child: Text(
                   key.getNameView(),
@@ -280,8 +270,7 @@ class _MenuPageState extends ConsumerState<MenuPage>
                   crossAxisSpacing: 10,
                   childAspectRatio: 0.8,
                 ),
-                itemBuilder: (context, index) =>
-                    ProductBox(product: value[index]),
+                itemBuilder: (context, index) => ProductBox(product: value[index]),
                 itemCount: value.length,
               ),
             ));
@@ -289,17 +278,26 @@ class _MenuPageState extends ConsumerState<MenuPage>
         },
       );
     }
-    bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
-    bool portraitOrientation =
-        AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool isMobile = ResponsiveBreakpoints.of(context).isMobile;
+    bool showLogoRestaurant =
+        !(isMobile && ResponsiveBreakpoints.of(context).orientation == Orientation.portrait);
 
-    bool emptyTags = tags.isEmpty;
+    // bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
+
+    // bool emptyTags = tags.isEmpty;
+
+    // bool orderDetailSidePanel = ResponsiveBreakpoints.of(context).largerThan(TABLET);
     return Column(
       children: [
         Container(
           height: 48 * 2,
           child: Row(
             children: [
+              // if (showLogoRestaurant)
+              //   SizedBox(
+              //     width: showLogoRestaurant ? 60 * (isMobile ? 1 : 2) : 0,
+              //     child: const LogoWidget(),
+              //   ),
               Expanded(
                 child: Column(
                   children: [
@@ -320,8 +318,7 @@ class _MenuPageState extends ConsumerState<MenuPage>
                           const Gap(8),
                           const Expanded(
                             child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 0, vertical: 4),
+                              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 4),
                               child: SearchDish(),
                             ),
                           ),
@@ -411,20 +408,15 @@ class _MenuPageState extends ConsumerState<MenuPage>
                 await Future.delayed(const Duration(milliseconds: 350));
                 // ref.read(homeProvider.notifier).ctrlSearch.text = '';
                 if (category is CategoryModel) {
-                  ref
-                      .read(menuProvider.notifier)
-                      .changeCategorySelect(category);
+                  ref.read(menuProvider.notifier).changeCategorySelect(category);
                   return;
                 }
-                ref
-                    .read(menuProvider.notifier)
-                    .changeSubCategorySelect(category);
+                ref.read(menuProvider.notifier).changeSubCategorySelect(category);
               }),
         ),
         Expanded(
           child: Consumer(builder: (context, ref, child) {
-            var productState =
-                ref.watch(menuProvider.select((value) => value.productState));
+            var productState = ref.watch(menuProvider.select((value) => value.productState));
 
             switch (productState.status) {
               case StatusEnum.normal:

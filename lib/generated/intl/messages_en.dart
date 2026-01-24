@@ -1022,6 +1022,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "selectedDish": MessageLookupByLibrary.simpleMessage("Selected dish"),
         "selectingDish": MessageLookupByLibrary.simpleMessage("Selecting dish"),
         "send_ticket": MessageLookupByLibrary.simpleMessage("Send ticket"),
+        "send_to_the_kitchen":
+            MessageLookupByLibrary.simpleMessage("Send to the kitchen"),
         "sending_bill_kitchen": MessageLookupByLibrary.simpleMessage(
             "Transmitting order to kitchen..."),
         "sending_command_pos": MessageLookupByLibrary.simpleMessage(
