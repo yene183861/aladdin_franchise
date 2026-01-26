@@ -16,13 +16,10 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$CheckoutPageState {
-// @Default({}) Map<int, Map<String, dynamic>> productMap,
   List<ProductCheckoutModel> get productsCheckout =>
       throw _privateConstructorUsedError;
   String get message => throw _privateConstructorUsedError;
-  Set<PrinterModel> get defaultPrinters => throw _privateConstructorUsedError;
-  Set<PrinterModel> get printerSelect =>
-      throw _privateConstructorUsedError; // @Default({}) Set<int> productIdSelect,
+  Set<PrinterModel> get printerSelect => throw _privateConstructorUsedError;
   bool get useDefaultPrinters => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -39,7 +36,6 @@ abstract class $CheckoutPageStateCopyWith<$Res> {
   $Res call(
       {List<ProductCheckoutModel> productsCheckout,
       String message,
-      Set<PrinterModel> defaultPrinters,
       Set<PrinterModel> printerSelect,
       bool useDefaultPrinters});
 }
@@ -59,7 +55,6 @@ class _$CheckoutPageStateCopyWithImpl<$Res, $Val extends CheckoutPageState>
   $Res call({
     Object? productsCheckout = null,
     Object? message = null,
-    Object? defaultPrinters = null,
     Object? printerSelect = null,
     Object? useDefaultPrinters = null,
   }) {
@@ -72,10 +67,6 @@ class _$CheckoutPageStateCopyWithImpl<$Res, $Val extends CheckoutPageState>
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
-      defaultPrinters: null == defaultPrinters
-          ? _value.defaultPrinters
-          : defaultPrinters // ignore: cast_nullable_to_non_nullable
-              as Set<PrinterModel>,
       printerSelect: null == printerSelect
           ? _value.printerSelect
           : printerSelect // ignore: cast_nullable_to_non_nullable
@@ -99,7 +90,6 @@ abstract class _$$CheckoutPageStateImplCopyWith<$Res>
   $Res call(
       {List<ProductCheckoutModel> productsCheckout,
       String message,
-      Set<PrinterModel> defaultPrinters,
       Set<PrinterModel> printerSelect,
       bool useDefaultPrinters});
 }
@@ -117,7 +107,6 @@ class __$$CheckoutPageStateImplCopyWithImpl<$Res>
   $Res call({
     Object? productsCheckout = null,
     Object? message = null,
-    Object? defaultPrinters = null,
     Object? printerSelect = null,
     Object? useDefaultPrinters = null,
   }) {
@@ -130,10 +119,6 @@ class __$$CheckoutPageStateImplCopyWithImpl<$Res>
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
-      defaultPrinters: null == defaultPrinters
-          ? _value._defaultPrinters
-          : defaultPrinters // ignore: cast_nullable_to_non_nullable
-              as Set<PrinterModel>,
       printerSelect: null == printerSelect
           ? _value._printerSelect
           : printerSelect // ignore: cast_nullable_to_non_nullable
@@ -152,16 +137,12 @@ class _$CheckoutPageStateImpl implements _CheckoutPageState {
   const _$CheckoutPageStateImpl(
       {final List<ProductCheckoutModel> productsCheckout = const [],
       this.message = '',
-      final Set<PrinterModel> defaultPrinters = const {},
       final Set<PrinterModel> printerSelect = const {},
       this.useDefaultPrinters = false})
       : _productsCheckout = productsCheckout,
-        _defaultPrinters = defaultPrinters,
         _printerSelect = printerSelect;
 
-// @Default({}) Map<int, Map<String, dynamic>> productMap,
   final List<ProductCheckoutModel> _productsCheckout;
-// @Default({}) Map<int, Map<String, dynamic>> productMap,
   @override
   @JsonKey()
   List<ProductCheckoutModel> get productsCheckout {
@@ -174,15 +155,6 @@ class _$CheckoutPageStateImpl implements _CheckoutPageState {
   @override
   @JsonKey()
   final String message;
-  final Set<PrinterModel> _defaultPrinters;
-  @override
-  @JsonKey()
-  Set<PrinterModel> get defaultPrinters {
-    if (_defaultPrinters is EqualUnmodifiableSetView) return _defaultPrinters;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableSetView(_defaultPrinters);
-  }
-
   final Set<PrinterModel> _printerSelect;
   @override
   @JsonKey()
@@ -192,14 +164,13 @@ class _$CheckoutPageStateImpl implements _CheckoutPageState {
     return EqualUnmodifiableSetView(_printerSelect);
   }
 
-// @Default({}) Set<int> productIdSelect,
   @override
   @JsonKey()
   final bool useDefaultPrinters;
 
   @override
   String toString() {
-    return 'CheckoutPageState(productsCheckout: $productsCheckout, message: $message, defaultPrinters: $defaultPrinters, printerSelect: $printerSelect, useDefaultPrinters: $useDefaultPrinters)';
+    return 'CheckoutPageState(productsCheckout: $productsCheckout, message: $message, printerSelect: $printerSelect, useDefaultPrinters: $useDefaultPrinters)';
   }
 
   @override
@@ -211,8 +182,6 @@ class _$CheckoutPageStateImpl implements _CheckoutPageState {
                 .equals(other._productsCheckout, _productsCheckout) &&
             (identical(other.message, message) || other.message == message) &&
             const DeepCollectionEquality()
-                .equals(other._defaultPrinters, _defaultPrinters) &&
-            const DeepCollectionEquality()
                 .equals(other._printerSelect, _printerSelect) &&
             (identical(other.useDefaultPrinters, useDefaultPrinters) ||
                 other.useDefaultPrinters == useDefaultPrinters));
@@ -223,7 +192,6 @@ class _$CheckoutPageStateImpl implements _CheckoutPageState {
       runtimeType,
       const DeepCollectionEquality().hash(_productsCheckout),
       message,
-      const DeepCollectionEquality().hash(_defaultPrinters),
       const DeepCollectionEquality().hash(_printerSelect),
       useDefaultPrinters);
 
@@ -239,19 +207,16 @@ abstract class _CheckoutPageState implements CheckoutPageState {
   const factory _CheckoutPageState(
       {final List<ProductCheckoutModel> productsCheckout,
       final String message,
-      final Set<PrinterModel> defaultPrinters,
       final Set<PrinterModel> printerSelect,
       final bool useDefaultPrinters}) = _$CheckoutPageStateImpl;
 
-  @override // @Default({}) Map<int, Map<String, dynamic>> productMap,
+  @override
   List<ProductCheckoutModel> get productsCheckout;
   @override
   String get message;
   @override
-  Set<PrinterModel> get defaultPrinters;
-  @override
   Set<PrinterModel> get printerSelect;
-  @override // @Default({}) Set<int> productIdSelect,
+  @override
   bool get useDefaultPrinters;
   @override
   @JsonKey(ignore: true)

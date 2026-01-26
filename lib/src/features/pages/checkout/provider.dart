@@ -11,6 +11,7 @@ import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,47 +28,7 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
   final Ref ref;
   final OrderRepository _orderRepository;
   void init(List<ProductCheckoutModel> products) async {
-    state = CheckoutPageState(productsCheckout: products);
-    await getPrinterDefault();
-  }
-
-  Future<void> getPrinterDefault() async {
-    var order = ref.read(homeProvider).orderSelect;
-    if (order == null) return;
-    try {
-      var printers = await _orderRepository.getIpPrinterOrder(
-        order,
-        [
-          PrinterTypeEnum.total,
-          PrinterTypeEnum.receipt,
-          PrinterTypeEnum.tmp,
-          PrinterTypeEnum.kitchen,
-          PrinterTypeEnum.bar,
-        ].map((e) => e.key).toList(),
-      );
-      var defaultPrinters = printers
-          .map(
-            (e) => PrinterModel(
-                ip: e.ip,
-                port: e.port,
-                name: e.name,
-                defaultPrinter: true,
-                pingStatus: true,
-                type: e.type,
-                typeAreaLocation: e.typeAreaLocation),
-          )
-          .toSet();
-      state = state.copyWith(defaultPrinters: defaultPrinters);
-      checkPrinterStatus();
-    } catch (ex) {
-      //
-    }
-  }
-
-  void checkPrinterStatus([List<PrinterModel>? printers]) {}
-
-  void reset() {
-    state = const CheckoutPageState();
+    state = state.copyWith(productsCheckout: products);
   }
 
   void changeCancelQuantity(ProductCheckoutModel item) {
@@ -98,16 +59,6 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
     Set<ProductModel> foods = <ProductModel>{}, drinks = <ProductModel>{};
     Set<ProductModel> productPrint = {};
     Set<PrinterModel> foodPrinterDefault = <PrinterModel>{}, barPrinterDefault = <PrinterModel>{};
-    for (var item in state.defaultPrinters) {
-      switch (item.type) {
-        case ProductPrinterType.drink:
-          barPrinterDefault.add(item);
-          break;
-        case ProductPrinterType.food:
-          foodPrinterDefault.add(item);
-          break;
-      }
-    }
     try {
       if (showLoading) {
         ref
@@ -116,7 +67,7 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
       }
       if (!ignorePrint) {
         var menu = ref.read(menuProvider);
-        for (var item in state.defaultPrinters) {
+        for (var item in printerSelect) {
           switch (item.type) {
             case ProductPrinterType.drink:
               barPrinterDefault.add(item);
@@ -244,19 +195,3 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
     }
   }
 }
-
-  // void onChangePrinterSelect(PrinterModel item, bool selected) {
-  //   var data = Set<PrinterModel>.from(state.printerSelect);
-  //   if (selected) {
-  //     data.add(item);
-  //   } else {
-  //     data.remove(item);
-  //   }
-
-  //   state = state.copyWith(printerSelect: data);
-  // }
-
-  // void onResetPrinterSelect() {
-  //   state = state.copyWith(printerSelect: {});
-  // }
-// }

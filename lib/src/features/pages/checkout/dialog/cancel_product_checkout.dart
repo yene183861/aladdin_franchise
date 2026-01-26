@@ -118,14 +118,25 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
               )),
               if (!useKds) ...[
                 const VerticalDivider(width: 1),
-                ListPrintersDialog(
-                  width: 400 * (isPhone ? 0.7 : 1.0),
-                  title: 'Máy in hủy',
-                  onChangePrinterConfig: (p0, p1) {
-                    printerSelect = Set<PrinterModel>.from(p0);
-                    useDefaultPrinter = p1;
-                  },
-                ),
+                Consumer(builder: (context, ref, child) {
+                  var items =
+                      ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
+                  Set<int> printerType = {};
+                  for (var item in items) {
+                    if (item.quantityCancel > 0 && item.printerType != null) {
+                      printerType.add(item.printerType!);
+                    }
+                  }
+                  return ListPrintersDialog(
+                    width: 400 * (isPhone ? 0.7 : 1.0),
+                    title: 'Máy in hủy',
+                    onChangePrinterConfig: (p0, p1) {
+                      printerSelect = Set<PrinterModel>.from(p0);
+                      useDefaultPrinter = p1;
+                    },
+                    defaultTypePrinter: printerType,
+                  );
+                }),
               ],
             ],
           )),

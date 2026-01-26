@@ -1,7 +1,7 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/cart/widgets/dialog/confirm_add_items.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/dialog/confirm_add_items.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/locked_order_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_tab_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_item_list_widget.dart';

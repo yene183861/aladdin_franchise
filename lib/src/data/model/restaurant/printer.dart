@@ -13,8 +13,8 @@ class PrinterModel with _$PrinterModel {
     @Default(1) int type,
     @Default('Máy in') String name,
     @Default(1) int typeAreaLocation,
-    @Default(true) @JsonKey(includeFromJson: false, includeToJson: false) bool pingStatus,
-    @Default(false) @JsonKey(includeFromJson: false, includeToJson: false) bool defaultPrinter,
+    // @Default(true) @JsonKey(includeFromJson: false, includeToJson: false) bool pingStatus,
+    // @Default(false) @JsonKey(includeFromJson: false, includeToJson: false) bool defaultPrinter,
   }) = _PrinterModel;
   const PrinterModel._();
 

@@ -3,6 +3,7 @@ class Assets {
   Assets._();
 
   static const String iconsCancelRequestO2o = 'assets/icons/cancel_request_o2o.svg';
+  static const String iconsCard = 'assets/icons/card.svg';
   static const String iconsChat = 'assets/icons/chat.svg';
   static const String iconsComputer = 'assets/icons/computer.svg';
   static const String iconsConfirmRequestO2o = 'assets/icons/confirm_request_o2o.svg';

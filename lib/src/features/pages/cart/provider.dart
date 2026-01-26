@@ -40,49 +40,49 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
   final Ref ref;
   final OrderRepository _orderRepository;
   void init(List<ProductModel> products) async {
-    state = CartPageState(productsSelecting: products);
-    await getPrinterDefault();
+    state = state.copyWith(productsSelecting: products);
+    // await getPrinterDefault();
     // mapProductWithPrinter();
   }
 
-  Future<void> getPrinterDefault() async {
-    var order = ref.read(homeProvider).orderSelect;
-    if (order == null) return;
-    try {
-      var printers = await _orderRepository.getIpPrinterOrder(
-        order,
-        [
-          PrinterTypeEnum.total,
-          PrinterTypeEnum.receipt,
-          PrinterTypeEnum.tmp,
-          PrinterTypeEnum.kitchen,
-          PrinterTypeEnum.bar,
-        ].map((e) => e.key).toList(),
-      );
-      var defaultPrinters = printers
-          .map(
-            (e) => PrinterModel(
-                ip: e.ip,
-                port: e.port,
-                name: e.name,
-                defaultPrinter: true,
-                pingStatus: true,
-                type: e.type,
-                typeAreaLocation: e.typeAreaLocation),
-          )
-          .toSet();
-      state = state.copyWith(defaultPrinters: defaultPrinters);
-      checkPrinterStatus();
-    } catch (ex) {
-      //
-    }
-  }
+  // Future<void> getPrinterDefault() async {
+  //   var order = ref.read(homeProvider).orderSelect;
+  //   if (order == null) return;
+  //   try {
+  //     var printers = await _orderRepository.getIpPrinterOrder(
+  //       order,
+  //       [
+  //         PrinterTypeEnum.total,
+  //         PrinterTypeEnum.receipt,
+  //         PrinterTypeEnum.tmp,
+  //         PrinterTypeEnum.kitchen,
+  //         PrinterTypeEnum.bar,
+  //       ].map((e) => e.key).toList(),
+  //     );
+  //     var defaultPrinters = printers
+  //         .map(
+  //           (e) => PrinterModel(
+  //               ip: e.ip,
+  //               port: e.port,
+  //               name: e.name,
+  //               // defaultPrinter: true,
+  //               // pingStatus: true,
+  //               type: e.type,
+  //               typeAreaLocation: e.typeAreaLocation),
+  //         )
+  //         .toSet();
+  //     state = state.copyWith(defaultPrinters: defaultPrinters);
+  //     checkPrinterStatus();
+  //   } catch (ex) {
+  //     //
+  //   }
+  // }
 
-  void checkPrinterStatus([List<PrinterModel>? printers]) {}
+  // void checkPrinterStatus([List<PrinterModel>? printers]) {}
 
-  void reset() {
-    state = const CartPageState();
-  }
+  // void reset() {
+  //   state = const CartPageState();
+  // }
 
   // void updateEvent([CartPageEvent? event]) {
   //   state = state.copyWith(event: event ?? CartPageEvent.normal);
@@ -286,16 +286,16 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
     bool showLoading = processOrder || !ignorePrint;
     Set<PrinterModel> printers = <PrinterModel>{};
     Set<ProductModel> foods = <ProductModel>{}, drinks = <ProductModel>{};
-    for (var item in products) {
-      switch (item.printerType) {
-        case ProductPrinterType.drink:
-          drinks.add(item);
-          break;
-        case ProductPrinterType.food:
-          foods.add(item);
-          break;
-      }
-    }
+    // for (var item in products) {
+    //   switch (item.printerType) {
+    //     case ProductPrinterType.drink:
+    //       drinks.add(item);
+    //       break;
+    //     case ProductPrinterType.food:
+    //       foods.add(item);
+    //       break;
+    //   }
+    // }
     Set<PrinterModel> foodPrinterDefault = <PrinterModel>{}, barPrinterDefault = <PrinterModel>{};
     try {
       if (showLoading) {
@@ -316,7 +316,7 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
             }
           }
 
-          for (var item in state.defaultPrinters) {
+          for (var item in printerSelect) {
             switch (item.type) {
               case ProductPrinterType.drink:
                 barPrinterDefault.add(item);
@@ -428,24 +428,4 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
 
     state = state.copyWith(productIdSelect: data);
   }
-
-  // void onChangeDisplayPrinterSetupPanel(bool? value) {
-  //   state = state.copyWith(
-  //       showPrinterSetupPanel: value ?? !state.showPrinterSetupPanel);
-  // }
-
-  // void onChangePrinterSelect(PrinterModel item, bool selected) {
-  //   var data = Set<PrinterModel>.from(state.printerSelect);
-  //   if (selected) {
-  //     data.add(item);
-  //   } else {
-  //     data.remove(item);
-  //   }
-
-  //   state = state.copyWith(printerSelect: data);
-  // }
-
-  // void onResetPrinterSelect() {
-  //   state = state.copyWith(printerSelect: {});
-  // }
 }

@@ -24,6 +24,7 @@ import 'package:aladdin_franchise/src/core/network/repository/user/user_repo_imp
 import 'package:aladdin_franchise/src/core/network/repository/user/user_repository.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
+import 'package:aladdin_franchise/src/data/enum/printer_type.dart';
 import 'package:aladdin_franchise/src/data/model/notification.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/o2o_config.dart';
 import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
@@ -315,4 +316,31 @@ final o2oConfigProvider = FutureProvider<O2oConfigModel>((ref) async {
 final printersProvider = FutureProvider<List<PrinterModel>>((ref) async {
   var result = await ref.read(restaurantRepositoryProvider).getListPrinters();
   return result;
+});
+
+final printerByOrderProvider = FutureProvider.autoDispose<List<PrinterModel>>((ref) async {
+  var order = ref.watch(homeProvider.select((value) => value.orderSelect));
+  if (order == null) return [];
+  var result = await ref.read(orderRepositoryProvider).getIpPrinterOrder(
+        order,
+        [
+          PrinterTypeEnum.total,
+          PrinterTypeEnum.receipt,
+          PrinterTypeEnum.tmp,
+          PrinterTypeEnum.kitchen,
+          PrinterTypeEnum.bar,
+        ].map((e) => e.key).toList(),
+      );
+  var defaultPrinters = result
+      .map(
+        (e) => PrinterModel(
+          ip: e.ip,
+          port: e.port,
+          name: e.name,
+          type: e.type,
+          typeAreaLocation: e.typeAreaLocation,
+        ),
+      )
+      .toList();
+  return defaultPrinters;
 });

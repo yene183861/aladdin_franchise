@@ -711,6 +711,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
                   data: jsonEncode(data.toJson()),
                   title: title,
                   body: body,
+                  viewed: false,
+                  read: false,
                 ),
               );
             } catch (ex) {

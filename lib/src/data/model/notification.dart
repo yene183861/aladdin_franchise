@@ -1,4 +1,5 @@
 import 'package:aladdin_franchise/generated/assets.dart';
+import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
 import 'package:aladdin_franchise/src/data/enum/print_type.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
@@ -24,23 +25,27 @@ extension NotificationTypeEnumExt on NotificationTypeEnum {
   String get icon {
     switch (this) {
       case NotificationTypeEnum.print:
-        return Assets.iconsChat;
+        return Assets.iconsPrinter;
       case NotificationTypeEnum.o2oPayment:
-        return Assets.iconsChat;
+        return Assets.iconsCard;
       case NotificationTypeEnum.o2oWaiter:
-        return Assets.iconsChat;
+        return Assets.iconsTray;
+      case NotificationTypeEnum.other:
+        return Assets.iconsTray;
       default:
-        return Assets.iconsChat;
+        return Assets.iconsTray;
     }
   }
 
   Color? get color {
     switch (this) {
       case NotificationTypeEnum.print:
-        return Colors.white;
-      case NotificationTypeEnum.print:
-        return Colors.white;
-      case NotificationTypeEnum.print:
+        return Colors.red;
+      case NotificationTypeEnum.o2oPayment:
+        return AppColors.secondColor;
+      case NotificationTypeEnum.o2oWaiter:
+        return Color.fromARGB(255, 34, 118, 227);
+      case NotificationTypeEnum.other:
         return Colors.white;
 
       default:
@@ -48,19 +53,33 @@ extension NotificationTypeEnumExt on NotificationTypeEnum {
     }
   }
 
-  Color? get readColor {
-    switch (this) {
-      case NotificationTypeEnum.print:
-        return Colors.red;
-      case NotificationTypeEnum.print:
-        return Colors.red;
-      case NotificationTypeEnum.print:
-        return Colors.red;
+  // Color? get readColor {
+  //   switch (this) {
+  //     case NotificationTypeEnum.print:
+  //       return Colors.red;
+  //     case NotificationTypeEnum.print:
+  //       return Colors.red;
+  //     case NotificationTypeEnum.print:
+  //       return Colors.red;
 
-      default:
-        return null;
-    }
-  }
+  //     default:
+  //       return null;
+  //   }
+  // }
+
+  // Color? get bgColor {
+  //   switch (this) {
+  //     case NotificationTypeEnum.print:
+  //       return Colors.red;
+  //     case NotificationTypeEnum.print:
+  //       return Colors.red;
+  //     case NotificationTypeEnum.print:
+  //       return Colors.red;
+
+  //     default:
+  //       return null;
+  //   }
+  // }
 }
 
 enum PrintStatusEnum {

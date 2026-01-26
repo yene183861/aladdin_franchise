@@ -27,7 +27,7 @@ class CartPageState with _$CartPageState {
     // @Default(false) bool showPrinterSetupPanel,
     // @Default({}) Set<int> productIdSelect,
     // @Default({}) Map<int, Map<String, dynamic>> productMap,
-    @Default({}) Set<PrinterModel> defaultPrinters,
+    // @Default({}) Set<PrinterModel> defaultPrinters,
     // @Default({}) Set<PrinterModel> printerSelect,
     @Default({}) Set<int> productIdSelect,
   }) = _CartPageState;

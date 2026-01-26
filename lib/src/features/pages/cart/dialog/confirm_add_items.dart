@@ -114,14 +114,25 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
               )),
               if (!useKds) ...[
                 const VerticalDivider(width: 1),
-                ListPrintersDialog(
-                  width: 400 * (isPhone ? 0.7 : 1.0),
-                  title: 'Tùy chọn máy in',
-                  onChangePrinterConfig: (p0, p1) {
-                    printerSelect = Set<PrinterModel>.from(p0);
-                    useDefaultPrinter = p1;
-                  },
-                ),
+                Consumer(builder: (context, ref, child) {
+                  var items =
+                      ref.watch(cartPageProvider.select((value) => value.productsSelecting));
+                  Set<int> printerType = {};
+                  for (var item in items) {
+                    if (item.numberSelecting > 0 && item.printerType != null) {
+                      printerType.add(item.printerType!);
+                    }
+                  }
+                  return ListPrintersDialog(
+                    width: 400 * (isPhone ? 0.7 : 1.0),
+                    title: 'Tùy chọn máy in',
+                    onChangePrinterConfig: (p0, p1) {
+                      printerSelect = Set<PrinterModel>.from(p0);
+                      useDefaultPrinter = p1;
+                    },
+                    defaultTypePrinter: printerType,
+                  );
+                }),
               ],
             ],
           )),

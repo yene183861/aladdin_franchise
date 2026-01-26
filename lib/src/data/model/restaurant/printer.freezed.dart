@@ -25,10 +25,6 @@ mixin _$PrinterModel {
   int get type => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   int get typeAreaLocation => throw _privateConstructorUsedError;
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  bool get pingStatus => throw _privateConstructorUsedError;
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  bool get defaultPrinter => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -43,14 +39,7 @@ abstract class $PrinterModelCopyWith<$Res> {
       _$PrinterModelCopyWithImpl<$Res, PrinterModel>;
   @useResult
   $Res call(
-      {String? ip,
-      int? port,
-      int type,
-      String name,
-      int typeAreaLocation,
-      @JsonKey(includeFromJson: false, includeToJson: false) bool pingStatus,
-      @JsonKey(includeFromJson: false, includeToJson: false)
-      bool defaultPrinter});
+      {String? ip, int? port, int type, String name, int typeAreaLocation});
 }
 
 /// @nodoc
@@ -71,8 +60,6 @@ class _$PrinterModelCopyWithImpl<$Res, $Val extends PrinterModel>
     Object? type = null,
     Object? name = null,
     Object? typeAreaLocation = null,
-    Object? pingStatus = null,
-    Object? defaultPrinter = null,
   }) {
     return _then(_value.copyWith(
       ip: freezed == ip
@@ -95,14 +82,6 @@ class _$PrinterModelCopyWithImpl<$Res, $Val extends PrinterModel>
           ? _value.typeAreaLocation
           : typeAreaLocation // ignore: cast_nullable_to_non_nullable
               as int,
-      pingStatus: null == pingStatus
-          ? _value.pingStatus
-          : pingStatus // ignore: cast_nullable_to_non_nullable
-              as bool,
-      defaultPrinter: null == defaultPrinter
-          ? _value.defaultPrinter
-          : defaultPrinter // ignore: cast_nullable_to_non_nullable
-              as bool,
     ) as $Val);
   }
 }
@@ -116,14 +95,7 @@ abstract class _$$PrinterModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String? ip,
-      int? port,
-      int type,
-      String name,
-      int typeAreaLocation,
-      @JsonKey(includeFromJson: false, includeToJson: false) bool pingStatus,
-      @JsonKey(includeFromJson: false, includeToJson: false)
-      bool defaultPrinter});
+      {String? ip, int? port, int type, String name, int typeAreaLocation});
 }
 
 /// @nodoc
@@ -142,8 +114,6 @@ class __$$PrinterModelImplCopyWithImpl<$Res>
     Object? type = null,
     Object? name = null,
     Object? typeAreaLocation = null,
-    Object? pingStatus = null,
-    Object? defaultPrinter = null,
   }) {
     return _then(_$PrinterModelImpl(
       ip: freezed == ip
@@ -166,14 +136,6 @@ class __$$PrinterModelImplCopyWithImpl<$Res>
           ? _value.typeAreaLocation
           : typeAreaLocation // ignore: cast_nullable_to_non_nullable
               as int,
-      pingStatus: null == pingStatus
-          ? _value.pingStatus
-          : pingStatus // ignore: cast_nullable_to_non_nullable
-              as bool,
-      defaultPrinter: null == defaultPrinter
-          ? _value.defaultPrinter
-          : defaultPrinter // ignore: cast_nullable_to_non_nullable
-              as bool,
     ));
   }
 }
@@ -187,11 +149,7 @@ class _$PrinterModelImpl extends _PrinterModel {
       this.port,
       this.type = 1,
       this.name = 'Máy in',
-      this.typeAreaLocation = 1,
-      @JsonKey(includeFromJson: false, includeToJson: false)
-      this.pingStatus = true,
-      @JsonKey(includeFromJson: false, includeToJson: false)
-      this.defaultPrinter = false})
+      this.typeAreaLocation = 1})
       : super._();
 
   factory _$PrinterModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -210,16 +168,10 @@ class _$PrinterModelImpl extends _PrinterModel {
   @override
   @JsonKey()
   final int typeAreaLocation;
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  final bool pingStatus;
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  final bool defaultPrinter;
 
   @override
   String toString() {
-    return 'PrinterModel(ip: $ip, port: $port, type: $type, name: $name, typeAreaLocation: $typeAreaLocation, pingStatus: $pingStatus, defaultPrinter: $defaultPrinter)';
+    return 'PrinterModel(ip: $ip, port: $port, type: $type, name: $name, typeAreaLocation: $typeAreaLocation)';
   }
 
   @JsonKey(ignore: true)
@@ -242,11 +194,7 @@ abstract class _PrinterModel extends PrinterModel {
       final int? port,
       final int type,
       final String name,
-      final int typeAreaLocation,
-      @JsonKey(includeFromJson: false, includeToJson: false)
-      final bool pingStatus,
-      @JsonKey(includeFromJson: false, includeToJson: false)
-      final bool defaultPrinter}) = _$PrinterModelImpl;
+      final int typeAreaLocation}) = _$PrinterModelImpl;
   const _PrinterModel._() : super._();
 
   factory _PrinterModel.fromJson(Map<String, dynamic> json) =
@@ -262,12 +210,6 @@ abstract class _PrinterModel extends PrinterModel {
   String get name;
   @override
   int get typeAreaLocation;
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  bool get pingStatus;
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  bool get defaultPrinter;
   @override
   @JsonKey(ignore: true)
   _$$PrinterModelImplCopyWith<_$PrinterModelImpl> get copyWith =>
