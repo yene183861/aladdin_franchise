@@ -26,9 +26,9 @@ class LockedOrderWidget extends ConsumerWidget {
               color: AppColors.secondColor,
               textAction: S.current.unlock,
               onPressed: () {
-                ref.read(homeProvider.notifier).unlockOrder(
-                      messageError: S.current.msg_id_device_to_unlock_order,
-                    );
+                // ref.read(homeProvider.notifier).unlockOrder(
+                //       messageError: S.current.msg_id_device_to_unlock_order,
+                //     );
               },
             ),
           ),

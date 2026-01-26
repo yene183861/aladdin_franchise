@@ -130,12 +130,12 @@ class _OrderToOnlinePageState extends ConsumerState<OrderToOnlinePage> {
                 o2oConfig,
               );
               showLogs(config, flags: 'config');
-              if (config != null) {
-                var result = await ref.read(homeProvider.notifier).saveO2oAutoProcessConfig(config);
-                if (result != null) {
-                  showMessageDialog(context, message: result);
-                }
-              }
+              // if (config != null) {
+              //   var result = await ref.read(homeProvider.notifier).saveO2oAutoProcessConfig(config);
+              //   if (result != null) {
+              //     showMessageDialog(context, message: result);
+              //   }
+              // }
             },
           ),
         ],

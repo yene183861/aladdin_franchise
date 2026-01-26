@@ -2,11 +2,12 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
-import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
-import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/models/order_invoice/order_invoice.dart';
@@ -16,8 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-
-import 'error.dart';
 
 Future<void> showCreateInvoiceOrderDialog(BuildContext context,
     {OrderInvoice? orderInvoice}) async {
@@ -51,32 +50,75 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
       ctrlPhone,
       ctrlDvqhnsCode,
       ctrlCCCD;
-  bool isRequiredData = true;
-  bool isRequiredTaxCode = true;
+
+  late ValueNotifier<String?> errorTaxCode;
+  late ValueNotifier<bool> requireTaxCode;
+  late ValueNotifier<bool> requireData;
 
   @override
   void initState() {
     super.initState();
-    ctrlName = TextEditingController(text: widget.orderInvoice?.name);
-    ctrlTax = TextEditingController(text: widget.orderInvoice?.taxCode);
-    ctrlCompanyName = TextEditingController(text: widget.orderInvoice?.companyName);
-    ctrlAddress = TextEditingController(text: widget.orderInvoice?.address);
-    ctrlEmail = TextEditingController(text: widget.orderInvoice?.email);
-    ctrlBank = TextEditingController(text: widget.orderInvoice?.bank);
-    ctrlBankNumber = TextEditingController(text: widget.orderInvoice?.accountNumber);
-    ctrlPhone = TextEditingController(text: widget.orderInvoice?.phone);
-    ctrlDvqhnsCode = TextEditingController(text: widget.orderInvoice?.maDvqhns);
-    ctrlCCCD = TextEditingController(text: widget.orderInvoice?.cccdan);
-    isRequiredData = widget.orderInvoice?.isValidate ?? true;
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      setState(() {
-        isRequiredTaxCode = widget.orderInvoice?.maDvqhns.isEmpty ?? true;
-      });
-    });
+    ctrlName = TextEditingController();
+    ctrlTax = TextEditingController();
+    ctrlCompanyName = TextEditingController();
+    ctrlAddress = TextEditingController();
+    ctrlEmail = TextEditingController();
+    ctrlBank = TextEditingController();
+    ctrlBankNumber = TextEditingController();
+    ctrlPhone = TextEditingController();
+    ctrlDvqhnsCode = TextEditingController();
+    ctrlCCCD = TextEditingController();
+    errorTaxCode = ValueNotifier<String?>(null);
+    requireTaxCode = ValueNotifier<bool>(true);
+    requireData = ValueNotifier<bool>(true);
+    _onChangeUI(widget.orderInvoice);
+  }
+
+  @override
+  void dispose() {
+    ctrlName.dispose();
+    ctrlTax.dispose();
+    ctrlCompanyName.dispose();
+    ctrlAddress.dispose();
+    ctrlEmail.dispose();
+    ctrlBank.dispose();
+    ctrlBankNumber.dispose();
+    ctrlPhone.dispose();
+    ctrlDvqhnsCode.dispose();
+    ctrlCCCD.dispose();
+    errorTaxCode.dispose();
+    requireTaxCode.dispose();
+    requireData.dispose();
+    super.dispose();
+  }
+
+  _listenOrderInvoice(BuildContext context, WidgetRef ref) =>
+      (OrderInvoice? previous, OrderInvoice? next) {
+        _onChangeUI(next);
+      };
+
+  void _onChangeUI(OrderInvoice? invoice) {
+    ctrlName.text = invoice?.name ?? '';
+    ctrlTax.text = invoice?.taxCode ?? '';
+    ctrlCompanyName.text = invoice?.companyName ?? '';
+    ctrlAddress.text = invoice?.address ?? '';
+    ctrlEmail.text = invoice?.email ?? '';
+    ctrlBank.text = invoice?.bank ?? '';
+    ctrlBankNumber.text = invoice?.accountNumber ?? '';
+    ctrlPhone.text = invoice?.phone ?? '';
+    ctrlDvqhnsCode.text = invoice?.maDvqhns ?? '';
+    ctrlCCCD.text = invoice?.cccdan ?? '';
+
+    requireData.value = invoice?.isValidate ?? true;
+    requireTaxCode.value = invoice?.maDvqhns.isEmpty ?? true;
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<OrderInvoice?>(
+      checkoutPageProvider.select((value) => value.invoice),
+      _listenOrderInvoice(context, ref),
+    );
     var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     bool enable = !lockedOrder;
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
@@ -88,13 +130,14 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
               widget.orderInvoice == null
                   ? S.current.add_invoice_information
                   : S.current.update_invoice_information,
-              style: AppTextStyle.bold(),
+              style: AppTextStyle.bold(rawFontSize: AppConfig.defaultRawTextSize + 1.0),
             ),
           ),
           const CloseButton(),
         ],
       ),
-      contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      contentPadding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+      actionsPadding: const EdgeInsets.all(16),
       content: SizedBox(
         width: isMobile ? 95.w : 50.w,
         child: Form(
@@ -110,29 +153,58 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
                   enabled: enable,
                 ),
                 const GapH(12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: AppTextFormField(
-                        label: S.current.tax_code,
-                        textInputAction: TextInputAction.next,
-                        textController: ctrlTax,
-                        required: isRequiredTaxCode,
-                        enabled: enable,
-                        validator: isRequiredTaxCode
-                            ? (value) => FieldValidationUtils.checkRequired(value)
-                            : null,
+                SizedBox(
+                  height: 58,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: ValueListenableBuilder(
+                            valueListenable: requireTaxCode,
+                            builder: (context, require, child) {
+                              return AppTextFormField(
+                                label: S.current.tax_code,
+                                textInputAction: TextInputAction.next,
+                                textController: ctrlTax,
+                                required: require,
+                                enabled: enable,
+                                validator: (value) {
+                                  if (require) {
+                                    var check = FieldValidationUtils.checkRequired(value);
+                                    WidgetsBinding.instance.addPostFrameCallback(
+                                      (timeStamp) {
+                                        errorTaxCode.value = check;
+                                      },
+                                    );
+                                  }
+                                  return null;
+                                },
+                              );
+                            }),
                       ),
-                    ),
-                    if (enable) ...[
-                      const GapW(12),
-                      ButtonSimpleWidget(
+                      const Gap(12),
+                      AppButton(
                         onPressed: () => _onSearchTax(),
                         textAction: S.current.search,
                         color: AppColors.secondColor,
                       ),
                     ],
-                  ],
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ValueListenableBuilder(
+                      valueListenable: errorTaxCode,
+                      builder: (context, value, child) {
+                        if ((value ?? '').trim().isEmpty) return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Text(
+                            (value ?? '').trim(),
+                            style: AppTextStyle.regular(color: AppColors.redColor),
+                          ),
+                        );
+                      }),
                 ),
                 const Gap(12),
                 AppTextFormField(
@@ -152,12 +224,15 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
                     if (value.length != 7) {
                       return 'Mã không hợp lệ. Mã phải có 7 chữ số';
                     }
+
                     return null;
                   },
                   onChanged: (text) {
-                    setState(() {
-                      isRequiredTaxCode = text.trim().isEmpty;
-                    });
+                    WidgetsBinding.instance.addPostFrameCallback(
+                      (timeStamp) {
+                        requireTaxCode.value = text.trim().isEmpty;
+                      },
+                    );
                   },
                 ),
                 const GapH(12),
@@ -200,16 +275,32 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
                   validator: (value) => FieldValidationUtils.checkRequired(value),
                 ),
                 const GapH(12),
-                AppTextFormField(
-                  textController: ctrlEmail,
-                  label: S.current.email,
-                  textInputAction: TextInputAction.next,
-                  textInputType: TextInputType.emailAddress,
-                  required: isRequiredData,
-                  enabled: enable,
-                  validator:
-                      isRequiredData ? (value) => FieldValidationUtils.validateEmail(value) : null,
-                ),
+                ValueListenableBuilder(
+                    valueListenable: requireData,
+                    builder: (context, require, child) {
+                      return AppTextFormField(
+                        key: UniqueKey(),
+                        label: S.current.email,
+                        textInputAction: TextInputAction.next,
+                        textInputType: TextInputType.emailAddress,
+                        textController: ctrlEmail,
+                        required: require,
+                        enabled: enable,
+                        validator: (value) {
+                          return require ? FieldValidationUtils.validateEmail(value) : null;
+                        },
+                      );
+                    }),
+                // AppTextFormField(
+                //   textController: ctrlEmail,
+                //   label: S.current.email,
+                //   textInputAction: TextInputAction.next,
+                //   textInputType: TextInputType.emailAddress,
+                //   required: isRequiredData,
+                //   enabled: enable,
+                //   validator:
+                //       isRequiredData ? (value) => FieldValidationUtils.validateEmail(value) : null,
+                // ),
                 const GapH(12),
                 AppTextFormField(
                   textController: ctrlBank,
@@ -225,68 +316,83 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
                   enabled: enable,
                 ),
                 const GapH(12),
-                AppTextFormField(
-                  textController: ctrlPhone,
-                  label: S.current.phone,
-                  textInputAction: TextInputAction.done,
-                  textInputType: TextInputType.number,
-                  enabled: enable,
-                  required: isRequiredData,
-                  validator:
-                      isRequiredData ? (value) => FieldValidationUtils.checkRequired(value) : null,
-                  maxLength: 12,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                ),
-                const GapH(32),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    const AppCloseButton(),
-                    // ButtonCancelWidget(
-                    //   onPressed: () => Navigator.pop(context),
-                    //   textAction: S.current.close,
-                    // ),
-                    if (widget.orderInvoice != null &&
-                        !widget.orderInvoice!.isEmpty() &&
-                        enable) ...[
-                      const GapW(8),
-                      ButtonSimpleWidget(
-                        onPressed: () async {
-                          final result = await ref.read(homeProvider.notifier).onUpdateOrderInvoice(
-                                const OrderInvoice(),
-                                isUpdate: widget.orderInvoice != null,
-                              );
-                          if (result) {
-                            Navigator.pop(context);
-                          }
+                ValueListenableBuilder(
+                    valueListenable: requireData,
+                    builder: (context, require, child) {
+                      return AppTextFormField(
+                        key: UniqueKey(),
+                        textController: ctrlPhone,
+                        label: S.current.phone,
+                        textInputAction: TextInputAction.done,
+                        textInputType: TextInputType.number,
+                        required: require,
+                        enabled: enable,
+                        maxLength: 12,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        validator: (value) {
+                          return require ? FieldValidationUtils.checkRequired(value) : null;
                         },
-                        color: AppColors.secondColor,
-                        textAction: S.current.delete_info,
-                      ),
-                    ],
-                    if (enable) ...[
-                      const GapW(8),
-                      ButtonSimpleWidget(
-                        onPressed: _onConfirm,
-                      ),
-                    ],
-                  ],
-                ),
-                const GapH(24),
+                      );
+                    }),
+                // AppTextFormField(
+                //   textController: ctrlPhone,
+                //   label: S.current.phone,
+                //   textInputAction: TextInputAction.done,
+                //   textInputType: TextInputType.number,
+                //   enabled: enable,
+                //   required: isRequiredData,
+                //   validator:
+                //       isRequiredData ? (value) => FieldValidationUtils.checkRequired(value) : null,
+                //   maxLength: 12,
+                //   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                // ),
+                // const GapH(12),
               ],
             ),
           ),
         ),
       ),
+      actionsAlignment: MainAxisAlignment.spaceAround,
+      actions: [
+        Consumer(
+          builder: (context, ref, child) {
+            var invoice = ref.watch(checkoutPageProvider.select((value) => value.invoice));
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                const AppCloseButton(),
+                if (!(invoice?.isEmpty() ?? true))
+                  AppButton(
+                    onPressed: () async {
+                      showConfirmAction(
+                        context,
+                        message: 'Bạn có chắc chắn muốn xoá thông tin hoá đơn?',
+                        action: () async {
+                          await ref.read(checkoutPageProvider.notifier).onUpdateOrderInvoice(
+                                const OrderInvoice(),
+                                isUpdate: widget.orderInvoice != null,
+                              );
+                        },
+                      );
+                    },
+                    color: AppColors.secondColor,
+                    textAction: S.current.delete_info,
+                  ),
+                AppButton(onPressed: _onConfirm),
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
 
   Future<void> _onSearchTax() async {
     final String taxCode = ctrlTax.text.trim();
     if (taxCode.isNotEmpty) {
-      final result = await ref.read(homeProvider.notifier).searchTaxCodeInfo(taxCode);
-      final minvoice = result.$1;
-      final error = result.$2;
+      final result = await ref.read(checkoutPageProvider.notifier).searchTaxCodeInfo(taxCode);
+      final minvoice = result.mInvoiceInfo;
+      final error = result.error;
       if (minvoice != null) {
         ctrlName.text = minvoice.name;
         ctrlCompanyName.text = minvoice.companyName;
@@ -295,16 +401,14 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
         ctrlBank.text = minvoice.bank;
         ctrlBankNumber.text = minvoice.accountNumber;
         ctrlPhone.text = minvoice.phone;
-        setState(() {
-          isRequiredData = minvoice.isValidate;
-        });
+
+        WidgetsBinding.instance.addPostFrameCallback(
+          (timeStamp) {
+            requireData.value = minvoice.isValidate;
+          },
+        );
       } else {
         if (context.mounted) {
-          // await showErrorDialog(
-          //   context,
-          //   message: error.toString(),
-          //   isNotifier: true,
-          // );
           showMessageDialog(
             context,
             message: error.toString(),
@@ -316,6 +420,7 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
 
   Future<void> _onConfirm() async {
     if (_formKey.currentState!.validate()) {
+      if ((errorTaxCode.value ?? '').trim().isNotEmpty) return;
       final OrderInvoice invoice = OrderInvoice(
         name: ctrlName.text.trim(),
         taxCode: ctrlTax.text.trim(),
@@ -325,22 +430,14 @@ class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderD
         bank: ctrlBank.text.trim(),
         accountNumber: ctrlBankNumber.text.trim(),
         phone: ctrlPhone.text.trim(),
-        isValidate: isRequiredData,
+        isValidate: requireData.value,
         maDvqhns: ctrlDvqhnsCode.text.trim(),
         cccdan: ctrlCCCD.text.trim(),
       );
-      final result = await ref.read(homeProvider.notifier).onUpdateOrderInvoice(
+      await ref.read(checkoutPageProvider.notifier).onUpdateOrderInvoice(
             invoice,
             isUpdate: widget.orderInvoice != null,
           );
-      if (result) {
-        Navigator.pop(context);
-      }
-    } else {
-      showMessageDialog(
-        context,
-        message: S.current.require_enter_info,
-      );
     }
   }
 }

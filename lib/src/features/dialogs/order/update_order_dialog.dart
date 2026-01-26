@@ -89,28 +89,20 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
             });
             var messageView = "Đơn bàn hiện tại [${orderSelect?.name}]";
 
-            List<TableModel> tableNewSelect = tableSelected
-                .where((element) => !tableCurrentSelect.contains(element))
-                .toList();
+            List<TableModel> tableNewSelect =
+                tableSelected.where((element) => !tableCurrentSelect.contains(element)).toList();
 
-            List<TableModel> tableRemoveSelect = tableCurrentSelect
-                .where((element) => !tableSelected.contains(element))
-                .toList();
-            if (tableCurrentSelect
-                    .every((element) => tableSelected.contains(element)) &&
+            List<TableModel> tableRemoveSelect =
+                tableCurrentSelect.where((element) => !tableSelected.contains(element)).toList();
+            if (tableCurrentSelect.every((element) => tableSelected.contains(element)) &&
                 tableNewSelect.isNotEmpty) {
-              messageView +=
-                  " gộp thêm bàn ${tableNewSelect.map((e) => e.name).toList()}";
-            } else if (tableSelected
-                    .any((element) => tableCurrentSelect.contains(element)) &&
+              messageView += " gộp thêm bàn ${tableNewSelect.map((e) => e.name).toList()}";
+            } else if (tableSelected.any((element) => tableCurrentSelect.contains(element)) &&
                 tableRemoveSelect.isNotEmpty &&
                 tableNewSelect.isEmpty) {
-              messageView +=
-                  " bỏ bàn ${tableRemoveSelect.map((e) => e.name).toList()}";
-            } else if (tableSelected
-                .any((element) => !tableCurrentSelect.contains(element))) {
-              messageView +=
-                  " được chuyển thành ${tableSelected.map((e) => e.name).toList()}";
+              messageView += " bỏ bàn ${tableRemoveSelect.map((e) => e.name).toList()}";
+            } else if (tableSelected.any((element) => !tableCurrentSelect.contains(element))) {
+              messageView += " được chuyển thành ${tableSelected.map((e) => e.name).toList()}";
             }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,10 +179,9 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
               return;
             }
             final tableIds = tableSelected.map<int>((e) => e.id).toList();
-            ReservationModel? reservation =
-                orderSelect?.reservationCrmId == null
-                    ? null
-                    : ReservationModel(id: orderSelect?.reservationCrmId);
+            ReservationModel? reservation = orderSelect?.reservationCrmId == null
+                ? null
+                : ReservationModel(id: orderSelect?.reservationCrmId);
 
             var result = await ref.read(homeProvider.notifier).updateOrder(
                   tableIds,
@@ -200,15 +191,14 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
 
             if (result.error == null) {
               if (context.mounted) {
-                showDoneSnackBar(
-                    context: context, message: S.current.updateSuccess);
+                showDoneSnackBar(context: context, message: S.current.updateSuccess);
               }
               if (reservation != null) {
-                ref.read(homeProvider.notifier).updateReservationStatus(
-                      reservation.id,
-                      ReservationStatusEnum.process,
-                      tableSelected,
-                    );
+                // ref.read(homeProvider.notifier).updateReservationStatus(
+                //       reservation.id,
+                //       ReservationStatusEnum.process,
+                //       tableSelected,
+                //     );
               }
               Navigator.pop(context, result.orderId);
             } else {

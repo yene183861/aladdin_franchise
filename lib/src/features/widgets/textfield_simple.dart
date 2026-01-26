@@ -122,8 +122,7 @@ class AppTextFormField extends StatelessWidget {
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
         hintStyle: AppTextStyle.regular(
-            rawFontSize: AppConfig.defaultRawTextSize - 1.5,
-            color: AppColors.tcHintText),
+            rawFontSize: AppConfig.defaultRawTextSize - 1.5, color: AppColors.tcHintText),
       ),
       onChanged: (value) {
         onChanged?.call(value);

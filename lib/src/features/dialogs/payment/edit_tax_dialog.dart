@@ -5,6 +5,7 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
+import 'package:aladdin_franchise/src/models/data_bill.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
@@ -20,13 +21,13 @@ class EditTaxDialog extends ConsumerStatefulWidget {
   const EditTaxDialog({
     super.key,
     this.products = const [],
-    this.productCheckouts = const [],
+    this.orderLineItems = const [],
     required this.onSave,
   });
 
   final List<ProductModel> products;
-  final List<ProductCheckoutModel> productCheckouts;
-  final Function(List<ProductCheckoutModel> changedPc) onSave;
+  final List<LineItemDataBill> orderLineItems;
+  final Function(List<LineItemDataBill> changedPc) onSave;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _EditTaxDialogState();
@@ -38,13 +39,6 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
 
   List<ProductModel> products = [];
   final colSettings = [
-    // {
-    //   'title': '#',
-    //   'size': 70.0,
-    //   'align': Alignment.center,
-    //   'percent': 5.0,
-    //   'use_small_device': true,
-    // },
     {
       'title': S.current.product,
       // 'size': null,
@@ -83,28 +77,25 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
       'percent': 15.0,
     },
   ];
-  List<ProductCheckoutModel> productCheckouts = [];
+  List<LineItemDataBill> orderLineItems = [];
 
-  // giá trị -1 để thể hiện sẽ sử dụng giá trị thuế mặc định của mỗi món
   final double defaultTax = -1.0;
-
   double applyAllTax = -1.0;
+
   @override
   void initState() {
     super.initState();
     products = List<ProductModel>.from(widget.products);
-    productCheckouts = List<ProductCheckoutModel>.from(widget.productCheckouts);
+    orderLineItems = List<LineItemDataBill>.from(widget.orderLineItems);
   }
 
   @override
   Widget build(BuildContext context) {
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation =
-        AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool smallDevice = (isMobile || (isTablet && portraitOrientation));
-    // double maxWidth = MediaQuery.of(context).size.width;
     double maxWidth = MediaQuery.of(context).size.width - 24 * 2;
 
     return LayoutBuilder(builder: (context, constraint) {
@@ -138,8 +129,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
                       },
                       defaultTax: defaultTax,
                       widthBtn: TextUtil.getTextSize(
-                                  text: S.current.default_1,
-                                  textStyle: AppTextStyle.regular())
+                                  text: S.current.default_1, textStyle: AppTextStyle.regular())
                               .width +
                           22 +
                           16 * 2,
@@ -159,7 +149,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
             Row(
               children: [
                 Text(S.current.apply_all),
-                const Gap(8),
+                const Gap(12),
                 DropdownTaxWidget(
                   taxs: [defaultTax, 0.0, 0.08, 0.1],
                   taxSelect: applyAllTax,
@@ -171,8 +161,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
                   },
                   defaultTax: defaultTax,
                   widthBtn: TextUtil.getTextSize(
-                              text: S.current.default_1,
-                              textStyle: AppTextStyle.regular())
+                              text: S.current.default_1, textStyle: AppTextStyle.regular())
                           .width +
                       22 +
                       16 * 2,
@@ -184,12 +173,12 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
           Expanded(
             child: SizedBox(
               width: double.maxFinite,
-              height: (productCheckouts.length + 1) * 50,
+              height: (orderLineItems.length + 1) * 50,
               child: TableView.builder(
                 pinnedRowCount: 1,
                 pinnedColumnCount: 0,
                 columnCount: colSettings.length,
-                rowCount: productCheckouts.length + 1,
+                rowCount: orderLineItems.length + 1,
                 columnBuilder: (index) {
                   return _buildColumnSpan(
                     index,
@@ -201,7 +190,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
                 cellBuilder: (context, vicinity) => _buildCell(
                   context,
                   vicinity,
-                  productCheckouts,
+                  orderLineItems,
                   smallDevice: smallDevice,
                 ),
               ),
@@ -215,8 +204,8 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
   void _applyAllTaxValue() {
     bool useDefault = applyAllTax == defaultTax;
 
-    List<ProductCheckoutModel> result = [];
-    for (var pc in productCheckouts) {
+    List<LineItemDataBill> result = [];
+    for (var pc in orderLineItems) {
       double value = useDefault ? pc.tax : applyAllTax;
       if (useDefault) {
         var p = products.firstWhereOrNull((e) => e.id == pc.id);
@@ -226,25 +215,25 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
       }
       result.add(pc.copyWith(tax: value));
     }
-    productCheckouts = List.from(result);
-    widget.onSave(productCheckouts);
+    orderLineItems = List.from(result);
+    widget.onSave(orderLineItems);
     setState(() {});
   }
 
-  void onChangeTextProduct(ProductCheckoutModel p, double tax) {
-    var pc = productCheckouts.firstWhereOrNull((e) => e.id == p.id);
+  void onChangeTextProduct(LineItemDataBill p, double tax) {
+    var pc = orderLineItems.firstWhereOrNull((e) => e.id == p.id);
     if (pc != null) {
-      var index = productCheckouts.indexOf(pc);
+      var index = orderLineItems.indexOf(pc);
       if (index != -1) {
-        productCheckouts[index] = pc.copyWith(tax: tax);
-        widget.onSave(productCheckouts);
+        orderLineItems[index] = pc.copyWith(tax: tax);
+        widget.onSave(orderLineItems);
         setState(() {});
       }
     }
   }
 
-  TableViewCell _buildCell(BuildContext context, TableVicinity vicinity,
-      List<ProductCheckoutModel> productCheckout,
+  TableViewCell _buildCell(
+      BuildContext context, TableVicinity vicinity, List<LineItemDataBill> productCheckout,
       {bool smallDevice = false}) {
     if (vicinity.yIndex == 0) {
       String colTitle = '';
@@ -277,12 +266,10 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
     var contents = [
       i.getNameView(),
       // i.codeProduct,
-      AppUtils.formatCurrency(value: i.unitPrice),
-      // AppConfig.formatCurrency().format(double.tryParse(i.unitPrice) ?? 0.0),
-      i.quantity.toString(),
+      AppUtils.formatCurrency(value: i.price),
+      i.count.toString(),
       '${i.getTax()}%',
-      AppUtils.formatCurrency(value: i.totalOrdered),
-      // AppConfig.formatCurrency().format(i.totalOrdered),
+      AppUtils.formatCurrency(value: i.getPriceNum() * i.count),
     ];
     if (xIndex == 3) {
       return TableViewCell(
@@ -292,11 +279,11 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog> {
             padding: EdgeInsets.symmetric(vertical: smallDevice ? 0 : 4),
             child: DropdownTaxWidget(
               taxs: const [0.0, 0.08, 0.1],
-              taxSelect: i.tax,
+              taxSelect: i.getTax(),
               oddRowColor: oddRowColor,
               yIndex: vicinity.yIndex,
               onChangeTax: (value) {
-                onChangeTextProduct(i, value ?? i.tax);
+                onChangeTextProduct(i, value ?? i.getTax());
               },
               notAllowTaxs: const [0.0],
               widthBtn: smallDevice ? 100 : 100,
@@ -452,9 +439,7 @@ class DropdownTaxWidget extends StatelessWidget {
               height: double.maxFinite,
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: yIndex % 2 == 0
-                      ? Colors.white
-                      : (oddRowColor ?? Colors.white),
+                  color: yIndex % 2 == 0 ? Colors.white : (oddRowColor ?? Colors.white),
                 ),
                 borderRadius: AppConfig.borderRadiusSecond,
                 color: yIndex % 2 == 0 ? Colors.white : null,
@@ -471,9 +456,7 @@ class DropdownTaxWidget extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyle.regular(
-                        color: notAllowTaxs.contains(value)
-                            ? AppColors.redColor
-                            : null,
+                        color: notAllowTaxs.contains(value) ? AppColors.redColor : null,
                       ),
                     ),
                   ),

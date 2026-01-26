@@ -4,6 +4,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/customer/create_customer.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
@@ -22,8 +23,7 @@ onChooseCustomerOption(BuildContext context) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      var smallDevice =
-          ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
+      var smallDevice = ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
       return FractionallySizedBox(
         widthFactor: smallDevice ? 0.8 : 0.5,
         child: Dialog(
@@ -62,8 +62,7 @@ class _CustomerOptionDialog extends ConsumerStatefulWidget {
   const _CustomerOptionDialog({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __CustomerOptionDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __CustomerOptionDialogState();
 }
 
 class __CustomerOptionDialogState extends ConsumerState<_CustomerOptionDialog> {
@@ -87,8 +86,7 @@ class __CustomerOptionDialogState extends ConsumerState<_CustomerOptionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     bool enable = !lockedOrder;
     return SingleChildScrollView(
       child: Column(
@@ -111,12 +109,11 @@ class __CustomerOptionDialogState extends ConsumerState<_CustomerOptionDialog> {
                       maxLength: 11,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       textController: _textController,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                       validator: (value) {
                         var text = (value ?? '').trim();
                         String? errorMsg;
-                        if (value != null &&
-                            text.isNotEmpty &&
-                            text.length < 10) {
+                        if (value != null && text.isNotEmpty && text.length < 10) {
                           errorMsg = S.current.phone_invalid;
                         }
                         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -130,17 +127,14 @@ class __CustomerOptionDialogState extends ConsumerState<_CustomerOptionDialog> {
                 if (enable) ...[
                   const Gap(8),
                   AppButton(
-                    height: 56,
                     onPressed: () async {
                       var phone = _textController.text.trim();
                       if ((error.value ?? '').trim().isNotEmpty) return;
                       if (_formKey.currentState?.validate() ?? false) {
-                        var result = await ref
-                            .read(homeProvider.notifier)
-                            .findCustomer(phone);
+                        var result =
+                            await ref.read(checkoutPageProvider.notifier).findCustomer(phone);
                         if (result != FindCustomerStatus.success) {
-                          var errorMessage =
-                              ref.read(homeProvider).messageError;
+                          var errorMessage = ref.read(checkoutPageProvider).message;
                           // Hiển thị thông báo kèm theo nút tạo khách hàng mới
                           if (result == FindCustomerStatus.notFound) {
                             if (context.mounted) {
@@ -150,11 +144,10 @@ class __CustomerOptionDialogState extends ConsumerState<_CustomerOptionDialog> {
                                 actionTitle: S.current.createNewCustomers,
                                 message: errorMessage,
                                 action: () async {
-                                  var result = await showCreateCustomerDialog(
-                                      context, phone);
+                                  var result = await showCreateCustomerDialog(context, phone);
                                   if (result != null) {
                                     await ref
-                                        .read(homeProvider.notifier)
+                                        .read(checkoutPageProvider.notifier)
                                         .findCustomer(phone);
                                     if (context.mounted) {
                                       Navigator.pop(context);
@@ -202,8 +195,7 @@ class __CustomerOptionDialogState extends ConsumerState<_CustomerOptionDialog> {
           ),
           Consumer(
             builder: (context, ref, child) {
-              var customer =
-                  ref.watch(homeProvider.select((value) => value.customer));
+              var customer = ref.watch(checkoutPageProvider.select((value) => value.customer));
 
               if (customer == null) {
                 if (!enable) return Text(S.current.msg_locked_order);
@@ -224,12 +216,12 @@ class __CustomerOptionDialogState extends ConsumerState<_CustomerOptionDialog> {
               textAction: S.current.createNewCustomers,
               onPressed: () async {
                 var result = await showCreateCustomerDialog(context, '');
-                if (result != null) {
-                  await ref.read(homeProvider.notifier).findCustomer(result);
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                  }
-                }
+                // if (result != null) {
+                //   await ref.read(homeProvider.notifier).findCustomer(result);
+                //   if (context.mounted) {
+                //     Navigator.pop(context);
+                //   }
+                // }
               },
             ),
           ]

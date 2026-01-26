@@ -20,120 +20,120 @@ Future<void> onLoadPaymentGateway({
   required BuildContext context,
   required WidgetRef ref,
 }) async {
-  final result = await ref.read(homeProvider.notifier).getPaymentGateway();
+  // final result = await ref.read(homeProvider.notifier).getPaymentGateway();
 
-  if (result.url != null) {
-    final state = ref.read(homeProvider);
+  // if (result.url != null) {
+  //   final state = ref.read(homeProvider);
 
-    ref.read(homeProvider.notifier).syncInfoCustomerPage(
-      method: WindowsMethodEnum.payoo,
-      arguments: {
-        'expire_time': max(0, (((result.expiryMin ?? 0) * 60).toInt()) - 5),
-        'url': result.qr,
-      },
-    );
+  //   ref.read(homeProvider.notifier).syncInfoCustomerPage(
+  //     method: WindowsMethodEnum.payoo,
+  //     arguments: {
+  //       'expire_time': max(0, (((result.expiryMin ?? 0) * 60).toInt()) - 5),
+  //       'url': result.qr,
+  //     },
+  //   );
 
-    // ref.read(homeProvider.notifier).syncInfoForCustomer(arguments: {
-    //   'all_products': state.products,
-    //   'order': state.orderSelect,
-    //   'products': state.productCheckout,
-    //   'customer': state.customer,
-    //   'data_bill': state.dataBill.price.copyWith(receivedAmount: 0),
-    //   'note': state.kitchenNote,
-    //   'payment_method': state.paymentMethodSelected,
-    //   'detail_payment': {
-    //     'bank_select': null,
-    //     'gateway_qr': result.qr,
-    //     // thời gian hết hạn payoo
-    //     'expiry_min': max(0, (((result.expiryMin ?? 0) * 60).toInt()) - 5),
-    //   },
-    // });
-    final paymentResult = await push(
-      context,
-      PaymentGatewayPage(
-        paymentMethod:
-            ref.read(homeProvider.notifier).getPaymentMethodSelected()!,
-        gatewayUrl: result.url!,
-        qr: result.qr!,
-        order: ref.read(homeProvider).orderSelect!,
-      ),
-    );
+  //   // ref.read(homeProvider.notifier).syncInfoForCustomer(arguments: {
+  //   //   'all_products': state.products,
+  //   //   'order': state.orderSelect,
+  //   //   'products': state.productCheckout,
+  //   //   'customer': state.customer,
+  //   //   'data_bill': state.dataBill.price.copyWith(receivedAmount: 0),
+  //   //   'note': state.kitchenNote,
+  //   //   'payment_method': state.paymentMethodSelected,
+  //   //   'detail_payment': {
+  //   //     'bank_select': null,
+  //   //     'gateway_qr': result.qr,
+  //   //     // thời gian hết hạn payoo
+  //   //     'expiry_min': max(0, (((result.expiryMin ?? 0) * 60).toInt()) - 5),
+  //   //   },
+  //   // });
+  //   final paymentResult = await push(
+  //     context,
+  //     PaymentGatewayPage(
+  //       paymentMethod:
+  //           ref.read(homeProvider.notifier).getPaymentMethodSelected()!,
+  //       gatewayUrl: result.url!,
+  //       qr: result.qr!,
+  //       order: ref.read(homeProvider).orderSelect!,
+  //     ),
+  //   );
 
-    showLogs(paymentResult, flags: 'KQ payoo');
+  //   showLogs(paymentResult, flags: 'KQ payoo');
 
-    if (paymentResult != null && paymentResult.status == true) {
-      ref.read(homeProvider.notifier).updatePaymentGatewayInfo(
-            status: paymentResult.status,
-            amount: paymentResult.amount,
-          );
-      ref.read(homeProvider.notifier).syncInfoCustomerPage(
-        method: WindowsMethodEnum.payoo,
-        arguments: {
-          'expire_time': 0,
-          'url': '',
-        },
-      );
-      // ref.read(homeProvider.notifier).syncInfoForCustomer(arguments: {
-      //   'all_products': state.products,
-      //   'order': state.orderSelect,
-      //   'products': state.productCheckout,
-      //   'customer': state.customer,
-      //   'data_bill': state.dataBill.price.copyWith(receivedAmount: 0),
-      //   'note': state.kitchenNote,
-      //   'payment_method': state.paymentMethodSelected,
-      //   'detail_payment': {
-      //     'bank_select': null,
-      //     'gateway_qr': '',
-      //     // thời gian hết hạn payoo
-      //     'expiry_min': 0,
-      //   },
-      // });
-      await showMessageDialog(
-        context,
-        message: S.current.paid_order,
-      );
-      await showConfirmCompleteBillDialog(
-        context,
-        ref,
-        notCancel: true,
-        paymentActionMode: false,
-      );
-    } else {
-      ref.read(homeProvider.notifier).resetPaymentAndBank();
-      showMessageDialog(
-        context,
-        message: S.current.unpaid_order_select_payment_method_again,
-      );
-    }
-  } else {
-    /// 407 Đơn bàn đã được thanh toán bởi cổng thanh toán này
-    if (result.statusCode == 407) {
-      await showConfirmAction(
-        context,
-        //title: 'Đơn bàn đã được khách hàng thanh toán, vui lòng Hoàn tất thanh toán!',
-        message: "${result.error}",
-        notCancel: true,
-        action: () {
-          ref.read(homeProvider.notifier).updatePaymentGatewayInfo(
-                status: true,
-                amount: 0.0,
-                usePriceDataBillForAmount: true,
-              );
+  //   if (paymentResult != null && paymentResult.status == true) {
+  //     ref.read(homeProvider.notifier).updatePaymentGatewayInfo(
+  //           status: paymentResult.status,
+  //           amount: paymentResult.amount,
+  //         );
+  //     ref.read(homeProvider.notifier).syncInfoCustomerPage(
+  //       method: WindowsMethodEnum.payoo,
+  //       arguments: {
+  //         'expire_time': 0,
+  //         'url': '',
+  //       },
+  //     );
+  //     // ref.read(homeProvider.notifier).syncInfoForCustomer(arguments: {
+  //     //   'all_products': state.products,
+  //     //   'order': state.orderSelect,
+  //     //   'products': state.productCheckout,
+  //     //   'customer': state.customer,
+  //     //   'data_bill': state.dataBill.price.copyWith(receivedAmount: 0),
+  //     //   'note': state.kitchenNote,
+  //     //   'payment_method': state.paymentMethodSelected,
+  //     //   'detail_payment': {
+  //     //     'bank_select': null,
+  //     //     'gateway_qr': '',
+  //     //     // thời gian hết hạn payoo
+  //     //     'expiry_min': 0,
+  //     //   },
+  //     // });
+  //     await showMessageDialog(
+  //       context,
+  //       message: S.current.paid_order,
+  //     );
+  //     await showConfirmCompleteBillDialog(
+  //       context,
+  //       ref,
+  //       notCancel: true,
+  //       paymentActionMode: false,
+  //     );
+  //   } else {
+  //     ref.read(homeProvider.notifier).resetPaymentAndBank();
+  //     showMessageDialog(
+  //       context,
+  //       message: S.current.unpaid_order_select_payment_method_again,
+  //     );
+  //   }
+  // } else {
+  //   /// 407 Đơn bàn đã được thanh toán bởi cổng thanh toán này
+  //   if (result.statusCode == 407) {
+  //     await showConfirmAction(
+  //       context,
+  //       //title: 'Đơn bàn đã được khách hàng thanh toán, vui lòng Hoàn tất thanh toán!',
+  //       message: "${result.error}",
+  //       notCancel: true,
+  //       action: () {
+  //         ref.read(homeProvider.notifier).updatePaymentGatewayInfo(
+  //               status: true,
+  //               amount: 0.0,
+  //               usePriceDataBillForAmount: true,
+  //             );
 
-          showConfirmCompleteBillDialog(
-            context,
-            ref,
-          );
-        },
-      );
-    } else {
-      await showConfirmAction(
-        context,
-        title: S.current.failed_load_gateway_url,
-        message: "${result.error}",
-        actionTitle: S.current.tryAgain,
-        action: () => onLoadPaymentGateway(context: context, ref: ref),
-      );
-    }
-  }
+  //         showConfirmCompleteBillDialog(
+  //           context,
+  //           ref,
+  //         );
+  //       },
+  //     );
+  //   } else {
+  //     await showConfirmAction(
+  //       context,
+  //       title: S.current.failed_load_gateway_url,
+  //       message: "${result.error}",
+  //       actionTitle: S.current.tryAgain,
+  //       action: () => onLoadPaymentGateway(context: context, ref: ref),
+  //     );
+  //   }
+  // }
 }

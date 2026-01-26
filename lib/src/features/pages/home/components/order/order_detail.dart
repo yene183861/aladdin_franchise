@@ -43,8 +43,7 @@ class OrderPanelWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var orderSelect =
-        ref.watch(homeProvider.select((value) => value.orderSelect));
+    var orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,8 +82,7 @@ class KitchenNoteWidget extends ConsumerStatefulWidget {
   const KitchenNoteWidget({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __KitchenNoteWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __KitchenNoteWidgetState();
 }
 
 class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
@@ -96,7 +94,7 @@ class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
     _controller = TextEditingController();
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
-        _controller.text = ref.read(homeProvider).kitchenNote;
+        // _controller.text = ref.read(homeProvider).kitchenNote;
       },
     );
   }
@@ -107,20 +105,18 @@ class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
     super.dispose();
   }
 
-  _listenChangeNote(BuildContext context, WidgetRef ref) =>
-      (String? previous, String? next) {
+  _listenChangeNote(BuildContext context, WidgetRef ref) => (String? previous, String? next) {
         _controller.text = next ?? '';
       };
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<String>(
-      homeProvider.select((value) => value.kitchenNote),
-      _listenChangeNote(context, ref),
-    );
+    // ref.listen<String>(
+    //   homeProvider.select((value) => value.kitchenNote),
+    //   _listenChangeNote(context, ref),
+    // );
 
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     return TextFormField(
       controller: _controller,
       style: AppTextStyle.regular(),
@@ -131,17 +127,13 @@ class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
       ),
       onTapOutside: (event) {
         FocusManager.instance.primaryFocus?.unfocus();
-        ref
-            .read(homeProvider.notifier)
-            .onChangeKitchenNote(_controller.text.trim());
+        // ref.read(homeProvider.notifier).onChangeKitchenNote(_controller.text.trim());
       },
       onChanged: (value) {
-        ref
-            .read(homeProvider.notifier)
-            .onChangeKitchenNote(_controller.text.trim());
+        // ref.read(homeProvider.notifier).onChangeKitchenNote(_controller.text.trim());
       },
       onFieldSubmitted: (value) {
-        ref.read(homeProvider.notifier).onChangeKitchenNote(value.trim());
+        // ref.read(homeProvider.notifier).onChangeKitchenNote(value.trim());
       },
     );
   }
@@ -194,18 +186,17 @@ class _SpinBoxWidgetState extends ConsumerState<SpinBoxWidget> {
                     //     context, ref, widget.item, setState);
                     //   return;
                     // }
-                    ref.read(cartPageProvider.notifier).addProductToCart(
-                        widget.item.copyWith(numberSelecting: max(0, count)));
+                    ref
+                        .read(cartPageProvider.notifier)
+                        .addProductToCart(widget.item.copyWith(numberSelecting: max(0, count)));
                     // ref.read(homeProvider.notifier).changeProductInCart(widget.item, count);
                   },
                   borderRadius: AppConfig.borderRadiusSecond,
                   child: Container(
                     height: 36,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: AppConfig.borderRadiusSecond),
+                        color: Colors.grey.shade200, borderRadius: AppConfig.borderRadiusSecond),
                     child: const Icon(CupertinoIcons.minus, size: 18),
                   ),
                 ),
@@ -217,9 +208,8 @@ class _SpinBoxWidgetState extends ConsumerState<SpinBoxWidget> {
                 const Gap(12),
                 InkWell(
                   onTap: () async {
-                    ref.read(cartPageProvider.notifier).addProductToCart(widget
-                        .item
-                        .copyWith(numberSelecting: max(0, currentCount + 1)));
+                    ref.read(cartPageProvider.notifier).addProductToCart(
+                        widget.item.copyWith(numberSelecting: max(0, currentCount + 1)));
                     // ref
                     //     .read(homeProvider.notifier)
                     //     .changeProductInCart(widget.item, currentCount + 1);
@@ -227,11 +217,9 @@ class _SpinBoxWidgetState extends ConsumerState<SpinBoxWidget> {
                   borderRadius: AppConfig.borderRadiusSecond,
                   child: Container(
                     height: 36,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: AppConfig.borderRadiusSecond),
+                        color: Colors.grey.shade200, borderRadius: AppConfig.borderRadiusSecond),
                     child: const Icon(CupertinoIcons.add, size: 18),
                   ),
                 ),

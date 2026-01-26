@@ -26,6 +26,7 @@ import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/data/enum/printer_type.dart';
 import 'package:aladdin_franchise/src/data/model/notification.dart';
+import 'package:aladdin_franchise/src/data/model/o2o/chat_message_model.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/o2o_config.dart';
 import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
@@ -343,4 +344,18 @@ final printerByOrderProvider = FutureProvider.autoDispose<List<PrinterModel>>((r
       )
       .toList();
   return defaultPrinters;
+});
+
+final chatO2oByOrderProvider = FutureProvider<List<ChatMessageModel>>((ref) async {
+  final loginData = LocalStorage.getDataLogin();
+  int? restaurantId = loginData?.restaurant?.id;
+  final orderSelect = ref.read(homeProvider).orderSelect;
+  if (restaurantId == null || orderSelect == null) {
+    return [];
+  }
+  var result = await ref.read(o2oRepositoryProvider).getChatMessages(
+        restaurantId: restaurantId,
+        orderId: orderSelect.id,
+      );
+  return result;
 });

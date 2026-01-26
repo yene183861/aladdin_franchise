@@ -21,9 +21,9 @@ class CheckoutNoteForWaiterWidget extends ConsumerWidget {
           multiLine: true,
           textInputAction: TextInputAction.newline,
           hintText: S.current.enter_note_content,
-          initialValue: ref.read(homeProvider).completeNote,
+          // initialValue: ref.read(homeProvider).completeNote,
           onChanged: (value) {
-            ref.read(homeProvider.notifier).onChangeCompleteNote(value.trim());
+            // ref.read(homeProvider.notifier).onChangeCompleteNote(value.trim());
           },
         ),
       ],

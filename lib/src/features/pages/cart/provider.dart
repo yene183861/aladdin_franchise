@@ -39,6 +39,17 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
   CartPageNotifier(this.ref, this._orderRepository) : super(const CartPageState());
   final Ref ref;
   final OrderRepository _orderRepository;
+
+  void initialize() {
+    var order = ref.read(homeProvider).orderSelect;
+    if (order == null) {
+      showLogs(null, flags: 'cartPageProvider init NO ACTION');
+      state = const CartPageState();
+    } else {
+      showLogs(null, flags: 'cartPageProvider load product selecting');
+    }
+  }
+
   void init(List<ProductModel> products) async {
     state = state.copyWith(productsSelecting: products);
     // await getPrinterDefault();
@@ -350,8 +361,8 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
           cancel: false,
         );
 
-        ref.read(homeProvider.notifier).getOrderProductCheckout();
-        ref.read(homeProvider.notifier).getDataBill();
+        // ref.read(homeProvider.notifier).getOrderProductCheckout();
+        // ref.read(homeProvider.notifier).getDataBill();
       }
       if (!ignorePrint) {
         if (useDefaultPrinter) {

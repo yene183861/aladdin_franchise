@@ -1,4 +1,5 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
@@ -14,8 +15,8 @@ class OrderPriceWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var dataBill = ref.watch(homeProvider.select((value) => value.dataBill));
-    var dataBillState = ref.watch(homeProvider.select((value) => value.dataBillState));
+    var dataBill = ref.watch(checkoutPageProvider.select((value) => value.dataBill));
+    var dataBillState = ref.watch(checkoutPageProvider.select((value) => value.dataBillState));
     switch (dataBillState.status) {
       case PageCommonState.loading:
         return const PriceDataBillPreview(dataBill: PriceDataBill(), isLoading: true);
@@ -30,7 +31,7 @@ class OrderPriceWidget extends ConsumerWidget {
             const Gap(4),
             ButtonSimpleWidget(
               textAction: S.current.tryAgain,
-              onPressed: ref.read(homeProvider.notifier).getDataBill,
+              // onPressed: ref.read(homeProvider.notifier).getDataBill,
             ),
           ],
         ));

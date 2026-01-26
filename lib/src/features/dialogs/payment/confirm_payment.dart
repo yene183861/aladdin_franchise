@@ -10,6 +10,7 @@ import 'package:aladdin_franchise/src/features/dialogs/customer_portrait.dart';
 import 'package:aladdin_franchise/src/features/dialogs/image_bill_checker.dart';
 import 'package:aladdin_franchise/src/features/dialogs/note_for_waiter.dart';
 import 'package:aladdin_franchise/src/features/dialogs/number_of_people.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_tab_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/payment/preview_receipt.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -129,14 +130,16 @@ class _MorePaymentInfoWidget extends StatelessWidget {
           const GapH(12),
           Consumer(
             builder: (context, ref, child) {
-              var checked = ref.watch(homeProvider.select((value) => value.printNumberOfPeople));
+              var checked =
+                  ref.watch(checkoutPageProvider.select((value) => value.printNumberOfPeople));
               return GestureDetector(
-                onTap: ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
+                // onTap: ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
                 child: Row(
                   children: [
                     const Gap(12),
                     CustomCheckbox(
-                      onChange: ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
+                      onChange: () {},
+                      // onChange: ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
                       checked: checked,
                     ),
                     const Gap(4),
@@ -169,7 +172,7 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final homeNotifier = ref.read(homeProvider.notifier);
-    final coupons = ref.watch(homeProvider.select((value) => value.coupons));
+    final coupons = ref.watch(checkoutPageProvider.select((value) => value.coupons));
 
     var requireApplyPolicy = coupons.any((e) => e.isType == 6);
     bool allowChangeNumberOfAdults = !requireApplyPolicy;
@@ -185,7 +188,7 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
           incrementIcon: const Icon(CupertinoIcons.add),
           decrementIcon: const Icon(CupertinoIcons.minus),
           textStyle: AppTextStyle.bold(),
-          value: ref.watch(homeProvider.select((value) => value.numberOfAdults)).toDouble(),
+          value: ref.watch(checkoutPageProvider.select((value) => value.numberOfAdults)).toDouble(),
           decoration: InputDecoration(
             label: Text(
               S.current.number_of_adults,
@@ -193,10 +196,10 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
             ),
           ),
           onChanged: (value) {
-            homeNotifier.changeNumberOfPeople(
-              numberOfAdults: value.toInt(),
-              // applyPolicy: requireApplyPolicy
-            );
+            // homeNotifier.changeNumberOfPeople(
+            //   numberOfAdults: value.toInt(),
+            //   // applyPolicy: requireApplyPolicy
+            // );
           },
         ),
         if (requireApplyPolicy) ...[
@@ -216,7 +219,8 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
           incrementIcon: const Icon(CupertinoIcons.add),
           decrementIcon: const Icon(CupertinoIcons.minus),
           textStyle: AppTextStyle.bold(),
-          value: ref.watch(homeProvider.select((value) => value.numberOfChildren)).toDouble(),
+          value:
+              ref.watch(checkoutPageProvider.select((value) => value.numberOfChildren)).toDouble(),
           decoration: InputDecoration(
             label: Text(
               S.current.number_of_children,
@@ -224,9 +228,9 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
             ),
           ),
           onChanged: (value) {
-            homeNotifier.changeNumberOfPeople(
-              numberOfChildren: value.toInt(),
-            );
+            // homeNotifier.changeNumberOfPeople(
+            //   numberOfChildren: value.toInt(),
+            // );
           },
         ),
       ],

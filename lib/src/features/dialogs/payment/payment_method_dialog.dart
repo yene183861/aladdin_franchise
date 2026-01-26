@@ -13,6 +13,7 @@ import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_simple_loading.dart';
+import 'package:aladdin_franchise/src/features/widgets/custom_dropdown_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
@@ -47,21 +48,19 @@ Future<void> onSelectPaymentMethod({
     textCancel: S.current.close,
     closeDialog: false,
     action: () async {
-      var paymentMethodSelect = ref.read(homeProvider).paymentMethodSelected;
+      var paymentMethodSelect = ref.read(checkoutPageProvider).paymentMethodSelected;
       if (paymentMethodSelect == null) {
-        showMessageDialog(context,
-            message: S.current.payment_method_not_select);
+        showMessageDialog(context, message: S.current.payment_method_not_select);
         return;
       }
       var productCheckout = ref.read(checkoutPageProvider).productsCheckout;
       if (productCheckout.isEmpty) {
-        showMessageDialog(context,
-            message: 'Vui lòng chọn món trước khi thanh toán');
+        showMessageDialog(context, message: 'Vui lòng chọn món trước khi thanh toán');
         return;
       }
 
       if (paymentMethodSelect.isBank) {
-        if (ref.read(homeProvider).bankSelect == null) {
+        if (ref.read(checkoutPageProvider).bankSelect == null) {
           showMessageDialog(context, message: S.current.no_bank_select);
           return;
         }
@@ -79,7 +78,7 @@ Future<void> onSelectPaymentMethod({
           textCancel: S.current.close,
           closeDialog: false,
           onCheckAction: () {
-            var posSelect = ref.read(homeProvider).atmPosSelect;
+            var posSelect = ref.read(checkoutPageProvider).atmPosSelect;
             if (posSelect == null) {
               showMessageDialog(
                 context,
@@ -90,7 +89,7 @@ Future<void> onSelectPaymentMethod({
             return true;
           },
           action: () async {
-            var posSelect = ref.read(homeProvider).atmPosSelect;
+            var posSelect = ref.read(checkoutPageProvider).atmPosSelect;
 
             if (posSelect == null) {
               showMessageDialog(
@@ -104,7 +103,7 @@ Future<void> onSelectPaymentMethod({
         );
 
         /// setting = 1 - cà thẻ tĩnh, 2 - cà thẻ động
-        showLogs(ref.read(homeProvider).atmPosSelect, flags: 'máy cà thẻ');
+        showLogs(ref.read(checkoutPageProvider).atmPosSelect, flags: 'máy cà thẻ');
         if (res != true) {
           return;
         }
@@ -115,10 +114,8 @@ Future<void> onSelectPaymentMethod({
       );
     },
     actionCancel: () async {
-      ref.read(homeProvider.notifier).onChangeCashReceivedAmount(0);
-      // unlock đơn bàn (mặc định get phương thức thanh toán thì bàn đã khóa)
-      await ref.read(homeProvider.notifier).unlockOrder();
-      // ref.read(homeProvider.notifier).onUpdateDefaultTax();
+      ref.read(checkoutPageProvider.notifier).onChangeCashReceivedAmount(0);
+      await ref.read(homeProvider.notifier).lockOrder(lock: false);
     },
   );
 }
@@ -134,7 +131,7 @@ Future<void> showConfirmCompleteBillDialog(
   bool notCancel = false,
   bool paymentActionMode = true,
 }) async {
-  var paymentMethodSelect = ref.read(homeProvider).paymentMethodSelected;
+  var paymentMethodSelect = ref.read(checkoutPageProvider).paymentMethodSelected;
   if (paymentMethodSelect == null) return;
   await showConfirmActionWithChild(
     context,
@@ -143,14 +140,7 @@ Future<void> showConfirmCompleteBillDialog(
     notCancel: notCancel,
     closeDialog: false,
     onCheckAction: () {
-      var state = ref.read(homeProvider);
-      // if (ref.read(homeProvider.notifier).getCustomerPortraitSelect() == null) {
-      //   showMessageDialog(
-      //     context,
-      //     message: S.current.customer_portrait_has_not_been_selected,
-      //   );
-      //   return false;
-      // }
+      var state = ref.read(checkoutPageProvider);
       if (state.numberOfAdults < 1) {
         showMessageDialog(
           context,
@@ -158,13 +148,6 @@ Future<void> showConfirmCompleteBillDialog(
         );
         return false;
       }
-      // if (state.employeeSaleSelect == null) {
-      //   showMessageDialog(
-      //     context,
-      //     message: S.current.attention_unknown_sale_1,
-      //   );
-      //   return false;
-      // }
       return true;
     },
     action: () async {
@@ -176,13 +159,13 @@ Future<void> showConfirmCompleteBillDialog(
       } else {
         // máy pos động
         if (paymentMethodSelect.isAtm &&
-            ref.read(homeProvider).atmPosSelect?.setting == 2) {
+            ref.read(checkoutPageProvider).atmPosSelect?.setting == 2) {
           showLogs(null, flags: 'Cà máy pos động');
           var action = await showConfirmAction(
             context,
             message: 'Nhấn “Tiếp tục” để chuẩn bị cà thẻ.\n'
                 'Khi máy sẵn sàng, vui lòng đưa thẻ vào POS.\n'
-                'Số tiền thanh toán là: ${AppUtils.formatCurrency(value: ref.read(homeProvider).dataBill.price.totalPriceFinal)
+                'Số tiền thanh toán là: ${AppUtils.formatCurrency(value: ref.read(checkoutPageProvider).dataBill.price.totalPriceFinal)
                 // AppConfig.formatCurrency().format(ref.read(homeProvider).dataBill.price.totalPriceFinal)
                 }',
             actionTitle: S.current.continue_text,
@@ -190,8 +173,7 @@ Future<void> showConfirmCompleteBillDialog(
           if (action != true) {
             return;
           }
-          var resultPos =
-              await ref.read(homeProvider.notifier).dynamicAtmPosCallback();
+          var resultPos = await ref.read(checkoutPageProvider.notifier).dynamicAtmPosCallback();
           if (resultPos != null) {
             showMessageDialog(context, message: resultPos);
             return;
@@ -224,9 +206,6 @@ Future<void> showConfirmCompleteBillDialog(
         );
       }
     },
-    actionCancel: () {
-      // ref.read(homeProvider.notifier).onUpdateDefaultTax();
-    },
   );
 }
 
@@ -236,16 +215,13 @@ class SelectPaymentMethodWidget extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _SelectPaymentMethodWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _SelectPaymentMethodWidgetState();
 }
 
-class _SelectPaymentMethodWidgetState
-    extends ConsumerState<SelectPaymentMethodWidget> {
+class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodWidget> {
   late TextEditingController _receivedAmount, _remainingAmount;
 
-  final BehaviorSubject<String> _receivedAmountTextChange =
-      BehaviorSubject<String>();
+  final BehaviorSubject<String> _receivedAmountTextChange = BehaviorSubject<String>();
 
   bool _isFormatting = false;
   @override
@@ -264,7 +240,7 @@ class _SelectPaymentMethodWidgetState
       final digits = event.replaceAll(RegExp(r','), '');
       if (digits.isEmpty) {
         _remainingAmount.text = '';
-        ref.read(homeProvider.notifier).onChangeCashReceivedAmount(0.0);
+        ref.read(checkoutPageProvider.notifier).onChangeCashReceivedAmount(0.0);
         return;
       }
 
@@ -279,16 +255,15 @@ class _SelectPaymentMethodWidgetState
         selection: TextSelection.collapsed(offset: formatted.length),
       );
 
-      ref.read(homeProvider.notifier).onChangeCashReceivedAmount(number * 1.0);
+      ref.read(checkoutPageProvider.notifier).onChangeCashReceivedAmount(number * 1.0);
       _isFormatting = false;
-      final price = ref.read(homeProvider.notifier).getFinalPaymentPrice;
+      final price = ref.read(checkoutPageProvider).dataBill.price;
       var remaining = number - price.totalPriceFinal;
-      _remainingAmount.text =
-          remaining < 0 ? '0' : AppUtils.formatCurrency(value: remaining);
+      _remainingAmount.text = remaining < 0 ? '0' : AppUtils.formatCurrency(value: remaining);
     });
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
-        ref.read(homeProvider.notifier).loadPaymentMethods();
+        ref.read(checkoutPageProvider.notifier).loadPaymentMethods();
       },
     );
   }
@@ -302,13 +277,12 @@ class _SelectPaymentMethodWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final paymentMethods =
-        ref.watch(homeProvider.select((value) => value.paymentMethods));
+    final paymentMethods = ref.watch(checkoutPageProvider.select((value) => value.paymentMethods));
     final paymentMethodState =
-        ref.watch(homeProvider.select((value) => value.paymentMethodState));
+        ref.watch(checkoutPageProvider.select((value) => value.paymentMethodState));
     final paymentMethodSelect =
-        ref.watch(homeProvider.select((value) => value.paymentMethodSelected));
-    final invoice = ref.watch(homeProvider.select((value) => value.invoice));
+        ref.watch(checkoutPageProvider.select((value) => value.paymentMethodSelected));
+    final invoice = ref.watch(checkoutPageProvider.select((value) => value.invoice));
 
     switch (paymentMethodState.status) {
       case PageCommonState.loading:
@@ -318,7 +292,7 @@ class _SelectPaymentMethodWidgetState
       case PageCommonState.error:
         return AppErrorSimpleWidget(
           onTryAgain: () {
-            ref.read(homeProvider.notifier).loadPaymentMethods();
+            ref.read(checkoutPageProvider.notifier).loadPaymentMethods();
           },
           message: paymentMethodState.messageError,
         );
@@ -326,222 +300,214 @@ class _SelectPaymentMethodWidgetState
       default:
     }
     // Lọc phương thức thanh toán hợp lệ với invoice
-    final List<PaymentMethod> paymentMethodView =
-        paymentMethods.where((element) {
-      return element.isVat == null ||
-          element.isVat == (invoice != null && !invoice.isEmpty());
+    final List<PaymentMethod> paymentMethodView = paymentMethods.where((element) {
+      return element.isVat == null || element.isVat == (invoice != null && !invoice.isEmpty());
     }).toList();
-    final coupons = ref.watch(homeProvider.select((value) => value.coupons));
+    final coupons = ref.watch(checkoutPageProvider.select((value) => value.coupons));
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // CustomDropdownButton<PaymentMethod>(
-          //   data: paymentMethodView,
-          //   initData: paymentMethodSelect == null ? [] : [paymentMethodSelect],
-          //   buildTextDisplay: (data) {
-          //     return data.getNameView();
-          //   },
-          //   onChangeData: (p0) async {
-          //     var method = p0.isEmpty ? null : p0.first;
-          //     if (method == null) return;
-          //     bool isChangeMethod = true;
-          //     final resultCouponCheck =
-          //         ref.read(homeProvider.notifier).checkPaymentMethodSelect(method);
-          //     if (resultCouponCheck.error != null) {
-          //       final confirmCheckInvalid = await showConfirmActionWithChild(
-          //         context,
-          //         child: _MessageCheckPaymentMethodInvalidWidget(
-          //           coupons: resultCouponCheck.coupons,
-          //           method: method,
-          //         ),
-          //         textCancel: S.current.reselect_payment_method,
-          //         actionTitle: S.current.confirm_delete_code_and_continue,
-          //       );
-          //       showLog(confirmCheckInvalid, flags: 'confirmCheckInvalid');
-          //       if (confirmCheckInvalid == true) {
-          //         // Xoá các mã giảm giá không hợp lệ
-          //         List<CustomerPolicyModel> removeCouponFails = [];
-          //         for (final c in resultCouponCheck.coupons) {
-          //           final resRemove = await ref.read(homeProvider.notifier).removeCoupon(
-          //                 c,
-          //                 applyPolicy: false,
-          //               );
-          //           if (resRemove != null) {
-          //             removeCouponFails.add(c);
-          //           }
-          //         }
-          //         if (removeCouponFails.isNotEmpty) {
-          //           isChangeMethod = false;
-          //           showMessageDialog(
-          //             context,
-          //             message:
-          //                 "${S.current.error_delete_coupon_code} ${removeCouponFails.map((e) => e.name).toString()}\n"
-          //                 "${S.current.noti_delete_code_and_choose_payment_method_again}",
+          CustomDropdownButton<PaymentMethod>(
+            data: paymentMethodView,
+            initData: paymentMethodSelect == null ? [] : [paymentMethodSelect],
+            hintText: S.current.payment_method,
+            buildTextDisplay: (data) {
+              return data.getNameView();
+            },
+            onChangeData: (p0) async {
+              var method = p0.isEmpty ? null : p0.first;
+              if (method == null) return;
+              // bool isChangeMethod = true;
+              // final resultCouponCheck =
+              //     ref.read(checkoutPageProvider.notifier).checkPaymentMethodSelect(method);
+              // if (resultCouponCheck.error != null) {
+              //   final confirmCheckInvalid = await showConfirmActionWithChild(
+              //     context,
+              //     child: _MessageCheckPaymentMethodInvalidWidget(
+              //       coupons: resultCouponCheck.coupons,
+              //       method: method,
+              //     ),
+              //     textCancel: S.current.reselect_payment_method,
+              //     actionTitle: S.current.confirm_delete_code_and_continue,
+              //   );
+              //   showLog(confirmCheckInvalid, flags: 'confirmCheckInvalid');
+              //   if (confirmCheckInvalid == true) {
+              //     // Xoá các mã giảm giá không hợp lệ
+              //     List<CustomerPolicyModel> removeCouponFails = [];
+              //     for (final c in resultCouponCheck.coupons) {
+              //       final resRemove = await ref.read(checkoutPageProvider.notifier).removeCoupon(
+              //             c,
+              //             applyPolicy: false,
+              //           );
+              //       if (resRemove != null) {
+              //         removeCouponFails.add(c);
+              //       }
+              //     }
+              //     if (removeCouponFails.isNotEmpty) {
+              //       isChangeMethod = false;
+              //       showMessageDialog(
+              //         context,
+              //         message:
+              //             "${S.current.error_delete_coupon_code} ${removeCouponFails.map((e) => e.name).toString()}\n"
+              //             "${S.current.noti_delete_code_and_choose_payment_method_again}",
+              //       );
+              //     } else {
+              //       // áp dụng lại mã giảm giá
+              //       final resApplyPolicy =
+              //           await ref.read(homeProvider.notifier).applyCustomerPolicy(retry: false);
+              //       if (resApplyPolicy == null) {
+              //         ref.read(homeProvider.notifier).getDataBill();
+              //         // ref.refresh(dataBillOrderPreviewProvider);
+              //       } else {
+              //         isChangeMethod = false;
+              //         showConfirmAction(
+              //           context,
+              //           title: S.current.discount_apply_failed,
+              //           message: S.current.close_payment_slip_reapply_coupons,
+              //           action: () async {
+              //             final result = await ref.read(homeProvider.notifier).unlockOrder();
+              //             if (result) {
+              //               Navigator.pop(context);
+              //               Navigator.pop(context);
+              //             }
+              //           },
+              //           notCancel: true,
+              //         );
+              //       }
+              //     }
+              //   } else {
+              //     isChangeMethod = false;
+              //   }
+              // }
+              // if (isChangeMethod) {
+              ref.read(checkoutPageProvider.notifier).changeBankSelect(null);
+              ref.read(checkoutPageProvider.notifier).changePaymentMethod(method);
+              if (!method.isCash) {
+                _receivedAmount.text = '';
+              }
+              if (method.isBank) {
+                ref.read(checkoutPageProvider.notifier).loadBanksInfo();
+              }
+              // } else {
+              //   ref.read(homeProvider.notifier).changePaymentMethod(null);
+              // }
+            },
+          ),
+          // Container(
+          //   decoration: BoxDecoration(
+          //     border: Border.all(color: Colors.blueGrey),
+          //     borderRadius: AppConfig.borderRadiusMain,
+          //   ),
+          //   padding: const EdgeInsets.symmetric(horizontal: 12),
+          //   child: DropdownButtonHideUnderline(
+          //     child: DropdownButton<PaymentMethod?>(
+          //       value: paymentMethodSelect,
+          //       hint: Text(S.current.payment_method),
+          //       style: AppTextStyle.regular(color: Colors.black),
+          //       items: paymentMethodView.map(
+          //         (e) {
+          //           bool isNotAllowed =
+          //               coupons.any((c) => c.paymentNotAllowed.any((p) => p.key == e.key));
+          //           return DropdownMenuItem<PaymentMethod>(
+          //             value: e,
+          //             child: Text(
+          //               e.getNameView(),
+          //               style: AppTextStyle.regular(
+          //                 color: isNotAllowed ? AppColors.redColor : null,
+          //               ),
+          //             ),
           //           );
-          //         } else {
-          //           // áp dụng lại mã giảm giá
-          //           final resApplyPolicy =
-          //               await ref.read(homeProvider.notifier).applyCustomerPolicy(retry: false);
-          //           if (resApplyPolicy == null) {
-          //             ref.read(homeProvider.notifier).getDataBill();
-          //             // ref.refresh(dataBillOrderPreviewProvider);
+          //         },
+          //       ).toList(),
+          //       onChanged: (method) async {
+          //         if (method == null) return;
+          //         var resultCheck = checkItemBeforeCompleteBill(
+          //           orderLineItems: ref.read(checkoutPageProvider).dataBill.orderLineItems,
+          //           paymentMethodSelect: method,
+          //         );
+          //         if (resultCheck != null) {
+          //           showMessageDialog(context, message: resultCheck);
+          //           return;
+          //         }
+          //         bool isChangeMethod = true;
+          //         final resultCouponCheck =
+          //             ref.read(checkoutPageProvider.notifier).checkPaymentMethodSelect(method);
+          //         if (resultCouponCheck.error != null) {
+          //           final confirmCheckInvalid = await showConfirmActionWithChild(
+          //             context,
+          //             child: _MessageCheckPaymentMethodInvalidWidget(
+          //               coupons: resultCouponCheck.coupons,
+          //               method: method,
+          //             ),
+          //             textCancel: S.current.reselect_payment_method,
+          //             actionTitle: S.current.confirm_delete_code_and_continue,
+          //           );
+          //           showLog(confirmCheckInvalid, flags: 'confirmCheckInvalid');
+          //           if (confirmCheckInvalid == true) {
+          //             // Xoá các mã giảm giá không hợp lệ
+          //             List<CustomerPolicyModel> removeCouponFails = [];
+          //             for (final c in resultCouponCheck.coupons) {
+          //               final resRemove = await ref.read(homeProvider.notifier).deleteCoupon(
+          //                     c,
+          //                     applyPolicy: false,
+          //                   );
+          //               if (resRemove != null) {
+          //                 removeCouponFails.add(c);
+          //               }
+          //             }
+          //             if (removeCouponFails.isNotEmpty) {
+          //               isChangeMethod = false;
+          //               showMessageDialog(
+          //                 context,
+          //                 message:
+          //                     "${S.current.error_delete_coupon_code} ${removeCouponFails.map((e) => e.name).toString()}\n"
+          //                     "${S.current.noti_delete_code_and_choose_payment_method_again}",
+          //               );
+          //             } else {
+          //               // áp dụng lại mã giảm giá
+          //               final resApplyPolicy =
+          //                   await ref.read(homeProvider.notifier).applyCustomerPolicy(retry: false);
+          //               if (resApplyPolicy == null) {
+          //                 ref.read(homeProvider.notifier).getDataBill();
+          //                 // ref.refresh(dataBillOrderPreviewProvider);
+          //               } else {
+          //                 isChangeMethod = false;
+          //                 showConfirmAction(
+          //                   context,
+          //                   title: S.current.discount_apply_failed,
+          //                   message: S.current.close_payment_slip_reapply_coupons,
+          //                   action: () async {
+          //                     final result = await ref.read(homeProvider.notifier).unlockOrder();
+          //                     if (result) {
+          //                       Navigator.pop(context);
+          //                       Navigator.pop(context);
+          //                     }
+          //                   },
+          //                   notCancel: true,
+          //                 );
+          //               }
+          //             }
           //           } else {
           //             isChangeMethod = false;
-          //             showConfirmAction(
-          //               context,
-          //               title: S.current.discount_apply_failed,
-          //               message: S.current.close_payment_slip_reapply_coupons,
-          //               action: () async {
-          //                 final result = await ref.read(homeProvider.notifier).unlockOrder();
-          //                 if (result) {
-          //                   Navigator.pop(context);
-          //                   Navigator.pop(context);
-          //                 }
-          //               },
-          //               notCancel: true,
-          //             );
           //           }
           //         }
-          //       } else {
-          //         isChangeMethod = false;
-          //       }
-          //     }
-          //     if (isChangeMethod) {
-          //       ref.read(homeProvider.notifier).changeBankSelect(null);
-          //       ref.read(homeProvider.notifier).changePaymentMethod(method);
-          //       if (!method.isCash) {
-          //         _receivedAmount.text = '';
-          //       }
-          //       if (method.isBank) {
-          //         ref.read(homeProvider.notifier).loadBanksInfo();
-          //       }
-          //     } else {
-          //       ref.read(homeProvider.notifier).changePaymentMethod(null);
-          //     }
-          //   },
+          //         if (isChangeMethod) {
+          //           ref.read(homeProvider.notifier).changeBankSelect(null);
+          //           ref.read(homeProvider.notifier).changePaymentMethod(method);
+          //           if (!method.isCash) {
+          //             _receivedAmount.text = '';
+          //           }
+          //           if (method.isBank) {
+          //             ref.read(homeProvider.notifier).loadBanksInfo();
+          //           }
+          //         } else {
+          //           ref.read(homeProvider.notifier).changePaymentMethod(null);
+          //         }
+          //       },
+          //     ),
+          //   ),
           // ),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.blueGrey),
-              borderRadius: AppConfig.borderRadiusMain,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<PaymentMethod?>(
-                value: paymentMethodSelect,
-                hint: Text(S.current.payment_method),
-                style: AppTextStyle.regular(color: Colors.black),
-                items: paymentMethodView.map(
-                  (e) {
-                    bool isNotAllowed = coupons.any(
-                        (c) => c.paymentNotAllowed.any((p) => p.key == e.key));
-                    return DropdownMenuItem<PaymentMethod>(
-                      value: e,
-                      child: Text(
-                        e.getNameView(),
-                        style: AppTextStyle.regular(
-                          color: isNotAllowed ? AppColors.redColor : null,
-                        ),
-                      ),
-                    );
-                  },
-                ).toList(),
-                onChanged: (method) async {
-                  if (method == null) return;
-                  // var resultCheck = checkItemBeforeCompleteBill(
-                  //   orderLineItems: ref.read(homeProvider).dataBill.orderLineItems,
-                  //   paymentMethodSelect: method,
-                  // );
-                  // if (resultCheck != null) {
-                  //   showMessageDialog(context, message: resultCheck);
-                  //   return;
-                  // }
-                  bool isChangeMethod = true;
-                  final resultCouponCheck = ref
-                      .read(homeProvider.notifier)
-                      .checkPaymentMethodSelect(method);
-                  if (resultCouponCheck.error != null) {
-                    final confirmCheckInvalid =
-                        await showConfirmActionWithChild(
-                      context,
-                      child: _MessageCheckPaymentMethodInvalidWidget(
-                        coupons: resultCouponCheck.coupons,
-                        method: method,
-                      ),
-                      textCancel: S.current.reselect_payment_method,
-                      actionTitle: S.current.confirm_delete_code_and_continue,
-                    );
-                    showLog(confirmCheckInvalid, flags: 'confirmCheckInvalid');
-                    if (confirmCheckInvalid == true) {
-                      // Xoá các mã giảm giá không hợp lệ
-                      List<CustomerPolicyModel> removeCouponFails = [];
-                      for (final c in resultCouponCheck.coupons) {
-                        final resRemove =
-                            await ref.read(homeProvider.notifier).deleteCoupon(
-                                  c,
-                                  applyPolicy: false,
-                                );
-                        if (resRemove != null) {
-                          removeCouponFails.add(c);
-                        }
-                      }
-                      if (removeCouponFails.isNotEmpty) {
-                        isChangeMethod = false;
-                        showMessageDialog(
-                          context,
-                          message:
-                              "${S.current.error_delete_coupon_code} ${removeCouponFails.map((e) => e.name).toString()}\n"
-                              "${S.current.noti_delete_code_and_choose_payment_method_again}",
-                        );
-                      } else {
-                        // áp dụng lại mã giảm giá
-                        final resApplyPolicy = await ref
-                            .read(homeProvider.notifier)
-                            .applyCustomerPolicy(retry: false);
-                        if (resApplyPolicy == null) {
-                          ref.read(homeProvider.notifier).getDataBill();
-                          // ref.refresh(dataBillOrderPreviewProvider);
-                        } else {
-                          isChangeMethod = false;
-                          showConfirmAction(
-                            context,
-                            title: S.current.discount_apply_failed,
-                            message:
-                                S.current.close_payment_slip_reapply_coupons,
-                            action: () async {
-                              final result = await ref
-                                  .read(homeProvider.notifier)
-                                  .unlockOrder();
-                              if (result) {
-                                Navigator.pop(context);
-                                Navigator.pop(context);
-                              }
-                            },
-                            notCancel: true,
-                          );
-                        }
-                      }
-                    } else {
-                      isChangeMethod = false;
-                    }
-                  }
-                  if (isChangeMethod) {
-                    ref.read(homeProvider.notifier).changeBankSelect(null);
-                    ref.read(homeProvider.notifier).changePaymentMethod(method);
-                    if (!method.isCash) {
-                      _receivedAmount.text = '';
-                    }
-                    if (method.isBank) {
-                      ref.read(homeProvider.notifier).loadBanksInfo();
-                    }
-                  } else {
-                    ref.read(homeProvider.notifier).changePaymentMethod(null);
-                  }
-                },
-              ),
-            ),
-          ),
 
           const GapH(12),
           if (paymentMethodSelect?.isCash ?? false) ...[
@@ -558,8 +524,7 @@ class _SelectPaymentMethodWidgetState
               textController: _remainingAmount,
             ),
           ],
-          if (paymentMethodSelect?.isBank == true)
-            const PQCBankSelectAutoWidget(),
+          if (paymentMethodSelect?.isBank == true) const PQCBankSelectAutoWidget(),
           if (paymentMethodSelect?.isGateway == true)
             Text(
               S.current.payment_method_open_gateway,
@@ -567,48 +532,6 @@ class _SelectPaymentMethodWidgetState
                 color: AppColors.redColor,
               ),
             ),
-          // Consumer(
-          //   builder: (context, ref, child) {
-          //     var dataBillState = ref.watch(homeProvider.select((value) => value.dataBillState));
-
-          //     switch (dataBillState.status) {
-          //       case PageCommonState.success:
-          //         return const SizedBox.shrink();
-          //       case PageCommonState.loading:
-          //         return Text('Thông tin thanh toán đang được cập nhật');
-          //       case PageCommonState.error:
-          //         return Row(
-          //           children: [
-          //             Flexible(
-          //               child: Text(
-          //                 'Thông tin thanh toán chưa được cập nhật chính xác',
-          //               ),
-          //             ),
-          //             SizedBox(
-          //               width: 150,
-          //               child: ButtonMainWidget(
-          //                 textAction: 'Tải lại',
-          //                 onPressed: () {
-          //                   var state = ref.read(homeProvider.notifier);
-
-          //                   bool requireUpdateDefaultTax = state.requireUpdateDefaultTax;
-          //                   if (requireUpdateDefaultTax &&
-          //                       (state.getPaymentMethodSelected()?.requireEditTax ?? false)) {
-          //                     ref.read(homeProvider.notifier).onUpdateDefaultTax();
-          //                   } else {
-          //                     ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
-          //                   }
-          //                 },
-          //               ),
-          //             ),
-          //           ],
-          //         );
-
-          //       default:
-          //         return const SizedBox.shrink();
-          //     }
-          //   },
-          // ),
         ],
       ),
     );
@@ -623,21 +546,17 @@ class PQCBankSelectAutoWidget extends ConsumerStatefulWidget {
   ConsumerState createState() => _PQCBankSelectWidgetNewState();
 }
 
-class _PQCBankSelectWidgetNewState
-    extends ConsumerState<PQCBankSelectAutoWidget> {
+class _PQCBankSelectWidgetNewState extends ConsumerState<PQCBankSelectAutoWidget> {
   bool check = true;
   @override
   Widget build(BuildContext context) {
-    final bankState =
-        ref.watch(homeProvider.select((value) => value.banksState));
-    final banks = ref.watch(homeProvider.select((value) => value.banks));
-    final bankSelect =
-        ref.watch(homeProvider.select((value) => value.bankSelect));
-    final invoice = ref.watch(homeProvider.select((value) => value.invoice));
+    final bankState = ref.watch(checkoutPageProvider.select((value) => value.banksState));
+    final banks = ref.watch(checkoutPageProvider.select((value) => value.banks));
+    final bankSelect = ref.watch(checkoutPageProvider.select((value) => value.bankSelect));
+    final invoice = ref.watch(checkoutPageProvider.select((value) => value.invoice));
     bool flagInvoice = invoice != null && !invoice.isEmpty();
     var banksView = banks
-        .where((element) =>
-            (element.useInvoice == null || element.useInvoice == flagInvoice))
+        .where((element) => (element.useInvoice == null || element.useInvoice == flagInvoice))
         .toList();
 
     WidgetsBinding.instance.addPostFrameCallback(
@@ -646,10 +565,10 @@ class _PQCBankSelectWidgetNewState
           if (banksView.isNotEmpty) {
             var exist = banksView.firstWhereOrNull((e) => e == bankSelect);
             if (exist == null) {
-              ref.read(homeProvider.notifier).changeBankSelect(null);
+              ref.read(checkoutPageProvider.notifier).changeBankSelect(null);
             }
           } else if (banksView.isEmpty) {
-            ref.read(homeProvider.notifier).changeBankSelect(null);
+            ref.read(checkoutPageProvider.notifier).changeBankSelect(null);
           }
         }
       },
@@ -661,7 +580,7 @@ class _PQCBankSelectWidgetNewState
           message: "${S.current.error_loading_payment_QR_code}\n"
               "${S.current.ex_problem}: ${bankState.messageError}}",
           onTryAgain: () {
-            ref.read(homeProvider.notifier).loadBanksInfo();
+            ref.read(checkoutPageProvider.notifier).loadBanksInfo();
           },
         ),
       PageCommonState.success => banks.isEmpty
@@ -669,7 +588,7 @@ class _PQCBankSelectWidgetNewState
               message: S.current.bank_account_not_setup,
               textButton: S.current.reload,
               onTryAgain: () {
-                ref.read(homeProvider.notifier).loadBanksInfo();
+                ref.read(checkoutPageProvider.notifier).loadBanksInfo();
               },
             )
           : banksView.isEmpty
@@ -685,9 +604,7 @@ class _PQCBankSelectWidgetNewState
                           child: ListTile(
                             shape: AppConfig.shapeBorderMain,
                             onTap: () {
-                              ref
-                                  .read(homeProvider.notifier)
-                                  .changeBankSelect(e);
+                              ref.read(checkoutPageProvider.notifier).changeBankSelect(e);
                             },
                             title: e.title.isEmpty
                                 ? null
@@ -700,8 +617,7 @@ class _PQCBankSelectWidgetNewState
                               children: [
                                 Text(
                                   e.bankName,
-                                  style:
-                                      AppTextStyle.regular(color: Colors.black),
+                                  style: AppTextStyle.regular(color: Colors.black),
                                 ),
                                 Text(
                                   e.bankNumber,

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/features/dialogs/customer/customer_option_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
@@ -12,7 +13,9 @@ import 'package:aladdin_franchise/src/features/dialogs/create_invoice_order_dial
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
+import 'package:aladdin_franchise/src/features/dialogs/processing.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/widgets/product_checkout_action.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/feature_button_group.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/price_order_widget.dart';
@@ -24,11 +27,14 @@ import 'package:aladdin_franchise/src/features/widgets/button/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_square_menu.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/order_invoice/order_invoice.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'components/order_price_widget.dart';
+import 'state.dart';
 
 enum CheckoutTabEnum { receipt, endow }
 
@@ -222,7 +228,7 @@ class TabCustomerPayment extends ConsumerWidget {
   final bool canAction;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final customer = ref.watch(homeProvider.select((value) => value.customer));
+    final customer = ref.watch(checkoutPageProvider.select((value) => value.customer));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -304,7 +310,7 @@ class TabCustomerPayment extends ConsumerWidget {
                 ),
                 const Divider(),
                 Consumer(builder: (context, ref, child) {
-                  var invoice = ref.watch(homeProvider.select((value) => value.invoice));
+                  var invoice = ref.watch(checkoutPageProvider.select((value) => value.invoice));
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -357,12 +363,12 @@ class TabCustomerPayment extends ConsumerWidget {
                                             context,
                                             message: 'Bạn có muốn xóa hóa đơn?',
                                             action: () async {
-                                              await ref
-                                                  .read(homeProvider.notifier)
-                                                  .onUpdateOrderInvoice(
-                                                    const OrderInvoice(),
-                                                    isUpdate: true,
-                                                  );
+                                              // await ref
+                                              //     .read(homeProvider.notifier)
+                                              //     .onUpdateOrderInvoice(
+                                              //       const OrderInvoice(),
+                                              //       isUpdate: true,
+                                              //     );
                                             },
                                           );
                                         },

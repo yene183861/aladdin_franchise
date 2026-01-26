@@ -186,19 +186,19 @@ class __TicketFormState extends State<_TicketForm> {
             builder: (context, ref, child) => ButtonMainWidget(
               textAction: 'Gửi ticket',
               onPressed: () async {
-                if (_formKey.currentState?.validate() ?? false) {
-                  var result = await ref.read(homeProvider.notifier).sendTicket(
-                        title: titleCtrl.text.trim(),
-                        desc: descCtrl.text.trim(),
-                        files: images,
-                      );
+                // if (_formKey.currentState?.validate() ?? false) {
+                //   var result = await ref.read(homeProvider.notifier).sendTicket(
+                //         title: titleCtrl.text.trim(),
+                //         desc: descCtrl.text.trim(),
+                //         files: images,
+                //       );
 
-                  if (result != null) {
-                    showMessageDialog(context, message: result);
-                    return;
-                  }
-                  pop(context);
-                }
+                //   if (result != null) {
+                //     showMessageDialog(context, message: result);
+                //     return;
+                //   }
+                //   pop(context);
+                // }
               },
             ),
           ),

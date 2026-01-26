@@ -170,66 +170,89 @@ class HomeNotifier extends StateNotifier<HomeState> {
     super.dispose();
   }
 
-  /// checked
   void _lockOrder(dynamic ex) {
     if (ex is AppException && ex.errorCode == 423) {
       state = state.copyWith(lockedOrder: true);
     }
   }
 
-  /// checked
   Future<void> _checkOrderSelect() async {
     if (state.orderSelect == null) {
-      _resetOrder();
+      // _resetOrder();
       throw S.current.noOrderSelect;
     }
   }
 
-  /// checked
   void initialize({
-    bool loadProducts = true,
+    bool fetchProducts = true,
     OrderModel? order,
   }) async {
     if (!mounted) return;
     state = state.copyWith(
       orderSelect: order,
-      banks: [],
-      paymentMethods: [],
-      listAtmPos: [],
+      // banks: [],
+      // paymentMethods: [],
+      // listAtmPos: [],
     );
-    ref.refresh(o2oConfigProvider);
-    _resetOrder();
-    await ref.read(menuProvider.notifier).init(loadProducts: loadProducts);
-    if (order != null) {
-      getO2OChatMessages();
-      onLoadProductSelecting();
-      getOrderProductCheckout();
-      getOrderInvoice();
-    }
+    // ref.refresh(o2oConfigProvider);
+
+    // ref.refresh(printersProvider);
+    // _resetOrder();
+    ref.read(menuProvider.notifier).init(fetchProducts: fetchProducts);
+    ref.read(checkoutPageProvider.notifier).initialize();
+    ref.read(cartPageProvider.notifier).initialize();
+
+    // if (order != null) {
+    //   var checkoutNotifier = ref.read(checkoutPageProvider.notifier);
+    //   getO2OChatMessages();
+    //   // onLoadProductSelecting();
+    //   // getOrderProductCheckout();
+    //   // getOrderInvoice();
+    //   if (checkoutNotifier.mounted) {
+    //     checkoutNotifier.getOrderProductCheckout();
+    //     checkoutNotifier.getOrderInvoice();
+    //   }
+    // }
   }
 
-  void onLoadProductSelecting() {
-    var order = state.orderSelect;
-    if (order == null) return;
-    var productSelectingMap = LocalStorage.getOrderItemSelectingForOrder(order.id);
+  // void onLoadProductSelecting() {
+  //   var order = state.orderSelect;
+  //   if (order == null) return;
+  //   var productSelectingMap = LocalStorage.getOrderItemSelectingForOrder(order.id);
 
-    List<ProductModel> selecting = [];
-    var _products = ref.read(menuProvider).products;
-    productSelectingMap.forEach((key, value) {
-      var p = _products.firstWhereOrNull((e) => e.id.toString() == key);
-      if (p != null) {
-        selecting.add(p.copyWith(numberSelecting: value));
-      }
-    });
+  //   List<ProductModel> selecting = [];
+  //   var _products = ref.read(menuProvider).products;
+  //   productSelectingMap.forEach((key, value) {
+  //     var p = _products.firstWhereOrNull((e) => e.id.toString() == key);
+  //     if (p != null) {
+  //       selecting.add(p.copyWith(numberSelecting: value));
+  //     }
+  //   });
 
-    ref.read(cartPageProvider.notifier).init(selecting);
-  }
+  //   ref.read(cartPageProvider.notifier).init(selecting);
+  // }
 
   void updateEvent(HomeEvent? event) {
     state = state.copyWith(event: event ?? HomeEvent.normal);
   }
 
-  void changeOrderSelect(OrderModel? orderModel) async {
+  void changeOrderSelect(OrderModel? order) async {
+    var changeOrder = order?.id != state.orderSelect?.id;
+    state = state.copyWith(orderSelect: order);
+    if (order != null && order.typeOrder != kTypeOrder) {
+      showLogs('change type order: ${order.typeOrder}', flags: 'changeOrderSelect');
+      await LocalStorage.setTypeOrderWaiter(order.typeOrder);
+      ref.refresh(typeOrderProvider);
+      kTypeOrder = order.typeOrder;
+      initialize(order: order);
+    } else if (changeOrder) {
+      showLogs('only change order', flags: 'changeOrderSelect');
+      ref.read(checkoutPageProvider.notifier).initialize();
+      ref.read(cartPageProvider.notifier).initialize();
+    } else {
+      showLogs('no change', flags: 'changeOrderSelect');
+    }
+
     // if (state.orderSelect != null) {
     //   try {
     //     Map<String, int> data = {};
@@ -245,177 +268,176 @@ class HomeNotifier extends StateNotifier<HomeState> {
     //     //
     //   }
     // }
-    state = state.copyWith(orderSelect: orderModel);
-    _resetOrder();
-    if (orderModel != null) {
-      if (orderModel.typeOrder != kTypeOrder) {
-        await LocalStorage.setTypeOrderWaiter(orderModel.typeOrder);
-        ref.refresh(typeOrderWaiterProvider);
-        ref.read(homeProvider.notifier).initialize(order: orderModel);
-      } else {
-        getO2OChatMessages();
-        onLoadProductSelecting();
-        getOrderProductCheckout();
-        getOrderInvoice();
-      }
-    }
+    // _resetOrder();
+    // if (orderModel != null) {
+    //   if (orderModel.typeOrder != kTypeOrder) {
+    //     await LocalStorage.setTypeOrderWaiter(orderModel.typeOrder);
+    //     ref.refresh(typeOrderWaiterProvider);
+    //     ref.read(homeProvider.notifier).initialize(order: orderModel);
+    //   } else {
+    //     getO2OChatMessages();
+    //     onLoadProductSelecting();
+    //     getOrderProductCheckout();
+    //     getOrderInvoice();
+    //   }
+    // }
   }
 
-  Future<void> getOrderProductCheckout({
-    bool loadingHome = false,
-    bool applyPolicy = true,
-    bool ignoreGetDataBill = false,
-  }) async {
-    try {
-      state = state.copyWith(
-        productCheckoutState: const PageState(status: PageCommonState.loading),
-      );
-      if (loadingHome) updateEvent(HomeEvent.getProductCheckout);
+  // Future<void> getOrderProductCheckout({
+  //   bool loadingHome = false,
+  //   bool applyPolicy = true,
+  //   bool ignoreGetDataBill = false,
+  // }) async {
+  //   try {
+  //     state = state.copyWith(
+  //       productCheckoutState: const PageState(status: PageCommonState.loading),
+  //     );
+  //     if (loadingHome) updateEvent(HomeEvent.getProductCheckout);
 
-      int tryAgain = 0;
-      while (tryAgain < 3) {
-        var orderSelect = state.orderSelect;
-        try {
-          if (orderSelect == null) {
-            if (loadingHome) updateEvent(null);
-            state = state.copyWith(
-              productCheckoutState: const PageState(status: PageCommonState.success),
-            );
-            _resetOrder();
-            return;
-          }
-          final data = await _orderRepository.getProductCheckout(orderSelect);
+  //     int tryAgain = 0;
+  //     while (tryAgain < 3) {
+  //       var orderSelect = state.orderSelect;
+  //       try {
+  //         if (orderSelect == null) {
+  //           if (loadingHome) updateEvent(null);
+  //           state = state.copyWith(
+  //             productCheckoutState: const PageState(status: PageCommonState.success),
+  //           );
+  //           _resetOrder();
+  //           return;
+  //         }
+  //         final data = await _orderRepository.getProductCheckout(orderSelect);
 
-          final pc = List<ProductCheckoutModel>.from(data.data?.first.orderItem ?? []);
+  //         final pc = List<ProductCheckoutModel>.from(data.data?.first.orderItem ?? []);
 
-          final coupons = List<CustomerPolicyModel>.from(data.coupons ?? []);
-          final customer = data.customer;
-          var orderHistory = data.data?.first.orderHistory ?? [];
-          state = state.copyWith(orderHistory: orderHistory);
-          var notes = LocalStorage.getNotePerOrderItem(order: orderSelect);
-          List<ProductModel> productsSelected = [];
-          var products = ref.read(menuProvider).products;
-          // map: ProductCheckoutModel -> ProductModel
-          for (var item in pc) {
-            var p = products.firstWhereOrNull((e) => e.id == item.id);
-            if (p != null) {
-              var changeProduct = p.copyWith(
-                numberSelecting: item.quantity,
-                note: notes?[p.id.toString()] ?? '',
-              );
-              productsSelected.add(changeProduct);
-            } else {
-              // case món k có trong menu (k hiện nhưng tiền # 0)
-              productsSelected.add(
-                ProductModel(
-                  id: item.id,
-                  numberSelecting: item.quantity,
-                  unitPrice: item.unitPrice,
-                  name: item.name,
-                  language: item.language,
-                  unit: item.unit,
-                  tax: item.tax,
-                  printerType: item.printerType,
-                  note: notes?[item.id.toString()] ?? '',
-                ),
-              );
-            }
-          }
+  //         final coupons = List<CustomerPolicyModel>.from(data.coupons ?? []);
+  //         final customer = data.customer;
+  //         var orderHistory = data.data?.first.orderHistory ?? [];
+  //         state = state.copyWith(orderHistory: orderHistory);
+  //         var notes = LocalStorage.getNotePerOrderItem(order: orderSelect);
+  //         List<ProductModel> productsSelected = [];
+  //         var products = ref.read(menuProvider).products;
+  //         // map: ProductCheckoutModel -> ProductModel
+  //         for (var item in pc) {
+  //           var p = products.firstWhereOrNull((e) => e.id == item.id);
+  //           if (p != null) {
+  //             var changeProduct = p.copyWith(
+  //               numberSelecting: item.quantity,
+  //               note: notes?[p.id.toString()] ?? '',
+  //             );
+  //             productsSelected.add(changeProduct);
+  //           } else {
+  //             // case món k có trong menu (k hiện nhưng tiền # 0)
+  //             productsSelected.add(
+  //               ProductModel(
+  //                 id: item.id,
+  //                 numberSelecting: item.quantity,
+  //                 unitPrice: item.unitPrice,
+  //                 name: item.name,
+  //                 language: item.language,
+  //                 unit: item.unit,
+  //                 tax: item.tax,
+  //                 printerType: item.printerType,
+  //                 note: notes?[item.id.toString()] ?? '',
+  //               ),
+  //             );
+  //           }
+  //         }
 
-          for (final c in coupons) {
-            /// cập nhật số lượng món 0 đồng
-            if (c.isPromotion()) {
-              final discountUpdate = List<DiscountPolicy>.from(c.discount);
+  //         for (final c in coupons) {
+  //           /// cập nhật số lượng món 0 đồng
+  //           if (c.isPromotion()) {
+  //             final discountUpdate = List<DiscountPolicy>.from(c.discount);
 
-              for (int dc = 0; dc < discountUpdate.length; dc++) {
-                final dcIndex = discountUpdate[dc];
+  //             for (int dc = 0; dc < discountUpdate.length; dc++) {
+  //               final dcIndex = discountUpdate[dc];
 
-                for (final pt in c.promotionItems) {
-                  if (pt.menuItemId.toString() == dcIndex.id) {
-                    discountUpdate[dc] = dcIndex.copyWith(numberSelect: pt.quantity);
-                    // cập nhật số lượng món tặng 0 đồng
-                    var ps = productsSelected.firstWhereOrNull((e) => e.id == pt.menuItemId);
+  //               for (final pt in c.promotionItems) {
+  //                 if (pt.menuItemId.toString() == dcIndex.id) {
+  //                   discountUpdate[dc] = dcIndex.copyWith(numberSelect: pt.quantity);
+  //                   // cập nhật số lượng món tặng 0 đồng
+  //                   var ps = productsSelected.firstWhereOrNull((e) => e.id == pt.menuItemId);
 
-                    if (ps != null) {
-                      try {
-                        productsSelected[productsSelected.indexOf(ps)] =
-                            ps.copyWith(quantityPromotion: ps.quantityPromotion + pt.quantity);
-                      } catch (ex) {
-                        //
-                      }
-                    }
-                    var pcout = pc.firstWhereOrNull((e) => e.id == pt.menuItemId);
-                    if (pcout != null) {
-                      try {
-                        pc[pc.indexOf(pcout)] = pcout.copyWith(
-                            quantityPromotion: (ps?.quantityPromotion ?? 0) + pt.quantity);
-                      } catch (ex) {
-                        //
-                      }
-                    }
-                  }
-                }
-              }
-              coupons[coupons.indexOf(c)] = c.copyWith(discount: discountUpdate);
-            }
-          }
+  //                   if (ps != null) {
+  //                     try {
+  //                       productsSelected[productsSelected.indexOf(ps)] =
+  //                           ps.copyWith(quantityPromotion: ps.quantityPromotion + pt.quantity);
+  //                     } catch (ex) {
+  //                       //
+  //                     }
+  //                   }
+  //                   var pcout = pc.firstWhereOrNull((e) => e.id == pt.menuItemId);
+  //                   if (pcout != null) {
+  //                     try {
+  //                       pc[pc.indexOf(pcout)] = pcout.copyWith(
+  //                           quantityPromotion: (ps?.quantityPromotion ?? 0) + pt.quantity);
+  //                     } catch (ex) {
+  //                       //
+  //                     }
+  //                   }
+  //                 }
+  //               }
+  //             }
+  //             coupons[coupons.indexOf(c)] = c.copyWith(discount: discountUpdate);
+  //           }
+  //         }
 
-          var productSelectingMap = LocalStorage.getOrderItemSelectingForOrder(orderSelect.id);
+  //         var productSelectingMap = LocalStorage.getOrderItemSelectingForOrder(orderSelect.id);
 
-          List<ProductModel> selecting = [];
-          var _products = ref.read(menuProvider).products;
-          productSelectingMap.forEach((key, value) {
-            var p = _products.firstWhereOrNull((e) => e.id.toString() == key);
-            if (p != null) {
-              selecting.add(p.copyWith(numberSelecting: value));
-            }
-          });
+  //         List<ProductModel> selecting = [];
+  //         var _products = ref.read(menuProvider).products;
+  //         productSelectingMap.forEach((key, value) {
+  //           var p = _products.firstWhereOrNull((e) => e.id.toString() == key);
+  //           if (p != null) {
+  //             selecting.add(p.copyWith(numberSelecting: value));
+  //           }
+  //         });
 
-          state = state.copyWith(
-            coupons: coupons,
-            customer: customer,
-            numberOfAdults: max(data.numberOfAdults, 1),
-            orderHistory: orderHistory,
-          );
-          ref.read(checkoutPageProvider.notifier).init(pc);
-          for (var e in [
-            WindowsMethodEnum.customer,
-            WindowsMethodEnum.productCheckout,
-          ]) {
-            syncInfoCustomerPage(method: e);
-          }
+  //         state = state.copyWith(
+  //           coupons: coupons,
+  //           customer: customer,
+  //           numberOfAdults: max(data.numberOfAdults, 1),
+  //           orderHistory: orderHistory,
+  //         );
+  //         ref.read(checkoutPageProvider.notifier).init(pc);
+  //         for (var e in [
+  //           WindowsMethodEnum.customer,
+  //           WindowsMethodEnum.productCheckout,
+  //         ]) {
+  //           syncInfoCustomerPage(method: e);
+  //         }
 
-          state = state.copyWith(
-              productCheckoutState: const PageState(status: PageCommonState.success));
-          if (loadingHome) updateEvent(HomeEvent.normal);
-          if (applyPolicy) {
-            applyCustomerPolicy(loadingHome: false);
-          } else {
-            if (!ignoreGetDataBill) getDataBill();
-          }
-          break;
-        } catch (ex) {
-          if (ex is AppException && ex.errorCode == 423) {
-            tryAgain == 3;
-            state = state.copyWith(lockedOrder: true);
-          }
-          tryAgain++;
-          if (tryAgain >= 3) {
-            rethrow;
-          }
-        }
-      }
-    } catch (ex) {
-      getDataBill();
-      state = state.copyWith(
-        productCheckoutState: PageState(
-          status: PageCommonState.error,
-          messageError: ex.toString(),
-        ),
-      );
-      if (loadingHome) updateEvent(HomeEvent.normal);
-    }
-  }
+  //         state = state.copyWith(
+  //             productCheckoutState: const PageState(status: PageCommonState.success));
+  //         if (loadingHome) updateEvent(HomeEvent.normal);
+  //         if (applyPolicy) {
+  //           applyCustomerPolicy(loadingHome: false);
+  //         } else {
+  //           if (!ignoreGetDataBill) getDataBill();
+  //         }
+  //         break;
+  //       } catch (ex) {
+  //         if (ex is AppException && ex.errorCode == 423) {
+  //           tryAgain == 3;
+  //           state = state.copyWith(lockedOrder: true);
+  //         }
+  //         tryAgain++;
+  //         if (tryAgain >= 3) {
+  //           rethrow;
+  //         }
+  //       }
+  //     }
+  //   } catch (ex) {
+  //     getDataBill();
+  //     state = state.copyWith(
+  //       productCheckoutState: PageState(
+  //         status: PageCommonState.error,
+  //         messageError: ex.toString(),
+  //       ),
+  //     );
+  //     if (loadingHome) updateEvent(HomeEvent.normal);
+  //   }
+  // }
 
   /// Tạo đơn hàng mới
   /// [0]: orderId, -1 là lỗi tạo đơn mới
@@ -490,57 +512,57 @@ class HomeNotifier extends StateNotifier<HomeState> {
     ref.invalidate(checkLoginProvider);
   }
 
-  void _resetOrder() {
-    state = state.copyWith(
-      lockedOrder: false,
-      // productsSelected: [],
-      // productsSelecting: [],
-      // productCheckout: [],
-      productCheckoutState: const PageState(status: PageCommonState.success),
-      customer: null,
-      coupons: [],
-      vouchers: [],
-      createVouchers: null,
-      applyPolicyState: const PageState(status: PageCommonState.success),
-      paymentMethodSelected: null,
-      statusPaymentGateway: false,
-      totalPaymentGateway: 0.0,
-      bankSelect: null,
-      cashReceivedAmount: 0.0,
-      atmPosSelect: null,
-      invoice: null,
-      orderInvoiceState: const PageState(),
-      dataBill: const DataBillResponseData(),
-      dataBillState: const PageState(status: PageCommonState.success),
-      imageBills: [],
-      numberOfAdults: 1,
-      numberOfChildren: 0,
-      kitchenNote: '',
-      customerPortraitSelect: null,
-      completeNote: '',
-      printNumberOfPeople: false,
-      autoScrollProducts: true,
-      changedProductId: null,
-      chatMessages: [],
-      getChatMessageState: const PageState(status: PageCommonState.success),
-    );
+  // void _resetOrder() {
+  //   state = state.copyWith(
+  //     lockedOrder: false,
+  //     // productsSelected: [],
+  //     // productsSelecting: [],
+  //     // productCheckout: [],
+  //     productCheckoutState: const PageState(status: PageCommonState.success),
+  //     customer: null,
+  //     coupons: [],
+  //     vouchers: [],
+  //     createVouchers: null,
+  //     applyPolicyState: const PageState(status: PageCommonState.success),
+  //     paymentMethodSelected: null,
+  //     statusPaymentGateway: false,
+  //     totalPaymentGateway: 0.0,
+  //     bankSelect: null,
+  //     cashReceivedAmount: 0.0,
+  //     atmPosSelect: null,
+  //     invoice: null,
+  //     orderInvoiceState: const PageState(),
+  //     dataBill: const DataBillResponseData(),
+  //     dataBillState: const PageState(status: PageCommonState.success),
+  //     imageBills: [],
+  //     numberOfAdults: 1,
+  //     numberOfChildren: 0,
+  //     kitchenNote: '',
+  //     customerPortraitSelect: null,
+  //     completeNote: '',
+  //     printNumberOfPeople: false,
+  //     autoScrollProducts: true,
+  //     changedProductId: null,
+  //     chatMessages: [],
+  //     getChatMessageState: const PageState(status: PageCommonState.success),
+  //   );
 
-    try {
-      ref.read(checkoutPageProvider.notifier).init([]);
-    } catch (ex) {
-      //
-    }
-    for (var e in [
-      WindowsMethodEnum.order,
-      WindowsMethodEnum.paymentMethod,
-      WindowsMethodEnum.customer,
-      WindowsMethodEnum.price,
-      WindowsMethodEnum.productCheckout,
-      WindowsMethodEnum.changeOrderProduct,
-    ]) {
-      syncInfoCustomerPage(method: e);
-    }
-  }
+  //   try {
+  //     ref.read(checkoutPageProvider.notifier).init([]);
+  //   } catch (ex) {
+  //     //
+  //   }
+  //   for (var e in [
+  //     WindowsMethodEnum.order,
+  //     WindowsMethodEnum.paymentMethod,
+  //     WindowsMethodEnum.customer,
+  //     WindowsMethodEnum.price,
+  //     WindowsMethodEnum.productCheckout,
+  //     WindowsMethodEnum.changeOrderProduct,
+  //   ]) {
+  //     syncInfoCustomerPage(method: e);
+  //   }
+  // }
 
   Future<void> loadingChangeOrderSelect(
     int orderId, {
@@ -555,7 +577,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         typeOrder: typeOrder ?? kTypeOrder,
         reservationCrmId: reservationCrmId,
       ));
-      _resetOrder();
+      // _resetOrder();
       ref.invalidate(tablesAndOrdersProvider);
       updateEvent(null);
     } catch (ex) {
@@ -566,7 +588,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
             "${S.current.ex_problem}: ${ex.toString()}",
         orderSelect: null,
       );
-      _resetOrder();
+      // _resetOrder();
     }
   }
 
@@ -1546,573 +1568,22 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<FindCustomerStatus> findCustomer(
-    String phone, {
-    bool loadingHome = true,
-    bool retry = false,
+  Future<bool> lockOrder({
+    bool showLoading = true,
+    bool lock = true,
+    String? messageError,
   }) async {
     try {
-      if (loadingHome) updateEvent(HomeEvent.findingCustomer);
-      await _checkOrderSelect();
-      int countRetry = 0;
-      CustomerResponseData result =
-          await _customerRepository.findCustomer(phoneNumber: phone, order: state.orderSelect!);
-      // do {
-      //   try {
-      //     result =
-      //         await _customerRepository.findCustomer(phoneNumber: phone, order: state.orderSelect!);
-
-      //     break;
-      //   } catch (ex) {
-      //     countRetry++;
-      //     if(countRetry
-      //   }
-      // } while (countRetry < (retry ? 1 : 3));
-
-      if (loadingHome) updateEvent(null);
-      if (result.customer is List<dynamic> == false) {
-        CustomerModel customer = CustomerModel.fromJson(result.customer);
-        state = state.copyWith(customer: customer);
-        syncInfoCustomerPage(method: WindowsMethodEnum.customer);
-        // syncInfoForCustomer();
-        return FindCustomerStatus.success;
-      }
-      state = state.copyWith(messageError: "${S.current.find_customer_not_found} ($phone)");
-      return FindCustomerStatus.notFound;
-    } catch (ex) {
-      _lockOrder(ex);
-      var errorMessage =
-          ex is AppException ? ex.toString() : AppException.fromStatusCode(-1).toString();
-      if (loadingHome) {
-        state = state.copyWith(
-          event: HomeEvent.normal,
-          messageError: errorMessage,
-        );
-      }
-      return FindCustomerStatus.error;
-    }
-  }
-
-  Future<String?> createCustomer({
-    required String phone,
-    required String firstName,
-    required String lastName,
-    required String birthday,
-    required String? gender,
-    String? idCardNumber,
-    String? address,
-    required bool noBOD,
-  }) async {
-    try {
-      if (state.orderSelect == null) return S.current.noOrderSelect;
-      updateEvent(HomeEvent.createCustomer);
-      if (phone.isEmpty ||
-          firstName.isEmpty ||
-          lastName.isEmpty ||
-          (noBOD ? false : birthday.isEmpty)) {
-        updateEvent(null);
-        return S.current.miss_information;
-      }
-      await _checkOrderSelect();
-      await _customerRepository.createCustomer(
-        phone: phone,
-        firstName: firstName,
-        lastName: lastName,
-        birthday: birthday,
-        gender: gender,
-        order: state.orderSelect!,
-        idCardNumber: idCardNumber,
-        address: address,
-      );
-
-      updateEvent(null);
-      return null;
-    } catch (ex) {
-      _lockOrder(ex);
-      updateEvent(null);
-      return "${S.current.unable_add_customer}\n${ex.toString()}";
-    }
-  }
-
-  Future<({String? error, String? titleError})> addCoupon({
-    required String code,
-    bool loadingHome = true,
-    bool applyPolicy = true,
-  }) async {
-    try {
-      if (state.coupons
-          .any((element) => element.name.trim().toLowerCase() == code.trim().toLowerCase())) {
-        return (
-          error: S.current.discount_code_already_exists,
-          titleError: null,
-        );
-      }
-      if (loadingHome) updateEvent(HomeEvent.checkTicket);
-      await _checkOrderSelect();
-
-      final couponRepo = await _couponRepository.addCoupon(
-        code: code,
-        order: state.orderSelect!,
-        totalOrder: AppUtils.convertToDouble(getFinalPaymentPrice.totalPrice) ?? 0.0,
-        numberOfAdults: state.numberOfAdults,
-      );
-
-      if (loadingHome) updateEvent(null);
-      List<CustomerPolicyModel> coupons = List<CustomerPolicyModel>.from(couponRepo.data);
-      if (coupons.isEmpty) {
-        final errorMessage = couponRepo.message;
-        return (
-          titleError:
-              errorMessage.isEmpty ? null : "${S.current.discount_code_is_not_valid} ($code)",
-          error: errorMessage.isEmpty
-              ? "${S.current.discount_code_is_not_valid} ($code)"
-              : errorMessage,
-        );
-      }
-      // lấy customer trong coupon nếu có
-      CustomerModel? customerCoupon = coupons.first.customer;
-      state = state.copyWith(
-        coupons: [...coupons, ...state.coupons],
-        customer: state.customer ?? customerCoupon,
-      );
-      if (applyPolicy) await applyCustomerPolicy();
-
-      return (error: null, titleError: null);
-    } catch (ex) {
-      _lockOrder(ex);
-      if (loadingHome) updateEvent(null);
-      return (
-        error: ex.toString(),
-        titleError: "${S.current.failed_apply_discount_code} ($code)",
-      );
-    }
-  }
-
-  /// nhập tiền giảm hoặc % giảm
-  Future<({String? error, String? titleError})> addVoucher({
-    double value = 0,
-    bool loadingHome = true,
-    bool applyPolicy = true,
-    DiscountTypeEnum? discountType,
-  }) async {
-    try {
-      if (loadingHome) updateEvent(HomeEvent.addCoupon);
-
-      final result = await _couponRepository.addVoucher(
-        order: state.orderSelect!,
-        totalBill: getFinalPaymentPrice.totalPrice * 1.0,
-        amount: value,
-        type: discountType ?? state.discountTypeSelect,
-      );
-
-      if (loadingHome) updateEvent(null);
-
-      state = state.copyWith(
-        coupons: [
-          CustomerPolicyModel(
-            id: result.id,
-            name: result.name,
-            type: null,
-            isType: 3,
-            discount: [
-              DiscountPolicy(
-                id: null,
-                name: null,
-                // do response trả về lại là số tiền giảm nên type sẽ là DiscountTypeEnum.vnd
-                // getOrderProductCheckout sẽ ghi đè lại thông in mã giảm
-                type: DiscountTypeEnum.vnd.key,
-                amount: result.amount,
-              ),
-            ],
-          ),
-          ...state.coupons
-        ],
-      );
-      getOrderProductCheckout();
-      return (error: null, titleError: null);
-    } catch (ex) {
-      _lockOrder(ex);
-      if (loadingHome) updateEvent(null);
-      bool isPercent = state.discountTypeSelect == DiscountTypeEnum.percent;
-      return (
-        error: ex.toString(),
-        titleError: '${S.current.failed_apply_discount_code} '
-            '(${isPercent ? AppUtils.getPercentValue(value) : AppUtils.formatCurrency(symbol: '', value: value)} ${isPercent ? '%' : 'đ'})',
-      );
-    }
-  }
-
-  /// nhập tiền giảm hoặc % giảm
-  Future<String?> deleteVoucher({
-    required CustomerPolicyModel coupon,
-    bool loadingHome = true,
-    bool applyPolicy = true,
-  }) async {
-    try {
-      if (loadingHome) updateEvent(HomeEvent.removeCoupon);
-      await _couponRepository.deleteVoucher(coupon.id);
-      if (loadingHome) updateEvent(null);
-      var coupons = List<CustomerPolicyModel>.from(state.coupons);
-      coupons.removeWhere((e) => e.id == coupon.id);
-      state = state.copyWith(coupons: coupons);
-      if (applyPolicy) await applyCustomerPolicy(loadingHome: loadingHome);
-      return null;
-    } catch (ex) {
-      _lockOrder(ex);
-      if (loadingHome) updateEvent(null);
-      return ex.toString();
-    }
-  }
-
-  Future<({String? error, int? timeOrder})> cancelProductOrder1({
-    List<ProductCheckoutModel> productCheckout = const [],
-    String reason = '',
-    Set<PrinterModel> printerSelect = const <PrinterModel>{},
-    bool useDefaultPrinter = true,
-  }) async {
-    try {
-      updateEvent(HomeEvent.cancelProductsCheckout);
-      var result = await _orderRepository.processOrderItem(
-        order: state.orderSelect!,
-        total: 0,
-        note: reason,
-        cancel: true,
-        productCheckout: productCheckout,
-      );
-      updateEvent(null);
-      getOrderProductCheckout();
-      getDataBill();
-      return (error: null, timeOrder: result.timesOrder);
-    } catch (ex) {
-      updateEvent(null);
-      return (error: ex.toString(), timeOrder: null);
-    }
-  }
-
-  ///
-  // Future<({String? error, List<IpOrderModel> printers, bool errorGetPrinter})>
-  //     cancelProductOrder(
-  //   List<ProductCheckoutModel> cancelProductCheckouts, {
-  //   String contentCancelOrder = 'Khách chọn nhầm',
-  //   bool ignoreGetPrinter = false,
-  //   List<int> printerCheck = const [],
-  // }) async {
-  //   showLogs(cancelProductCheckouts, flags: 'cancelProductCheckouts');
-  //   showLogs(ignoreGetPrinter, flags: 'ignoreGetPrinter');
-  //   try {
-  //     updateEvent(HomeEvent.cancelProductsCheckout);
-  //     int retry = 0;
-  //     List<IpOrderModel> printers = [];
-  //     while (retry < 3) {
-  //       try {
-  //         if (state.orderSelect == null) {
-  //           updateEvent(HomeEvent.normal);
-  //           return (
-  //             error: S.current.noOrderSelect,
-  //             printers: <IpOrderModel>[],
-  //             errorGetPrinter: false,
-  //           );
-  //         }
-
-  //         showLogs(printerCheck,
-  //             flags: 'cancelProductOrder - lấy ds máy in theo kiểu món');
-  //         // nếu ds sp có chứa đồ uống hoặc k sử dụng KDS thì mới cần lấy ds máy in
-  //         if (printers.isEmpty &&
-  //             !ignoreGetPrinter &&
-  //             printerCheck.isNotEmpty &&
-  //             (printerCheck.contains(4) || !AppConfig.useKds)) {
-  //           try {
-  //             var resultCheckPrinter = await _orderRepository.getPrinterBill(
-  //                 state.orderSelect!, printerCheck.toList());
-
-  //             // if (resultCheckPrinter.error != null) {
-  //             //   throw resultCheckPrinter.error!;
-  //             // }
-  //             printers = List<IpOrderModel>.from(resultCheckPrinter);
-  //           } catch (ex) {
-  //             if (retry >= 2) {
-  //               updateEvent(null);
-  //               return (
-  //                 error: ex.toString(),
-  //                 printers: <IpOrderModel>[],
-  //                 errorGetPrinter: true,
-  //               );
-  //             }
-  //             rethrow;
-  //           }
-  //         }
-  //         await _orderRepository.processOrderItem(
-  //           order: state.orderSelect!,
-  //           total: 0,
-  //           note: contentCancelOrder,
-  //           cancel: true,
-  //           productCheckout: cancelProductCheckouts,
-  //         );
-
-  //         var productCheckout =
-  //             List<ProductCheckoutModel>.from(state.productCheckout);
-  //         // var productsSelected =
-  //         //     List<ProductModel>.from(state.productsSelected);
-  //         for (var item in cancelProductCheckouts) {
-  //           var check =
-  //               productCheckout.firstWhereOrNull((e) => e.id == item.id);
-  //           int remain = 0;
-  //           if (check != null) {
-  //             remain = max(0, check.quantity + item.quantityCancel);
-  //             var index = productCheckout.indexOf(check);
-  //             if (index != -1) {
-  //               if (remain > 0) {
-  //                 productCheckout[index] =
-  //                     check.copyWith(quantityCancel: 0, quantity: remain);
-  //               } else {
-  //                 productCheckout.removeAt(index);
-  //               }
-  //             }
-
-  //             // var pCheck =
-  //             //     productsSelected.firstWhereOrNull((e) => e.id == item.id);
-  //             // if (pCheck != null) {
-  //             //   var ind = productsSelected.indexOf(pCheck);
-  //             //   if (ind != -1) {
-  //             //     if (remain > 0) {
-  //             //       productsSelected[ind] =
-  //             //           pCheck.copyWith(numberSelecting: remain);
-  //             //     } else {
-  //             //       productsSelected.removeAt(ind);
-  //             //     }
-  //             //   }
-  //             // }
-  //           }
-  //         }
-  //         try {
-  //           ref.read(checkoutPageProvider.notifier).init(productCheckout);
-  //         } catch (ex) {
-  //           //
-  //         }
-  //         // state = state.copyWith(
-  //         //   productCheckout: productCheckout,
-  //         //   // productsSelected: productsSelected,
-  //         // );
-  //         syncInfoCustomerPage(method: WindowsMethodEnum.productCheckout);
-  //         getOrderProductCheckout(applyPolicy: true);
-
-  //         updateEvent(null);
-  //         return (
-  //           error: null,
-  //           printers: printers,
-  //           errorGetPrinter: false,
-  //         );
-  //       } catch (ex) {
-  //         showLogs(ex, flags: 'ex');
-  //         retry++;
-  //         if (retry >= 3) {
-  //           rethrow;
-  //         }
-  //       }
-  //     }
-  //     updateEvent(null);
-  //     return (
-  //       error: null,
-  //       printers: <IpOrderModel>[],
-  //       errorGetPrinter: false,
-  //     );
-  //   } catch (ex) {
-  //     updateEvent(null);
-  //     return (
-  //       error: ex.toString(),
-  //       printers: <IpOrderModel>[],
-  //       errorGetPrinter: false,
-  //     );
-  //   }
-  // }
-
-  void loadPaymentMethods() async {
-    try {
-      state = state.copyWith(
-        paymentMethodState: const PageState(status: PageCommonState.loading),
-        paymentMethodSelected: null,
-      );
-      syncInfoCustomerPage(method: WindowsMethodEnum.paymentMethod);
-      await _checkOrderSelect();
-      final result = await _restaurantRepository.getPaymentMethod(
-        orderId: state.orderSelect!.id,
-      );
-
-      state = state.copyWith(
-        paymentMethodState: const PageState(status: PageCommonState.success),
-        paymentMethods: result,
-      );
-    } catch (ex) {
-      _lockOrder(ex);
-      state = state.copyWith(
-          paymentMethodState: PageState(
-        status: PageCommonState.error,
-        messageError: ex.toString(),
-      ));
-    }
-  }
-
-  PaymentMethod? getPaymentMethodSelected() => state.paymentMethodSelected;
-
-  Future<String?> deleteCoupon(
-    CustomerPolicyModel coupon, {
-    bool applyPolicy = true,
-    bool loadingApplyPolicy = true,
-  }) async {
-    try {
-      if (state.orderSelect == null) return S.current.noOrderSelect;
-      updateEvent(HomeEvent.removeCoupon);
-      final result =
-          await _couponRepository.deleteCoupon(idCode: coupon.id, order: state.orderSelect!);
-
-      updateEvent(null);
-      if (result) {
-        var coupons = List<CustomerPolicyModel>.from(state.coupons);
-        coupons.removeWhere((element) => element.id == coupon.id);
-        // check KH có nằm trong mã bị xoá hay không
-        CustomerModel? customerChange = state.customer;
-        if ((coupon.customer != null) &&
-            (customerChange != null) &&
-            (coupon.customer?.id == customerChange.id)) {
-          customerChange = null;
-        }
-        state = state.copyWith(
-          coupons: coupons,
-          customer: customerChange,
-        );
-
-        if (applyPolicy) {
-          try {
-            var res = await applyCustomerPolicy(
-              loadingHome: loadingApplyPolicy,
-              requireApply: true,
-            );
-            if (res != null) {
-              return res.toString();
-            }
-          } catch (ex) {
-            //
-          }
-        }
-        return null;
-      }
-      return S.current.discount_code_cannot_be_deleted;
-    } catch (ex) {
-      _lockOrder(ex);
-      updateEvent(null);
-      return ex.toString();
-    }
-  }
-
-  void changeIgnoreCheckCodeWaiter() {
-    state = state.copyWith(ignoreCheckCodeWaiter: !state.ignoreCheckCodeWaiter);
-  }
-
-  Future<(MInvoiceInfo? mInvoiceInfo, String? error)> searchTaxCodeInfo(String taxCode) async {
-    try {
-      updateEvent(HomeEvent.findingTaxCode);
-      final result = await _invoiceRepository.getMInvoiceTaxInfo(taxCode);
-      updateEvent(HomeEvent.normal);
-      return (result, null);
-    } catch (ex) {
-      updateEvent(HomeEvent.normal);
-      return (null, ex.toString());
-    }
-  }
-
-  Future<bool> onUpdateOrderInvoice(
-    OrderInvoice invoice, {
-    bool isUpdate = false,
-  }) async {
-    try {
-      updateEvent(isUpdate ? HomeEvent.updateInvoice : HomeEvent.insertInvoice);
-      await _checkOrderSelect();
-      await _invoiceRepository.updateOrderInvoice(
-        orderId: state.orderSelect!.id,
-        orderInvoice: invoice,
-      );
-
-      state = state.copyWith(
-        event: HomeEvent.processed,
-        invoice: invoice,
-      );
-      return true;
-    } catch (ex) {
-      _lockOrder(ex);
-      state = state.copyWith(
-        event: HomeEvent.processError,
-        messageError: ex.toString(),
-      );
-      return false;
-    }
-  }
-
-  Future<void> getOrderInvoice() async {
-    try {
-      state = state.copyWith(
-        orderInvoiceState: const PageState(status: PageCommonState.loading),
-      );
-      var orderSelect = state.orderSelect;
-      if (orderSelect == null) {
-        state = state.copyWith(
-          orderInvoiceState: const PageState(status: PageCommonState.success),
-          invoice: null,
-        );
-        return;
-      }
-      final result = await _invoiceRepository.getOrderInvoice(orderSelect.id);
-
-      state = state.copyWith(
-        orderInvoiceState: const PageState(status: PageCommonState.success),
-        invoice: result.isEmpty() ? null : result,
-      );
-    } catch (ex) {
-      _lockOrder(ex);
-      state = state.copyWith(
-        orderInvoiceState: PageState(
-          messageError: ex.toString(),
-          status: PageCommonState.error,
-        ),
-      );
-    }
-  }
-
-  void changePaymentMethod(PaymentMethod? paymentMethod) {
-    state = state.copyWith(
-      paymentMethodSelected: paymentMethod,
-      statusPaymentGateway: false,
-      totalPaymentGateway: 0.0,
-      cashReceivedAmount: 0,
-      bankSelect: null,
-      atmPosSelect: null,
-    );
-
-    for (var e in [
-      WindowsMethodEnum.paymentMethod,
-      WindowsMethodEnum.bank,
-      WindowsMethodEnum.price,
-    ]) {
-      syncInfoCustomerPage(method: e);
-    }
-  }
-
-  Future<bool> unlockOrder({bool loadingHome = true, String? messageError}) async {
-    try {
-      state = state.copyWith(lockedOrder: true);
-      if (loadingHome) updateEvent(HomeEvent.unlockOrder);
+      if (showLoading) updateEvent(lock ? HomeEvent.lockOrder : HomeEvent.unlockOrder);
       int retry = 0;
-      while (retry < 3) {
-        try {
-          if (state.orderSelect == null) {
-            state = state.copyWith(lockedOrder: false);
-            break;
-          }
-          var result = await _orderRepository.lockOrder(
-            orderId: state.orderSelect!.id,
-            statusLock: 0,
-          );
 
-          state = state.copyWith(lockedOrder: false);
+      do {
+        try {
+          var order = state.orderSelect;
+          if (order == null) {
+            throw S.current.noOrderSelect;
+          }
+          await _orderRepository.lockOrder(orderId: order.id, statusLock: lock ? 1 : 0);
           break;
         } catch (ex) {
           retry++;
@@ -2120,615 +1591,127 @@ class HomeNotifier extends StateNotifier<HomeState> {
             rethrow;
           }
         }
-      }
+      } while (retry < 3);
 
-      if (loadingHome) updateEvent(HomeEvent.processed);
-      resetPaymentAndBank();
+      if (showLoading) updateEvent(null);
+      ref.read(checkoutPageProvider.notifier).resetPaymentAndBank();
       return true;
     } catch (ex) {
-      if (loadingHome) updateEvent(HomeEvent.processError);
+      if (showLoading) updateEvent(null);
       state = state.copyWith(
-        messageError:
-            "${messageError ?? S.current.failed_payment_closing}\n${S.current.ex_problem}: ${ex.toString()}",
-      );
-      return false;
-    }
-  }
-
-  Future<bool> lockOrder({bool loadingHome = true}) async {
-    try {
-      if (loadingHome) updateEvent(HomeEvent.lockOrder);
-      int retry = 0;
-      while (retry < 3) {
-        try {
-          if (state.orderSelect == null) {
-            break;
-          }
-          var result = await _orderRepository.lockOrder(
-            orderId: state.orderSelect!.id,
-            statusLock: 1,
-          );
-
-          break;
-        } catch (ex) {
-          retry++;
-          if (retry >= 3) {
-            showLogs(ex, flags: 'ex lockOrder test');
-            rethrow;
-          }
-        }
-      }
-
-      if (loadingHome) updateEvent(null);
-      return true;
-    } catch (ex) {
-      if (loadingHome) updateEvent(null);
-      state = state.copyWith(
-        messageError:
+        messageError: messageError ??
             "${S.current.failed_payment_closing}\n${S.current.ex_problem}: ${ex.toString()}",
       );
       return false;
     }
   }
 
-  ({List<CustomerPolicyModel> coupons, String? error}) checkPaymentMethodSelect(
-      PaymentMethod method) {
-    try {
-      updateEvent(HomeEvent.checkPaymentMethod);
-      if (state.coupons.isEmpty) {
-        updateEvent(HomeEvent.normal);
-        return (coupons: [], error: null);
-      }
-      List<CustomerPolicyModel> couponInvalidResult = [];
-      // kiểm tra với danh sách giảm giá đang có
-      for (final c in state.coupons) {
-        if (c.paymentNotAllowed.any((element) => element.key == method.key)) {
-          couponInvalidResult.add(c);
-        }
-      }
-      updateEvent(HomeEvent.normal);
-      if (couponInvalidResult.isNotEmpty) {
-        return (
-          coupons: couponInvalidResult,
-          error: S.current.msg_coupons_invalid_with_payment_method(
-              couponInvalidResult.length.toString(),
-              couponInvalidResult.join(','),
-              method.name.toUpperCase()),
-          // "Có ${couponInvalidResult.length} mã giảm giá ${couponInvalidResult.join(',')}"
-          // " không được phép dùng với PTTT (${method.name.toUpperCase()}).\n"
-          // " Vui lòng xoá bỏ mã hoặc chọn phương thức thanh toán khác!"
-        );
-      }
-      return (coupons: [], error: null);
-    } catch (ex) {
-      updateEvent(HomeEvent.normal);
-      return (coupons: [], error: "${S.current.can_not_check_payment_method}\n${ex.toString()}");
-    }
-  }
+  // Future<void> loadBanksInfo() async {
+  //   try {
+  //     state = state.copyWith(
+  //       banksState: const PageState(status: PageCommonState.loading),
+  //       banks: [],
+  //       bankSelect: null,
+  //     );
+  //     syncInfoCustomerPage(method: WindowsMethodEnum.bank);
+  //     await _checkOrderSelect();
+  //     final apiBankParam = ApiBankParam(state.dataBill.order, getFinalPaymentPrice.totalPriceFinal);
+  //     final paymentMethodSelect = state.paymentMethodSelected;
+  //     final result = await _restaurantRepository.getBanks(apiBankParam);
 
-  void changeBankSelect(UserBankModel? bank) {
-    state = state.copyWith(bankSelect: bank);
-    // syncInfoForCustomer();
-    syncInfoCustomerPage(method: WindowsMethodEnum.bank);
-  }
+  //     var bankView = List<UserBankModel>.from(result ?? []);
+  //     // Loại bỏ những bank không hỗ trợ PTTT
+  //     bankView.removeWhere(
+  //         (element) => element.listPaymentId.contains(paymentMethodSelect?.key) == false);
 
-  Future<void> loadBanksInfo() async {
-    try {
-      state = state.copyWith(
-        banksState: const PageState(status: PageCommonState.loading),
-        banks: [],
-        bankSelect: null,
-      );
-      syncInfoCustomerPage(method: WindowsMethodEnum.bank);
-      await _checkOrderSelect();
-      final apiBankParam = ApiBankParam(state.dataBill.order, getFinalPaymentPrice.totalPriceFinal);
-      final paymentMethodSelect = state.paymentMethodSelected;
-      final result = await _restaurantRepository.getBanks(apiBankParam);
+  //     if (bankView.length == 1) {
+  //       state = state.copyWith(bankSelect: bankView.first);
+  //       syncInfoCustomerPage(method: WindowsMethodEnum.bank);
+  //       // syncInfoForCustomer();
+  //     }
+  //     state = state.copyWith(
+  //       banksState: const PageState(status: PageCommonState.success),
+  //       banks: bankView,
+  //     );
+  //   } catch (ex) {
+  //     state = state.copyWith(
+  //       banksState: PageState(
+  //         status: PageCommonState.error,
+  //         messageError: ex.toString(),
+  //       ),
+  //     );
+  //   }
+  // }
 
-      var bankView = List<UserBankModel>.from(result ?? []);
-      // Loại bỏ những bank không hỗ trợ PTTT
-      bankView.removeWhere(
-          (element) => element.listPaymentId.contains(paymentMethodSelect?.key) == false);
+  // /// áp dụng ưu đãi
+  // ///
+  // /// [loadingHome] = true - show loading giữa trang
+  // ///
+  // /// [requireApply] = false - bắt buộc áp dụng lại
+  // Future<String?> applyCustomerPolicy({
+  //   bool retry = true,
+  //   bool loadingHome = true,
+  //   bool ignoreGetDataBill = false,
+  //   bool requireApply = false,
+  // }) async {
+  //   if (!ignoreGetDataBill) getDataBill(loadingHome: loadingHome);
+  //   return null;
+  // }
 
-      if (bankView.length == 1) {
-        state = state.copyWith(bankSelect: bankView.first);
-        syncInfoCustomerPage(method: WindowsMethodEnum.bank);
-        // syncInfoForCustomer();
-      }
-      state = state.copyWith(
-        banksState: const PageState(status: PageCommonState.success),
-        banks: bankView,
-      );
-    } catch (ex) {
-      state = state.copyWith(
-        banksState: PageState(
-          status: PageCommonState.error,
-          messageError: ex.toString(),
-        ),
-      );
-    }
-  }
+  // void onChangeKitchenNote(String note) {
+  //   state = state.copyWith(kitchenNote: note);
+  // }
 
-  void resetPaymentAndBank() {
-    state = state.copyWith(
-      imageBills: [],
-      paymentMethodSelected: null,
-      bankSelect: null,
-      statusPaymentGateway: false,
-      totalPaymentGateway: 0.0,
-      cashReceivedAmount: 0,
-      atmPosSelect: null,
-    );
-    for (var e in [
-      WindowsMethodEnum.paymentMethod,
-      WindowsMethodEnum.bank,
-      WindowsMethodEnum.price,
-    ]) {
-      syncInfoCustomerPage(method: e);
-    }
-  }
+  // void onChangeCompleteNote(String note) {
+  //   state = state.copyWith(completeNote: note);
+  // }
 
-  // update trùng sẽ xoá
-  void updateImageBill(File image) {
-    if (state.orderSelect == null) return;
-    var images = List<File>.from(state.imageBills);
-    if (images.contains(image)) {
-      images.remove(image);
-      clearImageBill(files: [image]);
-    } else {
-      images.add(image);
-    }
-    state = state.copyWith(imageBills: images);
-  }
+  // Future<String?> sendTicket({
+  //   required String title,
+  //   required String desc,
+  //   List<File> files = const [],
+  // }) async {
+  //   return 'Chưa triển khai';
+  // }
 
-  void clearImageBill({List<File>? files}) {
-    try {
-      if (Platform.isWindows) return;
-      final fileCheck = files ?? state.imageBills;
-      for (final file in fileCheck) {
-        File(file.path).deleteSync();
-      }
-      // xoá toàn bộ
-      if (files == null) {
-        state = state.copyWith(imageBills: []);
-      }
-      showLog("done", flags: 'clearImageBill');
-    } catch (ex) {
-      showLog("error $ex", flags: 'clearImageBill');
-    }
-  }
+  // Future<({String? url, String? qr, int? expiryMin, String? error, int? statusCode})>
+  //     getPaymentGateway() async {
+  //   String? url, qr, error;
+  //   int? statusCode;
+  //   int? expiryMin;
+  //   try {
+  //     updateEvent(HomeEvent.getPaymentGateway);
+  //     final apiBankParam = ApiBankParam(state.dataBill.order, getFinalPaymentPrice.totalPriceFinal);
 
-  void changeNumberOfPeople({
-    int? numberOfAdults,
-    int? numberOfChildren,
-  }) {
-    state = state.copyWith(
-      numberOfAdults: numberOfAdults ?? state.numberOfAdults,
-      numberOfChildren: numberOfChildren ?? state.numberOfChildren,
-    );
-  }
+  //     final paymentMethodSelect = state.paymentMethodSelected;
+  //     if (paymentMethodSelect == null) {
+  //       throw S.current.payment_method_not_select;
+  //     }
+  //     final result = await _restaurantRepository.getPaymentGateway(
+  //       apiBankParam: apiBankParam,
+  //       keyPaymentMethod: paymentMethodSelect.key,
+  //     );
 
-  CustomerPortrait? getCustomerPortraitSelect() => state.customerPortraitSelect;
+  //     var data = result;
+  //     url = data?.url;
+  //     qr = data?.qr;
+  //     expiryMin = data?.expiryMin;
+  //     error = data?.message;
+  //     statusCode = data?.status;
+  //   } catch (ex) {
+  //     error = ex.toString();
+  //   }
+  //   updateEvent(HomeEvent.processed);
+  //   return (
+  //     url: url,
+  //     qr: qr,
+  //     expiryMin: expiryMin,
+  //     error: error,
+  //     statusCode: statusCode,
+  //   );
+  // }
 
-  void onChangeCustomerPortraitSelect(CustomerPortrait? customerPortrait) {
-    state = state.copyWith(customerPortraitSelect: customerPortrait);
-  }
-
-  Future<String?> deleteCustomer() async {
-    try {
-      if (state.orderSelect == null) return S.current.noOrderSelect;
-      state = state.copyWith(event: HomeEvent.removeCustomer);
-      await _customerRepository.deleteCustomer(state.orderSelect!.id);
-      state = state.copyWith(event: HomeEvent.normal, customer: null);
-      syncInfoCustomerPage(method: WindowsMethodEnum.customer);
-      return null;
-    } catch (ex) {
-      _lockOrder(ex);
-      state = state.copyWith(event: HomeEvent.normal);
-      return "${S.current.error_remove_customer_order}\n${ex.toString()}";
-    }
-  }
-
-  /// áp dụng ưu đãi
-  ///
-  /// [loadingHome] = true - show loading giữa trang
-  ///
-  /// [requireApply] = false - bắt buộc áp dụng lại
-  Future<String?> applyCustomerPolicy({
-    bool retry = true,
-    bool loadingHome = true,
-    bool ignoreGetDataBill = false,
-    bool requireApply = false,
-  }) async {
-    if (!ignoreGetDataBill) getDataBill(loadingHome: loadingHome);
-    return null;
-  }
-
-  /// tạm tính
-  Future<
-      ({
-        HomePaymentError? errorType,
-        String msg,
-        List<IpOrderModel> tmpPrinters,
-        PaymentReceiptPrintRequest? requestPrint,
-      })> onPayment(BuildContext context) async {
-    List<IpOrderModel> printers = [];
-    try {
-      updateEvent(HomeEvent.paymentProcess);
-      syncInfoCustomerPage(
-        method: WindowsMethodEnum.payment,
-        arguments: PaymentStatusEnum.loading.name,
-      );
-
-      int retryTempPayment = 0;
-      int timesTempPayment = 3;
-      // in tạm tính
-      while (retryTempPayment < timesTempPayment) {
-        try {
-          if (state.orderSelect == null) {
-            updateEvent(null);
-            syncInfoCustomerPage(
-              method: WindowsMethodEnum.payment,
-              arguments: PaymentStatusEnum.cancel.name,
-            );
-            return (
-              errorType: HomePaymentError.temp,
-              msg: S.current.noOrderSelect,
-              tmpPrinters: <IpOrderModel>[],
-              requestPrint: null,
-            );
-          }
-          if (printers.isEmpty) {
-            final resultPrinter = await _orderRepository.getPrinterBill(state.orderSelect!, [1]);
-
-            printers = List.from(resultPrinter ?? []);
-          }
-
-          // // Kiểm tra tình trạng máy in
-          for (var ipPrinter in printers) {
-            var checkPrinterAvailable = await AppPrinterCommon.checkPrinter(ipPrinter);
-            if (checkPrinterAvailable != null) {
-              throw checkPrinterAvailable;
-            }
-          }
-
-          var price = getFinalPaymentPrice;
-          var checkoutState = ref.read(checkoutPageProvider);
-
-          var result = await _orderRepository.payment(
-            order: state.orderSelect!,
-            infoPrint: printers,
-            products: checkoutState.productsCheckout,
-            vouchers: state.coupons,
-            createVouchers: state.createVouchers,
-            comment: null,
-            numberOfAdults: state.numberOfAdults,
-            numberOfChildren: state.numberOfChildren,
-            note: state.completeNote,
-            flagInvoice: !(state.invoice?.isEmpty() ?? true),
-            customerRatings: [],
-            imageBills: state.imageBills,
-            paymentMethod: state.paymentMethodSelected?.key,
-            customerPortrait: state.customerPortraitSelect,
-            statusPaymentCompleted: state.statusPaymentGateway,
-            totalPaymentCompleted:
-                state.statusPaymentGateway ? state.totalPaymentGateway : price.totalPriceFinal,
-          );
-
-          try {
-            LocalStorage.deleteNotePerOrderItem(
-              order: state.orderSelect!,
-            );
-          } catch (ex) {
-            //
-          }
-
-          break;
-        } catch (ex) {
-          retryTempPayment++;
-          if (retryTempPayment >= timesTempPayment) {
-            state = state.copyWith(event: HomeEvent.normal);
-            syncInfoCustomerPage(
-              method: WindowsMethodEnum.payment,
-              arguments: PaymentStatusEnum.cancel.name,
-            );
-            return (
-              errorType: HomePaymentError.temp,
-              msg: ex.toString(),
-              tmpPrinters: <IpOrderModel>[],
-              requestPrint: null,
-            );
-          }
-        }
-      }
-
-      // hoàn thành đơn
-      var completeStatus = await completeBill(
-        loadingHome: false,
-        context: context,
-        printers: printers,
-      );
-      syncInfoCustomerPage(
-        method: WindowsMethodEnum.payment,
-        arguments: PaymentStatusEnum.success.name,
-      );
-
-      if (completeStatus.error != null) {
-        updateEvent(null);
-        return (
-          errorType: HomePaymentError.complete,
-          msg: completeStatus.error!,
-          tmpPrinters: printers,
-          requestPrint: completeStatus.requestPrint,
-        );
-      }
-      clearImageBill();
-      if (completeStatus.errorSendPrint != null) {
-        updateEvent(null);
-        return (
-          errorType: HomePaymentError.printCompleteError,
-          msg: completeStatus.errorSendPrint!,
-          tmpPrinters: printers,
-          requestPrint: completeStatus.requestPrint,
-        );
-      }
-      updateEvent(null);
-      return (
-        errorType: null,
-        msg: '',
-        tmpPrinters: printers,
-        requestPrint: null,
-      );
-    } catch (ex) {
-      updateEvent(null);
-      return (
-        errorType: HomePaymentError.temp,
-        msg: ex.toString(),
-        tmpPrinters: <IpOrderModel>[],
-        requestPrint: null,
-      );
-    }
-  }
-
-  void onChangeKitchenNote(String note) {
-    state = state.copyWith(kitchenNote: note);
-  }
-
-  void onChangeCompleteNote(String note) {
-    state = state.copyWith(completeNote: note);
-  }
-
-  void updatePaymentGatewayInfo({
-    bool? status,
-    dynamic amount,
-    bool usePriceDataBillForAmount = false,
-  }) {
-    state = state.copyWith(
-      statusPaymentGateway: status ?? state.statusPaymentGateway,
-      totalPaymentGateway: usePriceDataBillForAmount
-          ? (getFinalPaymentPrice.totalPriceFinal * 1.0)
-          : amount ?? state.totalPaymentGateway,
-    );
-  }
-
-  Future<
-      ({
-        String? error,
-        String? errorSendPrint,
-        PaymentReceiptPrintRequest? requestPrint,
-      })> completeBill({
-    required BuildContext context,
-    bool loadingHome = true,
-    List<IpOrderModel> printers = const [],
-    bool printKitchenBill = false,
-  }) async {
-    try {
-      PaymentReceiptPrintRequest? requestPrint;
-      String? errorSendPrint;
-      if (loadingHome) updateEvent(HomeEvent.completeBillAgain);
-
-      int retry = 0;
-      while (retry < 3) {
-        try {
-          PriceDataBill price = getFinalPaymentPrice;
-          if (state.orderSelect == null) {
-            if (loadingHome) updateEvent(null);
-            return (error: S.current.noOrderSelect, errorSendPrint: null, requestPrint: null);
-          }
-          var paymentMethodSelected = state.paymentMethodSelected;
-          if (paymentMethodSelected == null) {
-            throw 'Chưa chọn phương thức thanh toán';
-          }
-          var result = await _orderRepository.completeBill(
-            order: state.orderSelect!,
-            portrait: state.customerPortraitSelect?.key ?? '',
-            amountAdult: state.numberOfAdults,
-            amountChildren: state.numberOfChildren,
-            description: state.completeNote,
-            arrMethod: ['${paymentMethodSelected.key}--${price.totalPriceFinal}'],
-            totalPrice: price.totalPrice,
-            totalPriceFinal: price.totalPriceFinal,
-            totalPriceTax: price.totalPriceTax,
-            totalPriceVoucher: price.totalPriceVoucher,
-            eSaleCode: '',
-            eSaleName: '',
-            isPrintPeople: state.printNumberOfPeople ? 1 : 0,
-            // providerCode: state.bankSelect?.code,
-          );
-
-          List<LineItemDataBill> productPrint = [];
-          for (var e in (state.dataBill.print?.orderLineItems ?? <LineItemDataBill>[])) {
-            productPrint.add(LineItemDataBill(
-              name: e.name,
-              price: e.price,
-              tax: e.tax,
-              unit: e.unit,
-              count: e.count,
-            ));
-            if (e.listItem.isNotEmpty) {
-              for (var item in e.listItem) {
-                productPrint.add(LineItemDataBill(
-                  name: ' - ${item.name}',
-                  price: '0',
-                  tax: '0',
-                  unit: '',
-                  count: 0,
-                ));
-              }
-            }
-          }
-          requestPrint = PaymentReceiptPrintRequest(
-            order: state.orderSelect!,
-            price: price,
-            receiptType: ReceiptTypeEnum.paymentReceipt,
-            paymentMethod: state.paymentMethodSelected,
-            paymentAmount: state.statusPaymentGateway
-                ? (double.tryParse((state.totalPaymentGateway ?? 0.0).toString()) ?? 0.0)
-                : price.totalPriceFinal * 1.0,
-            numberPrintCompleted: 1,
-            numberPrintTemporary: 0,
-            orderLineItems: productPrint,
-            vouchers: state.dataBill.print?.vouchers ?? [],
-            note: state.completeNote,
-            printNumberOfPeople: state.printNumberOfPeople,
-            customerPhone: state.customer?.phoneNumber ?? '',
-            numberOfPeople: state.numberOfAdults,
-            cashierCompleted: '',
-            cashierPrint: '',
-            timeCompleted: DateTime.now(),
-            timeCreatedAt: null,
-            invoiceQr: result ?? '',
-          );
-
-          try {
-            errorSendPrint = await ref.read(homeProvider.notifier).sendPrintData(
-                  type: PrintTypeEnum.payment,
-                  paymentData: requestPrint,
-                  printers: printers
-                      .map(
-                        (e) => PrinterModel(
-                            ip: e.ip,
-                            port: e.port,
-                            name: e.name,
-                            type: e.type,
-                            typeAreaLocation: e.typeAreaLocation),
-                      )
-                      .toList(),
-                );
-          } catch (ex) {
-            errorSendPrint = ex.toString();
-          }
-          break;
-        } catch (ex) {
-          retry++;
-          if (retry >= 3) {
-            rethrow;
-          }
-        }
-      }
-      if (loadingHome) updateEvent(null);
-      return (error: null, errorSendPrint: errorSendPrint, requestPrint: requestPrint);
-    } catch (ex) {
-      if (loadingHome) updateEvent(null);
-      return (error: ex.toString(), errorSendPrint: null, requestPrint: null);
-    }
-  }
-
-  Future<String?> sendTicket({
-    required String title,
-    required String desc,
-    List<File> files = const [],
-  }) async {
-    return 'Chưa triển khai';
-  }
-
-  Future<({String? url, String? qr, int? expiryMin, String? error, int? statusCode})>
-      getPaymentGateway() async {
-    String? url, qr, error;
-    int? statusCode;
-    int? expiryMin;
-    try {
-      updateEvent(HomeEvent.getPaymentGateway);
-      final apiBankParam = ApiBankParam(state.dataBill.order, getFinalPaymentPrice.totalPriceFinal);
-
-      final paymentMethodSelect = state.paymentMethodSelected;
-      if (paymentMethodSelect == null) {
-        throw S.current.payment_method_not_select;
-      }
-      final result = await _restaurantRepository.getPaymentGateway(
-        apiBankParam: apiBankParam,
-        keyPaymentMethod: paymentMethodSelect.key,
-      );
-
-      var data = result;
-      url = data?.url;
-      qr = data?.qr;
-      expiryMin = data?.expiryMin;
-      error = data?.message;
-      statusCode = data?.status;
-    } catch (ex) {
-      error = ex.toString();
-    }
-    updateEvent(HomeEvent.processed);
-    return (
-      url: url,
-      qr: qr,
-      expiryMin: expiryMin,
-      error: error,
-      statusCode: statusCode,
-    );
-  }
-
-  void getListAtmPos() async {
-    try {
-      state = state.copyWith(
-        atmPosSelect: null,
-        listAtmPosState: const PageState(status: PageCommonState.loading),
-      );
-      await _checkOrderSelect();
-      final result = await _restaurantRepository.getListAtmPos(
-        orderId: state.orderSelect!.id,
-        totalBill: getFinalPaymentPrice.totalPriceFinal,
-      );
-
-      state = state.copyWith(
-        listAtmPosState: const PageState(status: PageCommonState.success),
-        listAtmPos: result ?? [],
-      );
-    } catch (ex) {
-      state = state.copyWith(
-        listAtmPosState: PageState(status: PageCommonState.error, messageError: ex.toString()),
-      );
-    }
-  }
-
-  void onChangeAtmPosSelect(AtmPosModel? pos) {
-    state = state.copyWith(atmPosSelect: pos);
-  }
-
-  /// cà thẻ động
-  Future<String?> dynamicAtmPosCallback() async {
-    try {
-      updateEvent(HomeEvent.dynamicPosCallback);
-      if (state.atmPosSelect == null) {
-        throw S.current.no_select_pos_machine;
-      }
-      await _restaurantRepository.atmPosCallback(
-        orderId: getFinalPaymentPrice.totalPriceFinal,
-        urlPos: state.atmPosSelect!.url,
-      );
-      updateEvent(null);
-      return null;
-    } catch (ex) {
-      updateEvent(null);
-      return ex.toString();
-    }
-  }
-
-  void onChangeCashReceivedAmount(double amount) {
-    state = state.copyWith(cashReceivedAmount: max(0.0, amount));
-    syncInfoCustomerPage(method: WindowsMethodEnum.price);
-  }
+  /// Close shift - Chốt ca
 
   Future<
       ({
@@ -2816,381 +1799,233 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void onChangeAutoScrollProducts(bool value) {
-    state = state.copyWith(autoScrollProducts: value);
-    syncInfoCustomerPage(method: WindowsMethodEnum.changeOrderProduct);
-  }
+  // void onChangeAutoScrollProducts(bool value) {
+  //   state = state.copyWith(autoScrollProducts: value);
+  //   syncInfoCustomerPage(method: WindowsMethodEnum.changeOrderProduct);
+  // }
 
-  void onChangeChangedProductId(int? id) {
-    state = state.copyWith(changedProductId: id);
-    syncInfoCustomerPage(method: WindowsMethodEnum.changeOrderProduct);
-  }
-
-  Future<
-      ({
-        List<ProductCheckoutUpdateTaxModel>? data,
-        String? error,
-      })> onUpdateTax(
-    List<ProductCheckoutModel> pc, {
-    PaymentMethod? paymentMethod,
-    bool loadingHome = true,
-  }) async {
-    try {
-      if (loadingHome) updateEvent(HomeEvent.updateTax);
-      await _checkOrderSelect();
-      var data = await _orderRepository.updateTax(
-        order: state.orderSelect!,
-        pc: pc,
-      );
-
-      if (loadingHome) updateEvent(null);
-      return (data: data, error: null);
-    } catch (ex) {
-      if (loadingHome) updateEvent(null);
-      return (data: null, error: ex.toString());
-    }
-  }
-
-  Future<String?> getDataBill({bool loadingHome = false}) async {
-    try {
-      if (loadingHome) updateEvent(HomeEvent.getDataBill);
-      state = state.copyWith(dataBillState: const PageState(status: PageCommonState.loading));
-      await _checkOrderSelect();
-      final result =
-          await ref.read(orderRepositoryProvider).getDataBill(orderId: state.orderSelect!.id);
-
-      // if (result == null) {
-      //   state = state.copyWith(
-      //     dataBill: const DataBillResponseData(),
-      //     dataBillState: const PageState(status: PageCommonState.success),
-      //     productCheckout: [],
-      //   );
-      //   if (loadingHome) updateEvent(null);
-      //   syncInfoCustomerPage(method: WindowsMethodEnum.price);
-      //   return null;
-      // }
-      var data = result;
-      var orderLineItems = data.orderLineItems;
-      var checkoutState = ref.read(checkoutPageProvider);
-      var productCheckout = List<ProductCheckoutModel>.from(checkoutState.productsCheckout);
-
-      var length = productCheckout.length;
-      for (var i = 0; i < length; i++) {
-        var p = orderLineItems.firstWhereOrNull((e) => e.id == productCheckout[i].id);
-        if (p != null) {
-          productCheckout[i] = productCheckout[i].copyWith(
-            tax: double.tryParse(p.tax) ?? 0.0,
-            codeProduct: p.codeProduct,
-          );
-        }
-      }
-      try {
-        ref.read(checkoutPageProvider.notifier).init(productCheckout);
-      } catch (ex) {
-        //
-      }
-
-      state = state.copyWith(
-        dataBill: data,
-        dataBillState: const PageState(status: PageCommonState.success),
-        // productCheckout: productCheckout,
-      );
-      if (loadingHome) updateEvent(null);
-      syncInfoCustomerPage(method: WindowsMethodEnum.price);
-      return null;
-    } catch (ex) {
-      state = state.copyWith(
-        dataBillState: PageState(
-          status: PageCommonState.error,
-          messageError: ex.toString(),
-        ),
-      );
-      if (loadingHome) updateEvent(null);
-      return ex.toString();
-    }
-  }
+  // void onChangeChangedProductId(int? id) {
+  //   state = state.copyWith(changedProductId: id);
+  //   syncInfoCustomerPage(method: WindowsMethodEnum.changeOrderProduct);
+  // }
 
   void onChangePinnedOrder(bool value) {
     state = state.copyWith(pinnedOrder: value);
   }
 
-  void onChangeNotePerItem(ProductModel item, String? note) {
-    try {
-      var order = state.orderSelect;
-      if (order == null) return;
+  // void onChangeNotePerItem(ProductModel item, String? note) {
+  //   try {
+  //     var order = state.orderSelect;
+  //     if (order == null) return;
 
-      var items = LocalStorage.getNotePerOrderItem(order: order);
-      Map<String, String> notes = items ?? <String, String>{};
-      notes[item.id.toString()] = note ?? '';
-      notes.removeWhere((key, value) => value.trim().isEmpty);
-      LocalStorage.saveNotePerOrderItem(order: order, notes: notes);
-    } catch (ex) {
-      //
-    }
-  }
+  //     var items = LocalStorage.getNotePerOrderItem(order: order);
+  //     Map<String, String> notes = items ?? <String, String>{};
+  //     notes[item.id.toString()] = note ?? '';
+  //     notes.removeWhere((key, value) => value.trim().isEmpty);
+  //     LocalStorage.saveNotePerOrderItem(order: order, notes: notes);
+  //   } catch (ex) {
+  //     //
+  //   }
+  // }
 
-  void setUnlockOrder() {
-    state = state.copyWith(lockedOrder: false);
-  }
+  // void setUnlockOrder() {
+  //   state = state.copyWith(lockedOrder: false);
+  // }
 
-  // promotion
-  void changeSelectDiscountPromotion(
-    CustomerPolicyModel coupon,
-    DiscountPolicy discount,
-    int amount,
-  ) {
-    DiscountPolicy discountUpdate = discount.copyWith(numberSelect: amount);
-    CustomerPolicyModel couponUpdate = coupon.copyWith();
+  // // promotion
+  // void changeSelectDiscountPromotion(
+  //   CustomerPolicyModel coupon,
+  //   DiscountPolicy discount,
+  //   int amount,
+  // ) {
+  //   DiscountPolicy discountUpdate = discount.copyWith(numberSelect: amount);
+  //   CustomerPolicyModel couponUpdate = coupon.copyWith();
 
-    List<DiscountPolicy> listDiscountUpdate = List<DiscountPolicy>.from(couponUpdate.discount);
-    listDiscountUpdate[listDiscountUpdate
-        .indexWhere((element) => element.id == discountUpdate.id)] = discountUpdate;
+  //   List<DiscountPolicy> listDiscountUpdate = List<DiscountPolicy>.from(couponUpdate.discount);
+  //   listDiscountUpdate[listDiscountUpdate
+  //       .indexWhere((element) => element.id == discountUpdate.id)] = discountUpdate;
 
-    couponUpdate = couponUpdate.copyWith(discount: listDiscountUpdate);
-    List<CustomerPolicyModel> couponState = List.from(state.coupons);
-    couponState[couponState.indexWhere((element) => element.id == couponUpdate.id)] = couponUpdate;
+  //   couponUpdate = couponUpdate.copyWith(discount: listDiscountUpdate);
+  //   List<CustomerPolicyModel> couponState = List.from(state.coupons);
+  //   couponState[couponState.indexWhere((element) => element.id == couponUpdate.id)] = couponUpdate;
 
-    state = state.copyWith(coupons: couponState);
-    applyCustomerPolicy();
-  }
+  //   state = state.copyWith(coupons: couponState);
+  //   applyCustomerPolicy();
+  // }
 
   void onChangeCustomerLanguage() {
     syncInfoCustomerPage(method: WindowsMethodEnum.language);
   }
 
-  Future<String?> checkPrinter(List<IpOrderModel> printers) async {
-    try {
-      updateEvent(HomeEvent.checkPrinter);
-      var resultCheck = await AppPrinterCommon.checkPrinters(printers);
-      updateEvent(null);
-      return resultCheck;
-    } catch (ex) {
-      updateEvent(null);
-      return ex.toString();
-    }
-  }
-
-  void onChangePrintNumberOfPeople() {
-    state = state.copyWith(printNumberOfPeople: !state.printNumberOfPeople);
-  }
-
-  /// phân bổ lại thuế mặc định nếu đã phân bổ thuế cho đơn Grab, Shopee trước đó
-  // Future<String?> onUpdateDefaultTax() async {
-  //   if (!requireUpdateDefaultTax) return null;
-  //   if (state.orderSelect == null) return null;
-  //   int retry = 0;
-  //   String? error;
-
-  //   List<ProductCheckoutModel> pc = [];
-  //   var products = ref.read(menuProvider).products;
-  //   for (var p in state.productCheckout) {
-  //     var pCheck = products.firstWhereOrNull((e) => e.id == p.id);
-  //     if (pCheck != null) {
-  //       // check here: check xem tax < 1
-  //       pc.add(p.copyWith(tax: pCheck.tax));
-  //     } else {
-  //       pc.add(p);
-  //     }
+  // Future<String?> checkPrinter(List<IpOrderModel> printers) async {
+  //   try {
+  //     updateEvent(HomeEvent.checkPrinter);
+  //     var resultCheck = await AppPrinterCommon.checkPrinters(printers);
+  //     updateEvent(null);
+  //     return resultCheck;
+  //   } catch (ex) {
+  //     updateEvent(null);
+  //     return ex.toString();
   //   }
+  // }
 
+  // void onChangePrintNumberOfPeople() {
+  //   state = state.copyWith(printNumberOfPeople: !state.printNumberOfPeople);
+  // }
+
+  // PriceDataBill get getFinalPaymentPrice => state.dataBill.price;
+
+  // void onChangeOrderTabSelect(OrderTabEnum value) {
+  //   state = state.copyWith(orderTabSelect: value);
+  // }
+
+  // // void onChangeDisplayOrderHistory(bool? value) {
+  // //   state = state.copyWith(
+  // //       displayOrderHistory: value ?? !state.displayOrderHistory);
+  // // }
+
+  // Future<String?> addItemToOrder({
+  //   List<ProductModel> products = const [],
+  //   double total = 0.0,
+  //   String kitchenNote = '',
+  // }) async {
+  //   if (products.isEmpty) return null;
+  //   updateEvent(HomeEvent.processOrder);
+  //   try {
+  //     await _orderRepository.processOrderItem(
+  //       order: state.orderSelect!,
+  //       total: total,
+  //       products: products,
+  //       note: kitchenNote,
+  //       cancel: false,
+  //     );
+  //     getOrderProductCheckout();
+  //     getDataBill();
+  //     updateEvent(HomeEvent.normal);
+  //     return null;
+  //   } catch (ex) {
+  //     updateEvent(HomeEvent.normal);
+  //     _lockOrder(ex);
+  //     return ex.toString();
+  //   }
+  // }
+
+  // void getO2OChatMessages() async {
+  //   try {
+  //     var useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+  //     if (!useO2o) {
+  //       state = state.copyWith(
+  //         getChatMessageState: const PageState(status: PageCommonState.success),
+  //         chatMessages: [],
+  //       );
+  //       return;
+  //     }
+  //     state = state.copyWith(
+  //       getChatMessageState: const PageState(status: PageCommonState.loading),
+  //     );
+  //     final loginData = LocalStorage.getDataLogin();
+  //     int? restaurantId = loginData?.restaurant?.id;
+  //     final orderSelect = state.orderSelect;
+  //     if (restaurantId == null || orderSelect == null) {
+  //       state = state.copyWith(
+  //         getChatMessageState:
+  //             PageState(status: PageCommonState.error, messageError: S.current.no_data),
+  //       );
+  //       return;
+  //     }
+
+  //     final messages = await _o2oRepository.getChatMessages(
+  //       restaurantId: restaurantId,
+  //       orderId: orderSelect.id,
+  //     );
+  //     state = state.copyWith(
+  //       getChatMessageState: const PageState(status: PageCommonState.success),
+  //       chatMessages: messages,
+  //     );
+  //   } catch (ex) {
+  //     state = state.copyWith(
+  //       getChatMessageState: PageState(
+  //         status: PageCommonState.error,
+  //         messageError: ex.toString(),
+  //       ),
+  //     );
+  //   }
+  // }
+
+  // void updateReservation(
+  //   ReservationModel? reservation, {
+  //   bool showLoading = false,
+  // }) async {
+  //   if (reservation == null) return;
+  //   if (showLoading) updateEvent(HomeEvent.updateReservation);
+  //   int retry = 0;
   //   while (retry < 3) {
   //     try {
-  //       // lấy phương thức tiền mặt để phân bổ lại thuế
-  //       var paymentCheck =
-  //           _listPaymentMethods.firstWhereOrNull((e) => e.isCash);
-  //       error = await onUpdateTax(pc,
-  //           paymentMethod: paymentCheck ??
-  //               const PaymentMethod(
-  //                 key: 25,
-  //                 name: 'Tiền mặt',
-  //                 isCash: true,
-  //                 requireEditTax: false,
-  //               ));
-  //       if (error != null) throw error;
-  //       requireUpdateDefaultTax = false;
-  //       try {
-  //         await getDataBill(loadingHome: true);
-  //       } catch (ex) {
-  //         //
-  //       }
+  //       var result = await ref
+  //           .read(reservationRepositoryProvider)
+  //           .updateReservation(reservation.id, reservation);
+
   //       break;
   //     } catch (ex) {
   //       retry++;
   //     }
   //   }
-  //   if (error != null) {
-  //     state = state.copyWith(
-  //       dataBillState: const PageState(
-  //         status: PageCommonState.error,
-  //         messageError: 'Thông tin hóa đơn sai do chưa được phân bổ lại thuế',
-  //       ),
+  //   if (showLoading) updateEvent(null);
+  // }
+
+  // /// Chuyển giao đơn bàn
+  // Future<String?> transferOrder(
+  //   List<int> tableIds,
+  //   OrderModel order,
+  //   WaiterModel waiterTransfer, {
+  //   ReservationModel? reservation,
+  // }) async {
+  //   try {
+  //     updateEvent(HomeEvent.transferOrder);
+
+  //     await _orderRepository.createAndUpdateOrder(
+  //       tableIds,
+  //       order,
+  //       reservation: reservation,
+  //       waiterTransfer: waiterTransfer,
+  //       updateSaleInfo: false,
   //     );
+
+  //     updateEvent(null);
+  //     return null;
+  //   } catch (ex) {
+  //     updateEvent(null);
+  //     return ex.toString();
   //   }
-  //   return error;
   // }
 
-  // bool get requireUpdateTax {
-  //   return kTypeOrder == AppConfig.orderOnlineValue &&
-  //       (state.paymentMethodSelected?.requireEditTax ?? false);
+  // /// Cập nhật lịch đặt bàn cho đơn bàn
+  // Future<String?> updateOrderReservation({
+  //   required List<int> tableIds,
+  //   ReservationModel? newReservation,
+  // }) async {
+  //   try {
+  //     var orderSelect = state.orderSelect;
+  //     if (orderSelect == null) return null;
+  //     updateEvent(HomeEvent.updateOrderReservation);
+
+  //     await _orderRepository.createAndUpdateOrder(
+  //       tableIds,
+  //       orderSelect,
+  //       reservation: newReservation,
+  //       updateSaleInfo: true,
+  //     );
+
+  //     state = state.copyWith(
+  //       orderSelect: orderSelect.copyWith(reservationCrmId: newReservation?.id),
+  //     );
+  //     updateEvent(null);
+  //     return null;
+  //   } catch (ex) {
+  //     updateEvent(null);
+  //     return ex.toString();
+  //   }
   // }
-
-  PriceDataBill get getFinalPaymentPrice => state.dataBill.price;
-
-  void onChangeOrderTabSelect(OrderTabEnum value) {
-    state = state.copyWith(orderTabSelect: value);
-  }
-
-  // void onChangeDisplayOrderHistory(bool? value) {
-  //   state = state.copyWith(
-  //       displayOrderHistory: value ?? !state.displayOrderHistory);
-  // }
-
-  Future<String?> addItemToOrder({
-    List<ProductModel> products = const [],
-    double total = 0.0,
-    String kitchenNote = '',
-  }) async {
-    if (products.isEmpty) return null;
-    updateEvent(HomeEvent.processOrder);
-    try {
-      await _orderRepository.processOrderItem(
-        order: state.orderSelect!,
-        total: total,
-        products: products,
-        note: kitchenNote,
-        cancel: false,
-      );
-      getOrderProductCheckout();
-      getDataBill();
-      updateEvent(HomeEvent.normal);
-      return null;
-    } catch (ex) {
-      updateEvent(HomeEvent.normal);
-      _lockOrder(ex);
-      return ex.toString();
-    }
-  }
-
-  void getO2OChatMessages() async {
-    try {
-      var useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-      if (!useO2o) {
-        state = state.copyWith(
-          getChatMessageState: const PageState(status: PageCommonState.success),
-          chatMessages: [],
-        );
-        return;
-      }
-      state = state.copyWith(
-        getChatMessageState: const PageState(status: PageCommonState.loading),
-      );
-      final loginData = LocalStorage.getDataLogin();
-      int? restaurantId = loginData?.restaurant?.id;
-      final orderSelect = state.orderSelect;
-      if (restaurantId == null || orderSelect == null) {
-        state = state.copyWith(
-          getChatMessageState:
-              PageState(status: PageCommonState.error, messageError: S.current.no_data),
-        );
-        return;
-      }
-
-      final messages = await _o2oRepository.getChatMessages(
-        restaurantId: restaurantId,
-        orderId: orderSelect.id,
-      );
-      state = state.copyWith(
-        getChatMessageState: const PageState(status: PageCommonState.success),
-        chatMessages: messages,
-      );
-    } catch (ex) {
-      state = state.copyWith(
-        getChatMessageState: PageState(
-          status: PageCommonState.error,
-          messageError: ex.toString(),
-        ),
-      );
-    }
-  }
-
-  void updateReservation(
-    ReservationModel? reservation, {
-    bool showLoading = false,
-  }) async {
-    if (reservation == null) return;
-    if (showLoading) updateEvent(HomeEvent.updateReservation);
-    int retry = 0;
-    while (retry < 3) {
-      try {
-        var result = await ref
-            .read(reservationRepositoryProvider)
-            .updateReservation(reservation.id, reservation);
-
-        break;
-      } catch (ex) {
-        retry++;
-      }
-    }
-    if (showLoading) updateEvent(null);
-  }
-
-  /// Chuyển giao đơn bàn
-  Future<String?> transferOrder(
-    List<int> tableIds,
-    OrderModel order,
-    WaiterModel waiterTransfer, {
-    ReservationModel? reservation,
-  }) async {
-    try {
-      updateEvent(HomeEvent.transferOrder);
-
-      await _orderRepository.createAndUpdateOrder(
-        tableIds,
-        order,
-        reservation: reservation,
-        waiterTransfer: waiterTransfer,
-        updateSaleInfo: false,
-      );
-
-      updateEvent(null);
-      return null;
-    } catch (ex) {
-      updateEvent(null);
-      return ex.toString();
-    }
-  }
-
-  /// Cập nhật lịch đặt bàn cho đơn bàn
-  Future<String?> updateOrderReservation({
-    required List<int> tableIds,
-    ReservationModel? newReservation,
-  }) async {
-    try {
-      var orderSelect = state.orderSelect;
-      if (orderSelect == null) return null;
-      updateEvent(HomeEvent.updateOrderReservation);
-
-      await _orderRepository.createAndUpdateOrder(
-        tableIds,
-        orderSelect,
-        reservation: newReservation,
-        updateSaleInfo: true,
-      );
-
-      state = state.copyWith(
-        orderSelect: orderSelect.copyWith(reservationCrmId: newReservation?.id),
-      );
-      updateEvent(null);
-      return null;
-    } catch (ex) {
-      updateEvent(null);
-      return ex.toString();
-    }
-  }
-
-  void onChangeDiscountTypeSelect(DiscountTypeEnum value) {
-    state = state.copyWith(discountTypeSelect: value);
-  }
 
   Future<void> syncInfoCustomerPage({
     WindowsMethodEnum method = WindowsMethodEnum.data,
@@ -3207,7 +2042,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   Map<String, dynamic> getAllDataToCustomerPage() {
     var products = ref.read(menuProvider).products;
-    var productsCheckout = ref.read(checkoutPageProvider).productsCheckout;
+    var checkoutPage = ref.read(checkoutPageProvider);
+    var productsCheckout = checkoutPage.productsCheckout;
     List<ProductModel> items = [];
     for (var i in productsCheckout) {
       var p = products.firstWhereOrNull((e) => e.id == i.id);
@@ -3220,13 +2056,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
     return {
       'order': state.orderSelect,
-      'customer': state.customer,
-      'payment_method': state.paymentMethodSelected,
-      'price': state.dataBill.price.copyWith(
-        receivedAmount:
-            (state.paymentMethodSelected?.isCash ?? false) ? state.cashReceivedAmount : 0,
+      'customer': checkoutPage.customer,
+      'payment_method': checkoutPage.paymentMethodSelected,
+      'price': checkoutPage.dataBill.price.copyWith(
+        receivedAmount: (checkoutPage.paymentMethodSelected?.isCash ?? false)
+            ? checkoutPage.cashReceivedAmount
+            : 0,
       ),
-      'bank': state.bankSelect,
+      'bank': checkoutPage.bankSelect,
       'product': items,
       'auto_scroll': state.autoScrollProducts,
       'change_product_id': state.changedProductId,
@@ -3235,7 +2072,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   dynamic _tranferDataToCustomerPage({WindowsMethodEnum method = WindowsMethodEnum.data}) {
     var products = ref.read(menuProvider).products;
-    var productsCheckout = ref.read(checkoutPageProvider).productsCheckout;
+    var checkoutPage = ref.read(checkoutPageProvider);
+    var productsCheckout = checkoutPage.productsCheckout;
     List<ProductModel> items = [];
     for (var i in productsCheckout) {
       var p = products.firstWhereOrNull((e) => e.id == i.id);
@@ -3254,22 +2092,23 @@ class HomeNotifier extends StateNotifier<HomeState> {
       case WindowsMethodEnum.order:
         return state.orderSelect;
       case WindowsMethodEnum.customer:
-        return state.customer;
+        return checkoutPage.customer;
       case WindowsMethodEnum.price:
-        return state.dataBill.price.copyWith(
-          receivedAmount:
-              (state.paymentMethodSelected?.isCash ?? false) ? state.cashReceivedAmount : 0,
+        return checkoutPage.dataBill.price.copyWith(
+          receivedAmount: (checkoutPage.paymentMethodSelected?.isCash ?? false)
+              ? checkoutPage.cashReceivedAmount
+              : 0,
         );
       case WindowsMethodEnum.paymentMethod:
-        return state.paymentMethodSelected;
+        return checkoutPage.paymentMethodSelected;
       case WindowsMethodEnum.productCheckout:
         return items;
       case WindowsMethodEnum.completeNote:
-        return state.completeNote;
+        return checkoutPage.completeNote;
       case WindowsMethodEnum.kitchenNote:
-        return state.kitchenNote;
+        return checkoutPage.kitchenNote;
       case WindowsMethodEnum.bank:
-        return state.bankSelect;
+        return checkoutPage.bankSelect;
       case WindowsMethodEnum.detailProduct:
         return null;
       case WindowsMethodEnum.language:
@@ -3284,157 +2123,157 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void updateReservationStatus(
-    dynamic id,
-    ReservationStatusEnum status,
-    List<TableModel> table,
-  ) async {
-    int retry = 0;
-    while (retry < 3) {
-      try {
-        var result = await _reservationRepository.getReservationById(id);
+  // void updateReservationStatus(
+  //   dynamic id,
+  //   ReservationStatusEnum status,
+  //   List<TableModel> table,
+  // ) async {
+  //   int retry = 0;
+  //   while (retry < 3) {
+  //     try {
+  //       var result = await _reservationRepository.getReservationById(id);
 
-        var reservation = result?.copyWith(
-          status: status.type,
-          statusName: status.title,
-          table: table.map((e) => e.name).join(', '),
-          tableId: table.map((e) => e.id).toList(),
-        );
-        updateReservation(reservation, showLoading: false);
-        break;
-      } catch (ex) {
-        retry++;
-      }
-    }
-  }
+  //       var reservation = result?.copyWith(
+  //         status: status.type,
+  //         statusName: status.title,
+  //         table: table.map((e) => e.name).join(', '),
+  //         tableId: table.map((e) => e.id).toList(),
+  //       );
+  //       updateReservation(reservation, showLoading: false);
+  //       break;
+  //     } catch (ex) {
+  //       retry++;
+  //     }
+  //   }
+  // }
 
-  Future<String?> saveO2oAutoProcessConfig(O2oConfigModel value) async {
-    try {
-      updateEvent(HomeEvent.saveO2oConfig);
-      await _restaurantRepository.setO2oAutoAcceptConfig(
-        isEnabled: value.isEnabled,
-        confirmTimeout: value.confirmTimeout,
-      );
-      updateEvent(null);
-      ref.refresh(o2oConfigProvider);
-      return null;
-    } catch (ex) {
-      updateEvent(null);
-      return ex.toString();
-    }
-  }
+  // Future<String?> saveO2oAutoProcessConfig(O2oConfigModel value) async {
+  //   try {
+  //     updateEvent(HomeEvent.saveO2oConfig);
+  //     await _restaurantRepository.setO2oAutoAcceptConfig(
+  //       isEnabled: value.isEnabled,
+  //       confirmTimeout: value.confirmTimeout,
+  //     );
+  //     updateEvent(null);
+  //     ref.refresh(o2oConfigProvider);
+  //     return null;
+  //   } catch (ex) {
+  //     updateEvent(null);
+  //     return ex.toString();
+  //   }
+  // }
 
-  Future<String?> savePrintDevice(bool enable) async {
-    try {
-      updateEvent(HomeEvent.saveO2oConfig);
-      await _restaurantRepository.setO2oAutoAcceptConfig(
-        changePrintDeviceId: enable,
-      );
-      updateEvent(null);
-      ref.refresh(o2oConfigProvider);
-      return null;
-    } catch (ex) {
-      updateEvent(null);
-      return ex.toString();
-    }
-  }
+  // Future<String?> savePrintDevice(bool enable) async {
+  //   try {
+  //     updateEvent(HomeEvent.saveO2oConfig);
+  //     await _restaurantRepository.setO2oAutoAcceptConfig(
+  //       changePrintDeviceId: enable,
+  //     );
+  //     updateEvent(null);
+  //     ref.refresh(o2oConfigProvider);
+  //     return null;
+  //   } catch (ex) {
+  //     updateEvent(null);
+  //     return ex.toString();
+  //   }
+  // }
 
-  /// áp dụng lại mã giảm giá (mã giảm nhập số tiền, %)
-  Future<({String? errorRemove, String? errorAdd})> applyAgainVoucher() async {
-    var coupon = state.coupons.firstOrNull;
-    String? errorRemove, errorAdd;
-    if (coupon == null) {
-      return (errorRemove: null, errorAdd: null);
-    } else {
-      var discount = coupon.discount.firstOrNull;
-      if (discount == null) return (errorRemove: null, errorAdd: null);
-      int retry = 0;
-      updateEvent(HomeEvent.applyPolicy);
-      while (retry < 3) {
-        try {
-          await _couponRepository.deleteVoucher(coupon.id);
-          var coupons = List<CustomerPolicyModel>.from(state.coupons);
-          coupons.removeWhere((e) => e.id == coupon.id);
-          state = state.copyWith(coupons: coupons);
-          retry = 0;
-          errorRemove = null;
-          break;
-        } catch (ex) {
-          errorRemove = ex.toString();
-          retry++;
-        }
-      }
+  // /// áp dụng lại mã giảm giá (mã giảm nhập số tiền, %)
+  // Future<({String? errorRemove, String? errorAdd})> applyAgainVoucher() async {
+  //   var coupon = state.coupons.firstOrNull;
+  //   String? errorRemove, errorAdd;
+  //   if (coupon == null) {
+  //     return (errorRemove: null, errorAdd: null);
+  //   } else {
+  //     var discount = coupon.discount.firstOrNull;
+  //     if (discount == null) return (errorRemove: null, errorAdd: null);
+  //     int retry = 0;
+  //     updateEvent(HomeEvent.applyPolicy);
+  //     while (retry < 3) {
+  //       try {
+  //         await _couponRepository.deleteVoucher(coupon.id);
+  //         var coupons = List<CustomerPolicyModel>.from(state.coupons);
+  //         coupons.removeWhere((e) => e.id == coupon.id);
+  //         state = state.copyWith(coupons: coupons);
+  //         retry = 0;
+  //         errorRemove = null;
+  //         break;
+  //       } catch (ex) {
+  //         errorRemove = ex.toString();
+  //         retry++;
+  //       }
+  //     }
 
-      if (retry == 3) {
-        updateEvent(null);
-        return (errorRemove: errorRemove, errorAdd: errorAdd);
-      }
-      while (retry < 3) {
-        try {
-          final result = await _couponRepository.addVoucher(
-            order: state.orderSelect!,
-            totalBill: getFinalPaymentPrice.totalPrice * 1.0,
-            amount: discount.amount,
-            type: discount.type == DiscountTypeEnum.percent.key
-                ? DiscountTypeEnum.percent
-                : DiscountTypeEnum.vnd,
-          );
-          retry = 0;
-          errorAdd = null;
-          state = state.copyWith(
-            coupons: [
-              CustomerPolicyModel(
-                id: result.id,
-                name: result.name,
-                type: null,
-                isType: 3,
-                discount: [
-                  DiscountPolicy(
-                    id: null,
-                    name: null,
-                    // do response trả về lại là số tiền giảm nên type sẽ là DiscountTypeEnum.vnd
-                    // getOrderProductCheckout sẽ ghi đè lại thông in mã giảm
-                    type: DiscountTypeEnum.vnd.key,
-                    amount: result.amount,
-                  ),
-                ],
-              ),
-              ...state.coupons
-            ],
-          );
-          getOrderProductCheckout();
-          getDataBill();
-          break;
-        } catch (ex) {
-          errorAdd = ex.toString();
-          retry++;
-        }
-      }
-      updateEvent(null);
-      return (errorRemove: errorRemove, errorAdd: errorAdd);
-    }
-  }
+  //     if (retry == 3) {
+  //       updateEvent(null);
+  //       return (errorRemove: errorRemove, errorAdd: errorAdd);
+  //     }
+  //     while (retry < 3) {
+  //       try {
+  //         final result = await _couponRepository.addVoucher(
+  //           order: state.orderSelect!,
+  //           totalBill: getFinalPaymentPrice.totalPrice * 1.0,
+  //           amount: discount.amount,
+  //           type: discount.type == DiscountTypeEnum.percent.key
+  //               ? DiscountTypeEnum.percent
+  //               : DiscountTypeEnum.vnd,
+  //         );
+  //         retry = 0;
+  //         errorAdd = null;
+  //         state = state.copyWith(
+  //           coupons: [
+  //             CustomerPolicyModel(
+  //               id: result.id,
+  //               name: result.name,
+  //               type: null,
+  //               isType: 3,
+  //               discount: [
+  //                 DiscountPolicy(
+  //                   id: null,
+  //                   name: null,
+  //                   // do response trả về lại là số tiền giảm nên type sẽ là DiscountTypeEnum.vnd
+  //                   // getOrderProductCheckout sẽ ghi đè lại thông in mã giảm
+  //                   type: DiscountTypeEnum.vnd.key,
+  //                   amount: result.amount,
+  //                 ),
+  //               ],
+  //             ),
+  //             ...state.coupons
+  //           ],
+  //         );
+  //         getOrderProductCheckout();
+  //         getDataBill();
+  //         break;
+  //       } catch (ex) {
+  //         errorAdd = ex.toString();
+  //         retry++;
+  //       }
+  //     }
+  //     updateEvent(null);
+  //     return (errorRemove: errorRemove, errorAdd: errorAdd);
+  //   }
+  // }
 
-  /// start - notification
-  ///
-  void markViewAllNotification() async {
-    if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
-    var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
-    final Map<dynamic, NotificationModel> updates = {};
+  // /// start - notification
+  // ///
+  // void markViewAllNotification() async {
+  //   if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
+  //   var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
+  //   final Map<dynamic, NotificationModel> updates = {};
 
-    for (final key in box.keys) {
-      final item = box.get(key);
-      if (item != null) {
-        updates[key] = item.copyWith(viewed: true);
-      }
-    }
+  //   for (final key in box.keys) {
+  //     final item = box.get(key);
+  //     if (item != null) {
+  //       updates[key] = item.copyWith(viewed: true);
+  //     }
+  //   }
 
-    try {
-      await box.putAll(updates);
-    } catch (ex) {
-      //
-    }
-  }
+  //   try {
+  //     await box.putAll(updates);
+  //   } catch (ex) {
+  //     //
+  //   }
+  // }
 
   void loadNotifications() async {
     if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) {
@@ -3465,57 +2304,57 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void markReadAllNotification(List<String> notiIds) async {
-    if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
-    var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
-    final Map<dynamic, NotificationModel> updates = {};
+  // void markReadAllNotification(List<String> notiIds) async {
+  //   if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
+  //   var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
+  //   final Map<dynamic, NotificationModel> updates = {};
 
-    for (final key in box.keys) {
-      final item = box.get(key);
-      if (item != null && notiIds.contains(item.id)) {
-        updates[key] = item.markRead().copyWith(viewed: true);
-      }
-    }
+  //   for (final key in box.keys) {
+  //     final item = box.get(key);
+  //     if (item != null && notiIds.contains(item.id)) {
+  //       updates[key] = item.markRead().copyWith(viewed: true);
+  //     }
+  //   }
 
-    try {
-      await box.putAll(updates);
-    } catch (ex) {
-      //
-    }
-  }
+  //   try {
+  //     await box.putAll(updates);
+  //   } catch (ex) {
+  //     //
+  //   }
+  // }
 
-  void markReadNotification(String id) async {
-    if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
-    var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
-    final Map<dynamic, NotificationModel> updates = {};
+  // void markReadNotification(String id) async {
+  //   if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
+  //   var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
+  //   final Map<dynamic, NotificationModel> updates = {};
 
-    for (final key in box.keys) {
-      final item = box.get(key);
-      if (item != null && item.id == id) {
-        updates[key] = item.markRead().copyWith(viewed: true);
-      }
-    }
+  //   for (final key in box.keys) {
+  //     final item = box.get(key);
+  //     if (item != null && item.id == id) {
+  //       updates[key] = item.markRead().copyWith(viewed: true);
+  //     }
+  //   }
 
-    try {
-      await box.putAll(updates);
-    } catch (ex) {
-      //
-    }
-  }
+  //   try {
+  //     await box.putAll(updates);
+  //   } catch (ex) {
+  //     //
+  //   }
+  // }
 
-  void deleleNotification(List<String> notiIds) async {
-    if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
-    var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
-    final keysToDelete = box.keys.where((key) {
-      final item = box.get(key);
-      return item != null && notiIds.contains(item.id);
-    }).toList();
-    try {
-      await box.deleteAll(keysToDelete);
-    } catch (ex) {
-      //
-    }
-  }
+  // void deleleNotification(List<String> notiIds) async {
+  //   if (!Hive.isBoxOpen(AppConfig.notificationBoxName)) return;
+  //   var box = Hive.box<NotificationModel>(AppConfig.notificationBoxName);
+  //   final keysToDelete = box.keys.where((key) {
+  //     final item = box.get(key);
+  //     return item != null && notiIds.contains(item.id);
+  //   }).toList();
+  //   try {
+  //     await box.deleteAll(keysToDelete);
+  //   } catch (ex) {
+  //     //
+  //   }
+  // }
 
   /// end - notifications
 }

@@ -31,6 +31,7 @@ import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
@@ -382,7 +383,7 @@ class __NotePerItemWidgetState extends ConsumerState<_NotePerItemWidget> {
       _textChange.value = _controller.text.trim();
     });
     _textChange.debounceTime(const Duration(milliseconds: 300)).listen((value) {
-      ref.read(homeProvider.notifier).onChangeNotePerItem(widget.item, _controller.text.trim());
+      // ref.read(homeProvider.notifier).onChangeNotePerItem(widget.item, _controller.text.trim());
     });
   }
 
@@ -407,7 +408,7 @@ class __NotePerItemWidgetState extends ConsumerState<_NotePerItemWidget> {
       ),
       onTapOutside: (event) {
         FocusManager.instance.primaryFocus?.unfocus();
-        ref.read(homeProvider.notifier).onChangeNotePerItem(widget.item, _controller.text.trim());
+        // ref.read(homeProvider.notifier).onChangeNotePerItem(widget.item, _controller.text.trim());
       },
     );
   }
@@ -425,20 +426,18 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final productCheckoutState =
-        ref.watch(homeProvider.select((value) => value.productCheckoutState));
-    // var items =
-    //     ref.watch(homeProvider.select((value) => value.productsSelected));
-    var orderHistory = ref.watch(homeProvider.select((value) => value.orderHistory));
-    // var displayOrderHistory =
-    //     ref.watch(homeProvider.select((value) => value.displayOrderHistory));
-    var productsCheckout =
-        ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
-    var products = ref.watch(menuProvider.select((value) => value.products));
+    // final productCheckoutState =
+    //     ref.watch(checkoutPageProvider.select((value) => value.productCheckoutState));
+    final dataBillState = ref.watch(checkoutPageProvider.select((value) => value.dataBillState));
+    final orderLineItems =
+        ref.watch(checkoutPageProvider.select((value) => value.dataBill.orderLineItems));
+    var orderHistory = ref.watch(checkoutPageProvider.select((value) => value.orderHistory));
+    // var productsCheckout =
+    //     ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
 
     var orderHistoryData = List<OrderHistory>.from(orderHistory);
     orderHistoryData.sort((a, b) => b.timesOrder.compareTo(a.timesOrder));
-    switch (productCheckoutState.status) {
+    switch (dataBillState.status) {
       case PageCommonState.loading:
         return ListView.separated(
           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -452,8 +451,10 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
       case PageCommonState.error:
         return Center(
           child: AppErrorSimpleWidget(
-            message: productCheckoutState.messageError,
-            onTryAgain: ref.read(homeProvider.notifier).getOrderProductCheckout,
+            message: dataBillState.messageError,
+            onTryAgain: () {
+              ref.read(checkoutPageProvider.notifier).getDataBill();
+            },
           ),
         );
       case PageCommonState.normal:
@@ -461,7 +462,7 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
       default:
     }
     var notifier = ref.read(homeProvider.notifier);
-    return productsCheckout.isEmpty
+    return orderLineItems.isEmpty
         ? Center(
             child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -482,7 +483,7 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
         : NotificationListener<ScrollNotification>(
             onNotification: (notification) {
               if (notification is UserScrollNotification) {
-                ref.read(homeProvider.notifier).onChangeAutoScrollProducts(false);
+                // ref.read(homeProvider.notifier).onChangeAutoScrollProducts(false);
               }
               return true;
             },
@@ -494,7 +495,7 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                     itemPositionsListener ?? notifier.selectedItemsPositionsListener,
                 padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                 itemBuilder: (context, index) {
-                  var p = productsCheckout[index];
+                  var p = orderLineItems[index];
 // var p = products.firstWhereOrNull((e) => )
                   // var cancelCount = productCheckout
                   //         .firstWhereOrNull((e) => e.id == p.id)
@@ -521,9 +522,7 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                                   children: [
                                     TextSpan(
                                       text:
-                                          '  (${AppUtils.formatCurrency(value: p.unitPrice, symbol: 'đ')
-                                          // NumberFormat.currency(locale: 'vi', symbol: 'đ').format(double.tryParse(p.unitPrice) ?? 0)
-                                          }/${p.unit.trim()})',
+                                          '  (${AppUtils.formatCurrency(value: p.price, symbol: 'đ')}/${p.unit.trim()})',
                                       style: AppTextStyle.medium(
                                           rawFontSize: AppConfig.defaultRawTextSize - 1.5,
                                           color: Colors.grey.shade400),
@@ -544,167 +543,34 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                                 border: Border.all(color: Colors.grey.shade200),
                               ),
                               child: Text(
-                                'x${p.quantity}',
+                                'x${p.count}',
                                 style: AppTextStyle.bold(),
                               ),
                             ),
-                            // Text.rich(
-                            //   TextSpan(
-                            //     text: 'SL: ',
-                            //     children: [
-                            //       TextSpan(
-                            //         text: p.numberSelecting.toString(),
-                            //         style: AppTextStyle.bold(),
-                            //       ),
-                            //     ],
-                            //     style: AppTextStyle.bold(
-                            //       color: Colors.grey.shade500,
-                            //       rawFontSize:
-                            //           AppConfig.defaultRawTextSize - 1.0,
-                            //     ),
-                            //   ),
-                            // ),
                           ],
                         ),
                         const Gap(4),
                         Row(
                           children: [
-                            // Text('Thuế'), const Gap(4),
-                            // DropdownTaxWidget(
-                            //   taxs: [0.0, 0.08, 0.1],
-                            //   taxSelect: 0.08,
-                            //   yIndex: 1,
-                            //   onChangeTax: (value) {},
-                            //   widthBtn: TextUtil.getTextSize(
-                            //               text: S.current.default_1,
-                            //               textStyle: AppTextStyle.regular())
-                            //           .width +
-                            //       12 * 2,
-                            //   oddRowColor: Colors.grey.shade200,
-                            // ),
-
-                            // Expanded(
-                            //   child: Container(),
-                            // ),
-                            // Text('Hủy', style: AppTextStyle.regular()),
-                            // const Gap(6),
-                            // Expanded(
-                            //   child: Row(
-                            //     mainAxisSize: MainAxisSize.min,
-                            //     children: [
-                            //       InkWell(
-                            //         onTap: () {
-                            //           if (-cancelCount < 1) return;
-                            //           ref
-                            //               .read(homeProvider.notifier)
-                            //               .cancelProductCheckout(p, 1);
-                            //         },
-                            //         child: Container(
-                            //           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            //           decoration: BoxDecoration(
-                            //             color: Colors.grey.shade50,
-                            //             // border: Border(
-                            //             //   top: BorderSide(
-                            //             //       color: Colors.grey.shade300),
-                            //             //   bottom: BorderSide(
-                            //             //       color: Colors.grey.shade300),
-                            //             //   left: BorderSide(
-                            //             //       color: Colors.grey.shade300),
-                            //             // ),
-                            //             borderRadius: BorderRadius.horizontal(
-                            //               left: Radius.circular(6),
-                            //             ),
-                            //           ),
-                            //           child: Row(
-                            //             children: [
-                            //               Text('', style: AppTextStyle.bold()),
-                            //               Icon(
-                            //                 Icons.remove,
-                            //                 size: 16,
-                            //                 color:
-                            //                     -cancelCount < 1 ? Colors.grey.shade300 : null,
-                            //               ),
-                            //             ],
-                            //           ),
-                            //         ),
-                            //       ),
-                            //       Container(
-                            //         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            //         decoration: BoxDecoration(
-                            //           color: Colors.grey.shade50,
-                            //           // border: Border.symmetric(
-                            //           //   horizontal: BorderSide(
-                            //           //       color: Colors.grey.shade300),
-                            //           // ),
-                            //         ),
-                            //         child: Text((-cancelCount).toString(),
-                            //             style: AppTextStyle.bold(color: Colors.red)),
-                            //       ),
-                            //       InkWell(
-                            //         onTap: () {
-                            //           if (-cancelCount >= p.numberSelecting) {
-                            //             return;
-                            //           }
-                            //           ref
-                            //               .read(homeProvider.notifier)
-                            //               .cancelProductCheckout(p, -1);
-                            //         },
-                            //         child: Container(
-                            //           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            //           decoration: BoxDecoration(
-                            //             color: Colors.grey.shade50,
-                            //             // border: Border(
-                            //             //   top: BorderSide(
-                            //             //       color: Colors.grey.shade300),
-                            //             //   bottom: BorderSide(
-                            //             //       color: Colors.grey.shade300),
-                            //             //   right: BorderSide(
-                            //             //       color: Colors.grey.shade300),
-                            //             // ),
-                            //             borderRadius: BorderRadius.horizontal(
-                            //               right: Radius.circular(6),
-                            //             ),
-                            //           ),
-                            //           child: Row(
-                            //             children: [
-                            //               Text('', style: AppTextStyle.bold()),
-                            //               Icon(
-                            //                 Icons.add,
-                            //                 size: 16,
-                            //                 color: -cancelCount >= p.numberSelecting
-                            //                     ? Colors.grey.shade300
-                            //                     : null,
-                            //               ),
-                            //             ],
-                            //           ),
-                            //         ),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
-                            // const Gap(4),
                             Text(
                               AppUtils.formatCurrency(
-                                  value: (double.tryParse(p.unitPrice) ?? 0) * p.quantity,
-                                  symbol: 'đ'),
-                              // NumberFormat.currency(locale: 'vi', symbol: 'đ').format(
-                              //     (double.tryParse(p.unitPrice) ?? 0) * p.numberSelecting),
+                                  value: (double.tryParse(p.price) ?? 0) * p.count, symbol: 'đ'),
                               style: AppTextStyle.bold(),
                             ),
+                            if (dataBillState.status == PageCommonState.success && kDebugMode) ...[
+                              const Gap(20),
+                              Text('Thuế 111'),
+                              const Gap(12),
+                              Text(p.tax.toString()),
+                            ],
                           ],
                         ),
                       ],
                     ),
                   );
-                  // return _OrderProductItem(
-                  //   item: items[index],
-                  //   allowEnterNote: true,
-                  //   allowExtraItem: true,
-                  //   onTap: null,
-                  // );
                 },
                 separatorBuilder: (context, index) => const Gap(6),
-                itemCount: productsCheckout.length,
+                itemCount: orderLineItems.length,
               ),
             ),
           );
@@ -853,7 +719,7 @@ class _ListItemWidget extends ConsumerWidget {
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
         if (notification is UserScrollNotification) {
-          ref.read(homeProvider.notifier).onChangeAutoScrollProducts(false);
+          // ref.read(homeProvider.notifier).onChangeAutoScrollProducts(false);
         }
         return true;
       },
@@ -926,7 +792,7 @@ class _ProductHistoryWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var orderHistory = ref.watch(homeProvider.select((value) => value.orderHistory));
+    var orderHistory = ref.watch(checkoutPageProvider.select((value) => value.orderHistory));
     final history = ProductHelper.getHistory(orderHistory, productId);
     if (history.isEmpty) {
       return Padding(

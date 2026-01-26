@@ -25,21 +25,18 @@ void showHistoryOrderItemDialog(BuildContext context) async {
         child: Dialog(
             child: Column(
           children: [
+            const Gap(12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.history,
-                    color: AppColors.mainColor,
-                  ),
+                  const Icon(Icons.history),
                   const Gap(8),
                   Expanded(
                     child: Text(
                       'Lịch sử gọi - hủy đồ',
                       style: AppTextStyle.bold(
                         rawFontSize: AppConfig.defaultRawTextSize + 1.0,
-                        color: AppColors.mainColor,
                       ),
                     ),
                   ),
@@ -47,10 +44,11 @@ void showHistoryOrderItemDialog(BuildContext context) async {
                 ],
               ),
             ),
+            const Gap(8),
             Flexible(
               child: Consumer(builder: (context, ref, child) {
                 var orderHistoryData =
-                    ref.watch(homeProvider.select((value) => value.orderHistory));
+                    ref.watch(checkoutPageProvider.select((value) => value.orderHistory));
                 var dataView = List<OrderHistory>.from(orderHistoryData);
                 dataView.sort((a, b) => b.createdAt.compareTo(a.createdAt));
                 if (dataView.isEmpty) {
@@ -169,7 +167,7 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var productCheckout = ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
 
-    var orderHistoryData = ref.watch(homeProvider.select((value) => value.orderHistory));
+    var orderHistoryData = ref.watch(checkoutPageProvider.select((value) => value.orderHistory));
     if (orderHistoryData.isEmpty) return const SizedBox.shrink();
     return Container(
       color: Colors.white,

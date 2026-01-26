@@ -68,8 +68,7 @@ Future<bool> showSelectReservationDialog({
                                 ButtonSimpleWidget(
                                   color: AppColors.secondColor,
                                   textColor: AppColors.tcButtonMain,
-                                  textAction:
-                                      'Tiếp tục mà không đổi thông tin KH',
+                                  textAction: 'Tiếp tục mà không đổi thông tin KH',
                                   onPressed: () {
                                     updateCustomer = false;
                                     Navigator.of(context).pop(true);
@@ -80,72 +79,72 @@ Future<bool> showSelectReservationDialog({
                             : [],
                         actionTitle: 'Tiếp tục',
                       );
-                      if (confirm ?? false) {
-                        var orderSelect = ref.read(homeProvider).orderSelect;
-                        if (orderSelect == null) return false;
-                        var tableNames = orderSelect.name;
-                        var tableIds = orderSelect.getTableIds;
-                        final error = await ref
-                            .read(homeProvider.notifier)
-                            .updateOrderReservation(
-                              tableIds: tableIds,
-                              newReservation: item,
-                            );
-                        if (error == null) {
-                          if (item != null) {
-                            final model = item.copyWith(
-                              status: ReservationStatusEnum.process.type,
-                              statusName: ReservationStatusEnum.process.name,
-                              tableId: tableIds,
-                              table: tableNames,
-                            );
+                      // if (confirm ?? false) {
+                      //   var orderSelect = ref.read(homeProvider).orderSelect;
+                      //   if (orderSelect == null) return false;
+                      //   var tableNames = orderSelect.name;
+                      //   var tableIds = orderSelect.getTableIds;
+                      //   final error = await ref
+                      //       .read(homeProvider.notifier)
+                      //       .updateOrderReservation(
+                      //         tableIds: tableIds,
+                      //         newReservation: item,
+                      //       );
+                      //   if (error == null) {
+                      //     if (item != null) {
+                      //       final model = item.copyWith(
+                      //         status: ReservationStatusEnum.process.type,
+                      //         statusName: ReservationStatusEnum.process.name,
+                      //         tableId: tableIds,
+                      //         table: tableNames,
+                      //       );
 
-                            ref
-                                .read(homeProvider.notifier)
-                                .updateReservation(model);
-                          }
-                          if (itemInit != null) {
-                            final model = itemInit.copyWith(
-                              status: ReservationStatusEnum.accept.type,
-                              statusName: ReservationStatusEnum.accept.name,
-                              tableId: tableIds,
-                              table: tableNames,
-                            );
-                            ref
-                                .read(homeProvider.notifier)
-                                .updateReservation(model);
-                          }
+                      //       ref
+                      //           .read(homeProvider.notifier)
+                      //           .updateReservation(model);
+                      //     }
+                      //     if (itemInit != null) {
+                      //       final model = itemInit.copyWith(
+                      //         status: ReservationStatusEnum.accept.type,
+                      //         statusName: ReservationStatusEnum.accept.name,
+                      //         tableId: tableIds,
+                      //         table: tableNames,
+                      //       );
+                      //       ref
+                      //           .read(homeProvider.notifier)
+                      //           .updateReservation(model);
+                      //     }
 
-                          if (updateCustomer && item != null) {
-                            var phone = TextUtil.convertPhone(
-                                    item.customer?.phoneNumber ?? '')
-                                .trim();
-                            if (phone.isNotEmpty) {
-                              var result = await ref
-                                  .read(homeProvider.notifier)
-                                  .findCustomer(
-                                    phone,
-                                    loadingHome: true,
-                                  );
-                              if (result == FindCustomerStatus.error) {
-                                if (context.mounted) {
-                                  await showMessageDialog(
-                                    context,
-                                    message:
-                                        'Hệ thống không thể cập nhật thông tin khách hàng.'
-                                        '\n${ref.read(homeProvider).messageError}'
-                                        '\n\nBạn vui lòng cập nhật thông tin khách hàng thủ công.',
-                                  );
-                                }
-                              }
-                            }
-                          }
-                          return true;
-                        } else {
-                          showMessageDialog(context, message: error);
-                        }
-                        return false;
-                      }
+                      //     if (updateCustomer && item != null) {
+                      //       var phone = TextUtil.convertPhone(
+                      //               item.customer?.phoneNumber ?? '')
+                      //           .trim();
+                      //       if (phone.isNotEmpty) {
+                      //         var result = await ref
+                      //             .read(homeProvider.notifier)
+                      //             .findCustomer(
+                      //               phone,
+                      //               loadingHome: true,
+                      //             );
+                      //         if (result == FindCustomerStatus.error) {
+                      //           if (context.mounted) {
+                      //             await showMessageDialog(
+                      //               context,
+                      //               message:
+                      //                   'Hệ thống không thể cập nhật thông tin khách hàng.'
+                      //                   '\n${ref.read(homeProvider).messageError}'
+                      //                   '\n\nBạn vui lòng cập nhật thông tin khách hàng thủ công.',
+                      //             );
+                      //           }
+                      //         }
+                      //       }
+                      //     }
+                      //     return true;
+                      //   } else {
+                      //     showMessageDialog(context, message: error);
+                      //   }
+                      //   return false;
+                      // }
                       return false;
                     } else {
                       return true;

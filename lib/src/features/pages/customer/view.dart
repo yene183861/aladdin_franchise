@@ -16,6 +16,7 @@ import 'package:aladdin_franchise/src/features/dialogs/detail_product.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -680,17 +681,13 @@ class CustomerInfoWidget extends ConsumerWidget {
                         showConfirmAction(
                           context,
                           action: () async {
-                            final result = await ref.read(homeProvider.notifier).deleteCustomer();
+                            final result =
+                                await ref.read(checkoutPageProvider.notifier).deleteCustomer();
                             if (result != null) {
                               showMessageDialog(
                                 context,
                                 message: result.toString(),
                               );
-                            } else {
-                              // xoá khách xong thì áp dụng lại giảm giá
-                              await ref
-                                  .read(homeProvider.notifier)
-                                  .applyCustomerPolicy(requireApply: true);
                             }
                           },
                           message: S.current.removeCustomer,

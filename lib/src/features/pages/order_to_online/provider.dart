@@ -195,7 +195,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
       // }
 
       if (orderSelect.orderId == ref.read(homeProvider).orderSelect?.id) {
-        ref.read(homeProvider.notifier).getOrderProductCheckout();
+        // ref.read(homeProvider.notifier).getOrderProductCheckout();
       }
       return null;
     } catch (ex) {

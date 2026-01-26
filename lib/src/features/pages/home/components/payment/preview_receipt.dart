@@ -38,9 +38,9 @@ class PreviewPaymentReceiptWidget extends ConsumerWidget {
         ],
         const Flexible(child: _PreviewProductCheckoutWidget()),
         const Gap(12),
-        PriceDataBillPreview(
-          dataBill: ref.read(homeProvider.notifier).getFinalPaymentPrice,
-        )
+        // PriceDataBillPreview(
+        //   dataBill: ref.read(homeProvider.notifier).getFinalPaymentPrice,
+        // )
       ],
     );
   }
@@ -50,12 +50,10 @@ class _PreviewProductCheckoutWidget extends ConsumerStatefulWidget {
   const _PreviewProductCheckoutWidget();
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __PreviewProductCheckoutWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __PreviewProductCheckoutWidgetState();
 }
 
-class __PreviewProductCheckoutWidgetState
-    extends ConsumerState<_PreviewProductCheckoutWidget> {
+class __PreviewProductCheckoutWidgetState extends ConsumerState<_PreviewProductCheckoutWidget> {
   final titleRowColor = Colors.grey.shade200;
   final colSettings = [
     {
@@ -96,8 +94,7 @@ class __PreviewProductCheckoutWidgetState
 
   @override
   Widget build(BuildContext context) {
-    productCheckouts = ref
-        .watch(checkoutPageProvider.select((value) => value.productsCheckout));
+    productCheckouts = ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
 
     var count = productCheckouts.length + 1;
     return LayoutBuilder(builder: (context, constraint) {
@@ -114,17 +111,15 @@ class __PreviewProductCheckoutWidgetState
             return _buildColumnSpan(index, maxWidth);
           },
           rowBuilder: _buildRowSpan,
-          cellBuilder: (context, vicinity) =>
-              _buildCell(context, vicinity, productCheckouts),
+          cellBuilder: (context, vicinity) => _buildCell(context, vicinity, productCheckouts),
         ),
       );
     });
   }
 
-  TableViewCell _buildCell(BuildContext context, TableVicinity vicinity,
-      List<ProductCheckoutModel> productCheckout) {
-    var decoration =
-        BoxDecoration(border: Border.all(color: Colors.grey, width: 0.5));
+  TableViewCell _buildCell(
+      BuildContext context, TableVicinity vicinity, List<ProductCheckoutModel> productCheckout) {
+    var decoration = BoxDecoration(border: Border.all(color: Colors.grey, width: 0.5));
     if (vicinity.yIndex == 0) {
       String colTitle = '';
       try {
@@ -151,9 +146,7 @@ class __PreviewProductCheckoutWidgetState
     var xIndex = vicinity.xIndex;
 
     List<String> contents = [];
-    var i = (requireUpdateTax
-        ? productCheckoutUpdateTax
-        : productCheckouts)[vicinity.yIndex - 1];
+    var i = (requireUpdateTax ? productCheckoutUpdateTax : productCheckouts)[vicinity.yIndex - 1];
 
     if (requireUpdateTax) {
       var item = i as ProductCheckoutUpdateTaxModel;
@@ -205,9 +198,7 @@ class __PreviewProductCheckoutWidgetState
       remain = max(remain - (size ?? 0), 200);
     }
     return TableSpan(
-      extent: maxValue == null
-          ? FixedTableSpanExtent(remain)
-          : FixedTableSpanExtent(maxValue),
+      extent: maxValue == null ? FixedTableSpanExtent(remain) : FixedTableSpanExtent(maxValue),
     );
   }
 
