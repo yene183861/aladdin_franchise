@@ -34,6 +34,7 @@ class AppTextFormField extends StatelessWidget {
   final int? maxLines;
   final TextAlign textAlign;
   final Color? fillColor;
+  final bool autofocus;
 
   const AppTextFormField({
     Key? key,
@@ -63,6 +64,7 @@ class AppTextFormField extends StatelessWidget {
     this.maxLines,
     this.textAlign = TextAlign.start,
     this.fillColor,
+    this.autofocus = false,
   }) : super(key: key);
 
   @override
@@ -84,6 +86,7 @@ class AppTextFormField extends StatelessWidget {
       keyboardType: textInputType,
       maxLength: maxLength,
       textAlign: textAlign,
+      autofocus: autofocus,
       decoration: InputDecoration(
         fillColor: fillColor,
         filled: true,
@@ -122,8 +125,7 @@ class AppTextFormField extends StatelessWidget {
         prefixIcon: prefixIcon,
         suffixIcon: suffixIcon,
         hintStyle: AppTextStyle.regular(
-            rawFontSize: AppConfig.defaultRawTextSize - 1.5,
-            color: AppColors.tcHintText),
+            rawFontSize: AppConfig.defaultRawTextSize - 1.5, color: AppColors.tcHintText),
       ),
       onChanged: (value) {
         onChanged?.call(value);

@@ -24,10 +24,7 @@ class AppCloseButton extends StatelessWidget {
         borderRadius: AppConfig.borderRadiusMain,
         side: const BorderSide(color: AppColors.mainColor),
       ),
-      onPressed: onPressed ??
-          () {
-            pop(context);
-          },
+      onPressed: onPressed ?? () => pop(context),
     );
   }
 }

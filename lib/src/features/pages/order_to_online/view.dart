@@ -452,7 +452,6 @@ class _BodyPage extends ConsumerWidget {
         return Center(
           child: AppErrorSimpleWidget(
             onTryAgain: () {
-              // ref.read(orderToOnlinePageProvider.notifier).onChangeShowLoadingGetData(true);
               ref.refresh(orderToOnlineProvider);
             },
           ),

@@ -14,6 +14,7 @@ import 'package:aladdin_franchise/src/features/pages/home/components/action/type
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/view.dart';
 import 'package:aladdin_franchise/src/features/pages/table_layout/view.dart';
+import 'package:aladdin_franchise/src/features/pages/table_layout_new/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_main.dart';
@@ -359,6 +360,13 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                                   textAction: 'Layout nhà hàng',
                                   onTap: () {
                                     push(context, const TableLayoutPage());
+                                  },
+                                  color: AppColors.secondColor,
+                                ),
+                                AppButtonWidget(
+                                  textAction: 'Layout mới',
+                                  onTap: () {
+                                    push(context, const NewTableLayoutPage());
                                   },
                                   color: AppColors.secondColor,
                                 ),
