@@ -31,8 +31,8 @@ import 'widgets/barrel_widget.dart';
 import 'provider.dart';
 import 'state.dart';
 
-Future<({int? orderId, ReservationModel? reservation, int? typeOrder})> showCreateNewOrderDialog(
-    BuildContext context) async {
+Future<({int? orderId, ReservationModel? reservation, int? typeOrder})>
+    showCreateNewOrderDialog(BuildContext context) async {
   final result = await showDialog(
     context: context,
     useRootNavigator: false,
@@ -81,8 +81,9 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
                       children: [
                         Consumer(
                           builder: (context, ref, child) {
-                            bool ignoreNotifyReservation = ref.watch(createNewOrderDialogProvider
-                                .select((value) => value.ignoreNotifyReservation));
+                            bool ignoreNotifyReservation = ref.watch(
+                                createNewOrderDialogProvider.select(
+                                    (value) => value.ignoreNotifyReservation));
                             return CustomCheckbox(
                               checked: ignoreNotifyReservation,
                               onChange: ref
@@ -95,8 +96,8 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
                         Flexible(
                             child: Text(
                           'Bỏ qua thông báo này và các thông báo nhắc nhở tương tự',
-                          style:
-                              AppTextStyle.regular(rawFontSize: AppConfig.defaultRawTextSize - 1.0),
+                          style: AppTextStyle.regular(
+                              rawFontSize: AppConfig.defaultRawTextSize - 1.0),
                         )),
                       ],
                     ),
@@ -110,7 +111,9 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
           }
         }
         if (!mounted) return;
-        ref.read(createNewOrderDialogProvider.notifier).onChangeNotifyReservation(false);
+        ref
+            .read(createNewOrderDialogProvider.notifier)
+            .onChangeNotifyReservation(false);
       };
 
   @override
@@ -119,10 +122,11 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
       createNewOrderDialogProvider.select((value) => value.notifyReservation),
       _listenNotifyReservation(context, ref),
     );
-    bool useReservation =
-        ref.watch(createNewOrderDialogProvider.select((value) => value.useReservation));
+    bool useReservation = ref.watch(
+        createNewOrderDialogProvider.select((value) => value.useReservation));
     final tableAvailable = ref.watch(tablesAndOrdersProvider);
-    bool smallDevice = ResponsiveBreakpoints.of(context).smallerOrEqualTo(TABLET);
+    bool smallDevice =
+        ResponsiveBreakpoints.of(context).smallerOrEqualTo(TABLET);
     return AlertDialog(
       title: Row(
         children: [
@@ -150,7 +154,8 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
           skipLoadingOnRefresh: false,
           data: (data) {
             bool enableOnline = ref.read(enableOrderOnlineProvider);
-            var notUseOffline = List<TableModel>.from(data.offline?.notUse ?? []);
+            var notUseOffline =
+                List<TableModel>.from(data.offline?.notUse ?? []);
             var notUseOnline = List<TableModel>.from(data.online?.notUse ?? []);
             if ([...notUseOffline, ...notUseOnline].isEmpty) {
               return Center(
@@ -172,13 +177,21 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
             switch (typeOrder) {
               case TypeOrderEnum.offline:
                 if (enableOnline) {
-                  tableNotUseAndType
-                      .addAll([const Gap(20), TypeOrderEnum.online, const Gap(12), notUseOnline]);
+                  tableNotUseAndType.addAll([
+                    const Gap(20),
+                    TypeOrderEnum.online,
+                    const Gap(12),
+                    notUseOnline
+                  ]);
                 }
                 break;
               case TypeOrderEnum.online:
-                tableNotUseAndType.insertAll(
-                    0, [TypeOrderEnum.online, const Gap(12), notUseOnline, const Gap(20)]);
+                tableNotUseAndType.insertAll(0, [
+                  TypeOrderEnum.online,
+                  const Gap(12),
+                  notUseOnline,
+                  const Gap(20)
+                ]);
                 break;
               default:
             }
@@ -191,13 +204,14 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
                     ],
                   )
                 : const SizedBox.shrink();
-            Widget tableSection = TableSection(tableNotUseAndType: tableNotUseAndType);
+            Widget tableSection =
+                TableSection(tableNotUseAndType: tableNotUseAndType);
 
             if (useReservation && smallDevice) {
               return Consumer(
                 builder: (context, ref, child) {
-                  var tabSelect =
-                      ref.watch(createNewOrderDialogProvider.select((value) => value.tabSelect));
+                  var tabSelect = ref.watch(createNewOrderDialogProvider
+                      .select((value) => value.tabSelect));
                   return Column(
                     children: [
                       const CreateNewOrderTabWidget(),
@@ -268,7 +282,8 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
               return;
             }
 
-            var tableName = state.tableSelect.map((e) => e.name ?? '').join(', ');
+            var tableName =
+                state.tableSelect.map((e) => e.name ?? '').join(', ');
             var reservation = state.reservationSelect;
             var result = await ref.read(homeProvider.notifier).createNewOrder(
                   tableIds,
@@ -284,10 +299,11 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
                 table: tableName,
               );
               if (reservation != null) {
-                // ref.read(homeProvider.notifier).updateReservation(reservation);
+                ref.read(homeProvider.notifier).updateReservation(reservation);
               }
               if (context.mounted) {
-                showDoneSnackBar(context: context, message: S.current.createdNewOrder);
+                showDoneSnackBar(
+                    context: context, message: S.current.createdNewOrder);
                 Navigator.pop(context, (
                   orderId: result.first,
                   reservation: reservation,

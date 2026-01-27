@@ -3,16 +3,21 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
+import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/detail_coupon.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/view.dart';
+import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/combo_item.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
+import 'package:aladdin_franchise/src/models/product_checkout.dart';
+import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
@@ -21,6 +26,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
+import 'package:intl/intl.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../../../generated/l10n.dart';
 
@@ -34,10 +41,10 @@ class CouponInfoWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var allProduct = ref.watch(menuProvider.select((value) => value.products));
-    var coupons = ref.watch(checkoutPageProvider.select((value) => value.coupons));
+    var coupons = ref.watch(homeProvider.select((value) => value.coupons));
     var productCheckouts =
         ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
-    final numberOfAdults = ref.watch(checkoutPageProvider.select((value) => value.numberOfAdults));
+    final numberOfAdults = ref.watch(homeProvider.select((value) => value.numberOfAdults));
     if (coupons.isEmpty) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 12),
@@ -266,11 +273,22 @@ class CouponInfoWidget extends ConsumerWidget {
                           context,
                           message: S.current.deleteDiscountCode,
                           action: () async {
-                            String? result = await ref
-                                .read(checkoutPageProvider.notifier)
-                                .deleteVoucher(coupon: coupon);
+                            String? result;
+                            if (!AppConfig.useCoupon) {
+                              result = await ref
+                                  .read(homeProvider.notifier)
+                                  .deleteVoucher(coupon: coupon);
+                            } else {
+                              /// đang k có trường để xác định gọi deleteVoucher hay deleteCoupon
+                              result = await ref.read(homeProvider.notifier).deleteCoupon(coupon);
+                            }
                             var homeContext = homeKey.currentContext;
                             if (result != null && homeContext != null) {
+                              // showErrorDialog(
+                              //   homeContext,
+                              //   message: result,
+                              //   isNotifier: true,
+                              // );
                               showMessageDialog(
                                 homeContext,
                                 message: result,
@@ -307,10 +325,10 @@ class CouponInfoWidget extends ConsumerWidget {
                             for (final cc in coupons) {
                               if (cc.isType == 5) {
                                 for (final ccd in cc.discount) {
-                                  // if (productCheckout.id.toString() == ccd.id &&
-                                  //     coupon.id != cc.id) {
-                                  //   totalSelectByDish += ccd.numberSelect;
-                                  // }
+                                  if (productCheckout.id.toString() == ccd.id &&
+                                      coupon.id != cc.id) {
+                                    totalSelectByDish += ccd.numberSelect;
+                                  }
                                 }
                               }
                             }
@@ -340,11 +358,11 @@ class CouponInfoWidget extends ConsumerWidget {
                                       style: AppTextStyle.regular(),
                                     ),
                                     onChanged: (value) {
-                                      // ref.read(homeProvider.notifier).changeSelectDiscountPromotion(
-                                      //       coupon,
-                                      //       discount,
-                                      //       value == true ? 1 : 0,
-                                      //     );
+                                      ref.read(homeProvider.notifier).changeSelectDiscountPromotion(
+                                            coupon,
+                                            discount,
+                                            value == true ? 1 : 0,
+                                          );
                                     },
                                   ),
                                 ),
@@ -371,13 +389,13 @@ class CouponInfoWidget extends ConsumerWidget {
                                             contentPadding: EdgeInsets.zero,
                                           ),
                                           onChanged: (value) {
-                                            // ref
-                                            //     .read(homeProvider.notifier)
-                                            //     .changeSelectDiscountPromotion(
-                                            //       coupon,
-                                            //       discount,
-                                            //       value.toInt(),
-                                            //     );
+                                            ref
+                                                .read(homeProvider.notifier)
+                                                .changeSelectDiscountPromotion(
+                                                  coupon,
+                                                  discount,
+                                                  value.toInt(),
+                                                );
                                           },
                                         ),
                                       )

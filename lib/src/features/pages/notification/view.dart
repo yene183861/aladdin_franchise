@@ -31,7 +31,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      // ref.read(homeProvider.notifier).markViewAllNotification();
+      ref.read(homeProvider.notifier).markViewAllNotification();
     });
   }
 
@@ -69,7 +69,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                   context,
                   message: 'Bạn có muốn đánh dấu tất cả là đã đọc?',
                   action: () {
-                    // ref.read(homeProvider.notifier).markReadAllNotification(ids);
+                    ref.read(homeProvider.notifier).markReadAllNotification(ids);
                   },
                 );
               },
@@ -82,7 +82,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                   context,
                   message: 'Bạn có muốn xoá tất cả thông báo?',
                   action: () {
-                    // ref.read(homeProvider.notifier).deleleNotification(ids);
+                    ref.read(homeProvider.notifier).deleleNotification(ids);
                   },
                 );
               },
@@ -130,13 +130,13 @@ class _BodyPage extends ConsumerWidget {
         }
         return InkWell(
           onTap: () {
-            // ref.read(homeProvider.notifier).markReadNotification(item.id);
-            // showDialog(
-            //   context: context,
-            //   builder: (context) {
-            //     return _NotificationDetailDialog(item: item, notiType: notiType);
-            //   },
-            // );
+            ref.read(homeProvider.notifier).markReadNotification(item.id);
+            showDialog(
+              context: context,
+              builder: (context) {
+                return _NotificationDetailDialog(item: item, notiType: notiType);
+              },
+            );
           },
           borderRadius: BorderRadius.circular(AppConfig.sizeBorderRadiusMain),
           child: Container(
@@ -211,11 +211,11 @@ class _BodyPage extends ConsumerWidget {
                       return AppButton(
                         textAction: 'Thiết lập máy in chính',
                         onPressed: () async {
-                          // ref.read(homeProvider.notifier).markReadNotification(item.id);
-                          // var result = await ref.read(homeProvider.notifier).savePrintDevice(true);
-                          // if (result != null) {
-                          //   showMessageDialog(context, message: result);
-                          // }
+                          ref.read(homeProvider.notifier).markReadNotification(item.id);
+                          var result = await ref.read(homeProvider.notifier).savePrintDevice(true);
+                          if (result != null) {
+                            showMessageDialog(context, message: result);
+                          }
                         },
                       );
                     }
@@ -251,7 +251,7 @@ class _BodyPage extends ConsumerWidget {
                                 appPrinterType: data.mode,
                               );
 
-                          // ref.read(homeProvider.notifier).deleleNotification([item.id]);
+                          ref.read(homeProvider.notifier).deleleNotification([item.id]);
                         },
                         icon: Icon(Icons.print),
                       ),
@@ -355,7 +355,7 @@ class _NotificationDetailDialog extends ConsumerWidget {
                           return;
                         }
                         pop(context);
-                        // ref.read(homeProvider.notifier).deleleNotification([item.id]);
+                        ref.read(homeProvider.notifier).deleleNotification([item.id]);
                       },
                     ),
                     const Gap(12),
@@ -381,7 +381,7 @@ class _NotificationDetailDialog extends ConsumerWidget {
                               appPrinterType: data.mode,
                             );
 
-                        // ref.read(homeProvider.notifier).deleleNotification([item.id]);
+                        ref.read(homeProvider.notifier).deleleNotification([item.id]);
                       },
                     ),
                   ],

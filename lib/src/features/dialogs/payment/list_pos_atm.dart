@@ -2,7 +2,6 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
@@ -25,15 +24,15 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.read(checkoutPageProvider.notifier).getListAtmPos();
+      ref.read(homeProvider.notifier).getListAtmPos();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    var atmPosSelect = ref.watch(checkoutPageProvider.select((value) => value.atmPosSelect));
+    var atmPosSelect = ref.watch(homeProvider.select((value) => value.atmPosSelect));
     var orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
-    var dataBill = ref.watch(checkoutPageProvider.select((value) => value.dataBill));
+    var dataBill = ref.watch(homeProvider.select((value) => value.dataBill));
 
     return SingleChildScrollView(
       child: Column(
@@ -77,8 +76,8 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
           const Gap(12),
           Consumer(
             builder: (context, ref, child) {
-              var listAtmPos = ref.watch(checkoutPageProvider.select((value) => value.listAtmPos));
-              var state = ref.watch(checkoutPageProvider.select((value) => value.listAtmPosState));
+              var listAtmPos = ref.watch(homeProvider.select((value) => value.listAtmPos));
+              var state = ref.watch(homeProvider.select((value) => value.listAtmPosState));
 
               switch (state.status) {
                 case PageCommonState.loading:
@@ -90,7 +89,7 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
                   return AppErrorSimpleWidget(
                     message: state.messageError,
                     onTryAgain: () {
-                      ref.read(checkoutPageProvider.notifier).getListAtmPos();
+                      ref.read(homeProvider.notifier).getListAtmPos();
                     },
                   );
                 case PageCommonState.success:
@@ -112,7 +111,7 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
                                 padding: const EdgeInsets.only(bottom: 8),
                                 child: InkWell(
                                   onTap: () {
-                                    ref.read(checkoutPageProvider.notifier).onChangeAtmPosSelect(e);
+                                    ref.read(homeProvider.notifier).onChangeAtmPosSelect(e);
                                   },
                                   borderRadius: AppConfig.borderRadiusMain,
                                   child: Container(

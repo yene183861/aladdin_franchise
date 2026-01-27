@@ -5,7 +5,6 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/view_image.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -32,7 +31,7 @@ class _PQCImageBillCheckerWidgetState extends ConsumerState<PQCImageBillCheckerW
   final ImagePicker picker = ImagePicker();
   @override
   Widget build(BuildContext context) {
-    final images = ref.watch(checkoutPageProvider.select((value) => value.imageBills));
+    final images = ref.watch(homeProvider.select((value) => value.imageBills));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -124,18 +123,18 @@ class _PQCImageBillCheckerWidgetState extends ConsumerState<PQCImageBillCheckerW
         maxWidth: 1080,
       );
       // Có 1 case ảnh từ thiết bị bị null nên cần check lại size ảnh
-      // if (photo != null) {
-      //   final file = File(photo.path);
-      //   final fileSize = await file.length();
-      //   if (fileSize <= 0) {
-      //     showMessageDialog(
-      //       context,
-      //       message: S.current.invalid_photo_select_again,
-      //     );
-      //   } else {
-      //     ref.read(homeProvider.notifier).updateImageBill(file);
-      //   }
-      // }
+      if (photo != null) {
+        final file = File(photo.path);
+        final fileSize = await file.length();
+        if (fileSize <= 0) {
+          showMessageDialog(
+            context,
+            message: S.current.invalid_photo_select_again,
+          );
+        } else {
+          ref.read(homeProvider.notifier).updateImageBill(file);
+        }
+      }
     } catch (ex) {
       showLog(ex, flags: '_onTakeCamera');
     }
@@ -184,7 +183,7 @@ class _BoxImageBillWidget extends ConsumerWidget {
               right: -5,
               child: IconButton(
                 onPressed: () {
-                  // ref.read(homeProvider.notifier).updateImageBill(image);
+                  ref.read(homeProvider.notifier).updateImageBill(image);
                 },
                 padding: EdgeInsets.zero,
                 color: Colors.red,

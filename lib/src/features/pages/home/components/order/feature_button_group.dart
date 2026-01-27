@@ -5,7 +5,6 @@ import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
-import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/dialogs/customer/customer_option_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
@@ -18,11 +17,8 @@ import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
-import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
-import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
-import 'package:aladdin_franchise/src/models/data_bill.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
@@ -40,12 +36,14 @@ class OrderFeatureButtonGroupWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var defaultPaddingFeatureBtn = const EdgeInsets.symmetric(horizontal: 2, vertical: 12);
+    var defaultPaddingFeatureBtn =
+        const EdgeInsets.symmetric(horizontal: 2, vertical: 12);
     return Column(
       children: [
         _FeatureGroupWidget(defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
         const Gap(4),
-        _BottomFeatureGroupWidget(defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
+        _BottomFeatureGroupWidget(
+            defaultPaddingFeatureBtn: defaultPaddingFeatureBtn),
       ],
     );
   }
@@ -56,7 +54,8 @@ class _FeatureGroupWidget extends ConsumerStatefulWidget {
   final EdgeInsets defaultPaddingFeatureBtn;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => __FeatureGroupWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      __FeatureGroupWidgetState();
 }
 
 class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
@@ -116,7 +115,8 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
               valueListenable: _hasSubWindows,
               builder: (context, hasWindows, child) {
                 return Consumer(builder: (context, ref, child) {
-                  var pinned = ref.watch(homeProvider.select((value) => value.pinnedOrder));
+                  var pinned = ref
+                      .watch(homeProvider.select((value) => value.pinnedOrder));
 
                   return ButtonSimpleWidget(
                     textAction: S.of(context).customer_screen,
@@ -165,28 +165,38 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
                       // //     'changed_product_id': state.changedProductId
                       // //   },
                       // // };
-                      // if (Platform.isWindows) {
-                      //   final subWindows = await DesktopMultiWindow.getAllSubWindowIds();
+                      if (Platform.isWindows) {
+                        final subWindows =
+                            await DesktopMultiWindow.getAllSubWindowIds();
 
-                      //   if (subWindows.isNotEmpty) {
-                      //     // pin/ unpin màn hình KH
-                      //     ref.read(homeProvider.notifier).onChangePinnedOrder(!pinned);
-                      //     if (pinned) {
-                      //       ref.read(homeProvider.notifier).syncInfoCustomerPage();
-                      //     }
-                      //     return;
-                      //   }
+                        if (subWindows.isNotEmpty) {
+                          // pin/ unpin màn hình KH
+                          ref
+                              .read(homeProvider.notifier)
+                              .onChangePinnedOrder(!pinned);
+                          if (pinned) {
+                            ref
+                                .read(homeProvider.notifier)
+                                .syncInfoCustomerPage();
+                          }
+                          return;
+                        }
 
-                      //   ref.read(homeProvider.notifier).onChangePinnedOrder(false);
-                      //   var restaurant = LocalStorage.getDataLogin()?.restaurant;
-                      //   final window = await DesktopMultiWindow.createWindow(
-                      //       jsonEncode(ref.read(homeProvider.notifier).getAllDataToCustomerPage()));
-                      //   window
-                      //     ..setFrame(Offset(1920, 0) & const Size(1920, 1080))
-                      //     ..center()
-                      //     ..setTitle(restaurant?.name ?? AppConfig.appName)
-                      //     ..show();
-                      // } else if (Platform.isAndroid) {}
+                        ref
+                            .read(homeProvider.notifier)
+                            .onChangePinnedOrder(false);
+                        var restaurant =
+                            LocalStorage.getDataLogin()?.restaurant;
+                        final window = await DesktopMultiWindow.createWindow(
+                            jsonEncode(ref
+                                .read(homeProvider.notifier)
+                                .getAllDataToCustomerPage()));
+                        window
+                          ..setFrame(Offset(1920, 0) & const Size(1920, 1080))
+                          ..center()
+                          ..setTitle(restaurant?.name ?? AppConfig.appName)
+                          ..show();
+                      } else if (Platform.isAndroid) {}
                     },
                   );
                 });
@@ -197,10 +207,13 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
           Expanded(
             flex: 1,
             child: Consumer(builder: (context, ref, child) {
-              var customer = ref.watch(checkoutPageProvider.select((value) => value.customer));
+              var customer =
+                  ref.watch(homeProvider.select((value) => value.customer));
 
               return Tooltip(
-                message: customer == null ? '' : '${customer.name} - ${customer.phoneNumber}',
+                message: customer == null
+                    ? ''
+                    : '${customer.name} - ${customer.phoneNumber}',
                 child: ButtonSimpleWidget(
                   textAction: customer == null
                       ? S.of(context).customers
@@ -228,10 +241,11 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
             flex: 1,
             child: Consumer(
               builder: (context, ref, child) {
-                var invoice = ref.watch(checkoutPageProvider.select((value) => value.invoice));
+                var invoice =
+                    ref.watch(homeProvider.select((value) => value.invoice));
 
-                var state =
-                    ref.watch(checkoutPageProvider.select((value) => value.orderInvoiceState));
+                var state = ref.watch(
+                    homeProvider.select((value) => value.orderInvoiceState));
 
                 return ButtonSimpleWidget(
                   textAction: S.of(context).invoice,
@@ -248,7 +262,7 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
                       return;
                     }
                     if (state.status == PageCommonState.error) {
-                      ref.read(checkoutPageProvider.notifier).getInvoice();
+                      ref.read(homeProvider.notifier).getOrderInvoice();
                       return;
                     }
                     await showCreateInvoiceOrderDialog(
@@ -292,7 +306,8 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
         const Gap(8),
         Expanded(
           child: Consumer(builder: (context, ref, child) {
-            var coupons = ref.watch(checkoutPageProvider.select((value) => value.coupons));
+            var coupons =
+                ref.watch(homeProvider.select((value) => value.coupons));
             return ButtonSimpleWidget(
               padding: defaultPaddingFeatureBtn,
               onPressed: () async {
@@ -341,13 +356,15 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
                 message: 'Bạn có muốn thực hiện chốt ca?',
                 textCancel: S.current.close,
                 action: () async {
-                  final res = await ref.read(homeProvider.notifier).closeShift(context);
+                  final res =
+                      await ref.read(homeProvider.notifier).closeShift(context);
 
                   if (res.error != null) {
                     showMessageDialog(context, message: res.error ?? '');
                     return;
                   } else if (res.checkPrinters != null) {
-                    showMessageDialog(context, message: res.checkPrinters ?? '');
+                    showMessageDialog(context,
+                        message: res.checkPrinters ?? '');
                     return;
                   } else if (res.resultSendPrintData != null) {
                     await showConfirmAction(
@@ -369,7 +386,9 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
                     return;
                   }
                   if (context.mounted) {
-                    showDoneSnackBar(context: context, message: S.current.closing_shift_success);
+                    showDoneSnackBar(
+                        context: context,
+                        message: S.current.closing_shift_success);
                   }
                   // },
                   // final res = await ref.read(homeProvider.notifier).closeShift(context);
@@ -407,84 +426,58 @@ void paymentBtnCallback({
   }
 
   state = ref.read(homeProvider);
-  List<ProductCheckoutModel> productsCheckout =
-      List<ProductCheckoutModel>.from(ref.read(checkoutPageProvider).productsCheckout);
+  List<ProductCheckoutModel> productsCheckout = List<ProductCheckoutModel>.from(
+      ref.read(checkoutPageProvider).productsCheckout);
   if (productsCheckout.isEmpty) {
     showMessageDialog(context, message: S.current.order_before_payment);
     return;
   }
 
-  var customer = ref.read(checkoutPageProvider).customer;
+  var customer = ref.read(homeProvider).customer;
   if (customer == null) {
-    var res = await showMissingCustomerDialog(context);
-    if (res != true) return;
+    var res = await showConfirmAction(
+      context,
+      message: 'Bạn chưa nhập thông tin khách hàng cho Bill thanh toán.\n'
+          'Bạn vẫn muốn thực hiện in bill để Hoàn tất thanh toán?',
+      title: 'Chú ý',
+      actionTitle: 'Tiếp tục thanh toán',
+      extraAction: [
+        ButtonSimpleWidget(
+          color: AppColors.secondColor,
+          textColor: AppColors.tcButtonMain,
+          textAction: 'Thêm thông tin khách hàng',
+          onPressed: () {
+            Navigator.pop(context, false);
+            onChooseCustomerOption(context);
+          },
+        ),
+      ],
+      textCancel: 'Đóng',
+    );
+    if (res == false) {
+      return;
+    }
   }
 
   try {
-    ref.read(checkoutPageProvider.notifier).resetPaymentAndBank();
+    ref.read(homeProvider.notifier).resetPaymentAndBank();
 
     state = ref.read(homeProvider);
-    await ref.read(homeProvider.notifier).lockOrder();
+    await ref.read(homeProvider.notifier).lockOrder(loadingHome: true);
 
-    var errorGetPc =
-        await ref.read(checkoutPageProvider.notifier).getProductCheckouts(showLoading: true);
-    if (errorGetPc != null) {
-      var confirm = await showConfirmAction(
-        context,
-        message: 'Danh sách món đã gọi chưa được đồng bộ.\n$errorGetPc',
-        actionTitle: 'Thử lại',
-      );
-      if (confirm != true) {
-        return;
-      }
-      errorGetPc =
-          await ref.read(checkoutPageProvider.notifier).getProductCheckouts(showLoading: true);
-      if (errorGetPc != null) {
-        if (context.mounted) {
-          await showMessageDialog(
-            context,
-            message:
-                'Danh sách món đã gọi chưa được đồng bộ.\nVui lòng thử lại sau ít phút.\n$errorGetPc ',
-          );
-        }
-        return;
-      }
-    }
-    productsCheckout =
-        List<ProductCheckoutModel>.from(ref.read(checkoutPageProvider).productsCheckout);
+    await ref.read(homeProvider.notifier).getOrderProductCheckout(
+          applyPolicy: false,
+          loadingHome: true,
+          ignoreGetDataBill: true,
+        );
+    productsCheckout = List<ProductCheckoutModel>.from(
+        ref.read(checkoutPageProvider).productsCheckout);
     if (productsCheckout.isEmpty) {
       showMessageDialog(context, message: S.current.order_before_payment);
       return;
     }
-    var errorGetDataBill =
-        await ref.read(checkoutPageProvider.notifier).getDataBill(showLoading: true);
-    if (errorGetDataBill != null) {
-      var confirm = await showConfirmAction(
-        context,
-        message: 'Hệ thống hiện chưa thể lấy thông tin thanh toán.\n$errorGetDataBill',
-        action: () {},
-        actionTitle: 'Thử lại',
-      );
-      if (confirm != true) {
-        return;
-      }
-      errorGetDataBill =
-          await ref.read(checkoutPageProvider.notifier).getDataBill(showLoading: true);
-      if (errorGetDataBill != null) {
-        if (context.mounted) {
-          await showMessageDialog(
-            context,
-            message:
-                'Hệ thống hiện chưa thể lấy thông tin thanh toán.\nVui lòng thử lại sau ít phút.\n$errorGetDataBill ',
-          );
-        }
-        return;
-      }
-    }
 
     bool updateSuccess = false;
-    List<LineItemDataBill> orderLineItems =
-        List<LineItemDataBill>.from(ref.read(checkoutPageProvider).dataBill.orderLineItems);
     await showConfirmActionWithChild(
       context,
       noTitle: true,
@@ -494,14 +487,18 @@ void paymentBtnCallback({
         width: MediaQuery.of(context).size.width,
         child: EditTaxDialog(
             products: ref.read(menuProvider).products,
-            orderLineItems: orderLineItems,
-            onSave: (List<LineItemDataBill> changedPc) {
-              orderLineItems = changedPc;
+            productCheckouts: productsCheckout,
+            onSave: (List<ProductCheckoutModel> changedPc) {
+              productsCheckout = changedPc;
             }),
       ),
+      onCheckAction: () {
+        return true;
+      },
       actionTitle: S.current.save_and_continue_payment,
       action: () async {
-        var res = await ref.read(checkoutPageProvider.notifier).onUpdateTax(productsCheckout);
+        var res =
+            await ref.read(homeProvider.notifier).onUpdateTax(productsCheckout);
         if (res.error != null) {
           showMessageDialog(context, message: res.error ?? '', canPop: false);
           return;
@@ -511,30 +508,13 @@ void paymentBtnCallback({
         pop(context);
       },
     );
-    showLogs(updateSuccess, flags: 'updateSuccess');
     if (updateSuccess && context.mounted) {
-      var dataBillState = ref.read(checkoutPageProvider).dataBillState;
-      if (dataBillState.status != PageCommonState.success) {
-        var confirm = await showConfirmAction(
-          context,
-          message:
-              'Hệ thống hiện chưa thể lấy thông tin thanh toán.\n${dataBillState.messageError} ',
-        );
-        if (confirm != true) {
-          return;
-        }
-        var error = await ref.read(checkoutPageProvider.notifier).getDataBill(showLoading: true);
-        if (error != null) {
-          if (context.mounted) {
-            await showMessageDialog(
-              context,
-              message:
-                  'Hệ thống hiện chưa thể lấy thông tin thanh toán.\nVui lòng thử lại sau ít phút.\n$error ',
-            );
-          }
-          return;
-        }
-      }
+      await ref.read(homeProvider.notifier).getOrderProductCheckout(
+            applyPolicy: false,
+            loadingHome: true,
+            ignoreGetDataBill: false,
+          );
+      await ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
       var check = checkLatestPaymentInfo(ref);
       if (check.errorApplyPolicy != null ||
           check.errorGetProductCheckout != null ||
@@ -558,139 +538,13 @@ void paymentBtnCallback({
   }
 }
 
-Future<bool?> showMissingCustomerDialog(BuildContext context) {
-  return showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (_) {
-      return const _MissingCustomerBodyDialog();
-    },
-  );
-}
-
-class _MissingCustomerBodyDialog extends StatelessWidget {
-  const _MissingCustomerBodyDialog({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.warning_amber_rounded,
-                    color: Colors.orange,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    'Chưa có thông tin khách hàng',
-                    style: AppTextStyle.bold(
-                      rawFontSize: AppConfig.defaultRawTextSize + 1.0,
-                    ),
-                  ),
-                ),
-                const CloseButton(),
-              ],
-            ),
-            const Gap(16),
-            Text(
-              'Bạn chưa nhập thông tin khách hàng cho bill thanh toán.\n'
-              'Bạn vẫn muốn tiếp tục để hoàn tất thanh toán không?',
-              style: AppTextStyle.regular(),
-            ),
-            const Gap(16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const AppCloseButton(),
-                const Gap(12),
-                AppButton(
-                  textAction: 'Thêm thông tin KH',
-                  color: AppColors.secondColor,
-                  onPressed: () {
-                    Navigator.pop(context, false);
-                    onChooseCustomerOption(context);
-                  },
-                ),
-
-                // OutlinedButton(
-                //   style: OutlinedButton.styleFrom(
-                //     foregroundColor: Colors.orange,
-                //     side: const BorderSide(color: Colors.orange),
-                //     shape: RoundedRectangleBorder(
-                //       borderRadius: BorderRadius.circular(12),
-                //     ),
-                //     padding: const EdgeInsets.symmetric(
-                //       horizontal: 20,
-                //       vertical: 12,
-                //     ),
-                //   ),
-                //   onPressed: () {
-                //     Navigator.pop(context);
-                //     // TODO: mở màn hình nhập khách hàng
-                //   },
-                //   child: const Text('Thêm thông tin KH'),
-                // ),
-
-                const Gap(12),
-                AppButton(
-                  textAction: 'Tiếp tục thanh toán',
-                  onPressed: () {
-                    pop(context, true);
-                  },
-                ),
-                // // Continue payment (Primary)
-                // ElevatedButton(
-                //   style: ElevatedButton.styleFrom(
-                //     backgroundColor: Colors.redAccent,
-                //     shape: RoundedRectangleBorder(
-                //       borderRadius: BorderRadius.circular(12),
-                //     ),
-                //     padding: const EdgeInsets.symmetric(
-                //       horizontal: 24,
-                //       vertical: 12,
-                //     ),
-                //   ),
-                //   onPressed: () {
-                //     Navigator.pop(context);
-                //     // TODO: tiếp tục thanh toán
-                //   },
-                //   child: const Text(
-                //     'Tiếp tục thanh toán',
-                //     style: TextStyle(fontWeight: FontWeight.w600),
-                //   ),
-                // ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 /// kiểm tra thông tin thanh toán đã là mới nhất
 ({
   String? errorGetProductCheckout,
   String? errorApplyPolicy,
   String? errorGetDataBill,
 }) checkLatestPaymentInfo(WidgetRef ref) {
-  var state = ref.read(checkoutPageProvider);
+  var state = ref.read(homeProvider);
   String? errorGetProductCheckout, errorApplyPolicy, errorGetDataBill;
   switch (state.productCheckoutState.status) {
     case PageCommonState.loading:
@@ -717,15 +571,16 @@ class _MissingCustomerBodyDialog extends StatelessWidget {
   }
   switch (state.applyPolicyState.status) {
     case PageCommonState.loading:
-      errorApplyPolicy = 'Đang tiến hành áp dụng lại mã giảm giá, vui lòng chờ trong giây lát.';
+      errorApplyPolicy =
+          'Đang tiến hành áp dụng lại mã giảm giá, vui lòng chờ trong giây lát.';
       break;
     case PageCommonState.error:
       errorApplyPolicy =
           'Việc áp dụng mã giảm giá không thành công.\n${state.applyPolicyState.messageError}';
+      // 'Vui lòng truy cập lại mục/tab "Ưu đãi" và chọn "Áp dụng" để thực hiện lại.';
       break;
     default:
   }
-
   if (errorApplyPolicy != null) {
     return (
       errorGetProductCheckout: errorGetProductCheckout,
@@ -739,7 +594,8 @@ class _MissingCustomerBodyDialog extends StatelessWidget {
           'Hệ thống đang cập nhật thông tin thanh toán, vui lòng đợi trong giây lát.';
       break;
     case PageCommonState.error:
-      errorGetDataBill = 'Hệ thống hiện chưa thể lấy thông tin thanh toán. Vui lòng thử lại sau.';
+      errorGetDataBill =
+          'Hệ thống hiện chưa thể lấy thông tin thanh toán. Vui lòng thử lại sau.';
       break;
     default:
   }

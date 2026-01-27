@@ -63,7 +63,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
     super.dispose();
   }
 
-  Future<void> init({bool fetchProducts = true}) async {
+  Future<void> init({bool loadProducts = true}) async {
     ctrlSearch.text = '';
     state = state.copyWith(
       categorySelect: null,
@@ -71,7 +71,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
       tagSelect: null,
       search: '',
     );
-    if (fetchProducts) {
+    if (loadProducts) {
       await getProducts();
     }
   }

@@ -16,8 +16,6 @@ import 'package:aladdin_franchise/src/features/dialogs/order/order_option_dialog
 import 'package:aladdin_franchise/src/features/dialogs/processing.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/view.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/state.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/action/btn_o2o.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/widgets/list_tag.dart';
@@ -315,222 +313,6 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     super.dispose();
   }
 
-  _listenCheckoutEvent(BuildContext context, WidgetRef ref) =>
-      (CheckoutEvent? previous, CheckoutEvent? next) {
-        switch (next) {
-          case CheckoutEvent.checkCode:
-            showProcessingDialog(context, message: S.current.verifying);
-            break;
-          case CheckoutEvent.createNewOrder:
-            showProcessingDialog(context, message: S.current.creating_a_new_order);
-            break;
-          case CheckoutEvent.updateOrder:
-            showProcessingDialog(context, message: S.current.updating_order);
-            break;
-          case CheckoutEvent.cancelOrder:
-            showProcessingDialog(context, message: S.current.cancel_order);
-            break;
-          case CheckoutEvent.loadingChangeOrderCurrent:
-            showProcessingDialog(context, message: S.current.updating_order_panel);
-            break;
-          case CheckoutEvent.transferOrder:
-            showProcessingDialog(context, message: S.current.orders_are_being_delivered);
-            break;
-          case CheckoutEvent.processOrder:
-            showProcessingDialog(context, message: S.current.processing);
-            break;
-          case CheckoutEvent.cancelDishInOrder:
-            showProcessingDialog(context, message: S.current.sending_request_to_cancel_order);
-            break;
-          case CheckoutEvent.paymentProcess:
-            showProcessingDialog(context, message: S.current.processing_payment);
-            break;
-          case CheckoutEvent.checkLocalNetwork:
-            showProcessingDialog(context, message: S.current.checking_connection);
-            break;
-          case CheckoutEvent.updateTypeOrderWaiter:
-            showProcessingDialog(context, message: S.current.changing_form_of_sell_mode);
-            break;
-          case CheckoutEvent.switchAccount:
-            showProcessingDialog(
-              context,
-              message: S.current.switching_accounts,
-            );
-            break;
-          case CheckoutEvent.switchAccountSuccess:
-            Navigator.pop(context);
-            showDoneSnackBar(
-              context: context,
-              message: "${S.current.switched_accounts} ${ref.read(userInfoProvider).user?.name} "
-                  "(${ref.read(userInfoProvider).user?.username?.toUpperCase()})",
-            );
-            break;
-          case CheckoutEvent.normal:
-            Navigator.pop(context);
-            break;
-          case CheckoutEvent.errorInfo:
-            Navigator.pop(context);
-            showMessageDialog(context, message: ref.read(homeProvider.notifier).getMessageError());
-            break;
-          case CheckoutEvent.findingCustomer:
-            showProcessingDialog(context, message: S.current.getInfoProcessing);
-            break;
-          case CheckoutEvent.createCustomer:
-            showProcessingDialog(context, message: S.current.creating_customer);
-            break;
-          case CheckoutEvent.checkTicket:
-            showProcessingDialog(
-              context,
-              message: S.current.checking,
-            );
-            break;
-          case CheckoutEvent.removeTicket:
-            showProcessingDialog(
-              context,
-              message: "${S.current.canceling} ${S.current.discount.toLowerCase()}",
-            );
-            break;
-          case CheckoutEvent.findingTaxCode:
-            showProcessingDialog(
-              context,
-              message: S.current.finding_by_tax_code,
-            );
-            break;
-          case CheckoutEvent.updateInvoice:
-            showProcessingDialog(context,
-                message: "${S.current.updating} ${S.current.invoice.toLowerCase()}");
-            break;
-          case CheckoutEvent.insertInvoice:
-            showProcessingDialog(context,
-                message: "${S.current.creating} ${S.current.invoice.toLowerCase()}");
-            break;
-          case CheckoutEvent.unlockOrder:
-            showProcessingDialog(
-              context,
-              // message: S.current.closing_order_payment,
-              message: S.current.unlocking_order,
-            );
-            break;
-          case CheckoutEvent.processed:
-            Navigator.pop(context);
-            break;
-          case CheckoutEvent.processError:
-            Navigator.pop(context);
-
-            // showErrorDialog(
-            //   context,
-            //   message: ref.read(homeProvider.notifier).getMessageError(),
-            // );
-            showMessageDialog(
-              context,
-              message: ref.read(homeProvider.notifier).getMessageError(),
-            );
-            break;
-          case CheckoutEvent.checkPaymentMethod:
-            showProcessingDialog(
-              context,
-              message: S.current.checking_payment_method,
-            );
-            break;
-          case CheckoutEvent.removeCustomer:
-            showProcessingDialog(
-              context,
-              message: S.current.removing_customer,
-            );
-            break;
-          case CheckoutEvent.applyPolicy:
-            showProcessingDialog(
-              context,
-              message: S.current.applied_policy,
-            );
-            break;
-          case CheckoutEvent.printProduct:
-            showProcessingDialog(
-              context,
-              message: S.current.sending_bill_kitchen,
-            );
-            break;
-          case CheckoutEvent.completeBillAgain:
-            showProcessingDialog(
-              context,
-              message: S.current.completing_order,
-            );
-            break;
-          case CheckoutEvent.cancelProductsCheckout:
-            showProcessingDialog(
-              context,
-              message: S.current.cancelling_item,
-            );
-            break;
-          case CheckoutEvent.sendTicket:
-            showProcessingDialog(
-              context,
-              message: S.current.sending_ticket,
-            );
-            break;
-          case CheckoutEvent.getPaymentGateway:
-            showProcessingDialog(
-              context,
-              message: S.current.loading_payment_gateway_url,
-            );
-            break;
-          case CheckoutEvent.dynamicPosCallback:
-            showProcessingDialog(
-              context,
-              message: S.current.sending_command_pos,
-            );
-            break;
-          case CheckoutEvent.closingShift:
-            showProcessingDialog(
-              context,
-              message: S.current.system_closing_shift,
-            );
-            break;
-          case CheckoutEvent.updateTax:
-            showProcessingDialog(
-              context,
-              message: S.current.updating_tax,
-            );
-            break;
-          case CheckoutEvent.getDataBill:
-            showProcessingDialog(context, message: S.current.updating_payment_info);
-            break;
-          case CheckoutEvent.getProductCheckout:
-            showProcessingDialog(context, message: S.current.updating_payment_info);
-            break;
-          case CheckoutEvent.checkPrinter:
-            showProcessingDialog(context, message: S.current.checking_printer_status);
-            break;
-          // coupon
-          case CheckoutEvent.removeCoupon:
-            showProcessingDialog(
-              context,
-              message: "${S.current.canceling} ${S.current.discount.toLowerCase()}",
-            );
-            break;
-          case CheckoutEvent.lockOrder:
-            showProcessingDialog(context, message: 'Đang khóa thao tác đơn bàn...');
-            break;
-          case CheckoutEvent.updateReservation:
-            showProcessingDialog(context, message: 'Đang cập nhật lịch đặt bàn...');
-            break;
-          case CheckoutEvent.updateOrderReservation:
-            showProcessingDialog(context, message: 'Đang thay đổi lịch đặt bàn của đơn...');
-            break;
-          case CheckoutEvent.addCoupon:
-            showProcessingDialog(context, message: S.current.checking);
-            break;
-          case CheckoutEvent.saveO2oConfig:
-            showProcessingDialog(context, message: 'Đang lưu cấu hình');
-            break;
-          // case CheckoutEvent.sendPrintData:
-          //   showProcessingDialog(context, message: 'Đang gửi lệnh in ');
-          //   break;
-          default:
-            break;
-        }
-      };
-
   @override
   Widget build(BuildContext context) {
     checkUpdateApp(ref, context);
@@ -538,10 +320,6 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     ref.listen<HomeEvent>(
       homeProvider.select((value) => value.event),
       _listenEvent(context, ref),
-    );
-    ref.listen<CheckoutEvent>(
-      checkoutPageProvider.select((value) => value.event),
-      _listenCheckoutEvent(context, ref),
     );
 
     var viewPadding = MediaQuery.of(context).viewPadding;
@@ -807,23 +585,20 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                           ],
                         ),
                       ),
-                      // Expanded(
-                      //   child: Consumer(builder: (context, ref, child) {
-                      //     var data = ref.watch(chatO2oByOrderProvider);
-                      //     String? message;
-                      //     String? message;
-                      //     // final getChatMessageState =
-                      //     //     ref.watch(homeProvider.select((value) => value.getChatMessageState));
+                      Expanded(
+                        child: Consumer(builder: (context, ref, child) {
+                          final getChatMessageState =
+                              ref.watch(homeProvider.select((value) => value.getChatMessageState));
 
-                      //     // final chatMessages =
-                      //     //     ref.watch(homeProvider.select((value) => value.chatMessages));
-                      //     return ListChatWidget(
-                      //       state: getChatMessageState,
-                      //       chatMessages: chatMessages,
-                      //       onReload: ref.read(homeProvider.notifier).getO2OChatMessages,
-                      //     );
-                      //   }),
-                      // ),
+                          final chatMessages =
+                              ref.watch(homeProvider.select((value) => value.chatMessages));
+                          return ListChatWidget(
+                            state: getChatMessageState,
+                            chatMessages: chatMessages,
+                            onReload: ref.read(homeProvider.notifier).getO2OChatMessages,
+                          );
+                        }),
+                      ),
                     ],
                   ),
                 ),
@@ -846,8 +621,8 @@ class CartInfoWidget extends ConsumerWidget {
     var numberOfProduct = 0;
     var totalOrder = 0.0;
     var productsSelecting = ref.watch(cartPageProvider.select((value) => value.productsSelecting));
-    var price = ref.watch(checkoutPageProvider.select((value) => value.dataBill.price));
-    var priceState = ref.watch(checkoutPageProvider.select((value) => value.dataBillState));
+    var price = ref.watch(homeProvider.select((value) => value.dataBill.price));
+    var priceState = ref.watch(homeProvider.select((value) => value.dataBillState));
     numberOfProduct = productsSelecting.length;
     for (var element in productsSelecting) {
       totalOrder += (double.tryParse(element.unitPrice) ?? 0) * element.numberSelecting;
@@ -863,7 +638,7 @@ class CartInfoWidget extends ConsumerWidget {
       case PageCommonState.error:
         priceView = InkWell(
           onTap: () {
-            ref.read(checkoutPageProvider.notifier).getDataBill();
+            ref.read(homeProvider.notifier).getDataBill();
           },
           child: Text(
             S.current.errorAndPressAgain,

@@ -53,10 +53,10 @@ class _BillSettingsWidgetState extends ConsumerState<BillSettingsWidget> {
             controlAffinity: ListTileControlAffinity.leading,
             value: o2oConfig.printerDeviceId == kDeviceId,
             onChanged: (value) async {
-              // var result = await ref.read(homeProvider.notifier).savePrintDevice(value);
-              // if (result != null) {
-              //   showMessageDialog(context, message: result);
-              // }
+              var result = await ref.read(homeProvider.notifier).savePrintDevice(value);
+              if (result != null) {
+                showMessageDialog(context, message: result);
+              }
             },
           ),
           SwitchListTile(

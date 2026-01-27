@@ -25,8 +25,10 @@ class OrderOptionAction extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
-    bool useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
+    var orderSelect =
+        ref.watch(homeProvider.select((value) => value.orderSelect));
+    bool useReservation =
+        LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -39,7 +41,8 @@ class OrderOptionAction extends ConsumerWidget {
 
             if (result.orderId != null) {
               Navigator.pop(context);
-              if ((result.typeOrder ?? kTypeOrder) == AppConfig.orderOfflineValue) {
+              if ((result.typeOrder ?? kTypeOrder) ==
+                  AppConfig.orderOfflineValue) {
                 ref.refresh(orderToOnlineProvider);
               }
               try {
@@ -49,11 +52,11 @@ class OrderOptionAction extends ConsumerWidget {
                       typeOrder: result.typeOrder ?? kTypeOrder,
                     );
                 if (result.reservation != null) {
-                  // ref.read(homeProvider.notifier).findCustomer(
-                  //       result.reservation?.customer?.phoneNumber ?? '',
-                  //       loadingHome: false,
-                  //       retry: true,
-                  //     );
+                  ref.read(homeProvider.notifier).findCustomer(
+                        result.reservation?.customer?.phoneNumber ?? '',
+                        loadingHome: false,
+                        retry: true,
+                      );
                 }
               } catch (ex) {
                 //
@@ -81,7 +84,9 @@ class OrderOptionAction extends ConsumerWidget {
                       const Gap(8),
                       TextButton(
                         onPressed: () {
-                          ref.read(homeProvider.notifier).changeOrderSelect(null);
+                          ref
+                              .read(homeProvider.notifier)
+                              .changeOrderSelect(null);
                         },
                         child: Text(
                           'Bỏ chọn',
@@ -99,8 +104,10 @@ class OrderOptionAction extends ConsumerWidget {
                     color: AppColors.secondColor,
                     textAction: S.current.updateOrderCurrent,
                     onPressed: () async {
-                      if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
-                        showMessageDialog(context, message: S.current.pleaseSelectOrderFirst);
+                      if (ref.read(homeProvider.notifier).getOrderSelect() ==
+                          null) {
+                        showMessageDialog(context,
+                            message: S.current.pleaseSelectOrderFirst);
                         return;
                       }
                       final result = await showUpdateOrderDialog(context);
@@ -116,8 +123,10 @@ class OrderOptionAction extends ConsumerWidget {
                     color: AppColors.secondColor,
                     textAction: S.current.transferOrderCurrent,
                     onPressed: () async {
-                      if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
-                        showMessageDialog(context, message: S.current.pleaseSelectOrderFirst);
+                      if (ref.read(homeProvider.notifier).getOrderSelect() ==
+                          null) {
+                        showMessageDialog(context,
+                            message: S.current.pleaseSelectOrderFirst);
                         return;
                       }
                       var result = await showTransferOrderDialog(context);
@@ -134,9 +143,11 @@ class OrderOptionAction extends ConsumerWidget {
                       color: Colors.blueGrey,
                       textAction: 'Cập nhật lịch đặt bàn',
                       onPressed: () async {
-                        var orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
+                        var orderSelect =
+                            ref.read(homeProvider.notifier).getOrderSelect();
                         if (orderSelect == null) {
-                          showMessageDialog(context, message: S.current.pleaseSelectOrderFirst);
+                          showMessageDialog(context,
+                              message: S.current.pleaseSelectOrderFirst);
                           return;
                         }
 
@@ -196,16 +207,17 @@ class OrderOptionAction extends ConsumerWidget {
       );
       if (result.error == null) {
         if (context.mounted) {
-          showDoneSnackBar(context: context, message: S.current.cancelOrderSuccess);
+          showDoneSnackBar(
+              context: context, message: S.current.cancelOrderSuccess);
         }
         ref.read(homeProvider.notifier).changeOrderSelect(null);
         ref.refresh(tablesAndOrdersProvider);
         if (reservation != null) {
-          // ref.read(homeProvider.notifier).updateReservationStatus(
-          //   reservation.id,
-          //   ReservationStatusEnum.cancel,
-          //   [],
-          // );
+          ref.read(homeProvider.notifier).updateReservationStatus(
+            reservation.id,
+            ReservationStatusEnum.cancel,
+            [],
+          );
         }
         Navigator.pop(context);
       } else {

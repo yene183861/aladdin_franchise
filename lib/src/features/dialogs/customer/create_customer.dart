@@ -2,8 +2,10 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/utils/date_input.dart';
@@ -15,6 +17,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../../../generated/l10n.dart';
+import '../error.dart';
 
 class CreateCustomerDialog extends ConsumerStatefulWidget {
   final String? phone;
@@ -30,7 +33,10 @@ class CreateCustomerDialog extends ConsumerStatefulWidget {
 class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
   String? gender, address, idCardNumber;
   String inputBirthday = "";
-  late TextEditingController ctrlPhone, ctrlFirstName, ctrlLastName, ctrlBirthday;
+  late TextEditingController ctrlPhone,
+      ctrlFirstName,
+      ctrlLastName,
+      ctrlBirthday;
   bool _noBOD = true;
 
   final _formKey = GlobalKey<FormState>();
@@ -55,7 +61,11 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    var smallDevice = ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
+    // var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
+    // bool enable = !lockedOrder;
+    bool enable = true;
+    var smallDevice =
+        ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
     return Scaffold(
       backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: false,
@@ -67,9 +77,6 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                 Expanded(
                   child: Text(
                     S.current.createNewCustomers,
-                    style: AppTextStyle.bold(
-                      rawFontSize: AppConfig.defaultRawTextSize + 1.0,
-                    ),
                   ),
                 ),
                 const CloseButton(),
@@ -89,11 +96,12 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                       textInputAction: TextInputAction.next,
                       textInputType: TextInputType.number,
                       required: true,
-                      enabled: true,
+                      enabled: enable,
                       maxLength: 12,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       validator: (value) {
-                        if ((value?.trim() ?? '').isEmpty) return 'Vui lòng nhập thông tin';
+                        if ((value?.trim() ?? '').isEmpty)
+                          return 'Vui lòng nhập thông tin';
                         return null;
                       },
                     ),
@@ -115,9 +123,10 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                             textController: ctrlFirstName,
                             textInputAction: TextInputAction.next,
                             required: true,
-                            enabled: true,
+                            enabled: enable,
                             validator: (value) {
-                              if ((value?.trim() ?? '').isEmpty) return 'Vui lòng nhập thông tin';
+                              if ((value?.trim() ?? '').isEmpty)
+                                return 'Vui lòng nhập thông tin';
                               return null;
                             },
                           ),
@@ -129,9 +138,10 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                             textController: ctrlLastName,
                             textInputAction: TextInputAction.next,
                             required: true,
-                            enabled: true,
+                            enabled: enable,
                             validator: (value) {
-                              if ((value?.trim() ?? '').isEmpty) return 'Vui lòng nhập thông tin';
+                              if ((value?.trim() ?? '').isEmpty)
+                                return 'Vui lòng nhập thông tin';
                               return null;
                             },
                           ),
@@ -148,7 +158,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                       children: [
                         Expanded(
                           child: RadioListTile(
-                            toggleable: true,
+                            toggleable: enable,
                             tileColor: Colors.grey.shade100,
                             shape: AppConfig.shapeBorderMain,
                             value: appConfig.gender[0],
@@ -189,7 +199,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                     AppTextFormField(
                       label: S.current.bod,
                       hintText: "dd/MM/yyyy",
-                      enabled: !_noBOD,
+                      enabled: !_noBOD && enable,
                       textInputType: TextInputType.number,
                       textController: ctrlBirthday,
                       inputFormatters: [
@@ -209,7 +219,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                     const SizedBox(height: 16),
                     CheckboxListTile(
                       value: _noBOD,
-                      enabled: true,
+                      enabled: enable,
                       //tileColor: Colors.grey.shade200,
                       controlAffinity: ListTileControlAffinity.leading,
                       shape: RoundedRectangleBorder(
@@ -235,49 +245,57 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
               AppCloseButton(
                 onPressed: () => Navigator.pop(context, null),
               ),
-              AppButton(
-                onPressed: () async {
-                  if (!(_formKey.currentState?.validate() ?? false)) return;
-                  String phone = ctrlPhone.text.trim();
-                  String firstName = ctrlFirstName.text.trim();
-                  String lastName = ctrlLastName.text.trim();
-                  // ngay sinh
-                  if (_noBOD == false) {
-                    var checkDob = checkInputDate(ctrlBirthday.text);
-                    if (checkDob != null) {
-                      showMessageDialog(context, message: S.current.dob_not_format);
+              // ButtonCancelWidget(
+              //   textAction: S.current.close,
+              //   onPressed: () => Navigator.pop(context, null),
+              // ),
+              if (enable)
+                AppButton(
+                  onPressed: () async {
+                    if (!(_formKey.currentState?.validate() ?? false)) return;
+                    String phone = ctrlPhone.text.trim();
+                    String firstName = ctrlFirstName.text.trim();
+                    String lastName = ctrlLastName.text.trim();
+                    // ngay sinh
+                    if (_noBOD == false) {
+                      var checkDob = checkInputDate(ctrlBirthday.text);
+                      if (checkDob != null) {
+                        showMessageDialog(context,
+                            message: S.current.dob_not_format);
+                        return;
+                      }
+                      final dob =
+                          DateFormat("dd/MM/yyyy").parse(ctrlBirthday.text);
+                      inputBirthday = appConfig.dateFormatYYYYMMDD.format(dob);
+                    }
+                    final result =
+                        await ref.read(homeProvider.notifier).createCustomer(
+                              phone: phone,
+                              firstName: firstName,
+                              lastName: lastName,
+                              birthday: inputBirthday,
+                              gender: gender,
+                              idCardNumber: idCardNumber,
+                              address: address,
+                              noBOD: _noBOD,
+                            );
+                    if (result != null) {
+                      if (context.mounted) {
+                        await showMessageDialog(
+                          context,
+                          message: result,
+                        );
+                      }
                       return;
                     }
-                    final dob = DateFormat("dd/MM/yyyy").parse(ctrlBirthday.text);
-                    inputBirthday = appConfig.dateFormatYYYYMMDD.format(dob);
-                  }
-                  final result = await ref.read(checkoutPageProvider.notifier).createCustomer(
-                        phone: phone,
-                        firstName: firstName,
-                        lastName: lastName,
-                        birthday: inputBirthday,
-                        gender: gender,
-                        idCardNumber: idCardNumber,
-                        address: address,
-                        noBOD: _noBOD,
-                      );
-                  if (result != null) {
                     if (context.mounted) {
-                      await showMessageDialog(
-                        context,
-                        message: result,
-                      );
+                      Navigator.pop(context, phone);
                     }
-                    return;
-                  }
-                  if (context.mounted) {
-                    Navigator.pop(context, phone);
-                  }
-                },
-                color: AppColors.bgButtonMain,
-                textColor: AppColors.tcButtonMain,
-                textAction: S.current.confirm,
-              ),
+                  },
+                  color: AppColors.bgButtonMain,
+                  textColor: AppColors.tcButtonMain,
+                  textAction: S.current.confirm,
+                ),
             ],
           ),
         ),

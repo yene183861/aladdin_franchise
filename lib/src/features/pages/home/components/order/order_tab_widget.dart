@@ -41,14 +41,14 @@ class OrderTabWidget extends ConsumerWidget {
             child: AppTabBarWidget(
               title: '${e.title} ($count)',
               onTap: () {
-                // ref.read(homeProvider.notifier).onChangeOrderTabSelect(e);
+                ref.read(homeProvider.notifier).onChangeOrderTabSelect(e);
               },
               selected: selected,
               loadingSuffix: e == OrderTabEnum.ordered
                   ? Consumer(
                       builder: (context, ref, child) {
-                        var pcState = ref.watch(
-                            checkoutPageProvider.select((value) => value.productCheckoutState));
+                        var pcState =
+                            ref.watch(homeProvider.select((value) => value.productCheckoutState));
                         switch (pcState.status) {
                           case PageCommonState.loading:
                             return const Padding(

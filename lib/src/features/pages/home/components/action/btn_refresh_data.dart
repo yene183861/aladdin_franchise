@@ -1,7 +1,6 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
@@ -19,7 +18,7 @@ class ButtonRefreshData extends ConsumerWidget {
       message: S.current.updateData,
       child: InkWell(
         onTap: () {
-          ref.read(menuProvider.notifier).init();
+          ref.read(homeProvider.notifier).initialize();
           ref.invalidate(tablesAndOrdersProvider);
           showDoneSnackBar(context: context, message: S.current.success);
         },

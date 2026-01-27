@@ -47,7 +47,8 @@ class _CouponDialogContent extends ConsumerStatefulWidget {
   const _CouponDialogContent();
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => __CouponDialogContentState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      __CouponDialogContentState();
 }
 
 class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
@@ -84,7 +85,10 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
       },
     );
 
-    _amountTextChange.debounceTime(const Duration(milliseconds: 0)).distinct().listen((event) {
+    _amountTextChange
+        .debounceTime(const Duration(milliseconds: 0))
+        .distinct()
+        .listen((event) {
       _formatValue(event);
     });
   }
@@ -99,14 +103,15 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
   }
 
   void _formatValue(String data) {
-    var type = ref.read(checkoutPageProvider).discountTypeSelect;
+    var type = ref.read(homeProvider).discountTypeSelect;
 
     final digits = data.replaceAll(removeChars, '');
     final number = int.tryParse(digits);
     if (number == null) return;
 
-    final formatted =
-        type == DiscountTypeEnum.percent ? digits : AppUtils.formatCurrency(value: number);
+    final formatted = type == DiscountTypeEnum.percent
+        ? digits
+        : AppUtils.formatCurrency(value: number);
     _isFormatting = true;
     _voucherCtrl.value = TextEditingValue(
       text: formatted,
@@ -127,13 +132,19 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
   }
 
   void _submit() async {
+    var coupon = _couponCtrl.text.trim();
     var voucher = _voucherCtrl.text.trim();
+    if (coupon.isEmpty && voucher.isEmpty) return;
     if ((voucherError.value ?? '').trim().isNotEmpty) return;
     if (_formKey.currentState?.validate() ?? false) {
-      ({String? error, String? titleError}) result = (error: null, titleError: null);
-
-      if (voucher.isNotEmpty) {
-        result = await ref.read(checkoutPageProvider.notifier).addVoucher(value: _getAmountValue());
+      ({String? error, String? titleError}) result =
+          (error: null, titleError: null);
+      if (coupon.isNotEmpty) {
+        result = await ref.read(homeProvider.notifier).addCoupon(code: coupon);
+      } else if (voucher.isNotEmpty) {
+        result = await ref
+            .read(homeProvider.notifier)
+            .addVoucher(value: _getAmountValue());
       }
       if (result.error != null) {
         if (context.mounted) {
@@ -151,7 +162,9 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
   }
 
   double _getAmountValue() {
-    return double.tryParse(_voucherCtrl.text.trim().replaceAll(removeChars, '')) ?? 0.0;
+    return double.tryParse(
+            _voucherCtrl.text.trim().replaceAll(removeChars, '')) ??
+        0.0;
   }
 
   @override
@@ -169,104 +182,160 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                 Expanded(
                   child: Text(
                     S.current.discountCode,
-                    style: AppTextStyle.bold(
-                      rawFontSize: AppConfig.defaultRawTextSize + 1.0,
-                    ),
+                    style: Theme.of(context).dialogTheme.titleTextStyle,
                   ),
                 ),
-                const CloseButton(),
+                CloseButton(),
               ],
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Giảm giá VND/%'),
-                const Gap(8),
-                Consumer(
-                  builder: (context, ref, child) {
-                    var discoundType =
-                        ref.watch(checkoutPageProvider.select((value) => value.discountTypeSelect));
-                    return SizedBox(
-                      height: 56,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: AppTextFormField(
-                              focusNode: _voucherFocusNode,
-                              textController: _voucherCtrl,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                              onEditingComplete: () async {
-                                FocusManager.instance.primaryFocus?.unfocus();
-                              },
-                              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                              textInputType: TextInputType.number,
-                              validator: (value) {
-                                var data = AppUtils.convertToDouble(value) ?? 0;
-                                String? error;
-                                if (discoundType == DiscountTypeEnum.percent && data > 100.0) {
-                                  error = 'Phần trăm không được vượt quá 100%';
-                                }
-                                WidgetsBinding.instance.addPostFrameCallback(
-                                  (timeStamp) {
-                                    voucherError.value = error;
+            // const Gap(20),
+            // const _NumberOfAdultsWidget(),
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Row(
+                children: [
+                  // if (AppConfig.useCoupon) ...[
+                  //   Expanded(
+                  //     child: Column(
+                  //       crossAxisAlignment: CrossAxisAlignment.start,
+                  //       children: [
+                  //         const Text('Nhập mã giảm'),
+                  //         const Gap(4),
+                  //         AppTextFormField(
+                  //           textInputType: TextInputType.number,
+                  //           focusNode: _couponFocusNode,
+                  //           hintText: S.current.inputCode,
+                  //           prefixIcon: const ResponsiveIconWidget(
+                  //             iconData: Icons.keyboard_alt_outlined,
+                  //           ),
+                  //           textController: _couponCtrl,
+                  //           onEditingComplete: () async {
+                  //             FocusManager.instance.primaryFocus?.unfocus();
+                  //           },
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  //   const Gap(12),
+                  // ],
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Giảm giá VND/%'),
+                        const Gap(4),
+                        Consumer(builder: (context, ref, child) {
+                          var discoundType = ref.watch(homeProvider
+                              .select((value) => value.discountTypeSelect));
+                          return SizedBox(
+                            height: 56,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: AppTextFormField(
+                                    focusNode: _voucherFocusNode,
+                                    textController: _voucherCtrl,
+                                    onEditingComplete: () async {
+                                      FocusManager.instance.primaryFocus
+                                          ?.unfocus();
+                                    },
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    validator: (value) {
+                                      var data =
+                                          AppUtils.convertToDouble(value) ?? 0;
+                                      String? error;
+                                      if (discoundType ==
+                                              DiscountTypeEnum.percent &&
+                                          data > 100.0) {
+                                        error =
+                                            'Phần trăm không được vượt quá 100%';
+                                        // return 'Phần trăm không được vượt quá 100%';
+                                      }
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback(
+                                        (timeStamp) {
+                                          voucherError.value = error;
+                                        },
+                                      );
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                const Gap(8),
+                                SizedBox(
+                                  width: 100,
+                                  height: 48,
+                                  child: CustomDropdownButton<DiscountTypeEnum>(
+                                    data: DiscountTypeEnum.values,
+                                    initData: [discoundType],
+                                    buildTextDisplay: (data) => data.title,
+                                    onChangeData: (p0) {
+                                      if (p0.isEmpty) return;
+                                      ref
+                                          .read(homeProvider.notifier)
+                                          .onChangeDiscountTypeSelect(p0.first);
+                                      final digits = _voucherCtrl.text
+                                          .trim()
+                                          .replaceAll(removeChars, '');
+                                      _formatValue(digits);
+                                    },
+                                  ),
+                                ),
+                                const Gap(8),
+                                Consumer(
+                                  builder: (context, ref, child) {
+                                    var coupons = ref.watch(homeProvider
+                                        .select((value) => value.coupons));
+                                    return AppButton(
+                                      height: 56,
+                                      textAction: S.current.confirm,
+                                      color: AppColors.secondColor,
+                                      onPressed: !AppConfig.useCoupon &&
+                                              coupons.isNotEmpty
+                                          ? null
+                                          : _submit,
+                                      disabledColor: Colors.grey.shade400,
+                                    );
+                                    return AppButtonWidget(
+                                      textAction: S.current.confirm,
+                                      color: !AppConfig.useCoupon &&
+                                              coupons.isNotEmpty
+                                          ? Colors.grey
+                                          : AppColors.secondColor,
+                                      onTap: !AppConfig.useCoupon &&
+                                              coupons.isNotEmpty
+                                          ? null
+                                          : _submit,
+                                    );
                                   },
-                                );
-                                return null;
-                              },
+                                )
+                              ],
                             ),
-                          ),
-                          const Gap(8),
-                          SizedBox(
-                            width: 100,
-                            height: 48,
-                            child: CustomDropdownButton<DiscountTypeEnum>(
-                              data: DiscountTypeEnum.values,
-                              initData: [discoundType],
-                              buildTextDisplay: (data) => data.title,
-                              onChangeData: (p0) {
-                                if (p0.isEmpty) return;
-                                ref
-                                    .read(checkoutPageProvider.notifier)
-                                    .onChangeDiscountTypeSelect(p0.first);
-                                final digits = _voucherCtrl.text.trim().replaceAll(removeChars, '');
-                                _formatValue(digits);
-                              },
-                            ),
-                          ),
-                          const Gap(8),
-                          Consumer(
-                            builder: (context, ref, child) {
-                              var coupons =
-                                  ref.watch(checkoutPageProvider.select((value) => value.coupons));
-                              return AppButton(
-                                textAction: S.current.confirm,
-                                color: AppColors.secondColor,
-                                onPressed: coupons.isNotEmpty ? null : _submit,
-                              );
-                            },
-                          )
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                ValueListenableBuilder(
-                  valueListenable: voucherError,
-                  builder: (context, value, child) {
-                    if ((value ?? '').trim().isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    return Text(
-                      value ?? '',
-                      style: AppTextStyle.regular(
-                        color: AppColors.redColor,
-                        rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                      ),
-                    );
-                  },
-                )
-              ],
+                          );
+                        }),
+                        ValueListenableBuilder(
+                          valueListenable: voucherError,
+                          builder: (context, value, child) {
+                            if ((value ?? '').trim().isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+                            return Text(
+                              value ?? '',
+                              style: AppTextStyle.regular(
+                                color: AppColors.redColor,
+                                rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+                              ),
+                            );
+                          },
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
             const Gap(8),
             const Expanded(
@@ -280,13 +349,59 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
   }
 }
 
+class _NumberOfAdultsWidget extends ConsumerWidget {
+  const _NumberOfAdultsWidget();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var lockedOrder =
+        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var coupons = ref.watch(homeProvider.select((value) => value.coupons));
+    bool enable = !lockedOrder;
+    String message = '';
+    if (coupons.any((e) => e.isType == 6)) {
+      message =
+          'Đơn bàn có sử dụng mã giảm giá theo số khách, vui lòng bấm áp dụng sau khi thay đổi số khách';
+    }
+    if (lockedOrder) {
+      message = 'Đơn bàn đã tạm khóa';
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const NumberOfAdultsWidget(),
+        if (message.trim().isNotEmpty) ...[
+          const Gap(4),
+          Row(
+            children: [
+              const Icon(Icons.info_outline_rounded, color: Colors.red),
+              const Gap(4),
+              Expanded(
+                child: Text(
+                  message,
+                  style: AppTextStyle.regular(
+                    rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                    color: Colors.red,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+}
+
 class NumberOfAdultsWidget extends ConsumerWidget {
   const NumberOfAdultsWidget({super.key, this.labelText});
   final String? labelText;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder =
+        ref.watch(homeProvider.select((value) => value.lockedOrder));
     bool enable = !lockedOrder;
     return SpinBox(
       min: 1,
@@ -295,7 +410,9 @@ class NumberOfAdultsWidget extends ConsumerWidget {
       incrementIcon: const Icon(CupertinoIcons.add),
       decrementIcon: const Icon(CupertinoIcons.minus),
       textStyle: AppTextStyle.bold(),
-      value: ref.watch(checkoutPageProvider.select((value) => value.numberOfAdults)).toDouble(),
+      value: ref
+          .watch(homeProvider.select((value) => value.numberOfAdults))
+          .toDouble(),
       decoration: InputDecoration(
         label: Text.rich(
           TextSpan(
@@ -312,11 +429,12 @@ class NumberOfAdultsWidget extends ConsumerWidget {
         ),
       ),
       onChanged: (value) {
-        // bool requiredApplyPolicy = ref.read(homeProvider).coupons.any((e) => e.isType == 6);
-        // ref.read(homeProvider.notifier).changeNumberOfPeople(
-        //       numberOfAdults: value.toInt(),
-        //       //  applyPolicy: false
-        //     );
+        bool requiredApplyPolicy =
+            ref.read(homeProvider).coupons.any((e) => e.isType == 6);
+        ref.read(homeProvider.notifier).changeNumberOfPeople(
+              numberOfAdults: value.toInt(),
+              //  applyPolicy: false
+            );
       },
     );
   }
@@ -334,30 +452,30 @@ class _CounponActionWidget extends ConsumerWidget {
         AppButton(
           textAction: S.current.apply_policy_again,
           onPressed: () async {
-            // if (AppConfig.useCoupon) {
-            //   var res = await ref
-            //       .read(homeProvider.notifier)
-            //       .applyCustomerPolicy(requireApply: true);
+            if (AppConfig.useCoupon) {
+              var res = await ref
+                  .read(homeProvider.notifier)
+                  .applyCustomerPolicy(requireApply: true);
 
-            //   if (res != null && context.mounted) {
-            //     showMessageDialog(
-            //       context,
-            //       message: res,
-            //     );
-            //     // showErrorDialog(
-            //     //   context,
-            //     //   message: res,
-            //     //   isNotifier: true,
-            //     // );
-            //   }
-            // } else {
-            //   var res =
-            //       await ref.read(homeProvider.notifier).applyAgainVoucher();
-            //   if (res.errorRemove != null || res.errorRemove != null) {
-            //     showMessageDialog(context,
-            //         message: 'Áp dụng lại mã giảm giá thất bại!\n$res');
-            //   }
-            // }
+              if (res != null && context.mounted) {
+                showMessageDialog(
+                  context,
+                  message: res,
+                );
+                // showErrorDialog(
+                //   context,
+                //   message: res,
+                //   isNotifier: true,
+                // );
+              }
+            } else {
+              var res =
+                  await ref.read(homeProvider.notifier).applyAgainVoucher();
+              if (res.errorRemove != null || res.errorRemove != null) {
+                showMessageDialog(context,
+                    message: 'Áp dụng lại mã giảm giá thất bại!\n$res');
+              }
+            }
           },
         ),
         // ButtonSimpleWidget(

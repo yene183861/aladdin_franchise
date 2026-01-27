@@ -98,7 +98,7 @@ class LineItemDataBill with _$LineItemDataBill {
     return taxValue < 1 ? taxValue * 100 : taxValue;
   }
 
-  double getTax() {
+  double getTax1() {
     return getTaxView() / 100;
   }
 

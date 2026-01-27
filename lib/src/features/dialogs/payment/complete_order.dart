@@ -7,7 +7,6 @@ import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/view.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -32,7 +31,7 @@ void onConfirmPayment({
   required BuildContext context,
   bool notAllowCancelPayment = false,
 }) async {
-  final result = await ref.read(checkoutPageProvider.notifier).onPayment(context);
+  final result = await ref.read(homeProvider.notifier).onPayment(context);
   if (result.errorType != null) {
     showLogs(result.errorType, flags: 'result.errorType');
     switch (result.errorType!) {
@@ -129,7 +128,7 @@ void onConfirmCompleteAgain({
     actionTitle: S.current.completed,
     notCancel: false,
     action: () async {
-      var res = await ref.read(checkoutPageProvider.notifier).completeBill(
+      var res = await ref.read(homeProvider.notifier).completeBill(
             context: context,
             printKitchenBill: true,
             printers: printers,
