@@ -47,8 +47,7 @@ class _CouponDialogContent extends ConsumerStatefulWidget {
   const _CouponDialogContent();
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __CouponDialogContentState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __CouponDialogContentState();
 }
 
 class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
@@ -85,10 +84,7 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
       },
     );
 
-    _amountTextChange
-        .debounceTime(const Duration(milliseconds: 0))
-        .distinct()
-        .listen((event) {
+    _amountTextChange.debounceTime(const Duration(milliseconds: 0)).distinct().listen((event) {
       _formatValue(event);
     });
   }
@@ -109,9 +105,8 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
     final number = int.tryParse(digits);
     if (number == null) return;
 
-    final formatted = type == DiscountTypeEnum.percent
-        ? digits
-        : AppUtils.formatCurrency(value: number);
+    final formatted =
+        type == DiscountTypeEnum.percent ? digits : AppUtils.formatCurrency(value: number);
     _isFormatting = true;
     _voucherCtrl.value = TextEditingValue(
       text: formatted,
@@ -137,14 +132,11 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
     if (coupon.isEmpty && voucher.isEmpty) return;
     if ((voucherError.value ?? '').trim().isNotEmpty) return;
     if (_formKey.currentState?.validate() ?? false) {
-      ({String? error, String? titleError}) result =
-          (error: null, titleError: null);
+      ({String? error, String? titleError}) result = (error: null, titleError: null);
       if (coupon.isNotEmpty) {
         result = await ref.read(homeProvider.notifier).addCoupon(code: coupon);
       } else if (voucher.isNotEmpty) {
-        result = await ref
-            .read(homeProvider.notifier)
-            .addVoucher(value: _getAmountValue());
+        result = await ref.read(homeProvider.notifier).addVoucher(value: _getAmountValue());
       }
       if (result.error != null) {
         if (context.mounted) {
@@ -162,9 +154,7 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
   }
 
   double _getAmountValue() {
-    return double.tryParse(
-            _voucherCtrl.text.trim().replaceAll(removeChars, '')) ??
-        0.0;
+    return double.tryParse(_voucherCtrl.text.trim().replaceAll(removeChars, '')) ?? 0.0;
   }
 
   @override
@@ -223,10 +213,10 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text('Giảm giá VND/%'),
-                        const Gap(4),
+                        const Gap(8),
                         Consumer(builder: (context, ref, child) {
-                          var discoundType = ref.watch(homeProvider
-                              .select((value) => value.discountTypeSelect));
+                          var discoundType =
+                              ref.watch(homeProvider.select((value) => value.discountTypeSelect));
                           return SizedBox(
                             height: 56,
                             child: Row(
@@ -236,26 +226,21 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                                   child: AppTextFormField(
                                     focusNode: _voucherFocusNode,
                                     textController: _voucherCtrl,
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                                     onEditingComplete: () async {
-                                      FocusManager.instance.primaryFocus
-                                          ?.unfocus();
+                                      FocusManager.instance.primaryFocus?.unfocus();
                                     },
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly
-                                    ],
+                                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                    textInputType: TextInputType.number,
                                     validator: (value) {
-                                      var data =
-                                          AppUtils.convertToDouble(value) ?? 0;
+                                      var data = AppUtils.convertToDouble(value) ?? 0;
                                       String? error;
-                                      if (discoundType ==
-                                              DiscountTypeEnum.percent &&
+                                      if (discoundType == DiscountTypeEnum.percent &&
                                           data > 100.0) {
-                                        error =
-                                            'Phần trăm không được vượt quá 100%';
+                                        error = 'Phần trăm không được vượt quá 100%';
                                         // return 'Phần trăm không được vượt quá 100%';
                                       }
-                                      WidgetsBinding.instance
-                                          .addPostFrameCallback(
+                                      WidgetsBinding.instance.addPostFrameCallback(
                                         (timeStamp) {
                                           voucherError.value = error;
                                         },
@@ -277,9 +262,8 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                                       ref
                                           .read(homeProvider.notifier)
                                           .onChangeDiscountTypeSelect(p0.first);
-                                      final digits = _voucherCtrl.text
-                                          .trim()
-                                          .replaceAll(removeChars, '');
+                                      final digits =
+                                          _voucherCtrl.text.trim().replaceAll(removeChars, '');
                                       _formatValue(digits);
                                     },
                                   ),
@@ -287,26 +271,23 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                                 const Gap(8),
                                 Consumer(
                                   builder: (context, ref, child) {
-                                    var coupons = ref.watch(homeProvider
-                                        .select((value) => value.coupons));
+                                    var coupons =
+                                        ref.watch(homeProvider.select((value) => value.coupons));
                                     return AppButton(
                                       height: 56,
                                       textAction: S.current.confirm,
                                       color: AppColors.secondColor,
-                                      onPressed: !AppConfig.useCoupon &&
-                                              coupons.isNotEmpty
+                                      onPressed: !AppConfig.useCoupon && coupons.isNotEmpty
                                           ? null
                                           : _submit,
                                       disabledColor: Colors.grey.shade400,
                                     );
                                     return AppButtonWidget(
                                       textAction: S.current.confirm,
-                                      color: !AppConfig.useCoupon &&
-                                              coupons.isNotEmpty
+                                      color: !AppConfig.useCoupon && coupons.isNotEmpty
                                           ? Colors.grey
                                           : AppColors.secondColor,
-                                      onTap: !AppConfig.useCoupon &&
-                                              coupons.isNotEmpty
+                                      onTap: !AppConfig.useCoupon && coupons.isNotEmpty
                                           ? null
                                           : _submit,
                                     );
@@ -354,8 +335,7 @@ class _NumberOfAdultsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     var coupons = ref.watch(homeProvider.select((value) => value.coupons));
     bool enable = !lockedOrder;
     String message = '';
@@ -400,8 +380,7 @@ class NumberOfAdultsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
+    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     bool enable = !lockedOrder;
     return SpinBox(
       min: 1,
@@ -410,9 +389,7 @@ class NumberOfAdultsWidget extends ConsumerWidget {
       incrementIcon: const Icon(CupertinoIcons.add),
       decrementIcon: const Icon(CupertinoIcons.minus),
       textStyle: AppTextStyle.bold(),
-      value: ref
-          .watch(homeProvider.select((value) => value.numberOfAdults))
-          .toDouble(),
+      value: ref.watch(homeProvider.select((value) => value.numberOfAdults)).toDouble(),
       decoration: InputDecoration(
         label: Text.rich(
           TextSpan(
@@ -429,8 +406,7 @@ class NumberOfAdultsWidget extends ConsumerWidget {
         ),
       ),
       onChanged: (value) {
-        bool requiredApplyPolicy =
-            ref.read(homeProvider).coupons.any((e) => e.isType == 6);
+        bool requiredApplyPolicy = ref.read(homeProvider).coupons.any((e) => e.isType == 6);
         ref.read(homeProvider.notifier).changeNumberOfPeople(
               numberOfAdults: value.toInt(),
               //  applyPolicy: false
@@ -453,9 +429,8 @@ class _CounponActionWidget extends ConsumerWidget {
           textAction: S.current.apply_policy_again,
           onPressed: () async {
             if (AppConfig.useCoupon) {
-              var res = await ref
-                  .read(homeProvider.notifier)
-                  .applyCustomerPolicy(requireApply: true);
+              var res =
+                  await ref.read(homeProvider.notifier).applyCustomerPolicy(requireApply: true);
 
               if (res != null && context.mounted) {
                 showMessageDialog(
@@ -469,11 +444,9 @@ class _CounponActionWidget extends ConsumerWidget {
                 // );
               }
             } else {
-              var res =
-                  await ref.read(homeProvider.notifier).applyAgainVoucher();
+              var res = await ref.read(homeProvider.notifier).applyAgainVoucher();
               if (res.errorRemove != null || res.errorRemove != null) {
-                showMessageDialog(context,
-                    message: 'Áp dụng lại mã giảm giá thất bại!\n$res');
+                showMessageDialog(context, message: 'Áp dụng lại mã giảm giá thất bại!\n$res');
               }
             }
           },
