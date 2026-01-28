@@ -5,12 +5,9 @@ import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/request_order.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/text_util.dart';
-import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 
 class RequestTimeInfo extends StatefulWidget {
@@ -59,7 +56,7 @@ class _RequestTimeInfoState extends State<RequestTimeInfo> {
   void _calElapseTime() {
     int seconds = DateTime.now().difference(widget.dateTime).inSeconds;
     isLate = seconds >= 15 * 60;
-    time = DateTimeUtils.calcElapsedTime(widget.dateTime.toLocal());
+    time = DateTimeUtils.calcElapsedTime(widget.dateTime);
     setState(() {});
   }
 

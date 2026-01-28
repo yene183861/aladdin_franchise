@@ -16,7 +16,7 @@ class OrderO2oSidebar extends ConsumerStatefulWidget {
     super.key,
     this.o2oData = const {},
   });
-  final Map<O2OOrderModel, Map<String, dynamic>> o2oData;
+  final Map<int, Map<String, dynamic>> o2oData;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _OrderO2oSidebarState();
@@ -24,12 +24,12 @@ class OrderO2oSidebar extends ConsumerStatefulWidget {
 
 class _OrderO2oSidebarState extends ConsumerState<OrderO2oSidebar> {
   final ItemScrollController _scrollController = ItemScrollController();
-  Map<O2OOrderModel, Map<String, dynamic>> data = {};
+  Map<int, Map<String, dynamic>> data = {};
 
   @override
   void initState() {
     super.initState();
-    data = Map<O2OOrderModel, Map<String, dynamic>>.from(widget.o2oData);
+    data = Map<int, Map<String, dynamic>>.from(widget.o2oData);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _onScrollList();
     });
@@ -40,15 +40,15 @@ class _OrderO2oSidebarState extends ConsumerState<OrderO2oSidebar> {
     super.didUpdateWidget(oldWidget);
     if (widget.o2oData != oldWidget.o2oData) {
       setState(() {
-        data = Map<O2OOrderModel, Map<String, dynamic>>.from(widget.o2oData);
+        data = Map<int, Map<String, dynamic>>.from(widget.o2oData);
       });
     }
   }
 
   void _onScrollList() {
-    List<O2OOrderModel> tables = data.keys.toList();
-    final orderSelect = ref.read(orderToOnlinePageProvider).orderSelect;
-    var indexItem = tables.indexWhere((e) => e.orderId == orderSelect?.orderId);
+    List<int> tables = data.keys.toList();
+    final orderIdSelect = ref.read(orderToOnlinePageProvider).orderIdSelect;
+    var indexItem = tables.indexWhere((e) => e == orderIdSelect);
     if (indexItem != -1) {
       _scrollController.scrollTo(index: indexItem, duration: const Duration(milliseconds: 10));
     } else {
@@ -58,8 +58,9 @@ class _OrderO2oSidebarState extends ConsumerState<OrderO2oSidebar> {
 
   @override
   Widget build(BuildContext context) {
-    List<O2OOrderModel> orders = data.keys.toList();
-    final orderSelect = ref.watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
+    List<int> orders = data.keys.toList();
+    final orderIdSelect =
+        ref.watch(orderToOnlinePageProvider.select((value) => value.orderIdSelect));
 
     bool smallDevice = ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -72,18 +73,20 @@ class _OrderO2oSidebarState extends ConsumerState<OrderO2oSidebar> {
       itemScrollController: _scrollController,
       itemCount: orders.length,
       itemBuilder: (context, index) {
-        final order = orders[index];
-        bool selected = order.orderId == orderSelect?.orderId;
+        final orderId = orders[index];
+        bool selected = orderId == orderIdSelect;
         int count = 0;
+        O2OOrderModel? order;
         try {
-          count = data[order]?['count'] ?? 0;
+          count = data[orderId]?['count'] ?? 0;
+          order = data[orderId]?['order'] as O2OOrderModel?;
         } catch (ex) {
           //
         }
 
         return InkWell(
           onTap: () {
-            ref.read(orderToOnlinePageProvider.notifier).changeOrderSelect(order);
+            ref.read(orderToOnlinePageProvider.notifier).changeOrderSelect(orderId);
           },
           borderRadius: AppConfig.borderRadiusMain,
           child: Container(
@@ -99,7 +102,7 @@ class _OrderO2oSidebarState extends ConsumerState<OrderO2oSidebar> {
               children: [
                 Expanded(
                   child: Text(
-                    '${S.current.table} ${order.tableName}',
+                    '${S.current.table} ${order?.tableName ?? ''}',
                     style: AppTextStyle.bold(),
                   ),
                 ),

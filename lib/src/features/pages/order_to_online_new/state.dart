@@ -58,36 +58,41 @@ enum OrderToOnlineEvent {
   success,
 }
 
+/// [orders]
+/// key:  O2OOrderModel.copyWith(items: [])
+/// value: Map<String, dynamic>
+/// {
+/// "order" : O2OOrderModel,
+/// "items" : List<RequestOrderModel>,
+/// "count" : int,
+/// }
 @freezed
 class OrderToOnlineState with _$OrderToOnlineState {
   const factory OrderToOnlineState({
     @Default('') String message,
     @Default(OrderToOnlineEvent.normal) OrderToOnlineEvent event,
-    O2OOrderModel? orderSelect,
+    int? orderIdSelect,
+    // O2OOrderModel? orderSelect,
     @Default(O2oViewModeEnum.all) O2oViewModeEnum viewMode,
     // message
     @Default([]) List<ChatMessageModel> chatMessages,
     @Default(PageState()) PageState getChatMessageState,
 
     // filter
-    @Default(RequestProcessingStatus.waiting) RequestProcessingStatus statusFilter,
+    // @Default(RequestProcessingStatus.waiting)
+    // RequestProcessingStatus statusFilter,
     @Default(true) bool sortByNewestTime,
-    @Default(true) bool showChatTab,
+    // @Default(true) bool showChatTab,
     // printers
-    @Default([]) List<IpOrderModel> printers,
+    // @Default([]) List<IpOrderModel> printers,
     IpOrderModel? printerSelect,
-
-    /// key:  O2OOrderModel.copyWith(items: [])
-    /// value: Map<String, dynamic>
-    /// {
-    /// "items" : List<RequestOrderModel>,
-    /// "count" : int,
-    /// }
-    @Default({}) Map<O2OOrderModel, Map<String, dynamic>> orders,
+    // @Default({}) Map<O2OOrderModel, Map<String, dynamic>> orders,
+    // @Default({}) Map<int, Map<String, dynamic>> orders,
     RequestOrderModel? requestSelect,
 
     /// các đơn bàn đang khoá
-    @Default({}) Set<int> lockedOrderIds,
+    // @Default({}) Set<int> lockedOrderIds,
     @Default(true) bool showLoadingGetData,
+    @Default(false) bool showChat,
   }) = _OrderToOnlineState;
 }

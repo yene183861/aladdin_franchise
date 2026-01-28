@@ -50,10 +50,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
       this.ref, this._orderRepository, this._o2oRepository)
       : super(const OrderToOnlineState()) {
     var orderSelect = ref.read(homeProvider).orderSelect;
-    state = state.copyWith(
-        orderSelect: orderSelect?.id != null
-            ? O2OOrderModel(orderId: orderSelect!.id)
-            : null);
+    state = state.copyWith(orderIdSelect: orderSelect?.id);
   }
   final OrderRepository _orderRepository;
   final OrderToOnlineRepository _o2oRepository;
@@ -63,34 +60,28 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     state = state.copyWith(viewMode: value);
   }
 
-  void onChangeShowLoadingGetData(bool value) {
-    state = state.copyWith(showLoadingGetData: value);
-  }
+  // void onChangeShowLoadingGetData(bool value) {
+  //   state = state.copyWith(showLoadingGetData: value);
+  // }
 
-  void changeOrderSelect(O2OOrderModel? order) async {
+  void changeOrderSelect(int? orderId) async {
+    if (orderId == state.orderIdSelect) return;
     state = state.copyWith(
-      orderSelect: order,
+      orderIdSelect: orderId,
       chatMessages: [],
       getChatMessageState:
           const PageState(status: PageCommonState.success, messageError: ''),
+      requestSelect: null,
     );
-
-    if (order != null) {
-      try {
-        await onChangeLockedOrderId(orderId: order.orderId);
-      } catch (ex) {
-        //
-      }
-      getChatMessages();
-    }
+    getChatMessages();
   }
 
   void cancelRequest({required String reason}) async {
     try {
-      var orderSelect = state.orderSelect;
+      var orderIdSelect = state.orderIdSelect;
       var requestSelect = state.requestSelect;
       var listItem = state.requestSelect?.listItem ?? [];
-      if (orderSelect == null || requestSelect == null || listItem.isEmpty) {
+      if (orderIdSelect == null || requestSelect == null || listItem.isEmpty) {
         return;
       }
       state = state.copyWith(
@@ -98,68 +89,11 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
           message: S.current.canceling_request);
 
       await _o2oRepository.processO2oRequest(
-        orderId: orderSelect.orderId,
+        orderId: orderIdSelect,
         orderItemId: requestSelect.id,
         orderItems: listItem,
         status: 2,
         notes: reason,
-      );
-      if (!ref.read(homeProvider).realtimeStatus) {
-        ref.refresh(orderToOnlineProvider);
-      }
-      state = state.copyWith(
-        event: OrderToOnlineEvent.success,
-        message: '',
-        requestSelect: null,
-      );
-    } catch (ex) {
-      state = state.copyWith(
-        event: OrderToOnlineEvent.error,
-        message: ex.toString(),
-      );
-    }
-  }
-
-  Future<String?> acceptRequest1({
-    String note = '',
-    Set<PrinterModel> printerSelect = const <PrinterModel>{},
-    bool useDefaultPrinter = true,
-  }) async {
-    try {
-      var orderSelect = state.orderSelect;
-      var requestSelect = state.requestSelect;
-      var listItem = state.requestSelect?.listItem ?? [];
-
-      if (orderSelect == null || requestSelect == null || listItem.isEmpty) {
-        return null;
-      }
-
-      Map<int, List<ProductModel>> productPrint =
-          ref.read(menuProvider.notifier).mapO2oItemWithPrintType(listItem);
-
-      var order = OrderModel(
-        id: orderSelect.orderId,
-        name: orderSelect.tableName,
-        misc: '{"order_code":"${orderSelect.orderCode}","remarks":""}',
-      );
-
-      state = state.copyWith(
-          event: OrderToOnlineEvent.loading, message: S.current.processing);
-      List<int> printerCheck = productPrint.keys.toList();
-      List<IpOrderModel> printers = [];
-      if (printerCheck.isNotEmpty) {
-        printers = await _orderRepository.getIpPrinterOrder(
-          order,
-          productPrint.keys.toList(),
-        );
-      }
-
-      await _o2oRepository.processO2oRequest(
-        orderId: orderSelect.orderId,
-        orderItemId: requestSelect.id,
-        orderItems: listItem,
-        status: 1,
-        notes: note,
       );
       ref.refresh(orderToOnlineProvider);
       state = state.copyWith(
@@ -167,176 +101,195 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
         message: '',
         requestSelect: null,
       );
-      if (useDefaultPrinter) {
-        for (var printer in printers) {
-          var products = productPrint[printer.type] ?? [];
-          if (products.isEmpty) continue;
-          var resultSend = await ref.read(homeProvider.notifier).sendPrintData(
-                type: PrintTypeEnum.order,
-                products: products,
-                printers: printers
-                    .map((e) =>
-                        PrinterModel(ip: e.ip, port: e.port, name: e.name))
-                    .toList(),
-                useDefaultPrinters: true,
-                totalBill: true,
-                note: note,
-              );
-        }
-      } else {
-        var allData = productPrint.values.expand((list) => list).toList();
-
-        var resultSend = await ref.read(homeProvider.notifier).sendPrintData(
-              type: PrintTypeEnum.order,
-              products: allData,
-              printers: printerSelect.toList(),
-              useDefaultPrinters: false,
-              totalBill: true,
-              note: note,
-            );
-      }
-
-      // if (!ref.read(homeProvider).realtimeStatus || !ref.read(printSettingProvider).autoAcceptO2o) {
-      //   ref.read(menuProvider.notifier).printO2oRequest(
-      //         order: order,
-      //         context: context,
-      //         data: productPrint,
-      //         note: note,
-      //         printers: printers,
-      //       );
-      // }
-
-      if (orderSelect.orderId == ref.read(homeProvider).orderSelect?.id) {
-        ref.read(checkoutPageProvider.notifier).getProductCheckouts();
-      }
-      return null;
     } catch (ex) {
       state = state.copyWith(
         event: OrderToOnlineEvent.error,
         message: ex.toString(),
       );
-      return ex.toString();
     }
   }
 
-  // void acceptRequest(
-  //     {required String note, required BuildContext context}) async {
+  Future<({String? pingPrinters, String? error, String? resultSendPrintData})>
+      acceptRequest({
+    String note = '',
+    Set<PrinterModel> printerSelect = const <PrinterModel>{},
+    bool useDefaultPrinter = true,
+    bool ignorePrint = false,
+    bool processOrder = true,
+  }) async {
+    String? pingPrinters;
+    String? resultSendPrintData;
+    String? error;
+    bool showLoading = processOrder || !ignorePrint;
+    try {
+      var orderIdSelect = state.orderIdSelect;
+      var requestSelect = state.requestSelect;
+      var listItem = state.requestSelect?.listItem ?? [];
+
+      if (orderIdSelect == null || requestSelect == null || listItem.isEmpty) {
+        return (
+          pingPrinters: pingPrinters,
+          error: error,
+          resultSendPrintData: resultSendPrintData
+        );
+      }
+
+      Map<int?, List<ProductModel>> productPrint =
+          ref.read(menuProvider.notifier).mapO2oItemWithPrintType(listItem);
+      if (showLoading) {
+        state = state.copyWith(
+          event: OrderToOnlineEvent.loading,
+          message: S.current.processing,
+        );
+      }
+
+      if (!ignorePrint) {
+        // if (useDefaultPrinter) {
+        //   for (var item in products) {
+        //     switch (item.printerType) {
+        //       case ProductPrinterType.drink:
+        //         drinks.add(item);
+        //         break;
+        //       case ProductPrinterType.food:
+        //         foods.add(item);
+        //         break;
+        //     }
+        //   }
+
+        //   for (var item in printerSelect) {
+        //     switch (item.type) {
+        //       case ProductPrinterType.drink:
+        //         barPrinterDefault.add(item);
+        //         break;
+        //       case ProductPrinterType.food:
+        //         foodPrinterDefault.add(item);
+        //         break;
+        //     }
+        //   }
+
+        //   if (drinks.isNotEmpty) {
+        //     printers.addAll(barPrinterDefault);
+        //   }
+        //   if (foods.isNotEmpty) {
+        //     printers.addAll(foodPrinterDefault);
+        //   }
+        // } else {
+        //   printers = Set<PrinterModel>.from(printerSelect);
+        // }
+        // checkPrinters = await AppPrinterCommon.checkListPrintersStatus(printers.toList());
+        // if (checkPrinters != null) throw checkPrinters;
+      }
+
+      if (processOrder) {
+        await _o2oRepository.processO2oRequest(
+          orderId: orderIdSelect,
+          orderItemId: requestSelect.id,
+          orderItems: listItem,
+          status: 1,
+          notes: note,
+        );
+        ref.refresh(orderToOnlineProvider);
+        state = state.copyWith(requestSelect: null);
+      }
+      if (showLoading) {
+        state = state.copyWith(
+          event: OrderToOnlineEvent.success,
+          message: '',
+        );
+      }
+
+      if (useDefaultPrinter) {
+        // for (var printer in printerSelect) {
+        //   var products = productPrint[printer.type] ?? [];
+        //   if (products.isEmpty) continue;
+        //   resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
+        //         type: PrintTypeEnum.order,
+        //         products: products,
+        //         printers: printers
+        //             .map((e) => PrinterModel(ip: e.ip, port: e.port, name: e.name))
+        //             .toList(),
+        //         useDefaultPrinters: true,
+        //         totalBill: true,
+        //         note: note,
+        //       );
+        // }
+      } else {
+        var allData = productPrint.values.expand((list) => list).toList();
+
+        resultSendPrintData =
+            await ref.read(homeProvider.notifier).sendPrintData(
+                  type: PrintTypeEnum.order,
+                  products: allData,
+                  printers: printerSelect.toList(),
+                  useDefaultPrinters: false,
+                  totalBill: true,
+                  note: note,
+                );
+      }
+
+      if (processOrder &&
+          orderIdSelect == ref.read(homeProvider).orderSelect?.id) {
+        ref.read(checkoutPageProvider.notifier).getProductCheckouts();
+        ref.read(checkoutPageProvider.notifier).getDataBill();
+      }
+      return (
+        pingPrinters: pingPrinters,
+        error: error,
+        resultSendPrintData: resultSendPrintData
+      );
+    } catch (ex) {
+      if (showLoading) {
+        state = state.copyWith(
+          event: OrderToOnlineEvent.error,
+          message: ex.toString(),
+        );
+      }
+      return (
+        pingPrinters: pingPrinters,
+        error: error,
+        resultSendPrintData: resultSendPrintData
+      );
+    }
+  }
+
+  // Future<void> onChangeLockedOrderId({required int orderId, bool showLoading = false}) async {
   //   try {
-  //     var orderSelect = state.orderSelect;
-  //     var requestSelect = state.requestSelect;
-  //     var listItem = state.requestSelect?.listItem ?? [];
-
-  //     if (orderSelect == null || requestSelect == null || listItem.isEmpty) {
-  //       return;
+  //     if (showLoading) {
+  //       state = state.copyWith(
+  //           event: OrderToOnlineEvent.loading, message: 'Đang kiểm tra trạng thái đơn bàn');
+  //     }
+  //     final locked = await _checkStatusLockOrder(orderId);
+  //     if (showLoading) {
+  //       state = state.copyWith(event: OrderToOnlineEvent.success, message: '');
+  //     }
+  //     var lockedIds = Set<int>.from(state.lockedOrderIds);
+  //     if (locked) {
+  //       lockedIds.add(orderId);
+  //     } else {
+  //       lockedIds.remove(orderId);
   //     }
 
-  //     Map<int, List<ProductModel>> productPrint =
-  //         ref.read(menuProvider.notifier).mapO2oItemWithPrintType(listItem);
-
-  //     var order = OrderModel(
-  //       id: orderSelect.orderId,
-  //       name: orderSelect.tableName,
-  //       misc: '{"order_code":"${orderSelect.orderCode}","remarks":""}',
-  //     );
-
-  //     state = state.copyWith(
-  //         event: OrderToOnlineEvent.loading, message: S.current.processing);
-  //     List<int> printerCheck = productPrint.keys.toList();
-  //     List<IpOrderModel> printers = [];
-  //     if (printerCheck.isNotEmpty) {
-  //       printers = await _orderRepository.getIpPrinterOrder(
-  //         order,
-  //         productPrint.keys.toList(),
-  //       );
-  //     }
-
-  //     var result = await _o2oRepository.processO2oRequest(
-  //       orderId: orderSelect.orderId,
-  //       orderItemId: requestSelect.id,
-  //       orderItems: listItem,
-  //       status: 1,
-  //       notes: note,
-  //     );
-  //     state = state.copyWith(
-  //       event: OrderToOnlineEvent.success,
-  //       message: '',
-  //       requestSelect: null,
-  //     );
-  //     if (!ref.read(homeProvider).realtimeStatus) {
-  //       ref.refresh(orderToOnlineProvider);
-  //     }
-  //     // var resultSend =
-  //     /// check here
-  //     // await ref.read(homeProvider.notifier).sendPrintData(
-  //     //       type: PrintTypeEnum.order,
-  //     //       products: productPrint,
-  //     //       printers: printers
-  //     //           .map((e) => PrinterModel(ip: e.ip, port: e.port, name: e.name))
-  //     //           .toList(),
-  //     //       useDefaultPrinters: true,
-  //     //       totalBill: true,
-  //     //       note: note ?? '',
-  //     //     );
-  //     // ref.read(menuProvider.notifier).printO2oRequest(
-  //     //       order: order,
-  //     //       context: context,
-  //     //       data: productPrint,
-  //     //       note: note,
-  //     //       printers: printers,
-  //     //     );
-  //     // }
-
-  //     if (orderSelect.orderId == ref.read(homeProvider).orderSelect?.id) {
-  //       ref.read(homeProvider.notifier).getOrderProductCheckout();
+  //     state = state.copyWith(lockedOrderIds: lockedIds);
+  //     if (locked) {
+  //       throw '${S.current.temporarily_locked_order}\n${S.current.msg_check_other_devices_using_the_same_order}';
   //     }
   //   } catch (ex) {
-  //     state = state.copyWith(
-  //       event: OrderToOnlineEvent.error,
-  //       message: ex.toString(),
-  //     );
+  //     if (showLoading) {
+  //       state = state.copyWith(event: OrderToOnlineEvent.success, message: '');
+  //     } else {
+  //       rethrow;
+  //     }
   //   }
   // }
 
-  Future<void> onChangeLockedOrderId(
-      {required int orderId, bool showLoading = false}) async {
-    try {
-      if (showLoading) {
-        state = state.copyWith(
-            event: OrderToOnlineEvent.loading,
-            message: 'Đang kiểm tra trạng thái đơn bàn');
-      }
-      final locked = await _checkStatusLockOrder(orderId);
-      if (showLoading) {
-        state = state.copyWith(event: OrderToOnlineEvent.success, message: '');
-      }
-      var lockedIds = Set<int>.from(state.lockedOrderIds);
-      if (locked) {
-        lockedIds.add(orderId);
-      } else {
-        lockedIds.remove(orderId);
-      }
-
-      state = state.copyWith(lockedOrderIds: lockedIds);
-      if (locked) {
-        throw '${S.current.temporarily_locked_order}\n${S.current.msg_check_other_devices_using_the_same_order}';
-      }
-    } catch (ex) {
-      if (showLoading) {
-        state = state.copyWith(event: OrderToOnlineEvent.success, message: '');
-      } else {
-        rethrow;
-      }
-    }
-  }
-
-  Future<bool> _checkStatusLockOrder(int orderId) async {
-    try {
-      final result = await _orderRepository.checkStatusLockOrder(orderId);
-      return result;
-    } catch (ex) {
-      return false;
-    }
-  }
+  // Future<bool> _checkStatusLockOrder(int orderId) async {
+  //   try {
+  //     final result = await _orderRepository.checkStatusLockOrder(orderId);
+  //     return result;
+  //   } catch (ex) {
+  //     return false;
+  //   }
+  // }
 
   void onChangeRequestSelect({
     required RequestOrderModel request,
@@ -364,27 +317,27 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
         state.copyWith(requestSelect: request.copyWith(listItem: itemsSelect));
   }
 
-  void changeNoteRestaurantItem({
-    required String itemId,
-    required String codeProduct,
-    required int requestId,
-    String note = '',
-  }) {
-    // if (requestId == state.requestOrderId) {
-    //   List<RequestOrderItemModel> orderItems = List<RequestOrderItemModel>.from(state.orderItems);
-    //   final item =
-    //       orderItems.firstWhereOrNull((e) => e.id == itemId && e.codeProduct == codeProduct);
-    //   if (item != null) {
-    //     orderItems.removeWhere((e) => e.id == itemId && e.codeProduct == codeProduct);
-    //     orderItems.add(item.copyWith(noteRestaurant: note));
-    //     state = state.copyWith(orderItems: orderItems);
-    //   }
-    // }
-  }
+  // void changeNoteRestaurantItem({
+  //   required String itemId,
+  //   required String codeProduct,
+  //   required int requestId,
+  //   String note = '',
+  // }) {
+  //   // if (requestId == state.requestOrderId) {
+  //   //   List<RequestOrderItemModel> orderItems = List<RequestOrderItemModel>.from(state.orderItems);
+  //   //   final item =
+  //   //       orderItems.firstWhereOrNull((e) => e.id == itemId && e.codeProduct == codeProduct);
+  //   //   if (item != null) {
+  //   //     orderItems.removeWhere((e) => e.id == itemId && e.codeProduct == codeProduct);
+  //   //     orderItems.add(item.copyWith(noteRestaurant: note));
+  //   //     state = state.copyWith(orderItems: orderItems);
+  //   //   }
+  //   // }
+  // }
 
-  void changeStatusFilter(RequestProcessingStatus status) {
-    state = state.copyWith(statusFilter: status);
-  }
+  // void changeStatusFilter(RequestProcessingStatus status) {
+  //   state = state.copyWith(statusFilter: status);
+  // }
 
   void changeSortByNewestTime() {
     state = state.copyWith(sortByNewestTime: !state.sortByNewestTime);
@@ -401,144 +354,89 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
   //   state = state.copyWith(beingPaid: beingPaid);
   // }
 
-  void changeStatusOrder(BuildContext context, ChangeOrderModel model) async {
-    Map<O2OOrderModel, Map<String, dynamic>> orders =
-        Map<O2OOrderModel, Map<String, dynamic>>.from(state.orders);
-    List<O2OOrderModel> tables = List<O2OOrderModel>.from(state.orders.keys);
-    if (orders.isEmpty) return;
-    var orderChange =
-        tables.firstWhereOrNull((e) => e.orderId == model.orderId);
-    if (orderChange == null) return;
-    var orderSelect = state.orderSelect;
-    final status = model.orderStatus;
-    Set<int> lockedOrderIds = Set<int>.from(state.lockedOrderIds);
+  // void changeStatusOrder(BuildContext context, ChangeOrderModel model) async {
+  //   Map<O2OOrderModel, Map<String, dynamic>> orders =
+  //       Map<O2OOrderModel, Map<String, dynamic>>.from(state.orders);
+  //   List<O2OOrderModel> tables = List<O2OOrderModel>.from(state.orders.keys);
+  //   if (orders.isEmpty) return;
+  //   var orderChange = tables.firstWhereOrNull((e) => e.orderId == model.orderId);
+  //   if (orderChange == null) return;
+  //   var orderSelect = state.orderSelect;
+  //   final status = model.orderStatus;
+  //   Set<int> lockedOrderIds = Set<int>.from(state.lockedOrderIds);
 
-    bool selected = orderSelect != null && orderSelect.orderId == model.orderId;
+  //   bool selected = orderSelect != null && orderSelect.orderId == model.orderId;
 
-    switch (status) {
-      /// đơn đang được thanh toán
-      case OrderStatus.paymenting:
-        if (!lockedOrderIds.contains(model.orderId)) {
-          lockedOrderIds.add(model.orderId);
-          state = state.copyWith(lockedOrderIds: lockedOrderIds);
-        }
-        return;
+  //   switch (status) {
+  //     /// đơn đang được thanh toán
+  //     case OrderStatus.paymenting:
+  //       if (!lockedOrderIds.contains(model.orderId)) {
+  //         lockedOrderIds.add(model.orderId);
+  //         state = state.copyWith(lockedOrderIds: lockedOrderIds);
+  //       }
+  //       return;
 
-      /// đang thanh toán thì mở lại đơn cho khách order thêm
-      case OrderStatus.proccessing:
-        if (lockedOrderIds.contains(model.orderId)) {
-          lockedOrderIds.removeWhere((e) => e == model.orderId);
-          state = state.copyWith(lockedOrderIds: lockedOrderIds);
-        }
-        return;
+  //     /// đang thanh toán thì mở lại đơn cho khách order thêm
+  //     case OrderStatus.proccessing:
+  //       if (lockedOrderIds.contains(model.orderId)) {
+  //         lockedOrderIds.removeWhere((e) => e == model.orderId);
+  //         state = state.copyWith(lockedOrderIds: lockedOrderIds);
+  //       }
+  //       return;
 
-      /// đơn thanh toán xong
-      case OrderStatus.complete:
-        if (lockedOrderIds.contains(model.orderId)) {
-          lockedOrderIds.removeWhere((e) => e == model.orderId);
-          state = state.copyWith(lockedOrderIds: lockedOrderIds);
-        }
-        orders.remove(orderSelect);
-        state = state.copyWith(orders: orders);
-        if (selected) {
-          changeOrderSelect(orders.isEmpty ? null : orders.keys.first);
-        }
+  //     /// đơn thanh toán xong
+  //     case OrderStatus.complete:
+  //       if (lockedOrderIds.contains(model.orderId)) {
+  //         lockedOrderIds.removeWhere((e) => e == model.orderId);
+  //         state = state.copyWith(lockedOrderIds: lockedOrderIds);
+  //       }
+  //       orders.remove(orderSelect);
+  //       state = state.copyWith(orders: orders);
+  //       if (selected) {
+  //         changeOrderSelect(orders.isEmpty ? null : orders.keys.first);
+  //       }
 
-        return;
-      default:
-    }
-  }
+  //       return;
+  //     default:
+  //   }
+  // }
 
   void changePrinterSelect(IpOrderModel? printer) {
-    if (printer == null) {
-      state = state.copyWith(printerSelect: null);
-      return;
-    }
-    List<IpOrderModel> printers = List<IpOrderModel>.from(state.printers);
-    if (!printers.contains(printer)) {
-      state = state.copyWith(printerSelect: null);
-      return;
-    }
-    state = state.copyWith(printerSelect: printer);
+    state = state.copyWith(printerSelect: null);
   }
 
-  void printQRCode() async {
-    var orderSelect = state.orderSelect;
-    if (orderSelect == null || state.printerSelect == null) return;
-    try {
-      state = state.copyWith(
-          event: OrderToOnlineEvent.loading,
-          message: '${S.current.printing_QR_code}...');
+  // void printQRCode() async {
+  //   var orderSelect = state.orderSelect;
+  //   if (orderSelect == null || state.printerSelect == null) return;
+  //   try {
+  //     state = state.copyWith(
+  //         event: OrderToOnlineEvent.loading, message: '${S.current.printing_QR_code}...');
 
-      var message = await AppPrinterUtils.instance.printQrO2O(
-          order: OrderModel(
-            id: orderSelect.orderId,
-            // orderCode: orderSelect.orderCode,
-            name: orderSelect.tableName,
-            misc: '{"order_code": "${orderSelect.orderCode}"}',
-          ),
-          printer: state.printerSelect!,
-          linkO2o: orderSelect.qrOrderO2o.firstOrNull ?? '');
-      message ??=
-          '${S.current.print_QR_code_o2o_success}\n${S.current.at_the_printer}: ${state.printerSelect!.name}';
-      state = state.copyWith(
-        event: OrderToOnlineEvent.error,
-        message: message,
-      );
-    } catch (ex) {
-      state = state.copyWith(
-        event: OrderToOnlineEvent.error,
-        message: ex.toString(),
-      );
-    }
-  }
+  //     var message = await AppPrinterUtils.instance.printQrO2O(
+  //         order: OrderModel(
+  //           id: orderSelect.orderId,
+  //           // orderCode: orderSelect.orderCode,
+  //           name: orderSelect.tableName,
+  //           misc: '{"order_code": "${orderSelect.orderCode}"}',
+  //         ),
+  //         printer: state.printerSelect!,
+  //         linkO2o: orderSelect.qrOrderO2o.firstOrNull ?? '');
+  //     message ??=
+  //         '${S.current.print_QR_code_o2o_success}\n${S.current.at_the_printer}: ${state.printerSelect!.name}';
+  //     state = state.copyWith(
+  //       event: OrderToOnlineEvent.error,
+  //       message: message,
+  //     );
+  //   } catch (ex) {
+  //     state = state.copyWith(
+  //       event: OrderToOnlineEvent.error,
+  //       message: ex.toString(),
+  //     );
+  //   }
+  // }
 
-  Future<String?> getPrinters() async {
-    var orderSelect = state.orderSelect;
-    if (orderSelect == null) {
-      state = state.copyWith(printers: [], printerSelect: null);
-      return null;
-    }
-    try {
-      state = state.copyWith(
-          event: OrderToOnlineEvent.loading,
-          message: S.current.retrieving_printer_list);
-      final result = await _orderRepository.getIpPrinterOrder(
-          OrderModel(
-              id: orderSelect.orderId,
-              name: orderSelect.tableName,
-              qrO2O: orderSelect.qrOrderO2o,
-              misc: '{"order_code": "${orderSelect.orderCode}"}'),
-          [0, 1, 3]);
-      var printers = result;
-      Set<String> listIps = {};
-      final listPrinters = <IpOrderModel>[];
-
-      for (final item in printers) {
-        final key = '${item.ip}:${item.port}';
-        if (!listIps.contains(key)) {
-          listIps.add(key);
-          listPrinters.add(item);
-        }
-      }
-      state = state.copyWith(
-        event: OrderToOnlineEvent.success,
-        message: '',
-        printers: listPrinters,
-        printerSelect: printers.isNotEmpty ? printers.first : null,
-      );
-      return null;
-    } catch (ex) {
-      state = state.copyWith(
-        event: OrderToOnlineEvent.error,
-        message: ex.toString(),
-      );
-      return ex.toString();
-    }
-  }
-
-  void selectAllRequestItem(
-      {required RequestOrderModel request, required bool selectAll}) {
+  Future<void> selectAllRequestItem(
+      {required RequestOrderModel request, required bool selectAll}) async {
     if (!selectAll) {
       state = state.copyWith(requestSelect: null);
       return;
@@ -547,14 +445,13 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
   }
 
   void getChatMessages() async {
-    if (!state.showChatTab) return;
     final loginData = LocalStorage.getDataLogin();
     int? restaurantId = loginData?.restaurant?.id;
-    final orderSelect = state.orderSelect;
+    final orderIdSelect = state.orderIdSelect;
     state = state.copyWith(
       getChatMessageState: const PageState(status: PageCommonState.loading),
     );
-    if (restaurantId == null || orderSelect == null) {
+    if (restaurantId == null || orderIdSelect == null) {
       state = state.copyWith(
         chatMessages: [],
         getChatMessageState: PageState(
@@ -566,7 +463,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     try {
       final result = await _o2oRepository.getChatMessages(
         restaurantId: restaurantId,
-        orderId: orderSelect.orderId,
+        orderId: orderIdSelect,
       );
 
       state = state.copyWith(
@@ -582,10 +479,7 @@ class OrderToOnlinePageNotifier extends StateNotifier<OrderToOnlineState> {
     }
   }
 
-  void onChangeShowChatTab({bool? value}) {
-    state = state.copyWith(showChatTab: value ?? !state.showChatTab);
-    if (state.showChatTab) {
-      getChatMessages();
-    }
+  void onChangeShowChat(bool? value) {
+    state = state.copyWith(showChat: value ?? !state.showChat);
   }
 }

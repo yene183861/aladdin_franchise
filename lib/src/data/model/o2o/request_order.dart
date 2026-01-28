@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,8 @@ extension RequestProcessingStatusEx on RequestProcessingStatus {
   Color get color {
     switch (this) {
       case RequestProcessingStatus.waiting:
-        return Colors.blue;
+        return Colors.amber;
+        return Colors.orange;
       case RequestProcessingStatus.accept:
         return Colors.green;
       case RequestProcessingStatus.cancel:
@@ -44,7 +46,6 @@ extension RequestProcessingStatusEx on RequestProcessingStatus {
   String get title {
     switch (this) {
       case RequestProcessingStatus.waiting:
-        // return S.current.wait_for_handling;
         return 'Chờ xử lý';
       case RequestProcessingStatus.accept:
         return S.current.accepted;
@@ -52,6 +53,19 @@ extension RequestProcessingStatusEx on RequestProcessingStatus {
         return S.current.canceled;
       default:
         return S.current.all;
+    }
+  }
+
+  String get iconSvg {
+    switch (this) {
+      case RequestProcessingStatus.waiting:
+        return Assets.iconsConfirmRequestO2o;
+      case RequestProcessingStatus.accept:
+        return Assets.iconsConfirmRequestO2o;
+      case RequestProcessingStatus.cancel:
+        return Assets.iconsCancelRequestO2o;
+      default:
+        return '';
     }
   }
 }
@@ -118,11 +132,17 @@ class RequestOrderModel with _$RequestOrderModel {
 
   const RequestOrderModel._();
 
-  RequestProcessingStatus get requestProcessingStatus => convertRequestProcessingStatus(status);
+  RequestProcessingStatus get requestProcessingStatus =>
+      convertRequestProcessingStatus(status);
 
-  bool get isProcessed => requestProcessingStatus != RequestProcessingStatus.waiting;
-  bool get isCanceled => requestProcessingStatus == RequestProcessingStatus.cancel;
-  bool get isAccepted => requestProcessingStatus == RequestProcessingStatus.accept;
+  bool get isProcessed =>
+      requestProcessingStatus != RequestProcessingStatus.waiting;
+  bool get isCanceled =>
+      requestProcessingStatus == RequestProcessingStatus.cancel;
+  bool get isAccepted =>
+      requestProcessingStatus == RequestProcessingStatus.accept;
+
+  DateTime? get getLocalTimeOrder => timeOrder?.toLocal();
 
   factory RequestOrderModel.fromJson(Map<String, dynamic> json) =>
       _$RequestOrderModelFromJson(json);

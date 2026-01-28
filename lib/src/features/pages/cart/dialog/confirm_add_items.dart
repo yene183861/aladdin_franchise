@@ -8,7 +8,7 @@ import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
-import 'package:aladdin_franchise/src/features/dialogs/printer/list_printer.dart';
+import 'package:aladdin_franchise/src/features/dialogs/printer/printer_selector_for_order_action.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
 
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
@@ -37,10 +37,12 @@ class _AddItemOrderDialogBody extends ConsumerStatefulWidget {
   const _AddItemOrderDialogBody({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => __AddItemOrderDialogBodyState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      __AddItemOrderDialogBodyState();
 }
 
-class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBody> {
+class __AddItemOrderDialogBodyState
+    extends ConsumerState<_AddItemOrderDialogBody> {
   Set<PrinterModel> printerSelect = {};
   bool useDefaultPrinter = true;
   bool useKds = LocalStorage.getDataLogin()?.restaurant?.posStatus ?? false;
@@ -66,7 +68,8 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
               Expanded(
                 child: Text(
                   'Gọi món',
-                  style: AppTextStyle.bold(rawFontSize: AppConfig.defaultRawTextSize + 1.0),
+                  style: AppTextStyle.bold(
+                      rawFontSize: AppConfig.defaultRawTextSize + 1.0),
                 ),
               ),
               const CloseButton(),
@@ -97,10 +100,11 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
                     ),
                   Expanded(child: Consumer(
                     builder: (context, ref, child) {
-                      var items =
-                          ref.watch(cartPageProvider.select((value) => value.productsSelecting));
+                      var items = ref.watch(cartPageProvider
+                          .select((value) => value.productsSelecting));
                       return ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
                         itemBuilder: (context, index) {
                           var data = items[index];
                           return _ProductLine(product: data);
@@ -115,15 +119,15 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
               if (!useKds) ...[
                 const VerticalDivider(width: 1),
                 Consumer(builder: (context, ref, child) {
-                  var items =
-                      ref.watch(cartPageProvider.select((value) => value.productsSelecting));
+                  var items = ref.watch(cartPageProvider
+                      .select((value) => value.productsSelecting));
                   Set<int> printerType = {};
                   for (var item in items) {
                     if (item.numberSelecting > 0 && item.printerType != null) {
                       printerType.add(item.printerType!);
                     }
                   }
-                  return ListPrintersDialog(
+                  return PrinterSelectorForOrderAction(
                     width: 400 * (isPhone ? 0.7 : 1.0),
                     title: 'Tùy chọn máy in',
                     onChangePrinterConfig: (p0, p1) {
@@ -145,14 +149,16 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
               ),
               Consumer(
                 builder: (context, ref, child) {
-                  var productIdSelect =
-                      ref.watch(cartPageProvider.select((value) => value.productIdSelect));
-                  var productsSelecting =
-                      ref.watch(cartPageProvider.select((value) => value.productsSelecting));
+                  var productIdSelect = ref.watch(cartPageProvider
+                      .select((value) => value.productIdSelect));
+                  var productsSelecting = ref.watch(cartPageProvider
+                      .select((value) => value.productsSelecting));
                   double total = 0;
                   for (var i in productIdSelect) {
-                    var p = productsSelecting.firstWhereOrNull((e) => e.id == i);
-                    total += (p?.getUnitPriceNum() ?? 0.0) * (p?.numberSelecting ?? 0);
+                    var p =
+                        productsSelecting.firstWhereOrNull((e) => e.id == i);
+                    total += (p?.getUnitPriceNum() ?? 0.0) *
+                        (p?.numberSelecting ?? 0);
                   }
                   return Text(
                     AppUtils.formatCurrency(
@@ -171,8 +177,8 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
               const AppCloseButton(),
               const Gap(12),
               Consumer(builder: (context, ref, child) {
-                var productIdSelect =
-                    ref.watch(cartPageProvider.select((value) => value.productIdSelect));
+                var productIdSelect = ref.watch(
+                    cartPageProvider.select((value) => value.productIdSelect));
                 return AppButton(
                   icon: Icons.shopping_cart_checkout_sharp,
                   textAction: 'Thêm vào đơn',
@@ -216,6 +222,7 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
           printerSelect: useKds ? <PrinterModel>{} : printerSelect,
           useDefaultPrinter: useKds ? true : useDefaultPrinter,
           ignorePrint: ignorePrint,
+          processOrder: processOrder,
         );
     if (result.pingPrinters != null) {
       await showConfirmAction(
@@ -275,12 +282,15 @@ class __ProductLineState extends ConsumerState<_ProductLine> {
   @override
   Widget build(BuildContext context) {
     var item = widget.product;
-    var selected =
-        ref.watch(cartPageProvider.select((value) => value.productIdSelect)).contains(item.id);
+    var selected = ref
+        .watch(cartPageProvider.select((value) => value.productIdSelect))
+        .contains(item.id);
     bool smallDevice = ResponsiveBreakpoints.of(context).smallerThan(TABLET);
     return InkWell(
       onTap: () {
-        ref.read(cartPageProvider.notifier).onChangeProductIdSelect(item.id, !selected);
+        ref
+            .read(cartPageProvider.notifier)
+            .onChangeProductIdSelect(item.id, !selected);
       },
       borderRadius: AppConfig.borderRadiusMain,
       child: Container(
@@ -288,7 +298,8 @@ class __ProductLineState extends ConsumerState<_ProductLine> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: AppConfig.borderRadiusMain,
-          border: Border.all(color: selected ? Colors.blue : Colors.grey.shade200, width: 1.5),
+          border: Border.all(
+              color: selected ? Colors.blue : Colors.grey.shade200, width: 1.5),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.2),
@@ -322,16 +333,20 @@ class __ProductLineState extends ConsumerState<_ProductLine> {
                                   child: Text(
                                     item.getNameView(),
                                     style: AppTextStyle.bold(
-                                        rawFontSize: AppConfig.defaultRawTextSize + 0.5),
+                                        rawFontSize:
+                                            AppConfig.defaultRawTextSize + 0.5),
                                   ),
                                 ),
                                 Text(
                                   AppUtils.formatCurrency(
                                       symbol: 'đ',
-                                      value: (AppUtils.convertToDouble(item.unitPrice) ?? 0.0) *
+                                      value: (AppUtils.convertToDouble(
+                                                  item.unitPrice) ??
+                                              0.0) *
                                           item.numberSelecting),
                                   style: AppTextStyle.bold(
-                                    rawFontSize: AppConfig.defaultRawTextSize + 0.5,
+                                    rawFontSize:
+                                        AppConfig.defaultRawTextSize + 0.5,
                                     color: Color.fromARGB(255, 57, 132, 194),
                                   ),
                                 ),
@@ -341,8 +356,8 @@ class __ProductLineState extends ConsumerState<_ProductLine> {
                               TextSpan(
                                 children: [
                                   TextSpan(
-                                    text:
-                                        AppUtils.formatCurrency(symbol: 'đ', value: item.unitPrice),
+                                    text: AppUtils.formatCurrency(
+                                        symbol: 'đ', value: item.unitPrice),
                                   ),
                                   const TextSpan(text: '/'),
                                   TextSpan(text: item.getUnitView()),
@@ -350,7 +365,8 @@ class __ProductLineState extends ConsumerState<_ProductLine> {
                               ),
                               style: AppTextStyle.regular(
                                   color: Colors.grey,
-                                  rawFontSize: AppConfig.defaultRawTextSize - 1),
+                                  rawFontSize:
+                                      AppConfig.defaultRawTextSize - 1),
                             ),
                             const Gap(4),
                             IntrinsicHeight(
@@ -360,11 +376,14 @@ class __ProductLineState extends ConsumerState<_ProductLine> {
                                   Expanded(
                                     child: AppTextFormField(
                                       contentPadding:
-                                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 4),
                                       hintText: 'Ghi chú',
                                       initialValue: item.note,
                                       onChanged: (value) {
-                                        ref.read(cartPageProvider.notifier).onChangeNoteProduct(
+                                        ref
+                                            .read(cartPageProvider.notifier)
+                                            .onChangeNoteProduct(
                                               item.id,
                                               value.trim(),
                                             );
@@ -376,7 +395,8 @@ class __ProductLineState extends ConsumerState<_ProductLine> {
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFf1f4fa),
                                       borderRadius: AppConfig.borderRadiusMain,
-                                      border: Border.all(color: Colors.grey.shade300),
+                                      border: Border.all(
+                                          color: Colors.grey.shade300),
                                       boxShadow: [
                                         BoxShadow(
                                           color: Colors.black.withOpacity(0.1),
@@ -390,24 +410,32 @@ class __ProductLineState extends ConsumerState<_ProductLine> {
                                         _qtyButton(
                                           Icons.remove,
                                           () {
-                                            var count = math.max(0, item.numberSelecting - 1);
-                                            ref.read(cartPageProvider.notifier).addProductToCart(
-                                                item.copyWith(numberSelecting: count));
+                                            var count = math.max(
+                                                0, item.numberSelecting - 1);
+                                            ref
+                                                .read(cartPageProvider.notifier)
+                                                .addProductToCart(item.copyWith(
+                                                    numberSelecting: count));
                                           },
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8),
                                           child: Text(
-                                            widget.product.numberSelecting.toString(),
+                                            widget.product.numberSelecting
+                                                .toString(),
                                             style: AppTextStyle.bold(),
                                           ),
                                         ),
                                         _qtyButton(
                                           Icons.add,
                                           () {
-                                            var count = math.max(0, item.numberSelecting + 1);
-                                            ref.read(cartPageProvider.notifier).addProductToCart(
-                                                item.copyWith(numberSelecting: count));
+                                            var count = math.max(
+                                                0, item.numberSelecting + 1);
+                                            ref
+                                                .read(cartPageProvider.notifier)
+                                                .addProductToCart(item.copyWith(
+                                                    numberSelecting: count));
                                           },
                                         ),
                                       ],

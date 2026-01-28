@@ -31,8 +31,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'state.dart';
 
-final menuProvider =
-    StateNotifierProvider.autoDispose<MenuNotifier, MenuState>((ref) {
+final menuProvider = StateNotifierProvider.autoDispose<MenuNotifier, MenuState>((ref) {
   return MenuNotifier(
     ref,
     ref.read(menuRepositoryProvider),
@@ -56,8 +55,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
   late TextEditingController ctrlSearch;
 
   final ItemScrollController categoryScrollController = ItemScrollController();
-  final ItemPositionsListener categoryPositionsListener =
-      ItemPositionsListener.create();
+  final ItemPositionsListener categoryPositionsListener = ItemPositionsListener.create();
 
   @override
   void dispose() {
@@ -85,12 +83,11 @@ class MenuNotifier extends StateNotifier<MenuState> {
       changeSubCategorySelect(null);
     } else {
       var subCategorySelect = state.subCategorySelect;
-      var checkSubCategorySelect = categoryModel?.children
-          ?.firstWhereOrNull((e) => e == subCategorySelect);
+      var checkSubCategorySelect =
+          categoryModel?.children?.firstWhereOrNull((e) => e == subCategorySelect);
       if (subCategorySelect == null || checkSubCategorySelect == null) {
-        changeSubCategorySelect((categoryModel?.children?.isEmpty ?? true)
-            ? null
-            : categoryModel!.children!.first);
+        changeSubCategorySelect(
+            (categoryModel?.children?.isEmpty ?? true) ? null : categoryModel!.children!.first);
       }
     }
   }
@@ -102,17 +99,14 @@ class MenuNotifier extends StateNotifier<MenuState> {
   void checkReloadMenu() {
     final lastTime = LocalStorage.getLastReloadMenu();
     final now = DateTime.now();
-    if ((now.compareToWithoutTime(lastTime) == false) &&
-        now.hour >= 9 &&
-        now.minute >= 5) {
+    if ((now.compareToWithoutTime(lastTime) == false) && now.hour >= 9 && now.minute >= 5) {
       getProducts();
     }
   }
 
   Future<void> getProducts() async {
     try {
-      state = state.copyWith(
-          productState: const ProcessState(status: StatusEnum.loading));
+      state = state.copyWith(productState: const ProcessState(status: StatusEnum.loading));
 
       await fetchAllProducts();
       var data = getMenuByType(kTypeOrder);
@@ -128,8 +122,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
       if (categories.isNotEmpty) {
         var categorySelect = state.categorySelect;
 
-        var checkCategorySelect =
-            categories.firstWhereOrNull((e) => e.id == categorySelect?.id);
+        var checkCategorySelect = categories.firstWhereOrNull((e) => e.id == categorySelect?.id);
         if (categorySelect == null || checkCategorySelect == null) {
           changeCategorySelect(categories.first);
           checkCategorySelect = categories.first;
@@ -204,8 +197,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
       products: (data['product'] ?? []) as List<ProductModel>,
       categories: (data['category'] ?? []) as List<CategoryModel>,
       tags: (data['tag'] ?? []) as List<TagProductModel>,
-      status: (data['status'] ?? const ProcessState(status: StatusEnum.normal))
-          as ProcessState,
+      status: (data['status'] ?? const ProcessState(status: StatusEnum.normal)) as ProcessState,
     );
   }
 
@@ -229,8 +221,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
         final categoryResult = await _menuRepository.getCategory(typeOrder);
         List<CategoryModel> categories = categoryResult.data;
         List<TagProductModel> tags = categoryResult.tags ?? [];
-        final products =
-            await _menuRepository.getProduct(null, typeOrder: typeOrder);
+        final products = await _menuRepository.getProduct(null, typeOrder: typeOrder);
 
         result = {
           "status": const ProcessState(status: StatusEnum.success),
@@ -252,29 +243,25 @@ class MenuNotifier extends StateNotifier<MenuState> {
     state = state.copyWith(allProduct: allProduct);
   }
 
-  Map<int, List<ProductModel>> mapO2oItemWithPrintType(
-      List<RequestOrderItemModel> items) {
+  Map<int, List<ProductModel>> mapO2oItemWithPrintType(List<RequestOrderItemModel> items) {
     Map<int, List<ProductModel>> productPrint = {};
     var data = state.allProduct[TypeOrderEnum.offline.type] ?? {};
 
-    var status = (data['status'] ??
-        const ProcessState(status: StatusEnum.normal)) as ProcessState;
+    var status = (data['status'] ?? const ProcessState(status: StatusEnum.normal)) as ProcessState;
     List<ProductModel> products = data['product'] ?? [];
 
     for (var element in items) {
-      var p = products
-          .firstWhereOrNull((e) => e.codeProduct == element.codeProduct);
+      showLogs(element, flags: 'element');
+      var p = products.firstWhereOrNull((e) => e.codeProduct == element.codeProduct);
+      showLogs(p, flags: 'p');
       if (p != null) {
         var comboItems = ProductHelper().getComboDescription(p);
         // coi combo k có thành phần như là món thường để in
         if (comboItems == null || comboItems.isEmpty) {
           if (p.printerType != null) {
-            var items =
-                List<ProductModel>.from(productPrint[p.printerType] ?? []);
+            var items = List<ProductModel>.from(productPrint[p.printerType] ?? []);
             items.add(p.copyWith(
-                note: element.note,
-                description: null,
-                numberSelecting: element.quantity));
+                note: element.note, description: null, numberSelecting: element.quantity));
             productPrint[p.printerType!] = items;
           }
         } else {
@@ -282,8 +269,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
           for (var ci in comboItems) {
             var printerType = ci.printerType;
             if (printerType != null) {
-              var items =
-                  List<ComboItemModel>.from(printComboItem[printerType] ?? []);
+              var items = List<ComboItemModel>.from(printComboItem[printerType] ?? []);
               items.add(ci);
               printComboItem[printerType] = items;
             }
@@ -317,8 +303,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
     for (var printer in printers) {
       var products = data[printer.type] ?? [];
       if (products.isEmpty) continue;
-      var bytes = LocalStorage.getPrintSetting().appPrinterType ==
-              AppPrinterSettingTypeEnum.normal
+      var bytes = LocalStorage.getPrintSetting().appPrinterType == AppPrinterSettingTypeEnum.normal
           ? await AppPrinterNormalUtils.instance.generateBill(
               order: order,
               billSingle: false,
@@ -328,8 +313,8 @@ class MenuNotifier extends StateNotifier<MenuState> {
               products: products,
               title: '',
             )
-          : await AppPrinterHtmlUtils.instance.generateImageBill(
-              AppPrinterHtmlUtils.instance.kitchenBillContent(
+          : await AppPrinterHtmlUtils.instance
+              .generateImageBill(AppPrinterHtmlUtils.instance.kitchenBillContent(
               order: order,
               product: products,
               note: note ?? '',
@@ -353,27 +338,24 @@ class MenuNotifier extends StateNotifier<MenuState> {
             if (printer.type == 2 && appSeting.billReturnSetting.useOddBill) {
               for (var p in products) {
                 List<int> byteDatas;
-                var oddHtmlBill =
-                    AppPrinterHtmlUtils.instance.kitchenBillContent(
+                var oddHtmlBill = AppPrinterHtmlUtils.instance.kitchenBillContent(
                   product: [p],
                   totalBill: false,
                   order: order,
                   note: note ?? '',
                   timeOrders: 1,
                 );
-                byteDatas =
-                    appSeting.appPrinterType == AppPrinterSettingTypeEnum.normal
-                        ? await AppPrinterNormalUtils.instance.generateBill(
-                            order: order,
-                            billSingle: true,
-                            cancel: false,
-                            timeOrder: 1,
-                            totalNote: note,
-                            products: [p],
-                            title: '',
-                          )
-                        : await AppPrinterHtmlUtils.instance
-                            .generateImageBill(oddHtmlBill);
+                byteDatas = appSeting.appPrinterType == AppPrinterSettingTypeEnum.normal
+                    ? await AppPrinterNormalUtils.instance.generateBill(
+                        order: order,
+                        billSingle: true,
+                        cancel: false,
+                        timeOrder: 1,
+                        totalNote: note,
+                        products: [p],
+                        title: '',
+                      )
+                    : await AppPrinterHtmlUtils.instance.generateImageBill(oddHtmlBill);
                 PrintQueue.instance.addTask(
                   ip: printer.ip,
                   port: printer.port,

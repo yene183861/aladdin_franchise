@@ -18,31 +18,27 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$OrderToOnlineState {
   String get message => throw _privateConstructorUsedError;
   OrderToOnlineEvent get event => throw _privateConstructorUsedError;
-  O2OOrderModel? get orderSelect => throw _privateConstructorUsedError;
+  int? get orderIdSelect =>
+      throw _privateConstructorUsedError; // O2OOrderModel? orderSelect,
   O2oViewModeEnum get viewMode => throw _privateConstructorUsedError; // message
   List<ChatMessageModel> get chatMessages => throw _privateConstructorUsedError;
   PageState get getChatMessageState =>
       throw _privateConstructorUsedError; // filter
-  RequestProcessingStatus get statusFilter =>
-      throw _privateConstructorUsedError;
-  bool get sortByNewestTime => throw _privateConstructorUsedError;
-  bool get showChatTab => throw _privateConstructorUsedError; // printers
-  List<IpOrderModel> get printers => throw _privateConstructorUsedError;
-  IpOrderModel? get printerSelect => throw _privateConstructorUsedError;
-
-  /// key:  O2OOrderModel.copyWith(items: [])
-  /// value: Map<String, dynamic>
-  /// {
-  /// "items" : List<RequestOrderModel>,
-  /// "count" : int,
-  /// }
-  Map<O2OOrderModel, Map<String, dynamic>> get orders =>
-      throw _privateConstructorUsedError;
+// @Default(RequestProcessingStatus.waiting)
+// RequestProcessingStatus statusFilter,
+  bool get sortByNewestTime =>
+      throw _privateConstructorUsedError; // @Default(true) bool showChatTab,
+// printers
+// @Default([]) List<IpOrderModel> printers,
+  IpOrderModel? get printerSelect =>
+      throw _privateConstructorUsedError; // @Default({}) Map<O2OOrderModel, Map<String, dynamic>> orders,
+// @Default({}) Map<int, Map<String, dynamic>> orders,
   RequestOrderModel? get requestSelect => throw _privateConstructorUsedError;
 
   /// các đơn bàn đang khoá
-  Set<int> get lockedOrderIds => throw _privateConstructorUsedError;
+// @Default({}) Set<int> lockedOrderIds,
   bool get showLoadingGetData => throw _privateConstructorUsedError;
+  bool get showChat => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $OrderToOnlineStateCopyWith<OrderToOnlineState> get copyWith =>
@@ -58,21 +54,16 @@ abstract class $OrderToOnlineStateCopyWith<$Res> {
   $Res call(
       {String message,
       OrderToOnlineEvent event,
-      O2OOrderModel? orderSelect,
+      int? orderIdSelect,
       O2oViewModeEnum viewMode,
       List<ChatMessageModel> chatMessages,
       PageState getChatMessageState,
-      RequestProcessingStatus statusFilter,
       bool sortByNewestTime,
-      bool showChatTab,
-      List<IpOrderModel> printers,
       IpOrderModel? printerSelect,
-      Map<O2OOrderModel, Map<String, dynamic>> orders,
       RequestOrderModel? requestSelect,
-      Set<int> lockedOrderIds,
-      bool showLoadingGetData});
+      bool showLoadingGetData,
+      bool showChat});
 
-  $O2OOrderModelCopyWith<$Res>? get orderSelect;
   $PageStateCopyWith<$Res> get getChatMessageState;
   $IpOrderModelCopyWith<$Res>? get printerSelect;
   $RequestOrderModelCopyWith<$Res>? get requestSelect;
@@ -93,19 +84,15 @@ class _$OrderToOnlineStateCopyWithImpl<$Res, $Val extends OrderToOnlineState>
   $Res call({
     Object? message = null,
     Object? event = null,
-    Object? orderSelect = freezed,
+    Object? orderIdSelect = freezed,
     Object? viewMode = null,
     Object? chatMessages = null,
     Object? getChatMessageState = null,
-    Object? statusFilter = null,
     Object? sortByNewestTime = null,
-    Object? showChatTab = null,
-    Object? printers = null,
     Object? printerSelect = freezed,
-    Object? orders = null,
     Object? requestSelect = freezed,
-    Object? lockedOrderIds = null,
     Object? showLoadingGetData = null,
+    Object? showChat = null,
   }) {
     return _then(_value.copyWith(
       message: null == message
@@ -116,10 +103,10 @@ class _$OrderToOnlineStateCopyWithImpl<$Res, $Val extends OrderToOnlineState>
           ? _value.event
           : event // ignore: cast_nullable_to_non_nullable
               as OrderToOnlineEvent,
-      orderSelect: freezed == orderSelect
-          ? _value.orderSelect
-          : orderSelect // ignore: cast_nullable_to_non_nullable
-              as O2OOrderModel?,
+      orderIdSelect: freezed == orderIdSelect
+          ? _value.orderIdSelect
+          : orderIdSelect // ignore: cast_nullable_to_non_nullable
+              as int?,
       viewMode: null == viewMode
           ? _value.viewMode
           : viewMode // ignore: cast_nullable_to_non_nullable
@@ -132,55 +119,27 @@ class _$OrderToOnlineStateCopyWithImpl<$Res, $Val extends OrderToOnlineState>
           ? _value.getChatMessageState
           : getChatMessageState // ignore: cast_nullable_to_non_nullable
               as PageState,
-      statusFilter: null == statusFilter
-          ? _value.statusFilter
-          : statusFilter // ignore: cast_nullable_to_non_nullable
-              as RequestProcessingStatus,
       sortByNewestTime: null == sortByNewestTime
           ? _value.sortByNewestTime
           : sortByNewestTime // ignore: cast_nullable_to_non_nullable
               as bool,
-      showChatTab: null == showChatTab
-          ? _value.showChatTab
-          : showChatTab // ignore: cast_nullable_to_non_nullable
-              as bool,
-      printers: null == printers
-          ? _value.printers
-          : printers // ignore: cast_nullable_to_non_nullable
-              as List<IpOrderModel>,
       printerSelect: freezed == printerSelect
           ? _value.printerSelect
           : printerSelect // ignore: cast_nullable_to_non_nullable
               as IpOrderModel?,
-      orders: null == orders
-          ? _value.orders
-          : orders // ignore: cast_nullable_to_non_nullable
-              as Map<O2OOrderModel, Map<String, dynamic>>,
       requestSelect: freezed == requestSelect
           ? _value.requestSelect
           : requestSelect // ignore: cast_nullable_to_non_nullable
               as RequestOrderModel?,
-      lockedOrderIds: null == lockedOrderIds
-          ? _value.lockedOrderIds
-          : lockedOrderIds // ignore: cast_nullable_to_non_nullable
-              as Set<int>,
       showLoadingGetData: null == showLoadingGetData
           ? _value.showLoadingGetData
           : showLoadingGetData // ignore: cast_nullable_to_non_nullable
               as bool,
+      showChat: null == showChat
+          ? _value.showChat
+          : showChat // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $O2OOrderModelCopyWith<$Res>? get orderSelect {
-    if (_value.orderSelect == null) {
-      return null;
-    }
-
-    return $O2OOrderModelCopyWith<$Res>(_value.orderSelect!, (value) {
-      return _then(_value.copyWith(orderSelect: value) as $Val);
-    });
   }
 
   @override
@@ -227,22 +186,16 @@ abstract class _$$OrderToOnlineStateImplCopyWith<$Res>
   $Res call(
       {String message,
       OrderToOnlineEvent event,
-      O2OOrderModel? orderSelect,
+      int? orderIdSelect,
       O2oViewModeEnum viewMode,
       List<ChatMessageModel> chatMessages,
       PageState getChatMessageState,
-      RequestProcessingStatus statusFilter,
       bool sortByNewestTime,
-      bool showChatTab,
-      List<IpOrderModel> printers,
       IpOrderModel? printerSelect,
-      Map<O2OOrderModel, Map<String, dynamic>> orders,
       RequestOrderModel? requestSelect,
-      Set<int> lockedOrderIds,
-      bool showLoadingGetData});
+      bool showLoadingGetData,
+      bool showChat});
 
-  @override
-  $O2OOrderModelCopyWith<$Res>? get orderSelect;
   @override
   $PageStateCopyWith<$Res> get getChatMessageState;
   @override
@@ -264,19 +217,15 @@ class __$$OrderToOnlineStateImplCopyWithImpl<$Res>
   $Res call({
     Object? message = null,
     Object? event = null,
-    Object? orderSelect = freezed,
+    Object? orderIdSelect = freezed,
     Object? viewMode = null,
     Object? chatMessages = null,
     Object? getChatMessageState = null,
-    Object? statusFilter = null,
     Object? sortByNewestTime = null,
-    Object? showChatTab = null,
-    Object? printers = null,
     Object? printerSelect = freezed,
-    Object? orders = null,
     Object? requestSelect = freezed,
-    Object? lockedOrderIds = null,
     Object? showLoadingGetData = null,
+    Object? showChat = null,
   }) {
     return _then(_$OrderToOnlineStateImpl(
       message: null == message
@@ -287,10 +236,10 @@ class __$$OrderToOnlineStateImplCopyWithImpl<$Res>
           ? _value.event
           : event // ignore: cast_nullable_to_non_nullable
               as OrderToOnlineEvent,
-      orderSelect: freezed == orderSelect
-          ? _value.orderSelect
-          : orderSelect // ignore: cast_nullable_to_non_nullable
-              as O2OOrderModel?,
+      orderIdSelect: freezed == orderIdSelect
+          ? _value.orderIdSelect
+          : orderIdSelect // ignore: cast_nullable_to_non_nullable
+              as int?,
       viewMode: null == viewMode
           ? _value.viewMode
           : viewMode // ignore: cast_nullable_to_non_nullable
@@ -303,41 +252,25 @@ class __$$OrderToOnlineStateImplCopyWithImpl<$Res>
           ? _value.getChatMessageState
           : getChatMessageState // ignore: cast_nullable_to_non_nullable
               as PageState,
-      statusFilter: null == statusFilter
-          ? _value.statusFilter
-          : statusFilter // ignore: cast_nullable_to_non_nullable
-              as RequestProcessingStatus,
       sortByNewestTime: null == sortByNewestTime
           ? _value.sortByNewestTime
           : sortByNewestTime // ignore: cast_nullable_to_non_nullable
               as bool,
-      showChatTab: null == showChatTab
-          ? _value.showChatTab
-          : showChatTab // ignore: cast_nullable_to_non_nullable
-              as bool,
-      printers: null == printers
-          ? _value._printers
-          : printers // ignore: cast_nullable_to_non_nullable
-              as List<IpOrderModel>,
       printerSelect: freezed == printerSelect
           ? _value.printerSelect
           : printerSelect // ignore: cast_nullable_to_non_nullable
               as IpOrderModel?,
-      orders: null == orders
-          ? _value._orders
-          : orders // ignore: cast_nullable_to_non_nullable
-              as Map<O2OOrderModel, Map<String, dynamic>>,
       requestSelect: freezed == requestSelect
           ? _value.requestSelect
           : requestSelect // ignore: cast_nullable_to_non_nullable
               as RequestOrderModel?,
-      lockedOrderIds: null == lockedOrderIds
-          ? _value._lockedOrderIds
-          : lockedOrderIds // ignore: cast_nullable_to_non_nullable
-              as Set<int>,
       showLoadingGetData: null == showLoadingGetData
           ? _value.showLoadingGetData
           : showLoadingGetData // ignore: cast_nullable_to_non_nullable
+              as bool,
+      showChat: null == showChat
+          ? _value.showChat
+          : showChat // ignore: cast_nullable_to_non_nullable
               as bool,
     ));
   }
@@ -349,23 +282,16 @@ class _$OrderToOnlineStateImpl implements _OrderToOnlineState {
   const _$OrderToOnlineStateImpl(
       {this.message = '',
       this.event = OrderToOnlineEvent.normal,
-      this.orderSelect,
+      this.orderIdSelect,
       this.viewMode = O2oViewModeEnum.all,
       final List<ChatMessageModel> chatMessages = const [],
       this.getChatMessageState = const PageState(),
-      this.statusFilter = RequestProcessingStatus.waiting,
       this.sortByNewestTime = true,
-      this.showChatTab = true,
-      final List<IpOrderModel> printers = const [],
       this.printerSelect,
-      final Map<O2OOrderModel, Map<String, dynamic>> orders = const {},
       this.requestSelect,
-      final Set<int> lockedOrderIds = const {},
-      this.showLoadingGetData = true})
-      : _chatMessages = chatMessages,
-        _printers = printers,
-        _orders = orders,
-        _lockedOrderIds = lockedOrderIds;
+      this.showLoadingGetData = true,
+      this.showChat = false})
+      : _chatMessages = chatMessages;
 
   @override
   @JsonKey()
@@ -374,7 +300,8 @@ class _$OrderToOnlineStateImpl implements _OrderToOnlineState {
   @JsonKey()
   final OrderToOnlineEvent event;
   @override
-  final O2OOrderModel? orderSelect;
+  final int? orderIdSelect;
+// O2OOrderModel? orderSelect,
   @override
   @JsonKey()
   final O2oViewModeEnum viewMode;
@@ -393,73 +320,33 @@ class _$OrderToOnlineStateImpl implements _OrderToOnlineState {
   @JsonKey()
   final PageState getChatMessageState;
 // filter
-  @override
-  @JsonKey()
-  final RequestProcessingStatus statusFilter;
+// @Default(RequestProcessingStatus.waiting)
+// RequestProcessingStatus statusFilter,
   @override
   @JsonKey()
   final bool sortByNewestTime;
-  @override
-  @JsonKey()
-  final bool showChatTab;
+// @Default(true) bool showChatTab,
 // printers
-  final List<IpOrderModel> _printers;
-// printers
-  @override
-  @JsonKey()
-  List<IpOrderModel> get printers {
-    if (_printers is EqualUnmodifiableListView) return _printers;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_printers);
-  }
-
+// @Default([]) List<IpOrderModel> printers,
   @override
   final IpOrderModel? printerSelect;
-
-  /// key:  O2OOrderModel.copyWith(items: [])
-  /// value: Map<String, dynamic>
-  /// {
-  /// "items" : List<RequestOrderModel>,
-  /// "count" : int,
-  /// }
-  final Map<O2OOrderModel, Map<String, dynamic>> _orders;
-
-  /// key:  O2OOrderModel.copyWith(items: [])
-  /// value: Map<String, dynamic>
-  /// {
-  /// "items" : List<RequestOrderModel>,
-  /// "count" : int,
-  /// }
-  @override
-  @JsonKey()
-  Map<O2OOrderModel, Map<String, dynamic>> get orders {
-    if (_orders is EqualUnmodifiableMapView) return _orders;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(_orders);
-  }
-
+// @Default({}) Map<O2OOrderModel, Map<String, dynamic>> orders,
+// @Default({}) Map<int, Map<String, dynamic>> orders,
   @override
   final RequestOrderModel? requestSelect;
 
   /// các đơn bàn đang khoá
-  final Set<int> _lockedOrderIds;
-
-  /// các đơn bàn đang khoá
-  @override
-  @JsonKey()
-  Set<int> get lockedOrderIds {
-    if (_lockedOrderIds is EqualUnmodifiableSetView) return _lockedOrderIds;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableSetView(_lockedOrderIds);
-  }
-
+// @Default({}) Set<int> lockedOrderIds,
   @override
   @JsonKey()
   final bool showLoadingGetData;
+  @override
+  @JsonKey()
+  final bool showChat;
 
   @override
   String toString() {
-    return 'OrderToOnlineState(message: $message, event: $event, orderSelect: $orderSelect, viewMode: $viewMode, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, statusFilter: $statusFilter, sortByNewestTime: $sortByNewestTime, showChatTab: $showChatTab, printers: $printers, printerSelect: $printerSelect, orders: $orders, requestSelect: $requestSelect, lockedOrderIds: $lockedOrderIds, showLoadingGetData: $showLoadingGetData)';
+    return 'OrderToOnlineState(message: $message, event: $event, orderIdSelect: $orderIdSelect, viewMode: $viewMode, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, sortByNewestTime: $sortByNewestTime, printerSelect: $printerSelect, requestSelect: $requestSelect, showLoadingGetData: $showLoadingGetData, showChat: $showChat)';
   }
 
   @override
@@ -469,30 +356,24 @@ class _$OrderToOnlineStateImpl implements _OrderToOnlineState {
             other is _$OrderToOnlineStateImpl &&
             (identical(other.message, message) || other.message == message) &&
             (identical(other.event, event) || other.event == event) &&
-            (identical(other.orderSelect, orderSelect) ||
-                other.orderSelect == orderSelect) &&
+            (identical(other.orderIdSelect, orderIdSelect) ||
+                other.orderIdSelect == orderIdSelect) &&
             (identical(other.viewMode, viewMode) ||
                 other.viewMode == viewMode) &&
             const DeepCollectionEquality()
                 .equals(other._chatMessages, _chatMessages) &&
             (identical(other.getChatMessageState, getChatMessageState) ||
                 other.getChatMessageState == getChatMessageState) &&
-            (identical(other.statusFilter, statusFilter) ||
-                other.statusFilter == statusFilter) &&
             (identical(other.sortByNewestTime, sortByNewestTime) ||
                 other.sortByNewestTime == sortByNewestTime) &&
-            (identical(other.showChatTab, showChatTab) ||
-                other.showChatTab == showChatTab) &&
-            const DeepCollectionEquality().equals(other._printers, _printers) &&
             (identical(other.printerSelect, printerSelect) ||
                 other.printerSelect == printerSelect) &&
-            const DeepCollectionEquality().equals(other._orders, _orders) &&
             (identical(other.requestSelect, requestSelect) ||
                 other.requestSelect == requestSelect) &&
-            const DeepCollectionEquality()
-                .equals(other._lockedOrderIds, _lockedOrderIds) &&
             (identical(other.showLoadingGetData, showLoadingGetData) ||
-                other.showLoadingGetData == showLoadingGetData));
+                other.showLoadingGetData == showLoadingGetData) &&
+            (identical(other.showChat, showChat) ||
+                other.showChat == showChat));
   }
 
   @override
@@ -500,19 +381,15 @@ class _$OrderToOnlineStateImpl implements _OrderToOnlineState {
       runtimeType,
       message,
       event,
-      orderSelect,
+      orderIdSelect,
       viewMode,
       const DeepCollectionEquality().hash(_chatMessages),
       getChatMessageState,
-      statusFilter,
       sortByNewestTime,
-      showChatTab,
-      const DeepCollectionEquality().hash(_printers),
       printerSelect,
-      const DeepCollectionEquality().hash(_orders),
       requestSelect,
-      const DeepCollectionEquality().hash(_lockedOrderIds),
-      showLoadingGetData);
+      showLoadingGetData,
+      showChat);
 
   @JsonKey(ignore: true)
   @override
@@ -526,59 +403,46 @@ abstract class _OrderToOnlineState implements OrderToOnlineState {
   const factory _OrderToOnlineState(
       {final String message,
       final OrderToOnlineEvent event,
-      final O2OOrderModel? orderSelect,
+      final int? orderIdSelect,
       final O2oViewModeEnum viewMode,
       final List<ChatMessageModel> chatMessages,
       final PageState getChatMessageState,
-      final RequestProcessingStatus statusFilter,
       final bool sortByNewestTime,
-      final bool showChatTab,
-      final List<IpOrderModel> printers,
       final IpOrderModel? printerSelect,
-      final Map<O2OOrderModel, Map<String, dynamic>> orders,
       final RequestOrderModel? requestSelect,
-      final Set<int> lockedOrderIds,
-      final bool showLoadingGetData}) = _$OrderToOnlineStateImpl;
+      final bool showLoadingGetData,
+      final bool showChat}) = _$OrderToOnlineStateImpl;
 
   @override
   String get message;
   @override
   OrderToOnlineEvent get event;
   @override
-  O2OOrderModel? get orderSelect;
-  @override
+  int? get orderIdSelect;
+  @override // O2OOrderModel? orderSelect,
   O2oViewModeEnum get viewMode;
   @override // message
   List<ChatMessageModel> get chatMessages;
   @override
   PageState get getChatMessageState;
   @override // filter
-  RequestProcessingStatus get statusFilter;
-  @override
+// @Default(RequestProcessingStatus.waiting)
+// RequestProcessingStatus statusFilter,
   bool get sortByNewestTime;
-  @override
-  bool get showChatTab;
-  @override // printers
-  List<IpOrderModel> get printers;
-  @override
+  @override // @Default(true) bool showChatTab,
+// printers
+// @Default([]) List<IpOrderModel> printers,
   IpOrderModel? get printerSelect;
-  @override
-
-  /// key:  O2OOrderModel.copyWith(items: [])
-  /// value: Map<String, dynamic>
-  /// {
-  /// "items" : List<RequestOrderModel>,
-  /// "count" : int,
-  /// }
-  Map<O2OOrderModel, Map<String, dynamic>> get orders;
-  @override
+  @override // @Default({}) Map<O2OOrderModel, Map<String, dynamic>> orders,
+// @Default({}) Map<int, Map<String, dynamic>> orders,
   RequestOrderModel? get requestSelect;
   @override
 
   /// các đơn bàn đang khoá
-  Set<int> get lockedOrderIds;
-  @override
+// @Default({}) Set<int> lockedOrderIds,
   bool get showLoadingGetData;
+  @override
+  bool get showChat;
   @override
   @JsonKey(ignore: true)
   _$$OrderToOnlineStateImplCopyWith<_$OrderToOnlineStateImpl> get copyWith =>

@@ -26,20 +26,14 @@ class ProductBox extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var productsCheckout = ref
-        .watch(checkoutPageProvider.select((value) => value.productsCheckout));
-    var productsSelecting =
-        ref.watch(cartPageProvider.select((value) => value.productsSelecting));
+    var productsCheckout =
+        ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
+    var productsSelecting = ref.watch(cartPageProvider.select((value) => value.productsSelecting));
 
-    int ordered = (productsCheckout
-            .firstWhereOrNull((e) => e.id == product.id)
-            ?.quantity ??
-        0);
+    int ordered = (productsCheckout.firstWhereOrNull((e) => e.id == product.id)?.quantity ?? 0);
 
-    int ordering = productsSelecting
-            .firstWhereOrNull((e) => e.id == product.id)
-            ?.numberSelecting ??
-        0;
+    int ordering =
+        productsSelecting.firstWhereOrNull((e) => e.id == product.id)?.numberSelecting ?? 0;
     var listTags = ref.watch(menuProvider.select((value) => value.tags));
     List<TagProductModel> tags = [];
     for (var element in listTags) {
@@ -51,11 +45,10 @@ class ProductBox extends ConsumerWidget {
       onTap: () async {
         if (product.outOfStock == true) return;
         if (ref.read(homeProvider).orderSelect != null) {
-          ref.read(cartPageProvider.notifier).addProductToCart(
-              product.copyWith(numberSelecting: ordering + 1));
           ref
-              .read(homeProvider.notifier)
-              .onChangeOrderTabSelect(OrderTabEnum.ordering);
+              .read(cartPageProvider.notifier)
+              .addProductToCart(product.copyWith(numberSelecting: ordering + 1));
+          ref.read(homeProvider.notifier).onChangeOrderTabSelect(OrderTabEnum.ordering);
         }
       },
       onLongPress: () {
@@ -65,9 +58,8 @@ class ProductBox extends ConsumerWidget {
         children: [
           Container(
             clipBehavior: Clip.hardEdge,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.grey.shade100),
+            decoration:
+                BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.grey.shade100),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -90,8 +82,7 @@ class ProductBox extends ConsumerWidget {
                 ),
                 Text.rich(
                   TextSpan(
-                    text: AppUtils.formatCurrency(
-                        value: product.unitPrice, symbol: 'đ'),
+                    text: AppUtils.formatCurrency(value: product.unitPrice, symbol: 'đ'),
                     style: AppTextStyle.bold(
                       color: AppColors.redColor,
                       fontWeight: FontWeight.w600,
@@ -120,9 +111,7 @@ class ProductBox extends ConsumerWidget {
                             text: 'Đã gọi: ',
                             children: [
                               TextSpan(
-                                text: ordered > 1000
-                                    ? '1000+'
-                                    : ordered.toString(),
+                                text: ordered > 1000 ? '1000+' : ordered.toString(),
                               ),
                             ],
                           ),
@@ -136,9 +125,7 @@ class ProductBox extends ConsumerWidget {
                         child: Text.rich(
                           textAlign: TextAlign.end,
                           TextSpan(
-                            text: ordering > 0
-                                ? '${S.current.quantityCut}: '
-                                : '',
+                            text: ordering > 0 ? '${S.current.quantityCut}: ' : '',
                             children: [
                               TextSpan(
                                 text: ordering < 1
@@ -147,8 +134,7 @@ class ProductBox extends ConsumerWidget {
                                         ? '1000+'
                                         : ordering.toString(),
                                 style: AppTextStyle.bold(
-                                  rawFontSize:
-                                      AppConfig.defaultRawTextSize - 1.0,
+                                  rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                                 ),
                               ),
                             ],
@@ -161,7 +147,10 @@ class ProductBox extends ConsumerWidget {
                     ],
                   ),
                 ),
-                if (kDebugMode) ...[Text('thuế ${product.tax}')],
+                if (kDebugMode) ...[
+                  Text('thuế ${product.tax}'),
+                  Text('mã ${product.codeProduct ?? ''}'),
+                ],
                 const Gap(4),
               ],
             ),

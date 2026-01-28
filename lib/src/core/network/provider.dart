@@ -247,17 +247,16 @@ final reservationsProvider = FutureProvider.autoDispose.family<List<ReservationM
 );
 
 final orderToOnlineProvider =
-    FutureProvider.autoDispose<Map<O2OOrderModel, Map<String, dynamic>>>((ref) async {
+    FutureProvider.autoDispose<Map<int, Map<String, dynamic>>>((ref) async {
   var useO2O = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
   if (!useO2O) return {};
   var loginUserId = LocalStorage.getDataLogin()?.user?.id;
-  Map<O2OOrderModel, Map<String, dynamic>> orders = {};
+  Map<int, Map<String, dynamic>> orders = {};
   final result = await ref.read(o2oRepositoryProvider).getOrderToOnline();
   for (var e in result) {
     if (loginUserId != null && e.userId != loginUserId) continue;
 
-    var order = e.copyWith(items: []);
-    var data = orders[order] ?? {};
+    var data = orders[e.orderId] ?? {};
 
     var items = List<RequestOrderModel>.from(e.items);
 
@@ -277,7 +276,12 @@ final orderToOnlineProvider =
       }
     }
 
-    orders[order] = {'items': itemData, 'count': count, 'oldest_time_order': oldestTimeOrder};
+    orders[e.orderId] = {
+      'order': e.copyWith(items: []),
+      'items': itemData,
+      'count': count,
+      'oldest_time_order': oldestTimeOrder
+    };
   }
 
   final sortedEntries = orders.entries.toList()
@@ -292,7 +296,7 @@ final orderToOnlineProvider =
       return tA.compareTo(tB);
     });
 
-  final sortedOrders = Map<O2OOrderModel, Map<String, dynamic>>.fromEntries(sortedEntries);
+  final sortedOrders = Map<int, Map<String, dynamic>>.fromEntries(sortedEntries);
 
   return sortedOrders;
 });
@@ -320,9 +324,37 @@ final printersProvider = FutureProvider<List<PrinterModel>>((ref) async {
 
 final printerByOrderProvider = FutureProvider.autoDispose<List<PrinterModel>>((ref) async {
   var order = ref.watch(homeProvider.select((value) => value.orderSelect));
+  showLogs(order, flags: 'order');
   if (order == null) return [];
   var result = await ref.read(orderRepositoryProvider).getIpPrinterOrder(
         order,
+        [
+          PrinterTypeEnum.total,
+          PrinterTypeEnum.receipt,
+          PrinterTypeEnum.tmp,
+          PrinterTypeEnum.kitchen,
+          PrinterTypeEnum.bar,
+        ].map((e) => e.key).toList(),
+      );
+  var defaultPrinters = result
+      .map(
+        (e) => PrinterModel(
+          ip: e.ip,
+          port: e.port,
+          name: e.name,
+          type: e.type,
+          typeAreaLocation: e.typeAreaLocation,
+        ),
+      )
+      .toList();
+  return defaultPrinters;
+});
+final o2oPrinterByOrderProvider =
+    FutureProvider.autoDispose.family<List<PrinterModel>, int?>((ref, orderId) async {
+  if (orderId == null) return [];
+  showLogs(orderId, flags: 'orderId');
+  var result = await ref.read(orderRepositoryProvider).getIpPrinterOrder(
+        OrderModel(id: orderId),
         [
           PrinterTypeEnum.total,
           PrinterTypeEnum.receipt,

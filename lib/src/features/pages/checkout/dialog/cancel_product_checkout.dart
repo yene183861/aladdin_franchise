@@ -7,7 +7,7 @@ import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
-import 'package:aladdin_franchise/src/features/dialogs/printer/list_printer.dart';
+import 'package:aladdin_franchise/src/features/dialogs/printer/printer_selector_for_order_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/reason_cancel_item.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
@@ -38,10 +38,12 @@ class _CancelProductCheckoutBody extends ConsumerStatefulWidget {
   const _CancelProductCheckoutBody({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => __CancelProductCheckoutBodyState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      __CancelProductCheckoutBodyState();
 }
 
-class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheckoutBody> {
+class __CancelProductCheckoutBodyState
+    extends ConsumerState<_CancelProductCheckoutBody> {
   Set<PrinterModel> printerSelect = {};
   bool useDefaultPrinter = true;
 
@@ -68,7 +70,8 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
               Expanded(
                 child: Text(
                   'Huỷ món',
-                  style: AppTextStyle.bold(rawFontSize: AppConfig.defaultRawTextSize + 1.0),
+                  style: AppTextStyle.bold(
+                      rawFontSize: AppConfig.defaultRawTextSize + 1.0),
                 ),
               ),
               const CloseButton(),
@@ -100,10 +103,11 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
                   Expanded(
                     child: Consumer(
                       builder: (context, ref, child) {
-                        var items = ref
-                            .watch(checkoutPageProvider.select((value) => value.productsCheckout));
+                        var items = ref.watch(checkoutPageProvider
+                            .select((value) => value.productsCheckout));
                         return ListView.separated(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
                           itemBuilder: (context, index) {
                             var data = items[index];
                             return _ProductCheckoutLine(productCheckout: data);
@@ -119,15 +123,15 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
               if (!useKds) ...[
                 const VerticalDivider(width: 1),
                 Consumer(builder: (context, ref, child) {
-                  var items =
-                      ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
+                  var items = ref.watch(checkoutPageProvider
+                      .select((value) => value.productsCheckout));
                   Set<int> printerType = {};
                   for (var item in items) {
                     if (item.quantityCancel > 0 && item.printerType != null) {
                       printerType.add(item.printerType!);
                     }
                   }
-                  return ListPrintersDialog(
+                  return PrinterSelectorForOrderAction(
                     width: 400 * (isPhone ? 0.7 : 1.0),
                     title: 'Máy in hủy',
                     onChangePrinterConfig: (p0, p1) {
@@ -163,8 +167,8 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
                   ),
                   Consumer(
                     builder: (context, ref, child) {
-                      var productsCheckout =
-                          ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
+                      var productsCheckout = ref.watch(checkoutPageProvider
+                          .select((value) => value.productsCheckout));
                       double total = 0;
                       for (var p in productsCheckout) {
                         total += max(p.quantity - p.quantityCancel, 0) *
@@ -200,16 +204,19 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
               ),
               const Gap(12),
               Consumer(builder: (context, ref, child) {
-                var productsCheckout =
-                    ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
-                var items = productsCheckout.where((e) => e.quantityCancel > 0).toList();
+                var productsCheckout = ref.watch(checkoutPageProvider
+                    .select((value) => value.productsCheckout));
+                var items = productsCheckout
+                    .where((e) => e.quantityCancel > 0)
+                    .toList();
                 return AppButton(
                   icon: Icons.cancel_outlined,
                   textAction: 'Xác nhận hủy món đã chọn',
                   onPressed: items.isEmpty
                       ? null
                       : () async {
-                          var reason = await showReasonCancelItemDialog(context);
+                          var reason =
+                              await showReasonCancelItemDialog(context);
 
                           if (reason != null && context.mounted) {
                             _processOrder(
@@ -239,13 +246,14 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
     bool processOrder = true,
     List<ProductCheckoutModel> items = const [],
   }) async {
-    var result = await ref.read(checkoutPageProvider.notifier).cancelProductCheckout(
-          reason: reason ?? '',
-          productCheckout: items,
-          printerSelect: useKds ? <PrinterModel>{} : printerSelect,
-          useDefaultPrinter: useKds ? true : useDefaultPrinter,
-          ignorePrint: ignorePrint,
-        );
+    var result =
+        await ref.read(checkoutPageProvider.notifier).cancelProductCheckout(
+              reason: reason ?? '',
+              productCheckout: items,
+              printerSelect: useKds ? <PrinterModel>{} : printerSelect,
+              useDefaultPrinter: useKds ? true : useDefaultPrinter,
+              ignorePrint: ignorePrint,
+            );
     if (result.checkPrinters != null) {
       await showConfirmAction(
         context,
@@ -294,7 +302,8 @@ class _ProductCheckoutLine extends ConsumerStatefulWidget {
   final ProductCheckoutModel productCheckout;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => __ProductCheckoutLineState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      __ProductCheckoutLineState();
 }
 
 class __ProductCheckoutLineState extends ConsumerState<_ProductCheckoutLine> {
@@ -303,15 +312,17 @@ class __ProductCheckoutLineState extends ConsumerState<_ProductCheckoutLine> {
     var item = widget.productCheckout;
     var selected = item.quantityCancel > 0;
     var allProducts = ref.watch(menuProvider.select((value) => value.products));
-    var image = allProducts.firstWhereOrNull((e) => e.id == item.id)?.image ?? '';
+    var image =
+        allProducts.firstWhereOrNull((e) => e.id == item.id)?.image ?? '';
     bool smallDevice = ResponsiveBreakpoints.of(context).smallerThan(TABLET);
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: AppConfig.borderRadiusMain,
-        border:
-            Border.all(color: selected ? AppColors.mainColor : Colors.grey.shade200, width: 1.5),
+        border: Border.all(
+            color: selected ? AppColors.mainColor : Colors.grey.shade200,
+            width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.2),
@@ -338,20 +349,23 @@ class __ProductCheckoutLineState extends ConsumerState<_ProductCheckoutLine> {
                     children: [
                       Text(
                         item.getNameView(),
-                        style: AppTextStyle.medium(rawFontSize: AppConfig.defaultRawTextSize + 0.5),
+                        style: AppTextStyle.medium(
+                            rawFontSize: AppConfig.defaultRawTextSize + 0.5),
                       ),
                       Text.rich(
                         TextSpan(
                           children: [
                             TextSpan(
-                              text: AppUtils.formatCurrency(symbol: 'đ', value: item.unitPrice),
+                              text: AppUtils.formatCurrency(
+                                  symbol: 'đ', value: item.unitPrice),
                             ),
                             const TextSpan(text: '/'),
                             TextSpan(text: item.getUnitView()),
                           ],
                         ),
                         style: AppTextStyle.regular(
-                            color: Colors.grey, rawFontSize: AppConfig.defaultRawTextSize - 1),
+                            color: Colors.grey,
+                            rawFontSize: AppConfig.defaultRawTextSize - 1),
                       ),
                     ],
                   ),
@@ -402,8 +416,10 @@ class __ProductCheckoutLineState extends ConsumerState<_ProductCheckoutLine> {
                           () {
                             var count = item.quantityCancel;
                             if (count <= 0) return;
-                            ref.read(checkoutPageProvider.notifier).changeCancelQuantity(
-                                item.copyWith(quantityCancel: max(0, count - 1)));
+                            ref
+                                .read(checkoutPageProvider.notifier)
+                                .changeCancelQuantity(item.copyWith(
+                                    quantityCancel: max(0, count - 1)));
                           },
                           item.quantityCancel > 0,
                         ),
@@ -412,7 +428,9 @@ class __ProductCheckoutLineState extends ConsumerState<_ProductCheckoutLine> {
                           child: Text(
                             item.quantityCancel.toString(),
                             style: AppTextStyle.bold(
-                                color: item.quantityCancel > 0 ? AppColors.redColor : null),
+                                color: item.quantityCancel > 0
+                                    ? AppColors.redColor
+                                    : null),
                           ),
                         ),
                         _qtyButton(
@@ -420,8 +438,10 @@ class __ProductCheckoutLineState extends ConsumerState<_ProductCheckoutLine> {
                           () {
                             var count = item.quantityCancel;
                             if (count >= item.quantity) return;
-                            ref.read(checkoutPageProvider.notifier).changeCancelQuantity(
-                                item.copyWith(quantityCancel: max(0, count + 1)));
+                            ref
+                                .read(checkoutPageProvider.notifier)
+                                .changeCancelQuantity(item.copyWith(
+                                    quantityCancel: max(0, count + 1)));
                           },
                           item.quantityCancel < item.quantity,
                         ),

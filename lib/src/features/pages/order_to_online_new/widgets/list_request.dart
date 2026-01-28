@@ -1,51 +1,82 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
-import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/request_order.dart';
-import 'package:aladdin_franchise/src/features/pages/order_to_online/components/request_time.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online_new/state.dart';
-import 'package:aladdin_franchise/src/features/pages/order_to_online_new/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
-import 'package:aladdin_franchise/src/features/widgets/image.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../provider.dart';
-import 'request_time.dart';
+import 'request_turn.dart';
 
 class ListO2oRequest extends ConsumerWidget {
   const ListO2oRequest({
     super.key,
     this.o2oData = const {},
   });
-  final Map<O2OOrderModel, Map<String, dynamic>> o2oData;
+  final Map<int, Map<String, dynamic>> o2oData;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var viewMode =
         ref.watch(orderToOnlinePageProvider.select((value) => value.viewMode));
-    final orderSelect = ref
-        .watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
-    var count = o2oData[orderSelect]?['count'] ?? 0;
+    var sortByNewestTime = ref.watch(
+        orderToOnlinePageProvider.select((value) => value.sortByNewestTime));
+    final orderIdSelect = ref.watch(
+        orderToOnlinePageProvider.select((value) => value.orderIdSelect));
     List<RequestOrderModel> requests = List<RequestOrderModel>.from(
-        orderSelect == null ? [] : (o2oData[orderSelect]?['items'] ?? []));
+        orderIdSelect == null ? [] : (o2oData[orderIdSelect]?['items'] ?? []));
+    // xoá tất cả lượt gọi mà ko có món nào (đã được xử lý hết)
+    requests =
+        requests.where((element) => element.listItem.isNotEmpty).toList();
+    if (sortByNewestTime) {
+      // mới nhất -> cũ nhất
+      requests.sort((a, b) => (a.timeOrder == null || b.timeOrder == null)
+          ? 0
+          : b.timeOrder!.compareTo(a.timeOrder!));
+    } else {
+      requests.sort((a, b) => (a.timeOrder == null || b.timeOrder == null)
+          ? 0
+          : a.timeOrder!.compareTo(b.timeOrder!));
+    }
     switch (viewMode) {
       case O2oViewModeEnum.all:
+        if (requests.isEmpty) {
+          return Center(
+            child: Text(
+              'Không có dữ liệu',
+              style: AppTextStyle.regular(
+                color: Colors.grey,
+                rawFontSize: AppConfig.defaultRawTextSize - 0.5,
+              ),
+            ),
+          );
+        }
         return ListView.separated(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          itemBuilder: (context, index) => _RequestItem(
-            request: requests[index],
-            table: 'B10',
-            item: 'Kim chi',
-            status: 'Chờ xử lý',
-            minutes: 8,
-          ),
+          itemBuilder: (context, index) =>
+              RequestTurn(request: requests[index]),
           itemCount: requests.length,
           separatorBuilder: (context, index) => const Gap(12),
         );
       case O2oViewModeEnum.kanban:
-        return Container();
+        var status = [
+          RequestProcessingStatus.waiting,
+          RequestProcessingStatus.accept,
+          RequestProcessingStatus.cancel,
+        ];
+        return ListView.separated(
+          padding: const EdgeInsets.only(top: 12, bottom: 12),
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, index) {
+            var type = status[index];
+            return _KanbanList(
+              status: type,
+              requests: requests,
+            );
+          },
+          itemCount: status.length,
+          separatorBuilder: (context, index) => const Gap(12),
+        );
 
       default:
         return Container();
@@ -53,168 +84,89 @@ class ListO2oRequest extends ConsumerWidget {
   }
 }
 
-class _RequestItem extends ConsumerWidget {
-  final String table;
-  final String item;
-  final String status;
-  final int minutes;
-  final RequestOrderModel request;
-
-  const _RequestItem({
+class _KanbanList extends ConsumerWidget {
+  const _KanbanList({
     super.key,
-    required this.table,
-    required this.item,
     required this.status,
-    required this.minutes,
-    required this.request,
+    this.requests = const [],
   });
+
+  final RequestProcessingStatus status;
+  final List<RequestOrderModel> requests;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final color = switch (status) {
-      'Chờ xử lý' => Colors.orange,
-      'Đã xác nhận' => Colors.green,
-      _ => Colors.red,
-    };
-    var requestSelect = ref.watch(
-        orderToOnlinePageProvider.select((value) => value.requestSelect));
-
-    var itemsSelect = requestSelect?.listItem ?? [];
-
-    final length = request.listItem.length;
-    var selectedCodeProducts = {
-      ...itemsSelect.map((e) => e.codeProduct).toList()
-    };
-    var codeProducts = {...request.listItem.map((e) => e.codeProduct).toList()};
-    bool selectAll = request.id == requestSelect?.id &&
-        const SetEquality().equals(selectedCodeProducts, codeProducts);
+    final items =
+        requests.where((e) => e.requestProcessingStatus == status).toList();
     return Container(
+      width: MediaQuery.of(context).size.width * 0.3,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: AppConfig.borderRadiusMain,
-        border: Border.all(color: Colors.grey.shade300),
-        // boxShadow: [
-        //   BoxShadow()
-        // ],
+        color: status.color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Lượt #${request.orderTimes}',
-                    style: AppTextStyle.bold(),
-                  ),
-                ),
-                if (request.timeOrder != null)
-                  RequestTimeInfo(
-                    dateTime: request.timeOrder!,
-                    requestProcessingStatus: RequestProcessingStatus.waiting,
-                  ),
-              ],
-            ),
-            ListView.separated(
-              padding: EdgeInsets.zero,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                final item = request.listItem[index];
-
-                bool selected = request.id == requestSelect?.id &&
-                    requestSelect?.listItem
-                            .firstWhereOrNull((e) => e.id == item.id) !=
-                        null;
-                return Container();
-                // return RequestItemWidget(
-                //   request: request,
-                //   item: item,
-                //   selected: selected,
-                // );
-              },
-              shrinkWrap: true,
-              separatorBuilder: (context, index) => Divider(
-                color: Colors.grey.shade300,
-                height: 0,
-                indent: 56,
-                thickness: 0.5,
+      child: Column(
+        children: [
+          _KanbanHeader(
+            title: status.title,
+            count: items.length,
+            color: status.color,
+          ),
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.all(8),
+              itemCount: items.length,
+              itemBuilder: (_, i) => RequestTurn(
+                request: items[i],
+                kanbanView: true,
               ),
-              itemCount: length,
+              separatorBuilder: (context, index) => const Gap(12),
             ),
-            // AppImageCacheNetworkWidget(
-            //   imageUrl: request.,
-            //   width: mobileDevice ? 50 : 80,
-            //   height: mobileDevice ? 50 : 80,
-            //   borderRadius: BorderRadius.circular(mobileDevice ? 8 : 20),
-            //   fit: BoxFit.cover,
-            // ),
-            Text(
-              'itemName',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            Text('SL: 1'),
-            const Divider(height: 24),
-            Row(
-              children: [
-                Icon(Icons.access_time, size: 16, color: Colors.grey),
-                const SizedBox(width: 4),
-                const Text('16:18 22-01-2026'),
-                const Spacer(),
-                if (request.userSender.trim().isNotEmpty) ...[
-                  const Icon(Icons.person, size: 16, color: Colors.grey),
-                  const Gap(4),
-                  Text(request.userSender),
-                ],
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    icon: const Icon(Icons.check),
-                    label: const Text('Xác nhận'),
-                    onPressed: () {},
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    icon: const Icon(Icons.close),
-                    label: const Text('Huỷ'),
-                    onPressed: () {},
-                  ),
-                ),
-              ],
-            )
-          ],
-        ),
+          ),
+        ],
       ),
     );
+  }
+}
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: color.withOpacity(0.15),
-          child: Text(table),
-        ),
-        title: Text(item),
-        subtitle: Text('$status • $minutes phút trước'),
-        trailing: Icon(Icons.chevron_right, color: Colors.grey),
+class _KanbanHeader extends StatelessWidget {
+  final String title;
+  final int count;
+  final Color color;
+
+  const _KanbanHeader({
+    required this.title,
+    required this.count,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: AppTextStyle.bold(),
+            ),
+          ),
+          CircleAvatar(
+            radius: 12,
+            backgroundColor: color,
+            child: Text(
+              count.toString(),
+              style: AppTextStyle.bold(
+                color: Colors.white,
+                rawFontSize: AppConfig.defaultRawTextSize - 1.0,
+              ),
+            ),
+          )
+        ],
       ),
     );
   }

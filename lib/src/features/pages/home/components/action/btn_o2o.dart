@@ -41,8 +41,8 @@ class ButtonO2oData extends ConsumerWidget {
         children: [
           InkWell(
             onTap: () {
-              push(context, const OrderToOnlinePage());
-              // push(context, const NewOrderToOnlinePage());
+              // push(context, const OrderToOnlinePage());
+              push(context, const NewOrderToOnlinePage());
             },
             borderRadius: BorderRadius.circular(50),
             child: Container(
@@ -63,8 +63,8 @@ class ButtonO2oData extends ConsumerWidget {
               right: -10,
               child: InkWell(
                 onTap: () {
-                  push(context, const OrderToOnlinePage());
-                  // push(context, const NewOrderToOnlinePage());
+                  // push(context, const OrderToOnlinePage());
+                  push(context, const NewOrderToOnlinePage());
                 },
                 borderRadius: BorderRadius.circular(50),
                 child: Container(

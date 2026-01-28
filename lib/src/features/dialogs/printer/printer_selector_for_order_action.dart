@@ -6,21 +6,18 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/data/enum/printer_type.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
-import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 
-import 'package:aladdin_franchise/src/features/pages/order_to_online/components/custom_checkbox.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
-import 'package:aladdin_franchise/src/utils/subwindows_moniter%20copy.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-Future<PrinterModel?> showPrinterDialog(
+import 'widgets/barrel_widget.dart';
+
+Future<PrinterModel?> showPrinterSelectorForOrderActionDialog(
   BuildContext context,
   PrinterModel? current,
 ) {
@@ -28,30 +25,26 @@ Future<PrinterModel?> showPrinterDialog(
     context: context,
     barrierDismissible: true,
     builder: (_) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: ListPrintersDialog(
-            initPrinters: {if (current != null) current},
-            dialog: true,
-            defaultTypePrinter: [
-              PrinterTypeEnum.total,
-              PrinterTypeEnum.receipt,
-              PrinterTypeEnum.tmp,
-              PrinterTypeEnum.kitchen,
-              PrinterTypeEnum.bar,
-            ].map((e) => e.key).toSet(),
-          ),
-        )),
+      shape: RoundedRectangleBorder(
+        borderRadius: AppConfig.borderRadiusMain,
+      ),
+      child: PrinterSelectorForOrderAction(
+        initPrinters: {if (current != null) current},
+        dialog: true,
+        defaultTypePrinter: [
+          PrinterTypeEnum.total,
+          PrinterTypeEnum.receipt,
+          PrinterTypeEnum.tmp,
+          PrinterTypeEnum.kitchen,
+          PrinterTypeEnum.bar,
+        ].map((e) => e.key).toSet(),
+      ),
+    ),
   );
 }
 
-class ListPrintersDialog extends ConsumerStatefulWidget {
-  const ListPrintersDialog({
+class PrinterSelectorForOrderAction extends ConsumerStatefulWidget {
+  const PrinterSelectorForOrderAction({
     super.key,
     this.initPrinters = const <PrinterModel>{},
     this.title = '',
@@ -59,6 +52,8 @@ class ListPrintersDialog extends ConsumerStatefulWidget {
     this.dialog = false,
     this.width = 400.0,
     this.defaultTypePrinter = const <int>{},
+    this.defaultPrinterProvider,
+    this.onRetryDefaultPrinterProvider,
   });
   final Set<PrinterModel> initPrinters;
   final String title;
@@ -68,12 +63,17 @@ class ListPrintersDialog extends ConsumerStatefulWidget {
   final double width;
 
   final Set<int> defaultTypePrinter;
+  final ProviderListenable<AsyncValue<List<PrinterModel>>>?
+      defaultPrinterProvider;
+  final VoidCallback? onRetryDefaultPrinterProvider;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _ListPrintersDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _PrinterSelectorForOrderActionState();
 }
 
-class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
+class _PrinterSelectorForOrderActionState
+    extends ConsumerState<PrinterSelectorForOrderAction> {
   PrinterModel? selected;
 
   Set<PrinterModel> printerSelect = {};
@@ -169,6 +169,9 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                     _BtnRefreshListPrinters(
                       useDefaultPrinter: useDefaultPrinter,
                       hide: !useDefaultPrinter,
+                      defaultPrinterProvider: widget.defaultPrinterProvider,
+                      onRetryDefaultPrinterProvider:
+                          widget.onRetryDefaultPrinterProvider,
                     ),
                   ],
                 ),
@@ -191,6 +194,9 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                     _BtnRefreshListPrinters(
                       useDefaultPrinter: useDefaultPrinter,
                       hide: useDefaultPrinter,
+                      defaultPrinterProvider: widget.defaultPrinterProvider,
+                      onRetryDefaultPrinterProvider:
+                          widget.onRetryDefaultPrinterProvider,
                     ),
                   ],
                 ),
@@ -199,31 +205,40 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                 child: useDefaultPrinter
                     ? Consumer(
                         builder: (context, ref, child) {
-                          var printers = ref.watch(printerByOrderProvider);
+                          var printers = ref.watch(
+                              widget.defaultPrinterProvider ??
+                                  printerByOrderProvider);
                           return printers.when(
                             skipError: false,
                             skipLoadingOnRefresh: false,
                             skipLoadingOnReload: false,
-                            data: (data) => _ListPrintersSection(
+                            data: (data) => ListPrintersSection(
                               data: data,
                               printerSelect: printerSelect,
                               addPostFrameCallback: (p0) {
                                 var item = p0
-                                    .where((e) => widget.defaultTypePrinter.contains(e.type))
+                                    .where((e) => widget.defaultTypePrinter
+                                        .contains(e.type))
                                     .toSet();
                                 setState(() {
                                   printerSelect = item;
-                                  widget.onChangePrinterConfig?.call(item, useDefaultPrinter);
+                                  widget.onChangePrinterConfig
+                                      ?.call(item, useDefaultPrinter);
                                 });
                               },
                             ),
-                            error: (error, stackTrace) => _FetchListPrintersError(
+                            error: (error, stackTrace) =>
+                                FetchListPrintersError(
                               error: error.toString(),
                               onRetry: () {
-                                ref.refresh(printerByOrderProvider);
+                                if (widget.defaultPrinterProvider != null) {
+                                  widget.onRetryDefaultPrinterProvider?.call();
+                                } else {
+                                  ref.refresh(printerByOrderProvider);
+                                }
                               },
                             ),
-                            loading: () => const _FetchListPrintersLoading(),
+                            loading: () => const FetchListPrintersLoading(),
                           );
                         },
                       )
@@ -234,20 +249,21 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                             skipError: false,
                             skipLoadingOnRefresh: false,
                             skipLoadingOnReload: false,
-                            data: (data) => _ListPrintersSection(
+                            data: (data) => ListPrintersSection(
                               data: data,
                               onSelectPrinter: (p0, p1) {
                                 onChangePrinterSelect(p0, p1);
                               },
                               printerSelect: printerSelect,
                             ),
-                            error: (error, stackTrace) => _FetchListPrintersError(
+                            error: (error, stackTrace) =>
+                                FetchListPrintersError(
                               error: error.toString(),
                               onRetry: () {
                                 ref.refresh(printersProvider);
                               },
                             ),
-                            loading: () => const _FetchListPrintersLoading(),
+                            loading: () => const FetchListPrintersLoading(),
                           );
                         },
                       ),
@@ -263,7 +279,8 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                       color: AppColors.secondColor,
                       onPressed: () {
                         pop(context);
-                        widget.onChangePrinterConfig?.call(printerSelect, useDefaultPrinter);
+                        widget.onChangePrinterConfig
+                            ?.call(printerSelect, useDefaultPrinter);
                       },
                     ),
                   ],
@@ -277,200 +294,28 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
   }
 }
 
-class _FetchListPrintersError extends ConsumerWidget {
-  const _FetchListPrintersError({
-    super.key,
-    required this.error,
-    this.onRetry,
-  });
-
-  final String error;
-  final VoidCallback? onRetry;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Tooltip(
-              message: 'Nhấn để thử lại',
-              child: IconButton(
-                onPressed: onRetry,
-                icon: const Icon(
-                  Icons.refresh,
-                  color: AppColors.redColor,
-                ),
-              ),
-            ),
-            Text(
-              'Không thể tải danh sách máy in',
-              style: AppTextStyle.medium(
-                rawFontSize: AppConfig.defaultRawTextSize,
-                color: AppColors.redColor,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            Text(
-              error,
-              style: AppTextStyle.regular(
-                color: Colors.grey.shade500,
-                rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-              ),
-              maxLines: 10,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FetchListPrintersLoading extends ConsumerWidget {
-  const _FetchListPrintersLoading();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(
-              height: 18,
-              width: 18,
-              child: CircularProgressIndicator(),
-            ),
-            const Gap(8),
-            Text(
-              'Đang tải danh sách máy in',
-              style: AppTextStyle.regular(rawFontSize: AppConfig.defaultRawTextSize),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ListPrintersSection extends ConsumerWidget {
-  const _ListPrintersSection({
-    this.data = const [],
-    this.onSelectPrinter,
-    this.printerSelect = const <PrinterModel>{},
-    this.addPostFrameCallback,
-  });
-
-  final List<PrinterModel> data;
-  final Function(PrinterModel, bool)? onSelectPrinter;
-  final Set<PrinterModel> printerSelect;
-  final Function(Set<PrinterModel>)? addPostFrameCallback;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) {
-        addPostFrameCallback?.call(data.toSet());
-      },
-    );
-    if (data.isEmpty) {
-      return Center(
-        child: Text(
-          'Danh sách máy in trống',
-          style: AppTextStyle.regular(
-            color: Colors.grey.shade400,
-            rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-          ),
-        ),
-      );
-    }
-
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
-      itemCount: data.length,
-      separatorBuilder: (context, index) => const Gap(12),
-      itemBuilder: (context, index) {
-        var printer = data[index];
-        bool selected = printerSelect.contains(printer);
-        return InkWell(
-          onTap: () {
-            onSelectPrinter?.call(printer, !selected);
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(
-                color: selected ? Color.fromARGB(255, 57, 132, 194) : Colors.grey.shade200,
-                width: 1.5,
-              ),
-              borderRadius: AppConfig.borderRadiusMain,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  offset: const Offset(0, 2),
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        printer.name,
-                        style: AppTextStyle.bold(),
-                      ),
-                      Text(
-                        '${printer.ip ?? ''} : ${printer.port ?? ''}',
-                        style: AppTextStyle.regular(
-                          rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (selected)
-                  const Icon(
-                    Icons.check_circle_rounded,
-                    color: Color.fromARGB(255, 57, 132, 194),
-                  ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
 class _BtnRefreshListPrinters extends ConsumerWidget {
   const _BtnRefreshListPrinters({
     super.key,
     this.useDefaultPrinter = true,
     this.hide = false,
+    this.defaultPrinterProvider,
+    this.onRetryDefaultPrinterProvider,
   });
   final bool useDefaultPrinter;
   final bool hide;
+
+  final ProviderListenable<AsyncValue<List<PrinterModel>>>?
+      defaultPrinterProvider;
+  final VoidCallback? onRetryDefaultPrinterProvider;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (hide) return const SizedBox.shrink();
     bool smallDevice = ResponsiveBreakpoints.of(context).smallerThan(TABLET);
     var printers = ref.watch(printersProvider);
-    var printerByOrder = ref.watch(printerByOrderProvider);
+    var printerByOrder =
+        ref.watch(defaultPrinterProvider ?? printerByOrderProvider);
     bool show1 = printers.when(
       skipError: false,
       skipLoadingOnRefresh: false,
@@ -494,7 +339,11 @@ class _BtnRefreshListPrinters extends ConsumerWidget {
       child: IconButton(
         onPressed: () {
           if (useDefaultPrinter) {
-            ref.refresh(printerByOrderProvider);
+            if (defaultPrinterProvider != null) {
+              onRetryDefaultPrinterProvider?.call();
+            } else {
+              ref.refresh(printerByOrderProvider);
+            }
           } else {
             ref.refresh(printersProvider);
           }
@@ -502,7 +351,8 @@ class _BtnRefreshListPrinters extends ConsumerWidget {
         icon: const Icon(Icons.cloud_sync_outlined),
         style: !smallDevice
             ? null
-            : const ButtonStyle(padding: WidgetStatePropertyAll(EdgeInsets.all(0))),
+            : const ButtonStyle(
+                padding: WidgetStatePropertyAll(EdgeInsets.all(0))),
       ),
     );
   }
