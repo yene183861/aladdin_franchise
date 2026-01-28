@@ -79,73 +79,73 @@ class OrderPanelWidget extends ConsumerWidget {
   }
 }
 
-class KitchenNoteWidget extends ConsumerStatefulWidget {
-  const KitchenNoteWidget({super.key});
+// class KitchenNoteWidget extends ConsumerStatefulWidget {
+//   const KitchenNoteWidget({super.key});
 
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __KitchenNoteWidgetState();
-}
+//   @override
+//   ConsumerState<ConsumerStatefulWidget> createState() =>
+//       __KitchenNoteWidgetState();
+// }
 
-class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
-  late TextEditingController _controller;
+// class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
+//   late TextEditingController _controller;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) {
-        _controller.text = ref.read(homeProvider).kitchenNote;
-      },
-    );
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     _controller = TextEditingController();
+//     WidgetsBinding.instance.addPostFrameCallback(
+//       (timeStamp) {
+//         _controller.text = ref.read(homeProvider).kitchenNote;
+//       },
+//     );
+//   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     _controller.dispose();
+//     super.dispose();
+//   }
 
-  _listenChangeNote(BuildContext context, WidgetRef ref) =>
-      (String? previous, String? next) {
-        _controller.text = next ?? '';
-      };
+//   _listenChangeNote(BuildContext context, WidgetRef ref) =>
+//       (String? previous, String? next) {
+//         _controller.text = next ?? '';
+//       };
 
-  @override
-  Widget build(BuildContext context) {
-    ref.listen<String>(
-      homeProvider.select((value) => value.kitchenNote),
-      _listenChangeNote(context, ref),
-    );
+//   @override
+//   Widget build(BuildContext context) {
+//     ref.listen<String>(
+//       homeProvider.select((value) => value.kitchenNote),
+//       _listenChangeNote(context, ref),
+//     );
 
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
-    return TextFormField(
-      controller: _controller,
-      style: AppTextStyle.regular(),
-      decoration: InputDecoration(
-        hintText: S.current.total_note,
-        hintStyle: AppTextStyle.light().copyWith(fontStyle: FontStyle.italic),
-        enabled: !lockedOrder,
-      ),
-      onTapOutside: (event) {
-        FocusManager.instance.primaryFocus?.unfocus();
-        ref
-            .read(homeProvider.notifier)
-            .onChangeKitchenNote(_controller.text.trim());
-      },
-      onChanged: (value) {
-        ref
-            .read(homeProvider.notifier)
-            .onChangeKitchenNote(_controller.text.trim());
-      },
-      onFieldSubmitted: (value) {
-        ref.read(homeProvider.notifier).onChangeKitchenNote(value.trim());
-      },
-    );
-  }
-}
+//     var lockedOrder =
+//         ref.watch(homeProvider.select((value) => value.lockedOrder));
+//     return TextFormField(
+//       controller: _controller,
+//       style: AppTextStyle.regular(),
+//       decoration: InputDecoration(
+//         hintText: S.current.total_note,
+//         hintStyle: AppTextStyle.light().copyWith(fontStyle: FontStyle.italic),
+//         enabled: !lockedOrder,
+//       ),
+//       onTapOutside: (event) {
+//         FocusManager.instance.primaryFocus?.unfocus();
+//         ref
+//             .read(homeProvider.notifier)
+//             .onChangeKitchenNote(_controller.text.trim());
+//       },
+//       onChanged: (value) {
+//         ref
+//             .read(homeProvider.notifier)
+//             .onChangeKitchenNote(_controller.text.trim());
+//       },
+//       onFieldSubmitted: (value) {
+//         ref.read(homeProvider.notifier).onChangeKitchenNote(value.trim());
+//       },
+//     );
+//   }
+// }
 
 class SpinBoxWidget extends ConsumerStatefulWidget {
   const SpinBoxWidget({

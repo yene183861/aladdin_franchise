@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/api.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
+import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/login.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/language.dart';
@@ -24,7 +25,8 @@ final checkConfigApiProvider = Provider<bool>((ProviderRef<bool> ref) {
 });
 
 /// Kiếm tra xem người dùng đã đăng nhập ứng dụng chưa
-final checkLoginProvider = FutureProvider<bool>((FutureProviderRef<bool> ref) async {
+final checkLoginProvider =
+    FutureProvider<bool>((FutureProviderRef<bool> ref) async {
   try {
     final String token = LocalStorage.getToken();
     // Lấy thông tin api url
@@ -43,12 +45,14 @@ final checkLoginProvider = FutureProvider<bool>((FutureProviderRef<bool> ref) as
 
 /// Lấy danh sách sản phẩm đang chọn của đơn hàng hiện tại
 final productsSelectingByOrderProvider =
-    Provider.autoDispose<ProductSelectingModel?>((ProviderRef<ProductSelectingModel?> ref) {
+    Provider.autoDispose<ProductSelectingModel?>(
+        (ProviderRef<ProductSelectingModel?> ref) {
   var orderSelect = ref.watch(homeProvider).orderSelect;
   if (orderSelect != null) {
     final psOrders = LocalStorage.getProductsSelecting();
     try {
-      return psOrders.firstWhere((element) => element.orderId == orderSelect.id);
+      return psOrders
+          .firstWhere((element) => element.orderId == orderSelect.id);
     } catch (ex) {
       return null;
     }
@@ -57,7 +61,8 @@ final productsSelectingByOrderProvider =
 });
 
 /// lấy thông tin của user bao gồm cả thông tin nhà hàng
-final userInfoProvider = Provider<LoginResponse>((ProviderRef<LoginResponse> ref) {
+final userInfoProvider =
+    Provider<LoginResponse>((ProviderRef<LoginResponse> ref) {
   final data = LocalStorage.getDataLogin();
   return data ?? const LoginResponse(status: 200);
 });
@@ -85,14 +90,19 @@ final FutureProvider<List<String>> deviceProvider =
   final networkInfo = await NetworkInfo().getWifiIP();
   final wifiName = await NetworkInfo().getWifiName();
   showLog('load', flags: 'deviceProvider');
-  return [deviceId.toString(), networkInfo.toString(), wifiName ?? "Không xác định"];
+  return [
+    deviceId.toString(),
+    networkInfo.toString(),
+    wifiName ?? "Không xác định"
+  ];
 });
 
 /// get type order for waiter
 /// 0: DEFAULT
 /// 1: ON
 /// 2: OFFLINE
-final typeOrderWaiterProvider = Provider.autoDispose<String>((ProviderRef<String> ref) {
+final typeOrderWaiterProvider =
+    Provider.autoDispose<String>((ProviderRef<String> ref) {
   var type = LocalStorage.getTypeOrderWaiter();
   var typeOrder = "";
   switch (type) {
@@ -160,4 +170,9 @@ final appSettingProvider = Provider<AppSettingModel>((ref) {
 });
 final apiUrlProvider = Provider<String>((ref) {
   return LocalStorage.getApiUrl();
+});
+
+final typeOrderProvider = Provider.autoDispose<TypeOrderEnum>((ref) {
+  var type = LocalStorage.getTypeOrderWaiter();
+  return convertToTypeOrderEnum(type);
 });

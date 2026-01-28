@@ -16,6 +16,7 @@ import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/print_type.dart';
 import 'package:aladdin_franchise/src/data/enum/printer_type.dart';
 import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/login/state.dart';
@@ -31,14 +32,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'state.dart';
 
-final cartPageProvider = StateNotifierProvider.autoDispose<CartPageNotifier, CartPageState>((ref) {
+final cartPageProvider =
+    StateNotifierProvider.autoDispose<CartPageNotifier, CartPageState>((ref) {
   return CartPageNotifier(ref, ref.read(orderRepositoryProvider));
 });
 
 class CartPageNotifier extends StateNotifier<CartPageState> {
-  CartPageNotifier(this.ref, this._orderRepository) : super(const CartPageState());
+  CartPageNotifier(this.ref, this._orderRepository)
+      : super(const CartPageState());
   final Ref ref;
   final OrderRepository _orderRepository;
+
+  void initialize() {
+    var order = ref.read(homeProvider).orderSelect;
+    if (order == null) {
+      showLogs(null, flags: 'cartPageProvider init NO ACTION');
+      state = const CartPageState();
+    } else {
+      showLogs(null, flags: 'cartPageProvider load product selecting');
+    }
+  }
+
   void init(List<ProductModel> products) async {
     state = state.copyWith(productsSelecting: products);
     // await getPrinterDefault();
@@ -268,7 +282,8 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
     return null;
   }
 
-  Future<({String? pingPrinters, String? error, String? resultSendPrintData})> addItemToOrder({
+  Future<({String? pingPrinters, String? error, String? resultSendPrintData})>
+      addItemToOrder({
     String note = '',
     Set<PrinterModel> printerSelect = const {},
     bool useDefaultPrinter = true,
@@ -278,10 +293,12 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
     String? checkPrinters;
     String? resultSendPrintData;
     var order = ref.read(homeProvider).orderSelect;
-    if (order == null) return (pingPrinters: null, error: null, resultSendPrintData: null);
+    if (order == null)
+      return (pingPrinters: null, error: null, resultSendPrintData: null);
     var productSelecting = List<ProductModel>.from(state.productsSelecting);
     var productIdSelect = Set<int>.from(state.productIdSelect);
-    var products = productSelecting.where((e) => productIdSelect.contains(e.id)).toList();
+    var products =
+        productSelecting.where((e) => productIdSelect.contains(e.id)).toList();
     var kitchenNote = note;
     bool showLoading = processOrder || !ignorePrint;
     Set<PrinterModel> printers = <PrinterModel>{};
@@ -296,12 +313,12 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
     //       break;
     //   }
     // }
-    Set<PrinterModel> foodPrinterDefault = <PrinterModel>{}, barPrinterDefault = <PrinterModel>{};
+    Set<PrinterModel> foodPrinterDefault = <PrinterModel>{},
+        barPrinterDefault = <PrinterModel>{};
     try {
       if (showLoading) {
-        ref
-            .read(homeProvider.notifier)
-            .updateEvent(processOrder ? HomeEvent.processOrder : HomeEvent.sendPrintData);
+        ref.read(homeProvider.notifier).updateEvent(
+            processOrder ? HomeEvent.processOrder : HomeEvent.sendPrintData);
       }
       if (!ignorePrint) {
         if (useDefaultPrinter) {
@@ -336,7 +353,8 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
         } else {
           printers = Set<PrinterModel>.from(printerSelect);
         }
-        checkPrinters = await AppPrinterCommon.checkListPrintersStatus(printers.toList());
+        checkPrinters =
+            await AppPrinterCommon.checkListPrintersStatus(printers.toList());
         if (checkPrinters != null) throw checkPrinters;
       }
 
@@ -344,52 +362,57 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
         await _orderRepository.processOrderItem(
           order: order,
           total: products.fold(
-              0.0, (previousValue, p) => previousValue + p.getUnitPriceNum() * p.numberSelecting),
+              0.0,
+              (previousValue, p) =>
+                  previousValue + p.getUnitPriceNum() * p.numberSelecting),
           products: products,
           note: kitchenNote,
           cancel: false,
         );
 
-        ref.read(homeProvider.notifier).getOrderProductCheckout();
-        ref.read(homeProvider.notifier).getDataBill();
+        ref.read(checkoutPageProvider.notifier).getProductCheckouts();
+        ref.read(checkoutPageProvider.notifier).getDataBill();
       }
       if (!ignorePrint) {
         if (useDefaultPrinter) {
           if (drinks.isNotEmpty) {
-            resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
-                  type: PrintTypeEnum.order,
-                  note: kitchenNote,
-                  products: drinks.toList(),
-                  printers: barPrinterDefault.toList(),
-                  timeOrder: 1,
-                  printDirectly: !processOrder,
-                  useDefaultPrinters: true,
-                  totalBill: true,
-                );
+            resultSendPrintData =
+                await ref.read(homeProvider.notifier).sendPrintData(
+                      type: PrintTypeEnum.order,
+                      note: kitchenNote,
+                      products: drinks.toList(),
+                      printers: barPrinterDefault.toList(),
+                      timeOrder: 1,
+                      printDirectly: !processOrder,
+                      useDefaultPrinters: true,
+                      totalBill: true,
+                    );
           }
           if (foods.isNotEmpty) {
-            resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
-                  type: PrintTypeEnum.order,
-                  note: kitchenNote,
-                  products: foods.toList(),
-                  printers: foodPrinterDefault.toList(),
-                  timeOrder: 1,
-                  printDirectly: !processOrder,
-                  useDefaultPrinters: true,
-                  totalBill: true,
-                );
+            resultSendPrintData =
+                await ref.read(homeProvider.notifier).sendPrintData(
+                      type: PrintTypeEnum.order,
+                      note: kitchenNote,
+                      products: foods.toList(),
+                      printers: foodPrinterDefault.toList(),
+                      timeOrder: 1,
+                      printDirectly: !processOrder,
+                      useDefaultPrinters: true,
+                      totalBill: true,
+                    );
           }
         } else {
-          resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
-                type: PrintTypeEnum.order,
-                note: kitchenNote,
-                products: products,
-                printers: printers.toList(),
-                timeOrder: 1,
-                printDirectly: !processOrder,
-                useDefaultPrinters: false,
-                totalBill: true,
-              );
+          resultSendPrintData =
+              await ref.read(homeProvider.notifier).sendPrintData(
+                    type: PrintTypeEnum.order,
+                    note: kitchenNote,
+                    products: products,
+                    printers: printers.toList(),
+                    timeOrder: 1,
+                    printDirectly: !processOrder,
+                    useDefaultPrinters: false,
+                    totalBill: true,
+                  );
         }
       }
       if (processOrder) {
@@ -399,7 +422,8 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
           productIdSelect: <int>{},
         );
       }
-      if (showLoading) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
+      if (showLoading)
+        ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
 
       return (
         pingPrinters: checkPrinters,
@@ -407,7 +431,8 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
         resultSendPrintData: resultSendPrintData,
       );
     } catch (ex) {
-      if (showLoading) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
+      if (showLoading)
+        ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
 
       return (
         pingPrinters: checkPrinters,

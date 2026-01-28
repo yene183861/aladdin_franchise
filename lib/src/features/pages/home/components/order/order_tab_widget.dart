@@ -15,14 +15,16 @@ class OrderTabWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var orderTabs = ref.watch(homeProvider.select((value) => value.orderTabs));
-    var orderTabSelect = ref.watch(homeProvider.select((value) => value.orderTabSelect));
+    var orderTabSelect =
+        ref.watch(homeProvider.select((value) => value.orderTabSelect));
 
     if (orderTabs.length < 2) return const SizedBox.shrink();
     // var currentOrderItems =
     //     ref.watch(homeProvider.select((value) => value.currentOrderItems));
-    var productsSelecting = ref.watch(cartPageProvider.select((value) => value.productsSelecting));
-    var productsCheckout =
-        ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
+    var productsSelecting =
+        ref.watch(cartPageProvider.select((value) => value.productsSelecting));
+    var productsCheckout = ref
+        .watch(checkoutPageProvider.select((value) => value.productsCheckout));
     return Row(
       children: orderTabs.map(
         (e) {
@@ -47,8 +49,8 @@ class OrderTabWidget extends ConsumerWidget {
               loadingSuffix: e == OrderTabEnum.ordered
                   ? Consumer(
                       builder: (context, ref, child) {
-                        var pcState =
-                            ref.watch(homeProvider.select((value) => value.productCheckoutState));
+                        var pcState = ref.watch(checkoutPageProvider
+                            .select((value) => value.productCheckoutState));
                         switch (pcState.status) {
                           case PageCommonState.loading:
                             return const Padding(

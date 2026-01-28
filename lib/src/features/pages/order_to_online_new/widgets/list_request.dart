@@ -23,8 +23,10 @@ class ListO2oRequest extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var viewMode = ref.watch(orderToOnlinePageProvider.select((value) => value.viewMode));
-    final orderSelect = ref.watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
+    var viewMode =
+        ref.watch(orderToOnlinePageProvider.select((value) => value.viewMode));
+    final orderSelect = ref
+        .watch(orderToOnlinePageProvider.select((value) => value.orderSelect));
     var count = o2oData[orderSelect]?['count'] ?? 0;
     List<RequestOrderModel> requests = List<RequestOrderModel>.from(
         orderSelect == null ? [] : (o2oData[orderSelect]?['items'] ?? []));
@@ -74,12 +76,15 @@ class _RequestItem extends ConsumerWidget {
       'Đã xác nhận' => Colors.green,
       _ => Colors.red,
     };
-    var requestSelect = ref.watch(orderToOnlinePageProvider.select((value) => value.requestSelect));
+    var requestSelect = ref.watch(
+        orderToOnlinePageProvider.select((value) => value.requestSelect));
 
     var itemsSelect = requestSelect?.listItem ?? [];
 
     final length = request.listItem.length;
-    var selectedCodeProducts = {...itemsSelect.map((e) => e.codeProduct).toList()};
+    var selectedCodeProducts = {
+      ...itemsSelect.map((e) => e.codeProduct).toList()
+    };
     var codeProducts = {...request.listItem.map((e) => e.codeProduct).toList()};
     bool selectAll = request.id == requestSelect?.id &&
         const SetEquality().equals(selectedCodeProducts, codeProducts);
@@ -119,12 +124,15 @@ class _RequestItem extends ConsumerWidget {
                 final item = request.listItem[index];
 
                 bool selected = request.id == requestSelect?.id &&
-                    requestSelect?.listItem.firstWhereOrNull((e) => e.id == item.id) != null;
-                return RequestItemWidget(
-                  request: request,
-                  item: item,
-                  selected: selected,
-                );
+                    requestSelect?.listItem
+                            .firstWhereOrNull((e) => e.id == item.id) !=
+                        null;
+                return Container();
+                // return RequestItemWidget(
+                //   request: request,
+                //   item: item,
+                //   selected: selected,
+                // );
               },
               shrinkWrap: true,
               separatorBuilder: (context, index) => Divider(
@@ -168,7 +176,8 @@ class _RequestItem extends ConsumerWidget {
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.check),
                     label: const Text('Xác nhận'),
@@ -180,7 +189,8 @@ class _RequestItem extends ConsumerWidget {
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.close),
                     label: const Text('Huỷ'),

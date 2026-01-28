@@ -5,6 +5,7 @@ import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
@@ -122,7 +123,7 @@ Future<bool> showSelectReservationDialog({
                                 .trim();
                             if (phone.isNotEmpty) {
                               var result = await ref
-                                  .read(homeProvider.notifier)
+                                  .read(checkoutPageProvider.notifier)
                                   .findCustomer(
                                     phone,
                                     loadingHome: true,

@@ -16,6 +16,8 @@ import 'package:aladdin_franchise/src/features/dialogs/order/order_option_dialog
 import 'package:aladdin_franchise/src/features/dialogs/processing.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/view.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/state.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/action/btn_o2o.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/widgets/list_tag.dart';
@@ -76,14 +78,17 @@ class HomePage extends ConsumerStatefulWidget {
   ConsumerState createState() => _HomePageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver {
-  _listenEvent(BuildContext context, WidgetRef ref) => (HomeEvent? previous, HomeEvent? next) {
+class _HomePageState extends ConsumerState<HomePage>
+    with WidgetsBindingObserver {
+  _listenEvent(BuildContext context, WidgetRef ref) =>
+      (HomeEvent? previous, HomeEvent? next) {
         switch (next) {
           case HomeEvent.checkCode:
             showProcessingDialog(context, message: S.current.verifying);
             break;
           case HomeEvent.createNewOrder:
-            showProcessingDialog(context, message: S.current.creating_a_new_order);
+            showProcessingDialog(context,
+                message: S.current.creating_a_new_order);
             break;
           case HomeEvent.updateOrder:
             showProcessingDialog(context, message: S.current.updating_order);
@@ -92,25 +97,31 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             showProcessingDialog(context, message: S.current.cancel_order);
             break;
           case HomeEvent.loadingChangeOrderCurrent:
-            showProcessingDialog(context, message: S.current.updating_order_panel);
+            showProcessingDialog(context,
+                message: S.current.updating_order_panel);
             break;
           case HomeEvent.transferOrder:
-            showProcessingDialog(context, message: S.current.orders_are_being_delivered);
+            showProcessingDialog(context,
+                message: S.current.orders_are_being_delivered);
             break;
           case HomeEvent.processOrder:
             showProcessingDialog(context, message: S.current.processing);
             break;
           case HomeEvent.cancelDishInOrder:
-            showProcessingDialog(context, message: S.current.sending_request_to_cancel_order);
+            showProcessingDialog(context,
+                message: S.current.sending_request_to_cancel_order);
             break;
           case HomeEvent.paymentProcess:
-            showProcessingDialog(context, message: S.current.processing_payment);
+            showProcessingDialog(context,
+                message: S.current.processing_payment);
             break;
           case HomeEvent.checkLocalNetwork:
-            showProcessingDialog(context, message: S.current.checking_connection);
+            showProcessingDialog(context,
+                message: S.current.checking_connection);
             break;
           case HomeEvent.updateTypeOrderWaiter:
-            showProcessingDialog(context, message: S.current.changing_form_of_sell_mode);
+            showProcessingDialog(context,
+                message: S.current.changing_form_of_sell_mode);
             break;
           case HomeEvent.switchAccount:
             showProcessingDialog(
@@ -122,7 +133,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             Navigator.pop(context);
             showDoneSnackBar(
               context: context,
-              message: "${S.current.switched_accounts} ${ref.read(userInfoProvider).user?.name} "
+              message:
+                  "${S.current.switched_accounts} ${ref.read(userInfoProvider).user?.name} "
                   "(${ref.read(userInfoProvider).user?.username?.toUpperCase()})",
             );
             break;
@@ -131,7 +143,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             break;
           case HomeEvent.errorInfo:
             Navigator.pop(context);
-            showMessageDialog(context, message: ref.read(homeProvider.notifier).getMessageError());
+            showMessageDialog(context,
+                message: ref.read(homeProvider.notifier).getMessageError());
             break;
           case HomeEvent.findingCustomer:
             showProcessingDialog(context, message: S.current.getInfoProcessing);
@@ -148,7 +161,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
           case HomeEvent.removeTicket:
             showProcessingDialog(
               context,
-              message: "${S.current.canceling} ${S.current.discount.toLowerCase()}",
+              message:
+                  "${S.current.canceling} ${S.current.discount.toLowerCase()}",
             );
             break;
           case HomeEvent.findingTaxCode:
@@ -159,11 +173,13 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             break;
           case HomeEvent.updateInvoice:
             showProcessingDialog(context,
-                message: "${S.current.updating} ${S.current.invoice.toLowerCase()}");
+                message:
+                    "${S.current.updating} ${S.current.invoice.toLowerCase()}");
             break;
           case HomeEvent.insertInvoice:
             showProcessingDialog(context,
-                message: "${S.current.creating} ${S.current.invoice.toLowerCase()}");
+                message:
+                    "${S.current.creating} ${S.current.invoice.toLowerCase()}");
             break;
           case HomeEvent.unlockOrder:
             showProcessingDialog(
@@ -254,34 +270,275 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             );
             break;
           case HomeEvent.getDataBill:
-            showProcessingDialog(context, message: S.current.updating_payment_info);
+            showProcessingDialog(context,
+                message: S.current.updating_payment_info);
             break;
           case HomeEvent.getProductCheckout:
-            showProcessingDialog(context, message: S.current.updating_payment_info);
+            showProcessingDialog(context,
+                message: S.current.updating_payment_info);
             break;
           case HomeEvent.checkPrinter:
-            showProcessingDialog(context, message: S.current.checking_printer_status);
+            showProcessingDialog(context,
+                message: S.current.checking_printer_status);
             break;
           // coupon
           case HomeEvent.removeCoupon:
             showProcessingDialog(
               context,
-              message: "${S.current.canceling} ${S.current.discount.toLowerCase()}",
+              message:
+                  "${S.current.canceling} ${S.current.discount.toLowerCase()}",
             );
             break;
           case HomeEvent.lockOrder:
-            showProcessingDialog(context, message: 'Đang khóa thao tác đơn bàn...');
+            showProcessingDialog(context,
+                message: 'Đang khóa thao tác đơn bàn...');
             break;
           case HomeEvent.updateReservation:
-            showProcessingDialog(context, message: 'Đang cập nhật lịch đặt bàn...');
+            showProcessingDialog(context,
+                message: 'Đang cập nhật lịch đặt bàn...');
             break;
           case HomeEvent.updateOrderReservation:
-            showProcessingDialog(context, message: 'Đang thay đổi lịch đặt bàn của đơn...');
+            showProcessingDialog(context,
+                message: 'Đang thay đổi lịch đặt bàn của đơn...');
             break;
           case HomeEvent.addCoupon:
             showProcessingDialog(context, message: S.current.checking);
             break;
           case HomeEvent.saveO2oConfig:
+            showProcessingDialog(context, message: 'Đang lưu cấu hình');
+            break;
+          // case HomeEvent.sendPrintData:
+          //   showProcessingDialog(context, message: 'Đang gửi lệnh in ');
+          //   break;
+          default:
+            break;
+        }
+      };
+  _listenCheckoutEvent(BuildContext context, WidgetRef ref) =>
+      (CheckoutEvent? previous, CheckoutEvent? next) {
+        switch (next) {
+          case CheckoutEvent.checkCode:
+            showProcessingDialog(context, message: S.current.verifying);
+            break;
+          case CheckoutEvent.createNewOrder:
+            showProcessingDialog(context,
+                message: S.current.creating_a_new_order);
+            break;
+          case CheckoutEvent.updateOrder:
+            showProcessingDialog(context, message: S.current.updating_order);
+            break;
+          case CheckoutEvent.cancelOrder:
+            showProcessingDialog(context, message: S.current.cancel_order);
+            break;
+          case CheckoutEvent.loadingChangeOrderCurrent:
+            showProcessingDialog(context,
+                message: S.current.updating_order_panel);
+            break;
+          case CheckoutEvent.transferOrder:
+            showProcessingDialog(context,
+                message: S.current.orders_are_being_delivered);
+            break;
+          case CheckoutEvent.processOrder:
+            showProcessingDialog(context, message: S.current.processing);
+            break;
+          case CheckoutEvent.cancelDishInOrder:
+            showProcessingDialog(context,
+                message: S.current.sending_request_to_cancel_order);
+            break;
+          case CheckoutEvent.paymentProcess:
+            showProcessingDialog(context,
+                message: S.current.processing_payment);
+            break;
+          case CheckoutEvent.checkLocalNetwork:
+            showProcessingDialog(context,
+                message: S.current.checking_connection);
+            break;
+          case CheckoutEvent.updateTypeOrderWaiter:
+            showProcessingDialog(context,
+                message: S.current.changing_form_of_sell_mode);
+            break;
+          case CheckoutEvent.switchAccount:
+            showProcessingDialog(
+              context,
+              message: S.current.switching_accounts,
+            );
+            break;
+          case CheckoutEvent.switchAccountSuccess:
+            Navigator.pop(context);
+            showDoneSnackBar(
+              context: context,
+              message:
+                  "${S.current.switched_accounts} ${ref.read(userInfoProvider).user?.name} "
+                  "(${ref.read(userInfoProvider).user?.username?.toUpperCase()})",
+            );
+            break;
+          case CheckoutEvent.normal:
+            Navigator.pop(context);
+            break;
+          case CheckoutEvent.errorInfo:
+            Navigator.pop(context);
+            showMessageDialog(context,
+                message: ref.read(homeProvider.notifier).getMessageError());
+            break;
+          case CheckoutEvent.findingCustomer:
+            showProcessingDialog(context, message: S.current.getInfoProcessing);
+            break;
+          case CheckoutEvent.createCustomer:
+            showProcessingDialog(context, message: S.current.creating_customer);
+            break;
+          case CheckoutEvent.checkTicket:
+            showProcessingDialog(
+              context,
+              message: S.current.checking,
+            );
+            break;
+          case CheckoutEvent.removeTicket:
+            showProcessingDialog(
+              context,
+              message:
+                  "${S.current.canceling} ${S.current.discount.toLowerCase()}",
+            );
+            break;
+          case CheckoutEvent.findingTaxCode:
+            showProcessingDialog(
+              context,
+              message: S.current.finding_by_tax_code,
+            );
+            break;
+          case CheckoutEvent.updateInvoice:
+            showProcessingDialog(context,
+                message:
+                    "${S.current.updating} ${S.current.invoice.toLowerCase()}");
+            break;
+          case CheckoutEvent.insertInvoice:
+            showProcessingDialog(context,
+                message:
+                    "${S.current.creating} ${S.current.invoice.toLowerCase()}");
+            break;
+          case CheckoutEvent.unlockOrder:
+            showProcessingDialog(
+              context,
+              // message: S.current.closing_order_payment,
+              message: S.current.unlocking_order,
+            );
+            break;
+          case CheckoutEvent.processed:
+            Navigator.pop(context);
+            break;
+          case CheckoutEvent.processError:
+            Navigator.pop(context);
+
+            // showErrorDialog(
+            //   context,
+            //   message: ref.read(homeProvider.notifier).getMessageError(),
+            // );
+            showMessageDialog(
+              context,
+              message: ref.read(homeProvider.notifier).getMessageError(),
+            );
+            break;
+          case CheckoutEvent.checkPaymentMethod:
+            showProcessingDialog(
+              context,
+              message: S.current.checking_payment_method,
+            );
+            break;
+          case CheckoutEvent.removeCustomer:
+            showProcessingDialog(
+              context,
+              message: S.current.removing_customer,
+            );
+            break;
+          case CheckoutEvent.applyPolicy:
+            showProcessingDialog(
+              context,
+              message: S.current.applied_policy,
+            );
+            break;
+          case CheckoutEvent.printProduct:
+            showProcessingDialog(
+              context,
+              message: S.current.sending_bill_kitchen,
+            );
+            break;
+          case CheckoutEvent.completeBillAgain:
+            showProcessingDialog(
+              context,
+              message: S.current.completing_order,
+            );
+            break;
+          case CheckoutEvent.cancelProductsCheckout:
+            showProcessingDialog(
+              context,
+              message: S.current.cancelling_item,
+            );
+            break;
+          case CheckoutEvent.sendTicket:
+            showProcessingDialog(
+              context,
+              message: S.current.sending_ticket,
+            );
+            break;
+          case CheckoutEvent.getPaymentGateway:
+            showProcessingDialog(
+              context,
+              message: S.current.loading_payment_gateway_url,
+            );
+            break;
+          case CheckoutEvent.dynamicPosCallback:
+            showProcessingDialog(
+              context,
+              message: S.current.sending_command_pos,
+            );
+            break;
+          case CheckoutEvent.closingShift:
+            showProcessingDialog(
+              context,
+              message: S.current.system_closing_shift,
+            );
+            break;
+          case CheckoutEvent.updateTax:
+            showProcessingDialog(
+              context,
+              message: S.current.updating_tax,
+            );
+            break;
+          case CheckoutEvent.getDataBill:
+            showProcessingDialog(context,
+                message: S.current.updating_payment_info);
+            break;
+          case CheckoutEvent.getProductCheckout:
+            showProcessingDialog(context,
+                message: S.current.updating_payment_info);
+            break;
+          case CheckoutEvent.checkPrinter:
+            showProcessingDialog(context,
+                message: S.current.checking_printer_status);
+            break;
+          // coupon
+          case CheckoutEvent.removeCoupon:
+            showProcessingDialog(
+              context,
+              message:
+                  "${S.current.canceling} ${S.current.discount.toLowerCase()}",
+            );
+            break;
+          case CheckoutEvent.lockOrder:
+            showProcessingDialog(context,
+                message: 'Đang khóa thao tác đơn bàn...');
+            break;
+          case CheckoutEvent.updateReservation:
+            showProcessingDialog(context,
+                message: 'Đang cập nhật lịch đặt bàn...');
+            break;
+          case CheckoutEvent.updateOrderReservation:
+            showProcessingDialog(context,
+                message: 'Đang thay đổi lịch đặt bàn của đơn...');
+            break;
+          case CheckoutEvent.addCoupon:
+            showProcessingDialog(context, message: S.current.checking);
+            break;
+          case CheckoutEvent.saveO2oConfig:
             showProcessingDialog(context, message: 'Đang lưu cấu hình');
             break;
           // case HomeEvent.sendPrintData:
@@ -321,20 +578,28 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
       _listenEvent(context, ref),
     );
 
+    ref.listen<CheckoutEvent>(
+      checkoutPageProvider.select((value) => value.event),
+      _listenCheckoutEvent(context, ref),
+    );
+
     var viewPadding = MediaQuery.of(context).viewPadding;
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation =
+        AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool showOrderInfo = !(isMobile || (isTablet && portraitOrientation));
-    bool orderDetailSidePanel = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+    bool orderDetailSidePanel =
+        ResponsiveBreakpoints.of(context).largerThan(TABLET);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       drawer: const HomeDrawer(),
       body: Stack(
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(viewPadding.left, viewPadding.top, 0, 0),
+            padding:
+                EdgeInsets.fromLTRB(viewPadding.left, viewPadding.top, 0, 0),
             child: Row(
               children: [
                 const Expanded(flex: 1, child: MenuPage()),
@@ -349,10 +614,13 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
           ),
           Consumer(
             builder: (context, ref, child) {
-              bool useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-              final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
+              bool useO2o =
+                  LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+              final orderSelect =
+                  ref.watch(homeProvider.select((value) => value.orderSelect));
 
-              bool smallDevice = ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
+              bool smallDevice =
+                  ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
 
               return orderSelect == null
                   ? const SizedBox.shrink()
@@ -360,8 +628,9 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                       ? const SizedBox.shrink()
                       : FloatBubble(
                           show: true,
-                          initialAlignment:
-                              smallDevice ? Alignment(1, (140 / 100.w) - 1) : Alignment.topRight,
+                          initialAlignment: smallDevice
+                              ? Alignment(1, (140 / 100.w) - 1)
+                              : Alignment.topRight,
                           child: GestureDetector(
                             onTap: () {
                               _showChatPopup(ref);
@@ -396,8 +665,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                   alignment: Alignment.center,
                   child: Consumer(
                     builder: (context, ref, child) {
-                      var orderSelect =
-                          ref.watch(homeProvider.select((value) => value.orderSelect));
+                      var orderSelect = ref.watch(
+                          homeProvider.select((value) => value.orderSelect));
                       if (orderSelect == null) {
                         return GestureDetector(
                           onTap: () {
@@ -431,7 +700,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                                 Flexible(
                                   child: Text(
                                     "${S.current.table} ${orderSelect.getNameView()}",
-                                    style: AppTextStyle.bold(color: Colors.white),
+                                    style:
+                                        AppTextStyle.bold(color: Colors.white),
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
@@ -448,13 +718,19 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                         AppButton(
                           textAction: S.of(context).payment,
                           onPressed: () async {
-                            if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
-                              showMessageDialog(context, message: S.current.noOrderSelect);
+                            if (ref
+                                    .read(homeProvider.notifier)
+                                    .getOrderSelect() ==
+                                null) {
+                              showMessageDialog(context,
+                                  message: S.current.noOrderSelect);
                               return;
                             }
 
-                            final OrderModel? order = await Navigator.of(context)
-                                .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
+                            final OrderModel? order =
+                                await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                        builder: (context) => CheckoutPage()));
                           },
                         ),
                         // AppButtonWidget(
@@ -488,7 +764,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
       _overlayEntry?.remove();
       _overlayEntry = null;
     }
-    RenderBox renderBox = _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
+    RenderBox renderBox =
+        _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
     var buttonPosition = renderBox.localToGlobal(Offset.zero);
     var buttonSize = renderBox.size;
 
@@ -558,7 +835,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                   child: Column(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
                         decoration: const BoxDecoration(
                           color: AppColors.bgTitleChatPopup,
                           borderRadius: BorderRadius.only(
@@ -584,20 +862,22 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                           ],
                         ),
                       ),
-                      Expanded(
-                        child: Consumer(builder: (context, ref, child) {
-                          final getChatMessageState =
-                              ref.watch(homeProvider.select((value) => value.getChatMessageState));
+                      // Expanded(
+                      //   child: Consumer(builder: (context, ref, child) {
+                      //     final getChatMessageState = ref.watch(homeProvider
+                      //         .select((value) => value.getChatMessageState));
 
-                          final chatMessages =
-                              ref.watch(homeProvider.select((value) => value.chatMessages));
-                          return ListChatWidget(
-                            state: getChatMessageState,
-                            chatMessages: chatMessages,
-                            onReload: ref.read(homeProvider.notifier).getO2OChatMessages,
-                          );
-                        }),
-                      ),
+                      //     final chatMessages = ref.watch(homeProvider
+                      //         .select((value) => value.chatMessages));
+                      //     return ListChatWidget(
+                      //       state: getChatMessageState,
+                      //       chatMessages: chatMessages,
+                      //       onReload: ref
+                      //           .read(homeProvider.notifier)
+                      //           .getO2OChatMessages,
+                      //     );
+                      //   }),
+                      // ),
                     ],
                   ),
                 ),
@@ -619,12 +899,16 @@ class CartInfoWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var numberOfProduct = 0;
     var totalOrder = 0.0;
-    var productsSelecting = ref.watch(cartPageProvider.select((value) => value.productsSelecting));
-    var price = ref.watch(homeProvider.select((value) => value.dataBill.price));
-    var priceState = ref.watch(homeProvider.select((value) => value.dataBillState));
+    var productsSelecting =
+        ref.watch(cartPageProvider.select((value) => value.productsSelecting));
+    var price =
+        ref.watch(checkoutPageProvider.select((value) => value.dataBill.price));
+    var priceState =
+        ref.watch(checkoutPageProvider.select((value) => value.dataBillState));
     numberOfProduct = productsSelecting.length;
     for (var element in productsSelecting) {
-      totalOrder += (double.tryParse(element.unitPrice) ?? 0) * element.numberSelecting;
+      totalOrder +=
+          (double.tryParse(element.unitPrice) ?? 0) * element.numberSelecting;
     }
     Widget priceView = Container();
 
@@ -637,7 +921,7 @@ class CartInfoWidget extends ConsumerWidget {
       case PageCommonState.error:
         priceView = InkWell(
           onTap: () {
-            ref.read(homeProvider.notifier).getDataBill();
+            ref.read(checkoutPageProvider.notifier).getDataBill();
           },
           child: Text(
             S.current.errorAndPressAgain,

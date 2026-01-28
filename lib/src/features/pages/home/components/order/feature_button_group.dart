@@ -207,8 +207,8 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
           Expanded(
             flex: 1,
             child: Consumer(builder: (context, ref, child) {
-              var customer =
-                  ref.watch(homeProvider.select((value) => value.customer));
+              var customer = ref.watch(
+                  checkoutPageProvider.select((value) => value.customer));
 
               return Tooltip(
                 message: customer == null
@@ -241,11 +241,11 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
             flex: 1,
             child: Consumer(
               builder: (context, ref, child) {
-                var invoice =
-                    ref.watch(homeProvider.select((value) => value.invoice));
+                var invoice = ref.watch(
+                    checkoutPageProvider.select((value) => value.invoice));
 
-                var state = ref.watch(
-                    homeProvider.select((value) => value.orderInvoiceState));
+                var state = ref.watch(checkoutPageProvider
+                    .select((value) => value.orderInvoiceState));
 
                 return ButtonSimpleWidget(
                   textAction: S.of(context).invoice,
@@ -262,7 +262,7 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
                       return;
                     }
                     if (state.status == PageCommonState.error) {
-                      ref.read(homeProvider.notifier).getOrderInvoice();
+                      ref.read(checkoutPageProvider.notifier).getInvoice();
                       return;
                     }
                     await showCreateInvoiceOrderDialog(
@@ -306,8 +306,8 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
         const Gap(8),
         Expanded(
           child: Consumer(builder: (context, ref, child) {
-            var coupons =
-                ref.watch(homeProvider.select((value) => value.coupons));
+            var coupons = ref
+                .watch(checkoutPageProvider.select((value) => value.coupons));
             return ButtonSimpleWidget(
               padding: defaultPaddingFeatureBtn,
               onPressed: () async {
@@ -433,7 +433,7 @@ void paymentBtnCallback({
     return;
   }
 
-  var customer = ref.read(homeProvider).customer;
+  var customer = ref.read(checkoutPageProvider).customer;
   if (customer == null) {
     var res = await showConfirmAction(
       context,
@@ -460,16 +460,14 @@ void paymentBtnCallback({
   }
 
   try {
-    ref.read(homeProvider.notifier).resetPaymentAndBank();
+    ref.read(checkoutPageProvider.notifier).resetPaymentAndBank();
 
     state = ref.read(homeProvider);
-    await ref.read(homeProvider.notifier).lockOrder(loadingHome: true);
+    await ref.read(homeProvider.notifier).lockOrder();
 
-    await ref.read(homeProvider.notifier).getOrderProductCheckout(
-          applyPolicy: false,
-          loadingHome: true,
-          ignoreGetDataBill: true,
-        );
+    await ref
+        .read(checkoutPageProvider.notifier)
+        .getProductCheckouts(showLoading: true);
     productsCheckout = List<ProductCheckoutModel>.from(
         ref.read(checkoutPageProvider).productsCheckout);
     if (productsCheckout.isEmpty) {
@@ -497,8 +495,9 @@ void paymentBtnCallback({
       },
       actionTitle: S.current.save_and_continue_payment,
       action: () async {
-        var res =
-            await ref.read(homeProvider.notifier).onUpdateTax(productsCheckout);
+        var res = await ref
+            .read(checkoutPageProvider.notifier)
+            .onUpdateTax(productsCheckout);
         if (res.error != null) {
           showMessageDialog(context, message: res.error ?? '', canPop: false);
           return;
@@ -509,12 +508,12 @@ void paymentBtnCallback({
       },
     );
     if (updateSuccess && context.mounted) {
-      await ref.read(homeProvider.notifier).getOrderProductCheckout(
-            applyPolicy: false,
-            loadingHome: true,
-            ignoreGetDataBill: false,
-          );
-      await ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
+      await ref
+          .read(checkoutPageProvider.notifier)
+          .getProductCheckouts(showLoading: true);
+      await ref
+          .read(checkoutPageProvider.notifier)
+          .getDataBill(showLoading: true);
       var check = checkLatestPaymentInfo(ref);
       if (check.errorApplyPolicy != null ||
           check.errorGetProductCheckout != null ||
@@ -544,7 +543,7 @@ void paymentBtnCallback({
   String? errorApplyPolicy,
   String? errorGetDataBill,
 }) checkLatestPaymentInfo(WidgetRef ref) {
-  var state = ref.read(homeProvider);
+  var state = ref.read(checkoutPageProvider);
   String? errorGetProductCheckout, errorApplyPolicy, errorGetDataBill;
   switch (state.productCheckoutState.status) {
     case PageCommonState.loading:

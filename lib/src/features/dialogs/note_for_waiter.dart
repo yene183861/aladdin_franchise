@@ -1,4 +1,5 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/title_line.dart';
@@ -21,9 +22,11 @@ class CheckoutNoteForWaiterWidget extends ConsumerWidget {
           multiLine: true,
           textInputAction: TextInputAction.newline,
           hintText: S.current.enter_note_content,
-          initialValue: ref.read(homeProvider).completeNote,
+          initialValue: ref.read(checkoutPageProvider).completeNote,
           onChanged: (value) {
-            ref.read(homeProvider.notifier).onChangeCompleteNote(value.trim());
+            // ref
+            //     .read(checkoutPageProvider.notifier)
+            //     .onChangeCompleteNote(value.trim());
           },
         ),
       ],

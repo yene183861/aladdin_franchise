@@ -2,6 +2,7 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
@@ -16,7 +17,8 @@ class ListPosATMWidget extends ConsumerStatefulWidget {
   const ListPosATMWidget({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _ListPosATMWidgettState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _ListPosATMWidgettState();
 }
 
 class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
@@ -24,15 +26,18 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.read(homeProvider.notifier).getListAtmPos();
+      ref.read(checkoutPageProvider.notifier).getListAtmPos();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    var atmPosSelect = ref.watch(homeProvider.select((value) => value.atmPosSelect));
-    var orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
-    var dataBill = ref.watch(homeProvider.select((value) => value.dataBill));
+    var atmPosSelect =
+        ref.watch(checkoutPageProvider.select((value) => value.atmPosSelect));
+    var orderSelect =
+        ref.watch(homeProvider.select((value) => value.orderSelect));
+    var dataBill =
+        ref.watch(checkoutPageProvider.select((value) => value.dataBill));
 
     return SingleChildScrollView(
       child: Column(
@@ -60,7 +65,8 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
                 const Gap(4),
                 _TitleLine(
                   title: '${S.current.total_amount}: ',
-                  content: AppUtils.formatCurrency(value: dataBill.price.totalPriceFinal),
+                  content: AppUtils.formatCurrency(
+                      value: dataBill.price.totalPriceFinal),
                   // AppConfig.formatCurrency().format(dataBill.price.totalPriceFinal),
                 ),
                 if (atmPosSelect != null) ...[
@@ -76,8 +82,10 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
           const Gap(12),
           Consumer(
             builder: (context, ref, child) {
-              var listAtmPos = ref.watch(homeProvider.select((value) => value.listAtmPos));
-              var state = ref.watch(homeProvider.select((value) => value.listAtmPosState));
+              var listAtmPos = ref.watch(
+                  checkoutPageProvider.select((value) => value.listAtmPos));
+              var state = ref.watch(checkoutPageProvider
+                  .select((value) => value.listAtmPosState));
 
               switch (state.status) {
                 case PageCommonState.loading:
@@ -89,7 +97,7 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
                   return AppErrorSimpleWidget(
                     message: state.messageError,
                     onTryAgain: () {
-                      ref.read(homeProvider.notifier).getListAtmPos();
+                      ref.read(checkoutPageProvider.notifier).getListAtmPos();
                     },
                   );
                 case PageCommonState.success:
@@ -111,13 +119,16 @@ class _ListPosATMWidgettState extends ConsumerState<ListPosATMWidget> {
                                 padding: const EdgeInsets.only(bottom: 8),
                                 child: InkWell(
                                   onTap: () {
-                                    ref.read(homeProvider.notifier).onChangeAtmPosSelect(e);
+                                    ref
+                                        .read(checkoutPageProvider.notifier)
+                                        .onChangeAtmPosSelect(e);
                                   },
                                   borderRadius: AppConfig.borderRadiusMain,
                                   child: Container(
-                                    constraints: const BoxConstraints(minWidth: 500),
-                                    padding:
-                                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    constraints:
+                                        const BoxConstraints(minWidth: 500),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 12),
                                     decoration: BoxDecoration(
                                       border: Border.all(
                                           color: atmPosSelect == e
@@ -167,7 +178,9 @@ class _TitleLine extends StatelessWidget {
       TextSpan(
           text: title,
           children: [
-            TextSpan(text: content, style: contentTextStyle ?? AppTextStyle.regular()),
+            TextSpan(
+                text: content,
+                style: contentTextStyle ?? AppTextStyle.regular()),
           ],
           style: titleTextStyle),
       style: titleTextStyle ?? AppTextStyle.bold(),

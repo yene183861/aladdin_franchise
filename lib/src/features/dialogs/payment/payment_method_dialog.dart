@@ -47,7 +47,8 @@ Future<void> onSelectPaymentMethod({
     textCancel: S.current.close,
     closeDialog: false,
     action: () async {
-      var paymentMethodSelect = ref.read(homeProvider).paymentMethodSelected;
+      var paymentMethodSelect =
+          ref.read(checkoutPageProvider).paymentMethodSelected;
       if (paymentMethodSelect == null) {
         showMessageDialog(context,
             message: S.current.payment_method_not_select);
@@ -61,7 +62,7 @@ Future<void> onSelectPaymentMethod({
       }
 
       if (paymentMethodSelect.isBank) {
-        if (ref.read(homeProvider).bankSelect == null) {
+        if (ref.read(checkoutPageProvider).bankSelect == null) {
           showMessageDialog(context, message: S.current.no_bank_select);
           return;
         }
@@ -79,7 +80,7 @@ Future<void> onSelectPaymentMethod({
           textCancel: S.current.close,
           closeDialog: false,
           onCheckAction: () {
-            var posSelect = ref.read(homeProvider).atmPosSelect;
+            var posSelect = ref.read(checkoutPageProvider).atmPosSelect;
             if (posSelect == null) {
               showMessageDialog(
                 context,
@@ -90,7 +91,7 @@ Future<void> onSelectPaymentMethod({
             return true;
           },
           action: () async {
-            var posSelect = ref.read(homeProvider).atmPosSelect;
+            var posSelect = ref.read(checkoutPageProvider).atmPosSelect;
 
             if (posSelect == null) {
               showMessageDialog(
@@ -104,7 +105,8 @@ Future<void> onSelectPaymentMethod({
         );
 
         /// setting = 1 - cà thẻ tĩnh, 2 - cà thẻ động
-        showLogs(ref.read(homeProvider).atmPosSelect, flags: 'máy cà thẻ');
+        showLogs(ref.read(checkoutPageProvider).atmPosSelect,
+            flags: 'máy cà thẻ');
         if (res != true) {
           return;
         }
@@ -115,10 +117,9 @@ Future<void> onSelectPaymentMethod({
       );
     },
     actionCancel: () async {
-      ref.read(homeProvider.notifier).onChangeCashReceivedAmount(0);
+      ref.read(checkoutPageProvider.notifier).onChangeCashReceivedAmount(0);
       // unlock đơn bàn (mặc định get phương thức thanh toán thì bàn đã khóa)
-      await ref.read(homeProvider.notifier).unlockOrder();
-      // ref.read(homeProvider.notifier).onUpdateDefaultTax();
+      await ref.read(homeProvider.notifier).lockOrder(lock: false);
     },
   );
 }
@@ -134,7 +135,8 @@ Future<void> showConfirmCompleteBillDialog(
   bool notCancel = false,
   bool paymentActionMode = true,
 }) async {
-  var paymentMethodSelect = ref.read(homeProvider).paymentMethodSelected;
+  var paymentMethodSelect =
+      ref.read(checkoutPageProvider).paymentMethodSelected;
   if (paymentMethodSelect == null) return;
   await showConfirmActionWithChild(
     context,
@@ -143,7 +145,7 @@ Future<void> showConfirmCompleteBillDialog(
     notCancel: notCancel,
     closeDialog: false,
     onCheckAction: () {
-      var state = ref.read(homeProvider);
+      var state = ref.read(checkoutPageProvider);
       // if (ref.read(homeProvider.notifier).getCustomerPortraitSelect() == null) {
       //   showMessageDialog(
       //     context,
@@ -176,13 +178,13 @@ Future<void> showConfirmCompleteBillDialog(
       } else {
         // máy pos động
         if (paymentMethodSelect.isAtm &&
-            ref.read(homeProvider).atmPosSelect?.setting == 2) {
+            ref.read(checkoutPageProvider).atmPosSelect?.setting == 2) {
           showLogs(null, flags: 'Cà máy pos động');
           var action = await showConfirmAction(
             context,
             message: 'Nhấn “Tiếp tục” để chuẩn bị cà thẻ.\n'
                 'Khi máy sẵn sàng, vui lòng đưa thẻ vào POS.\n'
-                'Số tiền thanh toán là: ${AppUtils.formatCurrency(value: ref.read(homeProvider).dataBill.price.totalPriceFinal)
+                'Số tiền thanh toán là: ${AppUtils.formatCurrency(value: ref.read(checkoutPageProvider).dataBill.price.totalPriceFinal)
                 // AppConfig.formatCurrency().format(ref.read(homeProvider).dataBill.price.totalPriceFinal)
                 }',
             actionTitle: S.current.continue_text,
@@ -190,8 +192,9 @@ Future<void> showConfirmCompleteBillDialog(
           if (action != true) {
             return;
           }
-          var resultPos =
-              await ref.read(homeProvider.notifier).dynamicAtmPosCallback();
+          var resultPos = await ref
+              .read(checkoutPageProvider.notifier)
+              .dynamicAtmPosCallback();
           if (resultPos != null) {
             showMessageDialog(context, message: resultPos);
             return;
@@ -264,7 +267,7 @@ class _SelectPaymentMethodWidgetState
       final digits = event.replaceAll(RegExp(r','), '');
       if (digits.isEmpty) {
         _remainingAmount.text = '';
-        ref.read(homeProvider.notifier).onChangeCashReceivedAmount(0.0);
+        ref.read(checkoutPageProvider.notifier).onChangeCashReceivedAmount(0.0);
         return;
       }
 
@@ -279,16 +282,19 @@ class _SelectPaymentMethodWidgetState
         selection: TextSelection.collapsed(offset: formatted.length),
       );
 
-      ref.read(homeProvider.notifier).onChangeCashReceivedAmount(number * 1.0);
+      ref
+          .read(checkoutPageProvider.notifier)
+          .onChangeCashReceivedAmount(number * 1.0);
       _isFormatting = false;
-      final price = ref.read(homeProvider.notifier).getFinalPaymentPrice;
+      final price =
+          ref.read(checkoutPageProvider.notifier).getFinalPaymentPrice;
       var remaining = number - price.totalPriceFinal;
       _remainingAmount.text =
           remaining < 0 ? '0' : AppUtils.formatCurrency(value: remaining);
     });
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
-        ref.read(homeProvider.notifier).loadPaymentMethods();
+        ref.read(checkoutPageProvider.notifier).loadPaymentMethods();
       },
     );
   }
@@ -303,12 +309,13 @@ class _SelectPaymentMethodWidgetState
   @override
   Widget build(BuildContext context) {
     final paymentMethods =
-        ref.watch(homeProvider.select((value) => value.paymentMethods));
-    final paymentMethodState =
-        ref.watch(homeProvider.select((value) => value.paymentMethodState));
-    final paymentMethodSelect =
-        ref.watch(homeProvider.select((value) => value.paymentMethodSelected));
-    final invoice = ref.watch(homeProvider.select((value) => value.invoice));
+        ref.watch(checkoutPageProvider.select((value) => value.paymentMethods));
+    final paymentMethodState = ref.watch(
+        checkoutPageProvider.select((value) => value.paymentMethodState));
+    final paymentMethodSelect = ref.watch(
+        checkoutPageProvider.select((value) => value.paymentMethodSelected));
+    final invoice =
+        ref.watch(checkoutPageProvider.select((value) => value.invoice));
 
     switch (paymentMethodState.status) {
       case PageCommonState.loading:
@@ -318,7 +325,7 @@ class _SelectPaymentMethodWidgetState
       case PageCommonState.error:
         return AppErrorSimpleWidget(
           onTryAgain: () {
-            ref.read(homeProvider.notifier).loadPaymentMethods();
+            ref.read(checkoutPageProvider.notifier).loadPaymentMethods();
           },
           message: paymentMethodState.messageError,
         );
@@ -331,7 +338,8 @@ class _SelectPaymentMethodWidgetState
       return element.isVat == null ||
           element.isVat == (invoice != null && !invoice.isEmpty());
     }).toList();
-    final coupons = ref.watch(homeProvider.select((value) => value.coupons));
+    final coupons =
+        ref.watch(checkoutPageProvider.select((value) => value.coupons));
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -459,84 +467,90 @@ class _SelectPaymentMethodWidgetState
                   // }
                   bool isChangeMethod = true;
                   final resultCouponCheck = ref
-                      .read(homeProvider.notifier)
+                      .read(checkoutPageProvider.notifier)
                       .checkPaymentMethodSelect(method);
-                  if (resultCouponCheck.error != null) {
-                    final confirmCheckInvalid =
-                        await showConfirmActionWithChild(
-                      context,
-                      child: _MessageCheckPaymentMethodInvalidWidget(
-                        coupons: resultCouponCheck.coupons,
-                        method: method,
-                      ),
-                      textCancel: S.current.reselect_payment_method,
-                      actionTitle: S.current.confirm_delete_code_and_continue,
-                    );
-                    showLog(confirmCheckInvalid, flags: 'confirmCheckInvalid');
-                    if (confirmCheckInvalid == true) {
-                      // Xoá các mã giảm giá không hợp lệ
-                      List<CustomerPolicyModel> removeCouponFails = [];
-                      for (final c in resultCouponCheck.coupons) {
-                        final resRemove =
-                            await ref.read(homeProvider.notifier).deleteCoupon(
-                                  c,
-                                  applyPolicy: false,
-                                );
-                        if (resRemove != null) {
-                          removeCouponFails.add(c);
-                        }
-                      }
-                      if (removeCouponFails.isNotEmpty) {
-                        isChangeMethod = false;
-                        showMessageDialog(
-                          context,
-                          message:
-                              "${S.current.error_delete_coupon_code} ${removeCouponFails.map((e) => e.name).toString()}\n"
-                              "${S.current.noti_delete_code_and_choose_payment_method_again}",
-                        );
-                      } else {
-                        // áp dụng lại mã giảm giá
-                        final resApplyPolicy = await ref
-                            .read(homeProvider.notifier)
-                            .applyCustomerPolicy(retry: false);
-                        if (resApplyPolicy == null) {
-                          ref.read(homeProvider.notifier).getDataBill();
-                          // ref.refresh(dataBillOrderPreviewProvider);
-                        } else {
-                          isChangeMethod = false;
-                          showConfirmAction(
-                            context,
-                            title: S.current.discount_apply_failed,
-                            message:
-                                S.current.close_payment_slip_reapply_coupons,
-                            action: () async {
-                              final result = await ref
-                                  .read(homeProvider.notifier)
-                                  .unlockOrder();
-                              if (result) {
-                                Navigator.pop(context);
-                                Navigator.pop(context);
-                              }
-                            },
-                            notCancel: true,
-                          );
-                        }
-                      }
-                    } else {
-                      isChangeMethod = false;
-                    }
-                  }
+                  // if (resultCouponCheck.error != null) {
+                  //   final confirmCheckInvalid =
+                  //       await showConfirmActionWithChild(
+                  //     context,
+                  //     child: _MessageCheckPaymentMethodInvalidWidget(
+                  //       coupons: resultCouponCheck.coupons,
+                  //       method: method,
+                  //     ),
+                  //     textCancel: S.current.reselect_payment_method,
+                  //     actionTitle: S.current.confirm_delete_code_and_continue,
+                  //   );
+                  //   showLog(confirmCheckInvalid, flags: 'confirmCheckInvalid');
+                  //   if (confirmCheckInvalid == true) {
+                  //     // Xoá các mã giảm giá không hợp lệ
+                  //     List<CustomerPolicyModel> removeCouponFails = [];
+                  //     for (final c in resultCouponCheck.coupons) {
+                  //       final resRemove =
+                  //           await ref.read(checkoutPageProvider.notifier).deleteCoupon(
+                  //                 c,
+                  //                 applyPolicy: false,
+                  //               );
+                  //       if (resRemove != null) {
+                  //         removeCouponFails.add(c);
+                  //       }
+                  //     }
+                  //     if (removeCouponFails.isNotEmpty) {
+                  //       isChangeMethod = false;
+                  //       showMessageDialog(
+                  //         context,
+                  //         message:
+                  //             "${S.current.error_delete_coupon_code} ${removeCouponFails.map((e) => e.name).toString()}\n"
+                  //             "${S.current.noti_delete_code_and_choose_payment_method_again}",
+                  //       );
+                  //     } else {
+                  //       // áp dụng lại mã giảm giá
+                  //       final resApplyPolicy = await ref
+                  //           .read(checkoutPageProvider.notifier)
+                  //           .applyCustomerPolicy(retry: false);
+                  //       if (resApplyPolicy == null) {
+                  //         ref.read(homeProvider.notifier).getDataBill();
+                  //         // ref.refresh(dataBillOrderPreviewProvider);
+                  //       } else {
+                  //         isChangeMethod = false;
+                  //         showConfirmAction(
+                  //           context,
+                  //           title: S.current.discount_apply_failed,
+                  //           message:
+                  //               S.current.close_payment_slip_reapply_coupons,
+                  //           action: () async {
+                  //             final result = await ref
+                  //                 .read(homeProvider.notifier)
+                  //                 .unlockOrder();
+                  //             if (result) {
+                  //               Navigator.pop(context);
+                  //               Navigator.pop(context);
+                  //             }
+                  //           },
+                  //           notCancel: true,
+                  //         );
+                  //       }
+                  //     }
+                  //   } else {
+                  //     isChangeMethod = false;
+                  //   }
+                  // }
                   if (isChangeMethod) {
-                    ref.read(homeProvider.notifier).changeBankSelect(null);
-                    ref.read(homeProvider.notifier).changePaymentMethod(method);
+                    ref
+                        .read(checkoutPageProvider.notifier)
+                        .changeBankSelect(null);
+                    ref
+                        .read(checkoutPageProvider.notifier)
+                        .changePaymentMethod(method);
                     if (!method.isCash) {
                       _receivedAmount.text = '';
                     }
                     if (method.isBank) {
-                      ref.read(homeProvider.notifier).loadBanksInfo();
+                      ref.read(checkoutPageProvider.notifier).loadBanksInfo();
                     }
                   } else {
-                    ref.read(homeProvider.notifier).changePaymentMethod(null);
+                    ref
+                        .read(checkoutPageProvider.notifier)
+                        .changePaymentMethod(null);
                   }
                 },
               ),
@@ -629,11 +643,13 @@ class _PQCBankSelectWidgetNewState
   @override
   Widget build(BuildContext context) {
     final bankState =
-        ref.watch(homeProvider.select((value) => value.banksState));
-    final banks = ref.watch(homeProvider.select((value) => value.banks));
+        ref.watch(checkoutPageProvider.select((value) => value.banksState));
+    final banks =
+        ref.watch(checkoutPageProvider.select((value) => value.banks));
     final bankSelect =
-        ref.watch(homeProvider.select((value) => value.bankSelect));
-    final invoice = ref.watch(homeProvider.select((value) => value.invoice));
+        ref.watch(checkoutPageProvider.select((value) => value.bankSelect));
+    final invoice =
+        ref.watch(checkoutPageProvider.select((value) => value.invoice));
     bool flagInvoice = invoice != null && !invoice.isEmpty();
     var banksView = banks
         .where((element) =>
@@ -646,10 +662,10 @@ class _PQCBankSelectWidgetNewState
           if (banksView.isNotEmpty) {
             var exist = banksView.firstWhereOrNull((e) => e == bankSelect);
             if (exist == null) {
-              ref.read(homeProvider.notifier).changeBankSelect(null);
+              ref.read(checkoutPageProvider.notifier).changeBankSelect(null);
             }
           } else if (banksView.isEmpty) {
-            ref.read(homeProvider.notifier).changeBankSelect(null);
+            ref.read(checkoutPageProvider.notifier).changeBankSelect(null);
           }
         }
       },
@@ -661,7 +677,7 @@ class _PQCBankSelectWidgetNewState
           message: "${S.current.error_loading_payment_QR_code}\n"
               "${S.current.ex_problem}: ${bankState.messageError}}",
           onTryAgain: () {
-            ref.read(homeProvider.notifier).loadBanksInfo();
+            ref.read(checkoutPageProvider.notifier).loadBanksInfo();
           },
         ),
       PageCommonState.success => banks.isEmpty
@@ -669,7 +685,7 @@ class _PQCBankSelectWidgetNewState
               message: S.current.bank_account_not_setup,
               textButton: S.current.reload,
               onTryAgain: () {
-                ref.read(homeProvider.notifier).loadBanksInfo();
+                ref.read(checkoutPageProvider.notifier).loadBanksInfo();
               },
             )
           : banksView.isEmpty
@@ -686,7 +702,7 @@ class _PQCBankSelectWidgetNewState
                             shape: AppConfig.shapeBorderMain,
                             onTap: () {
                               ref
-                                  .read(homeProvider.notifier)
+                                  .read(checkoutPageProvider.notifier)
                                   .changeBankSelect(e);
                             },
                             title: e.title.isEmpty

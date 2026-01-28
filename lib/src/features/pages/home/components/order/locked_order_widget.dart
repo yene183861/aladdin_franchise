@@ -11,7 +11,8 @@ class LockedOrderWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
+    final lockedOrder =
+        ref.watch(homeProvider.select((value) => value.lockedOrder));
     if (!lockedOrder) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
@@ -26,8 +27,9 @@ class LockedOrderWidget extends ConsumerWidget {
               color: AppColors.secondColor,
               textAction: S.current.unlock,
               onPressed: () {
-                ref.read(homeProvider.notifier).unlockOrder(
+                ref.read(homeProvider.notifier).lockOrder(
                       messageError: S.current.msg_id_device_to_unlock_order,
+                      lock: false,
                     );
               },
             ),

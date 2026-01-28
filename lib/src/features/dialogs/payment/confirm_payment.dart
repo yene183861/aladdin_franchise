@@ -10,6 +10,7 @@ import 'package:aladdin_franchise/src/features/dialogs/customer_portrait.dart';
 import 'package:aladdin_franchise/src/features/dialogs/image_bill_checker.dart';
 import 'package:aladdin_franchise/src/features/dialogs/note_for_waiter.dart';
 import 'package:aladdin_franchise/src/features/dialogs/number_of_people.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_tab_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/payment/preview_receipt.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
@@ -38,10 +39,12 @@ class ContentConfirmPaymentWidget extends ConsumerStatefulWidget {
   const ContentConfirmPaymentWidget({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _ContentConfirmPaymentWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _ContentConfirmPaymentWidgetState();
 }
 
-class _ContentConfirmPaymentWidgetState extends ConsumerState<ContentConfirmPaymentWidget> {
+class _ContentConfirmPaymentWidgetState
+    extends ConsumerState<ContentConfirmPaymentWidget> {
   final List<String> tabs = ['Hóa đơn', 'Thanh toán'];
   String tabSelect = 'Hóa đơn';
 
@@ -49,7 +52,8 @@ class _ContentConfirmPaymentWidgetState extends ConsumerState<ContentConfirmPaym
   Widget build(BuildContext context) {
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation =
+        AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool useTab = (isMobile || (isTablet && portraitOrientation));
     return SizedBox(
@@ -127,30 +131,35 @@ class _MorePaymentInfoWidget extends StatelessWidget {
           ),
           const PQCImageBillCheckerWidget(),
           const GapH(12),
-          Consumer(
-            builder: (context, ref, child) {
-              var checked = ref.watch(homeProvider.select((value) => value.printNumberOfPeople));
-              return GestureDetector(
-                onTap: ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
-                child: Row(
-                  children: [
-                    const Gap(12),
-                    CustomCheckbox(
-                      onChange: ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
-                      checked: checked,
-                    ),
-                    const Gap(4),
-                    Flexible(
-                      child: Text(
-                        S.current.print_number_of_people,
-                        style: AppTextStyle.regular(),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+          // Consumer(
+          //   builder: (context, ref, child) {
+          //     var checked = ref.watch(checkoutPageProvider
+          //         .select((value) => value.printNumberOfPeople));
+          //     return GestureDetector(
+          //       onTap: ref
+          //           .read(checkoutPageProvider.notifier)
+          //           .onChangePrintNumberOfPeople,
+          //       child: Row(
+          //         children: [
+          //           const Gap(12),
+          //           CustomCheckbox(
+          //             onChange: ref
+          //                 .read(checkoutPageProvider.notifier)
+          //                 .onChangePrintNumberOfPeople,
+          //             checked: checked,
+          //           ),
+          //           const Gap(4),
+          //           Flexible(
+          //             child: Text(
+          //               S.current.print_number_of_people,
+          //               style: AppTextStyle.regular(),
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //     );
+          //   },
+          // ),
           const CheckoutNumberOfPeopleWidget(),
           // const GapH(12),
           // const CheckoutCustomerPortraitSelectWidget(),
@@ -168,8 +177,9 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
   const CheckoutNumberOfPeopleWidget({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final homeNotifier = ref.read(homeProvider.notifier);
-    final coupons = ref.watch(homeProvider.select((value) => value.coupons));
+    final homeNotifier = ref.read(checkoutPageProvider.notifier);
+    final coupons =
+        ref.watch(checkoutPageProvider.select((value) => value.coupons));
 
     var requireApplyPolicy = coupons.any((e) => e.isType == 6);
     bool allowChangeNumberOfAdults = !requireApplyPolicy;
@@ -185,7 +195,10 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
           incrementIcon: const Icon(CupertinoIcons.add),
           decrementIcon: const Icon(CupertinoIcons.minus),
           textStyle: AppTextStyle.bold(),
-          value: ref.watch(homeProvider.select((value) => value.numberOfAdults)).toDouble(),
+          value: ref
+              .watch(
+                  checkoutPageProvider.select((value) => value.numberOfAdults))
+              .toDouble(),
           decoration: InputDecoration(
             label: Text(
               S.current.number_of_adults,
@@ -216,7 +229,10 @@ class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
           incrementIcon: const Icon(CupertinoIcons.add),
           decrementIcon: const Icon(CupertinoIcons.minus),
           textStyle: AppTextStyle.bold(),
-          value: ref.watch(homeProvider.select((value) => value.numberOfChildren)).toDouble(),
+          value: ref
+              .watch(checkoutPageProvider
+                  .select((value) => value.numberOfChildren))
+              .toDouble(),
           decoration: InputDecoration(
             label: Text(
               S.current.number_of_children,

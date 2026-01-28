@@ -16,6 +16,7 @@ import 'package:aladdin_franchise/src/features/dialogs/detail_product.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -97,7 +98,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
     );
   }
 
-  void handlePaymentStatus({PaymentStatusEnum paymentStatus = PaymentStatusEnum.loading}) async {
+  void handlePaymentStatus(
+      {PaymentStatusEnum paymentStatus = PaymentStatusEnum.loading}) async {
     // if (rootContext != null && rootContext!.mounted) {
     switch (paymentStatus) {
       case PaymentStatusEnum.loading:
@@ -138,7 +140,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                             Navigator.of(context).pop();
                             showPaymentStatus = false;
                           }
-                          var restaurant = LocalStorage.getDataLogin()?.restaurant;
+                          var restaurant =
+                              LocalStorage.getDataLogin()?.restaurant;
                           return Text(
                             '${S.current.payment_successful}\n${(restaurant?.name ?? '').isNotEmpty ? S.current.msg_thanks_customer(restaurant?.name ?? '') : ''}',
                             style: AppTextStyle.bold(),
@@ -149,7 +152,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                       const GapH(8),
                       Text(
                         '${S.current.dialog_auto_close_after} ${paymentSuccessDuration}s',
-                        style: AppTextStyle.regular(fontStyle: FontStyle.italic),
+                        style:
+                            AppTextStyle.regular(fontStyle: FontStyle.italic),
                       ),
                     ],
                   ),
@@ -206,7 +210,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
     }
   }
 
-  Future<dynamic> _handleMethodCallback(MethodCall call, int fromWindowId) async {
+  Future<dynamic> _handleMethodCallback(
+      MethodCall call, int fromWindowId) async {
     var data = jsonDecode(call.arguments);
 
     try {
@@ -267,7 +272,9 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
           } catch (ex) {
             //
           }
-          ref.read(customerPageProvider.notifier).onChangePayooExpirationSeconds(seconds);
+          ref
+              .read(customerPageProvider.notifier)
+              .onChangePayooExpirationSeconds(seconds);
           ref.read(customerPageProvider.notifier).onChangePayooGatewayUrl(url);
           break;
         case WindowsMethodEnum.changeOrderProduct:
@@ -283,7 +290,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
           handlePaymentStatus(paymentStatus: paymentStatus);
           break;
         case WindowsMethodEnum.detailProduct:
-          ProductModel? product = data == null ? null : ProductModel.fromJson(data);
+          ProductModel? product =
+              data == null ? null : ProductModel.fromJson(data);
           showLogs(product, flags: 'detailProduct');
           detailProductNotifier.value = product;
 
@@ -292,8 +300,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
           }
           break;
         case WindowsMethodEnum.language:
-          var value = AppLanguageEnum.values
-              .byName((data as String?) ?? LocalStorage.getCustomerLanguageLocal().name);
+          var value = AppLanguageEnum.values.byName((data as String?) ??
+              LocalStorage.getCustomerLanguageLocal().name);
           ref.read(customerPageProvider.notifier).onChangeLanguage(value);
           break;
         default:
@@ -346,7 +354,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                             Expanded(
                               child: Text(
                                 '${S.current.table_served}: ${S.current.table} ${order.getNameView()}',
-                                style: AppTextStyle.bold(color: AppColors.white),
+                                style:
+                                    AppTextStyle.bold(color: AppColors.white),
                               ),
                             ),
                             FittedBox(
@@ -354,7 +363,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                                 label: Text(
                                   S.current.infoVAT,
                                   style: AppTextStyle.regular(
-                                    rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                                    rawFontSize:
+                                        AppConfig.defaultRawTextSize - 1.5,
                                   ),
                                 ),
                               ),
@@ -379,11 +389,12 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                           title: S.current.customer_information,
                         ),
                         Consumer(builder: (context, ref, child) {
-                          var value =
-                              ref.watch(customerPageProvider.select((value) => value.customer));
+                          var value = ref.watch(customerPageProvider
+                              .select((value) => value.customer));
                           if (value == null) return Container(height: 100);
                           return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: padding / 2, vertical: 4),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: padding / 2, vertical: 4),
                             child: Center(
                               child: CustomerInfoWidget(
                                 canAction: false,
@@ -397,15 +408,17 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                           title: S.current.payment_info,
                         ),
                         Consumer(builder: (context, ref, child) {
-                          var price =
-                              ref.watch(customerPageProvider.select((value) => value.price));
+                          var price = ref.watch(customerPageProvider
+                              .select((value) => value.price));
                           return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 4),
                             decoration: BoxDecoration(
                                 color: Colors.grey.shade200,
-                                borderRadius:
-                                    BorderRadius.circular(AppConfig.sizeBorderRadiusMain)),
+                                borderRadius: BorderRadius.circular(
+                                    AppConfig.sizeBorderRadiusMain)),
                             child: PriceDataBillPreview(
                               dataBill: price ?? const PriceDataBill(),
                               showCashReceivedAmount: true,
@@ -419,10 +432,10 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                         ),
                         Expanded(child: Consumer(
                           builder: (context, ref, child) {
-                            var paymentMethod = ref
-                                .watch(customerPageProvider.select((value) => value.paymentMethod));
-                            var bankSelect =
-                                ref.watch(customerPageProvider.select((value) => value.bankSelect));
+                            var paymentMethod = ref.watch(customerPageProvider
+                                .select((value) => value.paymentMethod));
+                            var bankSelect = ref.watch(customerPageProvider
+                                .select((value) => value.bankSelect));
                             if (paymentMethod == null) {
                               return const SizedBox.shrink();
                             }
@@ -439,26 +452,31 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                                   ),
                                   const Gap(4),
                                   if (paymentMethod.isBank &&
-                                      (bankSelect?.qrCode ?? '').isNotEmpty) ...[
+                                      (bankSelect?.qrCode ?? '')
+                                          .isNotEmpty) ...[
                                     FittedBox(
                                       child: Column(
                                         children: [
-                                          if ((bankSelect?.fullName ?? '').isNotEmpty)
+                                          if ((bankSelect?.fullName ?? '')
+                                              .isNotEmpty)
                                             Text(
                                               bankSelect?.fullName ?? '',
                                               style: AppTextStyle.bold(),
                                             ),
-                                          if ((bankSelect?.bankNumber ?? '').isNotEmpty)
+                                          if ((bankSelect?.bankNumber ?? '')
+                                              .isNotEmpty)
                                             Text(
                                               bankSelect?.bankNumber ?? '',
                                               style: AppTextStyle.bold(),
                                             ),
-                                          if ((bankSelect?.bankName ?? '').isNotEmpty)
+                                          if ((bankSelect?.bankName ?? '')
+                                              .isNotEmpty)
                                             Text(
                                               bankSelect?.bankName ?? '',
                                               style: AppTextStyle.regular(),
                                             ),
-                                          if (bankSelect?.isPaymentGateway ?? false)
+                                          if (bankSelect?.isPaymentGateway ??
+                                              false)
                                             SizedBox(
                                               width: 256,
                                               height: 256,
@@ -471,7 +489,9 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                                               ),
                                             )
                                           else
-                                            ImageQRWidget(imgUrl: bankSelect?.qrCode ?? '')
+                                            ImageQRWidget(
+                                                imgUrl:
+                                                    bankSelect?.qrCode ?? '')
                                         ],
                                       ),
                                     ),
@@ -479,13 +499,16 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                                   if (paymentMethod.isGateway) ...[
                                     Consumer(
                                       builder: (context, ref, child) {
-                                        var payooGatewayUrl = ref.watch(customerPageProvider
-                                            .select((value) => value.payooGatewayUrl));
+                                        var payooGatewayUrl = ref.watch(
+                                            customerPageProvider.select(
+                                                (value) =>
+                                                    value.payooGatewayUrl));
                                         if (payooGatewayUrl.trim().isEmpty) {
                                           return const SizedBox.shrink();
                                         }
                                         return FutureBuilder<Uint8List?>(
-                                          future: loadImageBypassingSSL(payooGatewayUrl),
+                                          future: loadImageBypassingSSL(
+                                              payooGatewayUrl),
                                           builder: (context, snapshot) {
                                             if (snapshot.connectionState ==
                                                 ConnectionState.waiting) {
@@ -498,13 +521,15 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                                                   Text(
                                                     S.current.loading_qr_code,
                                                     style: AppTextStyle.regular(
-                                                      rawFontSize:
-                                                          AppConfig.defaultRawTextSize - 1.5,
+                                                      rawFontSize: AppConfig
+                                                              .defaultRawTextSize -
+                                                          1.5,
                                                     ),
                                                   ),
                                                 ],
                                               ));
-                                            } else if (snapshot.hasError || snapshot.data == null) {
+                                            } else if (snapshot.hasError ||
+                                                snapshot.data == null) {
                                               return Center(
                                                   child: Column(
                                                 mainAxisSize: MainAxisSize.min,
@@ -515,10 +540,12 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                                                   ),
                                                   const Gap(4),
                                                   Text(
-                                                    S.current.error_loading_qr_code,
+                                                    S.current
+                                                        .error_loading_qr_code,
                                                     style: AppTextStyle.regular(
-                                                      rawFontSize:
-                                                          AppConfig.defaultRawTextSize - 1.5,
+                                                      rawFontSize: AppConfig
+                                                              .defaultRawTextSize -
+                                                          1.5,
                                                       color: AppColors.redColor,
                                                     ),
                                                   ),
@@ -529,15 +556,21 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                                                 child: Column(
                                                   children: [
                                                     Consumer(
-                                                      builder: (context, ref, child) {
+                                                      builder: (context, ref,
+                                                          child) {
                                                         var seconds = ref.watch(
-                                                            customerPageProvider.select((value) =>
-                                                                value.payooExpirationSeconds));
+                                                            customerPageProvider
+                                                                .select((value) =>
+                                                                    value
+                                                                        .payooExpirationSeconds));
                                                         return seconds < 1
-                                                            ? const SizedBox.shrink()
+                                                            ? const SizedBox
+                                                                .shrink()
                                                             : CountDownPayooTimer(
                                                                 initDuration:
-                                                                    Duration(seconds: seconds),
+                                                                    Duration(
+                                                                        seconds:
+                                                                            seconds),
                                                                 onDone: () {
                                                                   ref
                                                                       .read(customerPageProvider
@@ -581,7 +614,8 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
 
 Future<Uint8List?> loadImageBypassingSSL(String url) async {
   final client = HttpClient()
-    ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    ..badCertificateCallback =
+        (X509Certificate cert, String host, int port) => true;
 
   try {
     final request = await client.getUrl(Uri.parse(url));
@@ -622,7 +656,8 @@ class CustomerInfoWidget extends ConsumerWidget {
           Card(
             elevation: 0,
             color: Colors.grey[100],
-            shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
+            shape: RoundedRectangleBorder(
+                borderRadius: AppConfig.borderRadiusMain),
             child: ListTile(
               visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
               leading: _AvatarCustomerWidget(
@@ -637,20 +672,26 @@ class CustomerInfoWidget extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      const ResponsiveIconWidget(iconData: CupertinoIcons.sunrise),
+                      const ResponsiveIconWidget(
+                          iconData: CupertinoIcons.sunrise),
                       const Gap(4),
                       Expanded(
                         child: Text(customer.dob == null ||
-                                ['', '0000-00-00'].contains(customer.dob!.trim().toLowerCase())
+                                [
+                                  '',
+                                  '0000-00-00'
+                                ].contains(customer.dob!.trim().toLowerCase())
                             ? S.current.noBOD
-                            : appConfig.dateFormatDDMMYYYY.format(DateTime.parse(customer.dob!))),
+                            : appConfig.dateFormatDDMMYYYY
+                                .format(DateTime.parse(customer.dob!))),
                       ),
                     ],
                   ),
                   const Gap(4),
                   Row(
                     children: [
-                      const ResponsiveIconWidget(iconData: CupertinoIcons.phone),
+                      const ResponsiveIconWidget(
+                          iconData: CupertinoIcons.phone),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(customer.phoneNumber),
@@ -662,7 +703,8 @@ class CustomerInfoWidget extends ConsumerWidget {
                     FittedBox(
                       child: Row(
                         children: [
-                          const ResponsiveIconWidget(iconData: CupertinoIcons.star),
+                          const ResponsiveIconWidget(
+                              iconData: CupertinoIcons.star),
                           const SizedBox(width: 8),
                           Text(
                             "${S.current.rank}: ${customer.level ?? S.current.notAvailableYet} "
@@ -680,17 +722,14 @@ class CustomerInfoWidget extends ConsumerWidget {
                         showConfirmAction(
                           context,
                           action: () async {
-                            final result = await ref.read(homeProvider.notifier).deleteCustomer();
+                            final result = await ref
+                                .read(checkoutPageProvider.notifier)
+                                .deleteCustomer();
                             if (result != null) {
                               showMessageDialog(
                                 context,
                                 message: result.toString(),
                               );
-                            } else {
-                              // xoá khách xong thì áp dụng lại giảm giá
-                              await ref
-                                  .read(homeProvider.notifier)
-                                  .applyCustomerPolicy(requireApply: true);
                             }
                           },
                           message: S.current.removeCustomer,

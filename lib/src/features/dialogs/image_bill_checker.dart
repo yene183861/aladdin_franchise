@@ -5,6 +5,7 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/view_image.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -27,11 +28,13 @@ class PQCImageBillCheckerWidget extends ConsumerStatefulWidget {
   ConsumerState createState() => _PQCImageBillCheckerWidgetState();
 }
 
-class _PQCImageBillCheckerWidgetState extends ConsumerState<PQCImageBillCheckerWidget> {
+class _PQCImageBillCheckerWidgetState
+    extends ConsumerState<PQCImageBillCheckerWidget> {
   final ImagePicker picker = ImagePicker();
   @override
   Widget build(BuildContext context) {
-    final images = ref.watch(homeProvider.select((value) => value.imageBills));
+    final images =
+        ref.watch(checkoutPageProvider.select((value) => value.imageBills));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -57,7 +60,8 @@ class _PQCImageBillCheckerWidgetState extends ConsumerState<PQCImageBillCheckerW
             if (images.length < 3 && widget.canAction)
               Platform.isAndroid
                   ? PopupMenuButton(
-                      icon: const ResponsiveIconWidget(iconData: Icons.add_photo_alternate),
+                      icon: const ResponsiveIconWidget(
+                          iconData: Icons.add_photo_alternate),
                       iconColor: AppColors.secondColor,
                       iconSize: 28,
                       shape: RoundedRectangleBorder(
@@ -72,7 +76,8 @@ class _PQCImageBillCheckerWidgetState extends ConsumerState<PQCImageBillCheckerW
                                 S.current.take_photo_use_camera,
                                 style: AppTextStyle.regular(),
                               ),
-                              onTap: () => _onTakeImage(context, useCamera: true),
+                              onTap: () =>
+                                  _onTakeImage(context, useCamera: true),
                             ),
                           ),
                           PopupMenuItem(
@@ -105,7 +110,8 @@ class _PQCImageBillCheckerWidgetState extends ConsumerState<PQCImageBillCheckerW
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: images.map((e) => _BoxImageBillWidget(image: e)).toList(),
+                children:
+                    images.map((e) => _BoxImageBillWidget(image: e)).toList(),
               ),
             ),
           )
@@ -132,7 +138,7 @@ class _PQCImageBillCheckerWidgetState extends ConsumerState<PQCImageBillCheckerW
             message: S.current.invalid_photo_select_again,
           );
         } else {
-          ref.read(homeProvider.notifier).updateImageBill(file);
+          ref.read(checkoutPageProvider.notifier).updateImageBill(file);
         }
       }
     } catch (ex) {
@@ -183,7 +189,9 @@ class _BoxImageBillWidget extends ConsumerWidget {
               right: -5,
               child: IconButton(
                 onPressed: () {
-                  ref.read(homeProvider.notifier).updateImageBill(image);
+                  ref
+                      .read(checkoutPageProvider.notifier)
+                      .updateImageBill(image);
                 },
                 padding: EdgeInsets.zero,
                 color: Colors.red,

@@ -29,6 +29,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'components/order_price_widget.dart';
+import 'provider.dart';
 
 enum CheckoutTabEnum { receipt, endow }
 
@@ -96,7 +97,8 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                     e.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTextStyle.bold(color: selected ? Colors.white : Colors.grey),
+                    style: AppTextStyle.bold(
+                        color: selected ? Colors.white : Colors.grey),
                   ),
                 ),
               ),
@@ -170,7 +172,8 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                         child: OrderedItemsSelectedWidget(),
                       ),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: ProductCheckoutActionWidget(),
                       ),
                     ],
@@ -222,7 +225,8 @@ class TabCustomerPayment extends ConsumerWidget {
   final bool canAction;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final customer = ref.watch(homeProvider.select((value) => value.customer));
+    final customer =
+        ref.watch(checkoutPageProvider.select((value) => value.customer));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -245,7 +249,8 @@ class TabCustomerPayment extends ConsumerWidget {
                         if (canAction)
                           ButtonSquareMenuWidget(
                             onPressed: () => onChooseCustomerOption(context),
-                            child: const ResponsiveIconWidget(iconData: Icons.person_search),
+                            child: const ResponsiveIconWidget(
+                                iconData: Icons.person_search),
                           ),
                       ],
                     ),
@@ -289,7 +294,8 @@ class TabCustomerPayment extends ConsumerWidget {
                                 onPressed: () async {
                                   await showCouponDialog(context);
                                 },
-                                child: const ResponsiveIconWidget(iconData: CupertinoIcons.tickets),
+                                child: const ResponsiveIconWidget(
+                                    iconData: CupertinoIcons.tickets),
                               ),
                               // if (Platform.isAndroid) ...[
                               //   // Gap(16),
@@ -304,7 +310,8 @@ class TabCustomerPayment extends ConsumerWidget {
                 ),
                 const Divider(),
                 Consumer(builder: (context, ref, child) {
-                  var invoice = ref.watch(homeProvider.select((value) => value.invoice));
+                  var invoice = ref.watch(
+                      checkoutPageProvider.select((value) => value.invoice));
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -324,8 +331,9 @@ class TabCustomerPayment extends ConsumerWidget {
                                 );
                               },
                               child: ResponsiveIconWidget(
-                                iconData:
-                                    (invoice == null || invoice.isEmpty()) ? Icons.add : Icons.edit,
+                                iconData: (invoice == null || invoice.isEmpty())
+                                    ? Icons.add
+                                    : Icons.edit,
                               ),
                             ),
                         ],
@@ -338,7 +346,8 @@ class TabCustomerPayment extends ConsumerWidget {
                                   child: Text(S.current.noInfo),
                                 )
                               : Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
                                   child: Row(
                                     children: [
                                       const ResponsiveIconWidget(
@@ -358,7 +367,8 @@ class TabCustomerPayment extends ConsumerWidget {
                                             message: 'Bạn có muốn xóa hóa đơn?',
                                             action: () async {
                                               await ref
-                                                  .read(homeProvider.notifier)
+                                                  .read(checkoutPageProvider
+                                                      .notifier)
                                                   .onUpdateOrderInvoice(
                                                     const OrderInvoice(),
                                                     isUpdate: true,

@@ -2,6 +2,7 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
@@ -268,17 +269,18 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                           DateFormat("dd/MM/yyyy").parse(ctrlBirthday.text);
                       inputBirthday = appConfig.dateFormatYYYYMMDD.format(dob);
                     }
-                    final result =
-                        await ref.read(homeProvider.notifier).createCustomer(
-                              phone: phone,
-                              firstName: firstName,
-                              lastName: lastName,
-                              birthday: inputBirthday,
-                              gender: gender,
-                              idCardNumber: idCardNumber,
-                              address: address,
-                              noBOD: _noBOD,
-                            );
+                    final result = await ref
+                        .read(checkoutPageProvider.notifier)
+                        .createCustomer(
+                          phone: phone,
+                          firstName: firstName,
+                          lastName: lastName,
+                          birthday: inputBirthday,
+                          gender: gender,
+                          idCardNumber: idCardNumber,
+                          address: address,
+                          noBOD: _noBOD,
+                        );
                     if (result != null) {
                       if (context.mounted) {
                         await showMessageDialog(

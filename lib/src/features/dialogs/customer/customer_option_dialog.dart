@@ -4,6 +4,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/customer/create_customer.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
@@ -136,7 +137,7 @@ class __CustomerOptionDialogState extends ConsumerState<_CustomerOptionDialog> {
                       if ((error.value ?? '').trim().isNotEmpty) return;
                       if (_formKey.currentState?.validate() ?? false) {
                         var result = await ref
-                            .read(homeProvider.notifier)
+                            .read(checkoutPageProvider.notifier)
                             .findCustomer(phone);
                         if (result != FindCustomerStatus.success) {
                           var errorMessage =
@@ -154,7 +155,7 @@ class __CustomerOptionDialogState extends ConsumerState<_CustomerOptionDialog> {
                                       context, phone);
                                   if (result != null) {
                                     await ref
-                                        .read(homeProvider.notifier)
+                                        .read(checkoutPageProvider.notifier)
                                         .findCustomer(phone);
                                     if (context.mounted) {
                                       Navigator.pop(context);
@@ -202,8 +203,8 @@ class __CustomerOptionDialogState extends ConsumerState<_CustomerOptionDialog> {
           ),
           Consumer(
             builder: (context, ref, child) {
-              var customer =
-                  ref.watch(homeProvider.select((value) => value.customer));
+              var customer = ref.watch(
+                  checkoutPageProvider.select((value) => value.customer));
 
               if (customer == null) {
                 if (!enable) return Text(S.current.msg_locked_order);
@@ -225,7 +226,9 @@ class __CustomerOptionDialogState extends ConsumerState<_CustomerOptionDialog> {
               onPressed: () async {
                 var result = await showCreateCustomerDialog(context, '');
                 if (result != null) {
-                  await ref.read(homeProvider.notifier).findCustomer(result);
+                  await ref
+                      .read(checkoutPageProvider.notifier)
+                      .findCustomer(result);
                   if (context.mounted) {
                     Navigator.pop(context);
                   }

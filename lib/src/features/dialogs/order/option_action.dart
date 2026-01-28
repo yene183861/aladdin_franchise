@@ -8,6 +8,7 @@ import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
 import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/btn_with_icon.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
@@ -52,7 +53,7 @@ class OrderOptionAction extends ConsumerWidget {
                       typeOrder: result.typeOrder ?? kTypeOrder,
                     );
                 if (result.reservation != null) {
-                  ref.read(homeProvider.notifier).findCustomer(
+                  ref.read(checkoutPageProvider.notifier).findCustomer(
                         result.reservation?.customer?.phoneNumber ?? '',
                         loadingHome: false,
                         retry: true,

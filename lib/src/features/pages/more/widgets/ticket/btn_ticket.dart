@@ -143,10 +143,12 @@ class __TicketFormState extends State<_TicketForm> {
                     if (images.length < maxImage)
                       IconButton(
                         style: ButtonStyle(
-                          backgroundColor: MaterialStatePropertyAll(Colors.grey.shade200),
+                          backgroundColor:
+                              MaterialStatePropertyAll(Colors.grey.shade200),
                         ),
                         onPressed: () async {
-                          var file = await ImageUtil.onTakeImage(context, popContext: false);
+                          var file = await ImageUtil.onTakeImage(context,
+                              popContext: false);
                           if (file != null) {
                             images.add(file);
                             setState(() {});
@@ -187,16 +189,16 @@ class __TicketFormState extends State<_TicketForm> {
               textAction: 'Gửi ticket',
               onPressed: () async {
                 if (_formKey.currentState?.validate() ?? false) {
-                  var result = await ref.read(homeProvider.notifier).sendTicket(
-                        title: titleCtrl.text.trim(),
-                        desc: descCtrl.text.trim(),
-                        files: images,
-                      );
+                  // var result = await ref.read(homeProvider.notifier).sendTicket(
+                  //       title: titleCtrl.text.trim(),
+                  //       desc: descCtrl.text.trim(),
+                  //       files: images,
+                  //     );
 
-                  if (result != null) {
-                    showMessageDialog(context, message: result);
-                    return;
-                  }
+                  // if (result != null) {
+                  //   showMessageDialog(context, message: result);
+                  //   return;
+                  // }
                   pop(context);
                 }
               },

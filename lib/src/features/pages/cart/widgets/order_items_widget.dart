@@ -2,6 +2,7 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/dialog/confirm_add_items.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/widgets/order_product_checkout_list.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/locked_order_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_tab_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_item_list_widget.dart';
@@ -37,7 +38,8 @@ class OrderItemsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var orderTabSelect = ref.watch(homeProvider.select((value) => value.orderTabSelect));
+    var orderTabSelect =
+        ref.watch(homeProvider.select((value) => value.orderTabSelect));
 
     return Container(
       color: Colors.white,
@@ -57,10 +59,14 @@ class OrderItemsWidget extends ConsumerWidget {
                         itemScrollController: itemSelectingScrollController,
                         itemPositionsListener: itemSelectingPositionsListener,
                       ),
-                      OrderedItemsSelectedWidget(
+                      OrderProductCheckoutList(
                         itemScrollController: itemScrollController,
                         itemPositionsListener: itemPositionsListener,
                       ),
+                      // OrderedItemsSelectedWidget(
+                      //   itemScrollController: itemScrollController,
+                      //   itemPositionsListener: itemPositionsListener,
+                      // ),
                     ],
                   ),
                 ),
@@ -77,8 +83,8 @@ class OrderItemsWidget extends ConsumerWidget {
                         const Spacer(),
                         Consumer(
                           builder: (mContext, ref, child) {
-                            var productsSelecting = ref
-                                .watch(cartPageProvider.select((value) => value.productsSelecting));
+                            var productsSelecting = ref.watch(cartPageProvider
+                                .select((value) => value.productsSelecting));
                             if (productsSelecting.isEmpty) {
                               return const SizedBox.shrink();
                             }
@@ -113,7 +119,8 @@ class OrderItemsWidget extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     child: Text(
                       S.of(context).invoice,
                       style: AppTextStyle.bold(),
