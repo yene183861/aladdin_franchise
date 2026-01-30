@@ -49,11 +49,8 @@ Future<bool?> showConfirmAction(
               style: AppTextStyle.regular(),
               textAlign: textAlign,
             ),
-            shape: RoundedRectangleBorder(
-                borderRadius: AppConfig.borderRadiusMain),
-            actionsAlignment: notCancel
-                ? MainAxisAlignment.center
-                : MainAxisAlignment.spaceEvenly,
+            shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
+            actionsAlignment: notCancel ? MainAxisAlignment.center : MainAxisAlignment.spaceEvenly,
             actions: [
               if (!notCancel) ...[
                 AppCloseButton(
@@ -75,7 +72,7 @@ Future<bool?> showConfirmAction(
                 ...extraAction,
                 const GapW(16),
               ],
-              ButtonSimpleWidget(
+              AppButton(
                 color: AppColors.bgButtonMain,
                 textColor: AppColors.tcButtonMain,
                 textAction: actionTitle ?? S.current.agree,
@@ -84,6 +81,15 @@ Future<bool?> showConfirmAction(
                   action?.call();
                 },
               ),
+              // ButtonSimpleWidget(
+              //   color: AppColors.bgButtonMain,
+              //   textColor: AppColors.tcButtonMain,
+              //   textAction: actionTitle ?? S.current.agree,
+              //   onPressed: () {
+              //     Navigator.pop(contextDialog, true);
+              //     action?.call();
+              //   },
+              // ),
             ],
           ),
         );
@@ -122,8 +128,7 @@ Future<bool?> showConfirmActionWithChild(
                     style: AppTextStyle.semiBold(),
                   ),
             content: child,
-            shape: RoundedRectangleBorder(
-                borderRadius: AppConfig.borderRadiusMain),
+            shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
             actionsAlignment: MainAxisAlignment.spaceEvenly,
             actions: [
               if (!notCancel)

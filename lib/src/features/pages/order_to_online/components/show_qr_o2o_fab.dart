@@ -1,7 +1,9 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/provider.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:flutter/cupertino.dart';
@@ -128,16 +130,11 @@ class _QRO2ODialog extends ConsumerWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ButtonCancelWidget(
-                  textAction: S.current.close,
-                  textSize: fontSize,
-                  onPressed: () => Navigator.pop(context),
-                ),
+                const AppCloseButton(),
                 const Gap(20),
-                ButtonSimpleWidget(
-                  textAction: S.current.print_QR,
-                  textSize: fontSize,
+                AppButton(
                   color: AppColors.secondColor,
+                  textAction: S.current.print_QR,
                   onPressed: () async {
                     var error = await ref.read(orderToOnlinePageProvider.notifier).getPrinters();
                     if (error == null) {

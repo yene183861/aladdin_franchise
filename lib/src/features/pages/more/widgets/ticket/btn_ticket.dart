@@ -8,6 +8,7 @@ import 'package:aladdin_franchise/src/features/dialogs/view_image.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_main.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/utils/image_util.dart';
@@ -173,13 +174,20 @@ class __TicketFormState extends State<_TicketForm> {
         ),
       ),
       actions: [
-        ButtonCancelWidget(
+        AppCloseButton(
           textAction: 'Đóng',
-          padding: const EdgeInsets.all(8),
+          // padding: const EdgeInsets.all(8),
           onPressed: () {
             pop(context);
           },
         ),
+        // ButtonCancelWidget(
+        //   textAction: 'Đóng',
+        //   padding: const EdgeInsets.all(8),
+        //   onPressed: () {
+        //     pop(context);
+        //   },
+        // ),
         SizedBox(
           width: 150,
           child: Consumer(

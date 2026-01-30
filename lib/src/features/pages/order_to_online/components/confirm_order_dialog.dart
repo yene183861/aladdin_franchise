@@ -11,6 +11,7 @@ import 'package:aladdin_franchise/src/features/pages/order_to_online/components/
 import 'package:aladdin_franchise/src/features/pages/order_to_online/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
@@ -194,15 +195,16 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
             ),
           ),
           const Gap(16),
-          ButtonCancelWidget(
-            textAction: 'Đóng',
-            color: Colors.white,
-            onPressed: () {
-              pop(context);
-            },
-            borderSide: BorderSide(color: AppColors.mainColor),
-            textColor: AppColors.textColor,
-          ),
+          const AppCloseButton(),
+          // ButtonCancelWidget(
+          //   textAction: 'Đóng',
+          //   color: Colors.white,
+          //   onPressed: () {
+          //     pop(context);
+          //   },
+          //   borderSide: BorderSide(color: AppColors.mainColor),
+          //   textColor: AppColors.textColor,
+          // ),
           const Gap(12),
           Consumer(builder: (context, ref, child) {
             final orderItems = ref.read(orderToOnlinePageProvider).requestSelect?.listItem ?? [];

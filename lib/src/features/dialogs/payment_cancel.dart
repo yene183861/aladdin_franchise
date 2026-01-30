@@ -1,7 +1,9 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -23,9 +25,18 @@ class PaymentCancelDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
-      title: Text(
-        S.current.reasonForCancellation,
-        style: AppTextStyle.bold(rawFontSize: AppConfig.defaultRawTextSize + 1.0),
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(
+              S.current.reasonForCancellation,
+              style: AppTextStyle.regular(
+                rawFontSize: AppConfig.defaultRawTextSize + 1.0,
+              ),
+            ),
+          ),
+          CloseButton(),
+        ],
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -43,19 +54,32 @@ class PaymentCancelDialog extends ConsumerWidget {
       ),
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: [
-        ButtonCancelWidget(
-          onPressed: () => Navigator.pop(context),
+        AppCloseButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
-        ButtonSimpleWidget(
+        // ButtonCancelWidget(
+        //   onPressed: () => Navigator.pop(context),
+        // ),
+        AppButton(
           onPressed: () async {
             var content = ref.read(cancelContentProvider);
             Navigator.pop(context);
             onAction.call(content);
           },
-          // color: AppColors.bgButtonMain,
-          // textColor: AppColors.tcButtonMain,
           textAction: S.current.confirm,
-        )
+        ),
+        // ButtonSimpleWidget(
+        //   onPressed: () async {
+        //     var content = ref.read(cancelContentProvider);
+        //     Navigator.pop(context);
+        //     onAction.call(content);
+        //   },
+        //   // color: AppColors.bgButtonMain,
+        //   // textColor: AppColors.tcButtonMain,
+        //   textAction: S.current.confirm,
+        // )
       ],
     );
   }

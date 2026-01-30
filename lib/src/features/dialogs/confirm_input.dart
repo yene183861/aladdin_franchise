@@ -2,8 +2,10 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:flutter/material.dart';
@@ -97,13 +99,18 @@ class _ConfirmInputDialogState extends ConsumerState<ConfirmInputDialog> {
         ),
         actionsAlignment: MainAxisAlignment.spaceEvenly,
         actions: [
-          ButtonCancelWidget(
+          AppCloseButton(
             onPressed: () {
               Navigator.pop(context, null);
             },
           ),
+          // ButtonCancelWidget(
+          //   onPressed: () {
+          //     Navigator.pop(context, null);
+          //   },
+          // ),
           const SizedBox(width: 8),
-          ButtonSimpleWidget(
+          AppButton(
             color: AppColors.bgButtonMain,
             textColor: AppColors.tcButtonMain,
             textAction: widget.textAction ?? S.current.confirm,
@@ -112,6 +119,15 @@ class _ConfirmInputDialogState extends ConsumerState<ConfirmInputDialog> {
               Navigator.pop(context, data);
             },
           ),
+          // ButtonSimpleWidget(
+          //   color: AppColors.bgButtonMain,
+          //   textColor: AppColors.tcButtonMain,
+          //   textAction: widget.textAction ?? S.current.confirm,
+          //   onPressed: () {
+          //     String data = ctrlInput.text.trim();
+          //     Navigator.pop(context, data);
+          //   },
+          // ),
         ],
       ),
     );

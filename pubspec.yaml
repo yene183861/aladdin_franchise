@@ -59,8 +59,6 @@ dependencies:
   flutter_esc_pos_utils: any
   flutter_esc_pos_network: any
   tiengviet: ^0.5.0
-  webcontent_converter:
-    git: https://github.com/sondvaladdin/webcontent_converter.git
   # notification for windows
   local_notifier: ^0.1.6
   float_bubble: ^0.0.2
@@ -91,6 +89,8 @@ dependencies:
   hive_flutter: ^1.1.0
   flutter_colorpicker: ^1.1.0
   calendar_date_picker2: 0.5.5
+  webcontent_converter:
+    git: https://github.com/aladdin-pos/webcontent_converter.git
 
 dev_dependencies:
   flutter_test:

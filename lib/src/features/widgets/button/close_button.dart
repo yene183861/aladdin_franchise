@@ -18,7 +18,7 @@ class AppCloseButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppButton(
       textAction: textAction ?? S.current.close,
-      textColor: AppColors.textColor,
+      textColor: AppColors.mainColor,
       color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: AppConfig.borderRadiusMain,

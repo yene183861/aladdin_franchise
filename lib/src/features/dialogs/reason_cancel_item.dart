@@ -5,6 +5,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -22,11 +23,18 @@ class _ReasonCancelItemDialogState extends ConsumerState<ReasonCancelItemDialog>
   Widget build(BuildContext context) {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
-      title: Text(
-        S.current.reasonForCancellation,
-        // style: AppTextStyle.regular(
-        //   rawFontSize: 15,
-        // ),
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(
+              S.current.reasonForCancellation,
+              style: AppTextStyle.regular(
+                rawFontSize: AppConfig.defaultRawTextSize + 1.0,
+              ),
+            ),
+          ),
+          CloseButton(),
+        ],
       ),
       content: SingleChildScrollView(
         child: Column(
@@ -51,9 +59,10 @@ class _ReasonCancelItemDialogState extends ConsumerState<ReasonCancelItemDialog>
       ),
       actionsAlignment: MainAxisAlignment.spaceEvenly,
       actions: [
-        ButtonCancelWidget(
-          onPressed: () => Navigator.pop(context),
-        ),
+        const AppCloseButton(),
+        // ButtonCancelWidget(
+        //   onPressed: () => Navigator.pop(context),
+        // ),
         ButtonSimpleWidget(
           onPressed: () async {
             if (reason == null) {

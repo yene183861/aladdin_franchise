@@ -425,6 +425,8 @@ class _CounponActionWidget extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // if (AppConfig.useCoupon) ...[
+        const AppCloseButton(),
+        const Gap(12),
         AppButton(
           textAction: S.current.apply_policy_again,
           onPressed: () async {
@@ -480,9 +482,8 @@ class _CounponActionWidget extends ConsumerWidget {
         //     }
         //   },
         // ),
-        const Gap(12),
         // ],
-        const AppCloseButton(),
+
         // ButtonCancelWidget(
         //   onPressed: () => Navigator.pop(context),
         //   textAction: S.current.close,
