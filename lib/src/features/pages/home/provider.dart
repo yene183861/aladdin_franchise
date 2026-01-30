@@ -945,7 +945,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
           var listItem = (e['list_item'] as List<dynamic>)
               .map((e) => SubLineItemDataBill.fromJson(e as Map<String, dynamic>))
               .toList();
-          var result = LineItemDataBill.fromJson(json).copyWith(listItem: listItem, language: {});
+          json['language'] = null;
+          json['list_item'] = [];
+          var result = LineItemDataBill.fromJson(json).copyWith(listItem: listItem);
           return result;
         }).toList();
         dataDecode['payment_data']['order_line_items'] = null;
