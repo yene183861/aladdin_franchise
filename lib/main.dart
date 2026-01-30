@@ -66,7 +66,7 @@ void main(List<String> args) async {
       });
       windowManager.setPreventClose(true);
     }
-    await _initWebContentConverter();
+    // await _initWebContentConverter();
 
     await _initializeApp();
     runApp(ProviderScope(
@@ -189,79 +189,79 @@ Future<void> _initPermissionRequest() async {
   }
 }
 
-Future<void> _initWebContentConverter() async {
-  try {
-    if (WebViewHelper.isDesktop) {
-      await windowManager.ensureInitialized();
-      var executablePath =
-          await ChromeDesktopDirectoryHelper.saveChromeFromAssetToApp(
-        assetPath: 'assets/1056772_chrome-win.zip',
-      );
-      WebViewHelper.customBrowserPath = [executablePath];
-      await WebcontentConverter.ensureInitialized(
-          executablePath: executablePath);
-    }
-  } catch (ex) {
-    showLogs(ex.toString(), flags: '_initWebContentConverter');
-    try {
-      var log = ErrorLogModel(
-        action: AppLogAction.webContentConverter,
-        createAt: DateTime.now(),
-        errorMessage: ex.toString(),
-      );
-      DiscordService.sendLogs(log);
-      //   final file = File('web_content_converter_log.txt');
-      //   file.writeAsStringSync(
-      //     "${DateTime.now()} - Lỗi khởi tạo chromium\n${ex.toString()}\n",
-      //     mode: FileMode.append,
-      //   );
-    } catch (e) {
-      //
-    }
-  }
-}
+// Future<void> _initWebContentConverter() async {
+//   try {
+//     if (WebViewHelper.isDesktop) {
+//       await windowManager.ensureInitialized();
+//       var executablePath =
+//           await ChromeDesktopDirectoryHelper.saveChromeFromAssetToApp(
+//               // assetPath: 'assets/1056772_chrome-win.zip',
+//               );
+//       WebViewHelper.customBrowserPath = [executablePath];
+//       await WebcontentConverter.ensureInitialized(
+//           executablePath: executablePath);
+//     }
+//   } catch (ex) {
+//     showLogs(ex.toString(), flags: '_initWebContentConverter');
+//     try {
+//       var log = ErrorLogModel(
+//         action: AppLogAction.webContentConverter,
+//         createAt: DateTime.now(),
+//         errorMessage: ex.toString(),
+//       );
+//       DiscordService.sendLogs(log);
+//       //   final file = File('web_content_converter_log.txt');
+//       //   file.writeAsStringSync(
+//       //     "${DateTime.now()} - Lỗi khởi tạo chromium\n${ex.toString()}\n",
+//       //     mode: FileMode.append,
+//       //   );
+//     } catch (e) {
+//       //
+//     }
+//   }
+// }
 
-Future<void> copyAssetFile(String asset, String targetDir) async {
-  final data = await rootBundle.load(asset);
-  final bytes = data.buffer.asUint8List();
+// Future<void> copyAssetFile(String asset, String targetDir) async {
+//   final data = await rootBundle.load(asset);
+//   final bytes = data.buffer.asUint8List();
 
-  final file = File(p.join(targetDir, asset));
-  await file.create(recursive: true);
-  await file.writeAsBytes(bytes);
-}
+//   final file = File(p.join(targetDir, asset));
+//   await file.create(recursive: true);
+//   await file.writeAsBytes(bytes);
+// }
 
-Future<void> copyAssets() async {
-  // final tempDir = await getTemporaryDirectory();
-  final tempDir = await getApplicationSupportDirectory();
-  final targetDir = p.joinAll([tempDir.path, "local-chromium", "1056772"]);
+// Future<void> copyAssets() async {
+//   // final tempDir = await getTemporaryDirectory();
+//   final tempDir = await getApplicationSupportDirectory();
+//   final targetDir = p.joinAll([tempDir.path, "local-chromium", "1056772"]);
 
-  final assets = [
-    'assets/local-chromium/1056772/chrome-win/chrome.exe',
-  ];
+//   final assets = [
+//     'assets/local-chromium/1056772/chrome-win/chrome.exe',
+//   ];
 
-  for (var asset in assets) {
-    await copyAssetFile(asset, tempDir.path);
-  }
+//   for (var asset in assets) {
+//     await copyAssetFile(asset, tempDir.path);
+//   }
 
-  print("Copied to $targetDir");
-}
+//   print("Copied to $targetDir");
+// }
 
-Future<void> copyDirectory(String from, String to) async {
-  final sourceDir = Directory(from);
-  final targetDir = Directory(to);
+// Future<void> copyDirectory(String from, String to) async {
+//   final sourceDir = Directory(from);
+//   final targetDir = Directory(to);
 
-  if (!await targetDir.exists()) {
-    await targetDir.create(recursive: true);
-  }
+//   if (!await targetDir.exists()) {
+//     await targetDir.create(recursive: true);
+//   }
 
-  await for (var entity in sourceDir.list(recursive: true)) {
-    if (entity is File) {
-      final relativePath = p.relative(entity.path, from: from);
-      final newPath = p.join(targetDir.path, relativePath);
+//   await for (var entity in sourceDir.list(recursive: true)) {
+//     if (entity is File) {
+//       final relativePath = p.relative(entity.path, from: from);
+//       final newPath = p.join(targetDir.path, relativePath);
 
-      final newFile = File(newPath);
-      await newFile.create(recursive: true);
-      await newFile.writeAsBytes(await entity.readAsBytes());
-    }
-  }
-}
+//       final newFile = File(newPath);
+//       await newFile.create(recursive: true);
+//       await newFile.writeAsBytes(await entity.readAsBytes());
+//     }
+//   }
+// }

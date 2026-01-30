@@ -60,7 +60,7 @@ dependencies:
   flutter_esc_pos_network: any
   tiengviet: ^0.5.0
   webcontent_converter:
-    git: https://github.com/aladdin-pos/webcontent_converter.git
+    git: https://github.com/sondvaladdin/webcontent_converter.git
   # notification for windows
   local_notifier: ^0.1.6
   float_bubble: ^0.0.2
@@ -106,7 +106,6 @@ flutter:
   generate: true
   uses-material-design: true
   assets:
-    - assets/1056772_chrome-win.zip
     - assets/images/
     - assets/icons/
 flutter_intl:

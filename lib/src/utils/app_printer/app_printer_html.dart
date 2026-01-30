@@ -32,7 +32,10 @@ class AppPrinterHtmlUtils {
   static AppPrinterHtmlUtils get instance => _instance;
   factory AppPrinterHtmlUtils() => _instance;
 
-  Future<List<int>> generateImageBill(String data) async {
+  Future<List<int>> generateImageBill(
+    String data, {
+    String qrInvoice = '',
+  }) async {
     final billHtmlSetting = LocalStorage.getPrintSetting().billHtmlSetting;
     // final fontSize = billHtmlSetting.fontSize;
     final profile = await CapabilityProfile.load();
@@ -56,55 +59,30 @@ class AppPrinterHtmlUtils {
     );
     showLog(receiptResize.length / 1024, flags: "resize Kb");
     bytes += generator.image(receiptResize);
+    if (qrInvoice.trim().isNotEmpty) {
+      bytes += generator.emptyLines(2);
+      bytes += generator.qrcode(
+        qrInvoice,
+        size: QRSize.size8,
+      );
+      bytes += generator.emptyLines(1);
+      bytes += generator.text(
+          'Powered by Aladdin.,JSC\nThoi gian in: ${_printDateTime(DateTime.now())}');
+      bytes += generator.emptyLines(1);
+    }
+
     bytes += generator.cut();
 
     return bytes;
   }
 
   Future<List<int>> getReceptBillContent(
-    PaymentReceiptPrintRequest data,
-    // {
-    // required OrderModel order,
-    // List<LineItemDataBill> orderLineItems = const [],
-    // required PriceDataBill price,
-    // String? note,
-    // PaymentMethod? paymentMethod,
-    // List<HistoryPolicyResultModel> vouchers = const [],
-    // required ReceiptTypeEnum receiptType,
-    // bool printNumberOfPeople = false,
-    // String customerPhone = '',
-    // int numberOfPeople = 1,
-    // double paymentAmount = 0.0,
-    // int numberPrintCompleted = 1,
-    // int numberPrintTemporary = 1,
-    // String cashierCompleted = '',
-    // DateTime? timeCompleted,
-    // DateTime? timeCreatedAt,
-    // String cashierPrint = '',
-    // String invoiceQr = '',
-    // }
-  ) async {
-    var htmlData = _receiptBillContent(data
-        // order: order,
-        // orderLineItems: orderLineItems,
-        // price: price,
-        // receiptType: receiptType,
-        // note: note ?? '',
-        // customerPhone: customerPhone,
-        // numberOfPeople: numberOfPeople,
-        // paymentAmount: paymentAmount,
-        // paymentMethod: paymentMethod,
-        // printNumberOfPeople: printNumberOfPeople,
-        // vouchers: vouchers,
-        // numberPrintCompleted: numberPrintCompleted,
-        // numberPrintTemporary: numberPrintTemporary,
-        // cashierCompleted: cashierCompleted,
-        // timeCompleted: timeCompleted,
-        // timeCreatedAt: timeCreatedAt,
-        // cashierPrint: cashierPrint,
-        // invoiceQr: invoiceQr,
-        );
-    var bytes = await generateImageBill(htmlData);
+      PaymentReceiptPrintRequest data) async {
+    var htmlData = _receiptBillContent(data);
+    var bytes = await generateImageBill(
+      htmlData,
+      qrInvoice: data.invoiceQr,
+    );
     return bytes;
   }
 
@@ -137,7 +115,8 @@ class AppPrinterHtmlUtils {
         </tr>
       ''';
       }
-      List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(pc);
+      List<ComboItemModel>? comboItems =
+          ProductHelper().getComboDescription(pc);
       // showLogs(comboItems, flags: 'comboItems');
       if (comboItems != null) {
         // check xem có cần nhân số lượng combo với món trong combo k
@@ -247,29 +226,7 @@ ${_getTime()}
 ''';
   }
 
-  String _receiptBillContent(
-    PaymentReceiptPrintRequest data,
-    //   {
-    //   List<LineItemDataBill> orderLineItems = const [],
-    //   List<HistoryPolicyResultModel> vouchers = const [],
-    //   required OrderModel order,
-    //   String note = '',
-    //   required ReceiptTypeEnum receiptType,
-    //   bool printNumberOfPeople = false,
-    //   String customerPhone = '',
-    //   int numberOfPeople = 1,
-    //   PaymentMethod? paymentMethod,
-    //   double paymentAmount = 0,
-    //   required PriceDataBill price,
-    //   int numberPrintCompleted = 1,
-    //   int numberPrintTemporary = 1,
-    //   String cashierCompleted = '',
-    //   DateTime? timeCompleted,
-    //   DateTime? timeCreatedAt,
-    //   String cashierPrint = '',
-    //   String invoiceQr = '',
-    // }
-  ) {
+  String _receiptBillContent(PaymentReceiptPrintRequest data) {
     var user = LocalStorage.getDataLogin()?.user;
     String dishTable = "";
 
@@ -298,13 +255,11 @@ ${_getTime()}
 
       /// combo item
     }
-    showLogs(mapTax, flags: 'mapTax');
     String voucherDetail = "";
     if (isPaymentReceipt)
 
       // ignore: curly_braces_in_flow_control_structures
       for (final v in data.vouchers) {
-        showLogs(mapTax, flags: 'mapTax 111');
         var amount = v.total;
         if (amount < 0) continue;
 
@@ -320,7 +275,6 @@ ${_getTime()}
     if (isPaymentReceipt) {
       mapTax.forEach(
         (key, value) {
-          showLogs(mapTax, flags: 'mapTax 345');
           if (key > 0) {
             taxDetail += '''
               <tr>
@@ -332,8 +286,6 @@ ${_getTime()}
         },
       );
     }
-
-    showLogs(mapTax, flags: 'mapTax 2');
 
     var result = '''
 <!DOCTYPE HTML>
@@ -409,8 +361,6 @@ ${_getTime()}
             display: inline-block;
         }
     </style>
-     ${data.invoiceQr.trim().isNotEmpty ? '<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>' : ''}
-
 </head>
 
 <body style="margin: 0px;padding: 0px;">
@@ -503,35 +453,20 @@ ${_getRestaurantInfo()}
             ' thì Công ty sẽ xuất hoá đơn Khách lẻ và không xuất lại hoá đơn trong mọi trường hợp sau đó. Xin cảm ơn Quý khách!' : 'Khách hàng vui lòng cung cấp thông tin xuất hóa đơn GTGT tại thời điểm thanh toán.'
             'Trường hợp khách hàng không cung cấp thông tin xuất hóa đơn GTGT thì công ty'
             'sẽ xuất hóa đơn Khách Lẻ và không xuất lại hóa đơn trong mọi trường hợp sau đó.'}
-        ${data.invoiceQr.trim().isNotEmpty ? '<div id="qrcode"></div>' : ''}
-${_getTime()}
-    <p style="text-align: center">
-        ${isPaymentReceipt ? '' : 'Lần in tạm tính: ${data.numberPrintTemporary}<br>'}
-        ${isPaymentReceipt ? 'Lần in hoàn thành: ${data.numberPrintCompleted}' : ''}
-    </p>
-    ${data.invoiceQr.trim().isNotEmpty ? '''
-    <script>
-      window.onload = function() {
-        const url = "${data.invoiceQr.trim()}";
-        new QRCode(document.getElementById("qrcode"), {
-            text: url,
-            width: 128,
-            height: 128
-        });
-      };
-    </script>
-    ''' : ''}
+${data.invoiceQr.trim().isNotEmpty ? '' : _getTime()}
+    
+   
 
 </body>
 
 </html>
 ''';
-    showLogs(result, flags: 'result');
     return result;
   }
 
   String _printDateTime(DateTime? value) {
-    return DateTimeUtils.formatToString(time: value, newPattern: DateTimePatterns.dateTime1);
+    return DateTimeUtils.formatToString(
+        time: value, newPattern: DateTimePatterns.dateTime1);
   }
 
   Future<List<int>> getCloseShiftContent(CloseShiftResponseModel data) async {
