@@ -60,14 +60,16 @@ class AppPrinterHtmlUtils {
     showLog(receiptResize.length / 1024, flags: "resize Kb");
     bytes += generator.image(receiptResize);
     if (qrInvoice.trim().isNotEmpty) {
-      bytes += generator.emptyLines(2);
+      bytes += generator.emptyLines(1);
       bytes += generator.qrcode(
         qrInvoice,
         size: QRSize.size8,
       );
       bytes += generator.emptyLines(1);
       bytes += generator.text(
-          'Powered by Aladdin.,JSC\nThoi gian in: ${_printDateTime(DateTime.now())}');
+        'Powered by Aladdin.,JSC\nThoi gian in: ${_printDateTime(DateTime.now())}',
+        styles: const PosStyles(align: PosAlign.center),
+      );
       bytes += generator.emptyLines(1);
     }
 
@@ -450,12 +452,10 @@ ${_getRestaurantInfo()}
         ${data.invoiceQr.trim().isNotEmpty ? 'Quý khách vui lòng quét QR để nhập thông tin hoá đơn:'
             ' Trong 60 phút sau khi in bill và trước 23h30 cùng ngày.'
             'Trường hợp khách hàng không nhập thông tin xuất hoá đơn GTGT trong khung giờ nêu trên'
-            ' thì Công ty sẽ xuất hoá đơn Khách lẻ và không xuất lại hoá đơn trong mọi trường hợp sau đó. Xin cảm ơn Quý khách!' : 'Khách hàng vui lòng cung cấp thông tin xuất hóa đơn GTGT tại thời điểm thanh toán.'
+            ' thì Công ty sẽ xuất hoá đơn Khách lẻ và không xuất lại hoá đơn trong mọi trường hợp sau đó. Xin cảm ơn Quý khách!</br>' : 'Khách hàng vui lòng cung cấp thông tin xuất hóa đơn GTGT tại thời điểm thanh toán.'
             'Trường hợp khách hàng không cung cấp thông tin xuất hóa đơn GTGT thì công ty'
-            'sẽ xuất hóa đơn Khách Lẻ và không xuất lại hóa đơn trong mọi trường hợp sau đó.'}
+            'sẽ xuất hóa đơn Khách Lẻ và không xuất lại hóa đơn trong mọi trường hợp sau đó.</br>'}
 ${data.invoiceQr.trim().isNotEmpty ? '' : _getTime()}
-    
-   
 
 </body>
 
