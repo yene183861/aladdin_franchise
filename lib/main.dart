@@ -65,8 +65,8 @@ void main(List<String> args) async {
         await windowManager.focus();
       });
       windowManager.setPreventClose(true);
+      await _initWebContentConverter();
     }
-    // await _initWebContentConverter();
 
     await _initializeApp();
     runApp(ProviderScope(
@@ -189,37 +189,22 @@ Future<void> _initPermissionRequest() async {
   }
 }
 
-// Future<void> _initWebContentConverter() async {
-//   try {
-//     if (WebViewHelper.isDesktop) {
-//       await windowManager.ensureInitialized();
-//       var executablePath =
-//           await ChromeDesktopDirectoryHelper.saveChromeFromAssetToApp(
-//               // assetPath: 'assets/1056772_chrome-win.zip',
-//               );
-//       WebViewHelper.customBrowserPath = [executablePath];
-//       await WebcontentConverter.ensureInitialized(
-//           executablePath: executablePath);
-//     }
-//   } catch (ex) {
-//     showLogs(ex.toString(), flags: '_initWebContentConverter');
-//     try {
-//       var log = ErrorLogModel(
-//         action: AppLogAction.webContentConverter,
-//         createAt: DateTime.now(),
-//         errorMessage: ex.toString(),
-//       );
-//       DiscordService.sendLogs(log);
-//       //   final file = File('web_content_converter_log.txt');
-//       //   file.writeAsStringSync(
-//       //     "${DateTime.now()} - Lỗi khởi tạo chromium\n${ex.toString()}\n",
-//       //     mode: FileMode.append,
-//       //   );
-//     } catch (e) {
-//       //
-//     }
-//   }
-// }
+Future<void> _initWebContentConverter() async {
+  try {
+    if (WebViewHelper.isDesktop) {
+      await windowManager.ensureInitialized();
+      var executablePath =
+          await ChromeDesktopDirectoryHelper.saveChromeFromAssetToApp(
+        assetPath: 'assets/1056772_chrome-win.zip',
+      );
+      WebViewHelper.customBrowserPath = [executablePath];
+      await WebcontentConverter.ensureInitialized(
+          executablePath: executablePath);
+    }
+  } catch (ex) {
+    showLogs(ex.toString(), flags: '_initWebContentConverter');
+  }
+}
 
 // Future<void> copyAssetFile(String asset, String targetDir) async {
 //   final data = await rootBundle.load(asset);

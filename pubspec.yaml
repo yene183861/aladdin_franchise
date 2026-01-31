@@ -90,7 +90,7 @@ dependencies:
   flutter_colorpicker: ^1.1.0
   calendar_date_picker2: 0.5.5
   webcontent_converter:
-    git: https://github.com/aladdin-pos/webcontent_converter.git
+    git: https://github.com/yenlt183861/webcontent_converter.git
 
 dev_dependencies:
   flutter_test:
@@ -106,6 +106,7 @@ flutter:
   generate: true
   uses-material-design: true
   assets:
+    - assets/1056772_chrome-win.zip
     - assets/images/
     - assets/icons/
 flutter_intl:
