@@ -382,7 +382,7 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                     if (data.isEmpty) {
                       return Center(
                         child: Text(
-                          'Không có dữ liệu',
+                          S.current.no_data,
                           style: AppTextStyle.regular(),
                         ),
                       );

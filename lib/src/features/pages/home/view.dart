@@ -271,19 +271,19 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             );
             break;
           case HomeEvent.lockOrder:
-            showProcessingDialog(context, message: 'Đang khóa thao tác đơn bàn...');
+            showProcessingDialog(context, message: S.current.locking_order_action);
             break;
           case HomeEvent.updateReservation:
-            showProcessingDialog(context, message: 'Đang cập nhật lịch đặt bàn...');
+            showProcessingDialog(context, message: S.current.updating_reservation_info);
             break;
           case HomeEvent.updateOrderReservation:
-            showProcessingDialog(context, message: 'Đang thay đổi lịch đặt bàn của đơn...');
+            showProcessingDialog(context, message: S.current.updating_order_reser);
             break;
           case HomeEvent.addCoupon:
             showProcessingDialog(context, message: S.current.checking);
             break;
           case HomeEvent.saveO2oConfig:
-            showProcessingDialog(context, message: 'Đang lưu cấu hình');
+            showProcessingDialog(context, message: S.current.saving_config);
             break;
           // case HomeEvent.sendPrintData:
           //   showProcessingDialog(context, message: 'Đang gửi lệnh in ');
@@ -408,7 +408,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                             // });
                           },
                           child: Text(
-                            'Chọn đơn bàn thao tác',
+                            S.current.selectOrder,
                             style: AppTextStyle.bold(color: Colors.white),
                           ),
                         );

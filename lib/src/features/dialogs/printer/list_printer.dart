@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
@@ -162,7 +163,7 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                   children: [
                     Expanded(
                       child: Text(
-                        'Sử dụng máy in mặc định theo món',
+                        S.current.use_default_printer,
                         style: AppTextStyle.regular(),
                       ),
                     ),
@@ -184,7 +185,7 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                   children: [
                     Expanded(
                       child: Text(
-                        'Chọn máy in khác',
+                        S.current.select_another_printer,
                         style: AppTextStyle.regular(),
                       ),
                     ),
@@ -259,7 +260,7 @@ class _ListPrintersDialogState extends ConsumerState<ListPrintersDialog> {
                   children: [
                     const AppCloseButton(),
                     AppButton(
-                      textAction: 'Lưu',
+                      textAction: S.current.save,
                       color: AppColors.secondColor,
                       onPressed: () {
                         pop(context);
@@ -296,7 +297,7 @@ class _FetchListPrintersError extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Tooltip(
-              message: 'Nhấn để thử lại',
+              message: S.current.tap_to_try_again,
               child: IconButton(
                 onPressed: onRetry,
                 icon: const Icon(
@@ -306,7 +307,7 @@ class _FetchListPrintersError extends ConsumerWidget {
               ),
             ),
             Text(
-              'Không thể tải danh sách máy in',
+              S.current.unable_load_printer_list,
               style: AppTextStyle.medium(
                 rawFontSize: AppConfig.defaultRawTextSize,
                 color: AppColors.redColor,
@@ -348,7 +349,7 @@ class _FetchListPrintersLoading extends ConsumerWidget {
             ),
             const Gap(8),
             Text(
-              'Đang tải danh sách máy in',
+              S.current.loading_printer_list,
               style: AppTextStyle.regular(rawFontSize: AppConfig.defaultRawTextSize),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
@@ -384,7 +385,7 @@ class _ListPrintersSection extends ConsumerWidget {
     if (data.isEmpty) {
       return Center(
         child: Text(
-          'Danh sách máy in trống',
+          S.current.printer_list_empty,
           style: AppTextStyle.regular(
             color: Colors.grey.shade400,
             rawFontSize: AppConfig.defaultRawTextSize - 1.0,
@@ -490,7 +491,7 @@ class _BtnRefreshListPrinters extends ConsumerWidget {
     bool show = useDefaultPrinter ? show2 : show1;
     if (!show) return const SizedBox.shrink();
     return Tooltip(
-      message: 'Tải lại danh sách máy in',
+      message: S.current.reload_printer_list,
       child: IconButton(
         onPressed: () {
           if (useDefaultPrinter) {

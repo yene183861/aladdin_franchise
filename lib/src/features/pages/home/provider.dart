@@ -436,6 +436,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         updateSaleInfo: true,
       );
       updateEvent(null);
+      _onRefeshO2o(typeOrder);
       return [result.orderId, null];
     } catch (ex) {
       updateEvent(null);
@@ -471,11 +472,20 @@ class HomeNotifier extends StateNotifier<HomeState> {
         }
       }
       updateEvent(null);
+
+      _onRefeshO2o();
       return (error: null, orderId: result.orderId);
     } catch (ex) {
       _lockOrder(ex);
       updateEvent(null);
       return (error: ex.toString(), orderId: -1);
+    }
+  }
+
+  void _onRefeshO2o([int? typeOrder]) {
+    if ((LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false) &&
+        (typeOrder ?? kTypeOrder) == TypeOrderEnum.offline.type) {
+      ref.refresh(orderToOnlineProvider);
     }
   }
 

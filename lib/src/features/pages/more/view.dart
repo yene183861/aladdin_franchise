@@ -41,7 +41,7 @@ class MorePage extends ConsumerWidget {
                 TitleLineWidget(title: S.current.personal),
                 const ProfileLineWidget(),
                 const Divider(),
-                const ButtonTypeOrderWidget(),
+                const ButtonTypeOrder(),
                 const ButtonUpdateData(),
                 const ButtonCheckPrinterWidget(),
                 const ButtonUseFontScale(),

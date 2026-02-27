@@ -2,6 +2,7 @@ import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment_cancel.dart';
+import 'package:aladdin_franchise/src/features/dialogs/reason_cancel_item.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/dialog/confirm_add_items.dart';
 // import 'package:aladdin_franchise/src/features/dialogs/detail_product_checkout.dart';
 // import 'package:aladdin_franchise/src/features/dialogs/payment_cancel.dart';
@@ -234,13 +235,10 @@ class _ListRequestWidget extends ConsumerWidget {
                   final orderItems =
                       ref.read(orderToOnlinePageProvider).requestSelect?.listItem ?? [];
                   if (orderItems.isEmpty) return;
-
-                  await showPaymentCancelDialog(
-                    context,
-                    onAction: (content) {
-                      ref.read(orderToOnlinePageProvider.notifier).cancelRequest(reason: content);
-                    },
-                  );
+                  var reason = await showReasonCancelItemDialog(context);
+                  if (reason != null && context.mounted) {
+                    ref.read(orderToOnlinePageProvider.notifier).cancelRequest(reason: reason);
+                  }
                 },
               ),
               const Gap(12),

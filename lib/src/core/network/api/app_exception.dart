@@ -18,7 +18,7 @@ class AppException implements Exception {
       case 403:
         return 'Người dùng không được phép truy cập.';
       case 404:
-        return "Không có dữ liệu";
+        return S.current.no_data;
       case 408:
         return "Thời gian yêu cầu quá hạn";
       case 423:

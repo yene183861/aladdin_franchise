@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/const.dart';
 import 'package:aladdin_franchise/src/models/category.dart';
 import 'package:flutter/foundation.dart';
@@ -45,11 +46,11 @@ class AppConfig {
 
   static const double heightBtn = 56.0;
 
-  static const List<String> reasonCancelItem = [
-    "Khách chọn nhầm",
-    "Khách báo huỷ",
-    "Hết món",
-    "Món ra trễ",
+  static List<String> reasonCancelItem = [
+    S.current.customer_select_mistake,
+    S.current.customer_request_cancel,
+    S.current.out_of_stock,
+    S.current.dish_served_late,
   ];
 
   final List<String> ratingPayment = [

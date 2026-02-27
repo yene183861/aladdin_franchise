@@ -44,8 +44,7 @@ extension RequestProcessingStatusEx on RequestProcessingStatus {
   String get title {
     switch (this) {
       case RequestProcessingStatus.waiting:
-        // return S.current.wait_for_handling;
-        return 'Chờ xử lý';
+        return S.current.wait_for_handling;
       case RequestProcessingStatus.accept:
         return S.current.accepted;
       case RequestProcessingStatus.cancel:
@@ -129,8 +128,8 @@ class RequestOrderModel with _$RequestOrderModel {
 
   String get userSender {
     var value = sender.trim();
-    if (value.isEmpty) return 'Khách hàng';
-    return value != 'user' ? value : 'Khách hàng';
+    if (value.isEmpty) return S.current.customers;
+    return value != 'user' ? value : S.current.customers;
   }
 
   static String getModelInterface() {

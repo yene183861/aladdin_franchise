@@ -16,19 +16,18 @@ class AboutDeviceWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<String>? deviceInfo = ref.watch(deviceProvider).value ??
-        List.generate(3, (index) => S.current.unknown);
+    List<String>? deviceInfo =
+        ref.watch(deviceProvider).value ?? List.generate(3, (index) => S.current.unknown);
 
     return ListTile(
       visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
-      leading: const ResponsiveIconWidget(
-          iconData: CupertinoIcons.device_phone_portrait),
+      leading: const ResponsiveIconWidget(iconData: CupertinoIcons.device_phone_portrait),
       title: Text(
         S.current.infoDevice,
         style: AppTextStyle.regular(),
       ),
       subtitle: Text(
-        "${S.current.deviceCode}: ${deviceInfo[0]}\n${S.current.deviceIP}: ${deviceInfo[1]}\n${S.current.networkConnect}: ${deviceInfo[2]}",
+        "${S.current.deviceCode}: ${deviceInfo[0] ?? ''}\n${S.current.deviceIP}: ${deviceInfo[1] ?? ''}\n${S.current.networkConnect}: ${deviceInfo[2] ?? ''}",
         style: AppTextStyle.regular(),
       ),
     );

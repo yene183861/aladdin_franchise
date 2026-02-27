@@ -12,12 +12,12 @@ import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class NotificationPage extends ConsumerStatefulWidget {
   const NotificationPage({super.key});
@@ -40,6 +40,12 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
     var data = ref.watch(homeProvider.select((value) => value.notifications));
     var dataView = List<NotificationModel>.from(data);
     dataView = dataView.where((e) {
+      NotificationDataModel? dataPrint = e.getDataPrint;
+      if (e.getNotiType == NotificationTypeEnum.print &&
+          dataPrint != null &&
+          dataPrint.printStatus == PrintStatusEnum.done) {
+        return false;
+      }
       return true;
     }).toList();
     dataView.sort(
@@ -67,7 +73,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                 var ids = dataView.map((e) => e.id).toList();
                 await showConfirmAction(
                   context,
-                  message: 'Bạn có muốn đánh dấu tất cả là đã đọc?',
+                  message: S.current.mark_all_as_read,
                   action: () {
                     ref.read(homeProvider.notifier).markReadAllNotification(ids);
                   },
@@ -80,7 +86,7 @@ class _NotificationPageState extends ConsumerState<NotificationPage> {
                 var ids = dataView.map((e) => e.id).toList();
                 await showConfirmAction(
                   context,
-                  message: 'Bạn có muốn xoá tất cả thông báo?',
+                  message: S.current.confirm_delete_notification,
                   action: () {
                     ref.read(homeProvider.notifier).deleleNotification(ids);
                   },
@@ -110,7 +116,7 @@ class _BodyPage extends ConsumerWidget {
     if (dataView.isEmpty) {
       return Center(
         child: Text(
-          'Không có thông báo!',
+          S.current.no_data,
           style: AppTextStyle.regular(
             color: Colors.grey,
             rawFontSize: AppConfig.defaultRawTextSize - 1.0,
@@ -122,12 +128,8 @@ class _BodyPage extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       itemBuilder: (context, index) {
         var item = dataView[index];
-        var notiType = NotificationTypeEnum.other;
-        try {
-          notiType = NotificationTypeEnum.values.byName(item.type ?? '');
-        } catch (ex) {
-          //
-        }
+        var notiType = item.getNotiType;
+        var dataPrint = item.getDataPrint;
         return InkWell(
           onTap: () {
             ref.read(homeProvider.notifier).markReadNotification(item.id);
@@ -193,7 +195,7 @@ class _BodyPage extends ConsumerWidget {
                     ],
                   ),
                 ),
-                if ([NotificationTypeEnum.print].contains(notiType)) ...[
+                if ([NotificationTypeEnum.print].contains(notiType) && dataPrint != null) ...[
                   const Gap(12),
                   Consumer(builder: (context, ref, child) {
                     var isPrintDevice = ref.watch(o2oConfigProvider).when(
@@ -202,14 +204,13 @@ class _BodyPage extends ConsumerWidget {
                           error: (error, stackTrace) => false,
                           loading: () => false,
                         );
-                    var data = NotificationDataModel.fromJson(jsonDecode(item.data));
-                    var printStatus = data.printStatus;
+                    var printStatus = dataPrint.printStatus;
                     if ([PrintStatusEnum.waiting, PrintStatusEnum.done].contains(printStatus)) {
                       return const SizedBox.shrink();
                     }
                     if (printStatus == PrintStatusEnum.noResponse && !isPrintDevice) {
                       return AppButton(
-                        textAction: 'Thiết lập máy in chính',
+                        textAction: S.current.set_default_printer,
                         onPressed: () async {
                           ref.read(homeProvider.notifier).markReadNotification(item.id);
                           var result = await ref.read(homeProvider.notifier).savePrintDevice(true);
@@ -222,33 +223,32 @@ class _BodyPage extends ConsumerWidget {
                     return const SizedBox.shrink();
                   }),
                   Builder(builder: (context) {
-                    var data = NotificationDataModel.fromJson(jsonDecode(item.data));
-                    var printStatus = data.printStatus;
+                    var printStatus = dataPrint.printStatus;
                     if ([PrintStatusEnum.waiting, PrintStatusEnum.done].contains(printStatus)) {
                       return const SizedBox.shrink();
                     }
 
                     return Tooltip(
-                      message: 'Gửi lệnh trực tiếp tới máy in',
+                      message: S.current.send_cmd_print_directly,
                       child: IconButton(
                         style: ButtonStyle(
                           backgroundColor: WidgetStatePropertyAll(Colors.grey.shade300),
                         ),
                         onPressed: () async {
                           ref.read(homeProvider.notifier).sendPrintData(
-                                type: data.type,
-                                note: data.note ?? '',
-                                order: data.order,
-                                closeShiftData: data.closeShiftData,
-                                paymentData: data.paymentData,
+                                type: dataPrint.type,
+                                note: dataPrint.note ?? '',
+                                order: dataPrint.order,
+                                closeShiftData: dataPrint.closeShiftData,
+                                paymentData: dataPrint.paymentData,
                                 printDirectly: true,
-                                printers: data.printers,
-                                products: data.products,
+                                printers: dataPrint.printers,
+                                products: dataPrint.products,
                                 timeOrder: 1,
-                                totalBill: data.totalBill,
-                                useDefaultPrinters: data.useDefaultPrinters,
-                                useOddBill: data.useOddBill,
-                                appPrinterType: data.mode,
+                                totalBill: dataPrint.totalBill,
+                                useDefaultPrinters: dataPrint.useDefaultPrinters,
+                                useOddBill: dataPrint.useOddBill,
+                                appPrinterType: dataPrint.mode,
                               );
 
                           ref.read(homeProvider.notifier).deleleNotification([item.id]);
@@ -333,7 +333,7 @@ class _NotificationDetailDialog extends ConsumerWidget {
                     const Spacer(),
                     AppButton(
                       icon: Icons.refresh,
-                      textAction: 'Thử lại',
+                      textAction: S.current.tryAgain,
                       onPressed: () async {
                         var res = await ref.read(homeProvider.notifier).sendPrintData(
                               type: data!.type,
@@ -361,7 +361,7 @@ class _NotificationDetailDialog extends ConsumerWidget {
                     const Gap(12),
                     AppButton(
                       icon: Icons.print,
-                      textAction: 'In trực tiếp',
+                      textAction: S.current.print_directly,
                       color: AppColors.secondColor,
                       onPressed: () {
                         pop(context);
@@ -390,24 +390,25 @@ class _NotificationDetailDialog extends ConsumerWidget {
                 ExpansionTile(
                   tilePadding: EdgeInsets.zero,
                   title: Text(
-                    'Xem chi tiết món in không thành công',
+                    S.current.view_detail_item_print_failed,
                     style: AppTextStyle.bold(rawFontSize: AppConfig.defaultRawTextSize - 0.5),
                   ),
                   children: [
-                    _buildTechRow('Hành động', data.type.title),
+                    _buildTechRow(S.current.action, data.type.title),
                     _buildTechRow(
-                        'Danh sách máy in',
+                        S.current.printer_list,
                         data.printers
                             .map((e) => '${e.name} (${e.ip ?? ''}:${e.port ?? ''})')
                             .join(', ')),
-                    _buildTechRow('Đơn bàn', data.order?.getOrderMisc() ?? ''),
-                    _buildTechRow('Loại bill', data.totalBill ? 'Bill tổng' : 'BIll lẻ'),
-                    _buildTechRow('Ghi chú', data.note ?? ''),
+                    _buildTechRow(S.current.order, data.order?.getOrderMisc() ?? ''),
+                    _buildTechRow(S.current.bill_type,
+                        data.totalBill ? S.current.total_bill : S.current.separate_bill),
+                    _buildTechRow(S.current.note, data.note ?? ''),
                     _buildTechRow(
-                        'Danh sách món',
+                        S.current.list_dish,
                         data.products
                             .map((e) =>
-                                '${e.getNameView()} (x${e.numberSelecting})${(e.note ?? '').trim().isNotEmpty ? ' (Ghi chú món: ${e.note ?? ''})' : ''}')
+                                '${e.getNameView()} (x${e.numberSelecting})${(e.note ?? '').trim().isNotEmpty ? ' (${S.current.note}: ${e.note ?? ''})' : ''}')
                             .join(', ')),
                   ],
                 ),

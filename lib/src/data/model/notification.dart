@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/enums/bill_setting.dart';
@@ -107,6 +109,27 @@ class NotificationModel extends HiveObject with _$NotificationModel {
 
   NotificationModel markRead() {
     return copyWith(read: true, viewed: true);
+  }
+
+  NotificationDataModel? get getDataPrint {
+    NotificationDataModel? result;
+    try {
+      result = NotificationDataModel.fromJson(jsonDecode(data));
+    } catch (ex) {
+      //
+    }
+
+    return result;
+  }
+
+  NotificationTypeEnum get getNotiType {
+    NotificationTypeEnum result = NotificationTypeEnum.other;
+    try {
+      result = NotificationTypeEnum.values.byName(type ?? '');
+    } catch (ex) {
+      //
+    }
+    return result;
   }
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) =>

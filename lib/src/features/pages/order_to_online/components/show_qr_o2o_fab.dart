@@ -235,11 +235,7 @@ class PrinterContentDialog extends ConsumerWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ButtonSimpleWidget(
-                  color: Colors.grey.shade700,
-                  textAction: S.current.close,
-                  onPressed: () => Navigator.pop(context),
-                ),
+                const AppCloseButton(),
                 if (printers.isNotEmpty) ...[
                   const GapW(20),
                   ButtonSimpleWidget(

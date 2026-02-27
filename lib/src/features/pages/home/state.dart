@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/data_bill.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
 import 'package:aladdin_franchise/src/data/model/notification.dart';
@@ -110,9 +111,9 @@ extension OrderTabEnumEx on OrderTabEnum {
   String get title {
     switch (this) {
       case OrderTabEnum.ordering:
-        return 'Đang chọn';
+        return S.current.selecting_dish;
       case OrderTabEnum.ordered:
-        return 'Đã gọi';
+        return S.current.selected_dish;
     }
   }
 

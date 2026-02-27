@@ -6631,10 +6631,10 @@ class S {
     );
   }
 
-  /// `Locking order actions`
+  /// `Locking table order actions`
   String get locking_order_action {
     return Intl.message(
-      'Locking order actions',
+      'Locking table order actions',
       name: 'locking_order_action',
       desc: '',
       args: [],
@@ -7006,6 +7006,486 @@ class S {
     return Intl.message(
       'Send to the kitchen',
       name: 'send_to_the_kitchen',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The ordered items list is empty`
+  String get ordered_item_empty {
+    return Intl.message(
+      'The ordered items list is empty',
+      name: 'ordered_item_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add items to the order`
+  String get add_item_to_order {
+    return Intl.message(
+      'Add items to the order',
+      name: 'add_item_to_order',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Selecting dish`
+  String get selecting_dish {
+    return Intl.message(
+      'Selecting dish',
+      name: 'selecting_dish',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Selected dish`
+  String get selected_dish {
+    return Intl.message(
+      'Selected dish',
+      name: 'selected_dish',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter the information`
+  String get please_enter_info {
+    return Intl.message(
+      'Please enter the information',
+      name: 'please_enter_info',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Discount (VND/%)`
+  String get discount_title {
+    return Intl.message(
+      'Discount (VND/%)',
+      name: 'discount_title',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The percentage must not exceed 100%`
+  String get error_percentage_exceed_limit {
+    return Intl.message(
+      'The percentage must not exceed 100%',
+      name: 'error_percentage_exceed_limit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Printer options`
+  String get printer_options {
+    return Intl.message(
+      'Printer options',
+      name: 'printer_options',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add to order`
+  String get add_to_order {
+    return Intl.message(
+      'Add to order',
+      name: 'add_to_order',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a note for the kitchen or bar...`
+  String get enter_note_kitchen_or_bar {
+    return Intl.message(
+      'Enter a note for the kitchen or bar...',
+      name: 'enter_note_kitchen_or_bar',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Print now`
+  String get print_now {
+    return Intl.message(
+      'Print now',
+      name: 'print_now',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The item has been added to the order.\n\nHowever, the system has not received the print request.\nWould you like to send the print command directly to the printer?`
+  String get msg_add_item_success_print_failed {
+    return Intl.message(
+      'The item has been added to the order.\n\nHowever, the system has not received the print request.\nWould you like to send the print command directly to the printer?',
+      name: 'msg_add_item_success_print_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do you want to place the order without printing the bill to the kitchen/bar?`
+  String get process_order_and_not_print {
+    return Intl.message(
+      'Do you want to place the order without printing the bill to the kitchen/bar?',
+      name: 'process_order_and_not_print',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use the default printer for each item`
+  String get use_default_printer {
+    return Intl.message(
+      'Use the default printer for each item',
+      name: 'use_default_printer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select another printer`
+  String get select_another_printer {
+    return Intl.message(
+      'Select another printer',
+      name: 'select_another_printer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Loading printer list`
+  String get loading_printer_list {
+    return Intl.message(
+      'Loading printer list',
+      name: 'loading_printer_list',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The printer list is empty`
+  String get printer_list_empty {
+    return Intl.message(
+      'The printer list is empty',
+      name: 'printer_list_empty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reload the printer list`
+  String get reload_printer_list {
+    return Intl.message(
+      'Reload the printer list',
+      name: 'reload_printer_list',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to load the printer list`
+  String get unable_load_printer_list {
+    return Intl.message(
+      'Unable to load the printer list',
+      name: 'unable_load_printer_list',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Tap to try again`
+  String get tap_to_try_again {
+    return Intl.message(
+      'Tap to try again',
+      name: 'tap_to_try_again',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel dish`
+  String get cancel_dish {
+    return Intl.message(
+      'Cancel dish',
+      name: 'cancel_dish',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Order history`
+  String get order_history {
+    return Intl.message(
+      'Order history',
+      name: 'order_history',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select the item you want to cancel`
+  String get select_dish_cancel {
+    return Intl.message(
+      'Select the item you want to cancel',
+      name: 'select_dish_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirm cancellation of the selected item`
+  String get confirm_cancel_dish {
+    return Intl.message(
+      'Confirm cancellation of the selected item',
+      name: 'confirm_cancel_dish',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The item has been canceled successfully!\n\nHowever, the system has not received the print request.\nWould you like to send the print command directly to the printer?`
+  String get msg_cancel_item_success_print_failed {
+    return Intl.message(
+      'The item has been canceled successfully!\n\nHowever, the system has not received the print request.\nWould you like to send the print command directly to the printer?',
+      name: 'msg_cancel_item_success_print_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do you want to cancel the item without printing the bill to the kitchen/bar?`
+  String get cancel_dish_and_not_print {
+    return Intl.message(
+      'Do you want to cancel the item without printing the bill to the kitchen/bar?',
+      name: 'cancel_dish_and_not_print',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Total amount after cancellation`
+  String get total_amount_after_cancel {
+    return Intl.message(
+      'Total amount after cancellation',
+      name: 'total_amount_after_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `(excluding tax and discount)`
+  String get exclude_tax_discount {
+    return Intl.message(
+      '(excluding tax and discount)',
+      name: 'exclude_tax_discount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do you want to close the shift?`
+  String get confirm_close_shift {
+    return Intl.message(
+      'Do you want to close the shift?',
+      name: 'confirm_close_shift',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Print settings`
+  String get print_setting {
+    return Intl.message(
+      'Print settings',
+      name: 'print_setting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Adjust font size`
+  String get adjust_font_size {
+    return Intl.message(
+      'Adjust font size',
+      name: 'adjust_font_size',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current font size`
+  String get current_font_size {
+    return Intl.message(
+      'Current font size',
+      name: 'current_font_size',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wait for handling`
+  String get wait_for_handling {
+    return Intl.message(
+      'Wait for handling',
+      name: 'wait_for_handling',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Customer selected by mistake`
+  String get customer_select_mistake {
+    return Intl.message(
+      'Customer selected by mistake',
+      name: 'customer_select_mistake',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Customer requested cancellation`
+  String get customer_request_cancel {
+    return Intl.message(
+      'Customer requested cancellation',
+      name: 'customer_request_cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dish served late`
+  String get dish_served_late {
+    return Intl.message(
+      'Dish served late',
+      name: 'dish_served_late',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select a reason for canceling the item!`
+  String get please_select_reason_cancel_item {
+    return Intl.message(
+      'Please select a reason for canceling the item!',
+      name: 'please_select_reason_cancel_item',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do you want to mark all as read?`
+  String get mark_all_as_read {
+    return Intl.message(
+      'Do you want to mark all as read?',
+      name: 'mark_all_as_read',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do you want to delete all notifications?`
+  String get confirm_delete_notification {
+    return Intl.message(
+      'Do you want to delete all notifications?',
+      name: 'confirm_delete_notification',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Set as default printer`
+  String get set_default_printer {
+    return Intl.message(
+      'Set as default printer',
+      name: 'set_default_printer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send the command directly to the printer`
+  String get send_cmd_print_directly {
+    return Intl.message(
+      'Send the command directly to the printer',
+      name: 'send_cmd_print_directly',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Print directly`
+  String get print_directly {
+    return Intl.message(
+      'Print directly',
+      name: 'print_directly',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bill type`
+  String get bill_type {
+    return Intl.message(
+      'Bill type',
+      name: 'bill_type',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Action`
+  String get action {
+    return Intl.message(
+      'Action',
+      name: 'action',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View details of items that failed to print`
+  String get view_detail_item_print_failed {
+    return Intl.message(
+      'View details of items that failed to print',
+      name: 'view_detail_item_print_failed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Total bill`
+  String get total_bill {
+    return Intl.message(
+      'Total bill',
+      name: 'total_bill',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Separate bill`
+  String get separate_bill {
+    return Intl.message(
+      'Separate bill',
+      name: 'separate_bill',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saving configuration`
+  String get saving_config {
+    return Intl.message(
+      'Saving configuration',
+      name: 'saving_config',
       desc: '',
       args: [],
     );

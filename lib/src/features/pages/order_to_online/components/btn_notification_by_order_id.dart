@@ -1,4 +1,5 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
+import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/data/model/notification.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/provider.dart';
@@ -71,9 +72,14 @@ class ListO2ONotificationDialog extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  dataView[index].body,
-                                  style: AppTextStyle.regular(),
+                                  dataView[index].title,
+                                  style: AppTextStyle.bold(),
                                 ),
+                                if (dataView[index].body.trim().isNotEmpty)
+                                  Text(
+                                    dataView[index].body,
+                                    style: AppTextStyle.regular(),
+                                  ),
                                 Text(
                                   DateTimeUtils.formatToString(
                                     time: dataView[index].datetime,
@@ -81,7 +87,7 @@ class ListO2ONotificationDialog extends ConsumerWidget {
                                   ),
                                   style: AppTextStyle.regular(
                                     color: Colors.grey,
-                                    rawFontSize: 14,
+                                    rawFontSize: AppConfig.defaultRawTextSize - 1.0,
                                   ),
                                 ),
                               ],

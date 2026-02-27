@@ -56,7 +56,7 @@ void showHistoryOrderItemDialog(BuildContext context) async {
                 if (dataView.isEmpty) {
                   return Center(
                     child: Text(
-                      'Không có dữ liệu',
+                      S.current.no_data,
                       style: AppTextStyle.regular(
                         color: Colors.grey.shade500,
                         rawFontSize: AppConfig.defaultRawTextSize - 0.5,
@@ -177,7 +177,7 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
       child: Row(children: [
         AppButton(
           icon: Icons.history,
-          textAction: 'Lịch sử gọi - hủy',
+          textAction: S.current.order_history,
           color: Colors.orange,
           onPressed: () async {
             showHistoryOrderItemDialog(context);
@@ -187,7 +187,7 @@ class ProductCheckoutActionWidget extends ConsumerWidget {
         if (productCheckout.isNotEmpty) ...[
           const Gap(12),
           AppButton(
-            textAction: 'Hủy món',
+            textAction: S.current.cancel_dish,
             onPressed: () async {
               await showDialog(
                 context: context,

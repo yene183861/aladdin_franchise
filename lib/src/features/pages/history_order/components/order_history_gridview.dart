@@ -1,4 +1,5 @@
 import 'package:aladdin_franchise/generated/assets.dart';
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -180,7 +181,7 @@ class OrderHistoryGridView extends ConsumerWidget {
                             value: item.price?.totalPriceVoucher ?? 0,
                           ),
                           _LinePriceWidget(
-                            title: 'Thành tiền',
+                            title: S.current.total_amount,
                             value: item.price?.totalPriceFinal ?? 0,
                           ),
                         ],

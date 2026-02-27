@@ -212,7 +212,7 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Giảm giá VND/%'),
+                        Text(S.current.discount_title),
                         const Gap(8),
                         Consumer(builder: (context, ref, child) {
                           var discoundType =
@@ -237,8 +237,7 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                                       String? error;
                                       if (discoundType == DiscountTypeEnum.percent &&
                                           data > 100.0) {
-                                        error = 'Phần trăm không được vượt quá 100%';
-                                        // return 'Phần trăm không được vượt quá 100%';
+                                        error = S.current.error_percentage_exceed_limit;
                                       }
                                       WidgetsBinding.instance.addPostFrameCallback(
                                         (timeStamp) {

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
@@ -65,7 +66,7 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
               const Gap(8),
               Expanded(
                 child: Text(
-                  'Gọi món',
+                  S.current.processOrder,
                   style: AppTextStyle.bold(rawFontSize: AppConfig.defaultRawTextSize + 1.0),
                 ),
               ),
@@ -89,7 +90,7 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
                         const Gap(8),
                         Expanded(
                           child: Text(
-                            'Danh sách món',
+                            S.current.list_dish,
                             style: AppTextStyle.bold(),
                           ),
                         ),
@@ -125,7 +126,7 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
                   }
                   return ListPrintersDialog(
                     width: 400 * (isPhone ? 0.7 : 1.0),
-                    title: 'Tùy chọn máy in',
+                    title: S.current.printer_options,
                     onChangePrinterConfig: (p0, p1) {
                       printerSelect = Set<PrinterModel>.from(p0);
                       useDefaultPrinter = p1;
@@ -140,7 +141,7 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
           Row(
             children: [
               Text(
-                'Tổng: ',
+                '${S.current.total}: ',
                 style: AppTextStyle.regular(color: Colors.grey.shade500),
               ),
               Consumer(
@@ -175,15 +176,15 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
                     ref.watch(cartPageProvider.select((value) => value.productIdSelect));
                 return AppButton(
                   icon: Icons.shopping_cart_checkout_sharp,
-                  textAction: 'Thêm vào đơn',
+                  textAction: S.current.add_to_order,
                   onPressed: productIdSelect.isEmpty
                       ? null
                       : () async {
                           var note = await showConfirmInputDialog(
                             context,
-                            title: 'Xác nhận',
-                            message: 'Xác nhận gọi món?',
-                            hintText: 'Nhập ghi chú cho bếp, bar...',
+                            title: S.current.confirm,
+                            message: S.current.orderConfirm,
+                            hintText: S.current.enter_note_kitchen_or_bar,
                           );
                           if (note != null) {
                             _processOrder(
@@ -220,10 +221,9 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
     if (result.pingPrinters != null) {
       await showConfirmAction(
         context,
-        message:
-            '${result.pingPrinters ?? ''}\nBạn có muốn gọi món mà không in bill xuống bếp, bar?',
-        actionTitle: 'Tiếp tục',
-        title: 'Thông báo',
+        message: '${result.pingPrinters ?? ''}\n${S.current.process_order_and_not_print}',
+        actionTitle: S.current.continue_text,
+        title: S.current.notification,
         action: () {
           _processOrder(
             context: context,
@@ -239,12 +239,10 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
       if (result.resultSendPrintData != null) {
         await showConfirmAction(
           context,
-          message: 'Món đã được thêm vào đơn.\n\n'
-              'Tuy nhiên, hệ thống chưa nhận được yêu cầu in.\n'
-              'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
-          actionTitle: 'In ngay',
-          textCancel: 'Đóng',
-          title: 'Thông báo',
+          message: S.current.msg_add_item_success_print_failed,
+          actionTitle: S.current.print_now,
+          textCancel: S.current.close,
+          title: S.current.notification,
           action: () {
             _processOrder(
               context: context,
@@ -361,7 +359,7 @@ class __ProductLineState extends ConsumerState<_ProductLine> {
                                     child: AppTextFormField(
                                       contentPadding:
                                           const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      hintText: 'Ghi chú',
+                                      hintText: S.current.note,
                                       initialValue: item.note,
                                       onChanged: (value) {
                                         ref.read(cartPageProvider.notifier).onChangeNoteProduct(

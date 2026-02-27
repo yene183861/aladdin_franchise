@@ -73,7 +73,7 @@ class HomeDrawer extends ConsumerWidget {
                   onTap: () async {
                     await showConfirmAction(
                       context,
-                      message: 'Bạn có muốn thực hiện chốt ca?',
+                      message: S.current.confirm_close_shift,
                       textCancel: S.current.close,
                       action: () async {
                         pop(context);
@@ -128,7 +128,7 @@ class HomeDrawer extends ConsumerWidget {
                   ),
                 ),
                 const Divider(height: 1),
-                const ButtonTypeOrderWidget(canPop: true),
+                const ButtonTypeOrder(canPop: true),
                 const ButtonUpdateData(),
                 const ButtonCheckPrinterWidget(canPop: true),
                 ListTile(
@@ -140,7 +140,7 @@ class HomeDrawer extends ConsumerWidget {
                     iconData: CupertinoIcons.settings,
                   ),
                   title: Text(
-                    'Cài đặt in',
+                    S.current.print_setting,
                     style: AppTextStyle.medium(),
                   ),
                 ),

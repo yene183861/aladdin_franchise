@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/components/order_price_widget.dart';
@@ -45,7 +46,7 @@ class PreviewPriceWidget extends ConsumerWidget {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: LineInfoPaymentQRWidget(
-                  title: 'Tổng tiền món đang chọn',
+                  title: S.current.totalAmountSelecting,
                   value: totalSelecting,
                   isLoading: false,
                 ),

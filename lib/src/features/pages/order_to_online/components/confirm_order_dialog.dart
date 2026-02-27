@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
@@ -9,6 +10,8 @@ import 'package:aladdin_franchise/src/features/dialogs/printer/list_printer.dart
 
 import 'package:aladdin_franchise/src/features/pages/order_to_online/components/custom_checkbox.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/provider.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
@@ -67,12 +70,12 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
                 children: [
                   Row(
                     children: [
-                      const Gap(20),
+                      const Gap(12),
                       const Icon(Icons.list_alt_outlined),
                       const Gap(8),
                       Expanded(
                         child: Text(
-                          'Danh sách món',
+                          S.current.list_dish,
                           style: AppTextStyle.bold(),
                         ),
                       ),
@@ -92,8 +95,9 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
                               (data[orderSelect]?['items'] ?? []) as List<RequestOrderModel>;
                           var dataView =
                               listItems.firstWhereOrNull((e) => e.id == requestSelect?.id);
+
                           return ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             itemBuilder: (context, index) {
                               var data = (dataView?.listItem ?? [])[index];
                               return _ProductLine(
@@ -105,12 +109,19 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
                           );
                         },
                         error: (error, stackTrace) {
-                          // change here
-                          return Container();
+                          return Center(
+                            child: AppErrorSimpleWidget(
+                              onTryAgain: () {
+                                ref.refresh(orderToOnlineProvider);
+                              },
+                              message: error.toString(),
+                            ),
+                          );
                         },
                         loading: () {
-                          // change here
-                          return Container();
+                          return const Center(
+                            child: AppLoadingSimpleWidget(),
+                          );
                         },
                       );
                       // var items = ref.watch(orderToOnlinePageProvider
@@ -141,7 +152,7 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
                     children: [
                       const VerticalDivider(width: 1),
                       ListPrintersDialog(
-                        title: 'Tùy chọn máy in',
+                        title: S.current.printer_options,
                         onChangePrinterConfig: (p0, p1) {
                           printerSelect = Set<PrinterModel>.from(p0);
                           useDefaultPrinter = p1;
@@ -167,9 +178,9 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
         children: [
           const Icon(Icons.shopping_cart_outlined),
           const SizedBox(width: 8),
-          const Text(
-            'Gọi món',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            S.current.processOrder,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const Spacer(),
           IconButton(
@@ -188,7 +199,7 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
         children: [
           Expanded(
             child: AppTextFormField(
-              hintText: 'Ghi chú xác nhận',
+              hintText: S.current.note,
               onChanged: (value) {
                 note = value;
               },
@@ -210,14 +221,14 @@ class __ConfirmOrderPrinterContentState extends ConsumerState<_ConfirmOrderPrint
             final orderItems = ref.read(orderToOnlinePageProvider).requestSelect?.listItem ?? [];
             return AppButton(
               icon: Icons.shopping_cart_checkout_sharp,
-              textAction: 'Xác nhận',
+              textAction: S.current.confirm,
               onPressed: orderItems.isEmpty
                   ? null
                   : () async {
                       var confirm = await showConfirmAction(
                         context,
-                        title: 'Xác nhận',
-                        message: 'Xác nhận gọi món?',
+                        title: S.current.confirm,
+                        message: S.current.orderConfirm,
                       );
                       if (confirm ?? false) {
                         var result =

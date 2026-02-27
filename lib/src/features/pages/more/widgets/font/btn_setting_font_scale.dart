@@ -1,3 +1,4 @@
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/core/storages/provider.dart';
@@ -12,10 +13,8 @@ class ButtonSettingFontScale extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final useFontScale =
-        ref.watch(appSettingProvider.select((value) => value.useFontScale));
-    final scale =
-        ref.watch(appSettingProvider.select((value) => value.fontScale));
+    final useFontScale = ref.watch(appSettingProvider.select((value) => value.useFontScale));
+    final scale = ref.watch(appSettingProvider.select((value) => value.fontScale));
     bool isSmallDevice = AppDeviceSizeUtil.checkSmallDevice(context);
     if (!useFontScale) return const SizedBox.shrink();
     return Column(
@@ -23,7 +22,7 @@ class ButtonSettingFontScale extends ConsumerWidget {
       children: [
         ListTile(
             title: Text(
-              'Cỡ chữ hiện tại: ${(scale * 100).toInt()}%',
+              '${S.current.current_font_size}: ${(scale * 100).toInt()}%',
               style: AppTextStyle.medium(),
             ),
             leading: const ResponsiveIconWidget(
@@ -44,8 +43,7 @@ class ButtonSettingFontScale extends ConsumerWidget {
                         onChanged: (v) async {
                           var setting = ref.read(appSettingProvider);
                           try {
-                            await LocalStorage.setAppSetting(
-                                setting.copyWith(fontScale: v));
+                            await LocalStorage.setAppSetting(setting.copyWith(fontScale: v));
 
                             ref.refresh(appSettingProvider);
                           } catch (ex) {
@@ -72,7 +70,7 @@ class _FontScaleDefault extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ButtonSimpleWidget(
-      textAction: 'Mặc định',
+      textAction: S.current.default_1,
       onPressed: () async {
         var setting = ref.read(appSettingProvider);
         try {

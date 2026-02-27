@@ -85,7 +85,11 @@ final FutureProvider<List<String>> deviceProvider =
   final networkInfo = await NetworkInfo().getWifiIP();
   final wifiName = await NetworkInfo().getWifiName();
   showLog('load', flags: 'deviceProvider');
-  return [deviceId.toString(), networkInfo.toString(), wifiName ?? "Không xác định"];
+  return [
+    (deviceId ?? '').toString(),
+    (networkInfo ?? '').toString(),
+    wifiName ?? "Không xác định"
+  ];
 });
 
 /// get type order for waiter

@@ -135,7 +135,7 @@ class _OrderProductItem extends ConsumerWidget {
                           Expanded(
                             child: Text.rich(TextSpan(children: [
                               TextSpan(
-                                text: 'Thành tiền:  ',
+                                text: '${S.current.total_amount}:  ',
                                 style: AppTextStyle.medium(
                                   color: Colors.grey,
                                   rawFontSize: AppConfig.defaultRawTextSize - 1.5,
@@ -471,7 +471,7 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                 color: Colors.grey,
               ),
               Text(
-                'Danh sách món đã gọi đang trống',
+                S.current.ordered_item_empty,
                 style: AppTextStyle.regular(
                   color: Colors.grey,
                   rawFontSize: AppConfig.defaultRawTextSize - 1.0,
@@ -840,7 +840,7 @@ class _ListItemWidget extends ConsumerWidget {
               color: Colors.grey,
             ),
             Text(
-              'Thêm món vào đơn bàn',
+              S.current.add_item_to_order,
               style: AppTextStyle.regular(
                 color: Colors.grey,
                 rawFontSize: AppConfig.defaultRawTextSize - 1.0,

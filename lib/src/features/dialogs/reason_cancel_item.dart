@@ -2,6 +2,7 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/data/enum/reason_cancel_item.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
@@ -18,7 +19,7 @@ class ReasonCancelItemDialog extends ConsumerStatefulWidget {
 }
 
 class _ReasonCancelItemDialogState extends ConsumerState<ReasonCancelItemDialog> {
-  String? reason;
+  ReasonCancelItemEnum? reason;
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -33,15 +34,15 @@ class _ReasonCancelItemDialogState extends ConsumerState<ReasonCancelItemDialog>
               ),
             ),
           ),
-          CloseButton(),
+          const CloseButton(),
         ],
       ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: AppConfig.reasonCancelItem.map((e) {
-            return RadioListTile<String>(
+          children: ReasonCancelItemEnum.values.map((e) {
+            return RadioListTile<ReasonCancelItemEnum>(
               value: e,
               groupValue: reason,
               onChanged: (value) {
@@ -50,7 +51,7 @@ class _ReasonCancelItemDialogState extends ConsumerState<ReasonCancelItemDialog>
                 });
               },
               title: Text(
-                e,
+                e.title,
                 style: AppTextStyle.regular(),
               ),
             );
@@ -66,10 +67,10 @@ class _ReasonCancelItemDialogState extends ConsumerState<ReasonCancelItemDialog>
         ButtonSimpleWidget(
           onPressed: () async {
             if (reason == null) {
-              showMessageDialog(context, message: 'Vui lòng chọn lí do hủy món!');
+              showMessageDialog(context, message: S.current.please_select_reason_cancel_item);
               return;
             }
-            Navigator.pop(context, reason);
+            Navigator.pop(context, reason?.key);
           },
           color: AppColors.bgButtonMain,
           textColor: AppColors.tcButtonMain,

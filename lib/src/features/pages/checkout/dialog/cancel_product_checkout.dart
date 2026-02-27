@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
@@ -67,7 +68,7 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
               const Gap(8),
               Expanded(
                 child: Text(
-                  'Huỷ món',
+                  S.current.cancelDish,
                   style: AppTextStyle.bold(rawFontSize: AppConfig.defaultRawTextSize + 1.0),
                 ),
               ),
@@ -91,7 +92,7 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
                         const Gap(8),
                         Expanded(
                           child: Text(
-                            'Chọn món muốn huỷ',
+                            S.current.select_dish_cancel,
                             style: AppTextStyle.bold(),
                           ),
                         ),
@@ -129,7 +130,7 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
                   }
                   return ListPrintersDialog(
                     width: 400 * (isPhone ? 0.7 : 1.0),
-                    title: 'Máy in hủy',
+                    title: S.current.printer_options,
                     onChangePrinterConfig: (p0, p1) {
                       printerSelect = Set<PrinterModel>.from(p0);
                       useDefaultPrinter = p1;
@@ -148,10 +149,10 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
                 children: [
                   Text.rich(
                     TextSpan(
-                      text: 'Tổng tiền sau hủy: ',
+                      text: '${S.current.total_amount_after_cancel}: ',
                       children: [
                         TextSpan(
-                          text: '\n(chưa bao gồm thuế, giảm giá)',
+                          text: '\n${S.current.exclude_tax_discount}',
                           style: AppTextStyle.regular(
                             color: Colors.grey.shade500,
                             rawFontSize: AppConfig.defaultRawTextSize - 1.5,
@@ -205,7 +206,7 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
                 var items = productsCheckout.where((e) => e.quantityCancel > 0).toList();
                 return AppButton(
                   icon: Icons.cancel_outlined,
-                  textAction: 'Xác nhận hủy món đã chọn',
+                  textAction: S.current.confirm_cancel_dish,
                   onPressed: items.isEmpty
                       ? null
                       : () async {
@@ -249,10 +250,9 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
     if (result.checkPrinters != null) {
       await showConfirmAction(
         context,
-        message:
-            '${result.checkPrinters ?? ''}\nBạn có muốn huỷ món mà không in bill xuống bếp, bar?',
-        actionTitle: 'Tiếp tục',
-        title: 'Thông báo',
+        message: '${result.checkPrinters ?? ''}\n${S.current.cancel_dish_and_not_print}',
+        actionTitle: S.current.continue_text,
+        title: S.current.notification,
         action: () {
           _processOrder(
             context: context,
@@ -268,12 +268,10 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
       if (result.resultSendPrintData != null) {
         await showConfirmAction(
           context,
-          message: 'Đã huỷ món thành công!\n\n'
-              'Hệ thống chưa nhận được yêu cầu in.\n'
-              'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
-          actionTitle: 'In ngay',
-          textCancel: 'Đóng',
-          title: 'Thông báo',
+          message: S.current.msg_cancel_item_success_print_failed,
+          actionTitle: S.current.print_now,
+          textCancel: S.current.close,
+          title: S.current.notification,
           action: () {
             _processOrder(
               context: context,
@@ -378,7 +376,7 @@ class __ProductCheckoutLineState extends ConsumerState<_ProductCheckoutLine> {
               Row(
                 children: [
                   Text(
-                    'Hủy',
+                    S.current.cancel,
                     style: AppTextStyle.regular(),
                   ),
                   const Gap(8),
