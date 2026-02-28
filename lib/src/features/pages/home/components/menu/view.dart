@@ -14,6 +14,7 @@ import 'package:aladdin_franchise/src/features/pages/home/components/action/type
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/view.dart';
 import 'package:aladdin_franchise/src/features/pages/table_layout/view.dart';
+import 'package:aladdin_franchise/src/features/pages/table_layout_group/table_layout_new/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_main.dart';
@@ -26,6 +27,7 @@ import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:collection/collection.dart';
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -362,6 +364,14 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                                   },
                                   color: AppColors.secondColor,
                                 ),
+                                if (kDebugMode)
+                                  AppButtonWidget(
+                                    textAction: 'Layout nhà hàng 2',
+                                    onTap: () {
+                                      push(context, const NewTableLayoutPage());
+                                    },
+                                    color: AppColors.secondColor,
+                                  ),
                                 const Expanded(
                                   child: ListTagsWidget(),
                                 ),

@@ -31,15 +31,24 @@ import 'widgets/barrel_widget.dart';
 import 'provider.dart';
 import 'state.dart';
 
-Future<({int? orderId, ReservationModel? reservation, int? typeOrder})> showCreateNewOrderDialog(
-    BuildContext context) async {
+Future<
+    ({
+      int? orderId,
+      ReservationModel? reservation,
+      int? typeOrder,
+    })> showCreateNewOrderDialog(
+  BuildContext context, {
+  Set<int> tableIdSelect = const {},
+}) async {
   final result = await showDialog(
     context: context,
     useRootNavigator: false,
     barrierDismissible: false,
-    builder: (context) => const PopScope(
+    builder: (context) => PopScope(
       canPop: false,
-      child: CreateNewOrderDialog(),
+      child: CreateNewOrderDialog(
+        tableIdSelect: tableIdSelect,
+      ),
     ),
   );
 
@@ -47,13 +56,28 @@ Future<({int? orderId, ReservationModel? reservation, int? typeOrder})> showCrea
 }
 
 class CreateNewOrderDialog extends ConsumerStatefulWidget {
-  const CreateNewOrderDialog({Key? key}) : super(key: key);
+  const CreateNewOrderDialog({
+    Key? key,
+    this.tableIdSelect = const {},
+  }) : super(key: key);
+  final Set<int> tableIdSelect;
 
   @override
   ConsumerState createState() => _CreateNewOrderDialogState();
 }
 
 class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) {
+        ref.read(createNewOrderDialogProvider.notifier).init(widget.tableIdSelect);
+      },
+    );
+  }
+
   _listenNotifyReservation(BuildContext context, WidgetRef ref) =>
       (bool? previous, bool? next) async {
         if (next == true) {

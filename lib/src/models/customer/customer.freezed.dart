@@ -23,6 +23,7 @@ mixin _$CustomerModel {
   dynamic get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get phoneNumber => throw _privateConstructorUsedError;
+  String get phone => throw _privateConstructorUsedError;
   String? get dob => throw _privateConstructorUsedError;
   int? get point => throw _privateConstructorUsedError;
   String? get level => throw _privateConstructorUsedError;
@@ -47,6 +48,7 @@ abstract class $CustomerModelCopyWith<$Res> {
       {dynamic id,
       String name,
       String phoneNumber,
+      String phone,
       String? dob,
       int? point,
       String? level,
@@ -72,6 +74,7 @@ class _$CustomerModelCopyWithImpl<$Res, $Val extends CustomerModel>
     Object? id = freezed,
     Object? name = null,
     Object? phoneNumber = null,
+    Object? phone = null,
     Object? dob = freezed,
     Object? point = freezed,
     Object? level = freezed,
@@ -92,6 +95,10 @@ class _$CustomerModelCopyWithImpl<$Res, $Val extends CustomerModel>
       phoneNumber: null == phoneNumber
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
+              as String,
+      phone: null == phone
+          ? _value.phone
+          : phone // ignore: cast_nullable_to_non_nullable
               as String,
       dob: freezed == dob
           ? _value.dob
@@ -137,6 +144,7 @@ abstract class _$$CustomerModelImplCopyWith<$Res>
       {dynamic id,
       String name,
       String phoneNumber,
+      String phone,
       String? dob,
       int? point,
       String? level,
@@ -160,6 +168,7 @@ class __$$CustomerModelImplCopyWithImpl<$Res>
     Object? id = freezed,
     Object? name = null,
     Object? phoneNumber = null,
+    Object? phone = null,
     Object? dob = freezed,
     Object? point = freezed,
     Object? level = freezed,
@@ -180,6 +189,10 @@ class __$$CustomerModelImplCopyWithImpl<$Res>
       phoneNumber: null == phoneNumber
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
+              as String,
+      phone: null == phone
+          ? _value.phone
+          : phone // ignore: cast_nullable_to_non_nullable
               as String,
       dob: freezed == dob
           ? _value.dob
@@ -220,9 +233,10 @@ class _$CustomerModelImpl
     with DiagnosticableTreeMixin
     implements _CustomerModel {
   const _$CustomerModelImpl(
-      {required this.id,
-      required this.name,
-      required this.phoneNumber,
+      {this.id,
+      this.name = '',
+      this.phoneNumber = '',
+      this.phone = '',
       this.dob,
       this.point,
       this.level,
@@ -237,9 +251,14 @@ class _$CustomerModelImpl
   @override
   final dynamic id;
   @override
+  @JsonKey()
   final String name;
   @override
+  @JsonKey()
   final String phoneNumber;
+  @override
+  @JsonKey()
+  final String phone;
   @override
   final String? dob;
   @override
@@ -258,7 +277,7 @@ class _$CustomerModelImpl
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CustomerModel(id: $id, name: $name, phoneNumber: $phoneNumber, dob: $dob, point: $point, level: $level, exchange: $exchange, gender: $gender, accumulatedMoney: $accumulatedMoney, levelApprove: $levelApprove)';
+    return 'CustomerModel(id: $id, name: $name, phoneNumber: $phoneNumber, phone: $phone, dob: $dob, point: $point, level: $level, exchange: $exchange, gender: $gender, accumulatedMoney: $accumulatedMoney, levelApprove: $levelApprove)';
   }
 
   @override
@@ -269,6 +288,7 @@ class _$CustomerModelImpl
       ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('name', name))
       ..add(DiagnosticsProperty('phoneNumber', phoneNumber))
+      ..add(DiagnosticsProperty('phone', phone))
       ..add(DiagnosticsProperty('dob', dob))
       ..add(DiagnosticsProperty('point', point))
       ..add(DiagnosticsProperty('level', level))
@@ -287,6 +307,7 @@ class _$CustomerModelImpl
             (identical(other.name, name) || other.name == name) &&
             (identical(other.phoneNumber, phoneNumber) ||
                 other.phoneNumber == phoneNumber) &&
+            (identical(other.phone, phone) || other.phone == phone) &&
             (identical(other.dob, dob) || other.dob == dob) &&
             (identical(other.point, point) || other.point == point) &&
             (identical(other.level, level) || other.level == level) &&
@@ -306,6 +327,7 @@ class _$CustomerModelImpl
       const DeepCollectionEquality().hash(id),
       name,
       phoneNumber,
+      phone,
       dob,
       point,
       level,
@@ -330,9 +352,10 @@ class _$CustomerModelImpl
 
 abstract class _CustomerModel implements CustomerModel {
   const factory _CustomerModel(
-      {required final dynamic id,
-      required final String name,
-      required final String phoneNumber,
+      {final dynamic id,
+      final String name,
+      final String phoneNumber,
+      final String phone,
       final String? dob,
       final int? point,
       final String? level,
@@ -350,6 +373,8 @@ abstract class _CustomerModel implements CustomerModel {
   String get name;
   @override
   String get phoneNumber;
+  @override
+  String get phone;
   @override
   String? get dob;
   @override

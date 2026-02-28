@@ -32,6 +32,7 @@ import 'package:aladdin_franchise/src/data/model/restaurant/printer.dart';
 import 'package:aladdin_franchise/src/data/request/reservation_request.dart';
 import 'package:aladdin_franchise/src/features/pages/history_order/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
+import 'package:aladdin_franchise/src/models/category.dart';
 import 'package:aladdin_franchise/src/models/employee_sale.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
 import 'package:aladdin_franchise/src/data/model/o2o/o2o_order_model.dart';
@@ -50,6 +51,8 @@ import 'repository/reservation/reservation_repo_impl.dart';
 import 'repository/reservation/reservation_repository.dart';
 
 import 'package:http/http.dart' as http;
+
+import 'repository/responses/category.dart';
 
 void _logEvent(dynamic event) {
   showLogs(event, flags: 'provider check');
@@ -297,6 +300,61 @@ final orderToOnlineProvider =
   return sortedOrders;
 });
 
+final newOrderToOnlineProvider =
+    FutureProvider.autoDispose<Map<int, Map<String, dynamic>>>((ref) async {
+  var useO2O = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+  if (!useO2O) return {};
+  var loginUserId = LocalStorage.getDataLogin()?.user?.id;
+  Map<int, Map<String, dynamic>> orders = {};
+  final result = await ref.read(o2oRepositoryProvider).getOrderToOnline();
+  for (var e in result) {
+    if (loginUserId != null && e.userId != loginUserId) continue;
+
+    var data = orders[e.orderId] ?? {};
+
+    var items = List<RequestOrderModel>.from(e.items);
+
+    var itemData = List<RequestOrderModel>.from(data['items'] ?? []);
+
+    int count = data['count'] ?? 0;
+
+    DateTime? oldestTimeOrder;
+    itemData.addAll(items);
+
+    for (var i in items) {
+      if (i.requestProcessingStatus == RequestProcessingStatus.waiting && i.listItem.isNotEmpty) {
+        count++;
+        if (oldestTimeOrder == null || (i.timeOrder?.isBefore(oldestTimeOrder) ?? false)) {
+          oldestTimeOrder = i.timeOrder;
+        }
+      }
+    }
+
+    orders[e.orderId] = {
+      'order': e.copyWith(items: []),
+      'items': itemData,
+      'count': count,
+      'oldest_time_order': oldestTimeOrder
+    };
+  }
+
+  final sortedEntries = orders.entries.toList()
+    ..sort((a, b) {
+      final DateTime? tA = a.value['oldest_time_order'];
+      final DateTime? tB = b.value['oldest_time_order'];
+
+      if (tA == null && tB == null) return 0;
+      if (tA == null) return 1;
+      if (tB == null) return -1;
+
+      return tA.compareTo(tB);
+    });
+
+  final sortedOrders = Map<int, Map<String, dynamic>>.fromEntries(sortedEntries);
+
+  return sortedOrders;
+});
+
 final todayHistoryOrderProvider = FutureProvider.autoDispose<List<HistoryOrderModel>>((ref) async {
   var today = DateTime.now().date;
   var result = await ref
@@ -343,4 +401,10 @@ final printerByOrderProvider = FutureProvider.autoDispose<List<PrinterModel>>((r
       )
       .toList();
   return defaultPrinters;
+});
+
+final categoryByOrderProvider =
+    FutureProvider.autoDispose.family<CategoryResponseData, int>((ref, type) async {
+  var result = await ref.read(menuRepositoryProvider).getCategory(type);
+  return result;
 });

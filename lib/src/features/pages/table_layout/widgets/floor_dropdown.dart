@@ -6,8 +6,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FloorDropdownWidget extends ConsumerStatefulWidget {
-  const FloorDropdownWidget({
+class FloorDropdown extends ConsumerStatefulWidget {
+  const FloorDropdown({
     super.key,
     this.floorInit,
     this.onChangeFloor,
@@ -20,10 +20,10 @@ class FloorDropdownWidget extends ConsumerStatefulWidget {
   final Color? backgroundColor;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _FloorDropdownWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _FloorDropdownState();
 }
 
-class _FloorDropdownWidgetState extends ConsumerState<FloorDropdownWidget> {
+class _FloorDropdownState extends ConsumerState<FloorDropdown> {
   FloorModel? floorSelect;
 
   @override
@@ -33,7 +33,7 @@ class _FloorDropdownWidgetState extends ConsumerState<FloorDropdownWidget> {
   }
 
   @override
-  void didUpdateWidget(covariant FloorDropdownWidget oldWidget) {
+  void didUpdateWidget(covariant FloorDropdown oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.floorInit?.id != floorSelect?.id) {
       setState(() {
@@ -67,49 +67,49 @@ class _FloorDropdownWidgetState extends ConsumerState<FloorDropdownWidget> {
       },
       disableEditValues: floors.where((e) => e.isDefault).toList(),
       onDismissedItem: (p0) async {
-        await ref.read(tableLayoutPageProvider.notifier).updateFloor(
-              item: p0,
-              delete: true,
-            );
-        if (p0 == floorSelect) {
-          setState(() {
-            floorSelect = floors.firstWhereOrNull((e) => e.isDefault);
-            widget.onChangeFloor?.call(floorSelect);
-          });
-        }
+        // await ref.read(tableLayoutPageProvider.notifier).updateFloor(
+        //       item: p0,
+        //       delete: true,
+        //     );
+        // if (p0 == floorSelect) {
+        //   setState(() {
+        //     floorSelect = floors.firstWhereOrNull((e) => e.isDefault);
+        //     widget.onChangeFloor?.call(floorSelect);
+        //   });
+        // }
       },
       onSelectionItem: (p0) {
         floorSelect = p0;
         widget.onChangeFloor?.call(p0);
       },
       onClickIcon: (p0) async {
-        if (p0.isDefault) return;
-        var res = await showConfirmInputDialog(
-          context,
-          title: 'Thay đổi tên từ ${p0.name} thành',
-          hintText: '',
-          textAction: 'Lưu',
-          initText: p0.name,
-          validator: (p0) {
-            if ((p0 ?? '').trim().isEmpty) {
-              return 'Vui lòng nhập tên để dễ phân biệt';
-            }
-            return null;
-          },
-        );
-        if ((res ?? '').trim().isNotEmpty) {
-          var fl = await ref.read(tableLayoutPageProvider.notifier).updateFloor(
-                item: p0,
-                name: (res ?? '').trim(),
-                delete: false,
-              );
-          if (p0 == floorSelect) {
-            setState(() {
-              floorSelect = fl;
-              widget.onChangeFloor?.call(fl);
-            });
-          }
-        }
+        // if (p0.isDefault) return;
+        // var res = await showConfirmInputDialog(
+        //   context,
+        //   title: 'Thay đổi tên từ ${p0.name} thành',
+        //   hintText: '',
+        //   textAction: 'Lưu',
+        //   initText: p0.name,
+        //   validator: (p0) {
+        //     if ((p0 ?? '').trim().isEmpty) {
+        //       return 'Vui lòng nhập tên để dễ phân biệt';
+        //     }
+        //     return null;
+        //   },
+        // );
+        // if ((res ?? '').trim().isNotEmpty) {
+        //   var fl = await ref.read(tableLayoutPageProvider.notifier).updateFloor(
+        //         item: p0,
+        //         name: (res ?? '').trim(),
+        //         delete: false,
+        //       );
+        //   if (p0 == floorSelect) {
+        //     setState(() {
+        //       floorSelect = fl;
+        //       widget.onChangeFloor?.call(fl);
+        //     });
+        //   }
+        // }
       },
       onTapButtonBottom: () async {
         Navigator.of(context).pop();

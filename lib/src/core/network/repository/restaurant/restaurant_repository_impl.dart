@@ -287,7 +287,9 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       },
       wrapperResponse: true,
       dataKey: 'data_histories',
-      parser: (json) => HistoryOrderModel.fromJson(json),
+      parser: (json) {
+        return HistoryOrderModel.fromJson(json);
+      },
       log: ErrorLogModel(
         action: AppLogAction.historyOrder,
         api: apiUrl,

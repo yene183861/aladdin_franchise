@@ -91,6 +91,7 @@ dependencies:
   calendar_date_picker2: 0.5.5
   webcontent_converter:
     git: https://github.com/yenlt183861/webcontent_converter.git
+  animated_tree_view: ^2.3.0
 
 dev_dependencies:
   flutter_test:

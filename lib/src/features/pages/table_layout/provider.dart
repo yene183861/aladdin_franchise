@@ -28,28 +28,27 @@ final tableLayoutPageProvider =
 });
 
 class TableLayoutPageNotifier extends StateNotifier<TableLayoutPageState> {
-  TableLayoutPageNotifier(this.ref)
-      : super(TableLayoutPageState(
-          date: DateTime.now().onlyDate(),
-          fromTime: const TimeOfDay(hour: 10, minute: 0),
-          toTime: const TimeOfDay(hour: 12, minute: 0),
-          fromDate: DateTime.now().onlyDate(),
-          toDate: DateTime.now().onlyDate(),
-        )) {
-    var now = DateTime.now();
-    var today = now.onlyDate();
-    var fromTime = now.copyWith(second: 0);
-    if (!fromTime.checkInRangeTime(start: today, end: today, onlyDate: true)) {
-      fromTime = today;
-    }
-    var toTime = fromTime.add(const Duration(minutes: 120));
-    if (!toTime.checkInRangeTime(start: today, end: today, onlyDate: true)) {
-      toTime = today.copyWith(hour: 23, minute: 59);
-    }
-    state = state.copyWith(
-      fromTime: TimeOfDay(hour: fromTime.hour, minute: fromTime.minute),
-      toTime: TimeOfDay(hour: toTime.hour, minute: toTime.minute),
-    );
+  TableLayoutPageNotifier(this.ref) : super(TableLayoutPageState(
+            // date: DateTime.now().onlyDate(),
+            // fromTime: const TimeOfDay(hour: 10, minute: 0),
+            // toTime: const TimeOfDay(hour: 12, minute: 0),
+            // fromDate: DateTime.now().onlyDate(),
+            // toDate: DateTime.now().onlyDate(),
+            )) {
+    // var now = DateTime.now();
+    // var today = now.onlyDate();
+    // var fromTime = now.copyWith(second: 0);
+    // if (!fromTime.checkInRangeTime(start: today, end: today, onlyDate: true)) {
+    //   fromTime = today;
+    // }
+    // var toTime = fromTime.add(const Duration(minutes: 120));
+    // if (!toTime.checkInRangeTime(start: today, end: today, onlyDate: true)) {
+    //   toTime = today.copyWith(hour: 23, minute: 59);
+    // }
+    // state = state.copyWith(
+    //   fromTime: TimeOfDay(hour: fromTime.hour, minute: fromTime.minute),
+    //   toTime: TimeOfDay(hour: toTime.hour, minute: toTime.minute),
+    // );
   }
 
   final Ref ref;
@@ -60,27 +59,13 @@ class TableLayoutPageNotifier extends StateNotifier<TableLayoutPageState> {
     var floors = List<FloorModel>.from(
         LocalStorage.getFloors().where((e) => e.restaurantId == restaurant?.id).toList());
     FloorModel? floorSelect;
-
-    FloorModel? floorDefault = floors.firstWhereOrNull((e) => e.isDefault);
-    if (floorDefault == null) {
-      floorDefault = FloorModel(
-        id: DateTimeUtils.formatToString(
-          time: DateTime.now(),
-          newPattern: DateTimePatterns.dateTime3,
-        ),
-        name: 'Tầng 1',
-        restaurantId: restaurant?.id ?? -1,
-        isDefault: true,
-      );
-      floors.insert(0, floorDefault);
-      state = state.copyWith(floors: floors);
-      await _saveFloors();
+    if (floors.isEmpty) {
+      await addFloor('Tầng 1');
+      floors = List<FloorModel>.from(state.floors);
     }
     floorSelect = floors.firstOrNull;
-    state = state.copyWith(
-      floors: floors,
-      floorSelect: floorSelect,
-    );
+    state = state.copyWith(floors: floors);
+    onChangeFloorSelect(floorSelect);
     var item =
         LocalStorage.getTableLayout().where((e) => e.restaurantId == restaurant?.id).toList();
 
@@ -88,13 +73,12 @@ class TableLayoutPageNotifier extends StateNotifier<TableLayoutPageState> {
     for (var e in item) {
       if (e.typeOrder == kTypeOrder) {
         if (e.floorId.trim().isEmpty) {
-          items.add(e.copyWith(floorId: floorDefault.id));
+          items.add(e.copyWith(floorId: floorSelect?.id ?? ''));
         } else {
           items.add(e);
         }
       }
     }
-
     var setting = LocalStorage.getTableLayoutSetting()
         .where((e) => e.restaurantId == restaurant?.id)
         .toList();
@@ -105,11 +89,68 @@ class TableLayoutPageNotifier extends StateNotifier<TableLayoutPageState> {
           ? TableLayoutSettingModel(restaurantId: restaurant?.id ?? -1)
           : setting.first,
     );
-    await saveLayout();
+    await _saveLayout();
     await _saveSetting();
   }
 
-  void addItem(Offset position) {
+  void onChangeEditMode([bool? value]) {
+    state = state.copyWith(isLayoutEditMode: value ?? !state.isLayoutEditMode);
+  }
+
+  /// section layout item
+
+  void updateItemPosition(dynamic itemId, Offset offset) {
+    try {
+      var data = List<TableLayoutItemModel>.from(state.items);
+      if (data.isEmpty) return;
+      var index = data.indexWhere((element) => element.id == itemId);
+      if (index == -1) return;
+
+      TableLayoutItemModel? item;
+      try {
+        item = data.removeAt(index);
+      } catch (ex) {
+        //
+      }
+      if (item == null) return;
+      data.add(item.copyWith(xPos: offset.dx, yPos: offset.dy));
+      state = state.copyWith(items: data);
+    } catch (ex) {
+      //
+    }
+    _saveLayout();
+  }
+
+  Future<void> _saveLayout() async {
+    try {
+      var settings = List<TableLayoutItemModel>.from(LocalStorage.getTableLayout());
+      settings.removeWhere((e) => e.restaurantId == restaurant?.id);
+      settings.addAll(state.items);
+      await LocalStorage.setTableLayout(settings);
+    } catch (ex) {
+      showLogs(ex, flags: 'saveLayout error');
+    }
+  }
+
+  void onDeleteLayoutItem() {
+    var itemSelect = Set<dynamic>.from(state.itemSelect);
+    var items = List<TableLayoutItemModel>.from(state.items);
+    if (itemSelect.isNotEmpty) {
+      // xoá item đang chọn
+      items.removeWhere((e) => itemSelect.contains(e.id));
+    } else {
+      // xoá tất cả item thuộc tầng này
+      items.removeWhere((e) => e.floorId == (state.floorSelect?.id ?? ''));
+    }
+
+    state = state.copyWith(
+      items: items,
+      itemSelect: {},
+    );
+    _saveLayout();
+  }
+
+  void addLayoutItem(Offset position) async {
     var items = List<TableLayoutItemModel>.from(state.items);
     var setting = state.itemSetting;
     var newItem = TableLayoutItemModel(
@@ -129,41 +170,33 @@ class TableLayoutPageNotifier extends StateNotifier<TableLayoutPageState> {
     );
     items.add(newItem);
     state = state.copyWith(items: items);
-    saveLayout();
-    // onChangeItemSelect(newItem);
+    await _saveLayout();
+    onChangeItemSelect(newItem.id);
   }
 
-  void updatePosition(TableLayoutItemModel item, Offset offset) {
-    try {
-      var data = List<TableLayoutItemModel>.from(state.items);
-      if (data.isEmpty) return;
-      var index = data.indexWhere((element) => element.id == item.id);
-      if (index == -1) return;
-      try {
-        data.removeAt(index);
-      } catch (ex) {
-        //
-      }
-      data.add(item.copyWith(xPos: offset.dx, yPos: offset.dy));
-      state = state.copyWith(items: data);
-    } catch (ex) {
-      //
-    }
-    saveLayout();
+  void onChangeLayoutItem({
+    required dynamic itemId,
+    TableModel? table,
+    FloorModel? floor,
+    TableLayoutSettingModel? setting,
+  }) async {
+    var items = List<TableLayoutItemModel>.from(state.items);
+    var index = items.indexWhere((e) => e.id == itemId);
+    if (index == -1) return;
+    var itemChange = items[index];
+    items[index] = itemChange.copyWith(
+      table: table,
+      floorId: floor?.id ?? '',
+      topChair: setting?.topChairs ?? itemChange.topChair,
+      bottomChair: setting?.bottomChairs ?? itemChange.bottomChair,
+      leftChair: setting?.leftChairs ?? itemChange.leftChair,
+      rightChair: setting?.rightChairs ?? itemChange.rightChair,
+    );
+    state = state.copyWith(items: items);
+    await _saveLayout();
   }
 
-  Future<void> saveLayout() async {
-    try {
-      var settings = List<TableLayoutItemModel>.from(LocalStorage.getTableLayout());
-      settings.removeWhere((e) => e.restaurantId == restaurant?.id);
-      settings.addAll(state.items);
-      await LocalStorage.setTableLayout(settings);
-    } catch (ex) {
-      showLogs(ex, flags: 'saveLayout error');
-    }
-  }
-
-  void generateDefaultTable({
+  void generateRemainTable({
     List<TableModel> tables = const [],
     double viewportWidth = 0.0,
     double viewportHeight = 0.0,
@@ -229,29 +262,73 @@ class TableLayoutPageNotifier extends StateNotifier<TableLayoutPageState> {
     }
 
     state = state.copyWith(items: items);
-    saveLayout();
+    _saveLayout();
   }
 
-  void removeItem(TableLayoutItemModel item) {
-    var data = List<TableLayoutItemModel>.from(state.items);
-    data.removeWhere((element) => element.id == item.id);
-    state = state.copyWith(items: data);
-    saveLayout();
-  }
+  /// section floor
 
-  void onSaveItemSetting(TableLayoutSettingModel setting) async {
-    state = state.copyWith(itemSetting: setting);
-    await _saveSetting();
-  }
-
-  Future<void> _saveSetting() async {
+  Future<void> _saveFloors() async {
     try {
-      var settings = List<TableLayoutSettingModel>.from(LocalStorage.getTableLayoutSetting());
-      settings.removeWhere((e) => e.restaurantId == restaurant?.id);
-      settings.add(state.itemSetting);
-      await LocalStorage.setTableLayoutSetting(settings);
+      var floors = List<FloorModel>.from(LocalStorage.getFloors());
+      floors.removeWhere((e) => e.restaurantId == restaurant?.id);
+      floors.addAll(state.floors);
+
+      await LocalStorage.setFloors(state.floors);
     } catch (ex) {
-      showLogs(ex, flags: '_saveSetting error');
+      showLogs(ex, flags: '_saveFloors ex');
+    }
+  }
+
+  void onChangeFloorSelect([FloorModel? value]) {
+    state = state.copyWith(
+      floorSelect: value,
+      itemSelect: {},
+    );
+  }
+
+  void updateFloor({
+    required dynamic floorId,
+    String name = '',
+    bool delete = false,
+  }) async {
+    var floors = List<FloorModel>.from(state.floors);
+
+    FloorModel? floorSelect = state.floorSelect;
+    if (delete) {
+      floors.removeWhere((e) => e.id == floorId);
+      if (floorSelect?.id == floorId) {
+        floorSelect = floors.firstOrNull;
+      }
+      var layoutItems = List<TableLayoutItemModel>.from(state.items);
+      List<TableLayoutItemModel> items = [];
+      for (var item in layoutItems) {
+        if (item.floorId == floorId) {
+          items.add(item.copyWith(floorId: floorSelect?.id ?? ''));
+        } else {
+          items.add(item);
+        }
+      }
+      state = state.copyWith(
+        items: items,
+        floors: floors,
+      );
+      onChangeFloorSelect(floorSelect);
+      await _saveFloors();
+      await _saveLayout();
+    } else {
+      var index = floors.indexWhere((e) => e.id == floorId);
+      FloorModel? itemChange;
+      if (index != -1) {
+        itemChange = floors[index].copyWith(name: name);
+        floors[index] = itemChange;
+      }
+      if (floorSelect?.id == floorId) {
+        floorSelect =
+            floors.firstWhereOrNull((e) => e.id == state.floorSelect?.id) ?? floors.firstOrNull;
+      }
+      state = state.copyWith(floors: floors);
+      onChangeFloorSelect(floorSelect);
+      await _saveFloors();
     }
   }
 
@@ -271,166 +348,85 @@ class TableLayoutPageNotifier extends StateNotifier<TableLayoutPageState> {
     return item;
   }
 
-  Future<FloorModel> updateFloor({
-    required FloorModel item,
-    String name = '',
-    bool delete = false,
-  }) async {
-    var floors = List<FloorModel>.from(state.floors);
-    var result = item;
-    if (delete) {
-      floors.removeWhere((e) => e.id == item.id);
-
-      var layoutItems = List<TableLayoutItemModel>.from(state.items);
-      List<TableLayoutItemModel> items = [];
-      for (var item in layoutItems) {
-        var floorDefault = floors.firstWhereOrNull((e) => e.isDefault);
-        items.add(item.copyWith(floorId: floorDefault?.id ?? ''));
-      }
-      state = state.copyWith(items: items);
-      await saveLayout();
-    } else {
-      var index = floors.indexOf(item);
-      if (index != -1) {
-        result = result.copyWith(name: name);
-        floors[index] = result;
-      }
-    }
-
-    var floorSelect = floors.firstWhereOrNull((e) => e.id == state.floorSelect?.id);
-    state = state.copyWith(floors: floors, floorSelect: floorSelect);
-    await _saveFloors();
-    return result;
+  /// setting
+  void onSaveDefaultLayoutItemSetting(TableLayoutSettingModel setting) async {
+    state = state.copyWith(itemSetting: setting);
+    await _saveSetting();
   }
 
-  Future<void> _saveFloors() async {
+  Future<void> _saveSetting() async {
     try {
-      var floors = List<FloorModel>.from(LocalStorage.getFloors());
-      floors.removeWhere((e) => e.restaurantId == restaurant?.id);
-      floors.addAll(state.floors);
-
-      await LocalStorage.setFloors(state.floors);
+      var settings = List<TableLayoutSettingModel>.from(LocalStorage.getTableLayoutSetting());
+      settings.removeWhere((e) => e.restaurantId == restaurant?.id);
+      settings.add(state.itemSetting);
+      await LocalStorage.setTableLayoutSetting(settings);
     } catch (ex) {
-      showLogs(ex, flags: '_saveFloors ex');
+      showLogs(ex, flags: '_saveSetting error');
     }
   }
 
-  void onChangeLayoutItem({
-    required TableLayoutItemModel item,
-    TableModel? table,
-    FloorModel? floor,
-    TableLayoutSettingModel? setting,
+  // List<ReservationModel> getReservationsOfTable({
+  //   List<ReservationModel> reservations = const [],
+  //   TableModel? table,
+  //   int? reservationTimeCheck,
+  //   TimeOfDay? fromTime,
+  //   TimeOfDay? toTime,
+  //   DateTime? date,
+  // }) {
+  //   return reservations
+  //       .where(
+  //         (e) =>
+  //             [
+  //               ReservationStatusEnum.pending,
+  //               ReservationStatusEnum.accept,
+  //               ReservationStatusEnum.process,
+  //             ].contains(e.reservationStatus) &&
+  //             (e.tableId ?? []).contains(table?.id) &&
+  //             e.startDateTime.checkInRangeTime(start: startDateTime(), end: endDateTime()),
+  //       )
+  //       .toList();
+  // }
+
+  // void onChangeReservationTimeCheck(int minutes) {
+  //   state = state.copyWith(reservationTimeCheck: minutes);
+  // }
+
+  // void onChangeTime({
+  //   required TimeOfDay from,
+  //   required TimeOfDay to,
+  // }) {
+  //   state = state.copyWith(fromTime: from, toTime: to);
+  // }
+
+  // void onChangeDate(DateTime date) {
+  //   state = state.copyWith(date: date.onlyDate());
+  // }
+
+  // DateTime startDateTime([TimeOfDay? start]) => state.date
+  //     .onlyDate()
+  //     .copyWith(hour: (start ?? state.fromTime).hour, minute: (start ?? state.fromTime).minute);
+  // DateTime endDateTime([TimeOfDay? end]) => state.date
+  //     .onlyDate()
+  //     .copyWith(hour: (end ?? state.toTime).hour, minute: (end ?? state.toTime).minute);
+
+  // void onChangeEnableDragLayout(bool? value) {
+  //   state = state.copyWith(enableDragLayout: value ?? !state.enableDragLayout);
+  // }
+
+  void getOrderHistory({
+    DateTime? from,
+    DateTime? to,
   }) async {
-    var items = List<TableLayoutItemModel>.from(state.items);
-    var index = items.indexWhere((e) => e.id == item.id);
-    if (index == -1) return;
-    var itemChange = items[index];
-    items[index] = item.copyWith(
-      table: table,
-      floorId: floor?.id ?? '',
-      topChair: setting?.topChairs ?? itemChange.topChair,
-      bottomChair: setting?.bottomChairs ?? itemChange.bottomChair,
-      leftChair: setting?.leftChairs ?? itemChange.leftChair,
-      rightChair: setting?.rightChairs ?? itemChange.rightChair,
-    );
-
-    state = state.copyWith(items: items);
-    await saveLayout();
-  }
-
-  void onChangeFloorSelect(FloorModel? value) {
-    state = state.copyWith(floorSelect: value);
-  }
-
-  List<ReservationModel> getReservationsOfTable({
-    List<ReservationModel> reservations = const [],
-    TableModel? table,
-    int? reservationTimeCheck,
-    TimeOfDay? fromTime,
-    TimeOfDay? toTime,
-    DateTime? date,
-  }) {
-    return reservations
-        .where(
-          (e) =>
-              [
-                ReservationStatusEnum.pending,
-                ReservationStatusEnum.accept,
-                ReservationStatusEnum.process,
-              ].contains(e.reservationStatus) &&
-              (e.tableId ?? []).contains(table?.id) &&
-              e.startDateTime.checkInRangeTime(start: startDateTime(), end: endDateTime()),
-        )
-        .toList();
-  }
-
-  void onChangeReservationTimeCheck(int minutes) {
-    state = state.copyWith(reservationTimeCheck: minutes);
-  }
-
-  void onChangeTime({
-    required TimeOfDay from,
-    required TimeOfDay to,
-  }) {
-    state = state.copyWith(fromTime: from, toTime: to);
-  }
-
-  void onChangeDate(DateTime date) {
-    state = state.copyWith(date: date.onlyDate());
-  }
-
-  DateTime startDateTime([TimeOfDay? start]) => state.date
-      .onlyDate()
-      .copyWith(hour: (start ?? state.fromTime).hour, minute: (start ?? state.fromTime).minute);
-  DateTime endDateTime([TimeOfDay? end]) => state.date
-      .onlyDate()
-      .copyWith(hour: (end ?? state.toTime).hour, minute: (end ?? state.toTime).minute);
-
-  void onChangeEnableDragLayout(bool? value) {
-    state = state.copyWith(enableDragLayout: value ?? !state.enableDragLayout);
-  }
-
-  void onDeleteMulti() {
-    var delete = state.itemDelete;
-    if (delete.isEmpty) return;
-    var ids = delete.map((e) => e.id).toList();
-    var data = List<TableLayoutItemModel>.from(state.items);
-    data.removeWhere((element) => ids.contains(element.id));
-    state = state.copyWith(
-      items: data,
-      itemDelete: [],
-    );
-    saveLayout();
-  }
-
-  void addDeleteItem(TableLayoutItemModel item) {
-    var delete = List<TableLayoutItemModel>.from(state.itemDelete);
-    var check = delete.firstWhereOrNull((e) => e.id == item.id);
-    if (check != null) {
-      delete.remove(check);
-    } else {
-      delete.add(item);
-    }
-    state = state.copyWith(itemDelete: delete);
-  }
-
-  void onDeleteAll() {
-    state = state.copyWith(
-      itemDelete: [],
-      items: [],
-    );
-    saveLayout();
-  }
-
-  void getHistoryOrder() async {
     state = state.copyWith(historyOrderState: const ProcessState(status: StatusEnum.loading));
     int retry = 0;
     String? error;
+    var fromDate = from ?? DateTime.now();
+    var toDate = to ?? DateTime.now();
     while (retry < 3) {
       try {
         var result = await ref
             .read(restaurantRepositoryProvider)
-            .getOrderHistoryList(startDate: state.fromDate, endDate: state.toDate);
+            .getOrderHistoryList(startDate: fromDate, endDate: toDate);
 
         state = state.copyWith(
           historyOrderState: const ProcessState(status: StatusEnum.success),
@@ -447,11 +443,28 @@ class TableLayoutPageNotifier extends StateNotifier<TableLayoutPageState> {
     );
   }
 
-  void onChangeDateHistory({DateTime? earliest, DateTime? latest}) {
-    state = state.copyWith(
-      fromDate: earliest ?? state.fromDate,
-      toDate: latest ?? state.toDate,
-    );
-    getHistoryOrder();
+  // void onChangeDateHistory({DateTime? earliest, DateTime? latest}) {
+  //   state = state.copyWith(
+  //     fromDate: earliest ?? state.fromDate,
+  //     toDate: latest ?? state.toDate,
+  //   );
+  //   getHistoryOrder();
+  // }
+
+  void onChangeItemSelect(dynamic id) {
+    if (id == null) return;
+    var itemSelect = Set<dynamic>.from(state.itemSelect);
+    if (itemSelect.contains(id)) {
+      itemSelect.remove(id);
+    } else {
+      itemSelect.add(id);
+    }
+    state = state.copyWith(itemSelect: itemSelect);
+  }
+
+  void onChangeListItemSelect(Set<dynamic> ids) {
+    Set<dynamic> itemSelect = Set<dynamic>.from(ids);
+    itemSelect.removeWhere((e) => e == null);
+    state = state.copyWith(itemSelect: itemSelect);
   }
 }

@@ -10,11 +10,11 @@ part 'table_layout_setting.g.dart';
 class TableLayoutSettingModel with _$TableLayoutSettingModel {
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory TableLayoutSettingModel({
-    @Default(2) int topChairs,
-    @Default(2) int bottomChairs,
-    @Default(1) int leftChairs,
-    @Default(1) int rightChairs,
-    @Default(1) int floor,
+    @Default(0) int topChairs,
+    @Default(0) int bottomChairs,
+    @Default(0) int leftChairs,
+    @Default(0) int rightChairs,
+    // @Default(1) int floor,
     @Default(40.0) double chairWidth,
     @Default(12.0) double chairHeight,
     @Default(12.0) double chairToChairSpacing,

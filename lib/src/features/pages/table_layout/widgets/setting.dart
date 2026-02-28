@@ -291,7 +291,7 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                                               const Text('Tầng'),
                                               const Gap(8),
                                               Expanded(
-                                                child: FloorDropdownWidget(
+                                                child: FloorDropdown(
                                                   floorInit: floorSelect,
                                                   onChangeFloor: (p0) {
                                                     floorSelect = p0;
@@ -774,7 +774,7 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                       context,
                       message: 'Bạn chắc chắn muốn xoá bỏ bàn này trong bố cục?',
                       action: () {
-                        ref.read(tableLayoutPageProvider.notifier).removeItem(widget.item!);
+                        ref.read(tableLayoutPageProvider.notifier).onDeleteLayoutItem();
                         Navigator.of(context).pop();
                       },
                     );

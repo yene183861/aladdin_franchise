@@ -8,9 +8,10 @@ part 'customer.g.dart';
 class CustomerModel with _$CustomerModel {
   @JsonSerializable(explicitToJson: true)
   const factory CustomerModel({
-    required dynamic id,
-    required String name,
-    required String phoneNumber,
+    dynamic id,
+    @Default('') String name,
+    @Default('') String phoneNumber,
+    @Default('') String phone,
     String? dob,
     int? point,
     String? level,

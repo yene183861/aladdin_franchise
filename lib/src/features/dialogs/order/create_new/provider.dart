@@ -26,6 +26,10 @@ class CreateNewOrderDialogNotifier extends StateNotifier<CreateNewOrderDialogSta
   /// danh sách lịch đặt bàn đã lọc theo type, search
   List<ReservationModel> filteredReservations = [];
 
+  void init([Set<int> tableIds = const {}]) {
+    state = state.copyWith(tableIds: tableIds.toList());
+  }
+
   void onChangeTabSelect(CreateNewOrderTabEnum value) {
     state = state.copyWith(tabSelect: value);
   }

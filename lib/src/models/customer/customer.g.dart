@@ -9,8 +9,9 @@ part of 'customer.dart';
 _$CustomerModelImpl _$$CustomerModelImplFromJson(Map<String, dynamic> json) =>
     _$CustomerModelImpl(
       id: json['id'],
-      name: json['name'] as String,
-      phoneNumber: json['phoneNumber'] as String,
+      name: json['name'] as String? ?? '',
+      phoneNumber: json['phoneNumber'] as String? ?? '',
+      phone: json['phone'] as String? ?? '',
       dob: json['dob'] as String?,
       point: (json['point'] as num?)?.toInt(),
       level: json['level'] as String?,
@@ -27,6 +28,7 @@ Map<String, dynamic> _$$CustomerModelImplToJson(_$CustomerModelImpl instance) =>
       'id': instance.id,
       'name': instance.name,
       'phoneNumber': instance.phoneNumber,
+      'phone': instance.phone,
       'dob': instance.dob,
       'point': instance.point,
       'level': instance.level,

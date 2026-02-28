@@ -24,8 +24,8 @@ mixin _$TableLayoutSettingModel {
   int get topChairs => throw _privateConstructorUsedError;
   int get bottomChairs => throw _privateConstructorUsedError;
   int get leftChairs => throw _privateConstructorUsedError;
-  int get rightChairs => throw _privateConstructorUsedError;
-  int get floor => throw _privateConstructorUsedError;
+  int get rightChairs =>
+      throw _privateConstructorUsedError; // @Default(1) int floor,
   double get chairWidth => throw _privateConstructorUsedError;
   double get chairHeight => throw _privateConstructorUsedError;
   double get chairToChairSpacing => throw _privateConstructorUsedError;
@@ -56,7 +56,6 @@ abstract class $TableLayoutSettingModelCopyWith<$Res> {
       int bottomChairs,
       int leftChairs,
       int rightChairs,
-      int floor,
       double chairWidth,
       double chairHeight,
       double chairToChairSpacing,
@@ -89,7 +88,6 @@ class _$TableLayoutSettingModelCopyWithImpl<$Res,
     Object? bottomChairs = null,
     Object? leftChairs = null,
     Object? rightChairs = null,
-    Object? floor = null,
     Object? chairWidth = null,
     Object? chairHeight = null,
     Object? chairToChairSpacing = null,
@@ -119,10 +117,6 @@ class _$TableLayoutSettingModelCopyWithImpl<$Res,
       rightChairs: null == rightChairs
           ? _value.rightChairs
           : rightChairs // ignore: cast_nullable_to_non_nullable
-              as int,
-      floor: null == floor
-          ? _value.floor
-          : floor // ignore: cast_nullable_to_non_nullable
               as int,
       chairWidth: null == chairWidth
           ? _value.chairWidth
@@ -190,7 +184,6 @@ abstract class _$$TableLayoutSettingModelImplCopyWith<$Res>
       int bottomChairs,
       int leftChairs,
       int rightChairs,
-      int floor,
       double chairWidth,
       double chairHeight,
       double chairToChairSpacing,
@@ -222,7 +215,6 @@ class __$$TableLayoutSettingModelImplCopyWithImpl<$Res>
     Object? bottomChairs = null,
     Object? leftChairs = null,
     Object? rightChairs = null,
-    Object? floor = null,
     Object? chairWidth = null,
     Object? chairHeight = null,
     Object? chairToChairSpacing = null,
@@ -252,10 +244,6 @@ class __$$TableLayoutSettingModelImplCopyWithImpl<$Res>
       rightChairs: null == rightChairs
           ? _value.rightChairs
           : rightChairs // ignore: cast_nullable_to_non_nullable
-              as int,
-      floor: null == floor
-          ? _value.floor
-          : floor // ignore: cast_nullable_to_non_nullable
               as int,
       chairWidth: null == chairWidth
           ? _value.chairWidth
@@ -314,11 +302,10 @@ class __$$TableLayoutSettingModelImplCopyWithImpl<$Res>
 @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
 class _$TableLayoutSettingModelImpl extends _TableLayoutSettingModel {
   const _$TableLayoutSettingModelImpl(
-      {this.topChairs = 2,
-      this.bottomChairs = 2,
-      this.leftChairs = 1,
-      this.rightChairs = 1,
-      this.floor = 1,
+      {this.topChairs = 0,
+      this.bottomChairs = 0,
+      this.leftChairs = 0,
+      this.rightChairs = 0,
       this.chairWidth = 40.0,
       this.chairHeight = 12.0,
       this.chairToChairSpacing = 12.0,
@@ -348,9 +335,7 @@ class _$TableLayoutSettingModelImpl extends _TableLayoutSettingModel {
   @override
   @JsonKey()
   final int rightChairs;
-  @override
-  @JsonKey()
-  final int floor;
+// @Default(1) int floor,
   @override
   @JsonKey()
   final double chairWidth;
@@ -390,7 +375,7 @@ class _$TableLayoutSettingModelImpl extends _TableLayoutSettingModel {
 
   @override
   String toString() {
-    return 'TableLayoutSettingModel(topChairs: $topChairs, bottomChairs: $bottomChairs, leftChairs: $leftChairs, rightChairs: $rightChairs, floor: $floor, chairWidth: $chairWidth, chairHeight: $chairHeight, chairToChairSpacing: $chairToChairSpacing, chairToTableSpacing: $chairToTableSpacing, tableEdge: $tableEdge, minTableHeight: $minTableHeight, minTableWidth: $minTableWidth, availableTableColor: $availableTableColor, usingTableColor: $usingTableColor, reservedTableColor: $reservedTableColor, borderRadius: $borderRadius, restaurantId: $restaurantId)';
+    return 'TableLayoutSettingModel(topChairs: $topChairs, bottomChairs: $bottomChairs, leftChairs: $leftChairs, rightChairs: $rightChairs, chairWidth: $chairWidth, chairHeight: $chairHeight, chairToChairSpacing: $chairToChairSpacing, chairToTableSpacing: $chairToTableSpacing, tableEdge: $tableEdge, minTableHeight: $minTableHeight, minTableWidth: $minTableWidth, availableTableColor: $availableTableColor, usingTableColor: $usingTableColor, reservedTableColor: $reservedTableColor, borderRadius: $borderRadius, restaurantId: $restaurantId)';
   }
 
   @override
@@ -406,7 +391,6 @@ class _$TableLayoutSettingModelImpl extends _TableLayoutSettingModel {
                 other.leftChairs == leftChairs) &&
             (identical(other.rightChairs, rightChairs) ||
                 other.rightChairs == rightChairs) &&
-            (identical(other.floor, floor) || other.floor == floor) &&
             (identical(other.chairWidth, chairWidth) ||
                 other.chairWidth == chairWidth) &&
             (identical(other.chairHeight, chairHeight) ||
@@ -441,7 +425,6 @@ class _$TableLayoutSettingModelImpl extends _TableLayoutSettingModel {
       bottomChairs,
       leftChairs,
       rightChairs,
-      floor,
       chairWidth,
       chairHeight,
       chairToChairSpacing,
@@ -476,7 +459,6 @@ abstract class _TableLayoutSettingModel extends TableLayoutSettingModel {
       final int bottomChairs,
       final int leftChairs,
       final int rightChairs,
-      final int floor,
       final double chairWidth,
       final double chairHeight,
       final double chairToChairSpacing,
@@ -502,9 +484,7 @@ abstract class _TableLayoutSettingModel extends TableLayoutSettingModel {
   int get leftChairs;
   @override
   int get rightChairs;
-  @override
-  int get floor;
-  @override
+  @override // @Default(1) int floor,
   double get chairWidth;
   @override
   double get chairHeight;

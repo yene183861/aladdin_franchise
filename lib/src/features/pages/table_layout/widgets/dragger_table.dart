@@ -11,9 +11,12 @@ import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
+import 'package:aladdin_franchise/src/models/table.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+
+import '../data/table_status_enum.dart';
 
 class DraggerTableWidget extends StatelessWidget {
   const DraggerTableWidget({
@@ -23,9 +26,10 @@ class DraggerTableWidget extends StatelessWidget {
     this.itemSetting,
     this.onTap,
     this.onLongPress,
-    this.isSelect = false,
+    this.selected = false,
     this.order,
     this.history = const [],
+    this.size,
   });
   final TableLayoutItemModel? item;
 
@@ -36,37 +40,39 @@ class DraggerTableWidget extends StatelessWidget {
   final Function(TableLayoutItemModel)? onLongPress;
 
   final OrderModel? order;
-  final bool isSelect;
+  final bool selected;
   final List<HistoryOrderModel> history;
+
+  final Size? size;
 
   @override
   Widget build(BuildContext context) {
     var setting = itemSetting ?? const TableLayoutSettingModel();
-    var colorMap = setting.colorMap;
+    // var colorMap = setting.colorMap;
 
     int topChairs = item?.topChair ?? setting.topChairs;
     int bottomChairs = item?.bottomChair ?? setting.bottomChairs;
     int leftChairs = item?.leftChair ?? setting.leftChairs;
     int rightChairs = item?.rightChair ?? setting.rightChairs;
 
-    Color tableColor = colorMap[TableColorEnum.available] ?? Colors.white;
-    Color chairColor = colorMap[TableColorEnum.available] ?? Colors.white;
-    Color tableNameColor = Colors.black;
-    Color tableNameBoxColor = Colors.white.withOpacity(0.75);
-    bool reserved = reservations.isNotEmpty;
+    // Color tableColor = colorMap[TableColorEnum.available] ?? Colors.white;
+    // Color chairColor = colorMap[TableColorEnum.available] ?? Colors.white;
+    // Color tableNameColor = Colors.black;
+    // Color tableNameBoxColor = Colors.white.withOpacity(0.75);
+    // bool reserved = reservations.isNotEmpty;
 
     Color borderColor = TableColorEnum.available.borderColor;
 
-    if (reserved) {
-      tableColor = colorMap[TableColorEnum.reserved] ?? TableColorEnum.reserved.color;
-      borderColor = TableColorEnum.reserved.borderColor;
-    }
+    // if (reserved) {
+    //   tableColor = colorMap[TableColorEnum.reserved] ?? TableColorEnum.reserved.color;
+    //   borderColor = TableColorEnum.reserved.borderColor;
+    // }
 
-    if (order != null) {
-      tableColor = colorMap[TableColorEnum.using] ?? TableColorEnum.using.color;
-      borderColor = TableColorEnum.using.borderColor;
-    }
-    chairColor = tableColor;
+    // if (order != null) {
+    //   tableColor = colorMap[TableColorEnum.using] ?? TableColorEnum.using.color;
+    //   borderColor = TableColorEnum.using.borderColor;
+    // }
+    // chairColor = tableColor;
 
     /// số ghế hàng ngang tối đa (top/ bottom)
     int maxHorizontalChair = max(topChairs, bottomChairs);
@@ -93,24 +99,36 @@ class DraggerTableWidget extends StatelessWidget {
             : 0.0);
 
     var padding = 4.0;
-    double totalWidgetHeight =
-        tableHeight + (setting.chairHeight + setting.chairToTableSpacing) * 2 + padding * 2;
-    double totalWidgetWidth =
-        tableWidth + (setting.chairHeight + setting.chairToTableSpacing) * 2 + padding * 2;
+    double totalWidgetHeight = size?.height ??
+        (tableHeight + (setting.chairHeight + setting.chairToTableSpacing) * 2 + padding * 2);
+    double totalWidgetWidth = size?.width ??
+        (tableWidth + (setting.chairHeight + setting.chairToTableSpacing) * 2 + padding * 2);
+    // var chairWidget = ChairWidget(
+    //   width: setting.chairWidth,
+    //   height: setting.chairHeight,
+    //   color: chairColor,
+    //   borderColor: borderColor,
+    // );
+    var waitingOrder = history.where((e) => [OrderStatusEnum.waiting].contains(e.status)).toList();
+    var detailOrder = history.firstWhereOrNull((e) =>
+        [OrderStatusEnum.processing].contains(e.status) && e.orderCode == order?.getOrderMisc());
+    bool serving = detailOrder != null;
+    var bgTableColor = TableStatusEnum.empty.bgColor;
+    var textTableColor = TableStatusEnum.empty.textColor;
+    if (serving) {
+      bgTableColor = TableStatusEnum.serving.bgColor;
+      textTableColor = TableStatusEnum.serving.textColor;
+    }
+    if (selected) {
+      bgTableColor = TableStatusEnum.selected.bgColor;
+      textTableColor = TableStatusEnum.selected.textColor;
+    }
     var chairWidget = ChairWidget(
       width: setting.chairWidth,
       height: setting.chairHeight,
-      color: chairColor,
+      color: bgTableColor,
       borderColor: borderColor,
     );
-    var totalPriceFinal = history
-        .firstWhereOrNull((e) =>
-            [
-              OrderStatusEnum.processing,
-            ].contains(e.status) &&
-            e.orderCode == order?.getOrderMisc())
-        ?.price
-        ?.totalPriceFinal;
     return Material(
       borderRadius: BorderRadius.circular(12),
       color: Colors.transparent,
@@ -126,15 +144,6 @@ class DraggerTableWidget extends StatelessWidget {
         child: Container(
           width: totalWidgetWidth,
           height: totalWidgetHeight,
-          decoration: isSelect
-              ? BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppColors.mainColor,
-                    width: 0.5,
-                  ),
-                )
-              : null,
           padding: EdgeInsets.all(padding),
           child: Stack(
             alignment: Alignment.center,
@@ -143,89 +152,149 @@ class DraggerTableWidget extends StatelessWidget {
                 width: tableWidth,
                 height: tableHeight,
                 decoration: BoxDecoration(
-                  color: tableColor,
-                  borderRadius: BorderRadius.circular(setting.borderRadius),
-                  border: Border.all(color: borderColor),
+                  color: bgTableColor,
+                  borderRadius: AppConfig.borderRadiusMain,
+                  border: selected ? null : Border.all(color: Colors.grey.shade200),
+                  boxShadow: [
+                    if (selected)
+                      BoxShadow(
+                        color: bgTableColor,
+                        blurRadius: 12,
+                        spreadRadius: 2,
+                        offset: Offset.zero,
+                      ),
+                  ],
                 ),
-                alignment: Alignment.center,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                child: Stack(
+                  alignment: Alignment.center,
+                  clipBehavior: Clip.hardEdge,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: item?.table != null
-                          ? BoxDecoration(
-                              borderRadius: BorderRadius.circular(50),
-                              color: tableNameBoxColor,
-                            )
-                          : null,
-                      child: Text(
-                        (item?.table?.name ?? ''),
-                        style: AppTextStyle.bold(
-                          color: tableNameColor,
-                        ),
-                      ),
-                    ),
-                    if (totalPriceFinal != null) ...[
-                      const Gap(8),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: item?.table != null
-                            ? BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: tableNameBoxColor.withOpacity(0.5),
-                              )
-                            : null,
-                        child: Text(
-                          'T.tiền: ${AppUtils.formatCurrency(value: totalPriceFinal)
-                          // AppConfig.formatCurrency().format(totalPriceFinal)
-                          }',
-                          style: AppTextStyle.bold(
-                            color: tableNameColor,
-                          ),
-                        ),
-                      ),
-                    ],
-                    if (reservations.isNotEmpty)
-                      Container(
-                          margin: const EdgeInsets.only(top: 4),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: tableNameBoxColor,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: reservations.length > 1
-                              ? Text(
-                                  '${reservations.length} lịch đặt',
-                                  style: AppTextStyle.medium(
-                                    color: tableNameColor,
-                                    rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                                  ),
-                                )
-                              : Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ResponsiveIconWidget(
-                                      iconData: Icons.access_time_outlined,
-                                      color: tableNameColor,
+                    Column(
+                      children: [
+                        Expanded(
+                          child: Center(
+                            child: SingleChildScrollView(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: detailOrder == null
+                                    ? CrossAxisAlignment.center
+                                    : CrossAxisAlignment.start,
+                                children: [
+                                  if (detailOrder == null) ...[
+                                    if (item?.table != null)
+                                      Text(
+                                        'Bàn',
+                                        style: AppTextStyle.bold(
+                                            color: textTableColor.withOpacity(0.7)),
+                                      ),
+                                    if ((item?.table?.name ?? '').trim().isNotEmpty) ...[
+                                      const Gap(4),
+                                      Text(
+                                        item?.table?.name ?? '',
+                                        style: AppTextStyle.bold(
+                                          color: textTableColor,
+                                          rawFontSize: AppConfig.defaultRawTextSize + 2.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ] else ...[
+                                    _OrderLineInfo(
+                                      maxWidth: tableWidth,
+                                      content: item?.table?.name ?? '',
+                                      title: 'Bàn',
+                                      textColor: textTableColor,
                                     ),
-                                    const Gap(4),
-                                    // Flexible(
-                                    //   child: Text(
-                                    //     DateTimeUtils.formatToString(
-                                    //       time: widget.reservations.first.startDateTime,
-                                    //       newPattern: DateTimePatterns.,
-                                    //     ),
-                                    //     style: AppTextStyle.bold(
-                                    //       color: tableNameColor,
-                                    //       rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                                    //     ),
-                                    //     maxLines: 1,
-                                    //     overflow: TextOverflow.ellipsis,
-                                    //   ),
-                                    // ),
+                                    _OrderLineInfo(
+                                      maxWidth: tableWidth,
+                                      content: detailOrder.orderCode.trim(),
+                                      title: 'Đơn bàn',
+                                      textColor: textTableColor,
+                                    ),
+                                    if (detailOrder.customer != null)
+                                      _OrderLineInfo(
+                                        maxWidth: tableWidth,
+                                        content: (detailOrder.customer?.phone ?? ''),
+                                        title: 'KH',
+                                        textColor: textTableColor,
+                                      ),
+                                    _OrderLineInfo(
+                                      maxWidth: tableWidth,
+                                      content: AppUtils.formatCurrency(
+                                          value: detailOrder.price?.totalPriceFinal, symbol: 'đ'),
+                                      title: 'Tổng tiền',
+                                      textColor: textTableColor,
+                                    ),
                                   ],
-                                )),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (serving)
+                          Container(
+                            width: double.maxFinite,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                                color: selected
+                                    ? AppColors.white
+                                    : AppColors.redColor.withOpacity(0.1),
+                                borderRadius:
+                                    const BorderRadius.vertical(bottom: Radius.circular(12)),
+                                border: Border.all(color: bgTableColor, width: 0.5)),
+                            child: Text(
+                              'ĐANG SỬ DỤNG',
+                              style: AppTextStyle.bold(
+                                color: AppColors.redColor,
+                                rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                      ],
+                    ),
+                    // if (serving) ...[
+                    //   // Positioned(
+                    //   //   top: 20,
+                    //   //   right: 20,
+                    //   //   child: Badge(
+                    //   //     backgroundColor: AppColors.redColor.withOpacity(0.7),
+                    //   //     largeSize: 12,
+                    //   //     smallSize: 12,
+                    //   //   ),
+                    //   // ),
+                    //   Positioned(
+                    //     bottom: 0,
+                    //     left: 0,
+                    //     right: 0,
+                    //     child: Container(
+                    //       width: double.maxFinite,
+                    //       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    //       decoration: BoxDecoration(
+                    //           color:
+                    //               selected ? AppColors.white : AppColors.redColor.withOpacity(0.1),
+                    //           borderRadius:
+                    //               const BorderRadius.vertical(bottom: Radius.circular(12)),
+                    //           border: Border.all(color: bgTableColor, width: 0.5)),
+                    //       child: Text(
+                    //         'ĐANG SỬ DỤNG',
+                    //         style: AppTextStyle.bold(
+                    //           color: AppColors.redColor,
+                    //           rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+                    //         ),
+                    //         textAlign: TextAlign.center,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ],
+                    // if (onTap == null)
+                    //   Positioned.fill(
+                    //       child: Container(
+                    //     decoration: BoxDecoration(
+                    //       color: Colors.grey.withOpacity(0.4),
+                    //       borderRadius: AppConfig.borderRadiusMain,
+                    //     ),
+                    //   )),
                   ],
                 ),
               ),
@@ -297,6 +366,46 @@ class DraggerTableWidget extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _OrderLineInfo extends StatelessWidget {
+  const _OrderLineInfo({
+    required this.maxWidth,
+    this.textColor,
+    required this.title,
+    required this.content,
+  });
+
+  final double maxWidth;
+  final Color? textColor;
+
+  final String title;
+  final String content;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Gap(8),
+        SizedBox(
+          width: maxWidth / 3,
+          child: Text(
+            title,
+            style: AppTextStyle.medium(color: textColor?.withOpacity(0.7)),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            content,
+            style: AppTextStyle.bold(color: textColor),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const Gap(8),
+      ],
     );
   }
 }

@@ -794,11 +794,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
     switch (event[1]) {
       case kUserCreateOrderChannel:
         ref.refresh(orderToOnlineProvider);
+        ref.refresh(newOrderToOnlineProvider);
         var orderId = data['order_id'] as int?;
         chatIdStreamController.add(orderId);
         break;
       case kUserUpdateOrderChannel:
         ref.refresh(orderToOnlineProvider);
+        ref.refresh(newOrderToOnlineProvider);
         var orderId = data['order_id'] as int?;
         chatIdStreamController.add(orderId);
         var o2oConfig = ref.read(o2oConfigProvider).when(

@@ -14,6 +14,7 @@ import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
 
 import 'package:aladdin_franchise/src/utils/date_time.dart';
@@ -359,6 +360,7 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                 var historyOrder = ref.watch(historyOrderProvider);
                 var search = ref
                     .watch(historyOrderPageProvider.select((value) => value.textSearch))
+                    .trim()
                     .toLowerCase();
 
                 return historyOrder.when(
@@ -366,14 +368,14 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                     var data = List<HistoryOrderModel>.from(d);
                     if (search.trim().isNotEmpty) {
                       data = data.where((e) {
-                        return [
-                              e.orderCode.trim().toLowerCase(),
-                              if (e.customer != null) ...[
-                                e.customer!.name.trim().toLowerCase(),
-                                e.customer!.phoneNumber.trim().toLowerCase(),
-                              ],
-                            ].contains(search) ||
-                            e.coupons.any((c) => c.name.trim().toLowerCase().contains(search));
+                        var result = [
+                          e.orderCode.trim().toLowerCase(),
+                          if (e.customer != null) ...[
+                            e.customer!.name.trim().toLowerCase(),
+                            e.customer!.phone.trim().toLowerCase(),
+                          ],
+                        ].any((e) => e.contains(search));
+                        return result;
                       }).toList();
                     }
                     data.sort((a, b) => a.timeCreated == null || b.timeCreated == null
@@ -440,9 +442,9 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
                                 item.tableName,
                                 '',
                                 ((item.customer?.name ?? '').trim().isEmpty &&
-                                        (item.customer?.phoneNumber ?? '').trim().isEmpty)
+                                        (item.customer?.phone ?? '').trim().isEmpty)
                                     ? ''
-                                    : '${(item.customer?.name ?? '').trim()} - ${(item.customer?.phoneNumber ?? '').trim()}',
+                                    : '${(item.customer?.name ?? '').trim()} - ${(item.customer?.phone ?? '').trim()}',
                                 item.coupons.map((e) => e.name).toList().join(', '),
                                 AppUtils.formatCurrency(value: item.price?.getTotalPriceFinal()),
                                 '',
