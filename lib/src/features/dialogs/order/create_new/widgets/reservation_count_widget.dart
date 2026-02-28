@@ -14,8 +14,8 @@ class SelectedTableReservationCountWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final reservationsAssginTable =
-        ref.watch(createNewOrderDialogProvider.select((value) => value.reservationsAssginTable));
+    final holdingReservations =
+        ref.watch(createNewOrderDialogProvider.select((value) => value.holdingReservations));
     final reservationSelect =
         ref.watch(createNewOrderDialogProvider.select((value) => value.reservationSelect));
     var reservations = ref.watch(reservationsProvider(DateTime.now().onlyDate()));
@@ -30,9 +30,9 @@ class SelectedTableReservationCountWidget extends ConsumerWidget {
     var selected = CreateNewOrderTabEnum.reservation == tabSelect;
     return reservations.when(
       data: (data) {
-        if (reservationsAssginTable.isNotEmpty) {
+        if (holdingReservations.isNotEmpty) {
           return Text(
-            '(${reservationsAssginTable.length > 99 ? '99+' : '${reservationsAssginTable.length}'})',
+            '(${holdingReservations.length > 99 ? '99+' : '${holdingReservations.length}'})',
             style: AppTextStyle.bold(
               color: selected ? Colors.white : null,
             ),

@@ -1,4 +1,5 @@
 import 'package:aladdin_franchise/generated/assets.dart';
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
@@ -115,85 +116,85 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    if (widget.item == null) ...[
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text('Danh sách màu sử dụng', style: AppTextStyle.medium()),
-                          ),
-                          const Gap(8),
-                          Consumer(
-                            builder: (context, ref, child) {
-                              bool unchecked = setting.availableTableColor !=
-                                      TableColorEnum.available.colorValue ||
-                                  setting.usingTableColor != TableColorEnum.using.colorValue ||
-                                  setting.reservedTableColor != TableColorEnum.reserved.colorValue;
-                              return AppCheckbox(
-                                checked: !unchecked,
-                                onChange: () {
-                                  setState(() {
-                                    setting = setting.copyWith(
-                                      availableTableColor: TableColorEnum.available.colorValue,
-                                      usingTableColor: TableColorEnum.using.colorValue,
-                                      reservedTableColor: TableColorEnum.reserved.colorValue,
-                                    );
-                                  });
-                                },
-                                text: 'Màu mặc định',
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      const Gap(8),
-                      Wrap(
-                        spacing: 48,
-                        children: TableColorEnum.values
-                            .map(
-                              (e) => Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(e.title),
-                                  const Gap(4),
-                                  InkWell(
-                                    onTap: () async {
-                                      var settingChange =
-                                          await showDialog<TableLayoutSettingModel?>(
-                                        context: context,
-                                        builder: (context) {
-                                          return ColorPickerDialog(
-                                            type: e,
-                                            setting: setting,
-                                          );
-                                        },
-                                      );
+                    // if (widget.item == null) ...[
+                    //   Row(
+                    //     children: [
+                    //       Expanded(
+                    //         child: Text(S.current.color_palette, style: AppTextStyle.medium()),
+                    //       ),
+                    //       const Gap(8),
+                    //       Consumer(
+                    //         builder: (context, ref, child) {
+                    //           bool unchecked = setting.availableTableColor !=
+                    //                   TableColorEnum.available.colorValue ||
+                    //               setting.usingTableColor != TableColorEnum.using.colorValue ||
+                    //               setting.reservedTableColor != TableColorEnum.reserved.colorValue;
+                    //           return AppCheckbox(
+                    //             checked: !unchecked,
+                    //             onChange: () {
+                    //               setState(() {
+                    //                 setting = setting.copyWith(
+                    //                   availableTableColor: TableColorEnum.available.colorValue,
+                    //                   usingTableColor: TableColorEnum.using.colorValue,
+                    //                   reservedTableColor: TableColorEnum.reserved.colorValue,
+                    //                 );
+                    //               });
+                    //             },
+                    //             text: S.current.default_color,
+                    //           );
+                    //         },
+                    //       ),
+                    //     ],
+                    //   ),
+                    //   const Gap(8),
+                    //   Wrap(
+                    //     spacing: 48,
+                    //     children: TableColorEnum.values
+                    //         .map(
+                    //           (e) => Column(
+                    //             crossAxisAlignment: CrossAxisAlignment.start,
+                    //             children: [
+                    //               Text(e.title),
+                    //               const Gap(4),
+                    //               InkWell(
+                    //                 onTap: () async {
+                    //                   // var settingChange =
+                    //                   //     await showDialog<TableLayoutSettingModel?>(
+                    //                   //   context: context,
+                    //                   //   builder: (context) {
+                    //                   //     return ColorPickerDialog(
+                    //                   //       type: e,
+                    //                   //       setting: setting,
+                    //                   //     );
+                    //                   //   },
+                    //                   // );
 
-                                      if (settingChange != null) {
-                                        setState(() {
-                                          setting = settingChange;
-                                        });
-                                      }
-                                    },
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Container(
-                                      height: 48,
-                                      width: 48,
-                                      decoration: BoxDecoration(
-                                        color: setting.colorMap[e],
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: Colors.grey.shade200,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                            .toList(),
-                      ),
-                      const Gap(20),
-                    ],
+                    //                   // if (settingChange != null) {
+                    //                   //   setState(() {
+                    //                   //     setting = settingChange;
+                    //                   //   });
+                    //                   // }
+                    //                 },
+                    //                 borderRadius: BorderRadius.circular(8),
+                    //                 child: Container(
+                    //                   height: 48,
+                    //                   width: 48,
+                    //                   decoration: BoxDecoration(
+                    //                     color: setting.colorMap[e],
+                    //                     borderRadius: BorderRadius.circular(8),
+                    //                     border: Border.all(
+                    //                       color: Colors.grey.shade200,
+                    //                     ),
+                    //                   ),
+                    //                 ),
+                    //               ),
+                    //             ],
+                    //           ),
+                    //         )
+                    //         .toList(),
+                    //   ),
+                    //   const Gap(20),
+                    // ],
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -205,7 +206,7 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Text('Kích thước tối thiểu', style: AppTextStyle.medium()),
+                                    Text(S.current.min_size, style: AppTextStyle.medium()),
                                     const Gap(8),
                                     Row(
                                       children: [
@@ -213,8 +214,10 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                                           child: Row(
                                             children: [
                                               SizedBox(
-                                                width: TextUtil.getTextSize(text: ' Ngang ').width,
-                                                child: Text('Ngang'),
+                                                width: TextUtil.getTextSize(
+                                                        text: ' ${S.current.horizontal} ')
+                                                    .width,
+                                                child: Text(S.current.horizontal),
                                               ),
                                               const Gap(8),
                                               Expanded(
@@ -243,9 +246,11 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                                           child: Row(
                                             children: [
                                               SizedBox(
-                                                width: TextUtil.getTextSize(text: 'Ngang').width,
-                                                child: const Text(
-                                                  'Dọc',
+                                                width: TextUtil.getTextSize(
+                                                        text: ' ${S.current.horizontal} ')
+                                                    .width,
+                                                child: Text(
+                                                  S.current.vertical,
                                                   textAlign: TextAlign.end,
                                                 ),
                                               ),
@@ -280,7 +285,7 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Text('Vị trí', style: AppTextStyle.medium()),
+                                    Text(S.current.position, style: AppTextStyle.medium()),
                                     const Gap(8),
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,10 +293,10 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                                         Expanded(
                                           child: Row(
                                             children: [
-                                              const Text('Tầng'),
+                                              Text(S.current.floor),
                                               const Gap(8),
                                               Expanded(
-                                                child: FloorDropdownWidget(
+                                                child: FloorDropdown(
                                                   floorInit: floorSelect,
                                                   onChangeFloor: (p0) {
                                                     floorSelect = p0;
@@ -305,7 +310,7 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                                         Expanded(
                                           child: Row(
                                             children: [
-                                              const Text('Bàn'),
+                                              Text(S.current.table),
                                               const Gap(8),
                                               Expanded(
                                                 child: Consumer(
@@ -356,7 +361,7 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                                                       showBtnBottom: false,
                                                       datas: tables,
                                                       itemInit: tableSelect,
-                                                      titleButton: 'Thêm tầng',
+                                                      titleButton: S.current.add_floor,
                                                       titleMenuItemBuilder: (p0) {
                                                         return p0.name ?? '';
                                                       },
@@ -388,7 +393,7 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                                                 children: [
                                                   Flexible(
                                                     child: Text(
-                                                      'Không tải được danh sách bàn!',
+                                                      S.current.unable_load_table_list,
                                                       style: AppTextStyle.regular(
                                                         color: AppColors.redColor,
                                                         rawFontSize:
@@ -422,7 +427,7 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                                                   const Gap(4),
                                                   Flexible(
                                                     child: Text(
-                                                      'Không tải được danh sách bàn!',
+                                                      S.current.unable_load_table_list,
                                                       style: AppTextStyle.regular(
                                                         color: AppColors.blue,
                                                         rawFontSize:
@@ -447,56 +452,56 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Xoay', style: AppTextStyle.medium()),
-                              const Gap(8),
-                              Row(
-                                children: [
-                                  _RotateWidget(
-                                    onTap: () {
-                                      setState(() {
-                                        setting = setting.copyWith(
-                                          topChairs: setting.bottomChairs,
-                                          bottomChairs: setting.topChairs,
-                                          leftChairs: setting.rightChairs,
-                                          rightChairs: setting.leftChairs,
-                                        );
-                                      });
-                                    },
-                                    svgPath: Assets.iconsRotate3d,
-                                    tooltip: 'Lật ngược',
-                                  ),
-                                  const Gap(4),
-                                  _RotateWidget(
-                                    onTap: () {
-                                      setState(() {
-                                        setting = setting.copyWith(
-                                          topChairs: setting.leftChairs,
-                                          bottomChairs: setting.rightChairs,
-                                          leftChairs: setting.bottomChairs,
-                                          rightChairs: setting.topChairs,
-                                        );
-                                      });
-                                    },
-                                    svgPath: Assets.iconsRotateCwSquare,
-                                    tooltip: 'Xoay theo chiều kim đồng hồ',
-                                  ),
-                                  const Gap(4),
-                                  _RotateWidget(
-                                    onTap: () {
-                                      setState(() {
-                                        setting = setting.copyWith(
-                                          topChairs: setting.rightChairs,
-                                          bottomChairs: setting.leftChairs,
-                                          leftChairs: setting.topChairs,
-                                          rightChairs: setting.bottomChairs,
-                                        );
-                                      });
-                                    },
-                                    svgPath: Assets.iconsRotateCcwSquare,
-                                    tooltip: 'Xoay ngược chiều kim đồng hồ',
-                                  ),
-                                ],
-                              ),
+                              // Text(S.current.rotate, style: AppTextStyle.medium()),
+                              // const Gap(8),
+                              // Row(
+                              //   children: [
+                              //     _RotateWidget(
+                              //       onTap: () {
+                              //         setState(() {
+                              //           setting = setting.copyWith(
+                              //             topChairs: setting.bottomChairs,
+                              //             bottomChairs: setting.topChairs,
+                              //             leftChairs: setting.rightChairs,
+                              //             rightChairs: setting.leftChairs,
+                              //           );
+                              //         });
+                              //       },
+                              //       svgPath: Assets.iconsRotate3d,
+                              //       tooltip: 'Lật ngược',
+                              //     ),
+                              //     const Gap(4),
+                              //     _RotateWidget(
+                              //       onTap: () {
+                              //         setState(() {
+                              //           setting = setting.copyWith(
+                              //             topChairs: setting.leftChairs,
+                              //             bottomChairs: setting.rightChairs,
+                              //             leftChairs: setting.bottomChairs,
+                              //             rightChairs: setting.topChairs,
+                              //           );
+                              //         });
+                              //       },
+                              //       svgPath: Assets.iconsRotateCwSquare,
+                              //       tooltip: 'Xoay theo chiều kim đồng hồ',
+                              //     ),
+                              //     const Gap(4),
+                              //     _RotateWidget(
+                              //       onTap: () {
+                              //         setState(() {
+                              //           setting = setting.copyWith(
+                              //             topChairs: setting.rightChairs,
+                              //             bottomChairs: setting.leftChairs,
+                              //             leftChairs: setting.topChairs,
+                              //             rightChairs: setting.bottomChairs,
+                              //           );
+                              //         });
+                              //       },
+                              //       svgPath: Assets.iconsRotateCcwSquare,
+                              //       tooltip: 'Xoay ngược chiều kim đồng hồ',
+                              //     ),
+                              //   ],
+                              // ),
                             ],
                           ),
                         ),
@@ -628,14 +633,14 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                     //   ),
                     // ],
                     const Gap(20),
-                    Text('Số lượng chỗ ngồi', style: AppTextStyle.medium()),
+                    Text(S.current.seating_capacity, style: AppTextStyle.medium()),
                     const Gap(8),
                     Row(
                       children: [
                         Expanded(
                           flex: 2,
                           child: _SeatSettingWidget(
-                            title: 'Trên',
+                            title: S.current.top,
                             value: setting.topChairs,
                             onChangeValue: (p0) {
                               setState(() {
@@ -648,7 +653,7 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                         Expanded(
                           flex: 1,
                           child: _SeatSettingWidget(
-                            title: 'Dưới',
+                            title: S.current.bottom,
                             value: setting.bottomChairs,
                             onChangeValue: (p0) {
                               setState(() {
@@ -666,7 +671,7 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                         Expanded(
                           flex: 2,
                           child: _SeatSettingWidget(
-                            title: 'Trái',
+                            title: S.current.left,
                             value: setting.leftChairs,
                             onChangeValue: (p0) {
                               setState(() {
@@ -679,7 +684,7 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                         Expanded(
                           flex: 1,
                           child: _SeatSettingWidget(
-                            title: 'Phải',
+                            title: S.current.right,
                             value: setting.rightChairs,
                             onChangeValue: (p0) {
                               setState(() {
@@ -704,16 +709,16 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                     );
                     return Column(
                       children: [
-                        Text('Xem trước', style: AppTextStyle.medium()),
+                        Text(S.current.preview, style: AppTextStyle.medium()),
                         const Gap(8),
-                        Text('Trên', style: textStyle),
+                        Text(S.current.top, style: textStyle),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             SizedBox(
                               width: 50,
                               child: Text(
-                                'Trái',
+                                S.current.left,
                                 style: textStyle,
                                 textAlign: TextAlign.end,
                               ),
@@ -724,13 +729,13 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                             SizedBox(
                               width: 50,
                               child: Text(
-                                'Phải',
+                                S.current.right,
                                 style: textStyle,
                               ),
                             ),
                           ],
                         ),
-                        Text('Dưới', style: textStyle),
+                        Text(S.current.bottom, style: textStyle),
                       ],
                     );
                   }),
@@ -744,14 +749,14 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
             children: [
               if (widget.item == null)
                 ButtonWithIconWidget(
-                  textAction: 'Thiết lập mặc định',
+                  textAction: S.current.default_settings,
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
                   // borderRadius: BorderRadius.circular(12),
                   color: Colors.grey.shade400,
                   onPressed: () {
                     showConfirmAction(
                       context,
-                      message: 'Bạn chắc chắn muốn thiết lập trở về ban đầu?',
+                      message: S.current.set_default_setting_config,
                       action: () {
                         Navigator.of(context).pop((
                           setting: const TableLayoutSettingModel(),
@@ -765,16 +770,16 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                 ),
               if (widget.item != null)
                 ButtonWithIconWidget(
-                  textAction: 'Xoá bỏ',
+                  textAction: S.current.delete,
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
                   // borderRadius: BorderRadius.circular(12),
                   color: Colors.grey.shade400,
                   onPressed: () {
                     showConfirmAction(
                       context,
-                      message: 'Bạn chắc chắn muốn xoá bỏ bàn này trong bố cục?',
+                      message: S.current.comfirm_remove_table_in_layout,
                       action: () {
-                        ref.read(tableLayoutPageProvider.notifier).removeItem(widget.item!);
+                        ref.read(tableLayoutPageProvider.notifier).onDeleteLayoutItem();
                         Navigator.of(context).pop();
                       },
                     );
@@ -782,7 +787,7 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
                   icon: Icons.delete,
                 ),
               ButtonWithIconWidget(
-                textAction: 'Lưu',
+                textAction: S.current.save,
                 padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
                 // borderRadius: BorderRadius.circular(12),
                 onPressed: () {
@@ -802,110 +807,109 @@ class __SettingBottomSheetState extends ConsumerState<ItemSettingBottomSheet> {
   }
 }
 
-class ColorPickerDialog extends StatefulWidget {
-  const ColorPickerDialog({
-    super.key,
-    required this.type,
-    required this.setting,
-  });
-  final TableColorEnum type;
-  final TableLayoutSettingModel setting;
+// class ColorPickerDialog extends StatefulWidget {
+//   const ColorPickerDialog({
+//     super.key,
+//     required this.type,
+//     required this.setting,
+//   });
+//   final TableColorEnum type;
+//   final TableLayoutSettingModel setting;
 
-  @override
-  State<ColorPickerDialog> createState() => _ColorPickerDialogState();
-}
+//   @override
+//   State<ColorPickerDialog> createState() => _ColorPickerDialogState();
+// }
 
-class _ColorPickerDialogState extends State<ColorPickerDialog> {
-  TableLayoutSettingModel setting = const TableLayoutSettingModel();
-  @override
-  void initState() {
-    super.initState();
-    setting = widget.setting;
-  }
+// class _ColorPickerDialogState extends State<ColorPickerDialog> {
+//   TableLayoutSettingModel setting = const TableLayoutSettingModel();
+//   @override
+//   void initState() {
+//     super.initState();
+//     setting = widget.setting;
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    showLogs(setting.colorMap, flags: 'setting');
-    return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      title: Row(
-        children: [
-          Expanded(
-            child: Text('Màu bàn - ${widget.type.title}'),
-          ),
-          const CloseButton(),
-        ],
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: ColorPicker(
-                  enableAlpha: false,
-                  showLabel: false,
-                  pickerColor: setting.colorMap[widget.type] ?? Colors.transparent,
-                  onColorChanged: (color) {
-                    setState(() {
-                      switch (widget.type) {
-                        case TableColorEnum.available:
-                          setting = setting.copyWith(availableTableColor: color.value);
-                          break;
-                        case TableColorEnum.using:
-                          setting = setting.copyWith(usingTableColor: color.value);
-                          break;
-                        case TableColorEnum.reserved:
-                          setting = setting.copyWith(reservedTableColor: color.value);
-                          break;
-                      }
-                    });
-                  },
-                  portraitOnly: true,
-                ),
-              ),
-              const Gap(12),
-              DraggerTableWidget(
-                order: widget.type == TableColorEnum.using
-                    ? OrderModel(createdAt: DateTime.now().subtract(const Duration(hours: 1)))
-                    : null,
-                item: TableLayoutItemModel(
-                  table: TableModel(id: 0, name: 'Bàn'),
-                  topChair: 3,
-                  bottomChair: 2,
-                  typeOrder: kTypeOrder,
-                ),
-                itemSetting: setting,
-                reservations: widget.type != TableColorEnum.reserved
-                    ? []
-                    : [
-                        // ReservationModel(
-                        //   customer: ReservationCustomerModel(
-                        //     name: 'Khách',
-                        //     phoneNumber: '012345678',
-                        //   ),
-                        //   startTime: '09:00',
-                        //   reservationDate: '2025-01-02',
-                        // ),
-                      ],
-              ),
-            ],
-          ),
-          const Gap(12),
-          ButtonWithIconWidget(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            textAction: 'Lưu',
-            onPressed: () {
-              Navigator.of(context).pop(setting);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return AlertDialog(
+//       shape: RoundedRectangleBorder(
+//         borderRadius: BorderRadius.circular(8),
+//       ),
+//       title: Row(
+//         children: [
+//           Expanded(
+//             child: Text('Màu bàn - ${widget.type.title}'),
+//           ),
+//           const CloseButton(),
+//         ],
+//       ),
+//       content: Column(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           Row(
+//             children: [
+//               Expanded(
+//                 child: ColorPicker(
+//                   enableAlpha: false,
+//                   showLabel: false,
+//                   pickerColor: setting.colorMap[widget.type] ?? Colors.transparent,
+//                   onColorChanged: (color) {
+//                     setState(() {
+//                       switch (widget.type) {
+//                         case TableColorEnum.available:
+//                           setting = setting.copyWith(availableTableColor: color.value);
+//                           break;
+//                         case TableColorEnum.using:
+//                           setting = setting.copyWith(usingTableColor: color.value);
+//                           break;
+//                         case TableColorEnum.reserved:
+//                           setting = setting.copyWith(reservedTableColor: color.value);
+//                           break;
+//                       }
+//                     });
+//                   },
+//                   portraitOnly: true,
+//                 ),
+//               ),
+//               const Gap(12),
+//               DraggerTableWidget(
+//                 order: widget.type == TableColorEnum.using
+//                     ? OrderModel(createdAt: DateTime.now().subtract(const Duration(hours: 1)))
+//                     : null,
+//                 item: TableLayoutItemModel(
+//                   table: TableModel(id: 0, name: 'Bàn'),
+//                   topChair: 3,
+//                   bottomChair: 2,
+//                   typeOrder: kTypeOrder,
+//                 ),
+//                 itemSetting: setting,
+//                 reservations: widget.type != TableColorEnum.reserved
+//                     ? []
+//                     : [
+//                         // ReservationModel(
+//                         //   customer: ReservationCustomerModel(
+//                         //     name: 'Khách',
+//                         //     phoneNumber: '012345678',
+//                         //   ),
+//                         //   startTime: '09:00',
+//                         //   reservationDate: '2025-01-02',
+//                         // ),
+//                       ],
+//               ),
+//             ],
+//           ),
+//           const Gap(12),
+//           ButtonWithIconWidget(
+//             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+//             textAction: 'Lưu',
+//             onPressed: () {
+//               Navigator.of(context).pop(setting);
+//             },
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 class _RotateWidget extends StatelessWidget {
   const _RotateWidget({
@@ -959,7 +963,7 @@ class _SeatSettingWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          width: TextUtil.getTextSize(text: 'Dưới  ').width,
+          width: TextUtil.getTextSize(text: S.current.bottom).width + 4.0,
           child: Text(title),
         ),
         const Gap(12),

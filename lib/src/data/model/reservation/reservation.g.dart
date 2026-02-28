@@ -30,6 +30,8 @@ _$ReservationModelImpl _$$ReservationModelImplFromJson(
       saleName: json['sale_name'] as String?,
       saleCode: json['sale_code'] as String?,
       isUpdate: json['is_update'] as bool? ?? false,
+      guest: json['guest'] == null ? 1 : ParsingUtils.parseInt(json['guest']),
+      customerSource: json['nguon_khach'],
     );
 
 Map<String, dynamic> _$$ReservationModelImplToJson(
@@ -48,4 +50,6 @@ Map<String, dynamic> _$$ReservationModelImplToJson(
       'sale_name': instance.saleName,
       'sale_code': instance.saleCode,
       'is_update': instance.isUpdate,
+      'guest': instance.guest,
+      'nguon_khach': instance.customerSource,
     };

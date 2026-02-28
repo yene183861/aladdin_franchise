@@ -815,5 +815,83 @@
   "total_bill": "Bill tổng",
   "separate_bill": "Bill lẻ",
   "saving_config": "Đang lưu cấu hình",
-  "locking_order_action": "Đang khóa thao tác đơn bàn"
+  "locking_order_action": "Đang khóa thao tác đơn bàn",
+  "sale_booking": "Booking (Gọi điện)",
+  "assigned_reservation": "Lịch liên kết với đơn bàn hiện tại",
+  "see_other_info": "Xem các thông tin khác",
+  "reservation_date": "Ngày đi ăn",
+  "has_elderly": "Có khách lớn tuổi",
+  "adult_amount": "Số khách người lớn",
+  "children_amount": "Số trẻ em",
+  "reservation_note": "Lời nhắn đặt bàn",
+  "reservation_order_info": "Thông tin đơn hàng",
+  "reservation_creator": "Người tạo lịch",
+  "receptionist": "Lễ tân",
+  "view_all_reservation_today": "Xem tất cả lịch đặt bàn trong ngày",
+  "morning_shift": "Ca sáng",
+  "evening_shift": "Ca tối",
+  "error_add_customer_to_order_from_reservation": "Đơn bàn đã được tạo thành công nhưng thông tin khách hàng chưa được thêm vào đơn bàn!",
+  "saving_customer_info": "Đang lưu thông tin khách hàng vào đơn",
+  "change": "Thay đổi",
+  "error_change_customer_from_reservation": "Hiện không thay đổi thông tin khách hàng. Vui lòng thử lại tại “{paymentNow}” → “{endow}”",
+  "@error_change_customer_from_reservation": {
+    "placeholders": {
+      "paymentNow": {
+        "type": "String",
+        "example": "1"
+      },
+      "endow": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "error_change_customer_from_reservation_1": "Hiện không thể thay đổi thông tin khách hàng. Vui lòng thử lại.",
+  "current_customer_info": "Thông tin khách hàng hiện tại của đơn bàn",
+  "customer_info_recently_updated_reservation": "Thông tin khách hàng của lịch đặt bàn vừa cập nhật",
+  "confirm_update_customer_info": "Bạn có muốn cập nhật thông tin khách hàng cho đơn này không?",
+  "sort_remaining_tables": "Sắp xếp các bàn còn lại",
+  "remove_table": "Xoá bàn",
+  "comfirm_remove_delete_table_from_selected_floor": "Bạn có chắc chắn muốn xoá tất cả các bàn thuộc tầng này?",
+  "comfirm_remove_delete_selected_table": "Bạn có chắc chắn muốn xoá các bàn đã chọn?",
+  "in_use": "Đang sử dụng",
+  "short_customer_text": "KH",
+  "add_floor": "Thêm tầng",
+  "add_new": "Thêm mới",
+  "remove_floor": "Xoá tầng",
+  "delete": "Xoá",
+  "floor_name": "Tên tầng",
+  "floor_name_example": "Ví dụ: Tầng 1, Sân thượng...",
+  "confirm_deletion": "Xác nhận xoá",
+  "confirm_deletion_msg": "Bạn chắc chắn muốn xoá tầng \"{floorName}\"?",
+  "@confirm_deletion_msg": {
+    "placeholders": {
+      "floorName": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "floor_management": "Quản lý tầng",
+  "color_palette": "Danh sách màu sử dụng",
+  "default_color": "Màu mặc định",
+  "min_size": "Kích thước tối thiểu",
+  "horizontal": "Ngang",
+  "vertical": "Dọc",
+  "position": "Vị trí",
+  "floor": "Tầng",
+  "unable_load_table_list": "Không tải được danh sách bàn!",
+  "rotate": "Xoay",
+  "seating_capacity": "Số lượng chỗ ngồi",
+  "top": "Trên",
+  "bottom": "Dưới",
+  "left": "Trái",
+  "right": "Phải",
+  "preview": "Xem trước",
+  "default_settings": "Thiết lập mặc định",
+  "set_default_setting_config": "Bạn chắc chắn muốn thiết lập trở về ban đầu?",
+  "comfirm_remove_table_in_layout": "Bạn chắc chắn muốn xoá bỏ bàn này trong bố cục?",
+  "restaurant_layout": "Bố cục nhà hàng",
+  "selecting": "Đang chọn",
+  "available": "Trống"
 }

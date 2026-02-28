@@ -93,6 +93,8 @@ enum HomeEvent {
   addCoupon,
   saveO2oConfig,
   sendPrintData,
+
+  addCustomerToOrder,
 }
 
 enum PageCommonState {

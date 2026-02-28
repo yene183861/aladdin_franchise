@@ -1,4 +1,6 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
+import 'package:aladdin_franchise/src/data/enum/work_shift.dart';
+import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -12,28 +14,18 @@ extension AppDateTimeExtension on DateTime {
   DateTime get date => DateTime(year, month, day);
   DateTime get nextDate => DateTime(year, month, day).add(const Duration(days: 1));
 
-  /// kiểm tra thời gian trong [start, end]
-  bool checkInRangeTime({
-    required DateTime start,
-    required DateTime end,
-    bool onlyDate = false,
-    bool showDebugLog = false,
+  bool inRangeDate({
+    required DateTime startDate,
+    required DateTime endDate,
   }) {
-    var startDate = onlyDate ? start.onlyDate() : start;
-    var endDate = onlyDate ? end.nextDate.subtract(const Duration(milliseconds: 1)) : end;
-    if (showDebugLog) {
-      showLogs(onlyDate, flags: 'checkInRangeTime onlyDate');
-      showLog('time check: $this, start: $start, end: $end', flags: 'input');
-      showLog('startDate: $startDate, endDate: $endDate', flags: 'convert');
-    }
-    if (showDebugLog) {
-      showLogs(onlyDate, flags: 'compare');
-      showLog(isBefore(startDate), flags: 'isBefore(startDate)');
-      showLog(isAfter(endDate), flags: 'isAfter(endDate)');
-    }
-    if (isBefore(startDate) || isAfter(endDate)) return false;
-    return true;
+    var previousDate = startDate.onlyDate().subtract(const Duration(milliseconds: 1));
+    var nextDate = endDate.onlyDate().add(const Duration(days: 1));
+    return isAfter(previousDate) && isBefore(nextDate);
   }
+}
+
+extension TimeOfDayEx on TimeOfDay {
+  double get convertToDouble => hour + minute / 60.0;
 }
 
 class DateTimeUtils {
@@ -119,6 +111,18 @@ class DateTimeUtils {
     return date.copyWith(
         hour: timeOfDay.hour, minute: timeOfDay.minute, second: 0, microsecond: 0, millisecond: 0);
   }
+
+  static bool checkReservationInWorkShift({
+    required ReservationModel reservation,
+    required DateTime startDate,
+    required DateTime endDate,
+    WorkShiftEnum workShift = WorkShiftEnum.all,
+  }) {
+    bool inRangeDate = reservation.getDate.inRangeDate(startDate: startDate, endDate: endDate);
+    if (!inRangeDate) return false;
+    final hour = reservation.startTimeOfDay.convertToDouble;
+    return hour >= workShift.startTime.convertToDouble && hour <= workShift.endTime.convertToDouble;
+  }
 }
 
 class DateTimePatterns {
@@ -139,4 +143,6 @@ class DateTimePatterns {
 
   /// yyyy/MM/dd HH:mm:ss.SSSSSS
   static const String dateTime3 = 'yyyy/MM/dd HH:mm:ss.SSSSSS';
+
+  static const String timeHHmmss = 'HH:mm:ss';
 }

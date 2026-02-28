@@ -1,9 +1,12 @@
+import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/data/enum/reservation_status.dart';
 import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/features/dialogs/order/reservation/provider.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,81 +25,76 @@ class CreateNewOrderDialogNotifier extends StateNotifier<CreateNewOrderDialogSta
               useReservation: LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false),
         );
   final Ref ref;
+  bool statusReservationsDialogOpen = false;
 
   /// danh sách lịch đặt bàn đã lọc theo type, search
   List<ReservationModel> filteredReservations = [];
+
+  void init([Set<TableModel> tableSelectInit = const {}]) {
+    state = state.copyWith(tableSelect: tableSelectInit);
+    if (tableSelectInit.isNotEmpty) {
+      var typeOrder = tableSelectInit.firstOrNull?.typeOrder;
+      state = state.copyWith(
+        typeOrder: typeOrder == null ? null : convertToTypeOrderEnum(typeOrder),
+        reservationSelect: null,
+      );
+      updateReservationSectionState();
+      onCheckReservation();
+    }
+  }
 
   void onChangeTabSelect(CreateNewOrderTabEnum value) {
     state = state.copyWith(tabSelect: value);
   }
 
   void onChangeTableSelect({required TableModel value, bool onSelected = false}) async {
-    var tableIds = List<int>.from(state.tableIds);
-    var table = List<TableModel>.from(state.tableSelect);
+    var tableSelect = Set<TableModel>.from(state.tableSelect);
+    TypeOrderEnum? typeOrder = state.typeOrder;
     if (onSelected) {
-      var typeOrder = convertToTypeOrderEnum(value.typeOrder);
-      await onChangeTypeOrder(typeOrder);
-      tableIds = List<int>.from(state.tableIds);
-      table = List<TableModel>.from(state.tableSelect);
-    }
-
-    if (onSelected) {
-      table.add(value);
-      tableIds.add(value.id);
+      tableSelect.add(value);
+      typeOrder = convertToTypeOrderEnum(value.typeOrder);
+      tableSelect.removeWhere((e) => typeOrder != null && e.typeOrder != typeOrder.type);
     } else {
-      table.remove(value);
-      tableIds.remove(value.id);
+      tableSelect.removeWhere((e) => e.id == value.id);
     }
-    state = state.copyWith(
-      tableSelect: table,
-      tableIds: tableIds,
-    );
-    updateReservationState(tableIds);
+    await onChangeTypeOrder(tableSelect.isEmpty ? null : typeOrder);
+    state = state.copyWith(tableSelect: tableSelect);
+    updateReservationSectionState();
     onCheckReservation();
   }
 
   Future<void> onChangeTypeOrder(TypeOrderEnum? value) async {
     if (value != null && state.typeOrder != value) {
       state = state.copyWith(
-        tableSelect: [],
-        tableIds: [],
+        tableSelect: {},
         typeOrder: value,
-        reservationSelect: null,
+        reservationSelect:
+            state.reservationSelect?.typeOrder == value ? state.reservationSelect : null,
       );
     } else {
       state = state.copyWith(typeOrder: value);
     }
-  }
-
-  void onChangeListTableSelect(List<TableModel> tableSelect) {
-    var tableIds = List<int>.from(state.tableIds);
-    var table = List<TableModel>.from(state.tableSelect);
-
-    for (var item in tableSelect) {
-      tableIds.add(item.id);
-      table.add(item);
-    }
-    state = state.copyWith(
-      tableSelect: table.toSet().toList(),
-      tableIds: tableIds.toSet().toList(),
-    );
-    updateReservationState(tableIds);
+    updateReservationSectionState();
     onCheckReservation();
   }
 
   void onChangeReservationSelect(ReservationModel? item, List<TableModel> tables) async {
     state = state.copyWith(reservationSelect: item);
     if (item != null) {
-      var type = item.typeOrder;
-      await onChangeTypeOrder(type);
-      state = state.copyWith(reservationSelect: item);
-      var tableSelect = tables.where((e) => (item.tableId ?? []).contains(e.id)).toList();
-      onChangeListTableSelect(tableSelect);
-    } else {
-      if (state.tableIds.isEmpty) {
-        state = state.copyWith(typeOrder: null);
-        updateReservationState();
+      var tableSelect = tables.where((e) => item.getTableIds.contains(e.id)).toSet();
+      var first = tableSelect.firstOrNull;
+      if (first != null) {
+        onChangeTableSelect(value: first, onSelected: true);
       }
+      state = state.copyWith(
+        tableSelect: {
+          ...tableSelect,
+          ...state.tableSelect,
+        },
+        reservationSelect: item,
+      );
+    } else {
+      updateReservationSectionState();
     }
   }
 
@@ -104,64 +102,62 @@ class CreateNewOrderDialogNotifier extends StateNotifier<CreateNewOrderDialogSta
     state = state.copyWith(notifyReservation: value);
   }
 
-  void onChangeReservationsAssginTable(List<ReservationModel> value) {
-    state = state.copyWith(reservationsAssginTable: value);
+  void onChangeHoldingReservations(List<ReservationModel> value) {
+    state = state.copyWith(holdingReservations: value);
     if (state.reservationSelect == null &&
-        state.reservationsAssginTable.isNotEmpty &&
+        state.holdingReservations.isNotEmpty &&
         !state.notifyReservation) {
       onChangeNotifyReservation(true);
     }
   }
 
-  void onChangeIgnoreNotifyReservation() {
-    state = state.copyWith(ignoreNotifyReservation: !state.ignoreNotifyReservation);
+  void onChangeIgnoreReservationWarning() {
+    state = state.copyWith(ignoreReservationWarning: !state.ignoreReservationWarning);
   }
 
-  void updateReservationState([List<int>? tableIds]) {
+  void updateReservationSectionState() {
     if (state.useReservation) {
-      TypeOrderEnum? type = state.typeOrder;
-      if ((tableIds ?? state.tableIds).isEmpty) {
-        type = null;
-      }
-
       var reservation = state.reservationSelect;
-      if (type != null && reservation != null && reservation.typeOrder != type) {
-        reservation = null;
+      try {
+        ref.read(reservationSectionProvider.notifier).onChangeReservationSelect(reservation, null);
+        ref.read(reservationSectionProvider.notifier).onChangeTypeOrder(state.typeOrder);
+      } catch (ex) {
+        //
       }
-      state = state.copyWith(reservationSelect: reservation);
-      ref.read(reservationSectionProvider.notifier).onChangeReservationSelect(reservation, null);
-      ref.read(reservationSectionProvider.notifier).onChangeTypeOrder(type);
     }
   }
 
-  void applyReservationFilters(List<ReservationModel> value) {
+  void saveFilteredReservations(List<ReservationModel> value) {
     filteredReservations = value;
     onCheckReservation();
   }
 
+  /// lọc các lịch đặt để hiển thị popup cảnh báo, thoả mãn tất cả:
+  /// + reservationSelect == null
+  /// + status = accept
+  /// + [now - 30p; now + 30p]
+  /// + có ít nhất 1 bàn đang chọn trùng với lịch giữ chỗ
   void onCheckReservation() {
-    if (state.tableIds.isNotEmpty) {
+    if (state.tableSelect.isNotEmpty) {
+      var tableIds = state.tableSelect.map((e) => e.id).toSet();
       var check = filteredReservations.where((e) {
-        if (state.typeOrder != null && e.typeOrder != state.typeOrder) return false;
         var start = e.startDateTime;
         var diffMinutes = start.difference(DateTime.now()).inMinutes.abs();
-        if (diffMinutes <= 30 &&
+        if (diffMinutes <= (kDebugMode ? 120 : 30) &&
             state.reservationSelect == null &&
-            e.reservationStatus == ReservationStatusEnum.accept &&
-            state.tableIds.toSet().intersection((e.tableId ?? []).toSet()).isNotEmpty) {
+            e.getReservationStatus == ReservationStatusEnum.accept &&
+            tableIds.intersection(e.getTableIds).isNotEmpty) {
           return true;
         }
         return false;
       }).toList();
-      onChangeReservationsAssginTable(check);
+      onChangeHoldingReservations(check);
     } else {
-      onChangeReservationsAssginTable([]);
+      onChangeHoldingReservations([]);
     }
   }
 
-  // void logState() {
-  //   showLogs(null, flags: 'createNewOrderDialogProvider');
-  //   showLog(state.typeOrder, flags: 'typeOrder');
-  //   showLog(state.reservationSelect, flags: 'reservationSelect');
-  // }
+  void onChangeStatusReservationsDialogOpen(bool value) {
+    statusReservationsDialogOpen = value;
+  }
 }

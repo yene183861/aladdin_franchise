@@ -4,6 +4,7 @@ import 'package:aladdin_franchise/src/configs/enums/type_order.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/order/create_new/provider.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,8 +14,7 @@ class TableSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var tableIds =
-        ref.watch(createNewOrderDialogProvider.select((value) => value.tableIds)).toList();
+    var tableSelect = ref.watch(createNewOrderDialogProvider.select((value) => value.tableSelect));
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,7 +49,8 @@ class TableSection extends ConsumerWidget {
                 runSpacing: 8,
                 children: e.map(
                   (e) {
-                    bool isSelected = tableIds.contains(e.id);
+                    bool isSelected =
+                        tableSelect.firstWhereOrNull((item) => item.id == e.id) != null;
                     return ChoiceChip(
                       padding: const EdgeInsets.all(12),
                       label: Text(

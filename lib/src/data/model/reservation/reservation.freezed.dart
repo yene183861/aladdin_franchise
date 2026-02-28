@@ -38,6 +38,10 @@ mixin _$ReservationModel {
   bool get isUpdate => throw _privateConstructorUsedError;
   @JsonKey(includeFromJson: false, includeToJson: false)
   Map<String, dynamic>? get rawData => throw _privateConstructorUsedError;
+  @JsonKey(fromJson: ParsingUtils.parseInt)
+  int get guest => throw _privateConstructorUsedError;
+  @JsonKey(name: 'nguon_khach')
+  dynamic get customerSource => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -66,7 +70,9 @@ abstract class $ReservationModelCopyWith<$Res> {
       String? saleCode,
       bool isUpdate,
       @JsonKey(includeFromJson: false, includeToJson: false)
-      Map<String, dynamic>? rawData});
+      Map<String, dynamic>? rawData,
+      @JsonKey(fromJson: ParsingUtils.parseInt) int guest,
+      @JsonKey(name: 'nguon_khach') dynamic customerSource});
 
   $ReservationCustomerModelCopyWith<$Res>? get customer;
 }
@@ -98,6 +104,8 @@ class _$ReservationModelCopyWithImpl<$Res, $Val extends ReservationModel>
     Object? saleCode = freezed,
     Object? isUpdate = null,
     Object? rawData = freezed,
+    Object? guest = null,
+    Object? customerSource = freezed,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -156,6 +164,14 @@ class _$ReservationModelCopyWithImpl<$Res, $Val extends ReservationModel>
           ? _value.rawData
           : rawData // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>?,
+      guest: null == guest
+          ? _value.guest
+          : guest // ignore: cast_nullable_to_non_nullable
+              as int,
+      customerSource: freezed == customerSource
+          ? _value.customerSource
+          : customerSource // ignore: cast_nullable_to_non_nullable
+              as dynamic,
     ) as $Val);
   }
 
@@ -195,7 +211,9 @@ abstract class _$$ReservationModelImplCopyWith<$Res>
       String? saleCode,
       bool isUpdate,
       @JsonKey(includeFromJson: false, includeToJson: false)
-      Map<String, dynamic>? rawData});
+      Map<String, dynamic>? rawData,
+      @JsonKey(fromJson: ParsingUtils.parseInt) int guest,
+      @JsonKey(name: 'nguon_khach') dynamic customerSource});
 
   @override
   $ReservationCustomerModelCopyWith<$Res>? get customer;
@@ -226,6 +244,8 @@ class __$$ReservationModelImplCopyWithImpl<$Res>
     Object? saleCode = freezed,
     Object? isUpdate = null,
     Object? rawData = freezed,
+    Object? guest = null,
+    Object? customerSource = freezed,
   }) {
     return _then(_$ReservationModelImpl(
       id: freezed == id
@@ -284,6 +304,14 @@ class __$$ReservationModelImplCopyWithImpl<$Res>
           ? _value._rawData
           : rawData // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>?,
+      guest: null == guest
+          ? _value.guest
+          : guest // ignore: cast_nullable_to_non_nullable
+              as int,
+      customerSource: freezed == customerSource
+          ? _value.customerSource
+          : customerSource // ignore: cast_nullable_to_non_nullable
+              as dynamic,
     ));
   }
 }
@@ -308,7 +336,9 @@ class _$ReservationModelImpl extends _ReservationModel {
       this.saleCode,
       this.isUpdate = false,
       @JsonKey(includeFromJson: false, includeToJson: false)
-      final Map<String, dynamic>? rawData})
+      final Map<String, dynamic>? rawData,
+      @JsonKey(fromJson: ParsingUtils.parseInt) this.guest = 1,
+      @JsonKey(name: 'nguon_khach') this.customerSource})
       : _tableId = tableId,
         _rawData = rawData,
         super._();
@@ -370,8 +400,15 @@ class _$ReservationModelImpl extends _ReservationModel {
   }
 
   @override
+  @JsonKey(fromJson: ParsingUtils.parseInt)
+  final int guest;
+  @override
+  @JsonKey(name: 'nguon_khach')
+  final dynamic customerSource;
+
+  @override
   String toString() {
-    return 'ReservationModel(id: $id, customer: $customer, status: $status, statusName: $statusName, reservationDate: $reservationDate, startTime: $startTime, endTime: $endTime, table: $table, isOnline: $isOnline, tableId: $tableId, saleName: $saleName, saleCode: $saleCode, isUpdate: $isUpdate, rawData: $rawData)';
+    return 'ReservationModel(id: $id, customer: $customer, status: $status, statusName: $statusName, reservationDate: $reservationDate, startTime: $startTime, endTime: $endTime, table: $table, isOnline: $isOnline, tableId: $tableId, saleName: $saleName, saleCode: $saleCode, isUpdate: $isUpdate, rawData: $rawData, guest: $guest, customerSource: $customerSource)';
   }
 
   @override
@@ -400,7 +437,10 @@ class _$ReservationModelImpl extends _ReservationModel {
                 other.saleCode == saleCode) &&
             (identical(other.isUpdate, isUpdate) ||
                 other.isUpdate == isUpdate) &&
-            const DeepCollectionEquality().equals(other._rawData, _rawData));
+            const DeepCollectionEquality().equals(other._rawData, _rawData) &&
+            (identical(other.guest, guest) || other.guest == guest) &&
+            const DeepCollectionEquality()
+                .equals(other.customerSource, customerSource));
   }
 
   @JsonKey(ignore: true)
@@ -420,7 +460,9 @@ class _$ReservationModelImpl extends _ReservationModel {
       saleName,
       saleCode,
       isUpdate,
-      const DeepCollectionEquality().hash(_rawData));
+      const DeepCollectionEquality().hash(_rawData),
+      guest,
+      const DeepCollectionEquality().hash(customerSource));
 
   @JsonKey(ignore: true)
   @override
@@ -453,7 +495,10 @@ abstract class _ReservationModel extends ReservationModel {
       final String? saleCode,
       final bool isUpdate,
       @JsonKey(includeFromJson: false, includeToJson: false)
-      final Map<String, dynamic>? rawData}) = _$ReservationModelImpl;
+      final Map<String, dynamic>? rawData,
+      @JsonKey(fromJson: ParsingUtils.parseInt) final int guest,
+      @JsonKey(name: 'nguon_khach')
+      final dynamic customerSource}) = _$ReservationModelImpl;
   _ReservationModel._() : super._();
 
   factory _ReservationModel.fromJson(Map<String, dynamic> json) =
@@ -491,6 +536,12 @@ abstract class _ReservationModel extends ReservationModel {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   Map<String, dynamic>? get rawData;
+  @override
+  @JsonKey(fromJson: ParsingUtils.parseInt)
+  int get guest;
+  @override
+  @JsonKey(name: 'nguon_khach')
+  dynamic get customerSource;
   @override
   @JsonKey(ignore: true)
   _$$ReservationModelImplCopyWith<_$ReservationModelImpl> get copyWith =>

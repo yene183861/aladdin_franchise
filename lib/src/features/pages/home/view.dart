@@ -26,7 +26,6 @@ import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/more/view.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/components/barrel_components.dart';
 import 'package:aladdin_franchise/src/features/pages/table_layout/view.dart';
-import 'package:aladdin_franchise/src/features/pages/table_layout/view_test.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_main.dart';
@@ -288,6 +287,12 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
           // case HomeEvent.sendPrintData:
           //   showProcessingDialog(context, message: 'Đang gửi lệnh in ');
           //   break;
+          case HomeEvent.addCustomerToOrder:
+            showProcessingDialog(
+              context,
+              message: S.current.saving_customer_info,
+            );
+            break;
           default:
             break;
         }

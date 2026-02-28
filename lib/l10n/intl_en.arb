@@ -815,5 +815,83 @@
   "total_bill": "Total bill",
   "separate_bill": "Separate bill",
   "saving_config": "Saving configuration",
-  "locking_order_action": "Locking table order actions"
+  "locking_order_action": "Locking table order actions",
+  "sale_booking": "Booking (Phone call)",
+  "assigned_reservation": "Reservation linked to the current table order",
+  "see_other_info": "View other information",
+  "reservation_date": "Dining date",
+  "has_elderly": "Has elderly guests",
+  "adult_amount": "Number of adults",
+  "children_amount": "Number of children",
+  "reservation_note": "Reservation note",
+  "reservation_order_info": "Order information",
+  "reservation_creator": "Reservation creator",
+  "receptionist": "Receptionist",
+  "view_all_reservation_today": "View all reservations today",
+  "morning_shift": "Morning shift",
+  "evening_shift": "Evening shift",
+  "error_add_customer_to_order_from_reservation": "The table order was created successfully, but customer information has not been added to the order!",
+  "saving_customer_info": "Saving customer information to the order",
+  "change": "Change",
+  "error_change_customer_from_reservation": "Customer information cannot be changed right now. Please try again at “{paymentNow}” → “{endow}”",
+  "@error_change_customer_from_reservation": {
+    "placeholders": {
+      "paymentNow": {
+        "type": "String",
+        "example": "1"
+      },
+      "endow": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "error_change_customer_from_reservation_1": "Customer information cannot be changed at the moment. Please try again.",
+  "current_customer_info": "Current customer information of the order",
+  "customer_info_recently_updated_reservation": "Customer information from the recently updated reservation",
+  "confirm_update_customer_info": "Do you want to update the customer information for this order?",
+  "sort_remaining_tables": "Sort remaining tables",
+  "remove_table": "Remove table",
+  "comfirm_remove_delete_table_from_selected_floor": "Are you sure you want to delete all tables on this floor?",
+  "comfirm_remove_delete_selected_table": "Are you sure you want to delete the selected tables?",
+  "in_use": "In use",
+  "short_customer_text": "Customer",
+  "add_floor": "Add floor",
+  "add_new": "Add new",
+  "remove_floor": "Remove floor",
+  "delete": "Delete",
+  "floor_name": "Floor name",
+  "floor_name_example": "E.g.: Floor 1, Rooftop...",
+  "confirm_deletion": "Confirm deletion",
+  "confirm_deletion_msg": "Are you sure you want to delete \"{floorName}\"?",
+  "@confirm_deletion_msg": {
+    "placeholders": {
+      "floorName": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "floor_management": "Floor management",
+  "color_palette": "Color palette",
+  "default_color": "Default color",
+  "min_size": "Minimum size",
+  "horizontal": "Horizontal",
+  "vertical": "Vertical",
+  "position": "Position",
+  "floor": "Floor",
+  "unable_load_table_list": "Unable to load the table list!",
+  "rotate": "Rotate",
+  "seating_capacity": "Seating capacity",
+  "top": "Top",
+  "bottom": "Bottom",
+  "left": "Left",
+  "right": "Right",
+  "preview": "Preview",
+  "default_settings": "Default settings",
+  "set_default_setting_config": "Are you sure you want to reset to the default settings?",
+  "comfirm_remove_table_in_layout": "Are you sure you want to remove this table from the layout?",
+  "restaurant_layout": "Restaurant layout",
+  "selecting": "Selecting",
+  "available": "Available"
 }

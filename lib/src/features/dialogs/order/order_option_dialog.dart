@@ -12,6 +12,7 @@ import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/title_line.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -97,6 +98,17 @@ class _OrderDropdownState extends ConsumerState<OrderDropdown> {
         }
 
         orders = orders.where((e) => e != null && (e is OrderModel || e is TypeOrderEnum)).toList();
+        var _orderSelect =
+            orders.firstWhereOrNull((item) => item is OrderModel && item.id == orderSelect?.id);
+
+        WidgetsBinding.instance.addPostFrameCallback(
+          (timeStamp) {
+            if (_orderSelect != orderSelect) {
+              ref.read(homeProvider.notifier).changeOrderSelect(_orderSelect);
+            }
+          },
+        );
+
         return SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -120,9 +132,10 @@ class _OrderDropdownState extends ConsumerState<OrderDropdown> {
                               : null,
                         ),
                         child: DropdownButton<dynamic>(
+                            key: UniqueKey(),
                             isExpanded: widget.isExpanded,
                             underline: const SizedBox.shrink(),
-                            value: orders.any((item) => item == orderSelect) ? orderSelect : null,
+                            value: _orderSelect,
                             padding: EdgeInsets.zero,
                             hint: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -228,7 +241,18 @@ class _OrderDropdownState extends ConsumerState<OrderDropdown> {
               ],
               if (widget.showOtherOption) ...[
                 const Gap(12),
-                const OrderOptionAction(),
+                OrderOptionAction(
+                  tableList: {
+                    ...((kTypeOrder == TypeOrderEnum.offline.type ? data.offline : data.online)
+                            ?.notUse ??
+                        []),
+                    ...((kTypeOrder == TypeOrderEnum.offline.type ? data.offline : data.online)
+                            ?.using ??
+                        []),
+                  },
+                  mContext: context,
+                  mRef: ref,
+                ),
               ],
             ],
           ),

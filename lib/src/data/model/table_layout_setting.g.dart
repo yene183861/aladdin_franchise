@@ -9,11 +9,10 @@ part of 'table_layout_setting.dart';
 _$TableLayoutSettingModelImpl _$$TableLayoutSettingModelImplFromJson(
         Map<String, dynamic> json) =>
     _$TableLayoutSettingModelImpl(
-      topChairs: (json['top_chairs'] as num?)?.toInt() ?? 2,
-      bottomChairs: (json['bottom_chairs'] as num?)?.toInt() ?? 2,
-      leftChairs: (json['left_chairs'] as num?)?.toInt() ?? 1,
-      rightChairs: (json['right_chairs'] as num?)?.toInt() ?? 1,
-      floor: (json['floor'] as num?)?.toInt() ?? 1,
+      topChairs: (json['top_chairs'] as num?)?.toInt() ?? 0,
+      bottomChairs: (json['bottom_chairs'] as num?)?.toInt() ?? 0,
+      leftChairs: (json['left_chairs'] as num?)?.toInt() ?? 0,
+      rightChairs: (json['right_chairs'] as num?)?.toInt() ?? 0,
       chairWidth: (json['chair_width'] as num?)?.toDouble() ?? 40.0,
       chairHeight: (json['chair_height'] as num?)?.toDouble() ?? 12.0,
       chairToChairSpacing:
@@ -40,7 +39,6 @@ Map<String, dynamic> _$$TableLayoutSettingModelImplToJson(
       'bottom_chairs': instance.bottomChairs,
       'left_chairs': instance.leftChairs,
       'right_chairs': instance.rightChairs,
-      'floor': instance.floor,
       'chair_width': instance.chairWidth,
       'chair_height': instance.chairHeight,
       'chair_to_chair_spacing': instance.chairToChairSpacing,

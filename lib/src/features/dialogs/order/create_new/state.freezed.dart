@@ -16,15 +16,24 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$CreateNewOrderDialogState {
-  List<TableModel> get tableSelect => throw _privateConstructorUsedError;
-  List<int> get tableIds => throw _privateConstructorUsedError;
+  Set<TableModel> get tableSelect =>
+      throw _privateConstructorUsedError; // @Default([]) List<int> tableIds,
   CreateNewOrderTabEnum get tabSelect => throw _privateConstructorUsedError;
-  ReservationModel? get reservationSelect => throw _privateConstructorUsedError;
+  ReservationModel? get reservationSelect =>
+      throw _privateConstructorUsedError; // @Default(false) bool notifyReservation,
+// @Default([]) List<ReservationModel> reservationsAssginTable,
+// @Default(false) bool ignoreNotifyReservation,
+  TypeOrderEnum? get typeOrder =>
+      throw _privateConstructorUsedError; // @Default(false) bool useReservation,
+  /// có hiện thông báo lịch đặt k
   bool get notifyReservation => throw _privateConstructorUsedError;
-  List<ReservationModel> get reservationsAssginTable =>
+
+  /// ds các lịch đặt bàn (status = accept + [now; now + 30p]) ứng với ds bàn đang chọn
+  List<ReservationModel> get holdingReservations =>
       throw _privateConstructorUsedError;
-  bool get ignoreNotifyReservation => throw _privateConstructorUsedError;
-  TypeOrderEnum? get typeOrder => throw _privateConstructorUsedError;
+
+  /// bỏ qua hiển thị hộp thoại nhắc nhở có lịch đặt
+  bool get ignoreReservationWarning => throw _privateConstructorUsedError;
   bool get useReservation => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
@@ -39,14 +48,13 @@ abstract class $CreateNewOrderDialogStateCopyWith<$Res> {
       _$CreateNewOrderDialogStateCopyWithImpl<$Res, CreateNewOrderDialogState>;
   @useResult
   $Res call(
-      {List<TableModel> tableSelect,
-      List<int> tableIds,
+      {Set<TableModel> tableSelect,
       CreateNewOrderTabEnum tabSelect,
       ReservationModel? reservationSelect,
-      bool notifyReservation,
-      List<ReservationModel> reservationsAssginTable,
-      bool ignoreNotifyReservation,
       TypeOrderEnum? typeOrder,
+      bool notifyReservation,
+      List<ReservationModel> holdingReservations,
+      bool ignoreReservationWarning,
       bool useReservation});
 
   $ReservationModelCopyWith<$Res>? get reservationSelect;
@@ -67,24 +75,19 @@ class _$CreateNewOrderDialogStateCopyWithImpl<$Res,
   @override
   $Res call({
     Object? tableSelect = null,
-    Object? tableIds = null,
     Object? tabSelect = null,
     Object? reservationSelect = freezed,
-    Object? notifyReservation = null,
-    Object? reservationsAssginTable = null,
-    Object? ignoreNotifyReservation = null,
     Object? typeOrder = freezed,
+    Object? notifyReservation = null,
+    Object? holdingReservations = null,
+    Object? ignoreReservationWarning = null,
     Object? useReservation = null,
   }) {
     return _then(_value.copyWith(
       tableSelect: null == tableSelect
           ? _value.tableSelect
           : tableSelect // ignore: cast_nullable_to_non_nullable
-              as List<TableModel>,
-      tableIds: null == tableIds
-          ? _value.tableIds
-          : tableIds // ignore: cast_nullable_to_non_nullable
-              as List<int>,
+              as Set<TableModel>,
       tabSelect: null == tabSelect
           ? _value.tabSelect
           : tabSelect // ignore: cast_nullable_to_non_nullable
@@ -93,22 +96,22 @@ class _$CreateNewOrderDialogStateCopyWithImpl<$Res,
           ? _value.reservationSelect
           : reservationSelect // ignore: cast_nullable_to_non_nullable
               as ReservationModel?,
-      notifyReservation: null == notifyReservation
-          ? _value.notifyReservation
-          : notifyReservation // ignore: cast_nullable_to_non_nullable
-              as bool,
-      reservationsAssginTable: null == reservationsAssginTable
-          ? _value.reservationsAssginTable
-          : reservationsAssginTable // ignore: cast_nullable_to_non_nullable
-              as List<ReservationModel>,
-      ignoreNotifyReservation: null == ignoreNotifyReservation
-          ? _value.ignoreNotifyReservation
-          : ignoreNotifyReservation // ignore: cast_nullable_to_non_nullable
-              as bool,
       typeOrder: freezed == typeOrder
           ? _value.typeOrder
           : typeOrder // ignore: cast_nullable_to_non_nullable
               as TypeOrderEnum?,
+      notifyReservation: null == notifyReservation
+          ? _value.notifyReservation
+          : notifyReservation // ignore: cast_nullable_to_non_nullable
+              as bool,
+      holdingReservations: null == holdingReservations
+          ? _value.holdingReservations
+          : holdingReservations // ignore: cast_nullable_to_non_nullable
+              as List<ReservationModel>,
+      ignoreReservationWarning: null == ignoreReservationWarning
+          ? _value.ignoreReservationWarning
+          : ignoreReservationWarning // ignore: cast_nullable_to_non_nullable
+              as bool,
       useReservation: null == useReservation
           ? _value.useReservation
           : useReservation // ignore: cast_nullable_to_non_nullable
@@ -139,14 +142,13 @@ abstract class _$$CreateNewOrderDialogStateImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {List<TableModel> tableSelect,
-      List<int> tableIds,
+      {Set<TableModel> tableSelect,
       CreateNewOrderTabEnum tabSelect,
       ReservationModel? reservationSelect,
-      bool notifyReservation,
-      List<ReservationModel> reservationsAssginTable,
-      bool ignoreNotifyReservation,
       TypeOrderEnum? typeOrder,
+      bool notifyReservation,
+      List<ReservationModel> holdingReservations,
+      bool ignoreReservationWarning,
       bool useReservation});
 
   @override
@@ -167,24 +169,19 @@ class __$$CreateNewOrderDialogStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? tableSelect = null,
-    Object? tableIds = null,
     Object? tabSelect = null,
     Object? reservationSelect = freezed,
-    Object? notifyReservation = null,
-    Object? reservationsAssginTable = null,
-    Object? ignoreNotifyReservation = null,
     Object? typeOrder = freezed,
+    Object? notifyReservation = null,
+    Object? holdingReservations = null,
+    Object? ignoreReservationWarning = null,
     Object? useReservation = null,
   }) {
     return _then(_$CreateNewOrderDialogStateImpl(
       tableSelect: null == tableSelect
           ? _value._tableSelect
           : tableSelect // ignore: cast_nullable_to_non_nullable
-              as List<TableModel>,
-      tableIds: null == tableIds
-          ? _value._tableIds
-          : tableIds // ignore: cast_nullable_to_non_nullable
-              as List<int>,
+              as Set<TableModel>,
       tabSelect: null == tabSelect
           ? _value.tabSelect
           : tabSelect // ignore: cast_nullable_to_non_nullable
@@ -193,22 +190,22 @@ class __$$CreateNewOrderDialogStateImplCopyWithImpl<$Res>
           ? _value.reservationSelect
           : reservationSelect // ignore: cast_nullable_to_non_nullable
               as ReservationModel?,
-      notifyReservation: null == notifyReservation
-          ? _value.notifyReservation
-          : notifyReservation // ignore: cast_nullable_to_non_nullable
-              as bool,
-      reservationsAssginTable: null == reservationsAssginTable
-          ? _value._reservationsAssginTable
-          : reservationsAssginTable // ignore: cast_nullable_to_non_nullable
-              as List<ReservationModel>,
-      ignoreNotifyReservation: null == ignoreNotifyReservation
-          ? _value.ignoreNotifyReservation
-          : ignoreNotifyReservation // ignore: cast_nullable_to_non_nullable
-              as bool,
       typeOrder: freezed == typeOrder
           ? _value.typeOrder
           : typeOrder // ignore: cast_nullable_to_non_nullable
               as TypeOrderEnum?,
+      notifyReservation: null == notifyReservation
+          ? _value.notifyReservation
+          : notifyReservation // ignore: cast_nullable_to_non_nullable
+              as bool,
+      holdingReservations: null == holdingReservations
+          ? _value._holdingReservations
+          : holdingReservations // ignore: cast_nullable_to_non_nullable
+              as List<ReservationModel>,
+      ignoreReservationWarning: null == ignoreReservationWarning
+          ? _value.ignoreReservationWarning
+          : ignoreReservationWarning // ignore: cast_nullable_to_non_nullable
+              as bool,
       useReservation: null == useReservation
           ? _value.useReservation
           : useReservation // ignore: cast_nullable_to_non_nullable
@@ -221,67 +218,67 @@ class __$$CreateNewOrderDialogStateImplCopyWithImpl<$Res>
 
 class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
   const _$CreateNewOrderDialogStateImpl(
-      {final List<TableModel> tableSelect = const [],
-      final List<int> tableIds = const [],
+      {final Set<TableModel> tableSelect = const {},
       this.tabSelect = CreateNewOrderTabEnum.table,
       this.reservationSelect,
-      this.notifyReservation = false,
-      final List<ReservationModel> reservationsAssginTable = const [],
-      this.ignoreNotifyReservation = false,
       this.typeOrder,
+      this.notifyReservation = false,
+      final List<ReservationModel> holdingReservations = const [],
+      this.ignoreReservationWarning = false,
       this.useReservation = false})
       : _tableSelect = tableSelect,
-        _tableIds = tableIds,
-        _reservationsAssginTable = reservationsAssginTable;
+        _holdingReservations = holdingReservations;
 
-  final List<TableModel> _tableSelect;
+  final Set<TableModel> _tableSelect;
   @override
   @JsonKey()
-  List<TableModel> get tableSelect {
-    if (_tableSelect is EqualUnmodifiableListView) return _tableSelect;
+  Set<TableModel> get tableSelect {
+    if (_tableSelect is EqualUnmodifiableSetView) return _tableSelect;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_tableSelect);
+    return EqualUnmodifiableSetView(_tableSelect);
   }
 
-  final List<int> _tableIds;
-  @override
-  @JsonKey()
-  List<int> get tableIds {
-    if (_tableIds is EqualUnmodifiableListView) return _tableIds;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_tableIds);
-  }
-
+// @Default([]) List<int> tableIds,
   @override
   @JsonKey()
   final CreateNewOrderTabEnum tabSelect;
   @override
   final ReservationModel? reservationSelect;
+// @Default(false) bool notifyReservation,
+// @Default([]) List<ReservationModel> reservationsAssginTable,
+// @Default(false) bool ignoreNotifyReservation,
+  @override
+  final TypeOrderEnum? typeOrder;
+// @Default(false) bool useReservation,
+  /// có hiện thông báo lịch đặt k
   @override
   @JsonKey()
   final bool notifyReservation;
-  final List<ReservationModel> _reservationsAssginTable;
+
+  /// ds các lịch đặt bàn (status = accept + [now; now + 30p]) ứng với ds bàn đang chọn
+  final List<ReservationModel> _holdingReservations;
+
+  /// ds các lịch đặt bàn (status = accept + [now; now + 30p]) ứng với ds bàn đang chọn
   @override
   @JsonKey()
-  List<ReservationModel> get reservationsAssginTable {
-    if (_reservationsAssginTable is EqualUnmodifiableListView)
-      return _reservationsAssginTable;
+  List<ReservationModel> get holdingReservations {
+    if (_holdingReservations is EqualUnmodifiableListView)
+      return _holdingReservations;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_reservationsAssginTable);
+    return EqualUnmodifiableListView(_holdingReservations);
   }
 
+  /// bỏ qua hiển thị hộp thoại nhắc nhở có lịch đặt
   @override
   @JsonKey()
-  final bool ignoreNotifyReservation;
-  @override
-  final TypeOrderEnum? typeOrder;
+  final bool ignoreReservationWarning;
   @override
   @JsonKey()
   final bool useReservation;
 
   @override
   String toString() {
-    return 'CreateNewOrderDialogState(tableSelect: $tableSelect, tableIds: $tableIds, tabSelect: $tabSelect, reservationSelect: $reservationSelect, notifyReservation: $notifyReservation, reservationsAssginTable: $reservationsAssginTable, ignoreNotifyReservation: $ignoreNotifyReservation, typeOrder: $typeOrder, useReservation: $useReservation)';
+    return 'CreateNewOrderDialogState(tableSelect: $tableSelect, tabSelect: $tabSelect, reservationSelect: $reservationSelect, typeOrder: $typeOrder, notifyReservation: $notifyReservation, holdingReservations: $holdingReservations, ignoreReservationWarning: $ignoreReservationWarning, useReservation: $useReservation)';
   }
 
   @override
@@ -291,20 +288,19 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
             other is _$CreateNewOrderDialogStateImpl &&
             const DeepCollectionEquality()
                 .equals(other._tableSelect, _tableSelect) &&
-            const DeepCollectionEquality().equals(other._tableIds, _tableIds) &&
             (identical(other.tabSelect, tabSelect) ||
                 other.tabSelect == tabSelect) &&
             (identical(other.reservationSelect, reservationSelect) ||
                 other.reservationSelect == reservationSelect) &&
-            (identical(other.notifyReservation, notifyReservation) ||
-                other.notifyReservation == notifyReservation) &&
-            const DeepCollectionEquality().equals(
-                other._reservationsAssginTable, _reservationsAssginTable) &&
-            (identical(
-                    other.ignoreNotifyReservation, ignoreNotifyReservation) ||
-                other.ignoreNotifyReservation == ignoreNotifyReservation) &&
             (identical(other.typeOrder, typeOrder) ||
                 other.typeOrder == typeOrder) &&
+            (identical(other.notifyReservation, notifyReservation) ||
+                other.notifyReservation == notifyReservation) &&
+            const DeepCollectionEquality()
+                .equals(other._holdingReservations, _holdingReservations) &&
+            (identical(
+                    other.ignoreReservationWarning, ignoreReservationWarning) ||
+                other.ignoreReservationWarning == ignoreReservationWarning) &&
             (identical(other.useReservation, useReservation) ||
                 other.useReservation == useReservation));
   }
@@ -313,13 +309,12 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
   int get hashCode => Object.hash(
       runtimeType,
       const DeepCollectionEquality().hash(_tableSelect),
-      const DeepCollectionEquality().hash(_tableIds),
       tabSelect,
       reservationSelect,
-      notifyReservation,
-      const DeepCollectionEquality().hash(_reservationsAssginTable),
-      ignoreNotifyReservation,
       typeOrder,
+      notifyReservation,
+      const DeepCollectionEquality().hash(_holdingReservations),
+      ignoreReservationWarning,
       useReservation);
 
   @JsonKey(ignore: true)
@@ -332,32 +327,36 @@ class _$CreateNewOrderDialogStateImpl implements _CreateNewOrderDialogState {
 
 abstract class _CreateNewOrderDialogState implements CreateNewOrderDialogState {
   const factory _CreateNewOrderDialogState(
-      {final List<TableModel> tableSelect,
-      final List<int> tableIds,
+      {final Set<TableModel> tableSelect,
       final CreateNewOrderTabEnum tabSelect,
       final ReservationModel? reservationSelect,
-      final bool notifyReservation,
-      final List<ReservationModel> reservationsAssginTable,
-      final bool ignoreNotifyReservation,
       final TypeOrderEnum? typeOrder,
+      final bool notifyReservation,
+      final List<ReservationModel> holdingReservations,
+      final bool ignoreReservationWarning,
       final bool useReservation}) = _$CreateNewOrderDialogStateImpl;
 
   @override
-  List<TableModel> get tableSelect;
-  @override
-  List<int> get tableIds;
-  @override
+  Set<TableModel> get tableSelect;
+  @override // @Default([]) List<int> tableIds,
   CreateNewOrderTabEnum get tabSelect;
   @override
   ReservationModel? get reservationSelect;
-  @override
+  @override // @Default(false) bool notifyReservation,
+// @Default([]) List<ReservationModel> reservationsAssginTable,
+// @Default(false) bool ignoreNotifyReservation,
+  TypeOrderEnum? get typeOrder;
+  @override // @Default(false) bool useReservation,
+  /// có hiện thông báo lịch đặt k
   bool get notifyReservation;
   @override
-  List<ReservationModel> get reservationsAssginTable;
+
+  /// ds các lịch đặt bàn (status = accept + [now; now + 30p]) ứng với ds bàn đang chọn
+  List<ReservationModel> get holdingReservations;
   @override
-  bool get ignoreNotifyReservation;
-  @override
-  TypeOrderEnum? get typeOrder;
+
+  /// bỏ qua hiển thị hộp thoại nhắc nhở có lịch đặt
+  bool get ignoreReservationWarning;
   @override
   bool get useReservation;
   @override

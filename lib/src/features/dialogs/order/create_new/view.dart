@@ -11,16 +11,14 @@ import 'package:aladdin_franchise/src/data/model/reservation/reservation.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/components/custom_checkbox.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
-import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
-import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/table.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 
 import 'package:flutter/material.dart';
@@ -31,37 +29,62 @@ import 'widgets/barrel_widget.dart';
 import 'provider.dart';
 import 'state.dart';
 
-Future<({int? orderId, ReservationModel? reservation, int? typeOrder})> showCreateNewOrderDialog(
-    BuildContext context) async {
-  final result = await showDialog(
+Future<
+    ({
+      int? orderId,
+      ReservationModel? reservation,
+      int? typeOrder,
+    })> showCreateNewOrderDialog(
+  BuildContext context, {
+  Set<TableModel> tableSelectInit = const {},
+}) async {
+  return await showDialog(
     context: context,
     useRootNavigator: false,
     barrierDismissible: false,
-    builder: (context) => const PopScope(
+    builder: (context) => PopScope(
       canPop: false,
-      child: CreateNewOrderDialog(),
+      child: CreateNewOrderDialog(
+        tableSelectInit: tableSelectInit,
+      ),
     ),
   );
-
-  return result;
 }
 
 class CreateNewOrderDialog extends ConsumerStatefulWidget {
-  const CreateNewOrderDialog({Key? key}) : super(key: key);
+  const CreateNewOrderDialog({
+    Key? key,
+    this.tableSelectInit = const {},
+  }) : super(key: key);
+  final Set<TableModel> tableSelectInit;
 
   @override
   ConsumerState createState() => _CreateNewOrderDialogState();
 }
 
 class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
+  bool _showReservationWarning = false;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) {
+        ref.refresh(tablesAndOrdersProvider);
+        ref.read(createNewOrderDialogProvider.notifier).init(widget.tableSelectInit);
+      },
+    );
+  }
+
   _listenNotifyReservation(BuildContext context, WidgetRef ref) =>
       (bool? previous, bool? next) async {
         if (next == true) {
           var state = ref.read(createNewOrderDialogProvider);
 
-          if (state.reservationsAssginTable.isNotEmpty &&
-              ref.read(homeProvider).event != HomeEvent.createNewOrder &&
-              !state.ignoreNotifyReservation) {
+          if (state.holdingReservations.isNotEmpty &&
+              !_showReservationWarning &&
+              !state.ignoreReservationWarning &&
+              !ref.read(createNewOrderDialogProvider.notifier).statusReservationsDialogOpen) {
+            _showReservationWarning = true;
             await showConfirmActionWithChild(
               context,
               child: Column(
@@ -69,25 +92,25 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Có ${state.reservationsAssginTable.length} lịch đặt bàn đã được lễ tân tiếp nhận ứng với các bàn bạn đã chọn.\n'
+                    'Có ${state.holdingReservations.length} lịch đặt bàn đã được lễ tân tiếp nhận ứng với các bàn bạn đã chọn.\n'
                     'Nếu là khách đã đặt bàn trước, vui lòng chọn lịch đặt bàn trước khi bấm xác nhận!',
                   ),
                   const Gap(12),
                   GestureDetector(
                     onTap: ref
                         .read(createNewOrderDialogProvider.notifier)
-                        .onChangeIgnoreNotifyReservation,
+                        .onChangeIgnoreReservationWarning,
                     child: Row(
                       children: [
                         Consumer(
                           builder: (context, ref, child) {
                             bool ignoreNotifyReservation = ref.watch(createNewOrderDialogProvider
-                                .select((value) => value.ignoreNotifyReservation));
+                                .select((value) => value.ignoreReservationWarning));
                             return CustomCheckbox(
                               checked: ignoreNotifyReservation,
                               onChange: ref
                                   .read(createNewOrderDialogProvider.notifier)
-                                  .onChangeIgnoreNotifyReservation,
+                                  .onChangeIgnoreReservationWarning,
                             );
                           },
                         ),
@@ -107,6 +130,7 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
               actionTitle: S.current.got_it,
               notCancel: true,
             );
+            _showReservationWarning = false;
           }
         }
         if (!mounted) return;
@@ -152,6 +176,7 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
             bool enableOnline = ref.read(enableOrderOnlineProvider);
             var notUseOffline = List<TableModel>.from(data.offline?.notUse ?? []);
             var notUseOnline = List<TableModel>.from(data.online?.notUse ?? []);
+
             if ([...notUseOffline, ...notUseOnline].isEmpty) {
               return Center(
                   child: Text(
@@ -252,56 +277,97 @@ class _CreateNewOrderDialogState extends ConsumerState<CreateNewOrderDialog> {
             ));
           },
         ),
-        // ButtonCancelWidget(
-        //   onPressed: () => Navigator.pop(context, (
-        //     orderId: null,
-        //     reservation: null,
-        //     typeOrder: kTypeOrder,
-        //   )),
-        // ),
         AppButton(
           onPressed: () async {
             var state = ref.read(createNewOrderDialogProvider);
-            var tableIds = state.tableIds.toList();
-            if (tableIds.isEmpty) {
+            var tableSelect = state.tableSelect.toList();
+            if (tableSelect.isEmpty) {
               showMessageDialog(context, message: S.current.notTableSelected);
               return;
             }
 
-            var tableName = state.tableSelect.map((e) => e.name ?? '').join(', ');
+            var tableNames = state.tableSelect.map((e) => e.name ?? '').join(', ');
             var reservation = state.reservationSelect;
+            var tableIds = tableSelect.map((e) => e.id).toList();
             var result = await ref.read(homeProvider.notifier).createNewOrder(
                   tableIds,
-                  tableName: tableName,
-                  reservation: reservation,
+                  reservation: reservation?.copyWith(
+                    status: ReservationStatusEnum.process.type,
+                    statusName: ReservationStatusEnum.process.title,
+                    tableId: tableIds,
+                    table: tableNames,
+                  ),
                   typeOrder: state.typeOrder?.type ?? kTypeOrder,
                 );
-            if (result.last == null) {
-              reservation = reservation?.copyWith(
-                status: ReservationStatusEnum.process.type,
-                statusName: ReservationStatusEnum.process.title,
-                tableId: tableIds,
-                table: tableName,
-              );
+            if (result.orderId != null) {
+              showDoneSnackBar(context: context, message: S.current.createdNewOrder);
               if (reservation != null) {
-                ref.read(homeProvider.notifier).updateReservation(reservation);
+                await _addCustomerToOrder(
+                  context,
+                  ref,
+                  result.orderId!,
+                  result.errorFindCustomer,
+                  reservation,
+                  result.findCustomerStatus,
+                );
               }
               if (context.mounted) {
-                showDoneSnackBar(context: context, message: S.current.createdNewOrder);
                 Navigator.pop(context, (
-                  orderId: result.first,
+                  orderId: result.orderId,
                   reservation: reservation,
-                  typeOrder: state.typeOrder?.type ?? kTypeOrder
+                  typeOrder: state.typeOrder?.type ?? kTypeOrder,
                 ));
               }
             } else {
               if (context.mounted) {
-                showMessageDialog(context, message: result.last);
+                showMessageDialog(context, message: result.errorCreate ?? '');
               }
             }
           },
         ),
       ],
     );
+  }
+
+  Future<void> _addCustomerToOrder(
+    BuildContext context,
+    WidgetRef ref,
+    int? orderId,
+    String? msg,
+    ReservationModel? reservation,
+    FindCustomerStatus? findStatus,
+  ) async {
+    switch (findStatus) {
+      case FindCustomerStatus.notFound:
+        if (orderId == null) return;
+        await showMessageDialog(context, message: msg ?? '');
+        return;
+      case FindCustomerStatus.error:
+        if (orderId == null) return;
+        var confirm = await showConfirmAction(
+          context,
+          message:
+              '${S.current.error_add_customer_to_order_from_reservation}\n${S.current.ex_problem}: ${msg ?? ''}',
+          actionTitle: S.current.tryAgain,
+        );
+        if (confirm == true) {
+          var resultFind = await ref.read(homeProvider.notifier).addCustomerToOrder(
+                phoneNumer: reservation?.customer?.phoneNumber,
+                orderId: orderId,
+                showLoading: true,
+              );
+          await _addCustomerToOrder(
+            context,
+            ref,
+            orderId,
+            resultFind.error,
+            reservation,
+            resultFind.status,
+          );
+        }
+        return;
+      default:
+        return;
+    }
   }
 }

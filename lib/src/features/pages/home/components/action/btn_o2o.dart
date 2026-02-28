@@ -9,7 +9,9 @@ import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/data/model/notification.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/order_to_online/view.dart';
+import 'package:aladdin_franchise/src/features/pages/order_to_online_new/view.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -62,6 +64,11 @@ class ButtonO2oData extends ConsumerWidget {
               child: InkWell(
                 onTap: () {
                   push(context, const OrderToOnlinePage());
+                  // if (kDebugMode) {
+                  //   push(context, const NewOrderToOnlinePage());
+                  //   return;
+                  // }
+                  // push(context, const OrderToOnlinePage());
                 },
                 borderRadius: BorderRadius.circular(50),
                 child: Container(

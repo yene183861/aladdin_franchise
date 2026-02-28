@@ -44,13 +44,20 @@ class ReservationSection extends ConsumerWidget {
         const Gap(4),
         Expanded(
           child: ReservationList(
+            onlyWorkShift: true,
             showAction: false,
             onChangeItem: (p0) {
               ref.read(createNewOrderDialogProvider.notifier).onChangeReservationSelect(p0, tables);
             },
-            applyReservationFilters: (p0) {
-              ref.read(createNewOrderDialogProvider.notifier).applyReservationFilters(p0);
+            saveFilteredReservationFunc: (p0) {
+              ref.read(createNewOrderDialogProvider.notifier).saveFilteredReservations(p0);
             },
+            setStatusReservationsDialogOpen: (p0) {
+              ref
+                  .read(createNewOrderDialogProvider.notifier)
+                  .onChangeStatusReservationsDialogOpen(p0);
+            },
+            typeOrder: ref.watch(createNewOrderDialogProvider.select((value) => value.typeOrder)),
           ),
         ),
       ],

@@ -12,6 +12,12 @@ import 'reservation_customer.dart';
 part 'reservation.freezed.dart';
 part 'reservation.g.dart';
 
+/// [rawData] được dùng để hứng những trường k dùng trên apos
+/// tránh iệc phải build lại apos khi thêm 1 trường mới trên app Lễ tân
+///
+/// [reservationDate] - YYYY-MM-dd
+///
+/// [startTime], [endTime] - HH:mm
 @freezed
 class ReservationModel with _$ReservationModel {
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
@@ -30,6 +36,8 @@ class ReservationModel with _$ReservationModel {
     String? saleCode,
     @Default(false) bool isUpdate,
     @JsonKey(includeFromJson: false, includeToJson: false) Map<String, dynamic>? rawData,
+    @Default(1) @JsonKey(fromJson: ParsingUtils.parseInt) int guest,
+    @JsonKey(name: 'nguon_khach') dynamic customerSource,
   }) = _ReservationModel;
 
   ReservationModel._();
@@ -37,22 +45,30 @@ class ReservationModel with _$ReservationModel {
   factory ReservationModel.fromJson(Map<String, Object?> json) => _$ReservationModelFromJson(json);
 
   DateTime get startDateTime =>
-      DateTimeUtils.parseToDateTimeFromHour(timeStr: startTime, date: date);
+      DateTimeUtils.parseToDateTimeFromHour(timeStr: startTime, date: getDate);
+  DateTime get endDateTime =>
+      DateTimeUtils.parseToDateTimeFromHour(timeStr: startTime, date: getDate);
 
-  DateTime get date => DateTimeUtils.instance.dateFormatYYYYMMDD.parse(reservationDate);
+  DateTime get getDate => DateTimeUtils.instance.dateFormatYYYYMMDD.parse(reservationDate);
 
   ReservationStatusEnum get reservationStatus => convertToReservationStatusEnum(status);
-
-  TypeOrderEnum get typeOrder => isOnline ? TypeOrderEnum.online : TypeOrderEnum.offline;
-
-  List<String> get listTableName => table?.split(',') ?? [];
+  ReservationStatusEnum get getReservationStatus => convertToReservationStatusEnum(status);
 
   /// chỉ so sánh status, tableId, table để update khi cần
   bool equalsOtherReservation(ReservationModel? other) {
     if (other == null) return false;
 
-    return status != other.status ||
-        AppUtils.checkListEqualsIgnoreOrder(tableId ?? [], other.tableId ?? []) ||
-        AppUtils.checkListEqualsIgnoreOrder(listTableName, other.listTableName);
+    var result = status == other.status &&
+        AppUtils.checkListEqualsIgnoreOrder(getTableIds.toList(), other.getTableIds.toList()) &&
+        AppUtils.checkListEqualsIgnoreOrder(
+            getListTableName.toList(), other.getListTableName.toList());
+    return result;
   }
+
+  TimeOfDay get startTimeOfDay => TimeOfDay.fromDateTime(startDateTime);
+
+  TimeOfDay get endTimeOfDay => TimeOfDay.fromDateTime(endDateTime);
+  Set<int> get getTableIds => (tableId ?? []).toSet();
+  Set<String> get getListTableName => (table?.split(',') ?? []).toSet();
+  TypeOrderEnum get typeOrder => isOnline ? TypeOrderEnum.online : TypeOrderEnum.offline;
 }

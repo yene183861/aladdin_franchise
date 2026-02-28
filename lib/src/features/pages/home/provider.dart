@@ -73,6 +73,7 @@ import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/ip_config_helper.dart';
 import 'package:aladdin_franchise/src/utils/product_helper.dart';
 import 'package:aladdin_franchise/src/utils/subwindows_moniter%20copy.dart';
+import 'package:aladdin_franchise/src/utils/text_util.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/cupertino.dart';
@@ -417,15 +418,21 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  /// Tạo đơn hàng mới
-  /// [0]: orderId, -1 là lỗi tạo đơn mới
-  /// [1]: Message
-  Future<List<dynamic>> createNewOrder(
+  // section action for order
+
+  Future<
+      ({
+        int? orderId,
+        String? errorCreate,
+        FindCustomerStatus findCustomerStatus,
+        String? errorFindCustomer,
+      })> createNewOrder(
     List<int> tableIds, {
     required int typeOrder,
     ReservationModel? reservation,
-    required String tableName,
   }) async {
+    FindCustomerStatus findCustomerStatus = FindCustomerStatus.success;
+    String? errorFindCustomer;
     try {
       updateEvent(HomeEvent.createNewOrder);
       final result = await _orderRepository.createAndUpdateOrder(
@@ -436,11 +443,30 @@ class HomeNotifier extends StateNotifier<HomeState> {
         updateSaleInfo: true,
       );
       updateEvent(null);
+      if (reservation != null) {
+        updateReservation(reservation, showLoading: false);
+        var status = await addCustomerToOrder(
+          orderId: result.orderId,
+          phoneNumer: reservation.customer?.phoneNumber,
+        );
+        findCustomerStatus = status.status;
+        errorFindCustomer = status.error;
+      }
       _onRefeshO2o(typeOrder);
-      return [result.orderId, null];
+      return (
+        orderId: result.orderId,
+        errorCreate: null,
+        findCustomerStatus: findCustomerStatus,
+        errorFindCustomer: errorFindCustomer,
+      );
     } catch (ex) {
       updateEvent(null);
-      return [-1, ex.toString()];
+      return (
+        orderId: null,
+        errorCreate: ex.toString(),
+        findCustomerStatus: findCustomerStatus,
+        errorFindCustomer: errorFindCustomer,
+      );
     }
   }
 
@@ -451,15 +477,16 @@ class HomeNotifier extends StateNotifier<HomeState> {
     List<int> tableIds,
     OrderModel order, {
     bool cancel = false,
-    ReservationModel? reservation,
+    List<TableModel> tableSelect = const [],
   }) async {
     try {
       updateEvent(cancel ? HomeEvent.cancelOrder : HomeEvent.updateOrder);
       await _checkOrderSelect();
+      var reservationCrmId = state.orderSelect!.reservationCrmId;
       final result = await _orderRepository.createAndUpdateOrder(
         tableIds,
         state.orderSelect!,
-        reservation: reservation,
+        reservation: (reservationCrmId == null ? null : ReservationModel(id: reservationCrmId)),
         typeOrder: kTypeOrder,
         updateSaleInfo: false,
       );
@@ -471,14 +498,90 @@ class HomeNotifier extends StateNotifier<HomeState> {
           //
         }
       }
+      if (reservationCrmId != null) {
+        _updateReservationStatus(
+          id: reservationCrmId,
+          status:
+              tableSelect.isEmpty ? ReservationStatusEnum.cancel : ReservationStatusEnum.process,
+          table: tableSelect,
+        );
+      }
       updateEvent(null);
-
+      ref.refresh(tablesAndOrdersProvider);
       _onRefeshO2o();
       return (error: null, orderId: result.orderId);
     } catch (ex) {
       _lockOrder(ex);
       updateEvent(null);
       return (error: ex.toString(), orderId: -1);
+    }
+  }
+
+  /// Chuyển giao đơn bàn
+  Future<String?> transferOrder(
+    List<int> tableIds,
+    OrderModel order,
+    WaiterModel waiterTransfer, {
+    List<TableModel> tableSelect = const [],
+  }) async {
+    try {
+      updateEvent(HomeEvent.transferOrder);
+      var reservationCrmId = state.orderSelect!.reservationCrmId;
+      await _orderRepository.createAndUpdateOrder(
+        tableIds,
+        order,
+        waiterTransfer: waiterTransfer,
+        reservation: reservationCrmId == null ? null : ReservationModel(id: reservationCrmId),
+        updateSaleInfo: false,
+      );
+      if (reservationCrmId != null) {
+        _updateReservationStatus(
+          id: reservationCrmId,
+          status:
+              tableSelect.isEmpty ? ReservationStatusEnum.cancel : ReservationStatusEnum.process,
+          table: tableSelect,
+        );
+      }
+      _onRefeshO2o();
+      updateEvent(null);
+      return null;
+    } catch (ex) {
+      updateEvent(null);
+      return ex.toString();
+    }
+  }
+
+  // end action for order
+
+  Future<({FindCustomerStatus status, String? error})> addCustomerToOrder({
+    bool showLoading = true,
+    String? phoneNumer,
+    int? orderId,
+  }) async {
+    var phone = TextUtil.convertPhone((phoneNumer ?? '').trim());
+
+    if (phone.isEmpty || orderId == null) return (status: FindCustomerStatus.success, error: null);
+    try {
+      if (showLoading) updateEvent(HomeEvent.addCustomerToOrder);
+      var customerRepo = await _customerRepository.findCustomer(
+        phoneNumber: phone,
+        order: OrderModel(id: orderId),
+      );
+
+      if (showLoading) updateEvent(null);
+      if (customerRepo.customer is List<dynamic> == false) {
+        return (status: FindCustomerStatus.success, error: null);
+      }
+      return (
+        status: FindCustomerStatus.notFound,
+        error: "${S.current.find_customer_not_found} ($phone)"
+      );
+    } catch (ex) {
+      if (showLoading) updateEvent(null);
+      return (
+        status: FindCustomerStatus.error,
+        error: ex.toString(),
+      );
     }
   }
 
@@ -558,6 +661,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     dynamic reservationCrmId,
   }) async {
     try {
+      showLogs(orderId, flags: 'orderId');
       updateEvent(HomeEvent.loadingChangeOrderCurrent);
       state = state.copyWith(
           orderSelect: OrderModel(
@@ -565,6 +669,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
         typeOrder: typeOrder ?? kTypeOrder,
         reservationCrmId: reservationCrmId,
       ));
+
+      showLogs(state.orderSelect, flags: 'state');
       _resetOrder();
       ref.invalidate(tablesAndOrdersProvider);
       updateEvent(null);
@@ -794,11 +900,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
     switch (event[1]) {
       case kUserCreateOrderChannel:
         ref.refresh(orderToOnlineProvider);
+        ref.refresh(newOrderToOnlineProvider);
         var orderId = data['order_id'] as int?;
         chatIdStreamController.add(orderId);
         break;
       case kUserUpdateOrderChannel:
         ref.refresh(orderToOnlineProvider);
+        ref.refresh(newOrderToOnlineProvider);
         var orderId = data['order_id'] as int?;
         chatIdStreamController.add(orderId);
         var o2oConfig = ref.read(o2oConfigProvider).when(
@@ -3125,53 +3233,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  void updateReservation(
-    ReservationModel? reservation, {
-    bool showLoading = false,
-  }) async {
-    if (reservation == null) return;
-    if (showLoading) updateEvent(HomeEvent.updateReservation);
-    int retry = 0;
-    while (retry < 3) {
-      try {
-        var result = await ref
-            .read(reservationRepositoryProvider)
-            .updateReservation(reservation.id, reservation);
-
-        break;
-      } catch (ex) {
-        retry++;
-      }
-    }
-    if (showLoading) updateEvent(null);
-  }
-
-  /// Chuyển giao đơn bàn
-  Future<String?> transferOrder(
-    List<int> tableIds,
-    OrderModel order,
-    WaiterModel waiterTransfer, {
-    ReservationModel? reservation,
-  }) async {
-    try {
-      updateEvent(HomeEvent.transferOrder);
-
-      await _orderRepository.createAndUpdateOrder(
-        tableIds,
-        order,
-        reservation: reservation,
-        waiterTransfer: waiterTransfer,
-        updateSaleInfo: false,
-      );
-
-      updateEvent(null);
-      return null;
-    } catch (ex) {
-      updateEvent(null);
-      return ex.toString();
-    }
-  }
-
   /// Cập nhật lịch đặt bàn cho đơn bàn
   Future<String?> updateOrderReservation({
     required List<int> tableIds,
@@ -3199,6 +3260,110 @@ class HomeNotifier extends StateNotifier<HomeState> {
       return ex.toString();
     }
   }
+
+  /// section reservation
+  void updateReservation(
+    ReservationModel? reservation, {
+    bool showLoading = false,
+  }) async {
+    if (reservation == null) return;
+    if (showLoading) updateEvent(HomeEvent.updateReservation);
+    int retry = 0;
+    while (retry < 3) {
+      try {
+        await ref
+            .read(reservationRepositoryProvider)
+            .updateReservation(reservation.id, reservation);
+        break;
+      } catch (ex) {
+        retry++;
+      }
+    }
+    if (showLoading) updateEvent(null);
+  }
+
+  void _updateReservationStatus({
+    required dynamic id,
+    required ReservationStatusEnum status,
+    List<TableModel> table = const [],
+    ReservationModel? reservation,
+  }) async {
+    var reser = reservation ?? await getReservationInfo(id);
+    if (reser != null) {
+      var tableIds = table.map((e) => e.id).toList();
+      if (!reser.equalsOtherReservation(ReservationModel(
+          status: status.type, tableId: tableIds, table: table.map((e) => e.name).join(', ')))) {
+        updateReservation(reser.copyWith(
+          status: status.type,
+          statusName: status.title,
+          table: table.map((e) => e.name).join(', '),
+          tableId: tableIds,
+        ));
+      }
+    }
+  }
+
+  Future<ReservationModel?> getReservationInfo(String id) async {
+    int retry = 0;
+    while (retry < 3) {
+      try {
+        var info = await _reservationRepository.getReservationById(id);
+        return info;
+      } catch (ex) {
+        retry++;
+      }
+    }
+    return null;
+  }
+
+  /// Cập nhật đơn hàng
+  ///
+  /// Khi yêu cầu huỷ đơn: tableIds = []
+  Future<({String? error, int? orderId})> updateReservationOrder(
+    List<int> tableIds,
+    OrderModel order, {
+    List<TableModel> tableSelect = const [],
+    ReservationModel? newReservation,
+    ReservationModel? currentReservation,
+  }) async {
+    try {
+      updateEvent(HomeEvent.updateOrder);
+      final updateOrderRepo = await _orderRepository.createAndUpdateOrder(
+        tableIds,
+        state.orderSelect!,
+        reservation: newReservation,
+        updateSaleInfo: false,
+      );
+      state = state.copyWith(
+        orderSelect: state.orderSelect?.copyWith(reservationCrmId: newReservation?.id),
+      );
+
+      showLogs(state.orderSelect, flags: 'updateReservationOrder');
+      if (newReservation != null) {
+        _updateReservationStatus(
+          id: newReservation.id,
+          status: ReservationStatusEnum.process,
+          table: tableSelect,
+          reservation: newReservation,
+        );
+      }
+      if (currentReservation != null) {
+        _updateReservationStatus(
+          id: currentReservation.id,
+          status: ReservationStatusEnum.accept,
+          table: tableSelect,
+          reservation: currentReservation,
+        );
+      }
+      updateEvent(null);
+      return (error: null, orderId: updateOrderRepo.orderId);
+    } catch (ex) {
+      updateEvent(null);
+      return (error: ex.toString(), orderId: -1);
+    }
+  }
+
+  // end section reservation
 
   void onChangeDiscountTypeSelect(DiscountTypeEnum value) {
     state = state.copyWith(discountTypeSelect: value);

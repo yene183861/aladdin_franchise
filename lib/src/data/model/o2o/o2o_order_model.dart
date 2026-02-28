@@ -20,23 +20,5 @@ class O2OOrderModel with _$O2OOrderModel {
 
   const O2OOrderModel._();
 
-  factory O2OOrderModel.fromJson(Map<String, dynamic> json) =>
-      _$O2OOrderModelFromJson(json);
-
-  static String getModelInterface() {
-    return '''
-    @Default(-1) int orderId,
-    @Default([]) List<String> qrOrderO2o,
-    @Default(-1) int restaurantId,
-    @Default('') String tableName,
-    @Default([]) List<RequestOrderModel> items,
-    @Default('') String orderCode,
-    @Default(-1) int userId,
-
-    ===========================
-    RequestOrderModel - interface
-
-    ${RequestOrderModel.getModelInterface()}
-    ''';
-  }
+  factory O2OOrderModel.fromJson(Map<String, dynamic> json) => _$O2OOrderModelFromJson(json);
 }

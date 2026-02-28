@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
@@ -26,6 +27,7 @@ import 'package:aladdin_franchise/src/utils/size_util.dart';
 import 'package:collection/collection.dart';
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -356,7 +358,7 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                               children: [
                                 const Gap(8),
                                 AppButtonWidget(
-                                  textAction: 'Layout nhà hàng',
+                                  textAction: S.current.restaurant_layout,
                                   onTap: () {
                                     push(context, const TableLayoutPage());
                                   },

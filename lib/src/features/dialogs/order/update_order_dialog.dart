@@ -182,35 +182,20 @@ class _UpdateOrderDialogState extends ConsumerState<UpdateOrderDialog> {
               return;
             }
             final tableIds = tableSelected.map<int>((e) => e.id).toList();
-            ReservationModel? reservation = orderSelect?.reservationCrmId == null
-                ? null
-                : ReservationModel(id: orderSelect?.reservationCrmId);
-
             var result = await ref.read(homeProvider.notifier).updateOrder(
                   tableIds,
                   orderSelect!,
-                  reservation: reservation,
+                  tableSelect: tableSelected,
                 );
 
             if (result.error == null) {
               if (context.mounted) {
                 showDoneSnackBar(context: context, message: S.current.updateSuccess);
+                Navigator.pop(context, result.orderId);
               }
-              if (reservation != null) {
-                ref.read(homeProvider.notifier).updateReservationStatus(
-                      reservation.id,
-                      ReservationStatusEnum.process,
-                      tableSelected,
-                    );
-              }
-              Navigator.pop(context, result.orderId);
             } else {
               if (context.mounted) {
-                await showMessageDialog(
-                  context,
-                  message: result.error.toString(),
-                );
-                // showErrorDialog(context, message: result.error.toString());
+                await showMessageDialog(context, message: result.error.toString());
               }
             }
           },

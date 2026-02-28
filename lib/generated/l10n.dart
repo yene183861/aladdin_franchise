@@ -7490,6 +7490,587 @@ class S {
       args: [],
     );
   }
+
+  /// `Booking (Phone call)`
+  String get sale_booking {
+    return Intl.message(
+      'Booking (Phone call)',
+      name: 'sale_booking',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reservation linked to the current table order`
+  String get assigned_reservation {
+    return Intl.message(
+      'Reservation linked to the current table order',
+      name: 'assigned_reservation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View other information`
+  String get see_other_info {
+    return Intl.message(
+      'View other information',
+      name: 'see_other_info',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dining date`
+  String get reservation_date {
+    return Intl.message(
+      'Dining date',
+      name: 'reservation_date',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Has elderly guests`
+  String get has_elderly {
+    return Intl.message(
+      'Has elderly guests',
+      name: 'has_elderly',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Number of adults`
+  String get adult_amount {
+    return Intl.message(
+      'Number of adults',
+      name: 'adult_amount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Number of children`
+  String get children_amount {
+    return Intl.message(
+      'Number of children',
+      name: 'children_amount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reservation note`
+  String get reservation_note {
+    return Intl.message(
+      'Reservation note',
+      name: 'reservation_note',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Order information`
+  String get reservation_order_info {
+    return Intl.message(
+      'Order information',
+      name: 'reservation_order_info',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reservation creator`
+  String get reservation_creator {
+    return Intl.message(
+      'Reservation creator',
+      name: 'reservation_creator',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Receptionist`
+  String get receptionist {
+    return Intl.message(
+      'Receptionist',
+      name: 'receptionist',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View all reservations today`
+  String get view_all_reservation_today {
+    return Intl.message(
+      'View all reservations today',
+      name: 'view_all_reservation_today',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Morning shift`
+  String get morning_shift {
+    return Intl.message(
+      'Morning shift',
+      name: 'morning_shift',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Evening shift`
+  String get evening_shift {
+    return Intl.message(
+      'Evening shift',
+      name: 'evening_shift',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The table order was created successfully, but customer information has not been added to the order!`
+  String get error_add_customer_to_order_from_reservation {
+    return Intl.message(
+      'The table order was created successfully, but customer information has not been added to the order!',
+      name: 'error_add_customer_to_order_from_reservation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saving customer information to the order`
+  String get saving_customer_info {
+    return Intl.message(
+      'Saving customer information to the order',
+      name: 'saving_customer_info',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change`
+  String get change {
+    return Intl.message(
+      'Change',
+      name: 'change',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Customer information cannot be changed right now. Please try again at “{paymentNow}” → “{endow}”`
+  String error_change_customer_from_reservation(
+      String paymentNow, String endow) {
+    return Intl.message(
+      'Customer information cannot be changed right now. Please try again at “$paymentNow” → “$endow”',
+      name: 'error_change_customer_from_reservation',
+      desc: '',
+      args: [paymentNow, endow],
+    );
+  }
+
+  /// `Customer information cannot be changed at the moment. Please try again.`
+  String get error_change_customer_from_reservation_1 {
+    return Intl.message(
+      'Customer information cannot be changed at the moment. Please try again.',
+      name: 'error_change_customer_from_reservation_1',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current customer information of the order`
+  String get current_customer_info {
+    return Intl.message(
+      'Current customer information of the order',
+      name: 'current_customer_info',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Customer information from the recently updated reservation`
+  String get customer_info_recently_updated_reservation {
+    return Intl.message(
+      'Customer information from the recently updated reservation',
+      name: 'customer_info_recently_updated_reservation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do you want to update the customer information for this order?`
+  String get confirm_update_customer_info {
+    return Intl.message(
+      'Do you want to update the customer information for this order?',
+      name: 'confirm_update_customer_info',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sort remaining tables`
+  String get sort_remaining_tables {
+    return Intl.message(
+      'Sort remaining tables',
+      name: 'sort_remaining_tables',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove table`
+  String get remove_table {
+    return Intl.message(
+      'Remove table',
+      name: 'remove_table',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to delete all tables on this floor?`
+  String get comfirm_remove_delete_table_from_selected_floor {
+    return Intl.message(
+      'Are you sure you want to delete all tables on this floor?',
+      name: 'comfirm_remove_delete_table_from_selected_floor',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to delete the selected tables?`
+  String get comfirm_remove_delete_selected_table {
+    return Intl.message(
+      'Are you sure you want to delete the selected tables?',
+      name: 'comfirm_remove_delete_selected_table',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `In use`
+  String get in_use {
+    return Intl.message(
+      'In use',
+      name: 'in_use',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Customer`
+  String get short_customer_text {
+    return Intl.message(
+      'Customer',
+      name: 'short_customer_text',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add floor`
+  String get add_floor {
+    return Intl.message(
+      'Add floor',
+      name: 'add_floor',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add new`
+  String get add_new {
+    return Intl.message(
+      'Add new',
+      name: 'add_new',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove floor`
+  String get remove_floor {
+    return Intl.message(
+      'Remove floor',
+      name: 'remove_floor',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get delete {
+    return Intl.message(
+      'Delete',
+      name: 'delete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Floor name`
+  String get floor_name {
+    return Intl.message(
+      'Floor name',
+      name: 'floor_name',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `E.g.: Floor 1, Rooftop...`
+  String get floor_name_example {
+    return Intl.message(
+      'E.g.: Floor 1, Rooftop...',
+      name: 'floor_name_example',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirm deletion`
+  String get confirm_deletion {
+    return Intl.message(
+      'Confirm deletion',
+      name: 'confirm_deletion',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to delete "{floorName}"?`
+  String confirm_deletion_msg(String floorName) {
+    return Intl.message(
+      'Are you sure you want to delete "$floorName"?',
+      name: 'confirm_deletion_msg',
+      desc: '',
+      args: [floorName],
+    );
+  }
+
+  /// `Floor management`
+  String get floor_management {
+    return Intl.message(
+      'Floor management',
+      name: 'floor_management',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Color palette`
+  String get color_palette {
+    return Intl.message(
+      'Color palette',
+      name: 'color_palette',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Default color`
+  String get default_color {
+    return Intl.message(
+      'Default color',
+      name: 'default_color',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Minimum size`
+  String get min_size {
+    return Intl.message(
+      'Minimum size',
+      name: 'min_size',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Horizontal`
+  String get horizontal {
+    return Intl.message(
+      'Horizontal',
+      name: 'horizontal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Vertical`
+  String get vertical {
+    return Intl.message(
+      'Vertical',
+      name: 'vertical',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Position`
+  String get position {
+    return Intl.message(
+      'Position',
+      name: 'position',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Floor`
+  String get floor {
+    return Intl.message(
+      'Floor',
+      name: 'floor',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to load the table list!`
+  String get unable_load_table_list {
+    return Intl.message(
+      'Unable to load the table list!',
+      name: 'unable_load_table_list',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rotate`
+  String get rotate {
+    return Intl.message(
+      'Rotate',
+      name: 'rotate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Seating capacity`
+  String get seating_capacity {
+    return Intl.message(
+      'Seating capacity',
+      name: 'seating_capacity',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Top`
+  String get top {
+    return Intl.message(
+      'Top',
+      name: 'top',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bottom`
+  String get bottom {
+    return Intl.message(
+      'Bottom',
+      name: 'bottom',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Left`
+  String get left {
+    return Intl.message(
+      'Left',
+      name: 'left',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Right`
+  String get right {
+    return Intl.message(
+      'Right',
+      name: 'right',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Preview`
+  String get preview {
+    return Intl.message(
+      'Preview',
+      name: 'preview',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Default settings`
+  String get default_settings {
+    return Intl.message(
+      'Default settings',
+      name: 'default_settings',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to reset to the default settings?`
+  String get set_default_setting_config {
+    return Intl.message(
+      'Are you sure you want to reset to the default settings?',
+      name: 'set_default_setting_config',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to remove this table from the layout?`
+  String get comfirm_remove_table_in_layout {
+    return Intl.message(
+      'Are you sure you want to remove this table from the layout?',
+      name: 'comfirm_remove_table_in_layout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Restaurant layout`
+  String get restaurant_layout {
+    return Intl.message(
+      'Restaurant layout',
+      name: 'restaurant_layout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Selecting`
+  String get selecting {
+    return Intl.message(
+      'Selecting',
+      name: 'selecting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Available`
+  String get available {
+    return Intl.message(
+      'Available',
+      name: 'available',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -39,14 +39,23 @@ extension CreateNewOrderTabEnumExt on CreateNewOrderTabEnum {
 @freezed
 class CreateNewOrderDialogState with _$CreateNewOrderDialogState {
   const factory CreateNewOrderDialogState({
-    @Default([]) List<TableModel> tableSelect,
-    @Default([]) List<int> tableIds,
+    @Default({}) Set<TableModel> tableSelect,
+    // @Default([]) List<int> tableIds,
     @Default(CreateNewOrderTabEnum.table) CreateNewOrderTabEnum tabSelect,
     ReservationModel? reservationSelect,
-    @Default(false) bool notifyReservation,
-    @Default([]) List<ReservationModel> reservationsAssginTable,
-    @Default(false) bool ignoreNotifyReservation,
+    // @Default(false) bool notifyReservation,
+    // @Default([]) List<ReservationModel> reservationsAssginTable,
+    // @Default(false) bool ignoreNotifyReservation,
     TypeOrderEnum? typeOrder,
+    // @Default(false) bool useReservation,
+    /// có hiện thông báo lịch đặt k
+    @Default(false) bool notifyReservation,
+
+    /// ds các lịch đặt bàn (status = accept + [now; now + 30p]) ứng với ds bàn đang chọn
+    @Default([]) List<ReservationModel> holdingReservations,
+
+    /// bỏ qua hiển thị hộp thoại nhắc nhở có lịch đặt
+    @Default(false) bool ignoreReservationWarning,
     @Default(false) bool useReservation,
   }) = _CreateNewOrderDialogState;
 }

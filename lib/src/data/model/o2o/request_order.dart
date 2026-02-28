@@ -132,22 +132,7 @@ class RequestOrderModel with _$RequestOrderModel {
     return value != 'user' ? value : S.current.customers;
   }
 
-  static String getModelInterface() {
-    return '''
-    @Default(-1) dynamic id,
-    @Default(0) int status,
-    @Default([]) List<RequestOrderItemModel> listItem,
-    DateTime? timeOrder,
-    @Default('') String sender,
-    @Default('') String notes,
-    @Default(1) int orderTimes,
-
-    ===========================
-    RequestOrderItemModel - interface
-
-    ${RequestOrderItemModel.getModelInterface()}
-    ''';
-  }
+  DateTime? get getLocalTimeOrder => timeOrder?.toLocal();
 }
 
 @freezed
