@@ -1,19 +1,13 @@
 import 'package:aladdin_franchise/src/core/services/send_log/discord_service.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
+import 'package:flutter/foundation.dart';
+
+import 'telegram_service.dart';
 
 class LogService {
   static void sendLogs(ErrorLogModel errorLog) async {
-    // return;
-    try {
-      DiscordService.sendLogs(errorLog);
-    } catch (ex) {
-      //
-    }
-    // try {
-    //   TelegramNotiService.sendLogs(errorLog);
-    // } catch (ex) {
-    //   showLogs(ex.toString(), flags: 'error tele');
-    //   //
-    // }
+    if (kDebugMode) return;
+    DiscordService.sendLogs(errorLog);
+    TelegramNotiService.sendLogs(errorLog);
   }
 }

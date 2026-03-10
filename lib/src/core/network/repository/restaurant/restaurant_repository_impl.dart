@@ -20,6 +20,7 @@ import 'package:aladdin_franchise/src/models/user_bank.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/date_time.dart';
+import 'package:flutter/foundation.dart';
 
 class RestaurantRepositoryImpl extends RestaurantRepository {
   final RestClient _client;
@@ -365,6 +366,7 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
       if (confirmTimeout != null) 'confirm_timeout': confirmTimeout,
       if (changePrintDeviceId != null) 'printer_device_id': changePrintDeviceId ? kDeviceId : null,
     });
+    showLogs(body, flags: 'body');
     var result = await safeCallApi(
       () async {
         final url = Uri.parse(apiUrl);

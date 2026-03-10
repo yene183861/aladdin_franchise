@@ -1,24 +1,16 @@
-import 'dart:io';
-
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/customer/customer_option_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
-import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
-import 'package:aladdin_franchise/src/features/dialogs/coupon/button_add_coupon.dart';
-import 'package:aladdin_franchise/src/features/dialogs/coupon_info.dart';
-import 'package:aladdin_franchise/src/features/dialogs/create_invoice_order_dialog.dart';
-import 'package:aladdin_franchise/src/features/dialogs/error.dart';
-import 'package:aladdin_franchise/src/features/dialogs/message.dart';
-import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
-import 'package:aladdin_franchise/src/features/pages/cart/widgets/product_checkout_action.dart';
-import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
+import 'package:aladdin_franchise/src/features/dialogs/coupon/coupon_option_dialog.dart';
+import 'package:aladdin_franchise/src/features/dialogs/coupon/widgets/coupon_info.dart';
+import 'package:aladdin_franchise/src/features/dialogs/customer/widgets/customer_info.dart';
+import 'package:aladdin_franchise/src/features/dialogs/invoice/invoice_form_dialog.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/feature_button_group.dart';
-import 'package:aladdin_franchise/src/features/pages/home/components/order/price_order_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_item_list_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_square_menu.dart';
@@ -28,7 +20,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'components/order_price_widget.dart';
+import 'widgets/cancel_dish_action.dart';
+import 'widgets/order_data_bill.dart';
 
 enum CheckoutTabEnum { receipt, endow }
 
@@ -118,7 +111,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     var priceWidget = const Padding(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Center(
-        child: OrderPriceWidget(),
+        child: OrderDataBillWidget(),
       ),
     );
     return Scaffold(
@@ -171,7 +164,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: ProductCheckoutActionWidget(),
+                        child: CancelDishAction(),
                       ),
                     ],
                   ),
@@ -222,7 +215,7 @@ class TabCustomerPayment extends ConsumerWidget {
   final bool canAction;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final customer = ref.watch(homeProvider.select((value) => value.customer));
+    final customer = ref.watch(checkoutProvider.select((value) => value.customer));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -244,7 +237,7 @@ class TabCustomerPayment extends ConsumerWidget {
                         ),
                         if (canAction)
                           ButtonSquareMenuWidget(
-                            onPressed: () => onChooseCustomerOption(context),
+                            onPressed: () => showCustomerOptionDialog(context),
                             child: const ResponsiveIconWidget(iconData: Icons.person_search),
                           ),
                       ],
@@ -256,7 +249,7 @@ class TabCustomerPayment extends ConsumerWidget {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(S.current.noInfo),
                               )
-                            : CustomerInfoWidget(
+                            : CustomerInfoCard(
                                 canAction: canAction,
                                 customer: customer,
                               )
@@ -270,7 +263,7 @@ class TabCustomerPayment extends ConsumerWidget {
                   style: AppTextStyle.bold(),
                 ),
                 const Gap(12),
-                const NumberOfAdultsWidget(labelText: ''),
+                // const NumberOfAdultsWidget(labelText: ''),
                 const Divider(),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,8 +279,8 @@ class TabCustomerPayment extends ConsumerWidget {
                           Row(
                             children: [
                               ButtonSquareMenuWidget(
-                                onPressed: () async {
-                                  await showCouponDialog(context);
+                                onPressed: () {
+                                  showCouponOptionDialog(context);
                                 },
                                 child: const ResponsiveIconWidget(iconData: CupertinoIcons.tickets),
                               ),
@@ -299,7 +292,7 @@ class TabCustomerPayment extends ConsumerWidget {
                           )
                       ],
                     ),
-                    CouponInfoWidget(canAction: canAction)
+                    CouponList(canAction: canAction)
                   ],
                 ),
                 const Divider(),
@@ -318,7 +311,7 @@ class TabCustomerPayment extends ConsumerWidget {
                           if (canAction)
                             ButtonSquareMenuWidget(
                               onPressed: () async {
-                                await showCreateInvoiceOrderDialog(
+                                showInvoiceFormDialog(
                                   context,
                                   orderInvoice: invoice,
                                 );

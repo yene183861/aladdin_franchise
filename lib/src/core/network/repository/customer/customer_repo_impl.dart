@@ -9,8 +9,10 @@ import 'package:aladdin_franchise/src/core/network/repository/responses/customer
 import 'package:aladdin_franchise/src/core/network/api/rest_client.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/customer_create.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/models/customer/customer.dart';
 import 'package:aladdin_franchise/src/models/error_log.dart';
 import 'package:aladdin_franchise/src/models/order.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 
 class CustomerRepositoryImpl extends CustomerRepository {
   final RestClient _client;
@@ -52,7 +54,7 @@ class CustomerRepositoryImpl extends CustomerRepository {
   }
 
   @override
-  Future<bool> createCustomer({
+  Future<CustomerModel?> createCustomer({
     required String phone,
     required String firstName,
     required String lastName,
@@ -79,9 +81,23 @@ class CustomerRepositoryImpl extends CustomerRepository {
         return _client.post(url, body: body);
       },
       wrapperResponse: true,
+      dataKey: 'data',
       parser: (json) {
-        CustomerCreateResponseData.fromJson(json);
-        return true;
+        try {
+          var id = json['id'];
+          if (id == null) return null;
+          var name = '${json['first_name'] ?? firstName} ${json['last_name'] ?? lastName}';
+          var customer = CustomerModel(
+            id: id,
+            name: name,
+            phone: json['phone'] ?? phone,
+            phoneNumber: json['phone'] ?? phone,
+            dob: json['birth_day'] ?? (birthday.isEmpty ? "0" : birthday),
+          );
+          return customer;
+        } catch (ex) {
+          return null;
+        }
       },
       log: ErrorLogModel(
         action: AppLogAction.createCustomer,
@@ -96,7 +112,7 @@ class CustomerRepositoryImpl extends CustomerRepository {
         message: result.error,
       );
     }
-    return true;
+    return result.data;
   }
 
   @override

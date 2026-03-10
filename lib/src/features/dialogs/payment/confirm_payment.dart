@@ -5,9 +5,9 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
-import 'package:aladdin_franchise/src/features/dialogs/customer_portrait.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
 
-import 'package:aladdin_franchise/src/features/dialogs/image_bill_checker.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/widgets/image_bill_checker.dart';
 import 'package:aladdin_franchise/src/features/dialogs/note_for_waiter.dart';
 import 'package:aladdin_franchise/src/features/dialogs/number_of_people.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_tab_widget.dart';
@@ -96,12 +96,12 @@ class _ContentConfirmPaymentWidgetState extends ConsumerState<ContentConfirmPaym
                     ),
                     const SizedBox(
                       width: 400,
-                      child: _MorePaymentInfoWidget(),
+                      child: MorePaymentInfoWidget(),
                     ),
                   ],
                 ],
               ),
-              const _MorePaymentInfoWidget(),
+              const MorePaymentInfoWidget(),
             ],
           )),
         ],
@@ -110,8 +110,8 @@ class _ContentConfirmPaymentWidgetState extends ConsumerState<ContentConfirmPaym
   }
 }
 
-class _MorePaymentInfoWidget extends StatelessWidget {
-  const _MorePaymentInfoWidget({
+class MorePaymentInfoWidget extends StatelessWidget {
+  const MorePaymentInfoWidget({
     super.key,
   });
 
@@ -125,18 +125,19 @@ class _MorePaymentInfoWidget extends StatelessWidget {
             S.current.confirm_payment_tmp,
             style: AppTextStyle.regular(),
           ),
-          const PQCImageBillCheckerWidget(),
+          const ImageBillCheckerWidget(),
           const GapH(12),
           Consumer(
             builder: (context, ref, child) {
-              var checked = ref.watch(homeProvider.select((value) => value.printNumberOfPeople));
+              var checked =
+                  ref.watch(checkoutProvider.select((value) => value.printNumberOfPeople));
               return GestureDetector(
-                onTap: ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
+                onTap: ref.read(checkoutProvider.notifier).onChangePrintNumberOfPeople,
                 child: Row(
                   children: [
                     const Gap(12),
                     CustomCheckbox(
-                      onChange: ref.read(homeProvider.notifier).onChangePrintNumberOfPeople,
+                      onChange: ref.read(checkoutProvider.notifier).onChangePrintNumberOfPeople,
                       checked: checked,
                     ),
                     const Gap(4),
@@ -151,7 +152,7 @@ class _MorePaymentInfoWidget extends StatelessWidget {
               );
             },
           ),
-          const CheckoutNumberOfPeopleWidget(),
+          // const CheckoutNumberOfPeopleWidget(),
           // const GapH(12),
           // const CheckoutCustomerPortraitSelectWidget(),
           // const GapH(12),
@@ -164,75 +165,75 @@ class _MorePaymentInfoWidget extends StatelessWidget {
   }
 }
 
-class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
-  const CheckoutNumberOfPeopleWidget({super.key});
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final homeNotifier = ref.read(homeProvider.notifier);
-    final coupons = ref.watch(homeProvider.select((value) => value.coupons));
+// class CheckoutNumberOfPeopleWidget extends ConsumerWidget {
+//   const CheckoutNumberOfPeopleWidget({super.key});
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final homeNotifier = ref.read(homeProvider.notifier);
+//     final coupons = ref.watch(homeProvider.select((value) => value.coupons));
 
-    var requireApplyPolicy = coupons.any((e) => e.isType == 6);
-    bool allowChangeNumberOfAdults = !requireApplyPolicy;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TitleLineWidget(title: S.current.number_of_people),
-        const Gap(8),
-        SpinBox(
-          min: 1,
-          max: 200,
-          enabled: allowChangeNumberOfAdults,
-          incrementIcon: const Icon(CupertinoIcons.add),
-          decrementIcon: const Icon(CupertinoIcons.minus),
-          textStyle: AppTextStyle.bold(),
-          value: ref.watch(homeProvider.select((value) => value.numberOfAdults)).toDouble(),
-          decoration: InputDecoration(
-            label: Text(
-              S.current.number_of_adults,
-              style: AppTextStyle.regular(),
-            ),
-          ),
-          onChanged: (value) {
-            homeNotifier.changeNumberOfPeople(
-              numberOfAdults: value.toInt(),
-              // applyPolicy: requireApplyPolicy
-            );
-          },
-        ),
-        if (requireApplyPolicy) ...[
-          const Gap(8),
-          Text(
-            'Mã giảm giá theo số khách, thay đổi sổ khách người lớn trong mục Ưu đãi.',
-            style: AppTextStyle.regular(
-              color: AppColors.redColor,
-              rawFontSize: AppConfig.defaultRawTextSize - 1.5,
-            ),
-          )
-        ],
-        const GapH(24),
-        SpinBox(
-          min: 0,
-          max: 200,
-          incrementIcon: const Icon(CupertinoIcons.add),
-          decrementIcon: const Icon(CupertinoIcons.minus),
-          textStyle: AppTextStyle.bold(),
-          value: ref.watch(homeProvider.select((value) => value.numberOfChildren)).toDouble(),
-          decoration: InputDecoration(
-            label: Text(
-              S.current.number_of_children,
-              style: AppTextStyle.regular(),
-            ),
-          ),
-          onChanged: (value) {
-            homeNotifier.changeNumberOfPeople(
-              numberOfChildren: value.toInt(),
-            );
-          },
-        ),
-      ],
-    );
-  }
-}
+//     var requireApplyPolicy = coupons.any((e) => e.isType == 6);
+//     bool allowChangeNumberOfAdults = !requireApplyPolicy;
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         TitleLineWidget(title: S.current.number_of_people),
+//         const Gap(8),
+//         SpinBox(
+//           min: 1,
+//           max: 200,
+//           enabled: allowChangeNumberOfAdults,
+//           incrementIcon: const Icon(CupertinoIcons.add),
+//           decrementIcon: const Icon(CupertinoIcons.minus),
+//           textStyle: AppTextStyle.bold(),
+//           value: ref.watch(homeProvider.select((value) => value.numberOfAdults)).toDouble(),
+//           decoration: InputDecoration(
+//             label: Text(
+//               S.current.number_of_adults,
+//               style: AppTextStyle.regular(),
+//             ),
+//           ),
+//           onChanged: (value) {
+//             homeNotifier.changeNumberOfPeople(
+//               numberOfAdults: value.toInt(),
+//               // applyPolicy: requireApplyPolicy
+//             );
+//           },
+//         ),
+//         if (requireApplyPolicy) ...[
+//           const Gap(8),
+//           Text(
+//             'Mã giảm giá theo số khách, thay đổi sổ khách người lớn trong mục Ưu đãi.',
+//             style: AppTextStyle.regular(
+//               color: AppColors.redColor,
+//               rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+//             ),
+//           )
+//         ],
+//         const GapH(24),
+//         SpinBox(
+//           min: 0,
+//           max: 200,
+//           incrementIcon: const Icon(CupertinoIcons.add),
+//           decrementIcon: const Icon(CupertinoIcons.minus),
+//           textStyle: AppTextStyle.bold(),
+//           value: ref.watch(homeProvider.select((value) => value.numberOfChildren)).toDouble(),
+//           decoration: InputDecoration(
+//             label: Text(
+//               S.current.number_of_children,
+//               style: AppTextStyle.regular(),
+//             ),
+//           ),
+//           onChanged: (value) {
+//             homeNotifier.changeNumberOfPeople(
+//               numberOfChildren: value.toInt(),
+//             );
+//           },
+//         ),
+//       ],
+//     );
+//   }
+// }
 
 // class EmployeeSaleSelectWidget extends ConsumerWidget {
 //   const EmployeeSaleSelectWidget({super.key});

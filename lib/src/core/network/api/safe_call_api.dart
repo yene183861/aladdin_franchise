@@ -112,10 +112,10 @@ Future<ApiResult<T>> safeCallApi<T>(
       );
     }
   } on http.ClientException catch (e) {
-    showLog(e, flags: 'safeCallApi ClientException');
+    var appExcept = AppException.fromHttpClientException(e);
     result = ApiResult.failure(
-      999,
-      'Lỗi kết nối: ${AppException(message: e.message).toString()}',
+      appExcept.errorCode ?? 444,
+      appExcept.messageError,
     );
   } on AppException catch (e) {
     result = ApiResult.failure(
@@ -123,7 +123,6 @@ Future<ApiResult<T>> safeCallApi<T>(
       e.messageError,
     );
   } catch (e) {
-    showLog(e, flags: 'safeCallApi');
     result = ApiResult.failure(
       999,
       AppException(message: e.toString()).toString(),
@@ -210,15 +209,18 @@ Future<ApiResult<List<T>>> safeCallApiList<T>(
       );
     }
   } on http.ClientException catch (e) {
-    showLog(e, flags: 'safeCallApiList ClientException');
-    result = ApiResult.failure(444, 'Lỗi kết nối: ${AppException(message: e.message).toString()}');
+    // result = ApiResult.failure(444, 'Lỗi kết nối: ${AppException(message: e.message).toString()}');
+    var appExcept = AppException.fromHttpClientException(e);
+    result = ApiResult.failure(
+      appExcept.errorCode ?? 444,
+      appExcept.messageError,
+    );
   } on AppException catch (e) {
     result = ApiResult.failure(
       e.errorCode ?? 999,
       e.messageError,
     );
   } catch (e) {
-    showLog(e, flags: 'safeCallApiList');
     result = ApiResult.failure(
       999,
       AppException(message: e.toString()).toString(),

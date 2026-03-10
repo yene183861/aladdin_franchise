@@ -96,7 +96,7 @@ class CouponRepositoryImpl extends CouponRepository {
   }
 
   @override
-  Future<ApplyPolicyResponseData> applyPolicy({
+  Future<ApplyPolicyResponseData> applyCustomerPolicy({
     required List<CustomerPolicyModel> coupons,
     required List<CustomerPolicyModel> customerPolicy,
     required List<ProductCheckoutModel> products,

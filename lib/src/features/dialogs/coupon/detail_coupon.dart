@@ -1,13 +1,13 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
-import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/features/widgets/dialog/title_with_close_icon.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/customer/customer_policy.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../generated/l10n.dart';
+import '../../../../generated/l10n.dart';
 
 void showCouponDetailDialog(
   BuildContext context,
@@ -18,18 +18,8 @@ void showCouponDetailDialog(
     useRootNavigator: false,
     barrierDismissible: true,
     builder: (context) => AlertDialog(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
-              "${S.current.discountCode}: ${coupon.name}",
-              style: Theme.of(context).dialogTheme.titleTextStyle,
-            ),
-          ),
-          //color: AppColors.redColor
-          const CloseButton(),
-        ],
+      title: TitleWithCloseIconDialog(
+        title: "${S.current.discountCode}: ${coupon.name}",
       ),
       content: _CouponInfoWidget(coupon: coupon),
       shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
@@ -54,24 +44,23 @@ class _CouponInfoWidget extends ConsumerWidget {
             S.current.coupon_condition_apply,
             style: AppTextStyle.bold(),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 12),
-            child: coupon.conditionApplyMessage.isEmpty
-                ? Text(S.current.no_conditions)
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ...coupon.conditionApplyMessage.map(
-                        (e) => Text(
-                          e,
-                          style: AppTextStyle.regular(),
-                        ),
-                      )
-                    ],
-                  ),
-          ),
+          coupon.conditionApplyMessage.isEmpty
+              ? Text(
+                  S.current.no_conditions,
+                  style: AppTextStyle.regular(),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ...coupon.conditionApplyMessage.map(
+                      (e) => Text(
+                        e,
+                        style: AppTextStyle.regular(),
+                      ),
+                    )
+                  ],
+                ),
           const Divider(),
-          const Gap(12),
           Text(
             "${S.current.payment_method_does_not_apply} (${coupon.paymentNotAllowed.length})",
             style: AppTextStyle.bold(),
@@ -114,15 +103,14 @@ class _CouponInfoWidget extends ConsumerWidget {
                     e.name ?? S.current.billTotal,
                     style: AppTextStyle.regular(),
                   ),
+                  // check here
                   trailing: e.type == 1
                       ? Text(
                           "-${AppUtils.getPercentValue(e.amount)}",
                           style: AppTextStyle.regular(),
                         )
                       : Text(
-                          "-${AppUtils.formatCurrency(value: e.amount)
-                          // AppConfig.formatCurrency().format(e.amount)
-                          }",
+                          "-${AppUtils.formatCurrency(value: e.amount)}",
                           style: AppTextStyle.regular(),
                         ),
                 ),

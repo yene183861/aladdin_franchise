@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:aladdin_franchise/generated/intl/messages_vi.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
@@ -10,7 +11,9 @@ import 'package:aladdin_franchise/src/features/dialogs/detail_product.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/edit_tax_dialog.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/widgets/order_item_line.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/widgets/list_product.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_detail.dart';
@@ -20,6 +23,7 @@ import 'package:aladdin_franchise/src/features/pages/login/view.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_main.dart';
 import 'package:aladdin_franchise/src/features/widgets/custom_dropdown_button.dart';
+import 'package:aladdin_franchise/src/features/widgets/empty_data_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/models/order_history.dart';
@@ -40,378 +44,270 @@ import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 
-class _OrderProductItem extends ConsumerWidget {
-  const _OrderProductItem({
-    required this.item,
-    this.allowEnterNote = true,
-    this.allowExtraItem = true,
-    this.onTap,
-  });
+// class OrderProductItem extends ConsumerWidget {
+//   const OrderProductItem({
+//     required this.item,
+//     this.allowEnterNote = true,
+//     this.allowExtraItem = true,
+//     this.onTap,
+//   });
 
-  final ProductModel item;
-  final bool allowEnterNote;
+//   final ProductModel item;
+//   final bool allowEnterNote;
 
-  final bool allowExtraItem;
+//   final bool allowExtraItem;
 
-  final Function(ProductModel)? onTap;
+//   final Function(ProductModel)? onTap;
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
-    return InkWell(
-      onTap: onTap == null
-          ? null
-          : () {
-              onTap?.call(item);
-            },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200, width: 0.5),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                AppImageCacheNetworkWidget(
-                  imageUrl: item.image ?? '',
-                  width: 50,
-                  height: 50,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                const Gap(8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              item.getNameView(),
-                              style: AppTextStyle.bold(),
-                            ),
-                          ),
-                          const Gap(12),
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                // TextSpan(
-                                //   text: 'Thành tiền: ',
-                                //   style: AppTextStyle.medium(
-                                //     color: Colors.grey,
-                                //     rawFontSize:
-                                //         AppConfig.defaultRawTextSize - 1.5,
-                                //   ),
-                                // ),
-                                TextSpan(
-                                  text: AppUtils.formatCurrency(
-                                      value: double.tryParse(item.unitPrice) ?? 0, symbol: 'đ'),
-                                  style: AppTextStyle.bold(
-                                    rawFontSize: AppConfig.defaultRawTextSize - 0.5,
-                                  ),
-                                ),
-                                const TextSpan(text: ' / '),
-                                TextSpan(
-                                  text: item.getUnitView(),
-                                ),
-                              ],
-                              style: AppTextStyle.medium(
-                                color: Colors.grey,
-                                rawFontSize: AppConfig.defaultRawTextSize - 1.5,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Gap(2),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text.rich(TextSpan(children: [
-                              TextSpan(
-                                text: '${S.current.total_amount}:  ',
-                                style: AppTextStyle.medium(
-                                  color: Colors.grey,
-                                  rawFontSize: AppConfig.defaultRawTextSize - 1.5,
-                                ),
-                              ),
-                              TextSpan(
-                                text: AppUtils.formatCurrency(
-                                    value: (double.tryParse(item.unitPrice) ?? 0) *
-                                        (item.numberSelecting - item.quantityPromotion),
-                                    symbol: 'đ'),
-                                style: AppTextStyle.bold(
-                                  color: AppColors.mainColor,
-                                  rawFontSize: AppConfig.defaultRawTextSize - 0.5,
-                                ),
-                              ),
-                            ])),
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFf1f4fa),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade300),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                _qtyButton(
-                                  Icons.remove,
-                                  () {
-                                    var count = max(0, item.numberSelecting - 1);
-                                    ref
-                                        .read(cartPageProvider.notifier)
-                                        .addProductToCart(item.copyWith(numberSelecting: count));
-                                  },
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                                  child: Text(
-                                    item.numberSelecting.toString(),
-                                    style: AppTextStyle.bold(),
-                                  ),
-                                ),
-                                _qtyButton(
-                                  Icons.add,
-                                  () {
-                                    var count = max(0, item.numberSelecting + 1);
-                                    ref
-                                        .read(cartPageProvider.notifier)
-                                        .addProductToCart(item.copyWith(numberSelecting: count));
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                // const Gap(12),
-                // SizedBox(
-                //   width: 18,
-                //   child: allowExtraItem && item.numberSelecting > 1
-                //       ? InkWell(
-                //           onTap: () {
-                //             // if (lockedOrder) return;
-                //             // var state = ref.read(homeProvider);
-                //             // if (state.orderTabSelect == OrderTabEnum.ordering) {
-                //             //   // ref.read(homeProvider.notifier).changeProductInCart(item, 0);
-                //             //   ref
-                //             //       .read(cartPageProvider.notifier)
-                //             //       .addProductToCart(
-                //             //           item.copyWith(numberSelecting: 0));
-                //             //   return;
-                //             // }
-                //             // var pc = state.productCheckout
-                //             //     .firstWhereOrNull((e) => e.id == item.id);
-                //             // if (pc != null) {
-                //             //   onPressedCancelItem(context, ref, productCancel: [
-                //             //     pc.copyWith(quantityCancel: -pc.quantity)
-                //             //   ]);
-                //             // }
-                //           },
-                //           child: const Icon(
-                //             CupertinoIcons.delete_simple,
-                //             size: 18,
-                //           ),
-                //         )
-                //       : Container(),
-                // ),
-                // const Gap(8),
-                // if (allowExtraItem)
-                //   SizedBox(
-                //     // width: 100,
-                //     child: SpinBoxWidget(item: item, lockedOrder: lockedOrder),
-                //   )
-                // else
-                //   Text.rich(TextSpan(
-                //       text: 'SL: ${item.numberSelecting}',
-                //       style: AppTextStyle.bold(color: Colors.blue))),
-              ],
-            ),
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
+//     return InkWell(
+//       onTap: onTap == null
+//           ? null
+//           : () {
+//               onTap?.call(item);
+//             },
+//       child: Container(
+//         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(12),
+//           border: Border.all(color: Colors.grey.shade200, width: 0.5),
+//         ),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             Row(
+//               children: [
+//                 AppImageCacheNetworkWidget(
+//                   imageUrl: item.image ?? '',
+//                   width: 50,
+//                   height: 50,
+//                   borderRadius: BorderRadius.circular(12),
+//                 ),
+//                 const Gap(8),
+//                 Expanded(
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Row(
+//                         children: [
+//                           Expanded(
+//                             child: Text(
+//                               item.getNameView(),
+//                               style: AppTextStyle.bold(),
+//                             ),
+//                           ),
+//                           const Gap(12),
+//                           Text.rich(
+//                             TextSpan(
+//                               children: [
+//                                 // TextSpan(
+//                                 //   text: 'Thành tiền: ',
+//                                 //   style: AppTextStyle.medium(
+//                                 //     color: Colors.grey,
+//                                 //     rawFontSize:
+//                                 //         AppConfig.defaultRawTextSize - 1.5,
+//                                 //   ),
+//                                 // ),
+//                                 TextSpan(
+//                                   text: AppUtils.formatCurrency(
+//                                       value: double.tryParse(item.unitPrice) ?? 0, symbol: 'đ'),
+//                                   style: AppTextStyle.bold(
+//                                     rawFontSize: AppConfig.defaultRawTextSize - 0.5,
+//                                   ),
+//                                 ),
+//                                 const TextSpan(text: ' / '),
+//                                 TextSpan(
+//                                   text: item.getUnitView(),
+//                                 ),
+//                               ],
+//                               style: AppTextStyle.medium(
+//                                 color: Colors.grey,
+//                                 rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+//                               ),
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                       const Gap(2),
+//                       Row(
+//                         crossAxisAlignment: CrossAxisAlignment.start,
+//                         children: [
+//                           Expanded(
+//                             child: Text.rich(TextSpan(children: [
+//                               TextSpan(
+//                                 text: '${S.current.total_amount}:  ',
+//                                 style: AppTextStyle.medium(
+//                                   color: Colors.grey,
+//                                   rawFontSize: AppConfig.defaultRawTextSize - 1.5,
+//                                 ),
+//                               ),
+//                               TextSpan(
+//                                 text: AppUtils.formatCurrency(
+//                                     value: (double.tryParse(item.unitPrice) ?? 0) *
+//                                         (item.numberSelecting - item.quantityPromotion),
+//                                     symbol: 'đ'),
+//                                 style: AppTextStyle.bold(
+//                                   color: AppColors.mainColor,
+//                                   rawFontSize: AppConfig.defaultRawTextSize - 0.5,
+//                                 ),
+//                               ),
+//                             ])),
+//                           ),
+//                           Container(
+//                             decoration: BoxDecoration(
+//                               color: const Color(0xFFf1f4fa),
+//                               borderRadius: BorderRadius.circular(12),
+//                               border: Border.all(color: Colors.grey.shade300),
+//                               boxShadow: [
+//                                 BoxShadow(
+//                                   color: Colors.black.withOpacity(0.1),
+//                                   blurRadius: 8,
+//                                   offset: const Offset(0, 2),
+//                                 ),
+//                               ],
+//                             ),
+//                             child: Row(
+//                               children: [
+//                                 _qtyButton(
+//                                   Icons.remove,
+//                                   () {
+//                                     var count = max(0, item.numberSelecting - 1);
+//                                     ref
+//                                         .read(cartPageProvider.notifier)
+//                                         .addProductToCart(item.copyWith(numberSelecting: count));
+//                                   },
+//                                 ),
+//                                 Padding(
+//                                   padding: const EdgeInsets.symmetric(horizontal: 8),
+//                                   child: Text(
+//                                     item.numberSelecting.toString(),
+//                                     style: AppTextStyle.bold(),
+//                                   ),
+//                                 ),
+//                                 _qtyButton(
+//                                   Icons.add,
+//                                   () {
+//                                     var count = max(0, item.numberSelecting + 1);
+//                                     ref
+//                                         .read(cartPageProvider.notifier)
+//                                         .addProductToCart(item.copyWith(numberSelecting: count));
+//                                   },
+//                                 ),
+//                               ],
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//             const Gap(8),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
 
-            // if (item.quantityPromotion > 0)
-            //   Text(
-            //     '${S.current.complimentary_gift} ${item.quantityPromotion != item.numberSelecting ? '(${S.current.quantityCut}: ${item.quantityPromotion})' : ''}',
-            //     style: AppTextStyle.regular(
-            //         rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-            //         color: const Color(0xff0168fe)),
-            //   ),
-            // const Gap(8),
-            // SizedBox(
-            //   height: 36,
-            //   child: Row(
-            //     children: [
-            //       Expanded(
-            //         child: allowEnterNote
-            //             ? _NotePerItemWidget(
-            //                 item: item, lockedOrder: lockedOrder)
+//   Widget _qtyButton(IconData icon, VoidCallback onTap) {
+//     return InkWell(
+//       borderRadius: BorderRadius.circular(8),
+//       onTap: onTap,
+//       child: Container(
+//         margin: const EdgeInsets.all(1),
+//         padding: const EdgeInsets.all(6),
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           border: Border.all(color: Colors.grey.shade300),
+//           borderRadius: BorderRadius.circular(10),
+//         ),
+//         child: Icon(icon, size: 16),
+//       ),
+//     );
+//   }
+// }
 
-            //             : Consumer(builder: (context, ref, child) {
-            //                 // var cancelItem = ref.watch(homeProvider
-            //                 //     .select((value) => value.cancelOrderItem));
-            //                 // if (cancelItem) {
-            //                 return Row(
-            //                   children: [
-            //                     Flexible(
-            //                       child: Text(
-            //                         'Hủy: ${0}',
-            //                         style: AppTextStyle.semiBold(
-            //                             color: AppColors.redColor),
-            //                       ),
-            //                     ),
-            //                     const Gap(4),
-            //                     InkWell(
-            //                       onTap: () {},
-            //                       borderRadius: AppConfig.borderRadiusSecond,
-            //                       child: Container(
-            //                         padding: const EdgeInsets.all(6),
-            //                         decoration: BoxDecoration(
-            //                           color: Colors.grey.shade300,
-            //                           borderRadius:
-            //                               AppConfig.borderRadiusSecond,
-            //                         ),
-            //                         child: Icon(Icons.remove),
-            //                       ),
-            //                     ),
-            //                   ],
-            //                 );
-            //                 // }
-            //                 // return Text(
-            //                 //   DateTimeUtils.formatToString(
-            //                 //       time: DateTime.now(),
-            //                 //       newPattern: DateTimePatterns.dateTime),
-            //                 // );
-            //               }),
-            //       ),
-            //       const Gap(50),
-            //       Text(
-            //         AppUtils.formatCurrency(
-            //             value: (double.tryParse(item.unitPrice) ?? 0) *
-            //                 (item.numberSelecting - item.quantityPromotion)),
-            //         // AppConfig.formatCurrency().format((double.tryParse(item.unitPrice) ?? 0) *
-            //         //     (item.numberSelecting - item.quantityPromotion)),
-            //         style: AppTextStyle.bold(),
-            //       ),
-            //     ],
-            //   ),
-            // ),
-            const Gap(8),
-          ],
-        ),
-      ),
-    );
-  }
+// class _NotePerItemWidget extends ConsumerStatefulWidget {
+//   const _NotePerItemWidget({
+//     required this.item,
+//     required this.lockedOrder,
+//   });
 
-  Widget _qtyButton(IconData icon, VoidCallback onTap) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(8),
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.all(1),
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, size: 16),
-      ),
-    );
-  }
-}
+//   final ProductModel item;
+//   final bool lockedOrder;
 
-class _NotePerItemWidget extends ConsumerStatefulWidget {
-  const _NotePerItemWidget({
-    required this.item,
-    required this.lockedOrder,
-  });
+//   @override
+//   ConsumerState<ConsumerStatefulWidget> createState() => __NotePerItemWidgetState();
+// }
 
-  final ProductModel item;
-  final bool lockedOrder;
+// class __NotePerItemWidgetState extends ConsumerState<_NotePerItemWidget> {
+//   late TextEditingController _controller;
+//   final _focusNode = FocusNode();
 
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() => __NotePerItemWidgetState();
-}
+//   final BehaviorSubject<String> _textChange = BehaviorSubject<String>();
+//   @override
+//   void initState() {
+//     super.initState();
+//     _controller = TextEditingController(text: widget.item.note ?? '');
+//     // _focusNode.addListener(() {
+//     //   showLogs('');
+//     //   if (!_focusNode.hasFocus) {
+//     //     ref
+//     //         .read(homeProvider.notifier)
+//     //         .onChangeNotePerItem(widget.item, _controller.text.trim());
+//     //   }
+//     // });
 
-class __NotePerItemWidgetState extends ConsumerState<_NotePerItemWidget> {
-  late TextEditingController _controller;
-  final _focusNode = FocusNode();
+//     // // Khi người dùng gõ
+//     // _textChange.listen((val) {
+//     //   _hasPendingTyping = true;
 
-  final BehaviorSubject<String> _textChange = BehaviorSubject<String>();
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.item.note ?? '');
-    // _focusNode.addListener(() {
-    //   showLogs('');
-    //   if (!_focusNode.hasFocus) {
-    //     ref
-    //         .read(homeProvider.notifier)
-    //         .onChangeNotePerItem(widget.item, _controller.text.trim());
-    //   }
-    // });
+//     //   // Reset timer mỗi lần gõ
+//     //   _typingTimeout?.cancel();
+//     //   _typingTimeout = Timer(Duration(seconds: 1), () {
+//     //     _hasPendingTyping = false;
+//     //   });
+//     // });
 
-    // // Khi người dùng gõ
-    // _textChange.listen((val) {
-    //   _hasPendingTyping = true;
+//     _controller.addListener(() {
+//       _textChange.value = _controller.text.trim();
+//     });
+//     _textChange.debounceTime(const Duration(milliseconds: 300)).listen((value) {
+//       ref.read(homeProvider.notifier).onChangeNotePerItem(widget.item, _controller.text.trim());
+//     });
+//   }
 
-    //   // Reset timer mỗi lần gõ
-    //   _typingTimeout?.cancel();
-    //   _typingTimeout = Timer(Duration(seconds: 1), () {
-    //     _hasPendingTyping = false;
-    //   });
-    // });
+//   @override
+//   void dispose() {
+//     _controller.dispose();
+//     super.dispose();
+//   }
 
-    _controller.addListener(() {
-      _textChange.value = _controller.text.trim();
-    });
-    _textChange.debounceTime(const Duration(milliseconds: 300)).listen((value) {
-      ref.read(homeProvider.notifier).onChangeNotePerItem(widget.item, _controller.text.trim());
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      key: UniqueKey(),
-      controller: _controller,
-      focusNode: _focusNode,
-      style: AppTextStyle.regular(),
-      decoration: InputDecoration(
-        enabled: !(widget.lockedOrder),
-        hintText: "${S.current.add_notes}...",
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        hintStyle: AppTextStyle.regular(rawFontSize: AppConfig.defaultRawTextSize - 1.5),
-      ),
-      onTapOutside: (event) {
-        FocusManager.instance.primaryFocus?.unfocus();
-        ref.read(homeProvider.notifier).onChangeNotePerItem(widget.item, _controller.text.trim());
-      },
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return TextFormField(
+//       key: UniqueKey(),
+//       controller: _controller,
+//       focusNode: _focusNode,
+//       style: AppTextStyle.regular(),
+//       decoration: InputDecoration(
+//         enabled: !(widget.lockedOrder),
+//         hintText: "${S.current.add_notes}...",
+//         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+//         hintStyle: AppTextStyle.regular(rawFontSize: AppConfig.defaultRawTextSize - 1.5),
+//       ),
+//       onTapOutside: (event) {
+//         FocusManager.instance.primaryFocus?.unfocus();
+//         ref.read(homeProvider.notifier).onChangeNotePerItem(widget.item, _controller.text.trim());
+//       },
+//     );
+//   }
+// }
 
 ///  tab đã gọi
 class OrderedItemsSelectedWidget extends ConsumerWidget {
@@ -426,18 +322,9 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final productCheckoutState =
-        ref.watch(homeProvider.select((value) => value.productCheckoutState));
-    // var items =
-    //     ref.watch(homeProvider.select((value) => value.productsSelected));
-    var orderHistory = ref.watch(homeProvider.select((value) => value.orderHistory));
-    // var displayOrderHistory =
-    //     ref.watch(homeProvider.select((value) => value.displayOrderHistory));
-    var productsCheckout =
-        ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
-    var products = ref.watch(menuProvider.select((value) => value.products));
+        ref.watch(checkoutProvider.select((value) => value.productCheckoutState));
+    var productCheckout = ref.watch(checkoutProvider.select((value) => value.productCheckout));
 
-    var orderHistoryData = List<OrderHistory>.from(orderHistory);
-    orderHistoryData.sort((a, b) => b.timesOrder.compareTo(a.timesOrder));
     switch (productCheckoutState.status) {
       case PageCommonState.loading:
         return ListView.separated(
@@ -453,7 +340,7 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
         return Center(
           child: AppErrorSimpleWidget(
             message: productCheckoutState.messageError,
-            onTryAgain: ref.read(homeProvider.notifier).getOrderProductCheckout,
+            onTryAgain: ref.read(checkoutProvider.notifier).getProductCheckout,
           ),
         );
       case PageCommonState.normal:
@@ -461,24 +348,11 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
       default:
     }
     var notifier = ref.read(homeProvider.notifier);
-    return productsCheckout.isEmpty
-        ? Center(
-            child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const ResponsiveIconWidget(
-                iconData: Icons.restaurant_rounded,
-                color: Colors.grey,
-              ),
-              Text(
-                S.current.ordered_item_empty,
-                style: AppTextStyle.regular(
-                  color: Colors.grey,
-                  rawFontSize: AppConfig.defaultRawTextSize - 1.0,
-                ),
-              ),
-            ],
-          ))
+    return productCheckout.isEmpty
+        ? EmptyDataWidget(
+            icon: Icons.restaurant_rounded,
+            message: S.of(context).ordered_item_empty,
+          )
         : NotificationListener<ScrollNotification>(
             onNotification: (notification) {
               if (notification is UserScrollNotification) {
@@ -494,13 +368,7 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                     itemPositionsListener ?? notifier.selectedItemsPositionsListener,
                 padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                 itemBuilder: (context, index) {
-                  var p = productsCheckout[index];
-// var p = products.firstWhereOrNull((e) => )
-                  // var cancelCount = productCheckout
-                  //         .firstWhereOrNull((e) => e.id == p.id)
-                  //         ?.quantityCancel ??
-                  //     0;
-
+                  var p = productCheckout[index];
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     decoration: BoxDecoration(
@@ -521,9 +389,7 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                                   children: [
                                     TextSpan(
                                       text:
-                                          '  (${AppUtils.formatCurrency(value: p.unitPrice, symbol: 'đ')
-                                          // NumberFormat.currency(locale: 'vi', symbol: 'đ').format(double.tryParse(p.unitPrice) ?? 0)
-                                          }/${p.unit.trim()})',
+                                          '  (${AppUtils.formatCurrency(value: p.unitPrice, symbol: 'đ')}/${p.unit.trim()})',
                                       style: AppTextStyle.medium(
                                           rawFontSize: AppConfig.defaultRawTextSize - 1.5,
                                           color: Colors.grey.shade400),
@@ -537,7 +403,7 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                             ),
                             const Gap(4),
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade100,
                                 borderRadius: AppConfig.borderRadiusSecond,
@@ -548,243 +414,25 @@ class OrderedItemsSelectedWidget extends ConsumerWidget {
                                 style: AppTextStyle.bold(),
                               ),
                             ),
-                            // Text.rich(
-                            //   TextSpan(
-                            //     text: 'SL: ',
-                            //     children: [
-                            //       TextSpan(
-                            //         text: p.numberSelecting.toString(),
-                            //         style: AppTextStyle.bold(),
-                            //       ),
-                            //     ],
-                            //     style: AppTextStyle.bold(
-                            //       color: Colors.grey.shade500,
-                            //       rawFontSize:
-                            //           AppConfig.defaultRawTextSize - 1.0,
-                            //     ),
-                            //   ),
-                            // ),
                           ],
                         ),
                         const Gap(4),
-                        Row(
-                          children: [
-                            // Text('Thuế'), const Gap(4),
-                            // DropdownTaxWidget(
-                            //   taxs: [0.0, 0.08, 0.1],
-                            //   taxSelect: 0.08,
-                            //   yIndex: 1,
-                            //   onChangeTax: (value) {},
-                            //   widthBtn: TextUtil.getTextSize(
-                            //               text: S.current.default_1,
-                            //               textStyle: AppTextStyle.regular())
-                            //           .width +
-                            //       12 * 2,
-                            //   oddRowColor: Colors.grey.shade200,
-                            // ),
-
-                            // Expanded(
-                            //   child: Container(),
-                            // ),
-                            // Text('Hủy', style: AppTextStyle.regular()),
-                            // const Gap(6),
-                            // Expanded(
-                            //   child: Row(
-                            //     mainAxisSize: MainAxisSize.min,
-                            //     children: [
-                            //       InkWell(
-                            //         onTap: () {
-                            //           if (-cancelCount < 1) return;
-                            //           ref
-                            //               .read(homeProvider.notifier)
-                            //               .cancelProductCheckout(p, 1);
-                            //         },
-                            //         child: Container(
-                            //           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            //           decoration: BoxDecoration(
-                            //             color: Colors.grey.shade50,
-                            //             // border: Border(
-                            //             //   top: BorderSide(
-                            //             //       color: Colors.grey.shade300),
-                            //             //   bottom: BorderSide(
-                            //             //       color: Colors.grey.shade300),
-                            //             //   left: BorderSide(
-                            //             //       color: Colors.grey.shade300),
-                            //             // ),
-                            //             borderRadius: BorderRadius.horizontal(
-                            //               left: Radius.circular(6),
-                            //             ),
-                            //           ),
-                            //           child: Row(
-                            //             children: [
-                            //               Text('', style: AppTextStyle.bold()),
-                            //               Icon(
-                            //                 Icons.remove,
-                            //                 size: 16,
-                            //                 color:
-                            //                     -cancelCount < 1 ? Colors.grey.shade300 : null,
-                            //               ),
-                            //             ],
-                            //           ),
-                            //         ),
-                            //       ),
-                            //       Container(
-                            //         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            //         decoration: BoxDecoration(
-                            //           color: Colors.grey.shade50,
-                            //           // border: Border.symmetric(
-                            //           //   horizontal: BorderSide(
-                            //           //       color: Colors.grey.shade300),
-                            //           // ),
-                            //         ),
-                            //         child: Text((-cancelCount).toString(),
-                            //             style: AppTextStyle.bold(color: Colors.red)),
-                            //       ),
-                            //       InkWell(
-                            //         onTap: () {
-                            //           if (-cancelCount >= p.numberSelecting) {
-                            //             return;
-                            //           }
-                            //           ref
-                            //               .read(homeProvider.notifier)
-                            //               .cancelProductCheckout(p, -1);
-                            //         },
-                            //         child: Container(
-                            //           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            //           decoration: BoxDecoration(
-                            //             color: Colors.grey.shade50,
-                            //             // border: Border(
-                            //             //   top: BorderSide(
-                            //             //       color: Colors.grey.shade300),
-                            //             //   bottom: BorderSide(
-                            //             //       color: Colors.grey.shade300),
-                            //             //   right: BorderSide(
-                            //             //       color: Colors.grey.shade300),
-                            //             // ),
-                            //             borderRadius: BorderRadius.horizontal(
-                            //               right: Radius.circular(6),
-                            //             ),
-                            //           ),
-                            //           child: Row(
-                            //             children: [
-                            //               Text('', style: AppTextStyle.bold()),
-                            //               Icon(
-                            //                 Icons.add,
-                            //                 size: 16,
-                            //                 color: -cancelCount >= p.numberSelecting
-                            //                     ? Colors.grey.shade300
-                            //                     : null,
-                            //               ),
-                            //             ],
-                            //           ),
-                            //         ),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
-                            // const Gap(4),
-                            Text(
-                              AppUtils.formatCurrency(
-                                  value: (double.tryParse(p.unitPrice) ?? 0) * p.quantity,
-                                  symbol: 'đ'),
-                              // NumberFormat.currency(locale: 'vi', symbol: 'đ').format(
-                              //     (double.tryParse(p.unitPrice) ?? 0) * p.numberSelecting),
-                              style: AppTextStyle.bold(),
-                            ),
-                          ],
+                        Text(
+                          AppUtils.formatCurrency(
+                              value: (double.tryParse(p.unitPrice) ?? 0) * p.quantity, symbol: 'đ'),
+                          style: AppTextStyle.bold(),
                         ),
                       ],
                     ),
                   );
-                  // return _OrderProductItem(
-                  //   item: items[index],
-                  //   allowEnterNote: true,
-                  //   allowExtraItem: true,
-                  //   onTap: null,
-                  // );
                 },
                 separatorBuilder: (context, index) => const Gap(6),
-                itemCount: productsCheckout.length,
+                itemCount: productCheckout.length,
               ),
             ),
           );
   }
-
-  // void showProductInfoAndHistory(BuildContext context, ProductModel item) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return _ProductInfoAndHistoryDialog(
-  //         product: item,
-  //       );
-  //     },
-  //   );
-  // }
 }
-
-// class _ProductInfoAndHistoryDialog extends ConsumerWidget {
-//   const _ProductInfoAndHistoryDialog({
-//     required this.product,
-//   });
-
-//   final ProductModel product;
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     var size = MediaQuery.of(context).size;
-//     return AlertDialog(
-//       content: SizedBox(
-//         width: size.width * 0.8,
-//         height: size.height * 0.8,
-//         child: Row(
-//           children: [
-//             Expanded(
-//               child: Column(
-//                 children: [
-//                   Text(
-//                     'Thông tin món',
-//                     style: AppTextStyle.bold(),
-//                   ),
-//                   const Gap(12),
-//                   Expanded(
-//                     child: ProductDetailWidget(
-//                       product: product,
-//                       valueRadius: 0,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//             const VerticalDivider(),
-//             Expanded(
-//               child: Column(
-//                 children: [
-//                   Text(
-//                     'Lịch sử gọi món',
-//                     style: AppTextStyle.bold(),
-//                   ),
-//                   const Gap(12),
-//                   Expanded(
-//                     child: _ProductHistoryWidget(
-//                       productId: product.id,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             )
-//           ],
-//         ),
-//       ),
-//       actionsAlignment: MainAxisAlignment.center,
-//       actions: [
-//         AppButtonWidget(
-//           textAction: S.current.close,
-//           onTap: Navigator.of(context).pop,
-//         ),
-//       ],
-//     );
-//   }
-// }
 
 ///  tab đang chọn
 class OrderItemsSelectingWidget extends ConsumerWidget {
@@ -863,13 +511,13 @@ class _ListItemWidget extends ConsumerWidget {
           itemScrollController: scrollController,
           itemPositionsListener: positionsListener,
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-          itemBuilder: (context, index) => _OrderProductItem(
+          itemBuilder: (context, index) => CartOrderLine(
             item: items[index],
-            allowEnterNote: allowEnterNote,
-            allowExtraItem: allowExtraItem,
+            // allowEnterNote: allowEnterNote,
+            // allowExtraItem: allowExtraItem,
             onTap: onTapItem,
           ),
-          separatorBuilder: (context, index) => const Divider(),
+          separatorBuilder: (context, index) => const Gap(8),
           itemCount: items.length,
         ),
       ),
@@ -917,52 +565,5 @@ class _OrderProductLoadingWidget extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class _ProductHistoryWidget extends ConsumerWidget {
-  final int productId;
-  const _ProductHistoryWidget({required this.productId});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var orderHistory = ref.watch(homeProvider.select((value) => value.orderHistory));
-    final history = ProductHelper.getHistory(orderHistory, productId);
-    if (history.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(S.current.no_data),
-      );
-    } else {
-      return ListView(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        children: history.map((e) {
-          return Card(
-            elevation: 0,
-            color: Colors.grey[100],
-            shape: RoundedRectangleBorder(
-              borderRadius: AppConfig.borderRadiusMain,
-            ),
-            child: ListTile(
-              leading: Text(
-                "#${e.timesOrder}",
-                style: AppTextStyle.medium(),
-              ),
-              title: Text(
-                e.cancel
-                    ? "${S.current.cancelRequest} ${e.quantity.abs()}"
-                    : "${S.current.callMore} ${e.quantity}",
-              ),
-              subtitle: e.notes.isEmpty ? null : Text(e.notes),
-              trailing: e.timeByOrderHistory == null
-                  ? null
-                  : Text(DateTimeUtils.formatToString(
-                      time: e.timeByOrderHistory, newPattern: DateTimePatterns.dateTime2)),
-            ),
-          );
-        }).toList(),
-      );
-    }
   }
 }

@@ -4,6 +4,7 @@
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/const.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'payment_method.freezed.dart';
@@ -34,8 +35,7 @@ class PaymentMethod with _$PaymentMethod {
     @Default('Phương thức thanh toán') String method,
   }) = _PaymentMethod;
 
-  factory PaymentMethod.fromJson(Map<String, dynamic> json) =>
-      _$PaymentMethodFromJson(json);
+  factory PaymentMethod.fromJson(Map<String, dynamic> json) => _$PaymentMethodFromJson(json);
 
   const PaymentMethod._();
   String getNameView() => kAppLanguageLocal == AppLanguageLocal.vietnamese
@@ -57,5 +57,18 @@ class PaymentMethod with _$PaymentMethod {
       return paymentAmount * 1.0;
     }
     return 0.0;
+  }
+
+  IconData? getIcon() {
+    if (isCash) {
+      return Icons.attach_money;
+    }
+    if (isGateway) {
+      return Icons.qr_code;
+    }
+    if (isBank) {
+      return Icons.qr_code;
+    }
+    return null;
   }
 }

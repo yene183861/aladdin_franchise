@@ -66,10 +66,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final useFontScale =
-        ref.watch(appSettingProvider.select((value) => value.useFontScale));
-    final fontScale =
-        ref.watch(appSettingProvider.select((value) => value.fontScale));
+    final useFontScale = ref.watch(appSettingProvider.select((value) => value.useFontScale));
+    final fontScale = ref.watch(appSettingProvider.select((value) => value.fontScale));
     final isLogin = ref.watch(checkLoginProvider);
     final languageLocal = ref.watch(languageLocalProvider);
     return ResponsiveSizer(
@@ -82,8 +80,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales:
-              AppLanguageEnum.values.map((e) => Locale(e.name)).toList(),
+          supportedLocales: AppLanguageEnum.values.map((e) => Locale(e.name)).toList(),
           locale: Locale(languageLocal.name),
           navigatorKey: AppConfig.navigatorKey,
           debugShowCheckedModeBanner: false,
@@ -100,9 +97,6 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           home: isLogin.when(
             skipLoadingOnRefresh: false,
             data: (result) {
-              // if (kDebugMode) {
-              //   AppConfig.useCoupon = ApiConfig.apiUrl.contains('http://192.168');
-              // }
               if (result) {
                 return HomePage();
               }
@@ -120,8 +114,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
             DevicePreview.appBuilder(context, child);
             return ResponsiveBreakpoints.builder(
               child: MediaQuery(
-                data: mediaQuery.copyWith(
-                    textScaleFactor: useFontScale ? max(0, fontScale) : 1.0),
+                data: mediaQuery.copyWith(textScaleFactor: useFontScale ? max(0, fontScale) : 1.0),
                 child: child!,
               ),
               breakpoints: [
@@ -175,8 +168,7 @@ class MySecondApp extends ConsumerWidget {
         return Consumer(
           builder: (context, ref, child) {
             final fontScale = LocalStorage.getAppSetting().fontScale;
-            var language = ref
-                .watch(customerPageProvider.select((value) => value.language));
+            var language = ref.watch(customerPageProvider.select((value) => value.language));
             return MaterialApp(
               title: AppConfig.appName,
               localizationsDelegates: const [
@@ -185,8 +177,7 @@ class MySecondApp extends ConsumerWidget {
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              supportedLocales:
-                  AppLanguageEnum.values.map((e) => Locale(e.name)).toList(),
+              supportedLocales: AppLanguageEnum.values.map((e) => Locale(e.name)).toList(),
               locale: Locale(language.name),
               navigatorKey: AppConfig.navigatorKey,
               debugShowCheckedModeBanner: false,
@@ -208,16 +199,14 @@ class MySecondApp extends ConsumerWidget {
               builder: (context, child) {
                 return ResponsiveBreakpoints.builder(
                   child: MediaQuery(
-                    data: MediaQuery.of(context)
-                        .copyWith(textScaler: TextScaler.linear(fontScale)),
+                    data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(fontScale)),
                     child: child!,
                   ),
                   breakpoints: [
                     const Breakpoint(start: 0, end: 450, name: MOBILE),
                     const Breakpoint(start: 451, end: 800, name: TABLET),
                     const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-                    const Breakpoint(
-                        start: 1921, end: double.infinity, name: '4K'),
+                    const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
                   ],
                 );
               },

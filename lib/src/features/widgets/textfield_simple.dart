@@ -91,7 +91,7 @@ class AppTextFormField extends StatelessWidget {
         fillColor: fillColor,
         filled: true,
         counter: const SizedBox.shrink(),
-        contentPadding: contentPadding,
+        contentPadding: contentPadding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
         errorStyle: AppTextStyle.regular(color: AppColors.redColor),
         hintText: hintText,
         label: label == null
@@ -136,7 +136,10 @@ class AppTextFormField extends StatelessWidget {
         onTapOutside?.call();
       },
       obscureText: obscureText,
-      onEditingComplete: onEditingComplete,
+      onEditingComplete: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+        onEditingComplete?.call();
+      },
       maxLines: maxLines,
     );
   }

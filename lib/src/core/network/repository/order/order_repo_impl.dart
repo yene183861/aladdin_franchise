@@ -49,15 +49,10 @@ class OrderRepositoryImpl extends OrderRepository {
       parser: (json) {
         var res = OrdersResponseData.fromJson(json);
         return OrdersResponseData(
-          notUse: res.notUse
-              .map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder))
-              .toList(),
-          using: res.using
-              .map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder))
-              .toList(),
-          userUsing: res.userUsing
-              .map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder))
-              .toList(),
+          notUse: res.notUse.map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder)).toList(),
+          using: res.using.map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder)).toList(),
+          userUsing:
+              res.userUsing.map((e) => e.copyWith(typeOrder: typeOrder ?? kTypeOrder)).toList(),
           waiters: res.waiters ?? [],
           ipOrder: res.ipOrder,
         );
@@ -131,8 +126,7 @@ class OrderRepositoryImpl extends OrderRepository {
     if (order == null) {
       return const ProductCheckoutResponse(status: 200);
     }
-    var apiUrl =
-        '${ApiConfig.apiUrl}/api/v1/orders-for-table?order_id=${order.id}';
+    var apiUrl = '${ApiConfig.apiUrl}/api/v1/orders-for-table?order_id=${order.id}';
     var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
@@ -172,9 +166,7 @@ class OrderRepositoryImpl extends OrderRepository {
         var result = OrdersResponseData.fromJson(json);
         List<IpOrderModel> printers = result.ipOrder == null
             ? []
-            : result.ipOrder
-                .map<IpOrderModel>((e) => IpOrderModel.fromJson(e))
-                .toList();
+            : result.ipOrder.map<IpOrderModel>((e) => IpOrderModel.fromJson(e)).toList();
         if (printers.isEmpty) {
           throw AppException(
             statusCode: 200,
@@ -261,9 +253,8 @@ class OrderRepositoryImpl extends OrderRepository {
       "numberOfChildren": numberOfChildren,
       "note": note,
       "flag_invoice": flagInvoice,
-      "customer_rating": customerRatings
-          .where((element) => element.isEmptyOrError() == false)
-          .toList(),
+      "customer_rating":
+          customerRatings.where((element) => element.isEmptyOrError() == false).toList(),
       //"payment": paymentDataBillCheck.toJson(),
       "files": images,
       "payment_method": paymentMethod,
@@ -372,8 +363,7 @@ class OrderRepositoryImpl extends OrderRepository {
 
   @override
   Future<DataBillResponseData> getDataBill({required int orderId}) async {
-    var apiUrl =
-        "${ApiConfig.apiUrl}/api/v1/get-data-bill-order?order_id=$orderId";
+    var apiUrl = "${ApiConfig.apiUrl}/api/v1/get-data-bill-order?order_id=$orderId";
     var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
@@ -447,8 +437,7 @@ class OrderRepositoryImpl extends OrderRepository {
   ) async {
     final resultPrinter = await getIpPrinterOrder(order, printerCheck);
 
-    var checkPrinterAvailable =
-        await AppPrinterCommon.checkPrinters(resultPrinter);
+    var checkPrinterAvailable = await AppPrinterCommon.checkPrinters(resultPrinter);
     if (checkPrinterAvailable != null) {
       throw AppException(statusCode: 404, message: checkPrinterAvailable);
     }
@@ -491,8 +480,7 @@ class OrderRepositoryImpl extends OrderRepository {
 
   @override
   Future<bool> checkStatusLockOrder(int orderId) async {
-    var apiUrl =
-        "${ApiConfig.apiUrl}/api/v1/status-lock-order?order_id=$orderId";
+    var apiUrl = "${ApiConfig.apiUrl}/api/v1/status-lock-order?order_id=$orderId";
     var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
@@ -575,20 +563,59 @@ class OrderRepositoryImpl extends OrderRepository {
     return result.data;
   }
 
+  // @override
+  // Future<List<ProductCheckoutUpdateTaxModel>> updateTax(
+  //     {required OrderModel order,
+  //     required List<ProductCheckoutModel> pc,
+  //     PaymentMethod? paymentMethod}) async {
+  //   final apiUrl = '${ApiConfig.apiUrl}/api/v2/update-tax-waiter';
+  //   var body = jsonEncode({
+  //     "order_id": order.id,
+  //     "method": paymentMethod?.key,
+  //     "data": pc
+  //         .map((e) => {
+  //               'menu_item_id': e.id,
+  //               // vì tax đang là dạng 0.08
+  //               'tax': e.tax * 100,
+  //             })
+  //         .toList(),
+  //   });
+  //   var result = await safeCallApiList(
+  //     () async {
+  //       final url = Uri.parse(apiUrl);
+  //       return _client.post(url, body: body);
+  //     },
+  //     dataKey: 'data',
+  //     parser: (json) => ProductCheckoutUpdateTaxModel.fromJson(json),
+  //     log: ErrorLogModel(
+  //       action: AppLogAction.updateReservation,
+  //       api: apiUrl,
+  //       request: body,
+  //     ),
+  //   );
+  //   if (!result.isSuccess) {
+  //     throw AppException(
+  //       statusCode: result.statusCode,
+  //       message: result.error,
+  //     );
+  //   }
+
+  //   return result.data ?? [];
+  // }
+
   @override
   Future<List<ProductCheckoutUpdateTaxModel>> updateTax(
       {required OrderModel order,
-      required List<ProductCheckoutModel> pc,
+      required Map<int, double> taxMap,
       PaymentMethod? paymentMethod}) async {
     final apiUrl = '${ApiConfig.apiUrl}/api/v2/update-tax-waiter';
     var body = jsonEncode({
       "order_id": order.id,
       "method": paymentMethod?.key,
-      "data": pc
+      "data": taxMap.entries
           .map((e) => {
-                'menu_item_id': e.id,
-                // vì tax đang là dạng 0.08
-                'tax': e.tax * 100,
+                'menu_item_id': e.key,
+                'tax': e.value * 100,
               })
           .toList(),
     });
@@ -616,8 +643,7 @@ class OrderRepositoryImpl extends OrderRepository {
   }
 
   @override
-  Future<({String? qrData, String? message, dynamic status})>
-      getQrBankDynamicPayment({
+  Future<({String? qrData, String? message, dynamic status})> getQrBankDynamicPayment({
     required ApiBankParam apiBankParam,
     required int keyPaymentMethod,
     required String bankCode,

@@ -30,7 +30,6 @@ final appConfig = AppConfig();
 
 class AppConfig {
   static bool useKds = false;
-  static bool useCoupon = false;
   static bool initHomeProvider = false;
   static const String companyName = "Aladdin.,JSC";
   static const String appName = "APOS Franchise";

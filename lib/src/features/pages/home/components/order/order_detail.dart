@@ -43,8 +43,7 @@ class OrderPanelWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var orderSelect =
-        ref.watch(homeProvider.select((value) => value.orderSelect));
+    var orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,9 +62,7 @@ class OrderPanelWidget extends ConsumerWidget {
         ),
         orderSelect != null
             ? const Expanded(
-                child: OrderItemsWidget(
-                  textProcessOrderItem: 'Gửi bếp',
-                ),
+                child: OrderItemsWidget(),
               )
             : Expanded(
                 child: Center(
@@ -79,73 +76,66 @@ class OrderPanelWidget extends ConsumerWidget {
   }
 }
 
-class KitchenNoteWidget extends ConsumerStatefulWidget {
-  const KitchenNoteWidget({super.key});
+// class KitchenNoteWidget extends ConsumerStatefulWidget {
+//   const KitchenNoteWidget({super.key});
 
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      __KitchenNoteWidgetState();
-}
+//   @override
+//   ConsumerState<ConsumerStatefulWidget> createState() => __KitchenNoteWidgetState();
+// }
 
-class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
-  late TextEditingController _controller;
+// class __KitchenNoteWidgetState extends ConsumerState<KitchenNoteWidget> {
+//   late TextEditingController _controller;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) {
-        _controller.text = ref.read(homeProvider).kitchenNote;
-      },
-    );
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     _controller = TextEditingController();
+//     WidgetsBinding.instance.addPostFrameCallback(
+//       (timeStamp) {
+//         _controller.text = ref.read(homeProvider).kitchenNote;
+//       },
+//     );
+//   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     _controller.dispose();
+//     super.dispose();
+//   }
 
-  _listenChangeNote(BuildContext context, WidgetRef ref) =>
-      (String? previous, String? next) {
-        _controller.text = next ?? '';
-      };
+//   _listenChangeNote(BuildContext context, WidgetRef ref) => (String? previous, String? next) {
+//         _controller.text = next ?? '';
+//       };
 
-  @override
-  Widget build(BuildContext context) {
-    ref.listen<String>(
-      homeProvider.select((value) => value.kitchenNote),
-      _listenChangeNote(context, ref),
-    );
+//   @override
+//   Widget build(BuildContext context) {
+//     ref.listen<String>(
+//       homeProvider.select((value) => value.kitchenNote),
+//       _listenChangeNote(context, ref),
+//     );
 
-    var lockedOrder =
-        ref.watch(homeProvider.select((value) => value.lockedOrder));
-    return TextFormField(
-      controller: _controller,
-      style: AppTextStyle.regular(),
-      decoration: InputDecoration(
-        hintText: S.current.total_note,
-        hintStyle: AppTextStyle.light().copyWith(fontStyle: FontStyle.italic),
-        enabled: !lockedOrder,
-      ),
-      onTapOutside: (event) {
-        FocusManager.instance.primaryFocus?.unfocus();
-        ref
-            .read(homeProvider.notifier)
-            .onChangeKitchenNote(_controller.text.trim());
-      },
-      onChanged: (value) {
-        ref
-            .read(homeProvider.notifier)
-            .onChangeKitchenNote(_controller.text.trim());
-      },
-      onFieldSubmitted: (value) {
-        ref.read(homeProvider.notifier).onChangeKitchenNote(value.trim());
-      },
-    );
-  }
-}
+//     var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
+//     return TextFormField(
+//       controller: _controller,
+//       style: AppTextStyle.regular(),
+//       decoration: InputDecoration(
+//         hintText: S.current.total_note,
+//         hintStyle: AppTextStyle.light().copyWith(fontStyle: FontStyle.italic),
+//         enabled: !lockedOrder,
+//       ),
+//       onTapOutside: (event) {
+//         FocusManager.instance.primaryFocus?.unfocus();
+//         ref.read(homeProvider.notifier).onChangeKitchenNote(_controller.text.trim());
+//       },
+//       onChanged: (value) {
+//         ref.read(homeProvider.notifier).onChangeKitchenNote(_controller.text.trim());
+//       },
+//       onFieldSubmitted: (value) {
+//         ref.read(homeProvider.notifier).onChangeKitchenNote(value.trim());
+//       },
+//     );
+//   }
+// }
 
 class SpinBoxWidget extends ConsumerStatefulWidget {
   const SpinBoxWidget({
@@ -172,40 +162,16 @@ class _SpinBoxWidgetState extends ConsumerState<SpinBoxWidget> {
               children: [
                 InkWell(
                   onTap: () async {
-                    // var state = ref.read(homeProvider);
-                    // if (widget.lockedOrder) return;
                     int count = currentCount - 1;
-                    // if (count == 0) {
-                    //   if (state.orderTabSelect == OrderTabEnum.ordering) {
-                    //     ref.read(cartPageProvider.notifier).addProductToCart(
-                    //         widget.item.copyWith(numberSelecting: 0));
-                    //     // ref.read(homeProvider.notifier).changeProductInCart(widget.item, 0);
-                    //     return;
-                    //   }
-                    //   var pc = state.productCheckout
-                    //       .firstWhereOrNull((e) => e.id == widget.item.id);
-                    //   if (pc == null) return;
-                    //   onPressedCancelItem(context, ref,
-                    //       productCancel: [
-                    //         pc.copyWith(quantityCancel: -pc.quantity)
-                    //       ],
-                    // setStateFunc: setState);
-                    // onPressedPaymentCancel(
-                    //     context, ref, widget.item, setState);
-                    //   return;
-                    // }
                     ref.read(cartPageProvider.notifier).addProductToCart(
-                        widget.item.copyWith(numberSelecting: max(0, count)));
-                    // ref.read(homeProvider.notifier).changeProductInCart(widget.item, count);
+                        widget.item.copyWith(numberSelecting: max(currentCount - 1, count)));
                   },
                   borderRadius: AppConfig.borderRadiusSecond,
                   child: Container(
                     height: 36,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: AppConfig.borderRadiusSecond),
+                        color: Colors.grey.shade200, borderRadius: AppConfig.borderRadiusSecond),
                     child: const Icon(CupertinoIcons.minus, size: 18),
                   ),
                 ),
@@ -217,21 +183,15 @@ class _SpinBoxWidgetState extends ConsumerState<SpinBoxWidget> {
                 const Gap(12),
                 InkWell(
                   onTap: () async {
-                    ref.read(cartPageProvider.notifier).addProductToCart(widget
-                        .item
-                        .copyWith(numberSelecting: max(0, currentCount + 1)));
-                    // ref
-                    //     .read(homeProvider.notifier)
-                    //     .changeProductInCart(widget.item, currentCount + 1);
+                    ref.read(cartPageProvider.notifier).addProductToCart(
+                        widget.item.copyWith(numberSelecting: max(0, currentCount + 1)));
                   },
                   borderRadius: AppConfig.borderRadiusSecond,
                   child: Container(
                     height: 36,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: AppConfig.borderRadiusSecond),
+                        color: Colors.grey.shade200, borderRadius: AppConfig.borderRadiusSecond),
                     child: const Icon(CupertinoIcons.add, size: 18),
                   ),
                 ),
@@ -241,25 +201,25 @@ class _SpinBoxWidgetState extends ConsumerState<SpinBoxWidget> {
   }
 }
 
-Future<bool> _confirmCancelWarning(BuildContext context) async {
-  return await showConfirmAction(
-        context,
-        title:
-            '${S.current.attention.toUpperCase()}: ${S.current.discount_code_applied_item_in_canceled_list}',
-        message: S.current.msg_remind_apply_coupon_again,
-      ) ??
-      false;
-}
+// Future<bool> _confirmCancelWarning(BuildContext context) async {
+//   return await showConfirmAction(
+//         context,
+//         title:
+//             '${S.current.attention.toUpperCase()}: ${S.current.discount_code_applied_item_in_canceled_list}',
+//         message: S.current.msg_remind_apply_coupon_again,
+//       ) ??
+//       false;
+// }
 
-Future<bool> _confirmCancelWithFreeProduct(BuildContext context) async {
-  return await showConfirmAction(
-        context,
-        title:
-            '${S.current.attention.toUpperCase()}: ${S.current.discount_code_applied_item_in_canceled_list}',
-        message: S.current.warning_delete_item_with_complimentary_gift,
-      ) ??
-      false;
-}
+// Future<bool> _confirmCancelWithFreeProduct(BuildContext context) async {
+//   return await showConfirmAction(
+//         context,
+//         title:
+//             '${S.current.attention.toUpperCase()}: ${S.current.discount_code_applied_item_in_canceled_list}',
+//         message: S.current.warning_delete_item_with_complimentary_gift,
+//       ) ??
+//       false;
+// }
 
 class _OrderInfoWidget extends ConsumerWidget {
   const _OrderInfoWidget();

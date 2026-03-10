@@ -5,15 +5,19 @@ import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
+import 'package:aladdin_franchise/src/configs/dev_config.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
 import 'package:aladdin_franchise/src/features/dialogs/customer/customer_option_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
-import 'package:aladdin_franchise/src/features/dialogs/coupon/button_add_coupon.dart';
-import 'package:aladdin_franchise/src/features/dialogs/create_invoice_order_dialog.dart';
+import 'package:aladdin_franchise/src/features/dialogs/coupon/coupon_option_dialog.dart';
+import 'package:aladdin_franchise/src/features/dialogs/invoice/invoice_form_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/edit_tax_dialog.dart';
+import 'package:aladdin_franchise/src/features/dialogs/payment/edit_tax_dialog_cleanclean.dart';
+import 'package:aladdin_franchise/src/features/dialogs/payment/new_payment_dialogs.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -26,6 +30,7 @@ import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:aladdin_franchise/src/utils/subwindows_moniter.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -63,11 +68,6 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
     if (orderSelect == null) {
       showMessageDialog(context, message: S.current.noOrderSelect);
       return false;
-    } else if (ref.read(homeProvider).lockedOrder) {
-      showMessageDialog(context,
-          message: '${S.current.msg_locked_order}'
-              '\n${S.current.check_other_device_locked_order}');
-      return false;
     }
     return true;
   }
@@ -84,7 +84,7 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
             _hasSubWindows.value = event;
             if (event == false) {
               if (mounted) {
-                ref.read(homeProvider.notifier).onChangePinnedOrder(false);
+                // ref.read(homeProvider.notifier).onChangePinnedOrder(false);
               }
             }
           },
@@ -164,24 +164,24 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
                       if (Platform.isWindows) {
                         final subWindows = await DesktopMultiWindow.getAllSubWindowIds();
 
-                        if (subWindows.isNotEmpty) {
-                          // pin/ unpin màn hình KH
-                          ref.read(homeProvider.notifier).onChangePinnedOrder(!pinned);
-                          if (pinned) {
-                            ref.read(homeProvider.notifier).syncInfoCustomerPage();
-                          }
-                          return;
-                        }
+                        // if (subWindows.isNotEmpty) {
+                        //   // pin/ unpin màn hình KH
+                        //   ref.read(homeProvider.notifier).onChangePinnedOrder(!pinned);
+                        //   if (pinned) {
+                        //     ref.read(homeProvider.notifier).syncInfoCustomerPage();
+                        //   }
+                        //   return;
+                        // }
 
-                        ref.read(homeProvider.notifier).onChangePinnedOrder(false);
-                        var restaurant = LocalStorage.getDataLogin()?.restaurant;
-                        final window = await DesktopMultiWindow.createWindow(
-                            jsonEncode(ref.read(homeProvider.notifier).getAllDataToCustomerPage()));
-                        window
-                          ..setFrame(Offset(1920, 0) & const Size(1920, 1080))
-                          ..center()
-                          ..setTitle(restaurant?.name ?? AppConfig.appName)
-                          ..show();
+                        // ref.read(homeProvider.notifier).onChangePinnedOrder(false);
+                        // var restaurant = LocalStorage.getDataLogin()?.restaurant;
+                        // final window = await DesktopMultiWindow.createWindow(
+                        //     jsonEncode(ref.read(homeProvider.notifier).getAllDataToCustomerPage()));
+                        // window
+                        //   ..setFrame(Offset(1920, 0) & const Size(1920, 1080))
+                        //   ..center()
+                        //   ..setTitle(restaurant?.name ?? AppConfig.appName)
+                        //   ..show();
                       } else if (Platform.isAndroid) {}
                     },
                   );
@@ -193,7 +193,7 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
           Expanded(
             flex: 1,
             child: Consumer(builder: (context, ref, child) {
-              var customer = ref.watch(homeProvider.select((value) => value.customer));
+              var customer = ref.watch(checkoutProvider.select((value) => value.customer));
 
               return Tooltip(
                 message: customer == null ? '' : '${customer.name} - ${customer.phoneNumber}',
@@ -205,8 +205,11 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
                     if (!_hasSelectedOrder(context, ref)) {
                       return;
                     }
-
-                    onChooseCustomerOption(context);
+                    if (ref.read(checkoutProvider).productCheckoutState.status ==
+                        PageCommonState.error) {
+                      ref.read(checkoutProvider.notifier).getProductCheckout();
+                    }
+                    showCustomerOptionDialog(context);
                   },
                   prefixIcon: customer != null
                       ? const ResponsiveIconWidget(
@@ -242,11 +245,10 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
                     if (!_hasSelectedOrder(context, ref)) {
                       return;
                     }
-                    if (state.status == PageCommonState.error) {
-                      ref.read(homeProvider.notifier).getOrderInvoice();
-                      return;
+                    if (ref.read(checkoutProvider).invoiceState.status == PageCommonState.error) {
+                      ref.read(checkoutProvider.notifier).getInvoice();
                     }
-                    await showCreateInvoiceOrderDialog(
+                    showInvoiceFormDialog(
                       context,
                       orderInvoice: invoice,
                     );
@@ -271,11 +273,6 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
     if (orderSelect == null) {
       showMessageDialog(context, message: S.current.noOrderSelect);
       return false;
-    } else if (ref.read(homeProvider).lockedOrder) {
-      showMessageDialog(context,
-          message: '${S.current.msg_locked_order}'
-              '\n${S.current.check_other_device_locked_order}');
-      return false;
     }
     return true;
   }
@@ -287,14 +284,14 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
         const Gap(8),
         Expanded(
           child: Consumer(builder: (context, ref, child) {
-            var coupons = ref.watch(homeProvider.select((value) => value.coupons));
+            var coupons = ref.watch(checkoutProvider.select((value) => value.coupons));
             return ButtonSimpleWidget(
               padding: defaultPaddingFeatureBtn,
               onPressed: () async {
                 if (!_hasSelectedOrder(context, ref)) {
                   return;
                 }
-                await showCouponDialog(context);
+                showCouponOptionDialog(context);
               },
               textAction: coupons.isEmpty
                   ? S.of(context).endow
@@ -316,6 +313,9 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
             padding: defaultPaddingFeatureBtn,
             color: const Color(0xFF2FA7E7),
             onPressed: () {
+              if (!_hasSelectedOrder(context, ref)) {
+                return;
+              }
               paymentBtnCallback(
                 ref: ref,
                 context: context,
@@ -389,27 +389,28 @@ void paymentBtnCallback({
   required WidgetRef ref,
   required BuildContext context,
 }) async {
-  var state = ref.read(homeProvider);
-  var orderSelect = state.orderSelect;
-  if (orderSelect == null) {
-    showMessageDialog(context, message: S.current.noOrderSelect);
-    return;
-  } else if (state.lockedOrder) {
-    showMessageDialog(context,
-        message: '${S.current.msg_locked_order}'
-            '\n${S.current.check_other_device_locked_order}');
-    return;
-  }
+  bool useCoupon = DevConfig.useCoupon;
+  // var state = ref.read(homeProvider);
+  // var orderSelect = state.orderSelect;
+  // if (orderSelect == null) {
+  //   showMessageDialog(context, message: S.current.noOrderSelect);
+  //   return;
+  // } else if (state.lockedOrder) {
+  //   showMessageDialog(context,
+  //       message: '${S.current.msg_locked_order}'
+  //           '\n${S.current.check_other_device_locked_order}');
+  //   return;
+  // }
 
-  state = ref.read(homeProvider);
-  List<ProductCheckoutModel> productsCheckout =
-      List<ProductCheckoutModel>.from(ref.read(checkoutPageProvider).productsCheckout);
-  if (productsCheckout.isEmpty) {
+  var state = ref.read(checkoutProvider);
+
+  var productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
+  if (productCheckout.isEmpty) {
     showMessageDialog(context, message: S.current.order_before_payment);
     return;
   }
 
-  var customer = ref.read(homeProvider).customer;
+  var customer = state.customer;
   if (customer == null) {
     var res = await showConfirmAction(
       context,
@@ -423,7 +424,7 @@ void paymentBtnCallback({
           textAction: S.current.add_customer_information,
           onPressed: () {
             Navigator.pop(context, false);
-            onChooseCustomerOption(context);
+            showCustomerOptionDialog(context);
           },
         ),
       ],
@@ -434,75 +435,70 @@ void paymentBtnCallback({
     }
   }
 
+  var notifier = ref.read(checkoutProvider.notifier);
+
   try {
-    ref.read(homeProvider.notifier).resetPaymentAndBank();
+    notifier.resetPaymentInfo();
+    ({String? applyPolicy, String? getDataBill, String? getProductCheckout}) checkInfo =
+        notifier.checkLatestPaymentInfo();
+    var resultLock = await _lockOrder(context, ref);
 
-    state = ref.read(homeProvider);
-    await ref.read(homeProvider.notifier).lockOrder(loadingHome: true);
+    if (!resultLock) return;
+    await notifier.getProductCheckout(applyPolicy: false, showLoading: true);
+    checkInfo = notifier.checkLatestPaymentInfo();
 
-    await ref.read(homeProvider.notifier).getOrderProductCheckout(
-          applyPolicy: false,
-          loadingHome: true,
-          ignoreGetDataBill: true,
-        );
-    productsCheckout =
-        List<ProductCheckoutModel>.from(ref.read(checkoutPageProvider).productsCheckout);
-    if (productsCheckout.isEmpty) {
-      showMessageDialog(context, message: S.current.order_before_payment);
+    if (checkInfo.getProductCheckout != null) {
+      if (context.mounted) showMessageDialog(context, message: checkInfo.getProductCheckout!);
       return;
     }
 
-    bool updateSuccess = false;
-    await showConfirmActionWithChild(
-      context,
-      noTitle: true,
-      title: S.current.edit_tax_information,
-      closeDialog: false,
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        child: EditTaxDialog(
-            products: ref.read(menuProvider).products,
-            productCheckouts: productsCheckout,
-            onSave: (List<ProductCheckoutModel> changedPc) {
-              productsCheckout = changedPc;
-            }),
-      ),
-      onCheckAction: () {
-        return true;
-      },
-      actionTitle: S.current.save_and_continue_payment,
-      action: () async {
-        var res = await ref.read(homeProvider.notifier).onUpdateTax(productsCheckout);
-        if (res.error != null) {
-          showMessageDialog(context, message: res.error ?? '', canPop: false);
-          return;
-        } else {
-          updateSuccess = true;
-        }
-        pop(context);
-      },
-    );
-    if (updateSuccess && context.mounted) {
-      await ref.read(homeProvider.notifier).getOrderProductCheckout(
-            applyPolicy: false,
-            loadingHome: true,
-            ignoreGetDataBill: false,
-          );
-      await ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
-      var check = checkLatestPaymentInfo(ref);
-      if (check.errorApplyPolicy != null ||
-          check.errorGetProductCheckout != null ||
-          check.errorGetDataBill != null) {
-        showMessageDialog(context,
-            message: check.errorApplyPolicy ??
-                check.errorGetProductCheckout ??
-                check.errorGetDataBill ??
-                '');
-        return;
+    productCheckout = List<ProductCheckoutModel>.from(state.productCheckout);
+    if (productCheckout.isEmpty) {
+      if (context.mounted) {
+        await showMessageDialog(context, message: S.current.order_before_payment);
+        if (context.mounted) await _unlockOrder(context, ref);
       }
-      await onSelectPaymentMethod(
+      return;
+    }
+    state = ref.read(checkoutProvider);
+    if (useCoupon) {
+      await notifier.applyCustomerPolicy(
+          requireApply: true, showLoading: true, fetchDataBill: false);
+      checkInfo = notifier.checkLatestPaymentInfo();
+    }
+    if (checkInfo.applyPolicy != null) {
+      if (context.mounted) {
+        await showMessageDialog(context, message: checkInfo.applyPolicy!);
+      }
+      if (context.mounted) await _unlockOrder(context, ref);
+      return;
+    }
+    state = ref.read(checkoutProvider);
+    await notifier.getDataBill(showLoading: true);
+    checkInfo = notifier.checkLatestPaymentInfo();
+    if (checkInfo.getDataBill != null) {
+      if (context.mounted) await showMessageDialog(context, message: checkInfo.getDataBill!);
+      if (context.mounted) await _unlockOrder(context, ref);
+      return;
+    }
+    state = ref.read(checkoutProvider);
+    // // k sử dụng mã giảm giá theo code thì luôn show popup sửa thuế
+    // bool showPopupEditTax = !useCoupon;
+
+    // if (useCoupon) {
+    //   showPopupEditTax = state.dataBill.orderLineItems.any((element) => element.isChangeTax == 1);
+    // }
+
+    // if (showPopupEditTax && context.mounted) {
+    //   await showTaxActionDialog(context, ref);
+    // }
+
+    if (context.mounted) {
+      await showDialog(
         context: context,
-        ref: ref,
+        builder: (context) {
+          return PaymentMethodSelectDialog();
+        },
       );
     }
   } catch (ex) {
@@ -512,68 +508,107 @@ void paymentBtnCallback({
   }
 }
 
-/// kiểm tra thông tin thanh toán đã là mới nhất
-({
-  String? errorGetProductCheckout,
-  String? errorApplyPolicy,
-  String? errorGetDataBill,
-}) checkLatestPaymentInfo(WidgetRef ref) {
-  var state = ref.read(homeProvider);
-  String? errorGetProductCheckout, errorApplyPolicy, errorGetDataBill;
-  switch (state.productCheckoutState.status) {
-    case PageCommonState.loading:
-      errorGetProductCheckout =
-          'Danh sách món đã gọi đang được đồng bộ. Vui lòng chờ hệ thống cập nhật.';
-      break;
-    case PageCommonState.error:
-      errorGetProductCheckout = 'Danh sách món đã gọi chưa được đồng bộ.';
-      break;
-    case PageCommonState.success:
-      if (ref.read(checkoutPageProvider).productsCheckout.isEmpty) {
-        errorGetProductCheckout = 'Vui lòng gọi món trước khi bấm thanh toán.';
+Future<bool> _lockOrder(BuildContext context, WidgetRef ref) async {
+  int retry = 0;
+  while (retry < 3) {
+    try {
+      var resultLock = await ref.read(homeProvider.notifier).lockOrder(loadingHome: true);
+      if (resultLock == false) {
+        var confirm = await showConfirmAction(
+          context,
+          message:
+              'Khoá đơn bàn thất bại. Bạn vui lòng thử lại\nThao tác này để tránh các thiết bị khác gọi thêm món khi bạn đang hoàn tất đơn bàn',
+          actionTitle: 'Thử lại',
+        );
+        if (confirm != true) {
+          return false;
+        }
+        throw 'retry';
+      } else {
+        return true;
       }
-      break;
-    default:
+    } catch (ex) {
+      retry++;
+      if (retry >= 3) {
+        await showMessageDialog(
+          context,
+          message: 'Khoá đơn bàn thất bại. Vui lòng thử lại trong giây lát!',
+        );
+        return false;
+      }
+    }
   }
+  return false;
+}
 
-  if (errorGetProductCheckout != null) {
-    return (
-      errorGetProductCheckout: errorGetProductCheckout,
-      errorApplyPolicy: errorApplyPolicy,
-      errorGetDataBill: errorGetDataBill,
-    );
+Future<bool> _unlockOrder(BuildContext context, WidgetRef ref) async {
+  int retry = 0;
+  while (retry < 3) {
+    try {
+      var resultUnlock = await ref.read(homeProvider.notifier).unlockOrder(loadingHome: true);
+      if (resultUnlock == false) {
+        var confirm = await showConfirmAction(
+          context,
+          message:
+              'Mở khoá đơn bàn thất bại. Bạn vui lòng thử lại\nThao tác này để cho phép các thiết bị khác có thể gọi thêm/ huỷ món.',
+          actionTitle: 'Thử lại',
+        );
+        if (confirm != true) {
+          return false;
+        }
+        throw 'retry';
+      } else {
+        return true;
+      }
+    } catch (ex) {
+      retry++;
+      if (retry >= 3) {
+        await showMessageDialog(
+          context,
+          message: 'Mở khoá đơn bàn thất bại. Vui lòng thử lại trong giây lát!',
+        );
+        return false;
+      }
+    }
   }
-  switch (state.applyPolicyState.status) {
-    case PageCommonState.loading:
-      errorApplyPolicy = 'Đang tiến hành áp dụng lại mã giảm giá, vui lòng chờ trong giây lát.';
-      break;
-    case PageCommonState.error:
-      errorApplyPolicy =
-          'Việc áp dụng mã giảm giá không thành công.\n${state.applyPolicyState.messageError}';
-      // 'Vui lòng truy cập lại mục/tab "Ưu đãi" và chọn "Áp dụng" để thực hiện lại.';
-      break;
-    default:
-  }
-  if (errorApplyPolicy != null) {
-    return (
-      errorGetProductCheckout: errorGetProductCheckout,
-      errorApplyPolicy: errorApplyPolicy,
-      errorGetDataBill: errorGetDataBill,
-    );
-  }
-  switch (state.dataBillState.status) {
-    case PageCommonState.loading:
-      errorGetDataBill =
-          'Hệ thống đang cập nhật thông tin thanh toán, vui lòng đợi trong giây lát.';
-      break;
-    case PageCommonState.error:
-      errorGetDataBill = 'Hệ thống hiện chưa thể lấy thông tin thanh toán. Vui lòng thử lại sau.';
-      break;
-    default:
-  }
-  return (
-    errorGetProductCheckout: errorGetProductCheckout,
-    errorApplyPolicy: errorApplyPolicy,
-    errorGetDataBill: errorGetDataBill,
+  return false;
+}
+
+Future<bool> showTaxActionDialog(BuildContext context, WidgetRef ref) async {
+  Map<int, Map<String, dynamic>> taxChange = {};
+  Map<int, double> taxMap = {};
+  var result = await showConfirmActionWithChild(
+    context,
+    noTitle: true,
+    title: S.current.edit_tax_information,
+    closeDialog: false,
+    child: SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: EditTaxDialog1(
+        onSave: (value) {
+          taxChange = value;
+        },
+      ),
+    ),
+    onCheckAction: () {
+      return true;
+    },
+    actionTitle: S.current.save_and_continue_payment,
+    action: () async {
+      taxChange.forEach(
+        (key, value) {
+          taxMap[key] = value['tax_select'] ?? 0;
+        },
+      );
+
+      var res = await ref.read(checkoutProvider.notifier).onUpdateTax(taxMap);
+      if (res != null) {
+        if (context.mounted) showMessageDialog(context, message: res, canPop: false);
+        return;
+      }
+      if (context.mounted) pop(context, true);
+    },
   );
+
+  return result ?? false;
 }

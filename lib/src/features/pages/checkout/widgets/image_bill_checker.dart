@@ -5,8 +5,7 @@ import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/view_image.dart';
-import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/login/view.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_square_menu.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
@@ -15,23 +14,19 @@ import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
 
-/// Author: sondv
-/// Created 15/03/2024 at 13:51
-
-class PQCImageBillCheckerWidget extends ConsumerStatefulWidget {
-  const PQCImageBillCheckerWidget({super.key, this.canAction = true});
+class ImageBillCheckerWidget extends ConsumerStatefulWidget {
+  const ImageBillCheckerWidget({super.key, this.canAction = true});
   final bool canAction;
   @override
-  ConsumerState createState() => _PQCImageBillCheckerWidgetState();
+  ConsumerState createState() => _ImageBillCheckerWidgetState();
 }
 
-class _PQCImageBillCheckerWidgetState extends ConsumerState<PQCImageBillCheckerWidget> {
+class _ImageBillCheckerWidgetState extends ConsumerState<ImageBillCheckerWidget> {
   final ImagePicker picker = ImagePicker();
   @override
   Widget build(BuildContext context) {
-    final images = ref.watch(homeProvider.select((value) => value.imageBills));
+    final images = ref.watch(checkoutProvider.select((value) => value.imageBills));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -132,7 +127,7 @@ class _PQCImageBillCheckerWidgetState extends ConsumerState<PQCImageBillCheckerW
             message: S.current.invalid_photo_select_again,
           );
         } else {
-          ref.read(homeProvider.notifier).updateImageBill(file);
+          ref.read(checkoutProvider.notifier).updateImageBill(file);
         }
       }
     } catch (ex) {
@@ -183,7 +178,7 @@ class _BoxImageBillWidget extends ConsumerWidget {
               right: -5,
               child: IconButton(
                 onPressed: () {
-                  ref.read(homeProvider.notifier).updateImageBill(image);
+                  ref.read(checkoutProvider.notifier).updateImageBill(image);
                 },
                 padding: EdgeInsets.zero,
                 color: Colors.red,

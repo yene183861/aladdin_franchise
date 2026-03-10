@@ -1,7 +1,7 @@
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -18,11 +18,8 @@ class OrderTabWidget extends ConsumerWidget {
     var orderTabSelect = ref.watch(homeProvider.select((value) => value.orderTabSelect));
 
     if (orderTabs.length < 2) return const SizedBox.shrink();
-    // var currentOrderItems =
-    //     ref.watch(homeProvider.select((value) => value.currentOrderItems));
     var productsSelecting = ref.watch(cartPageProvider.select((value) => value.productsSelecting));
-    var productsCheckout =
-        ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
+    var productCheckout = ref.watch(checkoutProvider.select((value) => value.productCheckout));
     return Row(
       children: orderTabs.map(
         (e) {
@@ -32,7 +29,7 @@ class OrderTabWidget extends ConsumerWidget {
               count = productsSelecting.length;
               break;
             case OrderTabEnum.ordered:
-              count = productsCheckout.length;
+              count = productCheckout.length;
               break;
             default:
           }
@@ -47,8 +44,9 @@ class OrderTabWidget extends ConsumerWidget {
               loadingSuffix: e == OrderTabEnum.ordered
                   ? Consumer(
                       builder: (context, ref, child) {
-                        var pcState =
-                            ref.watch(homeProvider.select((value) => value.productCheckoutState));
+                        var pcState = ref
+                            .watch(checkoutProvider.select((value) => value.productCheckoutState));
+
                         switch (pcState.status) {
                           case PageCommonState.loading:
                             return const Padding(

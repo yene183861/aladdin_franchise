@@ -358,7 +358,7 @@ class _MenuPageState extends ConsumerState<MenuPage> with WidgetsBindingObserver
                               children: [
                                 const Gap(8),
                                 AppButtonWidget(
-                                  textAction: S.current.restaurant_layout,
+                                  textAction: S.of(context).restaurant_layout,
                                   onTap: () {
                                     push(context, const TableLayoutPage());
                                   },

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 
 class AppException implements Exception {
@@ -143,6 +144,41 @@ class AppException implements Exception {
   @override
   String toString() {
     return messageError;
+  }
+
+  AppException.fromHttpClientException(ClientException e) {
+    messageError = 'Lỗi kết nối';
+    var message = '';
+    var messageCheck = e.message.toLowerCase();
+    switch (true) {
+      case true when messageCheck.contains('Failed host lookup'):
+        message = 'Không có kết nối internet. Vui lòng kiểm tra mạng và thử lại.';
+        break;
+      case true when messageCheck.contains('timeout'):
+        message = 'Máy chủ phản hồi quá lâu. Vui lòng thử lại.';
+        break;
+      case true when messageCheck.contains('connection closed'):
+        message = 'Máy chủ đang không phản hồi. Vui lòng thử lại sau.';
+        break;
+      case true when messageCheck.contains('XMLHttpRequest error'):
+        message = 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.';
+        break;
+      case true when messageCheck.contains('xmlhttprequest error'):
+        message = 'Không thể kết nối đến máy chủ.';
+        break;
+      case true when messageCheck.contains('handshakeexception'):
+      case true when messageCheck.contains('certificate'):
+        message = 'Kết nối bảo mật thất bại.';
+        break;
+      case true when messageCheck.contains('connection refused'):
+        message = 'Kết nối bị từ chối.';
+        break;
+      default:
+        message = messageCheck;
+    }
+
+    messageError = '$messageError: $message${kDebugMode ? '\n$messageCheck' : ''}';
+    errorCode = 444;
   }
 }
 

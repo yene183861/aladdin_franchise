@@ -52,10 +52,10 @@ class PrintQueue {
 
   Future<void> _processTask(_PrintTaskModel task) async {
     // showLogs('action', flags: '_processTask');
-    // if (kDebugMode) {
-    //   task.onComplete?.call(false, AppPrinterCommon.posPrintResultMessage(PosPrintResult.timeout));
-    //   return;
-    // }
+    if (kDebugMode) {
+      task.onComplete?.call(true, AppPrinterCommon.posPrintResultMessage(PosPrintResult.timeout));
+      return;
+    }
     String? error;
     bool success = false;
     PrinterNetworkManager? printerManager;

@@ -5,6 +5,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/detail_product.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/widgets/tag_view.dart';
@@ -25,8 +26,7 @@ class ProductBox extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var productsCheckout =
-        ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
+    var productsCheckout = ref.watch(checkoutProvider.select((value) => value.productCheckout));
     var productsSelecting = ref.watch(cartPageProvider.select((value) => value.productsSelecting));
 
     int ordered = (productsCheckout.firstWhereOrNull((e) => e.id == product.id)?.quantity ?? 0);

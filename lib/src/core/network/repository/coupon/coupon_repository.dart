@@ -1,4 +1,3 @@
-import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/apply_policy.dart';
 import 'package:aladdin_franchise/src/core/network/repository/responses/coupon.dart';
 import 'package:aladdin_franchise/src/data/enum/discount_type.dart';
@@ -21,7 +20,7 @@ abstract class CouponRepository {
     required OrderModel order,
   });
 
-  Future<ApplyPolicyResponseData> applyPolicy({
+  Future<ApplyPolicyResponseData> applyCustomerPolicy({
     required List<CustomerPolicyModel> coupons,
     required List<CustomerPolicyModel> customerPolicy,
     required List<ProductCheckoutModel> products,

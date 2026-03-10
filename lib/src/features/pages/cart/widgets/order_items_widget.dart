@@ -1,10 +1,12 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/cart/dialog/confirm_add_items.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/dialog/add_order_item.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/widgets/cancel_dish_action.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/locked_order_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_tab_widget.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_item_list_widget.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/order/preview_price.dart';
 
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
@@ -14,14 +16,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import 'preview_price_widget.dart';
-import 'product_checkout_action.dart';
-
 class OrderItemsWidget extends ConsumerWidget {
   const OrderItemsWidget({
     super.key,
     this.priceSidebar = false,
-    this.textProcessOrderItem,
     this.itemScrollController,
     this.itemPositionsListener,
     this.itemSelectingScrollController,
@@ -29,7 +27,6 @@ class OrderItemsWidget extends ConsumerWidget {
   });
   final bool priceSidebar;
 
-  final String? textProcessOrderItem;
   final ItemScrollController? itemScrollController;
   final ItemPositionsListener? itemPositionsListener;
   final ItemScrollController? itemSelectingScrollController;
@@ -66,9 +63,7 @@ class OrderItemsWidget extends ConsumerWidget {
                 ),
                 if (orderTabSelect == OrderTabEnum.ordered) ...[
                   const Gap(8),
-                  const ProductCheckoutActionWidget(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                  ),
+                  const CancelDishAction(),
                 ] else ...[
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -86,12 +81,7 @@ class OrderItemsWidget extends ConsumerWidget {
                             return AppButton(
                               textAction: S.of(context).send_to_the_kitchen,
                               onPressed: () async {
-                                await showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return const AddItemOrderDialog();
-                                  },
-                                );
+                                showAddOrderItemDialog(context);
                               },
                             );
                           },

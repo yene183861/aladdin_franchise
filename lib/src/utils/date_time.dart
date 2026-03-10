@@ -145,4 +145,7 @@ class DateTimePatterns {
   static const String dateTime3 = 'yyyy/MM/dd HH:mm:ss.SSSSSS';
 
   static const String timeHHmmss = 'HH:mm:ss';
+
+  /// yyyy-MM-dd HH:mm:ss
+  static const String dateTimeHHmmssddMMyyyy = 'HH:mm:ss | dd-MM-yyyy';
 }

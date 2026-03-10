@@ -12,6 +12,7 @@ import 'package:aladdin_franchise/src/data/enum/language.dart';
 import 'package:aladdin_franchise/src/data/enum/payment_status.dart';
 import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
+import 'package:aladdin_franchise/src/features/dialogs/customer/widgets/customer_info.dart';
 import 'package:aladdin_franchise/src/features/dialogs/detail_product.dart';
 import 'package:aladdin_franchise/src/features/dialogs/error.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
@@ -385,7 +386,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
                           return Padding(
                             padding: EdgeInsets.symmetric(horizontal: padding / 2, vertical: 4),
                             child: Center(
-                              child: CustomerInfoWidget(
+                              child: CustomerInfoCard(
                                 canAction: false,
                                 customer: value,
                               ),
@@ -599,138 +600,6 @@ Future<Uint8List?> loadImageBypassingSSL(String url) async {
   }
 
   return null;
-}
-
-class CustomerInfoWidget extends ConsumerWidget {
-  final CustomerModel customer;
-  final bool canAction;
-
-  final bool showRank;
-  const CustomerInfoWidget({
-    Key? key,
-    required this.customer,
-    this.canAction = true,
-    this.showRank = false,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Card(
-            elevation: 0,
-            color: Colors.grey[100],
-            shape: RoundedRectangleBorder(borderRadius: AppConfig.borderRadiusMain),
-            child: ListTile(
-              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-              leading: _AvatarCustomerWidget(
-                gender: customer.gender,
-              ),
-              title: Text(
-                customer.name,
-                style: AppTextStyle.bold(color: AppColors.mainColor),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const ResponsiveIconWidget(iconData: CupertinoIcons.sunrise),
-                      const Gap(4),
-                      Expanded(
-                        child: Text(customer.dob == null ||
-                                ['', '0000-00-00'].contains(customer.dob!.trim().toLowerCase())
-                            ? S.current.noBOD
-                            : appConfig.dateFormatDDMMYYYY.format(DateTime.parse(customer.dob!))),
-                      ),
-                    ],
-                  ),
-                  const Gap(4),
-                  Row(
-                    children: [
-                      const ResponsiveIconWidget(iconData: CupertinoIcons.phone),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(customer.phoneNumber),
-                      ),
-                    ],
-                  ),
-                  if (showRank) ...[
-                    const SizedBox(height: 4),
-                    FittedBox(
-                      child: Row(
-                        children: [
-                          const ResponsiveIconWidget(iconData: CupertinoIcons.star),
-                          const SizedBox(width: 8),
-                          Text(
-                            "${S.current.rank}: ${customer.level ?? S.current.notAvailableYet} "
-                            "${customer.levelApprove == null ? '' : "(${appConfig.dateFormatDDMMYYYYHhMmSs.format(customer.levelApprove!)})"}",
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-              trailing: canAction
-                  ? IconButton(
-                      onPressed: () {
-                        showConfirmAction(
-                          context,
-                          action: () async {
-                            final result = await ref.read(homeProvider.notifier).deleteCustomer();
-                            if (result != null) {
-                              showMessageDialog(
-                                context,
-                                message: result.toString(),
-                              );
-                            } else {
-                              // xoá khách xong thì áp dụng lại giảm giá
-                              await ref
-                                  .read(homeProvider.notifier)
-                                  .applyCustomerPolicy(requireApply: true);
-                            }
-                          },
-                          message: S.current.removeCustomer,
-                        );
-                      },
-                      color: AppColors.redColor,
-                      icon: const Icon(CupertinoIcons.clear),
-                    )
-                  : null,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AvatarCustomerWidget extends StatelessWidget {
-  final String? gender;
-  const _AvatarCustomerWidget({
-    Key? key,
-    this.gender,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    var genderCheck = gender?.toLowerCase();
-    String assetsIcon = Assets.iconsGenderUnknow;
-    if (genderCheck == appConfig.gender[0]) {
-      assetsIcon = Assets.iconsMan;
-    } else if (genderCheck == appConfig.gender[1]) {
-      assetsIcon = Assets.iconsWoman;
-    } else {
-      assetsIcon = Assets.iconsGenderUnknow;
-    }
-    return Image.asset(
-      assetsIcon,
-      width: 24,
-    );
-  }
 }
 
 class CountDownPayooTimer extends StatefulWidget {

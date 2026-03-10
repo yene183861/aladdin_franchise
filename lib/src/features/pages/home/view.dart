@@ -15,7 +15,10 @@ import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/order/order_option_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/processing.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/state.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/view.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/state.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/action/btn_o2o.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/widgets/list_tag.dart';
@@ -269,6 +272,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
               message: "${S.current.canceling} ${S.current.discount.toLowerCase()}",
             );
             break;
+
           case HomeEvent.lockOrder:
             showProcessingDialog(context, message: S.current.locking_order_action);
             break;
@@ -293,6 +297,266 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
               message: S.current.saving_customer_info,
             );
             break;
+          default:
+            break;
+        }
+      };
+  _listenCheckoutEvent(BuildContext context, WidgetRef ref) =>
+      (CheckoutEvent? previous, CheckoutEvent? next) {
+        switch (next) {
+          case CheckoutEvent.normal:
+            pop(context);
+            break;
+          case CheckoutEvent.findingCustomer:
+            showProcessingDialog(context, message: S.current.getInfoProcessing);
+            break;
+          case CheckoutEvent.removeCustomer:
+            showProcessingDialog(context, message: S.current.removing_customer);
+            break;
+          case CheckoutEvent.createCustomer:
+            showProcessingDialog(context, message: S.current.creating_customer);
+            break;
+          case CheckoutEvent.addCoupon:
+            showProcessingDialog(context, message: S.current.checking);
+            break;
+          case CheckoutEvent.removeCoupon:
+            showProcessingDialog(
+              context,
+              message: "Đang xoá ${S.current.discount.toLowerCase()}",
+            );
+            break;
+          case CheckoutEvent.applyPolicy:
+            showProcessingDialog(
+              context,
+              message: S.current.applied_policy,
+            );
+            break;
+          case CheckoutEvent.updateTax:
+            showProcessingDialog(
+              context,
+              message: S.current.updating_tax,
+            );
+            break;
+
+          case CheckoutEvent.updateInvoice:
+            showProcessingDialog(context,
+                message: "${S.current.updating} ${S.current.invoice.toLowerCase()}");
+            break;
+          case CheckoutEvent.insertInvoice:
+            showProcessingDialog(context,
+                message: "${S.current.creating} ${S.current.invoice.toLowerCase()}");
+            break;
+
+          case CheckoutEvent.processed:
+            pop(context);
+            break;
+          case CheckoutEvent.processError:
+            pop(context);
+            showMessageDialog(
+              context,
+              message: ref.read(checkoutProvider).message,
+            );
+            break;
+          case CheckoutEvent.getDataBill:
+            showProcessingDialog(context, message: S.current.updating_payment_info);
+            break;
+          case CheckoutEvent.paymentProcess:
+            showProcessingDialog(context, message: S.current.processing_payment);
+            break;
+          case CheckoutEvent.completeBillAgain:
+            showProcessingDialog(context, message: S.current.completing_order);
+            break;
+          // case HomeEvent.processOrder:
+          //   showProcessingDialog(context, message: S.current.processing);
+          //   break;
+          // case HomeEvent.cancelDishInOrder:
+          //   showProcessingDialog(context, message: S.current.sending_request_to_cancel_order);
+          //   break;
+          // case HomeEvent.paymentProcess:
+          //   showProcessingDialog(context, message: S.current.processing_payment);
+          //   break;
+          // case HomeEvent.checkLocalNetwork:
+          //   showProcessingDialog(context, message: S.current.checking_connection);
+          //   break;
+          // case HomeEvent.updateTypeOrderWaiter:
+          //   showProcessingDialog(context, message: S.current.changing_form_of_sell_mode);
+          //   break;
+
+          // case HomeEvent.errorInfo:
+          //   Navigator.pop(context);
+          //   showMessageDialog(context, message: ref.read(homeProvider.notifier).getMessageError());
+          //   break;
+
+          // case HomeEvent.checkTicket:
+          //   showProcessingDialog(
+          //     context,
+          //     message: S.current.checking,
+          //   );
+          //   break;
+          // case HomeEvent.removeTicket:
+          //   showProcessingDialog(
+          //     context,
+          //     message: "${S.current.canceling} ${S.current.discount.toLowerCase()}",
+          //   );
+          //   break;
+          // case HomeEvent.findingTaxCode:
+          //   showProcessingDialog(
+          //     context,
+          //     message: S.current.finding_by_tax_code,
+          //   );
+          //   break;
+          // case HomeEvent.updateInvoice:
+          //   showProcessingDialog(context,
+          //       message: "${S.current.updating} ${S.current.invoice.toLowerCase()}");
+          //   break;
+          // case HomeEvent.insertInvoice:
+          //   showProcessingDialog(context,
+          //       message: "${S.current.creating} ${S.current.invoice.toLowerCase()}");
+          //   break;
+          // case HomeEvent.unlockOrder:
+          //   showProcessingDialog(
+          //     context,
+          //     // message: S.current.closing_order_payment,
+          //     message: S.current.unlocking_order,
+          //   );
+          //   break;
+          // case HomeEvent.processed:
+          //   Navigator.pop(context);
+          //   break;
+          // case HomeEvent.processError:
+          //   Navigator.pop(context);
+
+          //   // showErrorDialog(
+          //   //   context,
+          //   //   message: ref.read(homeProvider.notifier).getMessageError(),
+          //   // );
+          //   showMessageDialog(
+          //     context,
+          //     message: ref.read(homeProvider.notifier).getMessageError(),
+          //   );
+          //   break;
+          // case HomeEvent.checkPaymentMethod:
+          //   showProcessingDialog(
+          //     context,
+          //     message: S.current.checking_payment_method,
+          //   );
+          //   break;
+          // case HomeEvent.removeCustomer:
+          //   showProcessingDialog(
+          //     context,
+          //     message: S.current.removing_customer,
+          //   );
+          //   break;
+          // case HomeEvent.applyPolicy:
+          //   showProcessingDialog(
+          //     context,
+          //     message: S.current.applied_policy,
+          //   );
+          //   break;
+          // case HomeEvent.printProduct:
+          //   showProcessingDialog(
+          //     context,
+          //     message: S.current.sending_bill_kitchen,
+          //   );
+          //   break;
+          // case HomeEvent.completeBillAgain:
+          //   showProcessingDialog(
+          //     context,
+          //     message: S.current.completing_order,
+          //   );
+          //   break;
+          // case HomeEvent.cancelProductsCheckout:
+          //   showProcessingDialog(
+          //     context,
+          //     message: S.current.cancelling_item,
+          //   );
+          //   break;
+          // case HomeEvent.sendTicket:
+          //   showProcessingDialog(
+          //     context,
+          //     message: S.current.sending_ticket,
+          //   );
+          //   break;
+          // case HomeEvent.getPaymentGateway:
+          //   showProcessingDialog(
+          //     context,
+          //     message: S.current.loading_payment_gateway_url,
+          //   );
+          //   break;
+          // case HomeEvent.dynamicPosCallback:
+          //   showProcessingDialog(
+          //     context,
+          //     message: S.current.sending_command_pos,
+          //   );
+          //   break;
+          // case HomeEvent.closingShift:
+          //   showProcessingDialog(
+          //     context,
+          //     message: S.current.system_closing_shift,
+          //   );
+          //   break;
+          // case HomeEvent.updateTax:
+          //   showProcessingDialog(
+          //     context,
+          //     message: S.current.updating_tax,
+          //   );
+          //   break;
+          // case HomeEvent.getDataBill:
+          //   showProcessingDialog(context, message: S.current.updating_payment_info);
+          //   break;
+          // case HomeEvent.getProductCheckout:
+          //   showProcessingDialog(context, message: S.current.updating_payment_info);
+          //   break;
+          // case HomeEvent.checkPrinter:
+          //   showProcessingDialog(context, message: S.current.checking_printer_status);
+          //   break;
+          // // coupon
+          // case HomeEvent.removeCoupon:
+          //   showProcessingDialog(
+          //     context,
+          //     message: "${S.current.canceling} ${S.current.discount.toLowerCase()}",
+          //   );
+          //   break;
+          // case HomeEvent.lockOrder:
+          //   showProcessingDialog(context, message: S.current.locking_order_action);
+          //   break;
+          // case HomeEvent.updateReservation:
+          //   showProcessingDialog(context, message: S.current.updating_reservation_info);
+          //   break;
+          // case HomeEvent.updateOrderReservation:
+          //   showProcessingDialog(context, message: S.current.updating_order_reser);
+          //   break;
+          // case HomeEvent.addCoupon:
+          //   showProcessingDialog(context, message: S.current.checking);
+          //   break;
+          // case HomeEvent.saveO2oConfig:
+          //   showProcessingDialog(context, message: S.current.saving_config);
+          //   break;
+          // // case HomeEvent.sendPrintData:
+          // //   showProcessingDialog(context, message: 'Đang gửi lệnh in ');
+          // //   break;
+          // case HomeEvent.addCustomerToOrder:
+          //   showProcessingDialog(
+          //     context,
+          //     message: S.current.saving_customer_info,
+          //   );
+          //   break;
+          default:
+            break;
+        }
+      };
+  _listenCartEvent(BuildContext context, WidgetRef ref) => (CartEvent? previous, CartEvent? next) {
+        switch (next) {
+          case CartEvent.normal:
+            pop(context);
+            break;
+          case CartEvent.addItems:
+            showProcessingDialog(context, message: S.current.getInfoProcessing);
+            break;
+          case CartEvent.sendPrintData:
+            showProcessingDialog(context, message: 'Đang gửi lệnh in');
+            break;
+
           default:
             break;
         }
@@ -326,6 +590,14 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
       homeProvider.select((value) => value.event),
       _listenEvent(context, ref),
     );
+    ref.listen<CheckoutEvent>(
+      checkoutProvider.select((value) => value.event),
+      _listenCheckoutEvent(context, ref),
+    );
+    ref.listen<CartEvent>(
+      cartPageProvider.select((value) => value.event),
+      _listenCartEvent(context, ref),
+    );
 
     var viewPadding = MediaQuery.of(context).viewPadding;
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
@@ -344,6 +616,14 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             child: Row(
               children: [
                 const Expanded(flex: 1, child: MenuPage()),
+                // do checkoutProvider,cartPageProvider  để autodispose
+                Consumer(
+                  builder: (context, ref, child) {
+                    ref.watch(checkoutProvider);
+                    ref.watch(cartPageProvider);
+                    return const SizedBox.shrink();
+                  },
+                ),
                 orderDetailSidePanel
                     ? Container(
                         constraints: const BoxConstraints(maxWidth: 500),
@@ -623,166 +903,118 @@ class CartInfoWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var numberOfProduct = 0;
-    var totalOrder = 0.0;
-    var productsSelecting = ref.watch(cartPageProvider.select((value) => value.productsSelecting));
-    var price = ref.watch(homeProvider.select((value) => value.dataBill.price));
-    var priceState = ref.watch(homeProvider.select((value) => value.dataBillState));
-    numberOfProduct = productsSelecting.length;
-    for (var element in productsSelecting) {
-      totalOrder += (double.tryParse(element.unitPrice) ?? 0) * element.numberSelecting;
-    }
-    Widget priceView = Container();
+    return Container();
+    // var numberOfProduct = 0;
+    // var totalOrder = 0.0;
+    // var productsSelecting = ref.watch(cartPageProvider.select((value) => value.productsSelecting));
+    // var price = ref.watch(homeProvider.select((value) => value.dataBill.price));
+    // var priceState = ref.watch(homeProvider.select((value) => value.dataBillState));
+    // numberOfProduct = productsSelecting.length;
+    // for (var element in productsSelecting) {
+    //   totalOrder += (double.tryParse(element.unitPrice) ?? 0) * element.numberSelecting;
+    // }
+    // Widget priceView = Container();
 
-    switch (priceState.status) {
-      case PageCommonState.loading:
-        priceView = const CupertinoActivityIndicator(
-            // color: AppColors.tcFooter,
-            );
-        break;
-      case PageCommonState.error:
-        priceView = InkWell(
-          onTap: () {
-            ref.read(homeProvider.notifier).getDataBill();
-          },
-          child: Text(
-            S.current.errorAndPressAgain,
-            textAlign: TextAlign.center,
-            style: AppTextStyle.bold(
-              color: AppColors.redColor,
-            ),
-          ),
-        );
-        break;
-      case PageCommonState.success:
-        totalOrder += price.totalPriceFinal;
-        priceView = Text(
-          AppUtils.formatCurrency(value: totalOrder, symbol: 'đ'),
-          textAlign: TextAlign.left,
-          overflow: TextOverflow.fade,
-          style: AppTextStyle.bold(
-            color: AppColors.tcFooter,
-          ),
-        );
-        break;
-      default:
-        priceView = const CupertinoActivityIndicator(color: AppColors.tcFooter);
-    }
+    // switch (priceState.status) {
+    //   case PageCommonState.loading:
+    //     priceView = const CupertinoActivityIndicator(
+    //         // color: AppColors.tcFooter,
+    //         );
+    //     break;
+    //   case PageCommonState.error:
+    //     priceView = InkWell(
+    //       onTap: () {
+    //         // ref.read(homeProvider.notifier).getDataBill();
+    //       },
+    //       child: Text(
+    //         S.current.errorAndPressAgain,
+    //         textAlign: TextAlign.center,
+    //         style: AppTextStyle.bold(
+    //           color: AppColors.redColor,
+    //         ),
+    //       ),
+    //     );
+    //     break;
+    //   case PageCommonState.success:
+    //     totalOrder += price.totalPriceFinal;
+    //     priceView = Text(
+    //       AppUtils.formatCurrency(value: totalOrder, symbol: 'đ'),
+    //       textAlign: TextAlign.left,
+    //       overflow: TextOverflow.fade,
+    //       style: AppTextStyle.bold(
+    //         color: AppColors.tcFooter,
+    //       ),
+    //     );
+    //     break;
+    //   default:
+    //     priceView = const CupertinoActivityIndicator(color: AppColors.tcFooter);
+    // }
 
-    return InkWell(
-      onTap: () {
-        if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
-          showMessageDialog(context, message: S.current.noOrderSelect);
-          return;
-        }
-        showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            builder: (context) {
-              return const FractionallySizedBox(
-                heightFactor: 0.92,
-                child: CartPage(),
-              );
-            });
-      },
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  badge_lib.Badge(
-                    badgeContent: Text(
-                      "$numberOfProduct",
-                      style: AppTextStyle.regular(
-                        color: Colors.white,
-                        rawFontSize: numberOfProduct >= 10 ? 10 : 12,
-                      ),
-                    ),
-                    child: const ResponsiveIconWidget(
-                      iconData: CupertinoIcons.cart,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const Gap(16),
-                  Flexible(child: FittedBox(child: priceView)),
-                ],
-              ),
-            ),
-          ),
-          numberOfProduct <= 0
-              ? Container()
-              : Align(
-                  alignment: Alignment.topCenter,
-                  child: AnimatedTextKit(
-                    animatedTexts: [
-                      ColorizeAnimatedText(
-                        S.current.letsOrderFood,
-                        textStyle: AppTextStyle.bold(),
-                        colors: AppColors.tcAnimationText,
-                      ),
-                    ],
-                    isRepeatingAnimation: true,
-                    totalRepeatCount: 5,
-                  ),
-                ),
-        ],
-      ),
-    );
+    // return InkWell(
+    //   onTap: () {
+    //     if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
+    //       showMessageDialog(context, message: S.current.noOrderSelect);
+    //       return;
+    //     }
+    //     showModalBottomSheet(
+    //         context: context,
+    //         isScrollControlled: true,
+    //         builder: (context) {
+    //           return const FractionallySizedBox(
+    //             heightFactor: 0.92,
+    //             child: CartPage(),
+    //           );
+    //         });
+    //   },
+    //   child: Stack(
+    //     children: [
+    //       Padding(
+    //         padding: const EdgeInsets.symmetric(horizontal: 12),
+    //         child: Center(
+    //           child: Row(
+    //             mainAxisAlignment: MainAxisAlignment.center,
+    //             mainAxisSize: MainAxisSize.min,
+    //             children: [
+    //               badge_lib.Badge(
+    //                 badgeContent: Text(
+    //                   "$numberOfProduct",
+    //                   style: AppTextStyle.regular(
+    //                     color: Colors.white,
+    //                     rawFontSize: numberOfProduct >= 10 ? 10 : 12,
+    //                   ),
+    //                 ),
+    //                 child: const ResponsiveIconWidget(
+    //                   iconData: CupertinoIcons.cart,
+    //                   color: Colors.white,
+    //                 ),
+    //               ),
+    //               const Gap(16),
+    //               Flexible(child: FittedBox(child: priceView)),
+    //             ],
+    //           ),
+    //         ),
+    //       ),
+    //       numberOfProduct <= 0
+    //           ? Container()
+    //           : Align(
+    //               alignment: Alignment.topCenter,
+    //               child: AnimatedTextKit(
+    //                 animatedTexts: [
+    //                   ColorizeAnimatedText(
+    //                     S.current.letsOrderFood,
+    //                     textStyle: AppTextStyle.bold(),
+    //                     colors: AppColors.tcAnimationText,
+    //                   ),
+    //                 ],
+    //                 isRepeatingAnimation: true,
+    //                 totalRepeatCount: 5,
+    //               ),
+    //             ),
+    //     ],
+    //   ),
+    // );
   }
 }
-
-// class _SearchDishWidget extends ConsumerWidget {
-//   const _SearchDishWidget({
-//     super.key,
-//   });
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     final inputBorder = OutlineInputBorder(
-//       borderRadius: AppConfig.borderRadiusMain,
-//       borderSide: BorderSide(
-//         color: Colors.grey.shade300,
-//       ),
-//     );
-//     var controller = ref.read(homeProvider.notifier).ctrlSearch;
-//     final keyword = ref.watch(homeProvider.select((value) => value.search));
-
-//     return TextFormField(
-//       style: AppTextStyle.regular(),
-//       decoration: InputDecoration(
-//         contentPadding: EdgeInsets.zero,
-//         prefixIcon: const ResponsiveIconWidget(iconData: CupertinoIcons.search),
-//         hintText: S.of(context).searchDish,
-//         hintStyle: AppTextStyle.light(rawFontSize: 12),
-//         helperStyle: AppTextStyle.regular(rawFontSize: 13),
-//         suffixIcon: keyword.trim().isEmpty
-//             ? null
-//             : IconButton(
-//                 visualDensity: VisualDensity.compact,
-//                 onPressed: () {
-//                   controller.text = '';
-//                   ref.read(homeProvider.notifier).changeSearch('');
-//                 },
-//                 color: AppColors.clearSearch,
-//                 icon: const ResponsiveIconWidget(iconData: Icons.clear),
-//               ),
-//         enabledBorder: inputBorder,
-//         border: inputBorder,
-//       ),
-//       controller: controller,
-//       onTapOutside: (event) {
-//         FocusManager.instance.primaryFocus?.unfocus();
-//       },
-//       onChanged: (value) {
-//         ref.read(homeProvider.notifier).changeSearch(value);
-//       },
-//     );
-//   }
-// }
 
 class LogoWidget extends ConsumerWidget {
   const LogoWidget({super.key});

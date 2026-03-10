@@ -608,22 +608,22 @@ class HistoryOrderNotifier extends StateNotifier<HistoryOrderState> {
     int retry = 0;
     String? error;
 
-    state = state.copyWith(event: HistoryOrderEvent.updateTax);
-    while (retry < 3) {
-      try {
-        var result = await _orderRepository.updateTax(
-          order: order,
-          pc: item,
-          paymentMethod: paymentMethod,
-        );
-        state = state.copyWith(event: HistoryOrderEvent.normal);
-        return (error: null, pc: result);
-      } catch (ex) {
-        retry++;
-        error = ex.toString();
-      }
-    }
-    state = state.copyWith(event: HistoryOrderEvent.normal);
+    // state = state.copyWith(event: HistoryOrderEvent.updateTax);
+    // while (retry < 3) {
+    //   try {
+    //     var result = await _orderRepository.updateTax(
+    //       order: order,
+    //       pc: item,
+    //       paymentMethod: paymentMethod,
+    //     );
+    //     state = state.copyWith(event: HistoryOrderEvent.normal);
+    //     return (error: null, pc: result);
+    //   } catch (ex) {
+    //     retry++;
+    //     error = ex.toString();
+    //   }
+    // }
+    // state = state.copyWith(event: HistoryOrderEvent.normal);
     return (error: error, pc: <ProductCheckoutUpdateTaxModel>[]);
   }
 

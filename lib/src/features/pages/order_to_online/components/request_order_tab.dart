@@ -3,7 +3,7 @@ import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_input.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment_cancel.dart';
 import 'package:aladdin_franchise/src/features/dialogs/reason_cancel_item.dart';
-import 'package:aladdin_franchise/src/features/pages/cart/dialog/confirm_add_items.dart';
+import 'package:aladdin_franchise/src/features/pages/cart/dialog/add_order_item.dart';
 // import 'package:aladdin_franchise/src/features/dialogs/detail_product_checkout.dart';
 // import 'package:aladdin_franchise/src/features/dialogs/payment_cancel.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';

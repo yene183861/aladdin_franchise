@@ -190,85 +190,85 @@ class OrderOptionAction extends ConsumerWidget {
                     style: AppTextStyle.bold(rawFontSize: AppConfig.defaultRawTextSize + 1.0),
                   ),
                   const Gap(12),
-                  Expanded(
-                    child: ReservationList(
-                      order: orderSelect,
-                      onConfirm: ({required context, item, itemInit}) async {
-                        if (itemInit?.id != item?.id) {
-                          var tableIds = orderSelect.getTableIds;
-                          var tableSelect =
-                              tableList.where((e) => tableIds.contains(e.id)).toList();
-                          final result =
-                              await ref.read(homeProvider.notifier).updateReservationOrder(
-                                    tableIds,
-                                    orderSelect,
-                                    tableSelect: tableSelect,
-                                    newReservation: item,
-                                    currentReservation: itemInit,
-                                  );
-                          if (result.error != null) {
-                            showMessageDialog(context, message: result.error!);
-                            return false;
-                          } else {
-                            if (ref.read(homeProvider.notifier).mounted) {
-                              var currentCustomer = ref.read(homeProvider).customer;
-                              if (item != null &&
-                                  TextUtil.convertPhone(
-                                          (currentCustomer?.phoneNumber ?? '').trim()) !=
-                                      TextUtil.convertPhone(
-                                          (item.customer?.phoneNumber ?? '').trim())) {
-                                bool changeCustomer = false;
-                                await showConfirmActionWithChild(
-                                  context,
-                                  action: () async {
-                                    changeCustomer = true;
-                                  },
-                                  child: _ConfirmAddCustomer(reservationCustomer: item.customer),
-                                  textCancel: S.current.close,
-                                  actionTitle: S.current.change,
-                                );
-                                if (changeCustomer) {
-                                  int retry = 0;
-                                  while (retry < 3) {
-                                    var error =
-                                        await ref.read(homeProvider.notifier).addCustomerToOrder(
-                                              phoneNumer: item.customer?.phoneNumber ?? '',
-                                              orderId: orderSelect.id,
-                                              showLoading: true,
-                                            );
-                                    if (error.error != null) {
-                                      retry++;
-                                      if (retry >= 3) {
-                                        await showMessageDialog(
-                                          context,
-                                          message:
-                                              '${S.current.error_change_customer_from_reservation(S.current.paymentNow, S.current.endow)}'
-                                              '\n${S.current.ex_problem}: ${error.error ?? ''}',
-                                        );
-                                        break;
-                                      }
-                                      var confirm = await showConfirmAction(
-                                        context,
-                                        message:
-                                            '${S.current.error_change_customer_from_reservation_1}'
-                                            '\n${S.current.ex_problem}: ${error.error ?? ''}',
-                                        actionTitle: S.current.tryAgain,
-                                        textCancel: S.current.close,
-                                      );
-                                      if (confirm != true) break;
-                                    } else {
-                                      break;
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                        return true;
-                      },
-                    ),
-                  ),
+                  // Expanded(
+                  //   child: ReservationList(
+                  //     order: orderSelect,
+                  //     onConfirm: ({required context, item, itemInit}) async {
+                  //       if (itemInit?.id != item?.id) {
+                  //         var tableIds = orderSelect.getTableIds;
+                  //         var tableSelect =
+                  //             tableList.where((e) => tableIds.contains(e.id)).toList();
+                  //         final result =
+                  //             await ref.read(homeProvider.notifier).updateReservationOrder(
+                  //                   tableIds,
+                  //                   orderSelect,
+                  //                   tableSelect: tableSelect,
+                  //                   newReservation: item,
+                  //                   currentReservation: itemInit,
+                  //                 );
+                  //         if (result.error != null) {
+                  //           showMessageDialog(context, message: result.error!);
+                  //           return false;
+                  //         } else {
+                  //           if (ref.read(homeProvider.notifier).mounted) {
+                  //             var currentCustomer = ref.read(homeProvider).customer;
+                  //             if (item != null &&
+                  //                 TextUtil.convertPhone(
+                  //                         (currentCustomer?.phoneNumber ?? '').trim()) !=
+                  //                     TextUtil.convertPhone(
+                  //                         (item.customer?.phoneNumber ?? '').trim())) {
+                  //               bool changeCustomer = false;
+                  //               await showConfirmActionWithChild(
+                  //                 context,
+                  //                 action: () async {
+                  //                   changeCustomer = true;
+                  //                 },
+                  //                 child: _ConfirmAddCustomer(reservationCustomer: item.customer),
+                  //                 textCancel: S.current.close,
+                  //                 actionTitle: S.current.change,
+                  //               );
+                  //               if (changeCustomer) {
+                  //                 int retry = 0;
+                  //                 while (retry < 3) {
+                  //                   var error =
+                  //                       await ref.read(homeProvider.notifier).addCustomerToOrder(
+                  //                             phoneNumer: item.customer?.phoneNumber ?? '',
+                  //                             orderId: orderSelect.id,
+                  //                             showLoading: true,
+                  //                           );
+                  //                   if (error.error != null) {
+                  //                     retry++;
+                  //                     if (retry >= 3) {
+                  //                       await showMessageDialog(
+                  //                         context,
+                  //                         message:
+                  //                             '${S.current.error_change_customer_from_reservation(S.current.paymentNow, S.current.endow)}'
+                  //                             '\n${S.current.ex_problem}: ${error.error ?? ''}',
+                  //                       );
+                  //                       break;
+                  //                     }
+                  //                     var confirm = await showConfirmAction(
+                  //                       context,
+                  //                       message:
+                  //                           '${S.current.error_change_customer_from_reservation_1}'
+                  //                           '\n${S.current.ex_problem}: ${error.error ?? ''}',
+                  //                       actionTitle: S.current.tryAgain,
+                  //                       textCancel: S.current.close,
+                  //                     );
+                  //                     if (confirm != true) break;
+                  //                   } else {
+                  //                     break;
+                  //                   }
+                  //                 }
+                  //               }
+                  //             }
+                  //           }
+                  //         }
+                  //       }
+                  //       return true;
+                  //     },
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -338,72 +338,72 @@ class _ConfirmAddCustomer extends ConsumerWidget {
                       textAlign: TextAlign.center,
                     ),
                     Gap(12),
-                    Consumer(builder: (context, ref, child) {
-                      var data = ref.watch(homeProvider.select((value) => value.customer));
-                      return Center(
-                          child: data == null
-                              ? Text(
-                                  S.current.noInfo,
-                                  style:
-                                      AppTextStyle.regular().copyWith(color: Colors.grey.shade400),
-                                )
-                              : IntrinsicWidth(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: [
-                                      _buildInfo(
-                                        icon: CupertinoIcons.person,
-                                        info: data.name,
-                                      ),
-                                      _buildInfo(
-                                        icon: Icons.phone,
-                                        info: TextUtil.convertPhone(data.phoneNumber.trim()),
-                                      ),
-                                    ],
-                                  ),
-                                )
+                    // Consumer(builder: (context, ref, child) {
+                    //   var data = ref.watch(homeProvider.select((value) => value.customer));
+                    //   return Center(
+                    //       child: data == null
+                    //           ? Text(
+                    //               S.current.noInfo,
+                    //               style:
+                    //                   AppTextStyle.regular().copyWith(color: Colors.grey.shade400),
+                    //             )
+                    //           : IntrinsicWidth(
+                    //               child: Column(
+                    //                 crossAxisAlignment: CrossAxisAlignment.stretch,
+                    //                 children: [
+                    //                   _buildInfo(
+                    //                     icon: CupertinoIcons.person,
+                    //                     info: data.name,
+                    //                   ),
+                    //                   _buildInfo(
+                    //                     icon: Icons.phone,
+                    //                     info: TextUtil.convertPhone(data.phoneNumber.trim()),
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //             )
 
-                          // _customerProvider.when(
-                          //   skipError: false,
-                          //   skipLoadingOnRefresh: false,
-                          //   skipLoadingOnReload: false,
-                          //   data: (data) {
-                          //     return data == null
-                          //         ? Text(
-                          //             S.current.noInfo,
-                          //             style: AppTextStyle.regular()
-                          //                 .copyWith(color: Colors.grey.shade400),
-                          //           )
-                          //         : IntrinsicWidth(
-                          //             child: Column(
-                          //               crossAxisAlignment: CrossAxisAlignment.stretch,
-                          //               children: [
-                          //                 _buildInfo(
-                          //                   icon: CupertinoIcons.person,
-                          //                   info: data.name,
-                          //                 ),
-                          //                 _buildInfo(
-                          //                   icon: Icons.phone,
-                          //                   info: TextUtil.convertPhone(data.phoneNumber.trim()),
-                          //                 ),
-                          //               ],
-                          //             ),
-                          //           );
-                          //   },
-                          //   error: (error, stackTrace) {
-                          //     return AppErrorSimpleWidget(
-                          //       onTryAgain: () {
-                          //         ref.refresh(customerOrderProvider);
-                          //       },
-                          //       message: error.toString(),
-                          //     );
-                          //   },
-                          //   loading: () {
-                          //     return const AppSimpleLoadingWidget(message: '');
-                          //   },
-                          // ),
-                          );
-                    }),
+                    //       // _customerProvider.when(
+                    //       //   skipError: false,
+                    //       //   skipLoadingOnRefresh: false,
+                    //       //   skipLoadingOnReload: false,
+                    //       //   data: (data) {
+                    //       //     return data == null
+                    //       //         ? Text(
+                    //       //             S.current.noInfo,
+                    //       //             style: AppTextStyle.regular()
+                    //       //                 .copyWith(color: Colors.grey.shade400),
+                    //       //           )
+                    //       //         : IntrinsicWidth(
+                    //       //             child: Column(
+                    //       //               crossAxisAlignment: CrossAxisAlignment.stretch,
+                    //       //               children: [
+                    //       //                 _buildInfo(
+                    //       //                   icon: CupertinoIcons.person,
+                    //       //                   info: data.name,
+                    //       //                 ),
+                    //       //                 _buildInfo(
+                    //       //                   icon: Icons.phone,
+                    //       //                   info: TextUtil.convertPhone(data.phoneNumber.trim()),
+                    //       //                 ),
+                    //       //               ],
+                    //       //             ),
+                    //       //           );
+                    //       //   },
+                    //       //   error: (error, stackTrace) {
+                    //       //     return AppErrorSimpleWidget(
+                    //       //       onTryAgain: () {
+                    //       //         ref.refresh(customerOrderProvider);
+                    //       //       },
+                    //       //       message: error.toString(),
+                    //       //     );
+                    //       //   },
+                    //       //   loading: () {
+                    //       //     return const AppSimpleLoadingWidget(message: '');
+                    //       //   },
+                    //       // ),
+                    //       );
+                    // }),
                   ],
                 ),
               ),

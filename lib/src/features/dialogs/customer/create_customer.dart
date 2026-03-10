@@ -1,14 +1,16 @@
+import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
-import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
-import 'package:aladdin_franchise/src/features/widgets/button/button_cancel.dart';
-import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
+import 'package:aladdin_franchise/src/features/widgets/dialog/title_with_close_icon.dart';
+import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/utils/date_input.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,8 +18,18 @@ import 'package:intl/intl.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-import '../../../../generated/l10n.dart';
-import '../error.dart';
+Future<String?> showCreateCustomerDialog(
+  BuildContext context,
+  String phone,
+) async {
+  var result = await showDialog(
+    context: context,
+    useRootNavigator: false,
+    barrierDismissible: false,
+    builder: (context) => CreateCustomerDialog(phone: phone),
+  );
+  return result;
+}
 
 class CreateCustomerDialog extends ConsumerStatefulWidget {
   final String? phone;
@@ -58,9 +70,6 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    // var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
-    // bool enable = !lockedOrder;
-    bool enable = true;
     var smallDevice = ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -68,16 +77,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
       body: Center(
         child: SingleChildScrollView(
           child: AlertDialog(
-            title: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    S.current.createNewCustomers,
-                  ),
-                ),
-                const CloseButton(),
-              ],
-            ),
+            title: TitleWithCloseIconDialog(title: S.current.createNewCustomers),
             content: SizedBox(
               width: smallDevice ? 95.w : 50.w,
               child: Form(
@@ -92,7 +92,6 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                       textInputAction: TextInputAction.next,
                       textInputType: TextInputType.number,
                       required: true,
-                      enabled: enable,
                       maxLength: 12,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       validator: (value) {
@@ -100,7 +99,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const Gap(16),
                     // if (Platform.isAndroid && enable) ...[
                     //   ButtonWithIconWidget(
                     //     icon: CupertinoIcons.creditcard,
@@ -118,21 +117,19 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                             textController: ctrlFirstName,
                             textInputAction: TextInputAction.next,
                             required: true,
-                            enabled: enable,
                             validator: (value) {
                               if ((value?.trim() ?? '').isEmpty) return S.current.please_enter_info;
                               return null;
                             },
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const Gap(12),
                         Expanded(
                           child: AppTextFormField(
                             label: S.current.lastName,
                             textController: ctrlLastName,
                             textInputAction: TextInputAction.next,
                             required: true,
-                            enabled: enable,
                             validator: (value) {
                               if ((value?.trim() ?? '').isEmpty) return S.current.please_enter_info;
                               return null;
@@ -141,17 +138,14 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      S.current.gender,
-                      style: AppTextStyle.regular(),
-                    ),
-                    const SizedBox(height: 8),
+                    const Gap(16),
+                    Text(S.current.gender, style: AppTextStyle.regular()),
+                    const Gap(8),
                     Row(
                       children: [
                         Expanded(
                           child: RadioListTile(
-                            toggleable: enable,
+                            toggleable: true,
                             tileColor: Colors.grey.shade100,
                             shape: AppConfig.shapeBorderMain,
                             value: appConfig.gender[0],
@@ -167,7 +161,7 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                             },
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const Gap(12),
                         Expanded(
                           child: RadioListTile(
                             tileColor: Colors.grey.shade100,
@@ -188,11 +182,11 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const Gap(16),
                     AppTextFormField(
                       label: S.current.bod,
                       hintText: "dd/MM/yyyy",
-                      enabled: !_noBOD && enable,
+                      enabled: !_noBOD,
                       textInputType: TextInputType.number,
                       textController: ctrlBirthday,
                       inputFormatters: [
@@ -212,7 +206,6 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
                     const SizedBox(height: 16),
                     CheckboxListTile(
                       value: _noBOD,
-                      enabled: enable,
                       //tileColor: Colors.grey.shade200,
                       controlAffinity: ListTileControlAffinity.leading,
                       shape: RoundedRectangleBorder(
@@ -238,54 +231,49 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
               AppCloseButton(
                 onPressed: () => Navigator.pop(context, null),
               ),
-              // ButtonCancelWidget(
-              //   textAction: S.current.close,
-              //   onPressed: () => Navigator.pop(context, null),
-              // ),
-              if (enable)
-                AppButton(
-                  onPressed: () async {
-                    if (!(_formKey.currentState?.validate() ?? false)) return;
-                    String phone = ctrlPhone.text.trim();
-                    String firstName = ctrlFirstName.text.trim();
-                    String lastName = ctrlLastName.text.trim();
-                    // ngay sinh
-                    if (_noBOD == false) {
-                      var checkDob = checkInputDate(ctrlBirthday.text);
-                      if (checkDob != null) {
-                        showMessageDialog(context, message: S.current.dob_not_format);
-                        return;
-                      }
-                      final dob = DateFormat("dd/MM/yyyy").parse(ctrlBirthday.text);
-                      inputBirthday = appConfig.dateFormatYYYYMMDD.format(dob);
-                    }
-                    final result = await ref.read(homeProvider.notifier).createCustomer(
-                          phone: phone,
-                          firstName: firstName,
-                          lastName: lastName,
-                          birthday: inputBirthday,
-                          gender: gender,
-                          idCardNumber: idCardNumber,
-                          address: address,
-                          noBOD: _noBOD,
-                        );
-                    if (result != null) {
-                      if (context.mounted) {
-                        await showMessageDialog(
-                          context,
-                          message: result,
-                        );
-                      }
+              AppButton(
+                onPressed: () async {
+                  if (!(_formKey.currentState?.validate() ?? false)) return;
+                  String phone = ctrlPhone.text.trim();
+                  String firstName = ctrlFirstName.text.trim();
+                  String lastName = ctrlLastName.text.trim();
+                  // ngay sinh
+                  if (_noBOD == false) {
+                    var checkDob = checkInputDate(ctrlBirthday.text);
+                    if (checkDob != null) {
+                      showMessageDialog(context, message: S.current.dob_not_format);
                       return;
                     }
+                    final dob = DateFormat("dd/MM/yyyy").parse(ctrlBirthday.text);
+                    inputBirthday = appConfig.dateFormatYYYYMMDD.format(dob);
+                  }
+                  final result = await ref.read(checkoutProvider.notifier).createCustomer(
+                        phone: phone,
+                        firstName: firstName,
+                        lastName: lastName,
+                        birthday: inputBirthday,
+                        gender: gender,
+                        idCardNumber: idCardNumber,
+                        address: address,
+                        noBOD: _noBOD,
+                      );
+                  if (result != null) {
                     if (context.mounted) {
-                      Navigator.pop(context, phone);
+                      await showMessageDialog(
+                        context,
+                        message: result,
+                      );
                     }
-                  },
-                  color: AppColors.bgButtonMain,
-                  textColor: AppColors.tcButtonMain,
-                  textAction: S.current.confirm,
-                ),
+                    return;
+                  }
+                  if (context.mounted) {
+                    Navigator.pop(context, phone);
+                  }
+                },
+                color: AppColors.bgButtonMain,
+                textColor: AppColors.tcButtonMain,
+                textAction: S.current.confirm,
+              ),
             ],
           ),
         ),
@@ -327,18 +315,4 @@ class _CreateCustomerDialogState extends ConsumerState<CreateCustomerDialog> {
   //     }
   //   }
   // }
-}
-
-Future<String?> showCreateCustomerDialog(
-  BuildContext context,
-  String phone,
-) async {
-  var result = await showDialog(
-    context: context,
-    useRootNavigator: false,
-    barrierDismissible: false,
-    builder: (context) => CreateCustomerDialog(phone: phone),
-  );
-  result = result.toString();
-  return result == "null" ? null : result;
 }

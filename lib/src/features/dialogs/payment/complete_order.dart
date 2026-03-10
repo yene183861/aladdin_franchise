@@ -31,86 +31,86 @@ void onConfirmPayment({
   required BuildContext context,
   bool notAllowCancelPayment = false,
 }) async {
-  final result = await ref.read(homeProvider.notifier).onPayment(context);
-  if (result.errorType != null) {
-    showLogs(result.errorType, flags: 'result.errorType');
-    switch (result.errorType!) {
-      case HomePaymentError.temp:
-        // pop(context);
-        if (notAllowCancelPayment) {
-          await showMessageDialog(context,
-              message:
-                  '${S.current.payment_done_but_not_complete_order}\n${S.current.ex_problem}: ${result.msg}',
-              textAction: S.current.tryAgain);
-          onConfirmPayment(
-            context: context,
-            ref: ref,
-            notAllowCancelPayment: notAllowCancelPayment,
-          );
-          break;
-        }
-        await showMessageDialog(context, message: result.msg);
-        ref.read(homeProvider.notifier).syncInfoCustomerPage(
-              method: WindowsMethodEnum.payment,
-              arguments: PaymentStatusEnum.cancel.name,
-            );
+  // final result = await ref.read(homeProvider.notifier).onPayment(context);
+  // if (result.errorType != null) {
+  //   showLogs(result.errorType, flags: 'result.errorType');
+  //   switch (result.errorType!) {
+  //     case HomePaymentError.temp:
+  //       // pop(context);
+  //       if (notAllowCancelPayment) {
+  //         await showMessageDialog(context,
+  //             message:
+  //                 '${S.current.payment_done_but_not_complete_order}\n${S.current.ex_problem}: ${result.msg}',
+  //             textAction: S.current.tryAgain);
+  //         onConfirmPayment(
+  //           context: context,
+  //           ref: ref,
+  //           notAllowCancelPayment: notAllowCancelPayment,
+  //         );
+  //         break;
+  //       }
+  //       await showMessageDialog(context, message: result.msg);
+  //       ref.read(homeProvider.notifier).syncInfoCustomerPage(
+  //             method: WindowsMethodEnum.payment,
+  //             arguments: PaymentStatusEnum.cancel.name,
+  //           );
 
-        break;
-      case HomePaymentError.complete:
-        onConfirmCompleteAgain(
-          ref: ref,
-          context: context,
-          errorMessage: result.msg,
-          printers: result.tmpPrinters,
-        );
-        break;
-      case HomePaymentError.printCompleteError:
-        if (result.requestPrint != null) {
-          await showConfirmAction(
-            context,
-            message: 'Đơn đã được hoàn thành\n\n'
-                'Tuy nhiên, hệ thống chưa nhận được yêu cầu in.\n'
-                'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
-            actionTitle: 'In ngay',
-            textCancel: 'Đóng',
-            title: 'Thông báo',
-            action: () {
-              ref.read(homeProvider.notifier).sendPrintData(
-                    type: PrintTypeEnum.payment,
-                    printDirectly: true,
-                    paymentData: result.requestPrint,
-                  );
-            },
-          );
-        }
-        for (int i = 0; i < (2 + (openCheckoutPage ? 1 : 0)); i++) {
-          pop(context);
-        }
+  //       break;
+  //     case HomePaymentError.complete:
+  //       onConfirmCompleteAgain(
+  //         ref: ref,
+  //         context: context,
+  //         errorMessage: result.msg,
+  //         printers: result.tmpPrinters,
+  //       );
+  //       break;
+  //     case HomePaymentError.printCompleteError:
+  //       if (result.requestPrint != null) {
+  //         await showConfirmAction(
+  //           context,
+  //           message: 'Đơn đã được hoàn thành\n\n'
+  //               'Tuy nhiên, hệ thống chưa nhận được yêu cầu in.\n'
+  //               'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
+  //           actionTitle: 'In ngay',
+  //           textCancel: 'Đóng',
+  //           title: 'Thông báo',
+  //           action: () {
+  //             ref.read(homeProvider.notifier).sendPrintData(
+  //                   type: PrintTypeEnum.payment,
+  //                   printDirectly: true,
+  //                   paymentData: result.requestPrint,
+  //                 );
+  //           },
+  //         );
+  //       }
+  //       for (int i = 0; i < (2 + (openCheckoutPage ? 1 : 0)); i++) {
+  //         pop(context);
+  //       }
 
-        showDoneSnackBar(
-          context: context,
-          message: S.current.payment_success,
-        );
-        ref.invalidate(tablesAndOrdersProvider);
+  //       showDoneSnackBar(
+  //         context: context,
+  //         message: S.current.payment_success,
+  //       );
+  //       ref.invalidate(tablesAndOrdersProvider);
 
-        ref.read(homeProvider.notifier).changeOrderSelect(null);
-        break;
+  //       ref.read(homeProvider.notifier).changeOrderSelect(null);
+  //       break;
 
-      default:
-    }
-  } else {
-    for (int i = 0; i < (2 + (openCheckoutPage ? 1 : 0)); i++) {
-      pop(context);
-    }
+  //     default:
+  //   }
+  // } else {
+  //   for (int i = 0; i < (2 + (openCheckoutPage ? 1 : 0)); i++) {
+  //     pop(context);
+  //   }
 
-    showDoneSnackBar(
-      context: context,
-      message: S.current.payment_success,
-    );
-    ref.invalidate(tablesAndOrdersProvider);
+  //   showDoneSnackBar(
+  //     context: context,
+  //     message: S.current.payment_success,
+  //   );
+  //   ref.invalidate(tablesAndOrdersProvider);
 
-    ref.read(homeProvider.notifier).changeOrderSelect(null);
-  }
+  //   ref.read(homeProvider.notifier).changeOrderSelect(null);
+  // }
 }
 
 // đã tạm tính nhưng hoàn thành lại lỗi
@@ -128,42 +128,42 @@ void onConfirmCompleteAgain({
     actionTitle: S.current.completed,
     notCancel: false,
     action: () async {
-      var res = await ref.read(homeProvider.notifier).completeBill(
-            context: context,
-            printKitchenBill: true,
-            printers: printers,
-          );
-      if (res.error != null) {
-        onConfirmCompleteAgain(ref: ref, context: context, errorMessage: res.error);
-        return;
-      }
-      if (res.errorSendPrint != null) {
-        if (res.requestPrint != null) {
-          await showConfirmAction(
-            context,
-            message: 'Đơn đã được hoàn thành\n\n'
-                'Tuy nhiên, hệ thống chưa nhận được yêu cầu in.\n'
-                'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
-            actionTitle: 'In ngay',
-            textCancel: 'Đóng',
-            title: 'Thông báo',
-            action: () {
-              ref.read(homeProvider.notifier).sendPrintData(
-                    type: PrintTypeEnum.payment,
-                    printDirectly: true,
-                    paymentData: res.requestPrint,
-                  );
-            },
-          );
-        }
-      }
-      for (var i = 0; i < 2 + (openCheckoutPage ? 1 : 0); i++) {
-        pop(context);
-      }
+      // var res = await ref.read(homeProvider.notifier).completeBill(
+      //       context: context,
+      //       printKitchenBill: true,
+      //       printers: printers,
+      //     );
+      // if (res.error != null) {
+      //   onConfirmCompleteAgain(ref: ref, context: context, errorMessage: res.error);
+      //   return;
+      // }
+      // if (res.errorSendPrint != null) {
+      //   if (res.requestPrint != null) {
+      //     await showConfirmAction(
+      //       context,
+      //       message: 'Đơn đã được hoàn thành\n\n'
+      //           'Tuy nhiên, hệ thống chưa nhận được yêu cầu in.\n'
+      //           'Bạn có muốn gửi lệnh trực tiếp tới máy in không?',
+      //       actionTitle: 'In ngay',
+      //       textCancel: 'Đóng',
+      //       title: 'Thông báo',
+      //       action: () {
+      //         ref.read(homeProvider.notifier).sendPrintData(
+      //               type: PrintTypeEnum.payment,
+      //               printDirectly: true,
+      //               paymentData: res.requestPrint,
+      //             );
+      //       },
+      //     );
+      //   }
+      // }
+      // for (var i = 0; i < 2 + (openCheckoutPage ? 1 : 0); i++) {
+      //   pop(context);
+      // }
 
-      ref.invalidate(tablesAndOrdersProvider);
+      // ref.invalidate(tablesAndOrdersProvider);
 
-      ref.read(homeProvider.notifier).changeOrderSelect(null);
+      // ref.read(homeProvider.notifier).changeOrderSelect(null);
     },
     actionCancel: () {
       for (var i = 0; i < 2 + (openCheckoutPage ? 1 : 0); i++) {

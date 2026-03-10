@@ -10,11 +10,14 @@ import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/printer/list_printer.dart';
 import 'package:aladdin_franchise/src/features/dialogs/reason_cancel_item.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
+import 'package:aladdin_franchise/src/features/widgets/dialog/title_with_close_icon.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
@@ -26,17 +29,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-class CancelProductCheckoutDialog extends ConsumerWidget {
-  const CancelProductCheckoutDialog({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return const Dialog(child: _CancelProductCheckoutBody());
-  }
+void showCancelProductCheckout(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return const Dialog(
+        child: _CancelProductCheckoutBody(),
+      );
+    },
+  );
 }
 
 class _CancelProductCheckoutBody extends ConsumerStatefulWidget {
-  const _CancelProductCheckoutBody({super.key});
+  const _CancelProductCheckoutBody();
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => __CancelProductCheckoutBodyState();
@@ -61,23 +66,21 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!isPhone) const Gap(8),
-          Row(
-            children: [
-              const Icon(Icons.cancel_presentation),
-              const Gap(8),
-              Expanded(
-                child: Text(
-                  S.current.cancelDish,
-                  style: AppTextStyle.bold(rawFontSize: AppConfig.defaultRawTextSize + 1.0),
-                ),
-              ),
-              const CloseButton(),
-              if (!isPhone) const Gap(8),
-            ],
+          const Gap(8),
+          TitleWithCloseIconDialog(
+            title: S.current.cancelDish,
+            icon: Icons.cancel_presentation,
+            onPressedCloseBtn: () {
+              var pc = ref.read(checkoutProvider).productCheckout;
+              for (var c in pc) {
+                ref
+                    .read(checkoutProvider.notifier)
+                    .changeCancelQuantity(c.copyWith(quantityCancel: 0));
+              }
+              pop(context);
+            },
           ),
           const Divider(height: 1),
-          const Gap(12),
           Flexible(
               child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,9 +88,11 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
               Expanded(
                   child: Column(
                 children: [
+                  const Gap(12),
                   if (!useKds)
                     Row(
                       children: [
+                        const Gap(12),
                         const Icon(Icons.list_alt_outlined),
                         const Gap(8),
                         Expanded(
@@ -101,8 +106,8 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
                   Expanded(
                     child: Consumer(
                       builder: (context, ref, child) {
-                        var items = ref
-                            .watch(checkoutPageProvider.select((value) => value.productsCheckout));
+                        var items =
+                            ref.watch(checkoutProvider.select((value) => value.productCheckout));
                         return ListView.separated(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           itemBuilder: (context, index) {
@@ -120,22 +125,24 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
               if (!useKds) ...[
                 const VerticalDivider(width: 1),
                 Consumer(builder: (context, ref, child) {
-                  var items =
-                      ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
+                  var items = ref.watch(checkoutProvider.select((value) => value.productCheckout));
                   Set<int> printerType = {};
                   for (var item in items) {
                     if (item.quantityCancel > 0 && item.printerType != null) {
                       printerType.add(item.printerType!);
                     }
                   }
-                  return ListPrintersDialog(
-                    width: 400 * (isPhone ? 0.7 : 1.0),
-                    title: S.current.printer_options,
-                    onChangePrinterConfig: (p0, p1) {
-                      printerSelect = Set<PrinterModel>.from(p0);
-                      useDefaultPrinter = p1;
-                    },
-                    defaultTypePrinter: printerType,
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: ListPrintersDialog(
+                      width: 400 * (isPhone ? 0.7 : 1.0),
+                      title: S.current.printer_options,
+                      onChangePrinterConfig: (p0, p1) {
+                        printerSelect = Set<PrinterModel>.from(p0);
+                        useDefaultPrinter = p1;
+                      },
+                      defaultTypePrinter: printerType,
+                    ),
                   );
                 }),
               ],
@@ -164,10 +171,10 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
                   ),
                   Consumer(
                     builder: (context, ref, child) {
-                      var productsCheckout =
-                          ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
+                      var productCheckout =
+                          ref.watch(checkoutProvider.select((value) => value.productCheckout));
                       double total = 0;
-                      for (var p in productsCheckout) {
+                      for (var p in productCheckout) {
                         total += max(p.quantity - p.quantityCancel, 0) *
                             (AppUtils.convertToDouble(p.unitPrice) ?? 0.0);
                       }
@@ -189,21 +196,20 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
               const Spacer(),
               AppCloseButton(
                 onPressed: () {
-                  var pc = ref.read(checkoutPageProvider).productsCheckout;
+                  var pc = ref.read(checkoutProvider).productCheckout;
                   for (var c in pc) {
                     ref
-                        .read(checkoutPageProvider.notifier)
+                        .read(checkoutProvider.notifier)
                         .changeCancelQuantity(c.copyWith(quantityCancel: 0));
                   }
-
                   pop(context);
                 },
               ),
               const Gap(12),
               Consumer(builder: (context, ref, child) {
-                var productsCheckout =
-                    ref.watch(checkoutPageProvider.select((value) => value.productsCheckout));
-                var items = productsCheckout.where((e) => e.quantityCancel > 0).toList();
+                var productCheckout =
+                    ref.watch(checkoutProvider.select((value) => value.productCheckout));
+                var items = productCheckout.where((e) => e.quantityCancel > 0).toList();
                 return AppButton(
                   icon: Icons.cancel_outlined,
                   textAction: S.current.confirm_cancel_dish,
@@ -239,50 +245,64 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
     bool ignorePrint = false,
     bool processOrder = true,
     List<ProductCheckoutModel> items = const [],
+    int? turn,
   }) async {
-    var result = await ref.read(checkoutPageProvider.notifier).cancelProductCheckout(
+    var result = await ref.read(checkoutProvider.notifier).cancelProductCheckout(
           reason: reason ?? '',
           productCheckout: items,
           printerSelect: useKds ? <PrinterModel>{} : printerSelect,
           useDefaultPrinter: useKds ? true : useDefaultPrinter,
           ignorePrint: ignorePrint,
+          turn: turn,
         );
     if (result.checkPrinters != null) {
-      await showConfirmAction(
-        context,
-        message: '${result.checkPrinters ?? ''}\n${S.current.cancel_dish_and_not_print}',
-        actionTitle: S.current.continue_text,
-        title: S.current.notification,
-        action: () {
-          _processOrder(
-            context: context,
-            reason: reason,
-            ignorePrint: true,
-          );
-        },
-      );
-      return;
-    } else if (result.error != null) {
-      showMessageDialog(context, message: result.error ?? '');
-    } else {
-      if (result.resultSendPrintData != null) {
+      if (context.mounted) {
         await showConfirmAction(
           context,
-          message: S.current.msg_cancel_item_success_print_failed,
-          actionTitle: S.current.print_now,
-          textCancel: S.current.close,
+          message: '${result.checkPrinters ?? ''}\n${S.current.cancel_dish_and_not_print}',
+          actionTitle: S.current.continue_text,
           title: S.current.notification,
           action: () {
             _processOrder(
               context: context,
               reason: reason,
-              processOrder: false,
-              ignorePrint: ignorePrint,
+              ignorePrint: true,
+              turn: result.timesOrders,
             );
           },
         );
       }
-      pop(context);
+      return;
+    } else if (result.error != null) {
+      if (context.mounted) {
+        showMessageDialog(context, message: result.error ?? '');
+      }
+    } else {
+      if (result.resultSendPrintData != null) {
+        if (context.mounted) {
+          await showConfirmAction(
+            context,
+            message: S.current.msg_cancel_item_success_print_failed,
+            actionTitle: S.current.print_now,
+            textCancel: S.current.close,
+            title: S.current.notification,
+            action: () {
+              _processOrder(
+                context: context,
+                reason: reason,
+                processOrder: false,
+                ignorePrint: ignorePrint,
+                turn: result.timesOrders,
+              );
+            },
+          );
+        }
+      }
+      var state = ref.read(checkoutProvider);
+      if (state.productCheckout.isEmpty) {
+        if (context.mounted) pop(context);
+        ref.read(homeProvider.notifier).onChangeOrderTabSelect(OrderTabEnum.ordered);
+      }
     }
   }
 }
@@ -400,7 +420,7 @@ class __ProductCheckoutLineState extends ConsumerState<_ProductCheckoutLine> {
                           () {
                             var count = item.quantityCancel;
                             if (count <= 0) return;
-                            ref.read(checkoutPageProvider.notifier).changeCancelQuantity(
+                            ref.read(checkoutProvider.notifier).changeCancelQuantity(
                                 item.copyWith(quantityCancel: max(0, count - 1)));
                           },
                           item.quantityCancel > 0,
@@ -418,7 +438,7 @@ class __ProductCheckoutLineState extends ConsumerState<_ProductCheckoutLine> {
                           () {
                             var count = item.quantityCancel;
                             if (count >= item.quantity) return;
-                            ref.read(checkoutPageProvider.notifier).changeCancelQuantity(
+                            ref.read(checkoutProvider.notifier).changeCancelQuantity(
                                 item.copyWith(quantityCancel: max(0, count + 1)));
                           },
                           item.quantityCancel < item.quantity,

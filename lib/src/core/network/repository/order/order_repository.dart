@@ -38,8 +38,7 @@ abstract class OrderRepository {
   /// Lấy ip máy in
   ///
   /// printerType: [1] in thanh toán, [2,4] in bếp & bar
-  Future<List<IpOrderModel>> getIpPrinterOrder(
-      OrderModel order, List<int> printerType);
+  Future<List<IpOrderModel>> getIpPrinterOrder(OrderModel order, List<int> printerType);
 
   /// Success => true
   ///
@@ -112,18 +111,17 @@ abstract class OrderRepository {
     int isPrintPeople = 0,
   });
 
-  /// tax: dạng 0.08
-  /// truyền lên server phải đổi về 8
+  /// tax <= 1
   Future<List<ProductCheckoutUpdateTaxModel>> updateTax({
     required OrderModel order,
-    required List<ProductCheckoutModel> pc,
+    // required List<ProductCheckoutModel> pc,
+    required Map<int, double> taxMap,
     PaymentMethod? paymentMethod,
   });
 
   Future<bool> checkStatusLockOrder(int orderId);
 
-  Future<({String? qrData, String? message, dynamic status})>
-      getQrBankDynamicPayment({
+  Future<({String? qrData, String? message, dynamic status})> getQrBankDynamicPayment({
     required ApiBankParam apiBankParam,
     required int keyPaymentMethod,
     required String bankCode,

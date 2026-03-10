@@ -17,29 +17,25 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-import 'error.dart';
-
-Future<void> showCreateInvoiceOrderDialog(BuildContext context,
-    {OrderInvoice? orderInvoice}) async {
+void showInvoiceFormDialog(BuildContext context, {OrderInvoice? orderInvoice}) async {
   await showDialog(
     context: context,
     useRootNavigator: false,
     barrierDismissible: false,
-    builder: (context) => _CreateInvoiceOrderDialog(orderInvoice: orderInvoice),
+    builder: (context) => _InvoiceForm(orderInvoice: orderInvoice),
   );
 }
 
-class _CreateInvoiceOrderDialog extends ConsumerStatefulWidget {
-  const _CreateInvoiceOrderDialog({
-    super.key,
-    this.orderInvoice,
-  });
+class _InvoiceForm extends ConsumerStatefulWidget {
+  const _InvoiceForm({this.orderInvoice});
+
   final OrderInvoice? orderInvoice;
+
   @override
-  ConsumerState createState() => __CreateInvoiceOrderDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() => __InvoiceFormState();
 }
 
-class __CreateInvoiceOrderDialogState extends ConsumerState<_CreateInvoiceOrderDialog> {
+class __InvoiceFormState extends ConsumerState<_InvoiceForm> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController ctrlName,
       ctrlTax,
