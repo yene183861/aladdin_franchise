@@ -2460,8 +2460,136 @@ class HomeNotifier extends StateNotifier<HomeState> {
     bool ignoreGetDataBill = false,
     bool requireApply = false,
   }) async {
-    if (!ignoreGetDataBill) getDataBill(loadingHome: loadingHome);
-    return null;
+    if (!AppConfig.useCoupon) {
+      if (!ignoreGetDataBill) getDataBill(loadingHome: loadingHome);
+      return null;
+    }
+
+    try {
+      // có thể data bill chưa được làm mới nên tạm bỏ qua
+      // if (state.coupons.isEmpty &&
+      //     getFinalPaymentPrice.totalPriceVoucher == 0 &&
+      //     state.dataBillState.status == PageCommonState.success) {
+      //   showLogs(null, flags: 'k có mã giảm nào');
+      //   if (loadingHome) updateEvent(null);
+      //   getDataBill();
+      //   return null;
+      // }
+      state = state.copyWith(
+        applyPolicyState: const PageState(status: PageCommonState.loading, messageError: ''),
+      );
+      if (loadingHome) state = state.copyWith(event: HomeEvent.applyPolicy);
+      if (!requireApply) {
+        if (state.coupons.isEmpty) {
+          if (loadingHome) updateEvent(null);
+          state = state.copyWith(
+            applyPolicyState: const PageState(status: PageCommonState.success, messageError: ''),
+          );
+          if (!ignoreGetDataBill) await getDataBill(loadingHome: loadingHome);
+          return null;
+        }
+      }
+      int retryTimes = 0;
+      while (retryTimes < (retry ? 3 : 1)) {
+        try {
+          var checkoutState = ref.read(checkoutPageProvider);
+          List<CustomerPolicyModel> couponsApply = List<CustomerPolicyModel>.from(state.coupons);
+
+          var productCheckout = List<ProductCheckoutModel>.from(checkoutState.productsCheckout);
+
+          var totalOrder = getFinalPaymentPrice.totalPrice * 1.0;
+
+          for (final c in couponsApply) {
+            // chỉ áp dụng cho Tặng món 0 đ (is_type == 5)
+            // bỏ những discount có number_select == 0
+            if (c.isPromotion()) {
+              List<DiscountPolicy> discount = [];
+              for (var dc in c.discount) {
+                if (dc.numberSelect > 0) {
+                  discount.add(dc);
+                  var p =
+                      productCheckout.firstWhereOrNull((e) => e.id == int.tryParse(dc.id ?? '0'));
+                  if (p != null) {
+                    var index = productCheckout.indexOf(p);
+
+                    if (index != -1) {
+                      productCheckout[index] = p.copyWith(
+                        quantityPromotion: p.quantityPromotion + dc.numberSelect,
+                      );
+                    }
+                  }
+                }
+              }
+
+              couponsApply[couponsApply.indexOf(c)] = c.copyWith(discount: discount);
+            }
+          }
+
+          await _checkOrderSelect();
+
+          var result = await _couponRepository.applyPolicy(
+            coupons: couponsApply,
+            // chính sách khách hàng?
+            customerPolicy: [],
+            // trừ đi số lượng món đã tặng để apply cho các mã khác
+            products: productCheckout.map(
+              (e) {
+                return e.copyWith(
+                  quantity: e.getQuantityFinal(),
+                  quantityCancel: 0,
+                );
+              },
+            ).toList(),
+            order: state.orderSelect!,
+            customer: state.customer,
+            totalOrder: totalOrder,
+            pointUseToMoney: 0,
+            numberOfAdults: state.numberOfAdults,
+          );
+
+          state = state.copyWith(
+            vouchers: result.data,
+            createVouchers: result.dataCreateVouchers,
+            // productCheckout: productCheckout,
+          );
+
+          ref.read(checkoutPageProvider.notifier).init(productCheckout);
+
+          state = state.copyWith(
+            applyPolicyState: const PageState(status: PageCommonState.success, messageError: ''),
+          );
+          if (loadingHome) updateEvent(null);
+          if (!ignoreGetDataBill) await getDataBill(loadingHome: loadingHome);
+          return null;
+        } catch (ex) {
+          if (ex is AppException && ex.errorCode == 423) {
+            state = state.copyWith(lockedOrder: true);
+            retryTimes = (retry ? 3 : 1);
+            rethrow;
+          }
+          retryTimes++;
+          if (retryTimes >= (retry ? 3 : 1)) {
+            rethrow;
+          }
+        }
+      }
+      state = state.copyWith(
+        applyPolicyState: const PageState(status: PageCommonState.success, messageError: ''),
+      );
+      return null;
+    } catch (ex) {
+      // requireApplyPolicy = true;
+      showLogs(ex.toString(), flags: 'áp lại mã giảm giá lỗi');
+      _lockOrder(ex);
+      if (loadingHome) updateEvent(null);
+      state = state.copyWith(
+        applyPolicyState: PageState(
+            status: PageCommonState.error,
+            messageError: ex.toString().replaceAll(kIgnoreRetryApplyPolicy, "")),
+      );
+      if (!ignoreGetDataBill) await getDataBill(loadingHome: loadingHome);
+      return ex.toString().replaceAll(kIgnoreRetryApplyPolicy, "");
+    }
   }
 
   /// tạm tính
@@ -3095,59 +3223,61 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }
 
   /// phân bổ lại thuế mặc định nếu đã phân bổ thuế cho đơn Grab, Shopee trước đó
-  // Future<String?> onUpdateDefaultTax() async {
-  //   if (!requireUpdateDefaultTax) return null;
-  //   if (state.orderSelect == null) return null;
-  //   int retry = 0;
-  //   String? error;
+  Future<String?> onUpdateDefaultTax() async {
+    if (!requireUpdateDefaultTax) return null;
+    if (state.orderSelect == null) return null;
+    int retry = 0;
+    String? error;
 
-  //   List<ProductCheckoutModel> pc = [];
-  //   var products = ref.read(menuProvider).products;
-  //   for (var p in state.productCheckout) {
-  //     var pCheck = products.firstWhereOrNull((e) => e.id == p.id);
-  //     if (pCheck != null) {
-  //       // check here: check xem tax < 1
-  //       pc.add(p.copyWith(tax: pCheck.tax));
-  //     } else {
-  //       pc.add(p);
-  //     }
-  //   }
+    List<ProductCheckoutModel> pc = [];
+    var products = ref.read(menuProvider).products;
+    var productsCheckout = ref.read(checkoutPageProvider).productsCheckout;
+    for (var p in productsCheckout) {
+      var pCheck = products.firstWhereOrNull((e) => e.id == p.id);
+      if (pCheck != null) {
+        // check here: check xem tax < 1
+        pc.add(p.copyWith(tax: pCheck.tax));
+      } else {
+        pc.add(p);
+      }
+    }
 
-  //   while (retry < 3) {
-  //     try {
-  //       // lấy phương thức tiền mặt để phân bổ lại thuế
-  //       var paymentCheck =
-  //           _listPaymentMethods.firstWhereOrNull((e) => e.isCash);
-  //       error = await onUpdateTax(pc,
-  //           paymentMethod: paymentCheck ??
-  //               const PaymentMethod(
-  //                 key: 25,
-  //                 name: 'Tiền mặt',
-  //                 isCash: true,
-  //                 requireEditTax: false,
-  //               ));
-  //       if (error != null) throw error;
-  //       requireUpdateDefaultTax = false;
-  //       try {
-  //         await getDataBill(loadingHome: true);
-  //       } catch (ex) {
-  //         //
-  //       }
-  //       break;
-  //     } catch (ex) {
-  //       retry++;
-  //     }
-  //   }
-  //   if (error != null) {
-  //     state = state.copyWith(
-  //       dataBillState: const PageState(
-  //         status: PageCommonState.error,
-  //         messageError: 'Thông tin hóa đơn sai do chưa được phân bổ lại thuế',
-  //       ),
-  //     );
-  //   }
-  //   return error;
-  // }
+    while (retry < 3) {
+      try {
+        // lấy phương thức tiền mặt để phân bổ lại thuế
+        var paymentCheck = state.paymentMethods.firstWhereOrNull((e) => e.isCash);
+        var result = await onUpdateTax(pc,
+            paymentMethod: paymentCheck ??
+                const PaymentMethod(
+                  key: 25,
+                  name: 'Tiền mặt',
+                  isCash: true,
+                  requireEditTax: false,
+                ));
+        if (result.error != null) throw result.error!;
+        error = null;
+        requireUpdateDefaultTax = false;
+        try {
+          await getDataBill(loadingHome: true);
+        } catch (ex) {
+          //
+        }
+        break;
+      } catch (ex) {
+        error = ex.toString();
+        retry++;
+      }
+    }
+    if (error != null) {
+      state = state.copyWith(
+        dataBillState: const PageState(
+          status: PageCommonState.error,
+          messageError: 'Thông tin hóa đơn sai do chưa được phân bổ lại thuế',
+        ),
+      );
+    }
+    return error;
+  }
 
   // bool get requireUpdateTax {
   //   return kTypeOrder == AppConfig.orderOnlineValue &&

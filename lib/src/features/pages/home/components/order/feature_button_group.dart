@@ -451,60 +451,71 @@ void paymentBtnCallback({
       showMessageDialog(context, message: S.current.order_before_payment);
       return;
     }
-
-    bool updateSuccess = false;
-    await showConfirmActionWithChild(
-      context,
-      noTitle: true,
-      title: S.current.edit_tax_information,
-      closeDialog: false,
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        child: EditTaxDialog(
-            products: ref.read(menuProvider).products,
-            productCheckouts: productsCheckout,
-            onSave: (List<ProductCheckoutModel> changedPc) {
-              productsCheckout = changedPc;
-            }),
-      ),
-      onCheckAction: () {
-        return true;
-      },
-      actionTitle: S.current.save_and_continue_payment,
-      action: () async {
-        var res = await ref.read(homeProvider.notifier).onUpdateTax(productsCheckout);
-        if (res.error != null) {
-          showMessageDialog(context, message: res.error ?? '', canPop: false);
-          return;
-        } else {
-          updateSuccess = true;
-        }
-        pop(context);
-      },
-    );
-    if (updateSuccess && context.mounted) {
-      await ref.read(homeProvider.notifier).getOrderProductCheckout(
-            applyPolicy: false,
-            loadingHome: true,
-            ignoreGetDataBill: false,
-          );
-      await ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
-      var check = checkLatestPaymentInfo(ref);
-      if (check.errorApplyPolicy != null ||
-          check.errorGetProductCheckout != null ||
-          check.errorGetDataBill != null) {
-        showMessageDialog(context,
-            message: check.errorApplyPolicy ??
-                check.errorGetProductCheckout ??
-                check.errorGetDataBill ??
-                '');
-        return;
-      }
-      await onSelectPaymentMethod(
-        context: context,
-        ref: ref,
-      );
+    var check = checkLatestPaymentInfo(ref);
+    if (check.errorGetProductCheckout != null) {
+      showMessageDialog(context, message: check.errorGetProductCheckout ?? '');
+      return;
     }
+    await ref.read(homeProvider.notifier).applyCustomerPolicy(
+          loadingHome: true,
+          ignoreGetDataBill: true,
+          requireApply: true,
+        );
+    check = checkLatestPaymentInfo(ref);
+    if (check.errorApplyPolicy != null) {
+      showMessageDialog(context, message: check.errorApplyPolicy ?? '');
+      return;
+    }
+    await ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
+    check = checkLatestPaymentInfo(ref);
+    if (check.errorGetDataBill != null) {
+      showMessageDialog(context, message: check.errorGetDataBill ?? '');
+      return;
+    }
+
+    // bool updateSuccess = false;
+    // await showConfirmActionWithChild(
+    //   context,
+    //   noTitle: true,
+    //   title: S.current.edit_tax_information,
+    //   closeDialog: false,
+    //   child: SizedBox(
+    //     width: MediaQuery.of(context).size.width,
+    //     child: EditTaxDialog(
+    //         products: ref.read(menuProvider).products,
+    //         productCheckouts: productsCheckout,
+    //         onSave: (List<ProductCheckoutModel> changedPc) {
+    //           productsCheckout = changedPc;
+    //         }),
+    //   ),
+    //   onCheckAction: () {
+    //     return true;
+    //   },
+    //   actionTitle: S.current.save_and_continue_payment,
+    //   action: () async {
+    //     var res = await ref.read(homeProvider.notifier).onUpdateTax(productsCheckout);
+    //     if (res.error != null) {
+    //       showMessageDialog(context, message: res.error ?? '', canPop: false);
+    //       return;
+    //     } else {
+    //       updateSuccess = true;
+    //     }
+    //     pop(context);
+    //   },
+    // );
+
+    // if (updateSuccess && context.mounted) {
+    //   await ref.read(homeProvider.notifier).getOrderProductCheckout(
+    //         applyPolicy: false,
+    //         loadingHome: true,
+    //         ignoreGetDataBill: false,
+    //       );
+
+    await onSelectPaymentMethod(
+      context: context,
+      ref: ref,
+    );
+    // }
   } catch (ex) {
     if (context.mounted) {
       showMessageDialog(context, message: ex.toString());

@@ -178,8 +178,8 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                 CloseButton(),
               ],
             ),
-            // const Gap(20),
-            // const _NumberOfAdultsWidget(),
+            const Gap(20),
+            const _NumberOfAdultsWidget(),
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Row(
@@ -212,8 +212,8 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(S.current.discount_title),
-                        const Gap(8),
+                        // Text(S.current.discount_title),
+                        // const Gap(8),
                         Consumer(builder: (context, ref, child) {
                           var discoundType =
                               ref.watch(homeProvider.select((value) => value.discountTypeSelect));
@@ -222,52 +222,70 @@ class __CouponDialogContentState extends ConsumerState<_CouponDialogContent> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: AppTextFormField(
-                                    focusNode: _voucherFocusNode,
-                                    textController: _voucherCtrl,
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                                    onEditingComplete: () async {
-                                      FocusManager.instance.primaryFocus?.unfocus();
-                                    },
-                                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                    textInputType: TextInputType.number,
-                                    validator: (value) {
-                                      var data = AppUtils.convertToDouble(value) ?? 0;
-                                      String? error;
-                                      if (discoundType == DiscountTypeEnum.percent &&
-                                          data > 100.0) {
-                                        error = S.current.error_percentage_exceed_limit;
-                                      }
-                                      WidgetsBinding.instance.addPostFrameCallback(
-                                        (timeStamp) {
-                                          voucherError.value = error;
-                                        },
-                                      );
-                                      return null;
-                                    },
+                                if (AppConfig.useCoupon) ...[
+                                  Expanded(
+                                    child: AppTextFormField(
+                                      textInputType: TextInputType.number,
+                                      focusNode: _couponFocusNode,
+                                      hintText: S.current.inputCode,
+                                      prefixIcon: const ResponsiveIconWidget(
+                                        iconData: Icons.keyboard_alt_outlined,
+                                      ),
+                                      textController: _couponCtrl,
+                                      onEditingComplete: () async {
+                                        FocusManager.instance.primaryFocus?.unfocus();
+                                      },
+                                    ),
                                   ),
-                                ),
-                                const Gap(8),
-                                SizedBox(
-                                  width: 100,
-                                  height: 48,
-                                  child: CustomDropdownButton<DiscountTypeEnum>(
-                                    data: DiscountTypeEnum.values,
-                                    initData: [discoundType],
-                                    buildTextDisplay: (data) => data.title,
-                                    onChangeData: (p0) {
-                                      if (p0.isEmpty) return;
-                                      ref
-                                          .read(homeProvider.notifier)
-                                          .onChangeDiscountTypeSelect(p0.first);
-                                      final digits =
-                                          _voucherCtrl.text.trim().replaceAll(removeChars, '');
-                                      _formatValue(digits);
-                                    },
+                                  const Gap(12),
+                                ] else ...[
+                                  Expanded(
+                                    child: AppTextFormField(
+                                      focusNode: _voucherFocusNode,
+                                      textController: _voucherCtrl,
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                                      onEditingComplete: () async {
+                                        FocusManager.instance.primaryFocus?.unfocus();
+                                      },
+                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                      textInputType: TextInputType.number,
+                                      validator: (value) {
+                                        var data = AppUtils.convertToDouble(value) ?? 0;
+                                        String? error;
+                                        if (discoundType == DiscountTypeEnum.percent &&
+                                            data > 100.0) {
+                                          error = S.current.error_percentage_exceed_limit;
+                                        }
+                                        WidgetsBinding.instance.addPostFrameCallback(
+                                          (timeStamp) {
+                                            voucherError.value = error;
+                                          },
+                                        );
+                                        return null;
+                                      },
+                                    ),
                                   ),
-                                ),
-                                const Gap(8),
+                                  const Gap(8),
+                                  SizedBox(
+                                    width: 100,
+                                    height: 48,
+                                    child: CustomDropdownButton<DiscountTypeEnum>(
+                                      data: DiscountTypeEnum.values,
+                                      initData: [discoundType],
+                                      buildTextDisplay: (data) => data.title,
+                                      onChangeData: (p0) {
+                                        if (p0.isEmpty) return;
+                                        ref
+                                            .read(homeProvider.notifier)
+                                            .onChangeDiscountTypeSelect(p0.first);
+                                        final digits =
+                                            _voucherCtrl.text.trim().replaceAll(removeChars, '');
+                                        _formatValue(digits);
+                                      },
+                                    ),
+                                  ),
+                                  const Gap(8),
+                                ],
                                 Consumer(
                                   builder: (context, ref, child) {
                                     var coupons =

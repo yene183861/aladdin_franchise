@@ -49,17 +49,78 @@ Future<void> onSelectPaymentMethod({
     action: () async {
       var paymentMethodSelect = ref.read(homeProvider).paymentMethodSelected;
       if (paymentMethodSelect == null) {
-        showMessageDialog(context,
-            message: S.current.payment_method_not_select);
+        showMessageDialog(context, message: S.current.payment_method_not_select);
         return;
       }
       var productCheckout = ref.read(checkoutPageProvider).productsCheckout;
       if (productCheckout.isEmpty) {
-        showMessageDialog(context,
-            message: 'Vui lòng chọn món trước khi thanh toán');
+        showMessageDialog(context, message: 'Vui lòng chọn món trước khi thanh toán');
         return;
       }
+      // có ít nhất 1 món có thể sửa thuế
+      List<ProductCheckoutModel> pc = [];
 
+      ref.read(homeProvider).dataBill.orderLineItems.forEach(
+        (item) {
+          if (item.isChangeTax == 1) {
+            var p = productCheckout.firstWhereOrNull((e) => e?.id == item.id);
+            if (p != null) {
+              pc.add(p);
+            }
+          }
+        },
+      );
+      if (pc.isNotEmpty) {
+        bool isChangedTax = false;
+        await showConfirmActionWithChild(
+          context,
+          noTitle: true,
+          title: S.current.edit_tax_information,
+          closeDialog: false,
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: EditTaxDialog(
+                products: ref.read(menuProvider).products,
+                productCheckouts: pc,
+                onSave: (List<ProductCheckoutModel> changedPc) {
+                  pc = changedPc;
+                }),
+          ),
+          onCheckAction: () {
+            if (paymentMethodSelect.requireEditTax && pc.any((e) => e.tax == 0)) {
+              showMessageDialog(context, canPop: false, message: S.current.error_edit_tax);
+              return false;
+            }
+            return true;
+          },
+          actionTitle: S.current.save_and_continue_payment,
+          action: () async {
+            var res = await ref.read(homeProvider.notifier).onUpdateTax(pc);
+            if (res.error != null) {
+              showMessageDialog(context, message: res.error!, canPop: false);
+              return;
+            }
+            pop(context);
+            isChangedTax = true;
+          },
+        );
+        if (!isChangedTax) {
+          return;
+        }
+        final result = await ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
+        if (result != null) {
+          showMessageDialog(context, message: result);
+          return;
+        }
+      }
+      var resultCheck = checkItemBeforeCompleteBill(
+        orderLineItems: ref.read(homeProvider).dataBill.orderLineItems,
+        paymentMethodSelect: paymentMethodSelect,
+      );
+      if (resultCheck != null) {
+        showMessageDialog(context, message: resultCheck);
+        return;
+      }
       if (paymentMethodSelect.isBank) {
         if (ref.read(homeProvider).bankSelect == null) {
           showMessageDialog(context, message: S.current.no_bank_select);
@@ -118,9 +179,67 @@ Future<void> onSelectPaymentMethod({
       ref.read(homeProvider.notifier).onChangeCashReceivedAmount(0);
       // unlock đơn bàn (mặc định get phương thức thanh toán thì bàn đã khóa)
       await ref.read(homeProvider.notifier).unlockOrder();
-      // ref.read(homeProvider.notifier).onUpdateDefaultTax();
+      ref.read(homeProvider.notifier).onUpdateDefaultTax();
     },
   );
+}
+
+String? checkItemBeforeCompleteBill({
+  required List<LineItemDataBill> orderLineItems,
+  required PaymentMethod paymentMethodSelect,
+}) {
+  /// ktra điều kiện in bill
+  /// - Grab, Shopee: có món thuế = 0 thì k được in bill
+  /// - các PTTT khác
+  ///   + Được in bill nếu các món thuế = 0 là món có cấu hình “Món được phép sửa thuế”
+  ///   + Không được in bill nếu có các món thuế 0 và khác 0
+  ///
+  Set<LineItemDataBill> zeroTaxs = {};
+  Set<LineItemDataBill> allowChangeTaxs = {};
+  Set<LineItemDataBill> notZeroTaxs = {};
+
+  for (var item in orderLineItems) {
+    if (item.isChangeTax == 1) {
+      allowChangeTaxs.add(item);
+    }
+    if (item.getTax1() == 0) {
+      zeroTaxs.add(item);
+    } else {
+      notZeroTaxs.add(item);
+    }
+  }
+
+  if (paymentMethodSelect.requireEditTax) {
+    if (zeroTaxs.isNotEmpty) {
+      return 'Đơn bàn có các món thuế 0 nên không được phép hoàn thành đơn\n'
+              'Vui lòng xóa các món không phù hợp hoặc chọn hình thức thanh toán khác để tiếp tục thanh toán'
+          // '${zeroTaxs.map((e) => e.name).toList().join(', ')}'
+          ;
+    }
+  } else {
+    //  Không được in bill nếu có các món thuế 0 và khác 0
+    if (zeroTaxs.isNotEmpty && notZeroTaxs.isNotEmpty) {
+      return 'Đơn bàn đang có đồng thời cả các món thuế 0 và khác 0 nên không được phép hoàn thành đơn'
+          // 'Xóa các món mà bạn thấy không phù hợp với hình thức thanh toán này:\n'
+          // 'Món thuế 0: ${zeroTaxs.map((e) => e.name).toList().join(', ')}\n'
+          // 'Món thuế khác 0: ${notZeroTaxs.map((e) => e.name).toList().join(', ')}'
+          ;
+      //  Được in bill nếu các món thuế = 0 là món có cấu hình “Món được phép sửa thuế”
+    } else if (zeroTaxs.isNotEmpty) {
+      if (allowChangeTaxs.isEmpty) {
+        return 'Hình thức thanh toán không hợp lệ do danh sách món không đáp ứng điều kiện thanh toán.';
+      } else if (!const SetEquality().equals(allowChangeTaxs, zeroTaxs)) {
+        return 'Đơn bàn không thể hoàn thành vì có món thuế 0 không được phép sửa.\n'
+                'Hệ thống chỉ cho phép hoàn thành đơn khi tất cả món thuế 0 (sau khi sửa)'
+                ' đều thuộc nhóm được cấu hình cho phép sửa thuế.'
+            // 'Xóa các món không phù hợp:\n'
+            // 'Món được cấu hình cho phép sửa thuế: ${allowChangeTaxs.map((e) => e.name).join(', ')}\n'
+            // 'Món KHÔNG được cấu hình cho phép sửa thuế: ${zeroTaxs.difference(allowChangeTaxs).join(', ')}'
+            ;
+      }
+    }
+  }
+  return null;
 }
 
 ///
@@ -175,8 +294,7 @@ Future<void> showConfirmCompleteBillDialog(
         );
       } else {
         // máy pos động
-        if (paymentMethodSelect.isAtm &&
-            ref.read(homeProvider).atmPosSelect?.setting == 2) {
+        if (paymentMethodSelect.isAtm && ref.read(homeProvider).atmPosSelect?.setting == 2) {
           showLogs(null, flags: 'Cà máy pos động');
           var action = await showConfirmAction(
             context,
@@ -190,8 +308,7 @@ Future<void> showConfirmCompleteBillDialog(
           if (action != true) {
             return;
           }
-          var resultPos =
-              await ref.read(homeProvider.notifier).dynamicAtmPosCallback();
+          var resultPos = await ref.read(homeProvider.notifier).dynamicAtmPosCallback();
           if (resultPos != null) {
             showMessageDialog(context, message: resultPos);
             return;
@@ -236,16 +353,13 @@ class SelectPaymentMethodWidget extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _SelectPaymentMethodWidgetState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _SelectPaymentMethodWidgetState();
 }
 
-class _SelectPaymentMethodWidgetState
-    extends ConsumerState<SelectPaymentMethodWidget> {
+class _SelectPaymentMethodWidgetState extends ConsumerState<SelectPaymentMethodWidget> {
   late TextEditingController _receivedAmount, _remainingAmount;
 
-  final BehaviorSubject<String> _receivedAmountTextChange =
-      BehaviorSubject<String>();
+  final BehaviorSubject<String> _receivedAmountTextChange = BehaviorSubject<String>();
 
   bool _isFormatting = false;
   @override
@@ -283,8 +397,7 @@ class _SelectPaymentMethodWidgetState
       _isFormatting = false;
       final price = ref.read(homeProvider.notifier).getFinalPaymentPrice;
       var remaining = number - price.totalPriceFinal;
-      _remainingAmount.text =
-          remaining < 0 ? '0' : AppUtils.formatCurrency(value: remaining);
+      _remainingAmount.text = remaining < 0 ? '0' : AppUtils.formatCurrency(value: remaining);
     });
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
@@ -302,10 +415,8 @@ class _SelectPaymentMethodWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final paymentMethods =
-        ref.watch(homeProvider.select((value) => value.paymentMethods));
-    final paymentMethodState =
-        ref.watch(homeProvider.select((value) => value.paymentMethodState));
+    final paymentMethods = ref.watch(homeProvider.select((value) => value.paymentMethods));
+    final paymentMethodState = ref.watch(homeProvider.select((value) => value.paymentMethodState));
     final paymentMethodSelect =
         ref.watch(homeProvider.select((value) => value.paymentMethodSelected));
     final invoice = ref.watch(homeProvider.select((value) => value.invoice));
@@ -326,10 +437,8 @@ class _SelectPaymentMethodWidgetState
       default:
     }
     // Lọc phương thức thanh toán hợp lệ với invoice
-    final List<PaymentMethod> paymentMethodView =
-        paymentMethods.where((element) {
-      return element.isVat == null ||
-          element.isVat == (invoice != null && !invoice.isEmpty());
+    final List<PaymentMethod> paymentMethodView = paymentMethods.where((element) {
+      return element.isVat == null || element.isVat == (invoice != null && !invoice.isEmpty());
     }).toList();
     final coupons = ref.watch(homeProvider.select((value) => value.coupons));
     return SingleChildScrollView(
@@ -434,8 +543,8 @@ class _SelectPaymentMethodWidgetState
                 style: AppTextStyle.regular(color: Colors.black),
                 items: paymentMethodView.map(
                   (e) {
-                    bool isNotAllowed = coupons.any(
-                        (c) => c.paymentNotAllowed.any((p) => p.key == e.key));
+                    bool isNotAllowed =
+                        coupons.any((c) => c.paymentNotAllowed.any((p) => p.key == e.key));
                     return DropdownMenuItem<PaymentMethod>(
                       value: e,
                       child: Text(
@@ -458,12 +567,10 @@ class _SelectPaymentMethodWidgetState
                   //   return;
                   // }
                   bool isChangeMethod = true;
-                  final resultCouponCheck = ref
-                      .read(homeProvider.notifier)
-                      .checkPaymentMethodSelect(method);
+                  final resultCouponCheck =
+                      ref.read(homeProvider.notifier).checkPaymentMethodSelect(method);
                   if (resultCouponCheck.error != null) {
-                    final confirmCheckInvalid =
-                        await showConfirmActionWithChild(
+                    final confirmCheckInvalid = await showConfirmActionWithChild(
                       context,
                       child: _MessageCheckPaymentMethodInvalidWidget(
                         coupons: resultCouponCheck.coupons,
@@ -477,11 +584,10 @@ class _SelectPaymentMethodWidgetState
                       // Xoá các mã giảm giá không hợp lệ
                       List<CustomerPolicyModel> removeCouponFails = [];
                       for (final c in resultCouponCheck.coupons) {
-                        final resRemove =
-                            await ref.read(homeProvider.notifier).deleteCoupon(
-                                  c,
-                                  applyPolicy: false,
-                                );
+                        final resRemove = await ref.read(homeProvider.notifier).deleteCoupon(
+                              c,
+                              applyPolicy: false,
+                            );
                         if (resRemove != null) {
                           removeCouponFails.add(c);
                         }
@@ -496,9 +602,8 @@ class _SelectPaymentMethodWidgetState
                         );
                       } else {
                         // áp dụng lại mã giảm giá
-                        final resApplyPolicy = await ref
-                            .read(homeProvider.notifier)
-                            .applyCustomerPolicy(retry: false);
+                        final resApplyPolicy =
+                            await ref.read(homeProvider.notifier).applyCustomerPolicy(retry: false);
                         if (resApplyPolicy == null) {
                           ref.read(homeProvider.notifier).getDataBill();
                           // ref.refresh(dataBillOrderPreviewProvider);
@@ -507,12 +612,9 @@ class _SelectPaymentMethodWidgetState
                           showConfirmAction(
                             context,
                             title: S.current.discount_apply_failed,
-                            message:
-                                S.current.close_payment_slip_reapply_coupons,
+                            message: S.current.close_payment_slip_reapply_coupons,
                             action: () async {
-                              final result = await ref
-                                  .read(homeProvider.notifier)
-                                  .unlockOrder();
+                              final result = await ref.read(homeProvider.notifier).unlockOrder();
                               if (result) {
                                 Navigator.pop(context);
                                 Navigator.pop(context);
@@ -558,8 +660,7 @@ class _SelectPaymentMethodWidgetState
               textController: _remainingAmount,
             ),
           ],
-          if (paymentMethodSelect?.isBank == true)
-            const PQCBankSelectAutoWidget(),
+          if (paymentMethodSelect?.isBank == true) const PQCBankSelectAutoWidget(),
           if (paymentMethodSelect?.isGateway == true)
             Text(
               S.current.payment_method_open_gateway,
@@ -623,21 +724,17 @@ class PQCBankSelectAutoWidget extends ConsumerStatefulWidget {
   ConsumerState createState() => _PQCBankSelectWidgetNewState();
 }
 
-class _PQCBankSelectWidgetNewState
-    extends ConsumerState<PQCBankSelectAutoWidget> {
+class _PQCBankSelectWidgetNewState extends ConsumerState<PQCBankSelectAutoWidget> {
   bool check = true;
   @override
   Widget build(BuildContext context) {
-    final bankState =
-        ref.watch(homeProvider.select((value) => value.banksState));
+    final bankState = ref.watch(homeProvider.select((value) => value.banksState));
     final banks = ref.watch(homeProvider.select((value) => value.banks));
-    final bankSelect =
-        ref.watch(homeProvider.select((value) => value.bankSelect));
+    final bankSelect = ref.watch(homeProvider.select((value) => value.bankSelect));
     final invoice = ref.watch(homeProvider.select((value) => value.invoice));
     bool flagInvoice = invoice != null && !invoice.isEmpty();
     var banksView = banks
-        .where((element) =>
-            (element.useInvoice == null || element.useInvoice == flagInvoice))
+        .where((element) => (element.useInvoice == null || element.useInvoice == flagInvoice))
         .toList();
 
     WidgetsBinding.instance.addPostFrameCallback(
@@ -685,9 +782,7 @@ class _PQCBankSelectWidgetNewState
                           child: ListTile(
                             shape: AppConfig.shapeBorderMain,
                             onTap: () {
-                              ref
-                                  .read(homeProvider.notifier)
-                                  .changeBankSelect(e);
+                              ref.read(homeProvider.notifier).changeBankSelect(e);
                             },
                             title: e.title.isEmpty
                                 ? null
@@ -700,8 +795,7 @@ class _PQCBankSelectWidgetNewState
                               children: [
                                 Text(
                                   e.bankName,
-                                  style:
-                                      AppTextStyle.regular(color: Colors.black),
+                                  style: AppTextStyle.regular(color: Colors.black),
                                 ),
                                 Text(
                                   e.bankNumber,
