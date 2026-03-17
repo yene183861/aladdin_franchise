@@ -239,6 +239,7 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
     bool ignorePrint = false,
     bool processOrder = true,
     List<ProductCheckoutModel> items = const [],
+    int? turn,
   }) async {
     var result = await ref.read(checkoutPageProvider.notifier).cancelProductCheckout(
           reason: reason ?? '',
@@ -246,6 +247,7 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
           printerSelect: useKds ? <PrinterModel>{} : printerSelect,
           useDefaultPrinter: useKds ? true : useDefaultPrinter,
           ignorePrint: ignorePrint,
+          turn: turn,
         );
     if (result.checkPrinters != null) {
       await showConfirmAction(
@@ -258,6 +260,7 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
             context: context,
             reason: reason,
             ignorePrint: true,
+            turn: result.timeOrders,
           );
         },
       );
@@ -278,6 +281,7 @@ class __CancelProductCheckoutBodyState extends ConsumerState<_CancelProductCheck
               reason: reason,
               processOrder: false,
               ignorePrint: ignorePrint,
+              turn: result.timeOrders,
             );
           },
         );

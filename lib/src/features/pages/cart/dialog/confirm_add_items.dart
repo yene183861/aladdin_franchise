@@ -18,6 +18,7 @@ import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
+import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
 import 'package:collection/collection.dart';
@@ -211,12 +212,16 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
     String? note,
     bool ignorePrint = false,
     bool processOrder = true,
+    int? turn,
   }) async {
+    showLogs(printerSelect, flags: 'printerSelect');
+    showLogs(printerSelect.length, flags: 'printerSelect');
     var result = await ref.read(cartPageProvider.notifier).addItemToOrder(
           note: note ?? '',
           printerSelect: useKds ? <PrinterModel>{} : printerSelect,
           useDefaultPrinter: useKds ? true : useDefaultPrinter,
           ignorePrint: ignorePrint,
+          turn: turn,
         );
     if (result.pingPrinters != null) {
       await showConfirmAction(
@@ -229,6 +234,7 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
             context: context,
             note: note,
             ignorePrint: true,
+            turn: result.timesOrder,
           );
         },
       );
@@ -249,6 +255,7 @@ class __AddItemOrderDialogBodyState extends ConsumerState<_AddItemOrderDialogBod
               note: note,
               processOrder: false,
               ignorePrint: ignorePrint,
+              turn: result.timesOrder,
             );
           },
         );

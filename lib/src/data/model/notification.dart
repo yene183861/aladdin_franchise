@@ -150,6 +150,7 @@ class NotificationDataModel with _$NotificationDataModel {
     @Default(false) bool useOddBill,
     @Default(false) bool useDefaultPrinters,
     @Default(true) bool totalBill,
+    int? timeOrders,
     // @Default(true) bool status,
     // @Default(false) bool error,
     String? refId,

@@ -777,6 +777,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         printers: printers,
         products: products,
         printStatus: PrintStatusEnum.waiting,
+        timeOrders: timeOrder,
       );
       var printerDeviceId = ref.read(o2oConfigProvider).when(
           skipError: false,
@@ -1299,7 +1300,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
               order: order,
               billSingle: false,
               cancel: cancel,
-              timeOrder: 1,
+              timeOrder: data.timeOrders,
               totalNote: note,
               products: products,
               title: cancel ? 'HUY DO' : 'BIll tổng',
@@ -1309,7 +1310,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
               order: order,
               product: products,
               note: note,
-              timeOrders: 1,
+              timeOrders: data.timeOrders,
               cancel: cancel,
               totalBill: true,
             ));
@@ -1389,10 +1390,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
                               order: state.orderSelect!,
                               billSingle: false,
                               cancel: false,
-                              timeOrder: 1,
+                              timeOrder: data.timeOrders,
                               totalNote: note,
                               products: [item],
-                              title: 'BILL lẻ',
+                              title: 'Bill lẻ',
                             )
                           : await AppPrinterHtmlUtils.instance.generateImageBill(
                               AppPrinterHtmlUtils.instance.kitchenBillContent(
@@ -1400,7 +1401,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                                 totalBill: false,
                                 order: state.orderSelect!,
                                 note: note,
-                                timeOrders: 1,
+                                timeOrders: data.timeOrders,
                               ),
                             );
                       oddBillDatas[item] = byteDatas;
@@ -1412,7 +1413,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                                 order: state.orderSelect!,
                                 billSingle: false,
                                 cancel: false,
-                                timeOrder: 1,
+                                timeOrder: data.timeOrders,
                                 totalNote: note,
                                 products: [
                                   item.copyWith(description: jsonEncode([ci]))
@@ -1427,7 +1428,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                                   totalBill: false,
                                   order: state.orderSelect!,
                                   note: note,
-                                  timeOrders: 1,
+                                  timeOrders: data.timeOrders,
                                 ),
                               );
                         oddBillDatas[item.copyWith(description: jsonEncode([ci]))] = byteDatas;
@@ -1441,7 +1442,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                             order: state.orderSelect!,
                             billSingle: true,
                             cancel: false,
-                            timeOrder: 1,
+                            timeOrder: data.timeOrders,
                             totalNote: note,
                             products: [item],
                             title: 'BILL LẺ',
@@ -1452,7 +1453,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                               totalBill: false,
                               order: state.orderSelect!,
                               note: note,
-                              timeOrders: 1,
+                              timeOrders: data.timeOrders,
                             ),
                           );
                     oddBillDatas[item] = byteDatas;

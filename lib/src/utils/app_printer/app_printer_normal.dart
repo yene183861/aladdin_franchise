@@ -157,7 +157,7 @@ class AppPrinterNormalUtils {
     bool billSingle = false,
     bool cancel = false,
     required OrderModel order,
-    int timeOrder = 1,
+    int? timeOrder,
   }) async {
     if (products.isEmpty) return [];
     List<int> bytes = [];
@@ -198,7 +198,8 @@ class AppPrinterNormalUtils {
       bytes += generator.text(
         TiengViet.parse(
           "${title ?? ''}${((title ?? '').trim().isNotEmpty && (order.getOrderMisc() ?? '').trim().isNotEmpty) ? ' - ' : ''}"
-          "${order.getOrderMisc() ?? ''} - Ban: ${order.name}",
+          "${order.getOrderMisc() ?? ''} - Ban: ${order.name}"
+          "${timeOrder != null ? '- Luot $timeOrder' : ''}",
         ),
         styles: const PosStyles(
           bold: true,

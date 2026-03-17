@@ -268,17 +268,21 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
     return null;
   }
 
-  Future<({String? pingPrinters, String? error, String? resultSendPrintData})> addItemToOrder({
+  Future<({String? pingPrinters, String? error, String? resultSendPrintData, int? timesOrder})>
+      addItemToOrder({
     String note = '',
     Set<PrinterModel> printerSelect = const {},
     bool useDefaultPrinter = true,
     bool processOrder = true,
     bool ignorePrint = false,
+    int? turn,
   }) async {
     String? checkPrinters;
     String? resultSendPrintData;
     var order = ref.read(homeProvider).orderSelect;
-    if (order == null) return (pingPrinters: null, error: null, resultSendPrintData: null);
+    if (order == null) {
+      return (pingPrinters: null, error: null, resultSendPrintData: null, timesOrder: null);
+    }
     var productSelecting = List<ProductModel>.from(state.productsSelecting);
     var productIdSelect = Set<int>.from(state.productIdSelect);
     var products = productSelecting.where((e) => productIdSelect.contains(e.id)).toList();
@@ -296,6 +300,8 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
     //       break;
     //   }
     // }
+
+    int? timesOrder = turn;
     Set<PrinterModel> foodPrinterDefault = <PrinterModel>{}, barPrinterDefault = <PrinterModel>{};
     try {
       if (showLoading) {
@@ -341,7 +347,7 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
       }
 
       if (processOrder) {
-        await _orderRepository.processOrderItem(
+        var response = await _orderRepository.processOrderItem(
           order: order,
           total: products.fold(
               0.0, (previousValue, p) => previousValue + p.getUnitPriceNum() * p.numberSelecting),
@@ -349,7 +355,7 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
           note: kitchenNote,
           cancel: false,
         );
-
+        timesOrder = response.timesOrder;
         ref.read(homeProvider.notifier).getOrderProductCheckout();
         ref.read(homeProvider.notifier).getDataBill();
       }
@@ -361,7 +367,7 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
                   note: kitchenNote,
                   products: drinks.toList(),
                   printers: barPrinterDefault.toList(),
-                  timeOrder: 1,
+                  timeOrder: timesOrder,
                   printDirectly: !processOrder,
                   useDefaultPrinters: true,
                   totalBill: true,
@@ -373,7 +379,7 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
                   note: kitchenNote,
                   products: foods.toList(),
                   printers: foodPrinterDefault.toList(),
-                  timeOrder: 1,
+                  timeOrder: timesOrder,
                   printDirectly: !processOrder,
                   useDefaultPrinters: true,
                   totalBill: true,
@@ -385,7 +391,7 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
                 note: kitchenNote,
                 products: products,
                 printers: printers.toList(),
-                timeOrder: 1,
+                timeOrder: timesOrder,
                 printDirectly: !processOrder,
                 useDefaultPrinters: false,
                 totalBill: true,
@@ -405,6 +411,7 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
         pingPrinters: checkPrinters,
         error: null,
         resultSendPrintData: resultSendPrintData,
+        timesOrder: timesOrder,
       );
     } catch (ex) {
       if (showLoading) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
@@ -413,6 +420,7 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
         pingPrinters: checkPrinters,
         error: ex.toString(),
         resultSendPrintData: resultSendPrintData,
+        timesOrder: timesOrder,
       );
     }
   }

@@ -41,24 +41,38 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
     state = state.copyWith(productsCheckout: productsCheckout);
   }
 
-  Future<({String? checkPrinters, String? error, String? resultSendPrintData})>
-      cancelProductCheckout({
+  Future<
+      ({
+        String? checkPrinters,
+        String? error,
+        String? resultSendPrintData,
+        int? timeOrders,
+      })> cancelProductCheckout({
     List<ProductCheckoutModel> productCheckout = const [],
     String reason = '',
     Set<PrinterModel> printerSelect = const <PrinterModel>{},
     bool useDefaultPrinter = true,
     bool processOrder = true,
     bool ignorePrint = false,
+    int? turn,
   }) async {
     String? checkPrinters;
     String? resultSendPrintData;
     var order = ref.read(homeProvider).orderSelect;
-    if (order == null) return (checkPrinters: null, error: null, resultSendPrintData: null);
+    if (order == null) {
+      return (
+        checkPrinters: null,
+        error: null,
+        resultSendPrintData: null,
+        timeOrders: null,
+      );
+    }
     bool showLoading = processOrder || !ignorePrint;
     Set<PrinterModel> printers = <PrinterModel>{};
     Set<ProductModel> foods = <ProductModel>{}, drinks = <ProductModel>{};
     Set<ProductModel> productPrint = {};
     Set<PrinterModel> foodPrinterDefault = <PrinterModel>{}, barPrinterDefault = <PrinterModel>{};
+    int? timeOrders = turn;
     try {
       if (showLoading) {
         ref
@@ -128,13 +142,14 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
         if (checkPrinters != null) throw checkPrinters;
       }
       if (processOrder) {
-        await _orderRepository.processOrderItem(
+        var res = await _orderRepository.processOrderItem(
           order: order,
           total: 0,
           note: reason,
           cancel: true,
           productCheckout: productCheckout,
         );
+        timeOrders = res.timesOrder;
         ref.read(homeProvider.notifier).getOrderProductCheckout();
         ref.read(homeProvider.notifier).getDataBill();
       }
@@ -146,7 +161,7 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
                   note: reason,
                   products: drinks.toList(),
                   printers: barPrinterDefault.toList(),
-                  timeOrder: 1,
+                  timeOrder: timeOrders,
                   printDirectly: !processOrder,
                   useDefaultPrinters: true,
                   totalBill: true,
@@ -158,7 +173,7 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
                   note: reason,
                   products: foods.toList(),
                   printers: foodPrinterDefault.toList(),
-                  timeOrder: 1,
+                  timeOrder: timeOrders,
                   printDirectly: !processOrder,
                   useDefaultPrinters: true,
                   totalBill: true,
@@ -170,7 +185,7 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
                 note: reason,
                 products: productPrint.toList(),
                 printers: printerSelect.toList(),
-                timeOrder: 1,
+                timeOrder: timeOrders,
                 printDirectly: !processOrder,
                 useDefaultPrinters: false,
                 totalBill: true,
@@ -183,6 +198,7 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
         checkPrinters: checkPrinters,
         error: null,
         resultSendPrintData: resultSendPrintData,
+        timeOrders: timeOrders,
       );
     } catch (ex) {
       if (showLoading) ref.read(homeProvider.notifier).updateEvent(HomeEvent.normal);
@@ -190,7 +206,8 @@ class CheckoutPageNotifier extends StateNotifier<CheckoutPageState> {
       return (
         checkPrinters: checkPrinters,
         error: ex.toString(),
-        resultSendPrintData: resultSendPrintData
+        resultSendPrintData: resultSendPrintData,
+        timeOrders: timeOrders,
       );
     }
   }
