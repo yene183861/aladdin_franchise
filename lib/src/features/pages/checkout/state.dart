@@ -46,8 +46,13 @@ enum CheckoutEvent {
   processError,
   //
   getDataBill,
+  getProductCheckout,
+  getInvoice,
   paymentProcess,
-  completeBillAgain
+  completeBillAgain,
+
+  dynamicPosCallback,
+  getPaymentGateway,
 }
 
 @freezed
@@ -81,7 +86,7 @@ class CheckoutState with _$CheckoutState {
     // payment method
     @Default([]) List<PaymentMethod> paymentMethods,
     @Default(PageState()) PageState paymentMethodState,
-    PaymentMethod? paymentMethodSelected,
+    PaymentMethod? paymentMethodSelect,
     // banks
     @Default([]) List<UserBankModel> banks,
     @Default(PageState()) PageState banksState,

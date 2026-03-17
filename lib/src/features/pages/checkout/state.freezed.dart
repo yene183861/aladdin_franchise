@@ -253,7 +253,7 @@ mixin _$CheckoutState {
 // payment method
   List<PaymentMethod> get paymentMethods => throw _privateConstructorUsedError;
   PageState get paymentMethodState => throw _privateConstructorUsedError;
-  PaymentMethod? get paymentMethodSelected =>
+  PaymentMethod? get paymentMethodSelect =>
       throw _privateConstructorUsedError; // banks
   List<UserBankModel> get banks => throw _privateConstructorUsedError;
   PageState get banksState => throw _privateConstructorUsedError;
@@ -304,7 +304,7 @@ abstract class $CheckoutStateCopyWith<$Res> {
       int numberOfChildren,
       List<PaymentMethod> paymentMethods,
       PageState paymentMethodState,
-      PaymentMethod? paymentMethodSelected,
+      PaymentMethod? paymentMethodSelect,
       List<UserBankModel> banks,
       PageState banksState,
       UserBankModel? bankSelect,
@@ -327,7 +327,7 @@ abstract class $CheckoutStateCopyWith<$Res> {
   $DataBillResponseDataCopyWith<$Res> get dataBill;
   $PageStateCopyWith<$Res> get applyPolicyState;
   $PageStateCopyWith<$Res> get paymentMethodState;
-  $PaymentMethodCopyWith<$Res>? get paymentMethodSelected;
+  $PaymentMethodCopyWith<$Res>? get paymentMethodSelect;
   $PageStateCopyWith<$Res> get banksState;
   $UserBankModelCopyWith<$Res>? get bankSelect;
   $PageStateCopyWith<$Res> get listAtmPosState;
@@ -367,7 +367,7 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
     Object? numberOfChildren = null,
     Object? paymentMethods = null,
     Object? paymentMethodState = null,
-    Object? paymentMethodSelected = freezed,
+    Object? paymentMethodSelect = freezed,
     Object? banks = null,
     Object? banksState = null,
     Object? bankSelect = freezed,
@@ -459,9 +459,9 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
           ? _value.paymentMethodState
           : paymentMethodState // ignore: cast_nullable_to_non_nullable
               as PageState,
-      paymentMethodSelected: freezed == paymentMethodSelected
-          ? _value.paymentMethodSelected
-          : paymentMethodSelected // ignore: cast_nullable_to_non_nullable
+      paymentMethodSelect: freezed == paymentMethodSelect
+          ? _value.paymentMethodSelect
+          : paymentMethodSelect // ignore: cast_nullable_to_non_nullable
               as PaymentMethod?,
       banks: null == banks
           ? _value.banks
@@ -592,13 +592,13 @@ class _$CheckoutStateCopyWithImpl<$Res, $Val extends CheckoutState>
 
   @override
   @pragma('vm:prefer-inline')
-  $PaymentMethodCopyWith<$Res>? get paymentMethodSelected {
-    if (_value.paymentMethodSelected == null) {
+  $PaymentMethodCopyWith<$Res>? get paymentMethodSelect {
+    if (_value.paymentMethodSelect == null) {
       return null;
     }
 
-    return $PaymentMethodCopyWith<$Res>(_value.paymentMethodSelected!, (value) {
-      return _then(_value.copyWith(paymentMethodSelected: value) as $Val);
+    return $PaymentMethodCopyWith<$Res>(_value.paymentMethodSelect!, (value) {
+      return _then(_value.copyWith(paymentMethodSelect: value) as $Val);
     });
   }
 
@@ -684,7 +684,7 @@ abstract class _$$CheckoutStateImplCopyWith<$Res>
       int numberOfChildren,
       List<PaymentMethod> paymentMethods,
       PageState paymentMethodState,
-      PaymentMethod? paymentMethodSelected,
+      PaymentMethod? paymentMethodSelect,
       List<UserBankModel> banks,
       PageState banksState,
       UserBankModel? bankSelect,
@@ -716,7 +716,7 @@ abstract class _$$CheckoutStateImplCopyWith<$Res>
   @override
   $PageStateCopyWith<$Res> get paymentMethodState;
   @override
-  $PaymentMethodCopyWith<$Res>? get paymentMethodSelected;
+  $PaymentMethodCopyWith<$Res>? get paymentMethodSelect;
   @override
   $PageStateCopyWith<$Res> get banksState;
   @override
@@ -759,7 +759,7 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
     Object? numberOfChildren = null,
     Object? paymentMethods = null,
     Object? paymentMethodState = null,
-    Object? paymentMethodSelected = freezed,
+    Object? paymentMethodSelect = freezed,
     Object? banks = null,
     Object? banksState = null,
     Object? bankSelect = freezed,
@@ -851,9 +851,9 @@ class __$$CheckoutStateImplCopyWithImpl<$Res>
           ? _value.paymentMethodState
           : paymentMethodState // ignore: cast_nullable_to_non_nullable
               as PageState,
-      paymentMethodSelected: freezed == paymentMethodSelected
-          ? _value.paymentMethodSelected
-          : paymentMethodSelected // ignore: cast_nullable_to_non_nullable
+      paymentMethodSelect: freezed == paymentMethodSelect
+          ? _value.paymentMethodSelect
+          : paymentMethodSelect // ignore: cast_nullable_to_non_nullable
               as PaymentMethod?,
       banks: null == banks
           ? _value._banks
@@ -934,7 +934,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
       this.numberOfChildren = 0,
       final List<PaymentMethod> paymentMethods = const [],
       this.paymentMethodState = const PageState(),
-      this.paymentMethodSelected,
+      this.paymentMethodSelect,
       final List<UserBankModel> banks = const [],
       this.banksState = const PageState(),
       this.bankSelect,
@@ -1056,7 +1056,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
   @JsonKey()
   final PageState paymentMethodState;
   @override
-  final PaymentMethod? paymentMethodSelected;
+  final PaymentMethod? paymentMethodSelect;
 // banks
   final List<UserBankModel> _banks;
 // banks
@@ -1120,7 +1120,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
 
   @override
   String toString() {
-    return 'CheckoutState(event: $event, message: $message, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, orderHistory: $orderHistory, invoiceState: $invoiceState, invoice: $invoice, dataBillState: $dataBillState, dataBill: $dataBill, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, discountTypeSelect: $discountTypeSelect, applyPolicyState: $applyPolicyState, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelected: $paymentMethodSelected, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, cashReceivedAmount: $cashReceivedAmount, imageBills: $imageBills, customerPortraitSelect: $customerPortraitSelect, completeNote: $completeNote, printNumberOfPeople: $printNumberOfPeople)';
+    return 'CheckoutState(event: $event, message: $message, productCheckout: $productCheckout, productCheckoutState: $productCheckoutState, customer: $customer, orderHistory: $orderHistory, invoiceState: $invoiceState, invoice: $invoice, dataBillState: $dataBillState, dataBill: $dataBill, coupons: $coupons, vouchers: $vouchers, createVouchers: $createVouchers, discountTypeSelect: $discountTypeSelect, applyPolicyState: $applyPolicyState, numberOfAdults: $numberOfAdults, numberOfChildren: $numberOfChildren, paymentMethods: $paymentMethods, paymentMethodState: $paymentMethodState, paymentMethodSelect: $paymentMethodSelect, banks: $banks, banksState: $banksState, bankSelect: $bankSelect, listAtmPosState: $listAtmPosState, listAtmPos: $listAtmPos, atmPosSelect: $atmPosSelect, statusPaymentGateway: $statusPaymentGateway, totalPaymentGateway: $totalPaymentGateway, cashReceivedAmount: $cashReceivedAmount, imageBills: $imageBills, customerPortraitSelect: $customerPortraitSelect, completeNote: $completeNote, printNumberOfPeople: $printNumberOfPeople)';
   }
 
   @override
@@ -1161,8 +1161,8 @@ class _$CheckoutStateImpl implements _CheckoutState {
                 .equals(other._paymentMethods, _paymentMethods) &&
             (identical(other.paymentMethodState, paymentMethodState) ||
                 other.paymentMethodState == paymentMethodState) &&
-            (identical(other.paymentMethodSelected, paymentMethodSelected) ||
-                other.paymentMethodSelected == paymentMethodSelected) &&
+            (identical(other.paymentMethodSelect, paymentMethodSelect) ||
+                other.paymentMethodSelect == paymentMethodSelect) &&
             const DeepCollectionEquality().equals(other._banks, _banks) &&
             (identical(other.banksState, banksState) ||
                 other.banksState == banksState) &&
@@ -1212,7 +1212,7 @@ class _$CheckoutStateImpl implements _CheckoutState {
         numberOfChildren,
         const DeepCollectionEquality().hash(_paymentMethods),
         paymentMethodState,
-        paymentMethodSelected,
+        paymentMethodSelect,
         const DeepCollectionEquality().hash(_banks),
         banksState,
         bankSelect,
@@ -1256,7 +1256,7 @@ abstract class _CheckoutState implements CheckoutState {
       final int numberOfChildren,
       final List<PaymentMethod> paymentMethods,
       final PageState paymentMethodState,
-      final PaymentMethod? paymentMethodSelected,
+      final PaymentMethod? paymentMethodSelect,
       final List<UserBankModel> banks,
       final PageState banksState,
       final UserBankModel? bankSelect,
@@ -1315,7 +1315,7 @@ abstract class _CheckoutState implements CheckoutState {
   @override
   PageState get paymentMethodState;
   @override
-  PaymentMethod? get paymentMethodSelected;
+  PaymentMethod? get paymentMethodSelect;
   @override // banks
   List<UserBankModel> get banks;
   @override

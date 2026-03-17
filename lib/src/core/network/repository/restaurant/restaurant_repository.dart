@@ -44,4 +44,10 @@ abstract class RestaurantRepository {
     bool? changePrintDeviceId,
   });
   Future<void> sendPrintData(dynamic data);
+
+  Future<({String? url, String? qr, int? expiryMin, String? message, int? status})>
+      getPayooPaymentGateway({
+    required ApiBankParam apiBankParam,
+    required int keyPaymentMethod,
+  });
 }

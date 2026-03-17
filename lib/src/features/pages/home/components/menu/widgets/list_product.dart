@@ -5,7 +5,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/detail_product.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/widgets/tag_view.dart';

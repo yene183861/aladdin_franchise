@@ -1,5 +1,5 @@
 import 'package:aladdin_franchise/generated/l10n.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/button_simple.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';

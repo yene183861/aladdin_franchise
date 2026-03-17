@@ -2,10 +2,11 @@ import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
+import 'package:aladdin_franchise/src/configs/dev_config.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/models/customer/customer.dart';
 import 'package:flutter/cupertino.dart';
@@ -101,10 +102,12 @@ class CustomerInfoCard extends ConsumerWidget {
                                 );
                               }
                             } else {
-                              // xoá khách xong thì áp dụng lại giảm giá
-                              // await ref
-                              //     .read(checkoutProvider.notifier)
-                              //     .applyCustomerPolicy(requireApply: true);
+                              if (DevConfig.useCoupon) {
+                                // xoá khách xong thì áp dụng lại giảm giá
+                                await ref
+                                    .read(checkoutProvider.notifier)
+                                    .applyCustomerPolicy(requireApply: true);
+                              }
                             }
                           },
                           message: S.current.removeCustomer,

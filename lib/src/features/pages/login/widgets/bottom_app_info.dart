@@ -6,21 +6,18 @@ import 'package:aladdin_franchise/src/features/pages/update_app/windows/view.dar
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../configs/app.dart';
-import '../../../../configs/text_style.dart';
-import '../../../../core/storages/provider.dart';
+import 'package:aladdin_franchise/src/configs/app.dart';
+import 'package:aladdin_franchise/src/configs/text_style.dart';
+import 'package:aladdin_franchise/src/core/storages/provider.dart';
 
 class LoginAppInfoBottomWidget extends ConsumerWidget {
   const LoginAppInfoBottomWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var restaurant = ref.watch(restaurantConfigLocalProvider);
     var apiUrl = ref.watch(apiUrlProvider);
-    String infoRestaurant = '';
-    if (restaurant != null) {
-      infoRestaurant = "${restaurant.name} - ${restaurant.address}";
-    }
+    Color infoTextColor = Colors.black26;
+    Color dividerColor = Colors.black;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: Row(
@@ -40,7 +37,7 @@ class LoginAppInfoBottomWidget extends ConsumerWidget {
               },
               child: Text(
                 '${AppConfig.appName} ${AppConfig.appVersion.toLowerCase()}',
-                style: AppTextStyle.regular(color: Colors.black26),
+                style: AppTextStyle.regular(color: infoTextColor),
               ),
             ),
           ),
@@ -53,12 +50,10 @@ class LoginAppInfoBottomWidget extends ConsumerWidget {
                   const TextSpan(text: "  |  "),
                   TextSpan(
                     text: apiUrl,
-                    style: AppTextStyle.regular(color: Colors.black26),
+                    style: AppTextStyle.regular(color: infoTextColor),
                   ),
                 ],
-                style: AppTextStyle.regular(
-                  color: Colors.black,
-                ),
+                style: AppTextStyle.regular(color: dividerColor),
               ),
             ),
           ),

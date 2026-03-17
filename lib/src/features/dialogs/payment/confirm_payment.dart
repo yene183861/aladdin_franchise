@@ -5,7 +5,7 @@ import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 
 import 'package:aladdin_franchise/src/features/pages/checkout/widgets/image_bill_checker.dart';
 import 'package:aladdin_franchise/src/features/dialogs/note_for_waiter.dart';

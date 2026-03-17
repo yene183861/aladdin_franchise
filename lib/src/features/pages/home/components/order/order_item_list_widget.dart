@@ -13,7 +13,7 @@ import 'package:aladdin_franchise/src/features/dialogs/payment/edit_tax_dialog.d
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/widgets/order_item_line.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/widgets/list_product.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/order/order_detail.dart';

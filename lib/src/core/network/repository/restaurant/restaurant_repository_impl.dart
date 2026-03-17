@@ -87,8 +87,14 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
   }
 
   @override
-  Future<({String? url, String? qr, int? expiryMin, String? message, int? status})>
-      getPaymentGateway({
+  Future<
+      ({
+        String? url,
+        String? qr,
+        int? expiryMin,
+        String? message,
+        int? status
+      })> getPaymentGateway({
     required ApiBankParam apiBankParam,
     required int keyPaymentMethod,
   }) async {
@@ -112,7 +118,13 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         final int? expiryMin = json['data']?['expiry_min'];
         final String? message = json['message'];
         final int? status = json['status'];
-        return (url: url, qr: qr, expiryMin: expiryMin, message: message, status: status);
+        return (
+          url: url,
+          qr: qr,
+          expiryMin: expiryMin,
+          message: message,
+          status: status
+        );
       },
       log: ErrorLogModel(
         action: AppLogAction.getPaymentMethod,
@@ -125,7 +137,8 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         message: result.error,
       );
     }
-    return result.data ?? (url: null, qr: null, expiryMin: null, message: null, status: null);
+    return result.data ??
+        (url: null, qr: null, expiryMin: null, message: null, status: null);
     // return (url: null, qr: null, expiryMin: null, message: null, status: null);
     //return "https://newsandbox.payoo.com.vn/v2/paynow/prepare?_token=1ePupay5CD3";
     // var log = const ErrorLogModel(action: AppLogAction.getPaymentGateway);
@@ -349,8 +362,8 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         message: result.error,
       );
     }
-    showLogs(result.data ?? const O2oConfigModel(),
-        flags: ' result.data ?? const O2oConfigModel()');
+    // showLogs(result.data ?? const O2oConfigModel(),
+    //     flags: ' result.data ?? const O2oConfigModel()');
     return result.data ?? const O2oConfigModel();
   }
 
@@ -364,7 +377,8 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
     var body = jsonEncode({
       if (isEnabled != null) 'is_enabled': isEnabled,
       if (confirmTimeout != null) 'confirm_timeout': confirmTimeout,
-      if (changePrintDeviceId != null) 'printer_device_id': changePrintDeviceId ? kDeviceId : null,
+      if (changePrintDeviceId != null)
+        'printer_device_id': changePrintDeviceId ? kDeviceId : null,
     });
     showLogs(body, flags: 'body');
     var result = await safeCallApi(
@@ -412,5 +426,86 @@ class RestaurantRepositoryImpl extends RestaurantRepository {
         message: result.error,
       );
     }
+  }
+
+  @override
+  Future<
+      ({
+        String? url,
+        String? qr,
+        int? expiryMin,
+        String? message,
+        int? status
+      })> getPayooPaymentGateway({
+    required ApiBankParam apiBankParam,
+    required int keyPaymentMethod,
+  }) async {
+    if (kDebugMode) {
+      await Future.delayed(const Duration(seconds: 1));
+      return (
+        url:
+            "https://newsandbox.payoo.com.vn/v2/paynow/prepare?_token=1ePupay5CD3",
+        qr: null,
+        expiryMin: 60,
+        message: '',
+        status: 200,
+      );
+    }
+    //return "https://newsandbox.payoo.com.vn/v2/paynow/prepare?_token=1ePupay5CD3";
+    final loginData = LocalStorage.getDataLogin();
+    final restaurantId = loginData?.restaurant?.id;
+    final apiUrl = "${ApiConfig.getPaymentGateway}?"
+        "payment_method=$keyPaymentMethod"
+        "&restaurant_id=$restaurantId"
+        "&order_id=${apiBankParam.orderDataBill.id}"
+        "&table_name=${apiBankParam.orderDataBill.tableName}"
+        "&total_bill=${apiBankParam.priceFinal}";
+
+    var result = await safeCallApi<
+        ({
+          String? url,
+          String? qr,
+          int? expiryMin,
+          String? message,
+          int? status
+        })>(
+      () async {
+        final url = Uri.parse(apiUrl);
+        return _client.get(url);
+      },
+      parser: (json) {
+        showLogs(json, flags: 'result');
+        // Response: {status: 200, data: {"gateway_url": "https://newsandbox.payoo.com....", "qr": ""}}
+        final String? url = json['data']?['gateway_url'];
+        final String? qr = json['data']?['qr'];
+        final int? expiryMin = json['data']?['expiry_min'];
+        final String? message = json['message'];
+        final int? status = json['status'];
+        return (
+          url: url,
+          qr: qr,
+          expiryMin: expiryMin,
+          message: message,
+          status: status
+        );
+      },
+      log: ErrorLogModel(
+        action: AppLogAction.getPaymentGateway,
+        api: apiUrl,
+      ),
+    );
+    if (!result.isSuccess) {
+      throw AppException(
+        statusCode: result.statusCode,
+        message: result.error,
+      );
+    }
+    return (
+      url: result.data?.url,
+      qr: result.data?.qr,
+      expiryMin: result.data?.expiryMin,
+      message: result.data?.message,
+      status: result.data?.status
+    );
   }
 }

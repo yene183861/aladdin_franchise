@@ -9,21 +9,26 @@ import 'package:aladdin_franchise/src/core/network/repository/responses/login.da
 import 'package:aladdin_franchise/src/core/network/repository/restaurant/restaurant_repository.dart';
 import 'package:aladdin_franchise/src/core/network/repository/user/user_repository.dart';
 import 'package:aladdin_franchise/src/core/storages/local.dart';
+import 'package:aladdin_franchise/src/core/storages/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/login/state.dart';
 import 'package:aladdin_franchise/src/utils/app_helper.dart';
 import 'package:aladdin_franchise/src/utils/app_log.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final loginProvider = StateNotifierProvider.autoDispose<LoginNotifier, LoginState>((ref) {
+final loginProvider =
+    StateNotifierProvider.autoDispose<LoginNotifier, LoginState>((ref) {
   return LoginNotifier(
+    ref,
     ref.read(userRepositoryProvider),
     ref.read(restaurantRepositoryProvider),
   );
 });
 
 class LoginNotifier extends StateNotifier<LoginState> {
-  LoginNotifier(this._userRepository, this._restaurantRepository) : super(const LoginState());
+  LoginNotifier(this.ref, this._userRepository, this._restaurantRepository)
+      : super(const LoginState());
+  final Ref ref;
   final UserRepository _userRepository;
   final RestaurantRepository _restaurantRepository;
   void changeEmail(String value) {
@@ -71,6 +76,7 @@ class LoginNotifier extends StateNotifier<LoginState> {
 
         await LocalStorage.setToken(loginRepo.token ?? "");
         await LocalStorage.setDataLogin(loginRepo);
+        ref.refresh(o2oStatusProvider);
         await AppHelper.initTokenAndTypeOrder(refreshTypeOrder: true);
         state = state.copyWith(event: LoginEvent.success);
         _updatePrintDeviceId();

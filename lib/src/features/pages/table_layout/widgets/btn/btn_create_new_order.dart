@@ -41,9 +41,11 @@ class BtnCreateNewOrder extends ConsumerWidget {
           if (result.orderId != null) {
             var typeOrder = result.typeOrder ?? kTypeOrder;
 
-            ref.read(tableLayoutPageProvider.notifier).getOrderHistory(to: DateTime.now());
+            ref
+                .read(tableLayoutPageProvider.notifier)
+                .getOrderHistory(to: DateTime.now());
             try {
-              await ref.read(homeProvider.notifier).loadingChangeOrderSelect(
+              await ref.read(homeProvider.notifier).selectNewOrder(
                     result.orderId!,
                     reservationCrmId: result.reservation?.id,
                     typeOrder: typeOrder,

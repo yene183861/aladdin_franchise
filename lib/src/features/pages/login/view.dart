@@ -7,7 +7,6 @@ import 'package:aladdin_franchise/src/features/dialogs/processing.dart';
 import 'package:aladdin_franchise/src/features/pages/config/view.dart';
 import 'package:aladdin_franchise/src/features/pages/login/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/login/state.dart';
-import 'package:aladdin_franchise/src/features/pages/login/widgets/button_login.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_circle_logo.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
@@ -25,6 +24,7 @@ import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
 import '../../../../generated/l10n.dart';
 import 'widgets/bottom_app_info.dart';
 import 'widgets/brand_restaurant.dart';
+import 'widgets/network_info.dart';
 
 class LoginPageCheckUpdate extends ConsumerWidget {
   const LoginPageCheckUpdate({Key? key}) : super(key: key);
@@ -62,7 +62,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     super.dispose();
   }
 
-  _listenEvent(BuildContext context, WidgetRef ref) => (LoginEvent? previous, LoginEvent? next) {
+  _listenEvent(BuildContext context, WidgetRef ref) =>
+      (LoginEvent? previous, LoginEvent? next) {
         switch (next) {
           case LoginEvent.processing:
             showProcessingDialog(context, message: S.current.verifying);
@@ -128,8 +129,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: Center(
                     child: ListView(
                       shrinkWrap: true,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: (isMobile || twoPanel) ? 12 : 50.sp),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: (isMobile || twoPanel) ? 12 : 50.sp),
                       children: [
                         if (!twoPanel) ...[
                           const CirleAppLogoWidget(),
@@ -140,7 +141,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           Text(
                             'Đăng nhập',
                             textAlign: TextAlign.center,
-                            style: AppTextStyle.bold(rawFontSize: AppConfig.defaultRawTextSize + 4),
+                            style: AppTextStyle.bold(
+                                rawFontSize: AppConfig.defaultRawTextSize + 4),
                           ),
                         const Gap(20),
                         AppTextFormField(
@@ -161,8 +163,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                         const Gap(12),
                         Consumer(builder: (context, ref, child) {
-                          final hiddenPassword =
-                              ref.watch(loginProvider.select((value) => value.hiddenPassword));
+                          final hiddenPassword = ref.watch(loginProvider
+                              .select((value) => value.hiddenPassword));
 
                           return AppTextFormField(
                             obscureText: hiddenPassword,
@@ -174,15 +176,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             ),
                             suffixIcon: InkWell(
                               onTap: () {
-                                ref.read(loginProvider.notifier).changeHiddenPassword();
+                                ref
+                                    .read(loginProvider.notifier)
+                                    .changeHiddenPassword();
                               },
                               child: ResponsiveIconWidget(
-                                iconData:
-                                    hiddenPassword ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
+                                iconData: hiddenPassword
+                                    ? CupertinoIcons.eye
+                                    : CupertinoIcons.eye_slash,
                               ),
                             ),
                             label: S.current.password,
-                            onChanged: (value) => notifier.changePassword(value),
+                            onChanged: (value) =>
+                                notifier.changePassword(value),
                           );
                         }),
                       ],
@@ -193,7 +199,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
             const Gap(12),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: (isMobile || twoPanel) ? 12 : 50.sp),
+              padding: EdgeInsets.symmetric(
+                  horizontal: (isMobile || twoPanel) ? 12 : 50.sp),
               child: Align(
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
@@ -204,12 +211,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       message: S.current.forgotPasswordMessage,
                     );
                   },
-                  child: Text(
-                    S.current.forgotPassword,
-                    style: const TextStyle(
-                      color: Colors.blueGrey,
-                    ),
-                  ),
+                  child: Text(S.current.forgotPassword,
+                      style: AppTextStyle.regular(color: Colors.blueGrey)),
                 ),
               ),
             ),
@@ -235,79 +238,28 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  Future<void> onTapConfig(BuildContext context) async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ConfigPage()),
-    ).then((value) {
-      ref.read(loginProvider.notifier).updateStyle();
-      ref.invalidate(restaurantConfigLocalProvider);
-      ref.invalidate(styleAppProvider);
-      ref.invalidate(checkLoginProvider);
-    });
-  }
-
   AppBar _buildAppBar() {
     return AppBar(
       elevation: 0,
       backgroundColor: Colors.transparent,
-      leading: IconButton(
-        color: AppColors.mainColor,
-        onPressed: () async {},
-        icon: const ResponsiveIconWidget(
-          iconData: CupertinoIcons.device_phone_portrait,
-        ),
-      ),
       titleSpacing: 8,
-      title: Consumer(
-        builder: (context, ref, _) {
-          final device = ref.watch(deviceProvider);
-          return device.when(
-              skipLoadingOnRefresh: false,
-              data: (data) {
-                return Material(
-                  textStyle: AppTextStyle.regular(
-                    color: Colors.black38,
-                  ),
-                  color: Colors.transparent,
-                  child: Row(
-                    children: [
-                      Text(data[0] == 'null' ? '' : data[0]),
-                      const Gap(12),
-                      const ResponsiveIconWidget(
-                        iconData: CupertinoIcons.antenna_radiowaves_left_right,
-                        color: Colors.grey,
-                      ),
-                      const Gap(8),
-                      Text(data[1]),
-                      const Gap(12),
-                      const ResponsiveIconWidget(
-                        iconData: CupertinoIcons.wifi,
-                        color: Colors.grey,
-                      ),
-                      const Gap(8),
-                      Text(data[2]),
-                    ],
-                  ),
-                );
-              },
-              error: (_, __) {
-                return const ResponsiveIconWidget(
-                  iconData: CupertinoIcons.info,
-                  color: AppColors.redColor,
-                );
-              },
-              loading: () => const CupertinoActivityIndicator());
-        },
-      ),
+      title: const NetworkInfoSection(),
       centerTitle: false,
       actions: [
         IconButton(
           color: AppColors.mainColor,
-          onPressed: () => onTapConfig(context),
-          icon: const ResponsiveIconWidget(
-            iconData: Icons.settings_suggest_rounded,
-          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ConfigPage()),
+            ).then((value) {
+              ref.read(loginProvider.notifier).updateStyle();
+              ref.invalidate(restaurantConfigLocalProvider);
+              ref.invalidate(styleAppProvider);
+              ref.invalidate(checkLoginProvider);
+            });
+          },
+          icon: const Icon(Icons.settings_suggest_rounded),
         ),
         const Gap(16),
       ],

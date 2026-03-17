@@ -172,55 +172,15 @@ mixin _$HomeState {
   /// đơn bàn
   OrderModel? get orderSelect => throw _privateConstructorUsedError;
   bool get lockedOrder =>
-      throw _privateConstructorUsedError; // @Default([]) List<ProductModel> productsSelecting,
-// @Default([]) List<ProductModel> productsSelected,
-// @Default([]) List<ProductCheckoutModel> productCheckout,
-// @Default(PageState()) PageState productCheckoutState,
-// CustomerModel? customer,
-// @Default([]) List<CustomerPolicyModel> coupons,
-// @Default([]) List<PolicyResultModel> vouchers,
-// dynamic createVouchers,
-// @Default(PageState(status: PageCommonState.success)) PageState applyPolicyState,
-// @Default([]) List<PaymentMethod> paymentMethods,
-// @Default(PageState()) PageState paymentMethodState,
-// PaymentMethod? paymentMethodSelected,
-// @Default(false) bool statusPaymentGateway,
-// dynamic totalPaymentGateway,
-// @Default([]) List<UserBankModel> banks,
-// @Default(PageState()) PageState banksState,
-// UserBankModel? bankSelect,
-// @Default(0) double cashReceivedAmount,
-// @Default(PageState()) PageState listAtmPosState,
-// @Default([]) List<AtmPosModel> listAtmPos,
-// AtmPosModel? atmPosSelect,
-  OrderInvoice? get invoice => throw _privateConstructorUsedError;
-  PageState get orderInvoiceState =>
-      throw _privateConstructorUsedError; // @Default(DataBillResponseData()) DataBillResponseData dataBill,
-// @Default(PageState(status: PageCommonState.normal)) PageState dataBillState,
-// @Default([]) List<File> imageBills,
-// @Default(1) int numberOfAdults,
-// @Default(0) int numberOfChildren,
-// @Default('') String kitchenNote,
-// CustomerPortrait? customerPortraitSelect,
-// @Default('') String completeNote,
-// @Default(false) bool printNumberOfPeople,
-// tự động cuộn xuống cuối danh sách món đang gọi
+      throw _privateConstructorUsedError; // tự động cuộn xuống cuối danh sách món đang gọi
   bool get autoScrollProducts =>
       throw _privateConstructorUsedError; // id của sản phẩm được thay đổi gần nhất
   int? get changedProductId => throw _privateConstructorUsedError;
   bool get pinnedOrder => throw _privateConstructorUsedError;
   OrderTabEnum get orderTabSelect => throw _privateConstructorUsedError;
-  List<OrderTabEnum> get orderTabs =>
-      throw _privateConstructorUsedError; // @Default(false) bool displayOrderHistory,
-// @Default([]) List<OrderHistory> orderHistory,
-// o2o
-// @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
-// @Default(PageState()) PageState getO2ODataState,
+  List<OrderTabEnum> get orderTabs => throw _privateConstructorUsedError;
   List<ChatMessageModel> get chatMessages => throw _privateConstructorUsedError;
-  PageState get getChatMessageState =>
-      throw _privateConstructorUsedError; // @Default(DiscountTypeEnum.vnd) DiscountTypeEnum discountTypeSelect,
-// @Default([]) List<PrinterModel> printers,
-// @Default(PageState(status: PageCommonState.loading)) PageState printerState,
+  PageState get getChatMessageState => throw _privateConstructorUsedError;
   List<NotificationModel> get notifications =>
       throw _privateConstructorUsedError;
 
@@ -242,8 +202,6 @@ abstract class $HomeStateCopyWith<$Res> {
       bool ignoreCheckCodeWaiter,
       OrderModel? orderSelect,
       bool lockedOrder,
-      OrderInvoice? invoice,
-      PageState orderInvoiceState,
       bool autoScrollProducts,
       int? changedProductId,
       bool pinnedOrder,
@@ -254,8 +212,6 @@ abstract class $HomeStateCopyWith<$Res> {
       List<NotificationModel> notifications});
 
   $OrderModelCopyWith<$Res>? get orderSelect;
-  $OrderInvoiceCopyWith<$Res>? get invoice;
-  $PageStateCopyWith<$Res> get orderInvoiceState;
   $PageStateCopyWith<$Res> get getChatMessageState;
 }
 
@@ -279,8 +235,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? ignoreCheckCodeWaiter = null,
     Object? orderSelect = freezed,
     Object? lockedOrder = null,
-    Object? invoice = freezed,
-    Object? orderInvoiceState = null,
     Object? autoScrollProducts = null,
     Object? changedProductId = freezed,
     Object? pinnedOrder = null,
@@ -319,14 +273,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.lockedOrder
           : lockedOrder // ignore: cast_nullable_to_non_nullable
               as bool,
-      invoice: freezed == invoice
-          ? _value.invoice
-          : invoice // ignore: cast_nullable_to_non_nullable
-              as OrderInvoice?,
-      orderInvoiceState: null == orderInvoiceState
-          ? _value.orderInvoiceState
-          : orderInvoiceState // ignore: cast_nullable_to_non_nullable
-              as PageState,
       autoScrollProducts: null == autoScrollProducts
           ? _value.autoScrollProducts
           : autoScrollProducts // ignore: cast_nullable_to_non_nullable
@@ -376,26 +322,6 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
 
   @override
   @pragma('vm:prefer-inline')
-  $OrderInvoiceCopyWith<$Res>? get invoice {
-    if (_value.invoice == null) {
-      return null;
-    }
-
-    return $OrderInvoiceCopyWith<$Res>(_value.invoice!, (value) {
-      return _then(_value.copyWith(invoice: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $PageStateCopyWith<$Res> get orderInvoiceState {
-    return $PageStateCopyWith<$Res>(_value.orderInvoiceState, (value) {
-      return _then(_value.copyWith(orderInvoiceState: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
   $PageStateCopyWith<$Res> get getChatMessageState {
     return $PageStateCopyWith<$Res>(_value.getChatMessageState, (value) {
       return _then(_value.copyWith(getChatMessageState: value) as $Val);
@@ -419,8 +345,6 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       bool ignoreCheckCodeWaiter,
       OrderModel? orderSelect,
       bool lockedOrder,
-      OrderInvoice? invoice,
-      PageState orderInvoiceState,
       bool autoScrollProducts,
       int? changedProductId,
       bool pinnedOrder,
@@ -432,10 +356,6 @@ abstract class _$$HomeStateImplCopyWith<$Res>
 
   @override
   $OrderModelCopyWith<$Res>? get orderSelect;
-  @override
-  $OrderInvoiceCopyWith<$Res>? get invoice;
-  @override
-  $PageStateCopyWith<$Res> get orderInvoiceState;
   @override
   $PageStateCopyWith<$Res> get getChatMessageState;
 }
@@ -458,8 +378,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? ignoreCheckCodeWaiter = null,
     Object? orderSelect = freezed,
     Object? lockedOrder = null,
-    Object? invoice = freezed,
-    Object? orderInvoiceState = null,
     Object? autoScrollProducts = null,
     Object? changedProductId = freezed,
     Object? pinnedOrder = null,
@@ -498,14 +416,6 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.lockedOrder
           : lockedOrder // ignore: cast_nullable_to_non_nullable
               as bool,
-      invoice: freezed == invoice
-          ? _value.invoice
-          : invoice // ignore: cast_nullable_to_non_nullable
-              as OrderInvoice?,
-      orderInvoiceState: null == orderInvoiceState
-          ? _value.orderInvoiceState
-          : orderInvoiceState // ignore: cast_nullable_to_non_nullable
-              as PageState,
       autoScrollProducts: null == autoScrollProducts
           ? _value.autoScrollProducts
           : autoScrollProducts // ignore: cast_nullable_to_non_nullable
@@ -553,8 +463,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       this.ignoreCheckCodeWaiter = true,
       this.orderSelect,
       this.lockedOrder = false,
-      this.invoice,
-      this.orderInvoiceState = const PageState(),
       this.autoScrollProducts = true,
       this.changedProductId,
       this.pinnedOrder = false,
@@ -593,41 +501,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final bool lockedOrder;
-// @Default([]) List<ProductModel> productsSelecting,
-// @Default([]) List<ProductModel> productsSelected,
-// @Default([]) List<ProductCheckoutModel> productCheckout,
-// @Default(PageState()) PageState productCheckoutState,
-// CustomerModel? customer,
-// @Default([]) List<CustomerPolicyModel> coupons,
-// @Default([]) List<PolicyResultModel> vouchers,
-// dynamic createVouchers,
-// @Default(PageState(status: PageCommonState.success)) PageState applyPolicyState,
-// @Default([]) List<PaymentMethod> paymentMethods,
-// @Default(PageState()) PageState paymentMethodState,
-// PaymentMethod? paymentMethodSelected,
-// @Default(false) bool statusPaymentGateway,
-// dynamic totalPaymentGateway,
-// @Default([]) List<UserBankModel> banks,
-// @Default(PageState()) PageState banksState,
-// UserBankModel? bankSelect,
-// @Default(0) double cashReceivedAmount,
-// @Default(PageState()) PageState listAtmPosState,
-// @Default([]) List<AtmPosModel> listAtmPos,
-// AtmPosModel? atmPosSelect,
-  @override
-  final OrderInvoice? invoice;
-  @override
-  @JsonKey()
-  final PageState orderInvoiceState;
-// @Default(DataBillResponseData()) DataBillResponseData dataBill,
-// @Default(PageState(status: PageCommonState.normal)) PageState dataBillState,
-// @Default([]) List<File> imageBills,
-// @Default(1) int numberOfAdults,
-// @Default(0) int numberOfChildren,
-// @Default('') String kitchenNote,
-// CustomerPortrait? customerPortraitSelect,
-// @Default('') String completeNote,
-// @Default(false) bool printNumberOfPeople,
 // tự động cuộn xuống cuối danh sách món đang gọi
   @override
   @JsonKey()
@@ -650,17 +523,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
     return EqualUnmodifiableListView(_orderTabs);
   }
 
-// @Default(false) bool displayOrderHistory,
-// @Default([]) List<OrderHistory> orderHistory,
-// o2o
-// @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
-// @Default(PageState()) PageState getO2ODataState,
   final List<ChatMessageModel> _chatMessages;
-// @Default(false) bool displayOrderHistory,
-// @Default([]) List<OrderHistory> orderHistory,
-// o2o
-// @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
-// @Default(PageState()) PageState getO2ODataState,
   @override
   @JsonKey()
   List<ChatMessageModel> get chatMessages {
@@ -672,13 +535,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
   @override
   @JsonKey()
   final PageState getChatMessageState;
-// @Default(DiscountTypeEnum.vnd) DiscountTypeEnum discountTypeSelect,
-// @Default([]) List<PrinterModel> printers,
-// @Default(PageState(status: PageCommonState.loading)) PageState printerState,
   final List<NotificationModel> _notifications;
-// @Default(DiscountTypeEnum.vnd) DiscountTypeEnum discountTypeSelect,
-// @Default([]) List<PrinterModel> printers,
-// @Default(PageState(status: PageCommonState.loading)) PageState printerState,
   @override
   @JsonKey()
   List<NotificationModel> get notifications {
@@ -689,7 +546,7 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, invoice: $invoice, orderInvoiceState: $orderInvoiceState, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, notifications: $notifications)';
+    return 'HomeState(event: $event, messageError: $messageError, realtimeStatus: $realtimeStatus, reconnectRedis: $reconnectRedis, ignoreCheckCodeWaiter: $ignoreCheckCodeWaiter, orderSelect: $orderSelect, lockedOrder: $lockedOrder, autoScrollProducts: $autoScrollProducts, changedProductId: $changedProductId, pinnedOrder: $pinnedOrder, orderTabSelect: $orderTabSelect, orderTabs: $orderTabs, chatMessages: $chatMessages, getChatMessageState: $getChatMessageState, notifications: $notifications)';
   }
 
   @override
@@ -704,8 +561,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       ..add(DiagnosticsProperty('ignoreCheckCodeWaiter', ignoreCheckCodeWaiter))
       ..add(DiagnosticsProperty('orderSelect', orderSelect))
       ..add(DiagnosticsProperty('lockedOrder', lockedOrder))
-      ..add(DiagnosticsProperty('invoice', invoice))
-      ..add(DiagnosticsProperty('orderInvoiceState', orderInvoiceState))
       ..add(DiagnosticsProperty('autoScrollProducts', autoScrollProducts))
       ..add(DiagnosticsProperty('changedProductId', changedProductId))
       ..add(DiagnosticsProperty('pinnedOrder', pinnedOrder))
@@ -734,9 +589,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
                 other.orderSelect == orderSelect) &&
             (identical(other.lockedOrder, lockedOrder) ||
                 other.lockedOrder == lockedOrder) &&
-            (identical(other.invoice, invoice) || other.invoice == invoice) &&
-            (identical(other.orderInvoiceState, orderInvoiceState) ||
-                other.orderInvoiceState == orderInvoiceState) &&
             (identical(other.autoScrollProducts, autoScrollProducts) ||
                 other.autoScrollProducts == autoScrollProducts) &&
             (identical(other.changedProductId, changedProductId) ||
@@ -765,8 +617,6 @@ class _$HomeStateImpl with DiagnosticableTreeMixin implements _HomeState {
       ignoreCheckCodeWaiter,
       orderSelect,
       lockedOrder,
-      invoice,
-      orderInvoiceState,
       autoScrollProducts,
       changedProductId,
       pinnedOrder,
@@ -792,8 +642,6 @@ abstract class _HomeState implements HomeState {
       final bool ignoreCheckCodeWaiter,
       final OrderModel? orderSelect,
       final bool lockedOrder,
-      final OrderInvoice? invoice,
-      final PageState orderInvoiceState,
       final bool autoScrollProducts,
       final int? changedProductId,
       final bool pinnedOrder,
@@ -819,40 +667,7 @@ abstract class _HomeState implements HomeState {
   OrderModel? get orderSelect;
   @override
   bool get lockedOrder;
-  @override // @Default([]) List<ProductModel> productsSelecting,
-// @Default([]) List<ProductModel> productsSelected,
-// @Default([]) List<ProductCheckoutModel> productCheckout,
-// @Default(PageState()) PageState productCheckoutState,
-// CustomerModel? customer,
-// @Default([]) List<CustomerPolicyModel> coupons,
-// @Default([]) List<PolicyResultModel> vouchers,
-// dynamic createVouchers,
-// @Default(PageState(status: PageCommonState.success)) PageState applyPolicyState,
-// @Default([]) List<PaymentMethod> paymentMethods,
-// @Default(PageState()) PageState paymentMethodState,
-// PaymentMethod? paymentMethodSelected,
-// @Default(false) bool statusPaymentGateway,
-// dynamic totalPaymentGateway,
-// @Default([]) List<UserBankModel> banks,
-// @Default(PageState()) PageState banksState,
-// UserBankModel? bankSelect,
-// @Default(0) double cashReceivedAmount,
-// @Default(PageState()) PageState listAtmPosState,
-// @Default([]) List<AtmPosModel> listAtmPos,
-// AtmPosModel? atmPosSelect,
-  OrderInvoice? get invoice;
-  @override
-  PageState get orderInvoiceState;
-  @override // @Default(DataBillResponseData()) DataBillResponseData dataBill,
-// @Default(PageState(status: PageCommonState.normal)) PageState dataBillState,
-// @Default([]) List<File> imageBills,
-// @Default(1) int numberOfAdults,
-// @Default(0) int numberOfChildren,
-// @Default('') String kitchenNote,
-// CustomerPortrait? customerPortraitSelect,
-// @Default('') String completeNote,
-// @Default(false) bool printNumberOfPeople,
-// tự động cuộn xuống cuối danh sách món đang gọi
+  @override // tự động cuộn xuống cuối danh sách món đang gọi
   bool get autoScrollProducts;
   @override // id của sản phẩm được thay đổi gần nhất
   int? get changedProductId;
@@ -862,17 +677,11 @@ abstract class _HomeState implements HomeState {
   OrderTabEnum get orderTabSelect;
   @override
   List<OrderTabEnum> get orderTabs;
-  @override // @Default(false) bool displayOrderHistory,
-// @Default([]) List<OrderHistory> orderHistory,
-// o2o
-// @Default({}) Map<O2OOrderModel, Map<String, dynamic>> o2oData,
-// @Default(PageState()) PageState getO2ODataState,
+  @override
   List<ChatMessageModel> get chatMessages;
   @override
   PageState get getChatMessageState;
-  @override // @Default(DiscountTypeEnum.vnd) DiscountTypeEnum discountTypeSelect,
-// @Default([]) List<PrinterModel> printers,
-// @Default(PageState(status: PageCommonState.loading)) PageState printerState,
+  @override
   List<NotificationModel> get notifications;
   @override
   @JsonKey(ignore: true)

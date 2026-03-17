@@ -13,11 +13,11 @@ import 'package:aladdin_franchise/src/features/dialogs/coupon/coupon_option_dial
 import 'package:aladdin_franchise/src/features/dialogs/invoice/invoice_form_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/edit_tax_dialog.dart';
-import 'package:aladdin_franchise/src/features/dialogs/payment/edit_tax_dialog_cleanclean.dart';
+import 'package:aladdin_franchise/src/features/dialogs/payment/edit_tax_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/new_payment_dialogs.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
@@ -30,6 +30,7 @@ import 'package:aladdin_franchise/src/utils/show_snackbar.dart';
 import 'package:aladdin_franchise/src/utils/subwindows_moniter.dart';
 import 'package:collection/collection.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -84,7 +85,7 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
             _hasSubWindows.value = event;
             if (event == false) {
               if (mounted) {
-                // ref.read(homeProvider.notifier).onChangePinnedOrder(false);
+                ref.read(homeProvider.notifier).onChangePinnedOrder(false);
               }
             }
           },
@@ -140,48 +141,27 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
                                 iconSize: 18,
                               ),
                     onPressed: () async {
-                      // var state = ref.read(homeProvider);
-                      // // var args = {
-                      // //   'all_products': state.products,
-                      // //   'order': state.orderSelect,
-                      // //   'products': state.productCheckout,
-                      // //   'customer': state.customer,
-                      // //   'data_bill': state.dataBill.price.copyWith(
-                      // //       receivedAmount:
-                      // //           (state.paymentMethodSelected?.isCash ?? false)
-                      // //               ? state.cashReceivedAmount
-                      // //               : 0),
-                      // //   'note': state.kitchenNote,
-                      // //   'payment_method': state.paymentMethodSelected,
-                      // //   'detail_payment': {
-                      // //     'bank_select': state.bankSelect,
-                      // //     'gateway_qr': '',
-                      // //   },
-                      // //   'order_product': {
-                      // //     'changed_product_id': state.changedProductId
-                      // //   },
-                      // // };
                       if (Platform.isWindows) {
                         final subWindows = await DesktopMultiWindow.getAllSubWindowIds();
 
-                        // if (subWindows.isNotEmpty) {
-                        //   // pin/ unpin màn hình KH
-                        //   ref.read(homeProvider.notifier).onChangePinnedOrder(!pinned);
-                        //   if (pinned) {
-                        //     ref.read(homeProvider.notifier).syncInfoCustomerPage();
-                        //   }
-                        //   return;
-                        // }
+                        if (subWindows.isNotEmpty) {
+                          // pin/ unpin màn hình KH
+                          ref.read(homeProvider.notifier).onChangePinnedOrder(!pinned);
+                          if (pinned) {
+                            ref.read(homeProvider.notifier).syncInfoCustomerPage();
+                          }
+                          return;
+                        }
 
-                        // ref.read(homeProvider.notifier).onChangePinnedOrder(false);
-                        // var restaurant = LocalStorage.getDataLogin()?.restaurant;
-                        // final window = await DesktopMultiWindow.createWindow(
-                        //     jsonEncode(ref.read(homeProvider.notifier).getAllDataToCustomerPage()));
-                        // window
-                        //   ..setFrame(Offset(1920, 0) & const Size(1920, 1080))
-                        //   ..center()
-                        //   ..setTitle(restaurant?.name ?? AppConfig.appName)
-                        //   ..show();
+                        ref.read(homeProvider.notifier).onChangePinnedOrder(false);
+                        var restaurant = LocalStorage.getDataLogin()?.restaurant;
+                        final window = await DesktopMultiWindow.createWindow(
+                            jsonEncode(ref.read(homeProvider.notifier).getAllDataToCustomerPage()));
+                        window
+                          ..setFrame(Offset(1920, 0) & const Size(1920, 1080))
+                          ..center()
+                          ..setTitle(restaurant?.name ?? AppConfig.appName)
+                          ..show();
                       } else if (Platform.isAndroid) {}
                     },
                   );
@@ -194,31 +174,29 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
             flex: 1,
             child: Consumer(builder: (context, ref, child) {
               var customer = ref.watch(checkoutProvider.select((value) => value.customer));
-
-              return Tooltip(
-                message: customer == null ? '' : '${customer.name} - ${customer.phoneNumber}',
-                child: ButtonSimpleWidget(
-                  textAction: customer == null
-                      ? S.of(context).customers
-                      : '${customer.name} - ${customer.phoneNumber}',
-                  onPressed: () {
-                    if (!_hasSelectedOrder(context, ref)) {
-                      return;
-                    }
-                    if (ref.read(checkoutProvider).productCheckoutState.status ==
-                        PageCommonState.error) {
-                      ref.read(checkoutProvider.notifier).getProductCheckout();
-                    }
-                    showCustomerOptionDialog(context);
-                  },
-                  prefixIcon: customer != null
-                      ? const ResponsiveIconWidget(
-                          iconData: Icons.person,
-                          color: Colors.white,
-                          iconSize: 18,
-                        )
-                      : null,
-                ),
+              var state = ref.watch(checkoutProvider.select((value) => value.productCheckoutState));
+              return _ActionButton(
+                status: state.status,
+                tooltip: customer == null ? '' : '${customer.name} - ${customer.phoneNumber}',
+                onPressed: () {
+                  if (!_hasSelectedOrder(context, ref)) {
+                    return;
+                  }
+                  if (state.status == PageCommonState.error) {
+                    ref.read(checkoutProvider.notifier).getProductCheckout();
+                  }
+                  showCustomerOptionDialog(context);
+                },
+                prefixIcon: customer != null
+                    ? const Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 20,
+                      )
+                    : null,
+                textAction: customer == null
+                    ? S.of(context).customers
+                    : '${customer.name} - ${customer.phoneNumber}',
               );
             }),
           ),
@@ -227,32 +205,32 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
             flex: 1,
             child: Consumer(
               builder: (context, ref, child) {
-                var invoice = ref.watch(homeProvider.select((value) => value.invoice));
+                var invoice = ref.watch(checkoutProvider.select((value) => value.invoice));
 
-                var state = ref.watch(homeProvider.select((value) => value.orderInvoiceState));
-
-                return ButtonSimpleWidget(
-                  textAction: S.of(context).invoice,
-                  prefixIcon: (invoice != null && !invoice.isEmpty())
-                      ? const ResponsiveIconWidget(
-                          iconData: Icons.file_present,
-                          color: Colors.white,
-                          iconSize: 20,
-                        )
-                      : null,
-                  padding: widget.defaultPaddingFeatureBtn,
-                  onPressed: () async {
+                var state = ref.watch(checkoutProvider.select((value) => value.invoiceState));
+                bool hasInvoice = (invoice != null && !invoice.isEmpty());
+                return _ActionButton(
+                  status: state.status,
+                  tooltip: hasInvoice ? invoice.companyName : '',
+                  onPressed: () {
                     if (!_hasSelectedOrder(context, ref)) {
                       return;
                     }
-                    if (ref.read(checkoutProvider).invoiceState.status == PageCommonState.error) {
+                    if (state.status == PageCommonState.error) {
                       ref.read(checkoutProvider.notifier).getInvoice();
                     }
-                    showInvoiceFormDialog(
-                      context,
-                      orderInvoice: invoice,
-                    );
+                    showInvoiceFormDialog(context);
                   },
+                  prefixIcon: hasInvoice
+                      ? const Icon(
+                          Icons.file_present,
+                          color: Colors.white,
+                          size: 18,
+                        )
+                      : null,
+                  textAction: hasInvoice
+                      ? '${invoice.taxCode} - ${invoice.companyName}'
+                      : S.of(context).invoice,
                 );
               },
             ),
@@ -285,23 +263,29 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
         Expanded(
           child: Consumer(builder: (context, ref, child) {
             var coupons = ref.watch(checkoutProvider.select((value) => value.coupons));
-            return ButtonSimpleWidget(
-              padding: defaultPaddingFeatureBtn,
-              onPressed: () async {
+            var state = ref.watch(checkoutProvider.select((value) => value.productCheckoutState));
+            return _ActionButton(
+              status: state.status,
+              tooltip: '',
+              onPressed: () {
                 if (!_hasSelectedOrder(context, ref)) {
                   return;
                 }
+                if (state.status == PageCommonState.error) {
+                  ref.read(checkoutProvider.notifier).getProductCheckout();
+                }
                 showCouponOptionDialog(context);
               },
+              prefixIcon: coupons.isNotEmpty
+                  ? const Icon(
+                      Icons.bookmark,
+                      color: Colors.white,
+                      size: 20,
+                    )
+                  : null,
               textAction: coupons.isEmpty
                   ? S.of(context).endow
                   : coupons.map((e) => e.name).toList().join(', '),
-              prefixIcon: coupons.isNotEmpty
-                  ? const ResponsiveIconWidget(
-                      iconData: Icons.bookmark,
-                      color: Colors.white,
-                    )
-                  : null,
             );
           }),
         ),
@@ -385,22 +369,54 @@ class _BottomFeatureGroupWidget extends ConsumerWidget {
   }
 }
 
+class _ActionButton extends ConsumerWidget {
+  const _ActionButton({
+    super.key,
+    this.status = PageCommonState.success,
+    this.prefixIcon,
+    this.onPressed,
+    this.tooltip,
+    required this.textAction,
+  });
+
+  final PageCommonState status;
+  final Widget? prefixIcon;
+  final VoidCallback? onPressed;
+  final String? tooltip;
+  final String textAction;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Stack(
+      children: [
+        Tooltip(
+          message: tooltip,
+          child: ButtonSimpleWidget(
+            minWidth: double.infinity,
+            textAction: textAction,
+            prefixIcon: prefixIcon,
+            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 12),
+            onPressed: onPressed,
+          ),
+        ),
+        if (status != PageCommonState.success)
+          Positioned(
+            top: 10,
+            right: 10,
+            child: status == PageCommonState.error
+                ? const Icon(Icons.info, color: Colors.white)
+                : const CupertinoActivityIndicator(color: Colors.white),
+          ),
+      ],
+    );
+  }
+}
+
 void paymentBtnCallback({
   required WidgetRef ref,
   required BuildContext context,
 }) async {
   bool useCoupon = DevConfig.useCoupon;
-  // var state = ref.read(homeProvider);
-  // var orderSelect = state.orderSelect;
-  // if (orderSelect == null) {
-  //   showMessageDialog(context, message: S.current.noOrderSelect);
-  //   return;
-  // } else if (state.lockedOrder) {
-  //   showMessageDialog(context,
-  //       message: '${S.current.msg_locked_order}'
-  //           '\n${S.current.check_other_device_locked_order}');
-  //   return;
-  // }
 
   var state = ref.read(checkoutProvider);
 
@@ -430,7 +446,7 @@ void paymentBtnCallback({
       ],
       textCancel: S.current.close,
     );
-    if (res == false) {
+    if (res != true) {
       return;
     }
   }
@@ -439,8 +455,7 @@ void paymentBtnCallback({
 
   try {
     notifier.resetPaymentInfo();
-    ({String? applyPolicy, String? getDataBill, String? getProductCheckout}) checkInfo =
-        notifier.checkLatestPaymentInfo();
+    ({String? applyPolicy, String? getDataBill, String? getProductCheckout}) checkInfo;
     var resultLock = await _lockOrder(context, ref);
 
     if (!resultLock) return;
@@ -456,6 +471,16 @@ void paymentBtnCallback({
     if (productCheckout.isEmpty) {
       if (context.mounted) {
         await showMessageDialog(context, message: S.current.order_before_payment);
+        if (context.mounted) await _unlockOrder(context, ref);
+      }
+      return;
+    }
+    // kiểm tra các món đã chọn có cùng 1 loại thuế k (khác 0 hoặc = 0)
+    bool valid = notifier.isSameTaxType(productCheckout: productCheckout);
+    if (!valid) {
+      if (context.mounted) {
+        await showMessageDialog(context,
+            message: 'Các món đã chọn có cả 0% và có thuế, không thể thanh toán chung.');
         if (context.mounted) await _unlockOrder(context, ref);
       }
       return;

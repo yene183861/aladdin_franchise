@@ -44,7 +44,6 @@ import 'package:aladdin_franchise/src/features/common/process_state.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/pages/home/view.dart';
@@ -94,7 +93,8 @@ enum HomePaymentError {
   printCompleteError,
 }
 
-final homeProvider = StateNotifierProvider.autoDispose<HomeNotifier, HomeState>((ref) {
+final homeProvider =
+    StateNotifierProvider.autoDispose<HomeNotifier, HomeState>((ref) {
   return HomeNotifier(
     ref,
     ref.read(orderRepositoryProvider),
@@ -131,7 +131,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   void listenNotificationsChange() async {
     if (Hive.isBoxOpen(AppConfig.notificationBoxName)) {
-      Hive.box<NotificationModel>(AppConfig.notificationBoxName).listenable().addListener(() {
+      Hive.box<NotificationModel>(AppConfig.notificationBoxName)
+          .listenable()
+          .addListener(() {
         if (mounted) {
           ref.read(homeProvider.notifier).loadNotifications();
         }
@@ -191,23 +193,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
     OrderModel? order,
   }) async {
     if (!mounted) return;
-    // state = state.copyWith(
-    //   orderSelect: order,
-    //   banks: [],
-    //   paymentMethods: [],
-    //   listAtmPos: [],
-    // );
-    ref.refresh(o2oConfigProvider);
-    // _resetOrder();
-    // ref.read(checkoutProvider.notifier).resetInfo();
-    changeOrderSelect(order);
-    await ref.read(menuProvider.notifier).init(loadProducts: loadProducts);
-    // if (order != null) {
-    //   getO2OChatMessages();
-    //   // onLoadProductSelecting();
-    //   getOrderProductCheckout();
-    //   getOrderInvoice();
-    // }
+    if (ref.read(o2oStatusProvider)) {
+      ref.refresh(o2oConfigProvider);
+    }
+    // changeOrderSelect(order);
+    // ref.read(menuProvider.notifier).init(
+    //       loadProducts: loadProducts,
+    //     );
   }
 
   // void onLoadProductSelecting() {
@@ -268,172 +260,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
       checkoutNotifier.getDataBill();
       getO2OChatMessages();
     }
-    // onLoadProductSelecting();
-    // getOrderProductCheckout();
-    // getOrderInvoice();
-    // }
-    // }
-  }
-
-  Future<void> getOrderProductCheckout({
-    bool loadingHome = false,
-    bool applyPolicy = true,
-    bool ignoreGetDataBill = false,
-  }) async {
-    return;
-    // try {
-    //   state = state.copyWith(
-    //     productCheckoutState: const PageState(status: PageCommonState.loading),
-    //   );
-    //   if (loadingHome) updateEvent(HomeEvent.getProductCheckout);
-
-    //   int tryAgain = 0;
-    //   while (tryAgain < 3) {
-    //     var orderSelect = state.orderSelect;
-    //     try {
-    //       if (orderSelect == null) {
-    //         if (loadingHome) updateEvent(null);
-    //         state = state.copyWith(
-    //           productCheckoutState: const PageState(status: PageCommonState.success),
-    //         );
-    //         _resetOrder();
-    //         return;
-    //       }
-    //       final data = await _orderRepository.getProductCheckout(orderSelect);
-
-    //       final pc = List<ProductCheckoutModel>.from(data.data?.first.orderItem ?? []);
-
-    //       final coupons = List<CustomerPolicyModel>.from(data.coupons ?? []);
-    //       final customer = data.customer;
-    //       var orderHistory = data.data?.first.orderHistory ?? [];
-    //       state = state.copyWith(orderHistory: orderHistory);
-    //       var notes = LocalStorage.getNotePerOrderItem(order: orderSelect);
-    //       List<ProductModel> productsSelected = [];
-    //       var products = ref.read(menuProvider).products;
-    //       // map: ProductCheckoutModel -> ProductModel
-    //       for (var item in pc) {
-    //         var p = products.firstWhereOrNull((e) => e.id == item.id);
-    //         if (p != null) {
-    //           var changeProduct = p.copyWith(
-    //             numberSelecting: item.quantity,
-    //             note: notes?[p.id.toString()] ?? '',
-    //           );
-    //           productsSelected.add(changeProduct);
-    //         } else {
-    //           // case món k có trong menu (k hiện nhưng tiền # 0)
-    //           productsSelected.add(
-    //             ProductModel(
-    //               id: item.id,
-    //               numberSelecting: item.quantity,
-    //               unitPrice: item.unitPrice,
-    //               name: item.name,
-    //               language: item.language,
-    //               unit: item.unit,
-    //               tax: item.tax,
-    //               printerType: item.printerType,
-    //               note: notes?[item.id.toString()] ?? '',
-    //             ),
-    //           );
-    //         }
-    //       }
-
-    //       for (final c in coupons) {
-    //         /// cập nhật số lượng món 0 đồng
-    //         if (c.isPromotion()) {
-    //           final discountUpdate = List<DiscountPolicy>.from(c.discount);
-
-    //           for (int dc = 0; dc < discountUpdate.length; dc++) {
-    //             final dcIndex = discountUpdate[dc];
-
-    //             for (final pt in c.promotionItems) {
-    //               if (pt.menuItemId.toString() == dcIndex.id) {
-    //                 discountUpdate[dc] = dcIndex.copyWith(numberSelect: pt.quantity);
-    //                 // cập nhật số lượng món tặng 0 đồng
-    //                 var ps = productsSelected.firstWhereOrNull((e) => e.id == pt.menuItemId);
-
-    //                 if (ps != null) {
-    //                   try {
-    //                     productsSelected[productsSelected.indexOf(ps)] =
-    //                         ps.copyWith(quantityPromotion: ps.quantityPromotion + pt.quantity);
-    //                   } catch (ex) {
-    //                     //
-    //                   }
-    //                 }
-    //                 var pcout = pc.firstWhereOrNull((e) => e.id == pt.menuItemId);
-    //                 if (pcout != null) {
-    //                   try {
-    //                     pc[pc.indexOf(pcout)] = pcout.copyWith(
-    //                         quantityPromotion: (ps?.quantityPromotion ?? 0) + pt.quantity);
-    //                   } catch (ex) {
-    //                     //
-    //                   }
-    //                 }
-    //               }
-    //             }
-    //           }
-    //           coupons[coupons.indexOf(c)] = c.copyWith(discount: discountUpdate);
-    //         }
-    //       }
-
-    //       var productSelectingMap = LocalStorage.getOrderItemSelectingForOrder(orderSelect.id);
-
-    //       List<ProductModel> selecting = [];
-    //       var _products = ref.read(menuProvider).products;
-    //       productSelectingMap.forEach((key, value) {
-    //         var p = _products.firstWhereOrNull((e) => e.id.toString() == key);
-    //         if (p != null) {
-    //           selecting.add(p.copyWith(numberSelecting: value));
-    //         }
-    //       });
-
-    //       state = state.copyWith(
-    //         coupons: coupons,
-    //         customer: customer,
-    //         numberOfAdults: max(data.numberOfAdults, 1),
-    //         orderHistory: orderHistory,
-    //       );
-    //       ref.read(checkoutPageProvider.notifier).init(pc);
-    //       for (var e in [
-    //         WindowsMethodEnum.customer,
-    //         WindowsMethodEnum.productCheckout,
-    //       ]) {
-    //         syncInfoCustomerPage(method: e);
-    //       }
-
-    //       state = state.copyWith(
-    //           productCheckoutState: const PageState(status: PageCommonState.success));
-    //       if (loadingHome) updateEvent(HomeEvent.normal);
-    //       if (applyPolicy) {
-    //         applyCustomerPolicy(loadingHome: false);
-    //       } else {
-    //         if (!ignoreGetDataBill) getDataBill();
-    //       }
-    //       break;
-    //     } catch (ex) {
-    //       if (ex is AppException && ex.errorCode == 423) {
-    //         tryAgain == 3;
-    //         state = state.copyWith(lockedOrder: true);
-    //       }
-    //       tryAgain++;
-    //       if (tryAgain >= 3) {
-    //         rethrow;
-    //       }
-    //     }
-    //   }
-    // } catch (ex) {
-    //   getDataBill();
-    //   state = state.copyWith(
-    //     productCheckoutState: PageState(
-    //       status: PageCommonState.error,
-    //       messageError: ex.toString(),
-    //     ),
-    //   );
-    //   if (loadingHome) updateEvent(HomeEvent.normal);
-    // }
   }
 
   // section action for order
-
   Future<
       ({
         int? orderId,
@@ -500,7 +329,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
       final result = await _orderRepository.createAndUpdateOrder(
         tableIds,
         state.orderSelect!,
-        reservation: (reservationCrmId == null ? null : ReservationModel(id: reservationCrmId)),
+        reservation: (reservationCrmId == null
+            ? null
+            : ReservationModel(id: reservationCrmId)),
         typeOrder: kTypeOrder,
         updateSaleInfo: false,
       );
@@ -515,8 +346,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
       if (reservationCrmId != null) {
         _updateReservationStatus(
           id: reservationCrmId,
-          status:
-              tableSelect.isEmpty ? ReservationStatusEnum.cancel : ReservationStatusEnum.process,
+          status: tableSelect.isEmpty
+              ? ReservationStatusEnum.cancel
+              : ReservationStatusEnum.process,
           table: tableSelect,
         );
       }
@@ -545,14 +377,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
         tableIds,
         order,
         waiterTransfer: waiterTransfer,
-        reservation: reservationCrmId == null ? null : ReservationModel(id: reservationCrmId),
+        reservation: reservationCrmId == null
+            ? null
+            : ReservationModel(id: reservationCrmId),
         updateSaleInfo: false,
       );
       if (reservationCrmId != null) {
         _updateReservationStatus(
           id: reservationCrmId,
-          status:
-              tableSelect.isEmpty ? ReservationStatusEnum.cancel : ReservationStatusEnum.process,
+          status: tableSelect.isEmpty
+              ? ReservationStatusEnum.cancel
+              : ReservationStatusEnum.process,
           table: tableSelect,
         );
       }
@@ -574,7 +409,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }) async {
     var phone = TextUtil.convertPhone((phoneNumer ?? '').trim());
 
-    if (phone.isEmpty || orderId == null) return (status: FindCustomerStatus.success, error: null);
+    if (phone.isEmpty || orderId == null)
+      return (status: FindCustomerStatus.success, error: null);
     try {
       if (showLoading) updateEvent(HomeEvent.addCustomerToOrder);
       var customerRepo = await _customerRepository.findCustomer(
@@ -668,27 +504,37 @@ class HomeNotifier extends StateNotifier<HomeState> {
   //     syncInfoCustomerPage(method: e);
   //   }
   // }
-
-  Future<void> loadingChangeOrderSelect(
+  /// thay đổi đơn bàn đang chọn sau khi tạo mới
+  Future<void> selectNewOrder(
     int orderId, {
     int? typeOrder,
     dynamic reservationCrmId,
   }) async {
     try {
-      showLogs(orderId, flags: 'orderId');
+      var newTypeOrder = typeOrder ?? kTypeOrder;
       updateEvent(HomeEvent.loadingChangeOrderCurrent);
       state = state.copyWith(
           orderSelect: OrderModel(
         id: orderId,
-        typeOrder: typeOrder ?? kTypeOrder,
+        typeOrder: newTypeOrder,
         reservationCrmId: reservationCrmId,
       ));
-
-      showLogs(state.orderSelect, flags: 'state');
-      // _resetOrder();
+      ref.read(checkoutProvider.notifier).resetInfo();
       ref.invalidate(tablesAndOrdersProvider);
       updateEvent(null);
+      if (newTypeOrder != kTypeOrder) {
+        kTypeOrder = newTypeOrder;
+        await LocalStorage.setTypeOrderWaiter(kTypeOrder);
+        ref.refresh(typeOrderWaiterProvider);
+        bool off = newTypeOrder == TypeOrderEnum.offline.type;
+        ref.read(menuProvider.notifier).init(loadProducts: false);
+        ref.read(menuProvider.notifier).getProducts(
+              fetchOffline: off,
+              fetchOnline: !off,
+            );
+      }
     } catch (ex) {
+      ref.read(checkoutProvider.notifier).resetInfo();
       state = state.copyWith(
         event: HomeEvent.errorInfo,
         messageError: "${S.current.error_change_order}\n"
@@ -696,7 +542,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
             "${S.current.ex_problem}: ${ex.toString()}",
         orderSelect: null,
       );
-      // _resetOrder();
     }
   }
 
@@ -780,7 +625,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
         mode: appPrinterType ?? LocalStorage.getPrintSetting().appPrinterType,
         closeShiftData: closeShiftData,
         paymentData: paymentData,
-        useOddBill: useOddBill ?? ref.read(printSettingProvider).billReturnSetting.useOddBill,
+        useOddBill: useOddBill ??
+            ref.read(printSettingProvider).billReturnSetting.useOddBill,
         useDefaultPrinters: useDefaultPrinters,
         totalBill: totalBill,
         refId: null,
@@ -791,6 +637,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         printers: printers,
         products: products,
         printStatus: PrintStatusEnum.waiting,
+        timeOrders: timeOrder,
       );
       if (printers.isEmpty) return null;
       var printerDeviceId = ref.read(o2oConfigProvider).when(
@@ -853,7 +700,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
           }
           if (Platform.isAndroid || Platform.isIOS) {
             appLocalNotificationService?.showLocalNotification(title, '');
-          } else if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+          } else if (Platform.isWindows ||
+              Platform.isMacOS ||
+              Platform.isLinux) {
             try {
               LocalNotification notification = LocalNotification(
                 title: title,
@@ -890,7 +739,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
             break;
           default:
         }
-        if (event[1] == '$kPrintChannel.${LocalStorage.getDataLogin()?.restaurant?.id ?? 0}') {
+        if (event[1] ==
+            '$kPrintChannel.${LocalStorage.getDataLogin()?.restaurant?.id ?? 0}') {
           _handlePrintRedisEvent(event);
         }
       }
@@ -936,17 +786,20 @@ class HomeNotifier extends StateNotifier<HomeState> {
           var status = data['status'] as int?;
           if (status != 1) return;
           var notes = data['notes'] as String?;
-          var itemsData = (jsonDecode(data['items']) as Map<String, dynamic>?) ?? {};
+          var itemsData =
+              (jsonDecode(data['items']) as Map<String, dynamic>?) ?? {};
           List<RequestOrderItemModel> items = itemsData.values
               .toList()
-              .map((e) => RequestOrderItemModel.fromJson(e as Map<String, dynamic>))
+              .map((e) =>
+                  RequestOrderItemModel.fromJson(e as Map<String, dynamic>))
               .toList();
 
           Map<int, List<ProductModel>> productPrint =
               ref.read(menuProvider.notifier).mapO2oItemWithPrintType(items);
           ref.read(tablesAndOrdersProvider).whenData(
             (value) async {
-              var order = value.offline?.userUsing.firstWhereOrNull((e) => e.id == orderId);
+              var order = value.offline?.userUsing
+                  .firstWhereOrNull((e) => e.id == orderId);
               if (order == null) return;
 
               List<int> printerCheck = productPrint.keys.toList();
@@ -969,16 +822,18 @@ class HomeNotifier extends StateNotifier<HomeState> {
               for (var printer in printers) {
                 var products = productPrint[printer.type] ?? [];
                 if (products.isEmpty) continue;
-                var resultSend = await ref.read(homeProvider.notifier).sendPrintData(
-                      type: PrintTypeEnum.order,
-                      products: products,
-                      printers: printers
-                          .map((e) => PrinterModel(ip: e.ip, port: e.port, name: e.name))
-                          .toList(),
-                      useDefaultPrinters: true,
-                      totalBill: true,
-                      note: notes ?? '',
-                    );
+                var resultSend =
+                    await ref.read(homeProvider.notifier).sendPrintData(
+                          type: PrintTypeEnum.order,
+                          products: products,
+                          printers: printers
+                              .map((e) => PrinterModel(
+                                  ip: e.ip, port: e.port, name: e.name))
+                              .toList(),
+                          useDefaultPrinters: true,
+                          totalBill: true,
+                          note: notes ?? '',
+                        );
               }
               showLogs(productPrint, flags: 'productPrint');
               // ref.read(menuProvider.notifier).printO2oRequest(
@@ -995,7 +850,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       case kCallStaffChannel:
         final note = data['note'];
         final table = data['table'];
-        var title = '${S.current.table} ${table ?? ''} ${S.current.request_service.toLowerCase()}';
+        var title =
+            '${S.current.table} ${table ?? ''} ${S.current.request_service.toLowerCase()}';
         var body = note ?? '';
         var id = await _saveNotification(
           title: title,
@@ -1074,14 +930,18 @@ class HomeNotifier extends StateNotifier<HomeState> {
       dynamic dataDecode = data['data'];
       List<LineItemDataBill> lineItems = [];
       if (dataDecode['payment_data'] != null) {
-        lineItems = (dataDecode['payment_data']['order_line_items'] as List<dynamic>).map((e) {
+        lineItems =
+            (dataDecode['payment_data']['order_line_items'] as List<dynamic>)
+                .map((e) {
           var json = Map<String, dynamic>.from(e);
           var listItem = (e['list_item'] as List<dynamic>)
-              .map((e) => SubLineItemDataBill.fromJson(e as Map<String, dynamic>))
+              .map((e) =>
+                  SubLineItemDataBill.fromJson(e as Map<String, dynamic>))
               .toList();
           json['language'] = null;
           json['list_item'] = [];
-          var result = LineItemDataBill.fromJson(json).copyWith(listItem: listItem);
+          var result =
+              LineItemDataBill.fromJson(json).copyWith(listItem: listItem);
           return result;
         }).toList();
         dataDecode['payment_data']['order_line_items'] = null;
@@ -1090,13 +950,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
       var notificationData = NotificationDataModel.fromJson(dataDecode);
       notificationData = notificationData.copyWith(
-          paymentData: notificationData.paymentData?.copyWith(orderLineItems: lineItems));
+          paymentData: notificationData.paymentData
+              ?.copyWith(orderLineItems: lineItems));
       var printDeviceId = data['printer_device_id'] as String?;
 
       var printType = notificationData.type;
       var printStatus = notificationData.printStatus;
       if ([PrintStatusEnum.done, PrintStatusEnum.error].contains(printStatus)) {
-        if (notificationData.handleDeviceId != kDeviceId) _handlePrintStatus(notificationData);
+        if (notificationData.handleDeviceId != kDeviceId)
+          _handlePrintStatus(notificationData);
         return;
       }
       switch (printType) {
@@ -1128,7 +990,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
     try {
       var noti = state.notifications;
       var checks = noti.where((e) {
-        var notiData = NotificationDataModel.fromJson(jsonDecode(e.data) as Map<String, dynamic>);
+        var notiData = NotificationDataModel.fromJson(
+            jsonDecode(e.data) as Map<String, dynamic>);
         if (notiData.senderDeviceId == kDeviceId && refId == notiData.id) {
           return true;
         }
@@ -1136,8 +999,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       }).toList();
       var check = checks.firstOrNull;
       if (check != null) {
-        var notiData =
-            NotificationDataModel.fromJson(jsonDecode(check.data) as Map<String, dynamic>);
+        var notiData = NotificationDataModel.fromJson(
+            jsonDecode(check.data) as Map<String, dynamic>);
         String title = data.title ?? '';
         String body = data.message ?? '';
         try {
@@ -1168,7 +1031,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
         if (data.printStatus == PrintStatusEnum.error) {
           if (Platform.isAndroid || Platform.isIOS) {
             appLocalNotificationService?.showLocalNotification(title, body);
-          } else if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+          } else if (Platform.isWindows ||
+              Platform.isMacOS ||
+              Platform.isLinux) {
             try {
               LocalNotification notification = LocalNotification(
                 title: title,
@@ -1202,7 +1067,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
           port: printer.port!,
           buildReceipt: (generator) async {
             showLogs(receiptData, flags: 'data');
-            var bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(data.paymentData!);
+            var bytes = await AppPrinterHtmlUtils.instance
+                .getReceptBillContent(data.paymentData!);
             return bytes;
           },
           onComplete: (success, error) async {
@@ -1216,10 +1082,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
               id: DateTimeUtils.formatToString(
                   time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
               handleDeviceId: kDeviceId,
-              printStatus: success ? PrintStatusEnum.done : PrintStatusEnum.error,
+              printStatus:
+                  success ? PrintStatusEnum.done : PrintStatusEnum.error,
               message: error,
             );
-            bool ignoreSendEvent = callback.senderDeviceId == callback.handleDeviceId;
+            bool ignoreSendEvent =
+                callback.senderDeviceId == callback.handleDeviceId;
             await _checkBeforeSendData(
               data: callback.toJson(),
               ignoreSendEvent: ignoreSendEvent,
@@ -1248,8 +1116,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
       if (data.closeShiftData == null || printers.isEmpty) return;
 
       var bytes = printMode == AppPrinterSettingTypeEnum.normal
-          ? await AppPrinterNormalUtils.instance.getCloseShift(data.closeShiftData!)
-          : await AppPrinterHtmlUtils.instance.getCloseShiftContent(data.closeShiftData!);
+          ? await AppPrinterNormalUtils.instance
+              .getCloseShift(data.closeShiftData!)
+          : await AppPrinterHtmlUtils.instance
+              .getCloseShiftContent(data.closeShiftData!);
       for (var printer in printers) {
         PrintQueue.instance.addTask(
           ip: printer.ip!,
@@ -1268,11 +1138,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
               id: DateTimeUtils.formatToString(
                   time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
               handleDeviceId: kDeviceId,
-              printStatus: success ? PrintStatusEnum.done : PrintStatusEnum.error,
+              printStatus:
+                  success ? PrintStatusEnum.done : PrintStatusEnum.error,
               message: error,
             );
 
-            bool ignoreSendEvent = callback.senderDeviceId == callback.handleDeviceId;
+            bool ignoreSendEvent =
+                callback.senderDeviceId == callback.handleDeviceId;
             await _checkBeforeSendData(
               data: callback.toJson(),
               ignoreSendEvent: ignoreSendEvent,
@@ -1315,17 +1187,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
               order: order,
               billSingle: false,
               cancel: cancel,
-              timeOrder: 1,
+              timeOrder: data.timeOrders,
               totalNote: note,
               products: products,
               title: cancel ? 'HUY DO' : 'BIll tổng',
             )
-          : await AppPrinterHtmlUtils.instance
-              .generateImageBill(AppPrinterHtmlUtils.instance.kitchenBillContent(
+          : await AppPrinterHtmlUtils.instance.generateImageBill(
+              AppPrinterHtmlUtils.instance.kitchenBillContent(
               order: order,
               product: products,
               note: note,
-              timeOrders: 1,
+              timeOrders: data.timeOrders,
               cancel: cancel,
               totalBill: true,
             ));
@@ -1348,10 +1220,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
               id: DateTimeUtils.formatToString(
                   time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
               handleDeviceId: kDeviceId,
-              printStatus: success ? PrintStatusEnum.done : PrintStatusEnum.error,
+              printStatus:
+                  success ? PrintStatusEnum.done : PrintStatusEnum.error,
               message: error,
             );
-            bool ignoreSendEvent = callback.senderDeviceId == callback.handleDeviceId;
+            bool ignoreSendEvent =
+                callback.senderDeviceId == callback.handleDeviceId;
             showLogs(ignoreSendEvent, flags: "ignoreSendEvent");
             if (success) {
               title =
@@ -1365,7 +1239,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
                 /// nếu có bill tổng có:
                 /// + đồ ăn + đồ uống => in bill lẻ tất cả
                 /// + chỉ có đồ uống => bỏ qua
-                Set<ProductModel> foods = <ProductModel>{}, drinks = <ProductModel>{};
+                Set<ProductModel> foods = <ProductModel>{},
+                    drinks = <ProductModel>{};
                 bool onlyDrinks = true;
                 for (var p in products) {
                   // 4 - đồ uống
@@ -1397,26 +1272,29 @@ class HomeNotifier extends StateNotifier<HomeState> {
                 }
                 if (!initOddBillData) {
                   for (var item in foods) {
-                    var listComboItemPrint = ProductHelper().getComboDescription(item);
+                    var listComboItemPrint =
+                        ProductHelper().getComboDescription(item);
                     // món thường
-                    if (listComboItemPrint == null || listComboItemPrint.isEmpty) {
+                    if (listComboItemPrint == null ||
+                        listComboItemPrint.isEmpty) {
                       var byteDatas = printNormal
                           ? await AppPrinterNormalUtils.instance.generateBill(
                               order: state.orderSelect!,
                               billSingle: false,
                               cancel: false,
-                              timeOrder: 1,
+                              timeOrder: data.timeOrders,
                               totalNote: note,
                               products: [item],
                               title: 'BILL lẻ',
                             )
-                          : await AppPrinterHtmlUtils.instance.generateImageBill(
+                          : await AppPrinterHtmlUtils.instance
+                              .generateImageBill(
                               AppPrinterHtmlUtils.instance.kitchenBillContent(
                                 product: [item],
                                 totalBill: false,
                                 order: state.orderSelect!,
                                 note: note,
-                                timeOrders: 1,
+                                timeOrders: data.timeOrders,
                               ),
                             );
                       oddBillDatas[item] = byteDatas;
@@ -1428,14 +1306,15 @@ class HomeNotifier extends StateNotifier<HomeState> {
                                 order: state.orderSelect!,
                                 billSingle: false,
                                 cancel: false,
-                                timeOrder: 1,
+                                timeOrder: data.timeOrders,
                                 totalNote: note,
                                 products: [
                                   item.copyWith(description: jsonEncode([ci]))
                                 ],
                                 title: 'BILL lẻ',
                               )
-                            : await AppPrinterHtmlUtils.instance.generateImageBill(
+                            : await AppPrinterHtmlUtils.instance
+                                .generateImageBill(
                                 AppPrinterHtmlUtils.instance.kitchenBillContent(
                                   product: [
                                     item.copyWith(description: jsonEncode([ci]))
@@ -1443,10 +1322,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
                                   totalBill: false,
                                   order: state.orderSelect!,
                                   note: note,
-                                  timeOrders: 1,
+                                  timeOrders: data.timeOrders,
                                 ),
                               );
-                        oddBillDatas[item.copyWith(description: jsonEncode([ci]))] = byteDatas;
+                        oddBillDatas[item.copyWith(
+                            description: jsonEncode([ci]))] = byteDatas;
                       }
                     }
                   }
@@ -1457,7 +1337,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                             order: state.orderSelect!,
                             billSingle: true,
                             cancel: false,
-                            timeOrder: 1,
+                            timeOrder: data.timeOrders,
                             totalNote: note,
                             products: [item],
                             title: 'BILL LẺ',
@@ -1505,7 +1385,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
                         if (success) {
                           showLogs(null, flags: "✅ In bill lẻ thành công");
                         } else {
-                          showLogs("❌ In bill lẻ thất bại\n$key", flags: 'BILL LẺ');
+                          showLogs("❌ In bill lẻ thất bại\n$key",
+                              flags: 'BILL LẺ');
                           _saveNotification(
                             title: subTitle,
                             error: error,
@@ -1625,7 +1506,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
     if (saveNotification) {
       var notiId = await _saveNotification(
-        title: title ?? 'Yêu cầu in đã được gửi tới hệ thống và đang chờ xử lý.',
+        title:
+            title ?? 'Yêu cầu in đã được gửi tới hệ thống và đang chờ xử lý.',
         error: message ?? '',
         dataDecode: data,
         order: order,
@@ -1681,53 +1563,6 @@ class HomeNotifier extends StateNotifier<HomeState> {
       return null;
     }
   }
-
-  // Future<FindCustomerStatus> findCustomer(
-  //   String phone, {
-  //   bool loadingHome = true,
-  //   bool retry = false,
-  // }) async {
-  //   try {
-  //     if (loadingHome) updateEvent(HomeEvent.findingCustomer);
-  //     await _checkOrderSelect();
-  //     int countRetry = 0;
-  //     CustomerResponseData result =
-  //         await _customerRepository.findCustomer(phoneNumber: phone, order: state.orderSelect!);
-  //     // do {
-  //     //   try {
-  //     //     result =
-  //     //         await _customerRepository.findCustomer(phoneNumber: phone, order: state.orderSelect!);
-
-  //     //     break;
-  //     //   } catch (ex) {
-  //     //     countRetry++;
-  //     //     if(countRetry
-  //     //   }
-  //     // } while (countRetry < (retry ? 1 : 3));
-
-  //     if (loadingHome) updateEvent(null);
-  //     if (result.customer is List<dynamic> == false) {
-  //       CustomerModel customer = CustomerModel.fromJson(result.customer);
-  //       state = state.copyWith(customer: customer);
-  //       syncInfoCustomerPage(method: WindowsMethodEnum.customer);
-  //       // syncInfoForCustomer();
-  //       return FindCustomerStatus.success;
-  //     }
-  //     state = state.copyWith(messageError: "${S.current.find_customer_not_found} ($phone)");
-  //     return FindCustomerStatus.notFound;
-  //   } catch (ex) {
-  //     _lockOrder(ex);
-  //     var errorMessage =
-  //         ex is AppException ? ex.toString() : AppException.fromStatusCode(-1).toString();
-  //     if (loadingHome) {
-  //       state = state.copyWith(
-  //         event: HomeEvent.normal,
-  //         messageError: errorMessage,
-  //       );
-  //     }
-  //     return FindCustomerStatus.error;
-  //   }
-  // }
 
   // Future<({String? error, CustomerModel? customer})> createCustomer({
   //   required String phone,
@@ -2121,7 +1956,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(ignoreCheckCodeWaiter: !state.ignoreCheckCodeWaiter);
   }
 
-  Future<(MInvoiceInfo? mInvoiceInfo, String? error)> searchTaxCodeInfo(String taxCode) async {
+  Future<(MInvoiceInfo? mInvoiceInfo, String? error)> searchTaxCodeInfo(
+      String taxCode) async {
     try {
       updateEvent(HomeEvent.findingTaxCode);
       final result = await _invoiceRepository.getMInvoiceTaxInfo(taxCode);
@@ -2133,64 +1969,65 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
   }
 
-  Future<bool> onUpdateOrderInvoice(
-    OrderInvoice invoice, {
-    bool isUpdate = false,
-  }) async {
-    try {
-      updateEvent(isUpdate ? HomeEvent.updateInvoice : HomeEvent.insertInvoice);
-      await _checkOrderSelect();
-      await _invoiceRepository.updateOrderInvoice(
-        orderId: state.orderSelect!.id,
-        orderInvoice: invoice,
-      );
+  // Future<bool> onUpdateOrderInvoice(
+  //   OrderInvoice invoice, {
+  //   bool isUpdate = false,
+  // }) async {
+  //   try {
+  //     updateEvent(isUpdate ? HomeEvent.updateInvoice : HomeEvent.insertInvoice);
+  //     await _checkOrderSelect();
+  //     await _invoiceRepository.updateOrderInvoice(
+  //       orderId: state.orderSelect!.id,
+  //       orderInvoice: invoice,
+  //     );
 
-      state = state.copyWith(
-        event: HomeEvent.processed,
-        invoice: invoice,
-      );
-      return true;
-    } catch (ex) {
-      _lockOrder(ex);
-      state = state.copyWith(
-        event: HomeEvent.processError,
-        messageError: ex.toString(),
-      );
-      return false;
-    }
-  }
+  //     state = state.copyWith(
+  //       event: HomeEvent.processed,
+  //       invoice: invoice,
+  //     );
+  //     return true;
+  //   } catch (ex) {
+  //     _lockOrder(ex);
+  //     state = state.copyWith(
+  //       event: HomeEvent.processError,
+  //       messageError: ex.toString(),
+  //     );
+  //     return false;
+  //   }
+  // }
 
-  Future<void> getOrderInvoice() async {
-    try {
-      state = state.copyWith(
-        orderInvoiceState: const PageState(status: PageCommonState.loading),
-      );
-      var orderSelect = state.orderSelect;
-      if (orderSelect == null) {
-        state = state.copyWith(
-          orderInvoiceState: const PageState(status: PageCommonState.success),
-          invoice: null,
-        );
-        return;
-      }
-      final result = await _invoiceRepository.getOrderInvoice(orderSelect.id);
+  // Future<void> getOrderInvoice() async {
+  //   try {
+  //     state = state.copyWith(
+  //       orderInvoiceState: const PageState(status: PageCommonState.loading),
+  //     );
+  //     var orderSelect = state.orderSelect;
+  //     if (orderSelect == null) {
+  //       state = state.copyWith(
+  //         orderInvoiceState: const PageState(status: PageCommonState.success),
+  //         invoice: null,
+  //       );
+  //       return;
+  //     }
+  //     final result = await _invoiceRepository.getOrderInvoice(orderSelect.id);
 
-      state = state.copyWith(
-        orderInvoiceState: const PageState(status: PageCommonState.success),
-        invoice: result.isEmpty() ? null : result,
-      );
-    } catch (ex) {
-      _lockOrder(ex);
-      state = state.copyWith(
-        orderInvoiceState: PageState(
-          messageError: ex.toString(),
-          status: PageCommonState.error,
-        ),
-      );
-    }
-  }
+  //     state = state.copyWith(
+  //       orderInvoiceState: const PageState(status: PageCommonState.success),
+  //       invoice: result.isEmpty() ? null : result,
+  //     );
+  //   } catch (ex) {
+  //     _lockOrder(ex);
+  //     state = state.copyWith(
+  //       orderInvoiceState: PageState(
+  //         messageError: ex.toString(),
+  //         status: PageCommonState.error,
+  //       ),
+  //     );
+  //   }
+  // }
 
-  Future<bool> unlockOrder({bool loadingHome = true, String? messageError}) async {
+  Future<bool> unlockOrder(
+      {bool loadingHome = true, String? messageError}) async {
     try {
       state = state.copyWith(lockedOrder: true);
       if (loadingHome) updateEvent(HomeEvent.unlockOrder);
@@ -2753,12 +2590,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
       if (checkPrinter != null) {
         throw checkPrinter;
       }
-      var resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
-            type: PrintTypeEnum.closeShift,
-            closeShiftData: data,
-            printers: [printer],
-            printDirectly: printDirectly,
-          );
+      var resultSendPrintData =
+          await ref.read(homeProvider.notifier).sendPrintData(
+                type: PrintTypeEnum.closeShift,
+                closeShiftData: data,
+                printers: [printer],
+                printDirectly: printDirectly,
+              );
       if (showLoading) updateEvent(HomeEvent.normal);
       return (
         resultSendPrintData: resultSendPrintData,
@@ -3017,8 +2855,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       final orderSelect = state.orderSelect;
       if (restaurantId == null || orderSelect == null) {
         state = state.copyWith(
-          getChatMessageState:
-              PageState(status: PageCommonState.error, messageError: S.current.no_data),
+          getChatMessageState: PageState(
+              status: PageCommonState.error, messageError: S.current.no_data),
         );
         return;
       }
@@ -3100,7 +2938,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
     if (reser != null) {
       var tableIds = table.map((e) => e.id).toList();
       if (!reser.equalsOtherReservation(ReservationModel(
-          status: status.type, tableId: tableIds, table: table.map((e) => e.name).join(', ')))) {
+          status: status.type,
+          tableId: tableIds,
+          table: table.map((e) => e.name).join(', ')))) {
         updateReservation(reser.copyWith(
           status: status.type,
           statusName: status.title,
@@ -3143,7 +2983,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
         updateSaleInfo: false,
       );
       state = state.copyWith(
-        orderSelect: state.orderSelect?.copyWith(reservationCrmId: newReservation?.id),
+        orderSelect:
+            state.orderSelect?.copyWith(reservationCrmId: newReservation?.id),
       );
 
       showLogs(state.orderSelect, flags: 'updateReservationOrder');
@@ -3176,7 +3017,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   // void onChangeDiscountTypeSelect(DiscountTypeEnum value) {
   //   state = state.copyWith(discountTypeSelect: value);
   // }
-
+  /// section customer view
   Future<void> syncInfoCustomerPage({
     WindowsMethodEnum method = WindowsMethodEnum.data,
     dynamic arguments,
@@ -3192,39 +3033,43 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   Map<String, dynamic> getAllDataToCustomerPage() {
     var products = ref.read(menuProvider).products;
-    var productsCheckout = ref.read(checkoutPageProvider).productsCheckout;
+    var checkoutState = ref.read(checkoutProvider);
+    var productsCheckout = checkoutState.productCheckout;
     List<ProductModel> items = [];
     for (var i in productsCheckout) {
       var p = products.firstWhereOrNull((e) => e.id == i.id);
       if (p != null) {
-        showLogs(i);
-        items.add(p.copyWith(numberSelecting: i.quantity, unitPrice: i.unitPrice));
+        items.add(
+            p.copyWith(numberSelecting: i.quantity, unitPrice: i.unitPrice));
       } else {
-        items.add(ProductModel(id: i.id, name: i.name, unitPrice: i.unitPrice, unit: i.unit));
+        items.add(ProductModel(
+            id: i.id, name: i.name, unitPrice: i.unitPrice, unit: i.unit));
       }
     }
 
-    return {};
-    // return {
-    //   'order': state.orderSelect,
-    //   // 'customer': state.customer,
-    //   'payment_method': state.paymentMethodSelected,
-    //   'price': state.dataBill.price.copyWith(
-    //     receivedAmount:
-    //         (state.paymentMethodSelected?.isCash ?? false) ? state.cashReceivedAmount : 0,
-    //   ),
-    //   'bank': state.bankSelect,
-    //   'product': items,
-    //   'auto_scroll': state.autoScrollProducts,
-    //   'change_product_id': state.changedProductId,
-    // };
+    return {
+      'order': state.orderSelect,
+      'customer': checkoutState.customer,
+      'payment_method': checkoutState.paymentMethodSelect,
+      'price': checkoutState.dataBill.price.copyWith(
+        receivedAmount: (checkoutState.paymentMethodSelect?.isCash ?? false)
+            ? checkoutState.cashReceivedAmount
+            : 0,
+      ),
+      'bank': checkoutState.bankSelect,
+      'product': items,
+      'auto_scroll': state.autoScrollProducts,
+      'change_product_id': state.changedProductId,
+    };
   }
 
-  dynamic _tranferDataToCustomerPage({WindowsMethodEnum method = WindowsMethodEnum.data}) {
+  dynamic _tranferDataToCustomerPage(
+      {WindowsMethodEnum method = WindowsMethodEnum.data}) {
     var products = ref.read(menuProvider).products;
-    var productsCheckout = ref.read(checkoutPageProvider).productsCheckout;
+    var checkoutState = ref.read(checkoutProvider);
+    var productCheckout = checkoutState.productCheckout;
     List<ProductModel> items = [];
-    for (var i in productsCheckout) {
+    for (var i in productCheckout) {
       var p = products.firstWhereOrNull((e) => e.id == i.id);
       if (p != null) {
         items.add(p.copyWith(
@@ -3232,43 +3077,47 @@ class HomeNotifier extends StateNotifier<HomeState> {
           unitPrice: i.unitPrice,
         ));
       } else {
-        items.add(ProductModel(id: i.id, name: i.name, unitPrice: i.unitPrice, unit: i.unit));
+        items.add(
+          ProductModel(
+              id: i.id, name: i.name, unitPrice: i.unitPrice, unit: i.unit),
+        );
       }
     }
-    // switch (method) {
-    //   case WindowsMethodEnum.data:
-    //     return getAllDataToCustomerPage();
-    //   case WindowsMethodEnum.order:
-    //     return state.orderSelect;
-    //   case WindowsMethodEnum.customer:
-    //     return state.customer;
-    //   case WindowsMethodEnum.price:
-    //     return state.dataBill.price.copyWith(
-    //       receivedAmount:
-    //           (state.paymentMethodSelected?.isCash ?? false) ? state.cashReceivedAmount : 0,
-    //     );
-    //   case WindowsMethodEnum.paymentMethod:
-    //     return state.paymentMethodSelected;
-    //   case WindowsMethodEnum.productCheckout:
-    //     return items;
-    //   case WindowsMethodEnum.completeNote:
-    //     return state.completeNote;
-    //   case WindowsMethodEnum.kitchenNote:
-    //     return state.kitchenNote;
-    //   case WindowsMethodEnum.bank:
-    //     return state.bankSelect;
-    //   case WindowsMethodEnum.detailProduct:
-    //     return null;
-    //   case WindowsMethodEnum.language:
-    //     return LocalStorage.getCustomerLanguageLocal().name;
-    //   case WindowsMethodEnum.changeOrderProduct:
-    //     return {
-    //       'auto_scroll': state.autoScrollProducts,
-    //       'change_product_id': state.changedProductId,
-    //     };
-    //   default:
-    //     return null;
-    // }
+    switch (method) {
+      case WindowsMethodEnum.data:
+        return getAllDataToCustomerPage();
+      case WindowsMethodEnum.order:
+        return state.orderSelect;
+      case WindowsMethodEnum.customer:
+        return checkoutState.customer;
+      case WindowsMethodEnum.price:
+        return checkoutState.dataBill.price.copyWith(
+          receivedAmount: (checkoutState.paymentMethodSelect?.isCash ?? false)
+              ? checkoutState.cashReceivedAmount
+              : 0,
+        );
+      case WindowsMethodEnum.paymentMethod:
+        return checkoutState.paymentMethodSelect;
+      case WindowsMethodEnum.productCheckout:
+        return items;
+      case WindowsMethodEnum.completeNote:
+        return checkoutState.completeNote;
+      case WindowsMethodEnum.kitchenNote:
+        return '';
+      case WindowsMethodEnum.bank:
+        return checkoutState.bankSelect;
+      case WindowsMethodEnum.detailProduct:
+        return null;
+      case WindowsMethodEnum.language:
+        return LocalStorage.getCustomerLanguageLocal().name;
+      case WindowsMethodEnum.changeOrderProduct:
+        return {
+          'auto_scroll': state.autoScrollProducts,
+          'change_product_id': state.changedProductId,
+        };
+      default:
+        return null;
+    }
   }
 
   void updateReservationStatus(
@@ -3441,7 +3290,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       data = values.where((e) => true).toList();
 
       data = List.from(data.reversed);
-      data.sort((a, b) => (b.datetime ?? DateTime.now()).compareTo((a.datetime ?? DateTime.now())));
+      data.sort((a, b) => (b.datetime ?? DateTime.now())
+          .compareTo((a.datetime ?? DateTime.now())));
 
       state = state.copyWith(notifications: data);
     } else {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:aladdin_franchise/src/configs/api.dart';
+import 'package:aladdin_franchise/src/configs/dev_config.dart';
 import 'package:aladdin_franchise/src/configs/enums/app_log_action.dart';
 import 'package:aladdin_franchise/src/core/network/api/app_exception.dart';
 import 'package:aladdin_franchise/src/core/network/api/safe_call_api.dart';
@@ -117,19 +118,26 @@ class CustomerRepositoryImpl extends CustomerRepository {
 
   @override
   Future<void> deleteCustomer(int orderId) async {
-    var apiUrl = "${ApiConfig.apiUrl}/api/v1/remove-customer-id-to-order";
+    bool useCoupon = DevConfig.useCoupon;
+    var apiUrl = useCoupon
+        ? "${ApiConfig.apiUrl}/api/v1/status-lock-order?order_id=$orderId"
+        : "${ApiConfig.apiUrl}/api/v1/remove-customer-id-to-order";
     var body = jsonEncode({'order_id': orderId});
+    var log = ErrorLogModel(
+      action: AppLogAction.resetCustomer,
+      api: apiUrl,
+      order: OrderModel(id: orderId),
+      request: useCoupon ? body : null,
+    );
     var result = await safeCallApi(
       () {
         final url = Uri.parse(apiUrl);
+        if (useCoupon) {
+          return _client.get(url);
+        }
         return _client.post(url, body: body);
       },
-      log: ErrorLogModel(
-        action: AppLogAction.resetCustomer,
-        api: apiUrl,
-        order: OrderModel(id: orderId),
-        request: body,
-      ),
+      log: log,
     );
     if (!result.isSuccess) {
       throw AppException(

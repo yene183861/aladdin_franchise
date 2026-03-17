@@ -78,8 +78,7 @@ class AppPrinterHtmlUtils {
     return bytes;
   }
 
-  Future<List<int>> getReceptBillContent(
-      PaymentReceiptPrintRequest data) async {
+  Future<List<int>> getReceptBillContent(PaymentReceiptPrintRequest data) async {
     var htmlData = _receiptBillContent(data);
     var bytes = await generateImageBill(
       htmlData,
@@ -91,7 +90,7 @@ class AppPrinterHtmlUtils {
   String kitchenBillContent({
     List<ProductModel> product = const [],
     required OrderModel order,
-    int timeOrders = 1,
+    int? timeOrders,
     String note = '',
     bool totalBill = true,
     bool cancel = false,
@@ -117,8 +116,7 @@ class AppPrinterHtmlUtils {
         </tr>
       ''';
       }
-      List<ComboItemModel>? comboItems =
-          ProductHelper().getComboDescription(pc);
+      List<ComboItemModel>? comboItems = ProductHelper().getComboDescription(pc);
       // showLogs(comboItems, flags: 'comboItems');
       if (comboItems != null) {
         // check xem có cần nhân số lượng combo với món trong combo k
@@ -205,7 +203,7 @@ class AppPrinterHtmlUtils {
 
 <body style="margin: 0px;padding: 0px;">
 ${_getRestaurantInfo()}
-    <h2 style="text-align: center;word-wrap: break-word;">${cancel ? 'HỦY ĐỒ - ' : ''}${order.getOrderMisc()} - Bàn ${order.name}</h2>
+    <h2 style="text-align: center;word-wrap: break-word;">${cancel ? 'HỦY ĐỒ - ' : totalBill ? 'BILL TỔNG - ' : 'BILL LẺ - '}${order.getOrderMisc()} - Bàn ${order.name}</h2>
     <table class="items">
         <tr>
             <th width="75%">Tên món</th>
@@ -465,8 +463,7 @@ ${data.invoiceQr.trim().isNotEmpty ? '' : _getTime()}
   }
 
   String _printDateTime(DateTime? value) {
-    return DateTimeUtils.formatToString(
-        time: value, newPattern: DateTimePatterns.dateTime1);
+    return DateTimeUtils.formatToString(time: value, newPattern: DateTimePatterns.dateTime1);
   }
 
   Future<List<int>> getCloseShiftContent(CloseShiftResponseModel data) async {

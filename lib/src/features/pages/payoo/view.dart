@@ -235,9 +235,9 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
             onPressed: () {
               showConfirmAction(context, message: S.current.confirm_reload_payment_gateway,
                   action: () {
-                if (Platform.isWindows) {
-                  _windowsController?.reload();
-                }
+                // if (Platform.isWindows) {
+                _windowsController?.reload();
+                // }
               });
             },
             icon: const Icon(Icons.refresh),

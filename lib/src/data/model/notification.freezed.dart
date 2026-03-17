@@ -371,7 +371,8 @@ mixin _$NotificationDataModel {
       throw _privateConstructorUsedError;
   bool get useOddBill => throw _privateConstructorUsedError;
   bool get useDefaultPrinters => throw _privateConstructorUsedError;
-  bool get totalBill =>
+  bool get totalBill => throw _privateConstructorUsedError;
+  int? get timeOrders =>
       throw _privateConstructorUsedError; // @Default(true) bool status,
 // @Default(false) bool error,
   String? get refId => throw _privateConstructorUsedError;
@@ -406,6 +407,7 @@ abstract class $NotificationDataModelCopyWith<$Res> {
       bool useOddBill,
       bool useDefaultPrinters,
       bool totalBill,
+      int? timeOrders,
       String? refId,
       String? senderDeviceId,
       String? handleDeviceId,
@@ -444,6 +446,7 @@ class _$NotificationDataModelCopyWithImpl<$Res,
     Object? useOddBill = null,
     Object? useDefaultPrinters = null,
     Object? totalBill = null,
+    Object? timeOrders = freezed,
     Object? refId = freezed,
     Object? senderDeviceId = freezed,
     Object? handleDeviceId = freezed,
@@ -488,6 +491,10 @@ class _$NotificationDataModelCopyWithImpl<$Res,
           ? _value.totalBill
           : totalBill // ignore: cast_nullable_to_non_nullable
               as bool,
+      timeOrders: freezed == timeOrders
+          ? _value.timeOrders
+          : timeOrders // ignore: cast_nullable_to_non_nullable
+              as int?,
       refId: freezed == refId
           ? _value.refId
           : refId // ignore: cast_nullable_to_non_nullable
@@ -588,6 +595,7 @@ abstract class _$$NotificationDataModelImplCopyWith<$Res>
       bool useOddBill,
       bool useDefaultPrinters,
       bool totalBill,
+      int? timeOrders,
       String? refId,
       String? senderDeviceId,
       String? handleDeviceId,
@@ -627,6 +635,7 @@ class __$$NotificationDataModelImplCopyWithImpl<$Res>
     Object? useOddBill = null,
     Object? useDefaultPrinters = null,
     Object? totalBill = null,
+    Object? timeOrders = freezed,
     Object? refId = freezed,
     Object? senderDeviceId = freezed,
     Object? handleDeviceId = freezed,
@@ -671,6 +680,10 @@ class __$$NotificationDataModelImplCopyWithImpl<$Res>
           ? _value.totalBill
           : totalBill // ignore: cast_nullable_to_non_nullable
               as bool,
+      timeOrders: freezed == timeOrders
+          ? _value.timeOrders
+          : timeOrders // ignore: cast_nullable_to_non_nullable
+              as int?,
       refId: freezed == refId
           ? _value.refId
           : refId // ignore: cast_nullable_to_non_nullable
@@ -728,6 +741,7 @@ class _$NotificationDataModelImpl extends _NotificationDataModel {
       this.useOddBill = false,
       this.useDefaultPrinters = false,
       this.totalBill = true,
+      this.timeOrders,
       this.refId,
       this.senderDeviceId,
       this.handleDeviceId,
@@ -768,6 +782,8 @@ class _$NotificationDataModelImpl extends _NotificationDataModel {
   @override
   @JsonKey()
   final bool totalBill;
+  @override
+  final int? timeOrders;
 // @Default(true) bool status,
 // @Default(false) bool error,
   @override
@@ -808,7 +824,7 @@ class _$NotificationDataModelImpl extends _NotificationDataModel {
 
   @override
   String toString() {
-    return 'NotificationDataModel(id: $id, type: $type, mode: $mode, closeShiftData: $closeShiftData, paymentData: $paymentData, useOddBill: $useOddBill, useDefaultPrinters: $useDefaultPrinters, totalBill: $totalBill, refId: $refId, senderDeviceId: $senderDeviceId, handleDeviceId: $handleDeviceId, order: $order, products: $products, note: $note, printers: $printers, printStatus: $printStatus, message: $message, title: $title)';
+    return 'NotificationDataModel(id: $id, type: $type, mode: $mode, closeShiftData: $closeShiftData, paymentData: $paymentData, useOddBill: $useOddBill, useDefaultPrinters: $useDefaultPrinters, totalBill: $totalBill, timeOrders: $timeOrders, refId: $refId, senderDeviceId: $senderDeviceId, handleDeviceId: $handleDeviceId, order: $order, products: $products, note: $note, printers: $printers, printStatus: $printStatus, message: $message, title: $title)';
   }
 
   @override
@@ -829,6 +845,8 @@ class _$NotificationDataModelImpl extends _NotificationDataModel {
                 other.useDefaultPrinters == useDefaultPrinters) &&
             (identical(other.totalBill, totalBill) ||
                 other.totalBill == totalBill) &&
+            (identical(other.timeOrders, timeOrders) ||
+                other.timeOrders == timeOrders) &&
             (identical(other.refId, refId) || other.refId == refId) &&
             (identical(other.senderDeviceId, senderDeviceId) ||
                 other.senderDeviceId == senderDeviceId) &&
@@ -846,26 +864,28 @@ class _$NotificationDataModelImpl extends _NotificationDataModel {
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      type,
-      mode,
-      closeShiftData,
-      paymentData,
-      useOddBill,
-      useDefaultPrinters,
-      totalBill,
-      refId,
-      senderDeviceId,
-      handleDeviceId,
-      order,
-      const DeepCollectionEquality().hash(_products),
-      note,
-      const DeepCollectionEquality().hash(_printers),
-      printStatus,
-      message,
-      title);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        id,
+        type,
+        mode,
+        closeShiftData,
+        paymentData,
+        useOddBill,
+        useDefaultPrinters,
+        totalBill,
+        timeOrders,
+        refId,
+        senderDeviceId,
+        handleDeviceId,
+        order,
+        const DeepCollectionEquality().hash(_products),
+        note,
+        const DeepCollectionEquality().hash(_printers),
+        printStatus,
+        message,
+        title
+      ]);
 
   @JsonKey(ignore: true)
   @override
@@ -892,6 +912,7 @@ abstract class _NotificationDataModel extends NotificationDataModel {
       final bool useOddBill,
       final bool useDefaultPrinters,
       final bool totalBill,
+      final int? timeOrders,
       final String? refId,
       final String? senderDeviceId,
       final String? handleDeviceId,
@@ -924,6 +945,8 @@ abstract class _NotificationDataModel extends NotificationDataModel {
   bool get useDefaultPrinters;
   @override
   bool get totalBill;
+  @override
+  int? get timeOrders;
   @override // @Default(true) bool status,
 // @Default(false) bool error,
   String? get refId;

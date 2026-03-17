@@ -117,26 +117,32 @@ final invoiceRepositoryProvider = Provider<InvoiceRepository>((ref) {
 });
 
 /// lấy danh sách bàn của cả 2 kiểu
-final FutureProvider<({OrdersResponseData? offline, OrdersResponseData? online})>
+final FutureProvider<
+        ({OrdersResponseData? offline, OrdersResponseData? online})>
     tablesAndOrdersProvider =
     FutureProvider<({OrdersResponseData? offline, OrdersResponseData? online})>(
-        (FutureProviderRef<({OrdersResponseData? offline, OrdersResponseData? online})> ref) async {
-  OrdersResponseData? offData =
-      await ref.read(orderRepositoryProvider).getOrders(typeOrder: TypeOrderEnum.offline.type);
+        (FutureProviderRef<
+                ({OrdersResponseData? offline, OrdersResponseData? online})>
+            ref) async {
+  OrdersResponseData? offData = await ref
+      .read(orderRepositoryProvider)
+      .getOrders(typeOrder: TypeOrderEnum.offline.type);
 
   OrdersResponseData? onData;
   if (ref.read(enableOrderOnlineProvider)) {
-    onData =
-        await ref.read(orderRepositoryProvider).getOrders(typeOrder: TypeOrderEnum.online.type);
+    onData = await ref
+        .read(orderRepositoryProvider)
+        .getOrders(typeOrder: TypeOrderEnum.online.type);
   }
 
   final orderCurrent = ref.read(homeProvider.notifier).getOrderSelect();
   // Kiểm tra nếu đơn bàn đang chọn không tồn tại nữa thì xoá bỏ trong home state
   if (orderCurrent != null) {
-    OrderModel? orderCheck = (orderCurrent.typeOrder == TypeOrderEnum.offline.type
-            ? (offData?.userUsing ?? [])
-            : (onData?.userUsing ?? []))
-        .firstWhereOrNull((e) => e.id == orderCurrent.id);
+    OrderModel? orderCheck =
+        (orderCurrent.typeOrder == TypeOrderEnum.offline.type
+                ? (offData?.userUsing ?? [])
+                : (onData?.userUsing ?? []))
+            .firstWhereOrNull((e) => e.id == orderCurrent.id);
     showLogs(orderCheck, flags: 'orderCheck');
     ref.read(homeProvider.notifier).changeOrderSelect(orderCheck);
   }
@@ -147,10 +153,17 @@ final FutureProvider<({OrdersResponseData? offline, OrdersResponseData? online})
 /// [0] - danh sách bàn hiện tại đang chọn
 /// [1] - danh sách bàn chưa sử dụng + bàn hiện tại đang chọn
 final tableAvailableUpdateOrderProvider = FutureProvider.autoDispose<
-        ({List<TableModel> notUse, List<TableModel> tableSelect, List<TableModel> using})>(
-    (FutureProviderRef<
-            ({List<TableModel> notUse, List<TableModel> tableSelect, List<TableModel> using})>
-        ref) async {
+    ({
+      List<TableModel> notUse,
+      List<TableModel> tableSelect,
+      List<TableModel> using
+    })>((FutureProviderRef<
+        ({
+          List<TableModel> notUse,
+          List<TableModel> tableSelect,
+          List<TableModel> using
+        })>
+    ref) async {
   var orderSelect = ref.read(homeProvider.notifier).getOrderSelect();
   if (orderSelect != null) {
     final result = await ref.read(orderRepositoryProvider).getOrders();
@@ -166,7 +179,11 @@ final tableAvailableUpdateOrderProvider = FutureProvider.autoDispose<
     notUse.insertAll(0, tableSelect);
     return (notUse: notUse, tableSelect: tableSelect, using: using);
   }
-  return (notUse: <TableModel>[], tableSelect: <TableModel>[], using: <TableModel>[]);
+  return (
+    notUse: <TableModel>[],
+    tableSelect: <TableModel>[],
+    using: <TableModel>[]
+  );
 });
 
 /// Dành cho chuyển giao đơn bàn
@@ -220,9 +237,12 @@ final tableAvailableAndWaiterTransferOrderProvider = FutureProvider.autoDispose<
   );
 });
 
-final historyOrderProvider = FutureProvider.autoDispose<List<HistoryOrderModel>>((ref) async {
-  var startDate = ref.watch(historyOrderPageProvider.select((value) => value.startDate));
-  var endDate = ref.watch(historyOrderPageProvider.select((value) => value.endDate));
+final historyOrderProvider =
+    FutureProvider.autoDispose<List<HistoryOrderModel>>((ref) async {
+  var startDate =
+      ref.watch(historyOrderPageProvider.select((value) => value.startDate));
+  var endDate =
+      ref.watch(historyOrderPageProvider.select((value) => value.endDate));
   var result = await ref
       .read(restaurantRepositoryProvider)
       .getOrderHistoryList(startDate: startDate, endDate: endDate);
@@ -235,9 +255,11 @@ final historyOrderProvider = FutureProvider.autoDispose<List<HistoryOrderModel>>
 //   return result;
 // });
 
-final reservationsProvider = FutureProvider.autoDispose.family<List<ReservationModel>, DateTime>(
+final reservationsProvider =
+    FutureProvider.autoDispose.family<List<ReservationModel>, DateTime>(
   (ref, date) async {
-    var useReservation = LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
+    var useReservation =
+        LocalStorage.getDataLogin()?.restaurant?.reservationStatus ?? false;
     if (!useReservation) return [];
     var param = ReservationRequestModel(
       restaurantId: LocalStorage.getDataLogin()?.restaurant?.id ?? 0,
@@ -250,7 +272,8 @@ final reservationsProvider = FutureProvider.autoDispose.family<List<ReservationM
 );
 
 final orderToOnlineProvider =
-    FutureProvider.autoDispose<Map<O2OOrderModel, Map<String, dynamic>>>((ref) async {
+    FutureProvider.autoDispose<Map<O2OOrderModel, Map<String, dynamic>>>(
+        (ref) async {
   var useO2O = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
   if (!useO2O) return {};
   var loginUserId = LocalStorage.getDataLogin()?.user?.id;
@@ -272,15 +295,21 @@ final orderToOnlineProvider =
     itemData.addAll(items);
 
     for (var i in items) {
-      if (i.requestProcessingStatus == RequestProcessingStatus.waiting && i.listItem.isNotEmpty) {
+      if (i.requestProcessingStatus == RequestProcessingStatus.waiting &&
+          i.listItem.isNotEmpty) {
         count++;
-        if (oldestTimeOrder == null || (i.timeOrder?.isBefore(oldestTimeOrder) ?? false)) {
+        if (oldestTimeOrder == null ||
+            (i.timeOrder?.isBefore(oldestTimeOrder) ?? false)) {
           oldestTimeOrder = i.timeOrder;
         }
       }
     }
 
-    orders[order] = {'items': itemData, 'count': count, 'oldest_time_order': oldestTimeOrder};
+    orders[order] = {
+      'items': itemData,
+      'count': count,
+      'oldest_time_order': oldestTimeOrder
+    };
   }
 
   final sortedEntries = orders.entries.toList()
@@ -295,7 +324,8 @@ final orderToOnlineProvider =
       return tA.compareTo(tB);
     });
 
-  final sortedOrders = Map<O2OOrderModel, Map<String, dynamic>>.fromEntries(sortedEntries);
+  final sortedOrders =
+      Map<O2OOrderModel, Map<String, dynamic>>.fromEntries(sortedEntries);
 
   return sortedOrders;
 });
@@ -322,9 +352,11 @@ final newOrderToOnlineProvider =
     itemData.addAll(items);
 
     for (var i in items) {
-      if (i.requestProcessingStatus == RequestProcessingStatus.waiting && i.listItem.isNotEmpty) {
+      if (i.requestProcessingStatus == RequestProcessingStatus.waiting &&
+          i.listItem.isNotEmpty) {
         count++;
-        if (oldestTimeOrder == null || (i.timeOrder?.isBefore(oldestTimeOrder) ?? false)) {
+        if (oldestTimeOrder == null ||
+            (i.timeOrder?.isBefore(oldestTimeOrder) ?? false)) {
           oldestTimeOrder = i.timeOrder;
         }
       }
@@ -350,24 +382,27 @@ final newOrderToOnlineProvider =
       return tA.compareTo(tB);
     });
 
-  final sortedOrders = Map<int, Map<String, dynamic>>.fromEntries(sortedEntries);
+  final sortedOrders =
+      Map<int, Map<String, dynamic>>.fromEntries(sortedEntries);
 
   return sortedOrders;
 });
 
-final todayHistoryOrderProvider = FutureProvider.autoDispose<List<HistoryOrderModel>>((ref) async {
+final todayHistoryOrderProvider =
+    FutureProvider.autoDispose<List<HistoryOrderModel>>((ref) async {
   var today = DateTime.now().date;
-  var result = await ref
-      .read(restaurantRepositoryProvider)
-      .getOrderHistoryList(startDate: today.subtract(const Duration(days: 1)), endDate: today);
+  var result = await ref.read(restaurantRepositoryProvider).getOrderHistoryList(
+      startDate: today.subtract(const Duration(days: 1)), endDate: today);
 
   return result;
 });
 
 /// lấy cấu hình thiết lập o2o
 final o2oConfigProvider = FutureProvider<O2oConfigModel>((ref) async {
-  var result = await ref.read(restaurantRepositoryProvider).getO2oAutoAcceptConfig();
-  showLogs(result, flags: 'result');
+  var result =
+      await ref.read(restaurantRepositoryProvider).getO2oAutoAcceptConfig();
+
+      showLogs(result, flags: 'o2oConfigProvider');
   return result;
 });
 
@@ -376,7 +411,8 @@ final printersProvider = FutureProvider<List<PrinterModel>>((ref) async {
   return result;
 });
 
-final printerByOrderProvider = FutureProvider.autoDispose<List<PrinterModel>>((ref) async {
+final printerByOrderProvider =
+    FutureProvider.autoDispose<List<PrinterModel>>((ref) async {
   var order = ref.watch(homeProvider.select((value) => value.orderSelect));
   if (order == null) return [];
   var result = await ref.read(orderRepositoryProvider).getIpPrinterOrder(
@@ -403,8 +439,8 @@ final printerByOrderProvider = FutureProvider.autoDispose<List<PrinterModel>>((r
   return defaultPrinters;
 });
 
-final categoryByOrderProvider =
-    FutureProvider.autoDispose.family<CategoryResponseData, int>((ref, type) async {
+final categoryByOrderProvider = FutureProvider.autoDispose
+    .family<CategoryResponseData, int>((ref, type) async {
   var result = await ref.read(menuRepositoryProvider).getCategory(type);
   return result;
 });

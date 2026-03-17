@@ -11,11 +11,13 @@ class TitleWithCloseIconDialog extends ConsumerWidget {
     this.icon,
     this.padding,
     this.onPressedCloseBtn,
+    this.notClose = false,
   });
   final String title;
   final IconData? icon;
   final EdgeInsetsGeometry? padding;
   final void Function()? onPressedCloseBtn;
+  final bool notClose;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,7 +36,7 @@ class TitleWithCloseIconDialog extends ConsumerWidget {
               rawFontSize: AppConfig.defaultRawTextSize + 1.0,
             ),
           )),
-          CloseButton(onPressed: onPressedCloseBtn),
+          if (!notClose) CloseButton(onPressed: onPressedCloseBtn),
         ],
       ),
     );

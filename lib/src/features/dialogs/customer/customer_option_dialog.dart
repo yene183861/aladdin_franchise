@@ -6,7 +6,7 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/customer/create_customer.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider_test.dart';
+import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/btn_with_icon.dart';
 import 'package:aladdin_franchise/src/features/widgets/dialog/title_with_close_icon.dart';
@@ -105,45 +105,14 @@ class __CustomerOptionDialogState extends ConsumerState<_CustomerOptionDialog> {
                         });
                         return null;
                       },
+                      onEditingComplete: _findCustomer,
                     ),
                   ),
                 ),
                 const Gap(8),
                 AppButton(
                   height: 56,
-                  onPressed: () async {
-                    var phone = _textController.text.trim();
-                    if ((error.value ?? '').trim().isNotEmpty) return;
-                    if (_formKey.currentState?.validate() ?? false) {
-                      var result = await ref.read(checkoutProvider.notifier).findCustomer(phone);
-                      if (result != FindCustomerStatus.success) {
-                        var errorMessage = ref.read(checkoutProvider).message;
-                        // Hiển thị thông báo kèm theo nút tạo khách hàng mới
-                        if (result == FindCustomerStatus.notFound) {
-                          if (context.mounted) {
-                            await showConfirmAction(
-                              context,
-                              title: S.current.notification,
-                              actionTitle: S.current.createNewCustomers,
-                              message: errorMessage,
-                              action: () async {
-                                _createCustomer(context, phone);
-                              },
-                            );
-                          }
-                        } else {
-                          if (context.mounted) {
-                            await showMessageDialog(
-                              context,
-                              message: errorMessage,
-                            );
-                          }
-                        }
-                        return;
-                      }
-                      _textController.text = '';
-                    }
-                  },
+                  onPressed: _findCustomer,
                 ),
               ],
             ),
@@ -190,6 +159,40 @@ class __CustomerOptionDialogState extends ConsumerState<_CustomerOptionDialog> {
         ],
       ),
     );
+  }
+
+  void _findCustomer() async {
+    var phone = _textController.text.trim();
+    if ((error.value ?? '').trim().isNotEmpty) return;
+    if (_formKey.currentState?.validate() ?? false) {
+      var result = await ref.read(checkoutProvider.notifier).findCustomer(phone);
+      if (result != FindCustomerStatus.success) {
+        var errorMessage = ref.read(checkoutProvider).message;
+        // Hiển thị thông báo kèm theo nút tạo khách hàng mới
+        if (result == FindCustomerStatus.notFound) {
+          if (context.mounted) {
+            await showConfirmAction(
+              context,
+              title: S.current.notification,
+              actionTitle: S.current.createNewCustomers,
+              message: errorMessage,
+              action: () async {
+                _createCustomer(context, phone);
+              },
+            );
+          }
+        } else {
+          if (context.mounted) {
+            await showMessageDialog(
+              context,
+              message: errorMessage,
+            );
+          }
+        }
+        return;
+      }
+      _textController.text = '';
+    }
   }
 
   void _createCustomer(BuildContext context, [String phone = '']) async {

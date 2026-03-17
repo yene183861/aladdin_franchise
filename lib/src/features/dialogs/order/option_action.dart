@@ -60,7 +60,7 @@ class OrderOptionAction extends ConsumerWidget {
               if (mContext.mounted) Navigator.pop(mContext);
               var typeOrder = result.typeOrder ?? kTypeOrder;
               try {
-                await mRef.read(homeProvider.notifier).loadingChangeOrderSelect(
+                await mRef.read(homeProvider.notifier).selectNewOrder(
                       result.orderId!,
                       reservationCrmId: result.reservation?.id,
                       typeOrder: typeOrder,
