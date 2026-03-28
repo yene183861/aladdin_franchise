@@ -39,11 +39,10 @@ void main(List<String> args) async {
       DeviceOrientation.landscapeLeft,
     ]);
   }
-  if (args.firstOrNull == 'multi_window' && Platform.isWindows) {
+  if (args.firstOrNull == 'multi_window' && AppConfig.canOpenCustomerPage) {
     final windowId = int.parse(args[1]);
-    final argument = args[2].isEmpty
-        ? const <String, dynamic>{}
-        : jsonDecode(args[2]) as Map<String, dynamic>;
+    final argument =
+        args[2].isEmpty ? const <String, dynamic>{} : jsonDecode(args[2]) as Map<String, dynamic>;
     await LocalStorage.initialize();
     runApp(ProviderScope(
         child: MySecondApp(
@@ -51,7 +50,7 @@ void main(List<String> args) async {
       args: argument,
     )));
   } else {
-    if (Platform.isWindows) {
+    if (AppConfig.canOpenCustomerPage) {
       await windowManager.ensureInitialized();
       WindowOptions windowOptions = const WindowOptions(
         // minimumSize: Size(1000, 600),
@@ -140,8 +139,7 @@ Future<void> _initHive() async {
       Hive.registerAdapter(NotificationModelAdapter());
     }
 
-    await safeOpenBoxNotification<NotificationModel>(
-        AppConfig.notificationBoxName);
+    await safeOpenBoxNotification<NotificationModel>(AppConfig.notificationBoxName);
   } catch (ex) {
     showLog(ex, flags: "_initHive");
   }
@@ -193,13 +191,11 @@ Future<void> _initWebContentConverter() async {
   try {
     if (WebViewHelper.isDesktop) {
       await windowManager.ensureInitialized();
-      var executablePath =
-          await ChromeDesktopDirectoryHelper.saveChromeFromAssetToApp(
+      var executablePath = await ChromeDesktopDirectoryHelper.saveChromeFromAssetToApp(
         assetPath: 'assets/1056772_chrome-win.zip',
       );
       WebViewHelper.customBrowserPath = [executablePath];
-      await WebcontentConverter.ensureInitialized(
-          executablePath: executablePath);
+      await WebcontentConverter.ensureInitialized(executablePath: executablePath);
     }
   } catch (ex) {
     showLogs(ex.toString(), flags: '_initWebContentConverter');

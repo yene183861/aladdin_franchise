@@ -12,6 +12,9 @@ class AppUtils {
   static String? getPercentValue(dynamic data, [bool showSymbol = true]) {
     var value = data is double ? data : convertToDouble(data);
     if (value == null) return null;
+    if (value < 1) {
+      value = value * 100;
+    }
     return '${value.toInt()}${showSymbol ? '%' : ''}';
   }
 

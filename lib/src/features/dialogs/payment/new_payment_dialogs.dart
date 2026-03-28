@@ -50,16 +50,172 @@ import 'package:flutter_spinbox/flutter_spinbox.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:rxdart/rxdart.dart';
 
+void showPaymentInfoDialog(BuildContext context, WidgetRef ref) async {
+  if (DevConfig.newUI) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const PaymentMethodSelectDialog();
+      },
+    );
+  } else {
+    await showConfirmActionWithChild(
+      context,
+      title: S.current.payment_method,
+      child: const SelectPaymentMethodWidget(),
+      notCancel: false,
+      actionTitle: S.current.confirm,
+      textCancel: S.current.close,
+      closeDialog: false,
+      action: () async {
+        var checkoutState = ref.read(checkoutProvider);
+        var paymentMethodSelect = checkoutState.paymentMethodSelect;
+        if (paymentMethodSelect == null) {
+          showMessageDialog(context, message: S.current.payment_method_not_select);
+          return;
+        }
+        var productCheckout = checkoutState.productCheckout;
+        if (productCheckout.isEmpty) {
+          showMessageDialog(context, message: 'Vui lòng chọn món trước khi thanh toán');
+          return;
+        }
+        // // có ít nhất 1 món có thể sửa thuế
+        // List<ProductCheckoutModel> pc = [];
+
+        // ref.read(checkoutProvider).dataBill.orderLineItems.forEach(
+        //   (item) {
+        //     if (item.isChangeTax == 1) {
+        //       var p = productCheckout.firstWhereOrNull((e) => e?.id == item.id);
+        //       if (p != null) {
+        //         pc.add(p);
+        //       }
+        //     }
+        //   },
+        // );
+        // if (pc.isNotEmpty) {
+        //   bool isChangedTax = false;
+        //   await showConfirmActionWithChild(
+        //     context,
+        //     noTitle: true,
+        //     title: S.current.edit_tax_information,
+        //     closeDialog: false,
+        //     child: SizedBox(
+        //       width: MediaQuery.of(context).size.width,
+        //       child: EditTaxDialog(
+        //           products: ref.read(menuProvider).products,
+        //           productCheckouts: pc,
+        //           onSave: (List<ProductCheckoutModel> changedPc) {
+        //             pc = changedPc;
+        //           }),
+        //     ),
+        //     onCheckAction: () {
+        //       if (paymentMethodSelect.requireEditTax && pc.any((e) => e.tax == 0)) {
+        //         showMessageDialog(context, canPop: false, message: S.current.error_edit_tax);
+        //         return false;
+        //       }
+        //       return true;
+        //     },
+        //     actionTitle: S.current.save_and_continue_payment,
+        //     action: () async {
+        //       var res = await ref.read(homeProvider.notifier).onUpdateTax(pc);
+        //       if (res.error != null) {
+        //         showMessageDialog(context, message: res.error!, canPop: false);
+        //         return;
+        //       }
+        //       pop(context);
+        //       isChangedTax = true;
+        //     },
+        //   );
+        //   if (!isChangedTax) {
+        //     return;
+        //   }
+        //   final result = await ref.read(homeProvider.notifier).getDataBill(loadingHome: true);
+        //   if (result != null) {
+        //     showMessageDialog(context, message: result);
+        //     return;
+        //   }
+        // }
+        // var resultCheck = checkItemBeforeCompleteBill(
+        //   orderLineItems: ref.read(homeProvider).dataBill.orderLineItems,
+        //   paymentMethodSelect: paymentMethodSelect,
+        // );
+        // if (resultCheck != null) {
+        //   showMessageDialog(context, message: resultCheck);
+        //   return;
+        // }
+        if (paymentMethodSelect.isBank) {
+          if (checkoutState.bankSelect == null) {
+            showMessageDialog(context, message: S.current.no_bank_select);
+            return;
+          }
+        } else if (paymentMethodSelect.isGateway) {
+          // onLoadPaymentGateway(context: context, ref: ref);
+          // return;
+        } else if (paymentMethodSelect.isAtm) {
+          //   // chọn máy cà thẻ
+          //   final res = await showConfirmActionWithChild(
+          //     context,
+          //     title: S.current.choose_card_machine,
+          //     child: const ListPosATMWidget(),
+          //     notCancel: false,
+          //     actionTitle: S.current.confirm,
+          //     textCancel: S.current.close,
+          //     closeDialog: false,
+          //     onCheckAction: () {
+          //       var posSelect = ref.read(checkoutProvider).atmPosSelect;
+          //       if (posSelect == null) {
+          //         showMessageDialog(
+          //           context,
+          //           message: S.current.no_card_machine_select,
+          //         );
+          //         return false;
+          //       }
+          //       return true;
+          //     },
+          //     action: () async {
+          //       var posSelect = ref.read(checkoutProvider).atmPosSelect;
+
+          //       if (posSelect == null) {
+          //         showMessageDialog(
+          //           context,
+          //           message: S.current.no_card_machine_select,
+          //         );
+          //         return;
+          //       }
+          //       pop(context, true);
+          //     },
+          //   );
+
+          //   /// setting = 1 - cà thẻ tĩnh, 2 - cà thẻ động
+          //   showLogs(ref.read(checkoutProvider).atmPosSelect, flags: 'máy cà thẻ');
+          //   if (res != true) {
+          //     return;
+          //   }
+        }
+        // await showConfirmCompleteBillDialog(
+        //   context,
+        //   ref,
+        // );
+      },
+      actionCancel: () async {
+        ref.read(checkoutProvider.notifier).onChangeCashReceivedAmount(0);
+        // unlock đơn bàn (mặc định get phương thức thanh toán thì bàn đã khóa)
+        await ref.read(homeProvider.notifier).unlockOrder();
+        // ref.read(homeProvider.notifier).onUpdateDefaultTax();
+      },
+    );
+  }
+  return;
+}
+
 class PaymentMethodSelectDialog extends ConsumerStatefulWidget {
   const PaymentMethodSelectDialog({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _PaymentMethodSelectDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _PaymentMethodSelectDialogState();
 }
 
-class _PaymentMethodSelectDialogState
-    extends ConsumerState<PaymentMethodSelectDialog> {
+class _PaymentMethodSelectDialogState extends ConsumerState<PaymentMethodSelectDialog> {
   @override
   void initState() {
     super.initState();
@@ -77,6 +233,7 @@ class _PaymentMethodSelectDialogState
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             TitleWithCloseIconDialog(
               title: 'Thanh toán',
@@ -99,7 +256,7 @@ class _PaymentMethodSelectDialogState
                   )
                 ],
               ),
-            ),
+            )
           ],
         ),
       ),
@@ -123,12 +280,11 @@ class _PaymentLeft extends StatelessWidget {
           const Gap(12),
           Expanded(
             child: Consumer(builder: (context, ref, child) {
-              var paymentMethods = ref.watch(
-                  checkoutProvider.select((value) => value.paymentMethods));
-              var paymentMethodSelect = ref.watch(checkoutProvider
-                  .select((value) => value.paymentMethodSelect));
-              var state = ref.watch(
-                  checkoutProvider.select((value) => value.paymentMethodState));
+              var paymentMethods =
+                  ref.watch(checkoutProvider.select((value) => value.paymentMethods));
+              var paymentMethodSelect =
+                  ref.watch(checkoutProvider.select((value) => value.paymentMethodSelect));
+              var state = ref.watch(checkoutProvider.select((value) => value.paymentMethodState));
 
               switch (state.status) {
                 case PageCommonState.loading:
@@ -155,8 +311,7 @@ class _PaymentLeft extends StatelessWidget {
                 children: [
                   Container(
                     constraints: BoxConstraints(
-                        maxHeight: min(
-                            56 * 3, (paymentMethods.length / 2).ceil() * 56)),
+                        maxHeight: min(56 * 3, (paymentMethods.length / 2).ceil() * 56)),
                     child: MasonryGridView.count(
                       crossAxisCount: 2,
                       mainAxisSpacing: 8,
@@ -177,10 +332,7 @@ class _PaymentLeft extends StatelessWidget {
                   Expanded(
                     child: EditTaxDialog1(
                       isDialog: false,
-                      notAllowTaxs:
-                          (paymentMethodSelect?.requireEditTax ?? false)
-                              ? [0.0]
-                              : [],
+                      notAllowTaxs: (paymentMethodSelect?.requireEditTax ?? false) ? [0.0] : [],
                       // onCheckBeforeUpdate: (p0) {
                       //   return null;
                       //   // if (paymentMethodSelect == null) return null;
@@ -252,12 +404,9 @@ class _InfoATMPaymentState extends ConsumerState<InfoATMPayment> {
 
   @override
   Widget build(BuildContext context) {
-    final listAtmPosState =
-        ref.watch(checkoutProvider.select((value) => value.listAtmPosState));
-    final listAtmPos =
-        ref.watch(checkoutProvider.select((value) => value.listAtmPos));
-    final atmPosSelect =
-        ref.watch(checkoutProvider.select((value) => value.atmPosSelect));
+    final listAtmPosState = ref.watch(checkoutProvider.select((value) => value.listAtmPosState));
+    final listAtmPos = ref.watch(checkoutProvider.select((value) => value.listAtmPos));
+    final atmPosSelect = ref.watch(checkoutProvider.select((value) => value.atmPosSelect));
 
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
@@ -284,8 +433,7 @@ class _InfoATMPaymentState extends ConsumerState<InfoATMPayment> {
         Expanded(
           child: Center(
             child: switch (listAtmPosState.status) {
-              PageCommonState.loading =>
-                const Center(child: AppLoadingSimpleWidget()),
+              PageCommonState.loading => const Center(child: AppLoadingSimpleWidget()),
               PageCommonState.error => Center(
                   child: AppErrorSimpleWidget(
                     message: "${S.current.error_loading_payment_QR_code}\n"
@@ -307,15 +455,12 @@ class _InfoATMPaymentState extends ConsumerState<InfoATMPayment> {
                           padding: const EdgeInsets.only(bottom: 8),
                           child: InkWell(
                             onTap: () {
-                              ref
-                                  .read(checkoutProvider.notifier)
-                                  .onChangeAtmPosSelect(item);
+                              ref.read(checkoutProvider.notifier).onChangeAtmPosSelect(item);
                             },
                             borderRadius: AppConfig.borderRadiusMain,
                             child: Container(
                               constraints: const BoxConstraints(minWidth: 500),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               decoration: BoxDecoration(
                                 border: Border.all(
                                     color: atmPosSelect == item
@@ -343,8 +488,7 @@ class InfoBankPayment extends ConsumerStatefulWidget {
   const InfoBankPayment({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _InfoBankPaymentState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _InfoBankPaymentState();
 }
 
 class _InfoBankPaymentState extends ConsumerState<InfoBankPayment> {
@@ -360,17 +504,13 @@ class _InfoBankPaymentState extends ConsumerState<InfoBankPayment> {
 
   @override
   Widget build(BuildContext context) {
-    final bankState =
-        ref.watch(checkoutProvider.select((value) => value.banksState));
+    final bankState = ref.watch(checkoutProvider.select((value) => value.banksState));
     final banks = ref.watch(checkoutProvider.select((value) => value.banks));
-    final bankSelect =
-        ref.watch(checkoutProvider.select((value) => value.bankSelect));
-    final invoice =
-        ref.watch(checkoutProvider.select((value) => value.invoice));
+    final bankSelect = ref.watch(checkoutProvider.select((value) => value.bankSelect));
+    final invoice = ref.watch(checkoutProvider.select((value) => value.invoice));
     bool flagInvoice = invoice != null && !invoice.isEmpty();
     var banksView = banks
-        .where((element) =>
-            (element.useInvoice == null || element.useInvoice == flagInvoice))
+        .where((element) => (element.useInvoice == null || element.useInvoice == flagInvoice))
         .toList();
     WidgetsBinding.instance.addPostFrameCallback(
       (timeStamp) {
@@ -393,91 +533,84 @@ class _InfoBankPaymentState extends ConsumerState<InfoBankPayment> {
           'Danh sách tài khoản ngân hàng',
           style: AppTextStyle.bold(),
         ),
-        Expanded(
-          child: Center(
-            child: switch (bankState.status) {
-              PageCommonState.loading => const AppLoadingSimpleWidget(),
-              PageCommonState.error => AppErrorSimpleWidget(
-                  message: "${S.current.error_loading_payment_QR_code}\n"
-                      "${S.current.ex_problem}: ${bankState.messageError}",
-                  onTryAgain: () {
-                    ref.read(checkoutProvider.notifier).getBanks();
-                  },
-                ),
-              PageCommonState.success => banks.isEmpty
-                  ? AppErrorSimpleWidget(
-                      message: S.current.bank_account_not_setup,
-                      textButton: S.current.reload,
-                      onTryAgain: () {
-                        ref.read(checkoutProvider.notifier).getBanks();
-                      },
-                    )
-                  : banksView.isEmpty
-                      ? Text(
-                          '${S.current.bank_account}${flagInvoice == true ? ' ${S.current.invoice_support}' : ''} ${S.current.not_set_up}')
-                      : SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              ...banksView.map(
-                                (e) {
-                                  return Card(
-                                    elevation: 0,
-                                    color: Colors.grey.shade100,
-                                    child: ListTile(
-                                      shape: AppConfig.shapeBorderMain,
-                                      onTap: () {
-                                        ref
-                                            .read(checkoutProvider.notifier)
-                                            .onChangeBankSelect(e);
-                                      },
-                                      title: e.title.isEmpty
-                                          ? null
-                                          : Text(
-                                              e.title,
-                                              style: AppTextStyle.regular(),
-                                            ),
-                                      subtitle: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            e.bankName,
-                                            style: AppTextStyle.regular(
-                                                color: Colors.black),
-                                          ),
-                                          Text(
-                                            e.bankNumber,
+        Center(
+          child: switch (bankState.status) {
+            PageCommonState.loading => const AppLoadingSimpleWidget(),
+            PageCommonState.error => AppErrorSimpleWidget(
+                message: "${S.current.error_loading_payment_QR_code}\n"
+                    "${S.current.ex_problem}: ${bankState.messageError}",
+                onTryAgain: () {
+                  ref.read(checkoutProvider.notifier).getBanks();
+                },
+              ),
+            PageCommonState.success => banks.isEmpty
+                ? AppErrorSimpleWidget(
+                    message: S.current.bank_account_not_setup,
+                    textButton: S.current.reload,
+                    onTryAgain: () {
+                      ref.read(checkoutProvider.notifier).getBanks();
+                    },
+                  )
+                : banksView.isEmpty
+                    ? Text(
+                        '${S.current.bank_account}${flagInvoice == true ? ' ${S.current.invoice_support}' : ''} ${S.current.not_set_up}')
+                    : SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            ...banksView.map(
+                              (e) {
+                                return Card(
+                                  elevation: 0,
+                                  color: Colors.grey.shade100,
+                                  child: ListTile(
+                                    shape: AppConfig.shapeBorderMain,
+                                    onTap: () {
+                                      ref.read(checkoutProvider.notifier).onChangeBankSelect(e);
+                                    },
+                                    title: e.title.isEmpty
+                                        ? null
+                                        : Text(
+                                            e.title,
                                             style: AppTextStyle.regular(),
                                           ),
-                                        ],
-                                      ),
-                                      trailing: bankSelect == e
-                                          ? const Icon(
-                                              Icons.check_circle,
-                                              color: AppColors.mainColor,
-                                            )
-                                          : null,
-                                    ),
-                                  );
-                                },
-                              ).toList(),
-                              if (bankSelect != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 12),
-                                  child: bankSelect.qrCode.trim().isEmpty
-                                      ? Text(
-                                          S.current.no_qr_code,
+                                    subtitle: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          e.bankName,
+                                          style: AppTextStyle.regular(color: Colors.black),
+                                        ),
+                                        Text(
+                                          e.bankNumber,
                                           style: AppTextStyle.regular(),
-                                        )
-                                      : ImageQRWidget(
-                                          imgUrl: bankSelect.qrCode),
-                                ),
-                            ],
-                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    trailing: bankSelect == e
+                                        ? const Icon(
+                                            Icons.check_circle,
+                                            color: AppColors.mainColor,
+                                          )
+                                        : null,
+                                  ),
+                                );
+                              },
+                            ).toList(),
+                            if (bankSelect != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 12),
+                                child: bankSelect.qrCode.trim().isEmpty
+                                    ? Text(
+                                        S.current.no_qr_code,
+                                        style: AppTextStyle.regular(),
+                                      )
+                                    : ImageQRWidget(imgUrl: bankSelect.qrCode),
+                              ),
+                          ],
                         ),
-              PageCommonState.normal => const SizedBox.shrink()
-            },
-          ),
+                      ),
+            PageCommonState.normal => const SizedBox.shrink()
+          },
         ),
       ],
     );
@@ -488,14 +621,12 @@ class ExtraInfoCashPayment extends ConsumerStatefulWidget {
   const ExtraInfoCashPayment({super.key});
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _ExtraInfoCashPaymentState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _ExtraInfoCashPaymentState();
 }
 
 class _ExtraInfoCashPaymentState extends ConsumerState<ExtraInfoCashPayment> {
-  late TextEditingController _receivedAmount;
-  final BehaviorSubject<String> _receivedAmountTextChange =
-      BehaviorSubject<String>();
+  late TextEditingController _receivedAmount, _remainingAmount;
+  final BehaviorSubject<String> _receivedAmountTextChange = BehaviorSubject<String>();
 
   bool _isFormatting = false;
 
@@ -503,8 +634,8 @@ class _ExtraInfoCashPaymentState extends ConsumerState<ExtraInfoCashPayment> {
   void initState() {
     super.initState();
     _receivedAmount = TextEditingController();
+    _remainingAmount = TextEditingController();
     _receivedAmount.addListener(() {
-      showLogs(_isFormatting, flags: '_isFormatting');
       if (_isFormatting) return;
       _receivedAmountTextChange.value = _receivedAmount.text;
     });
@@ -513,11 +644,6 @@ class _ExtraInfoCashPaymentState extends ConsumerState<ExtraInfoCashPayment> {
         .distinct()
         .listen((event) {
       final digits = event.replaceAll(RegExp(r'[.,]'), '');
-      // if (digits.isEmpty) {
-      //   // ref.read(homeProvider.notifier).onChangeCashReceivedAmount(0.0);
-      //   return;
-      // }
-
       final number = int.tryParse(digits);
       ref.read(checkoutProvider.notifier).onChangeCashReceivedAmount(0.0);
       if (number == null) return;
@@ -529,10 +655,11 @@ class _ExtraInfoCashPaymentState extends ConsumerState<ExtraInfoCashPayment> {
         text: formatted,
         selection: TextSelection.collapsed(offset: formatted.length),
       );
-      ref
-          .read(checkoutProvider.notifier)
-          .onChangeCashReceivedAmount(number * 1.0);
+      ref.read(checkoutProvider.notifier).onChangeCashReceivedAmount(number * 1.0);
       _isFormatting = false;
+      final price = ref.read(checkoutProvider).dataBill.price;
+      var remaining = number - price.totalPriceFinal;
+      _remainingAmount.text = remaining < 0 ? '0' : AppUtils.formatCurrency(value: remaining);
     });
   }
 
@@ -545,112 +672,128 @@ class _ExtraInfoCashPaymentState extends ConsumerState<ExtraInfoCashPayment> {
 
   @override
   Widget build(BuildContext context) {
-    var totalPriceFinal = ref.watch(checkoutProvider
-        .select((value) => value.dataBill.price.totalPriceFinal));
+    var totalPriceFinal =
+        ref.watch(checkoutProvider.select((value) => value.dataBill.price.totalPriceFinal));
 
     var priceFinal = AppUtils.convertToDouble(totalPriceFinal) ?? 0;
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                "KHÁCH CẦN TRẢ",
-                style: AppTextStyle.regular(color: Colors.grey),
-              ),
-              const Gap(12),
-              Expanded(
-                child: Text(
-                  AppUtils.formatCurrency(
-                    value: priceFinal,
-                    symbol: 'đ',
-                  ),
-                  style: AppTextStyle.bold(
-                    rawFontSize: AppConfig.defaultRawTextSize + 2.0,
-                    color: Colors.orange,
-                  ),
+    if (DevConfig.newUI) {
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  "KHÁCH CẦN TRẢ",
+                  style: AppTextStyle.regular(color: Colors.grey),
                 ),
-              )
-            ],
-          ),
-          const Gap(12),
-          Text(
-            "Khách đưa",
-            style: AppTextStyle.regular(color: Colors.grey),
-          ),
-          const Gap(8),
-          AppTextFormField(
-            textInputType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            textController: _receivedAmount,
-          ),
-          StreamBuilder(
-              stream: _receivedAmountTextChange,
-              builder: (context, snapshot) {
-                var value = AppUtils.convertToDouble(snapshot.data ?? '0') ?? 0;
-
-                List<int> listOptions = priceFinal > 0
-                    ? [
-                        if (priceFinal > 0) priceFinal.toInt(),
-                        (priceFinal / 100000.0).ceil() * 100000,
-                      ]
-                    : [];
-                if (listOptions.isEmpty) return const SizedBox.shrink();
-                return Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Wrap(
-                    spacing: 8,
-                    children: listOptions.map((e) {
-                      bool selected = value == e;
-                      return _MoneySuggestion(
-                        text: e == priceFinal
-                            ? 'Đủ tiền'
-                            : AppUtils.formatCurrency(value: e),
-                        selected: selected,
-                        onTap: () {
-                          _receivedAmount.text = e.toString();
-                        },
-                      );
-                    }).toList(),
-                  ),
-                );
-              }),
-          StreamBuilder(
-            stream: _receivedAmountTextChange,
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return const SizedBox.shrink();
-              var remain =
-                  (AppUtils.convertToDouble(snapshot.data ?? '0') ?? 0) -
-                      totalPriceFinal;
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Gap(12),
-                  Text(
-                    // remain < 0
-                    //     ? 'TIỀN KHÁCH CẦN ĐƯA THÊM'
-                    //     :
-                    "TIỀN THỪA TRẢ KHÁCH",
-                    style: AppTextStyle.regular(color: Colors.grey),
-                  ),
-                  const Gap(8),
-                  Text(
+                const Gap(12),
+                Expanded(
+                  child: Text(
                     AppUtils.formatCurrency(
-                      value: remain,
+                      value: priceFinal,
                       symbol: 'đ',
                     ),
                     style: AppTextStyle.bold(
                       rawFontSize: AppConfig.defaultRawTextSize + 2.0,
-                      color: Colors.green,
+                      color: Colors.orange,
                     ),
                   ),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
+                )
+              ],
+            ),
+            const Gap(12),
+            Text(
+              "Khách đưa",
+              style: AppTextStyle.regular(color: Colors.grey),
+            ),
+            const Gap(8),
+            AppTextFormField(
+              textInputType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              textController: _receivedAmount,
+            ),
+            StreamBuilder(
+                stream: _receivedAmountTextChange,
+                builder: (context, snapshot) {
+                  var value = AppUtils.convertToDouble(snapshot.data ?? '0') ?? 0;
+
+                  List<int> listOptions = priceFinal > 0
+                      ? [
+                          if (priceFinal > 0) priceFinal.toInt(),
+                          (priceFinal / 100000.0).ceil() * 100000,
+                        ]
+                      : [];
+                  if (listOptions.isEmpty) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Wrap(
+                      spacing: 8,
+                      children: listOptions.map((e) {
+                        bool selected = value == e;
+                        return _MoneySuggestion(
+                          text: e == priceFinal ? 'Đủ tiền' : AppUtils.formatCurrency(value: e),
+                          selected: selected,
+                          onTap: () {
+                            _receivedAmount.text = e.toString();
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  );
+                }),
+            StreamBuilder(
+              stream: _receivedAmountTextChange,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const SizedBox.shrink();
+                var remain =
+                    (AppUtils.convertToDouble(snapshot.data ?? '0') ?? 0) - totalPriceFinal;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Gap(12),
+                    Text(
+                      // remain < 0
+                      //     ? 'TIỀN KHÁCH CẦN ĐƯA THÊM'
+                      //     :
+                      "TIỀN THỪA TRẢ KHÁCH",
+                      style: AppTextStyle.regular(color: Colors.grey),
+                    ),
+                    const Gap(8),
+                    Text(
+                      AppUtils.formatCurrency(
+                        value: remain,
+                        symbol: 'đ',
+                      ),
+                      style: AppTextStyle.bold(
+                        rawFontSize: AppConfig.defaultRawTextSize + 2.0,
+                        color: Colors.green,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      );
+    }
+    return Column(
+      children: [
+        const Gap(12),
+        AppTextFormField(
+          label: '${S.current.amount_received} (đ)',
+          textInputType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          textController: _receivedAmount,
+        ),
+        const Gap(8),
+        AppTextFormField(
+          label: '${S.current.money_return} (đ)',
+          readOnly: true,
+          textController: _remainingAmount,
+        ),
+      ],
     );
   }
 }
@@ -658,12 +801,10 @@ class _ExtraInfoCashPaymentState extends ConsumerState<ExtraInfoCashPayment> {
 class _PaymentRight extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var price =
-        ref.watch(checkoutProvider.select((value) => value.dataBill.price));
-    var paymentMethodSelect = ref
-        .watch(checkoutProvider.select((value) => value.paymentMethodSelect));
-    var state =
-        ref.watch(checkoutProvider.select((value) => value.paymentMethodState));
+    var price = ref.watch(checkoutProvider.select((value) => value.dataBill.price));
+    var paymentMethodSelect =
+        ref.watch(checkoutProvider.select((value) => value.paymentMethodSelect));
+    var state = ref.watch(checkoutProvider.select((value) => value.paymentMethodState));
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: _boxDecoration(),
@@ -675,21 +816,15 @@ class _PaymentRight extends ConsumerWidget {
             style: AppTextStyle.bold(),
           ),
           const Gap(12),
-          _RowInfo("Tổng tiền",
-              AppUtils.formatCurrency(value: price.totalPrice, symbol: 'đ')),
+          _RowInfo("Tổng tiền", AppUtils.formatCurrency(value: price.totalPrice, symbol: 'đ')),
           const Gap(10),
-          _RowInfo("Thuế",
-              AppUtils.formatCurrency(value: price.totalPriceTax, symbol: 'đ')),
+          _RowInfo("Thuế", AppUtils.formatCurrency(value: price.totalPriceTax, symbol: 'đ')),
           const Gap(10),
           _RowInfo(
-              "Giảm giá",
-              AppUtils.formatCurrency(
-                  value: price.totalPriceVoucher, symbol: 'đ')),
+              "Giảm giá", AppUtils.formatCurrency(value: price.totalPriceVoucher, symbol: 'đ')),
           const Gap(10),
-          _RowInfo(
-              "Tổng tiền thanh toán",
-              AppUtils.formatCurrency(
-                  value: price.totalPriceFinal, symbol: 'đ')),
+          _RowInfo("Tổng tiền thanh toán",
+              AppUtils.formatCurrency(value: price.totalPriceFinal, symbol: 'đ')),
           // const Gap(10),
           // _RowInfo("Phương thức", paymentMethodSelect?.name ?? ''),
           Expanded(
@@ -729,8 +864,8 @@ class _PaymentRight extends ConsumerWidget {
                         const Gap(4),
                         Text(
                           'Vui lòng kiểm tra tổng tiền khách cần thanh toán trước khi tiếp tục!',
-                          style: AppTextStyle.regular(
-                              rawFontSize: AppConfig.defaultRawTextSize - 1.0),
+                          style:
+                              AppTextStyle.regular(rawFontSize: AppConfig.defaultRawTextSize - 1.0),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -741,32 +876,26 @@ class _PaymentRight extends ConsumerWidget {
             ),
           ),
           Consumer(builder: (context, ref, child) {
-            var orderLineItems = ref.watch(checkoutProvider
-                .select((value) => value.dataBill.orderLineItems));
-            var dataBillState = ref
-                .watch(checkoutProvider.select((value) => value.dataBillState));
-            var atmPosSelect = ref
-                .watch(checkoutProvider.select((value) => value.atmPosSelect));
-            var bankSelect =
-                ref.watch(checkoutProvider.select((value) => value.bankSelect));
+            var orderLineItems =
+                ref.watch(checkoutProvider.select((value) => value.dataBill.orderLineItems));
+            var dataBillState = ref.watch(checkoutProvider.select((value) => value.dataBillState));
+            var atmPosSelect = ref.watch(checkoutProvider.select((value) => value.atmPosSelect));
+            var bankSelect = ref.watch(checkoutProvider.select((value) => value.bankSelect));
             var validatePaymentMethod = onCheckValidPaymentMethod(ref);
             String? validateTax = paymentMethodSelect == null
                 ? null
                 : ref.read(checkoutProvider.notifier).checkTaxOrderItem(
-                    paymentMethod: paymentMethodSelect,
-                    orderLineItems: orderLineItems);
+                    paymentMethod: paymentMethodSelect, orderLineItems: orderLineItems);
             bool enable = paymentMethodSelect != null &&
                 validatePaymentMethod.error == null &&
                 validateTax == null &&
                 dataBillState.status == PageCommonState.success &&
                 ((paymentMethodSelect.isAtm && atmPosSelect != null) ||
                     (paymentMethodSelect.isBank && bankSelect != null ||
-                        (!paymentMethodSelect.isAtm &&
-                            !paymentMethodSelect.isBank)));
+                        (!paymentMethodSelect.isAtm && !paymentMethodSelect.isBank)));
 
             List<String> messages = [
-              if (validatePaymentMethod.error != null)
-                validatePaymentMethod.error!,
+              if (validatePaymentMethod.error != null) validatePaymentMethod.error!,
               if (validateTax != null) validateTax,
               if ((paymentMethodSelect?.isAtm ?? false) && atmPosSelect == null)
                 'Vui lòng chọn máy cà thẻ trước khi tiếp tục',
@@ -783,15 +912,14 @@ class _PaymentRight extends ConsumerWidget {
                       messages.join('\n'),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTextStyle.regular(
-                          rawFontSize: AppConfig.defaultRawTextSize - 1.0),
+                      style: AppTextStyle.regular(rawFontSize: AppConfig.defaultRawTextSize - 1.0),
                     ),
                   ),
                   const Gap(8),
                 ],
                 switch (dataBillState.status) {
-                  PageCommonState.loading => AppLoadingLineWidget(
-                      message: 'Đang tải thông tin thanh toán'),
+                  PageCommonState.loading =>
+                    AppLoadingLineWidget(message: 'Đang tải thông tin thanh toán'),
                   PageCommonState.error => Padding(
                       padding: const EdgeInsets.only(bottom: 4.0),
                       child: AppErrorSimpleWidget(
@@ -810,11 +938,8 @@ class _PaymentRight extends ConsumerWidget {
                   onPressed: !enable
                       ? null
                       : () async {
-                          var totalPriceFinal = ref
-                              .read(checkoutProvider)
-                              .dataBill
-                              .price
-                              .totalPriceFinal;
+                          var totalPriceFinal =
+                              ref.read(checkoutProvider).dataBill.price.totalPriceFinal;
 
                           /// với cà thẻ động (setting = 2) thì gửi lệnh tới máy cà trước khi tiếp tục
                           if (paymentMethodSelect.isAtm) {
@@ -828,13 +953,10 @@ class _PaymentRight extends ConsumerWidget {
                                 actionTitle: S.current.continue_text,
                               );
                               if (action != true) return;
-                              var resultPos = await ref
-                                  .read(checkoutProvider.notifier)
-                                  .dynamicAtmPosCallback();
+                              var resultPos =
+                                  await ref.read(checkoutProvider.notifier).dynamicAtmPosCallback();
                               if (resultPos != null) {
-                                if (context.mounted)
-                                  showMessageDialog(context,
-                                      message: resultPos);
+                                if (context.mounted) showMessageDialog(context, message: resultPos);
                                 return;
                               }
                             }
@@ -856,8 +978,7 @@ class _PaymentRight extends ConsumerWidget {
     );
   }
 
-  ({List<CustomerPolicyModel> coupons, String? error})
-      onCheckValidPaymentMethod(WidgetRef ref) {
+  ({List<CustomerPolicyModel> coupons, String? error}) onCheckValidPaymentMethod(WidgetRef ref) {
     var state = ref.read(checkoutProvider);
     try {
       // updateEvent(HomeEvent.checkPaymentMethod);
@@ -868,8 +989,7 @@ class _PaymentRight extends ConsumerWidget {
       List<CustomerPolicyModel> couponInvalidResult = [];
       // kiểm tra với danh sách giảm giá đang có
       for (final c in state.coupons) {
-        if (c.paymentNotAllowed
-            .any((element) => element.key == state.paymentMethodSelect?.key)) {
+        if (c.paymentNotAllowed.any((element) => element.key == state.paymentMethodSelect?.key)) {
           couponInvalidResult.add(c);
         }
       }
@@ -889,10 +1009,7 @@ class _PaymentRight extends ConsumerWidget {
       return (coupons: [], error: null);
     } catch (ex) {
       // updateEvent(HomeEvent.normal);
-      return (
-        coupons: [],
-        error: "${S.current.can_not_check_payment_method}\n${ex.toString()}"
-      );
+      return (coupons: [], error: "${S.current.can_not_check_payment_method}\n${ex.toString()}");
     }
   }
 }
@@ -1050,18 +1167,15 @@ class CompletePaymentDialog extends ConsumerWidget {
                     const Gap(16),
                     Consumer(
                       builder: (context, ref, child) {
-                        var checked = ref.watch(checkoutProvider
-                            .select((value) => value.printNumberOfPeople));
+                        var checked = ref
+                            .watch(checkoutProvider.select((value) => value.printNumberOfPeople));
                         return GestureDetector(
-                          onTap: ref
-                              .read(checkoutProvider.notifier)
-                              .onChangePrintNumberOfPeople,
+                          onTap: ref.read(checkoutProvider.notifier).onChangePrintNumberOfPeople,
                           child: Row(
                             children: [
                               CustomCheckbox(
-                                onChange: ref
-                                    .read(checkoutProvider.notifier)
-                                    .onChangePrintNumberOfPeople,
+                                onChange:
+                                    ref.read(checkoutProvider.notifier).onChangePrintNumberOfPeople,
                                 checked: checked,
                               ),
                               const Gap(4),
@@ -1088,8 +1202,7 @@ class CompletePaymentDialog extends ConsumerWidget {
                       decrementIcon: const Icon(CupertinoIcons.minus),
                       textStyle: AppTextStyle.bold(),
                       value: ref
-                          .watch(checkoutProvider
-                              .select((value) => value.numberOfChildren))
+                          .watch(checkoutProvider.select((value) => value.numberOfChildren))
                           .toDouble(),
                       decoration: InputDecoration(
                         label: Text(
@@ -1098,9 +1211,7 @@ class CompletePaymentDialog extends ConsumerWidget {
                         ),
                       ),
                       onChanged: (value) {
-                        ref
-                            .read(checkoutProvider.notifier)
-                            .onChangeNumberOfPeople(
+                        ref.read(checkoutProvider.notifier).onChangeNumberOfPeople(
                               numberOfChildren: value.toInt(),
                             );
                       },
@@ -1117,9 +1228,7 @@ class CompletePaymentDialog extends ConsumerWidget {
                       hintText: S.current.enter_note_content,
                       initialValue: ref.read(checkoutProvider).completeNote,
                       onChanged: (value) {
-                        ref
-                            .read(checkoutProvider.notifier)
-                            .onChangeCompleteNote(value.trim());
+                        ref.read(checkoutProvider.notifier).onChangeCompleteNote(value.trim());
                       },
                     ),
                     const Gap(16),
@@ -1154,8 +1263,7 @@ class CompletePaymentDialog extends ConsumerWidget {
                   onPressed: () async {
                     var confirm = await showConfirmAction(
                       context,
-                      message:
-                          'Vui lòng kiểm tra và xác nhận khách hàng đã thanh toán hay chưa.\n'
+                      message: 'Vui lòng kiểm tra và xác nhận khách hàng đã thanh toán hay chưa.\n'
                           'Nếu đã thanh toán, bạn có thể đính kèm hình ảnh biên lai để đối chiếu trước khi xác nhận.',
                       actionTitle: S.current.continue_text,
                     );
@@ -1284,8 +1392,7 @@ void onConfirmCompleteAgain({
             printers: printers,
           );
       if (res.error != null) {
-        onConfirmCompleteAgain(
-            ref: ref, context: context, errorMessage: res.error);
+        onConfirmCompleteAgain(ref: ref, context: context, errorMessage: res.error);
         return;
       }
       if (res.errorSendPrint != null) {

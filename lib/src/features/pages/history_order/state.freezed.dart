@@ -19,16 +19,17 @@ mixin _$HistoryOrderState {
   HistoryOrderEvent get event => throw _privateConstructorUsedError;
   HistoryOrderModel? get historyOrderSelect =>
       throw _privateConstructorUsedError;
-  String get messageError => throw _privateConstructorUsedError;
-  PageState get getOrderDetailState => throw _privateConstructorUsedError;
-  CustomerModel? get customer => throw _privateConstructorUsedError;
-  List<CustomerPolicyModel> get coupons => throw _privateConstructorUsedError;
-  List<ProductCheckoutModel> get productCheckout =>
-      throw _privateConstructorUsedError;
-  DataBillResponseData? get dataBill => throw _privateConstructorUsedError;
+  String get messageError =>
+      throw _privateConstructorUsedError; // @Default(PageState(status: PageCommonState.loading)) PageState getOrderDetailState,
+// CustomerModel? customer,
+// @Default([]) List<CustomerPolicyModel> coupons,
+// @Default([]) List<ProductCheckoutModel> productCheckout,
+// DataBillResponseData? dataBill,
   DateTime get startDate => throw _privateConstructorUsedError;
   DateTime get endDate => throw _privateConstructorUsedError;
   String get textSearch => throw _privateConstructorUsedError;
+  Map<int, DetailHistoryOrderModel?> get detail =>
+      throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $HistoryOrderStateCopyWith<HistoryOrderState> get copyWith =>
@@ -45,19 +46,12 @@ abstract class $HistoryOrderStateCopyWith<$Res> {
       {HistoryOrderEvent event,
       HistoryOrderModel? historyOrderSelect,
       String messageError,
-      PageState getOrderDetailState,
-      CustomerModel? customer,
-      List<CustomerPolicyModel> coupons,
-      List<ProductCheckoutModel> productCheckout,
-      DataBillResponseData? dataBill,
       DateTime startDate,
       DateTime endDate,
-      String textSearch});
+      String textSearch,
+      Map<int, DetailHistoryOrderModel?> detail});
 
   $HistoryOrderModelCopyWith<$Res>? get historyOrderSelect;
-  $PageStateCopyWith<$Res> get getOrderDetailState;
-  $CustomerModelCopyWith<$Res>? get customer;
-  $DataBillResponseDataCopyWith<$Res>? get dataBill;
 }
 
 /// @nodoc
@@ -76,14 +70,10 @@ class _$HistoryOrderStateCopyWithImpl<$Res, $Val extends HistoryOrderState>
     Object? event = null,
     Object? historyOrderSelect = freezed,
     Object? messageError = null,
-    Object? getOrderDetailState = null,
-    Object? customer = freezed,
-    Object? coupons = null,
-    Object? productCheckout = null,
-    Object? dataBill = freezed,
     Object? startDate = null,
     Object? endDate = null,
     Object? textSearch = null,
+    Object? detail = null,
   }) {
     return _then(_value.copyWith(
       event: null == event
@@ -98,10 +88,284 @@ class _$HistoryOrderStateCopyWithImpl<$Res, $Val extends HistoryOrderState>
           ? _value.messageError
           : messageError // ignore: cast_nullable_to_non_nullable
               as String,
-      getOrderDetailState: null == getOrderDetailState
-          ? _value.getOrderDetailState
-          : getOrderDetailState // ignore: cast_nullable_to_non_nullable
-              as PageState,
+      startDate: null == startDate
+          ? _value.startDate
+          : startDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      endDate: null == endDate
+          ? _value.endDate
+          : endDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      textSearch: null == textSearch
+          ? _value.textSearch
+          : textSearch // ignore: cast_nullable_to_non_nullable
+              as String,
+      detail: null == detail
+          ? _value.detail
+          : detail // ignore: cast_nullable_to_non_nullable
+              as Map<int, DetailHistoryOrderModel?>,
+    ) as $Val);
+  }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $HistoryOrderModelCopyWith<$Res>? get historyOrderSelect {
+    if (_value.historyOrderSelect == null) {
+      return null;
+    }
+
+    return $HistoryOrderModelCopyWith<$Res>(_value.historyOrderSelect!,
+        (value) {
+      return _then(_value.copyWith(historyOrderSelect: value) as $Val);
+    });
+  }
+}
+
+/// @nodoc
+abstract class _$$HistoryOrderStateImplCopyWith<$Res>
+    implements $HistoryOrderStateCopyWith<$Res> {
+  factory _$$HistoryOrderStateImplCopyWith(_$HistoryOrderStateImpl value,
+          $Res Function(_$HistoryOrderStateImpl) then) =
+      __$$HistoryOrderStateImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {HistoryOrderEvent event,
+      HistoryOrderModel? historyOrderSelect,
+      String messageError,
+      DateTime startDate,
+      DateTime endDate,
+      String textSearch,
+      Map<int, DetailHistoryOrderModel?> detail});
+
+  @override
+  $HistoryOrderModelCopyWith<$Res>? get historyOrderSelect;
+}
+
+/// @nodoc
+class __$$HistoryOrderStateImplCopyWithImpl<$Res>
+    extends _$HistoryOrderStateCopyWithImpl<$Res, _$HistoryOrderStateImpl>
+    implements _$$HistoryOrderStateImplCopyWith<$Res> {
+  __$$HistoryOrderStateImplCopyWithImpl(_$HistoryOrderStateImpl _value,
+      $Res Function(_$HistoryOrderStateImpl) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? event = null,
+    Object? historyOrderSelect = freezed,
+    Object? messageError = null,
+    Object? startDate = null,
+    Object? endDate = null,
+    Object? textSearch = null,
+    Object? detail = null,
+  }) {
+    return _then(_$HistoryOrderStateImpl(
+      event: null == event
+          ? _value.event
+          : event // ignore: cast_nullable_to_non_nullable
+              as HistoryOrderEvent,
+      historyOrderSelect: freezed == historyOrderSelect
+          ? _value.historyOrderSelect
+          : historyOrderSelect // ignore: cast_nullable_to_non_nullable
+              as HistoryOrderModel?,
+      messageError: null == messageError
+          ? _value.messageError
+          : messageError // ignore: cast_nullable_to_non_nullable
+              as String,
+      startDate: null == startDate
+          ? _value.startDate
+          : startDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      endDate: null == endDate
+          ? _value.endDate
+          : endDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      textSearch: null == textSearch
+          ? _value.textSearch
+          : textSearch // ignore: cast_nullable_to_non_nullable
+              as String,
+      detail: null == detail
+          ? _value._detail
+          : detail // ignore: cast_nullable_to_non_nullable
+              as Map<int, DetailHistoryOrderModel?>,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$HistoryOrderStateImpl implements _HistoryOrderState {
+  const _$HistoryOrderStateImpl(
+      {this.event = HistoryOrderEvent.normal,
+      this.historyOrderSelect,
+      this.messageError = '',
+      required this.startDate,
+      required this.endDate,
+      this.textSearch = '',
+      final Map<int, DetailHistoryOrderModel?> detail = const {}})
+      : _detail = detail;
+
+  @override
+  @JsonKey()
+  final HistoryOrderEvent event;
+  @override
+  final HistoryOrderModel? historyOrderSelect;
+  @override
+  @JsonKey()
+  final String messageError;
+// @Default(PageState(status: PageCommonState.loading)) PageState getOrderDetailState,
+// CustomerModel? customer,
+// @Default([]) List<CustomerPolicyModel> coupons,
+// @Default([]) List<ProductCheckoutModel> productCheckout,
+// DataBillResponseData? dataBill,
+  @override
+  final DateTime startDate;
+  @override
+  final DateTime endDate;
+  @override
+  @JsonKey()
+  final String textSearch;
+  final Map<int, DetailHistoryOrderModel?> _detail;
+  @override
+  @JsonKey()
+  Map<int, DetailHistoryOrderModel?> get detail {
+    if (_detail is EqualUnmodifiableMapView) return _detail;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_detail);
+  }
+
+  @override
+  String toString() {
+    return 'HistoryOrderState(event: $event, historyOrderSelect: $historyOrderSelect, messageError: $messageError, startDate: $startDate, endDate: $endDate, textSearch: $textSearch, detail: $detail)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$HistoryOrderStateImpl &&
+            (identical(other.event, event) || other.event == event) &&
+            (identical(other.historyOrderSelect, historyOrderSelect) ||
+                other.historyOrderSelect == historyOrderSelect) &&
+            (identical(other.messageError, messageError) ||
+                other.messageError == messageError) &&
+            (identical(other.startDate, startDate) ||
+                other.startDate == startDate) &&
+            (identical(other.endDate, endDate) || other.endDate == endDate) &&
+            (identical(other.textSearch, textSearch) ||
+                other.textSearch == textSearch) &&
+            const DeepCollectionEquality().equals(other._detail, _detail));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      event,
+      historyOrderSelect,
+      messageError,
+      startDate,
+      endDate,
+      textSearch,
+      const DeepCollectionEquality().hash(_detail));
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$HistoryOrderStateImplCopyWith<_$HistoryOrderStateImpl> get copyWith =>
+      __$$HistoryOrderStateImplCopyWithImpl<_$HistoryOrderStateImpl>(
+          this, _$identity);
+}
+
+abstract class _HistoryOrderState implements HistoryOrderState {
+  const factory _HistoryOrderState(
+          {final HistoryOrderEvent event,
+          final HistoryOrderModel? historyOrderSelect,
+          final String messageError,
+          required final DateTime startDate,
+          required final DateTime endDate,
+          final String textSearch,
+          final Map<int, DetailHistoryOrderModel?> detail}) =
+      _$HistoryOrderStateImpl;
+
+  @override
+  HistoryOrderEvent get event;
+  @override
+  HistoryOrderModel? get historyOrderSelect;
+  @override
+  String get messageError;
+  @override // @Default(PageState(status: PageCommonState.loading)) PageState getOrderDetailState,
+// CustomerModel? customer,
+// @Default([]) List<CustomerPolicyModel> coupons,
+// @Default([]) List<ProductCheckoutModel> productCheckout,
+// DataBillResponseData? dataBill,
+  DateTime get startDate;
+  @override
+  DateTime get endDate;
+  @override
+  String get textSearch;
+  @override
+  Map<int, DetailHistoryOrderModel?> get detail;
+  @override
+  @JsonKey(ignore: true)
+  _$$HistoryOrderStateImplCopyWith<_$HistoryOrderStateImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+mixin _$DetailHistoryOrderModel {
+  CustomerModel? get customer => throw _privateConstructorUsedError;
+  List<CustomerPolicyModel> get coupons => throw _privateConstructorUsedError;
+  List<ProductCheckoutModel> get productCheckout =>
+      throw _privateConstructorUsedError;
+  DataBillResponseData? get dataBill => throw _privateConstructorUsedError;
+  PageState get state => throw _privateConstructorUsedError;
+
+  @JsonKey(ignore: true)
+  $DetailHistoryOrderModelCopyWith<DetailHistoryOrderModel> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $DetailHistoryOrderModelCopyWith<$Res> {
+  factory $DetailHistoryOrderModelCopyWith(DetailHistoryOrderModel value,
+          $Res Function(DetailHistoryOrderModel) then) =
+      _$DetailHistoryOrderModelCopyWithImpl<$Res, DetailHistoryOrderModel>;
+  @useResult
+  $Res call(
+      {CustomerModel? customer,
+      List<CustomerPolicyModel> coupons,
+      List<ProductCheckoutModel> productCheckout,
+      DataBillResponseData? dataBill,
+      PageState state});
+
+  $CustomerModelCopyWith<$Res>? get customer;
+  $DataBillResponseDataCopyWith<$Res>? get dataBill;
+  $PageStateCopyWith<$Res> get state;
+}
+
+/// @nodoc
+class _$DetailHistoryOrderModelCopyWithImpl<$Res,
+        $Val extends DetailHistoryOrderModel>
+    implements $DetailHistoryOrderModelCopyWith<$Res> {
+  _$DetailHistoryOrderModelCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? customer = freezed,
+    Object? coupons = null,
+    Object? productCheckout = null,
+    Object? dataBill = freezed,
+    Object? state = null,
+  }) {
+    return _then(_value.copyWith(
       customer: freezed == customer
           ? _value.customer
           : customer // ignore: cast_nullable_to_non_nullable
@@ -118,40 +382,11 @@ class _$HistoryOrderStateCopyWithImpl<$Res, $Val extends HistoryOrderState>
           ? _value.dataBill
           : dataBill // ignore: cast_nullable_to_non_nullable
               as DataBillResponseData?,
-      startDate: null == startDate
-          ? _value.startDate
-          : startDate // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      endDate: null == endDate
-          ? _value.endDate
-          : endDate // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      textSearch: null == textSearch
-          ? _value.textSearch
-          : textSearch // ignore: cast_nullable_to_non_nullable
-              as String,
+      state: null == state
+          ? _value.state
+          : state // ignore: cast_nullable_to_non_nullable
+              as PageState,
     ) as $Val);
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $HistoryOrderModelCopyWith<$Res>? get historyOrderSelect {
-    if (_value.historyOrderSelect == null) {
-      return null;
-    }
-
-    return $HistoryOrderModelCopyWith<$Res>(_value.historyOrderSelect!,
-        (value) {
-      return _then(_value.copyWith(historyOrderSelect: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $PageStateCopyWith<$Res> get getOrderDetailState {
-    return $PageStateCopyWith<$Res>(_value.getOrderDetailState, (value) {
-      return _then(_value.copyWith(getOrderDetailState: value) as $Val);
-    });
   }
 
   @override
@@ -177,79 +412,60 @@ class _$HistoryOrderStateCopyWithImpl<$Res, $Val extends HistoryOrderState>
       return _then(_value.copyWith(dataBill: value) as $Val);
     });
   }
+
+  @override
+  @pragma('vm:prefer-inline')
+  $PageStateCopyWith<$Res> get state {
+    return $PageStateCopyWith<$Res>(_value.state, (value) {
+      return _then(_value.copyWith(state: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
-abstract class _$$HistoryOrderStateImplCopyWith<$Res>
-    implements $HistoryOrderStateCopyWith<$Res> {
-  factory _$$HistoryOrderStateImplCopyWith(_$HistoryOrderStateImpl value,
-          $Res Function(_$HistoryOrderStateImpl) then) =
-      __$$HistoryOrderStateImplCopyWithImpl<$Res>;
+abstract class _$$DetailHistoryOrderModelImplCopyWith<$Res>
+    implements $DetailHistoryOrderModelCopyWith<$Res> {
+  factory _$$DetailHistoryOrderModelImplCopyWith(
+          _$DetailHistoryOrderModelImpl value,
+          $Res Function(_$DetailHistoryOrderModelImpl) then) =
+      __$$DetailHistoryOrderModelImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
-      {HistoryOrderEvent event,
-      HistoryOrderModel? historyOrderSelect,
-      String messageError,
-      PageState getOrderDetailState,
-      CustomerModel? customer,
+      {CustomerModel? customer,
       List<CustomerPolicyModel> coupons,
       List<ProductCheckoutModel> productCheckout,
       DataBillResponseData? dataBill,
-      DateTime startDate,
-      DateTime endDate,
-      String textSearch});
+      PageState state});
 
-  @override
-  $HistoryOrderModelCopyWith<$Res>? get historyOrderSelect;
-  @override
-  $PageStateCopyWith<$Res> get getOrderDetailState;
   @override
   $CustomerModelCopyWith<$Res>? get customer;
   @override
   $DataBillResponseDataCopyWith<$Res>? get dataBill;
+  @override
+  $PageStateCopyWith<$Res> get state;
 }
 
 /// @nodoc
-class __$$HistoryOrderStateImplCopyWithImpl<$Res>
-    extends _$HistoryOrderStateCopyWithImpl<$Res, _$HistoryOrderStateImpl>
-    implements _$$HistoryOrderStateImplCopyWith<$Res> {
-  __$$HistoryOrderStateImplCopyWithImpl(_$HistoryOrderStateImpl _value,
-      $Res Function(_$HistoryOrderStateImpl) _then)
+class __$$DetailHistoryOrderModelImplCopyWithImpl<$Res>
+    extends _$DetailHistoryOrderModelCopyWithImpl<$Res,
+        _$DetailHistoryOrderModelImpl>
+    implements _$$DetailHistoryOrderModelImplCopyWith<$Res> {
+  __$$DetailHistoryOrderModelImplCopyWithImpl(
+      _$DetailHistoryOrderModelImpl _value,
+      $Res Function(_$DetailHistoryOrderModelImpl) _then)
       : super(_value, _then);
 
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? event = null,
-    Object? historyOrderSelect = freezed,
-    Object? messageError = null,
-    Object? getOrderDetailState = null,
     Object? customer = freezed,
     Object? coupons = null,
     Object? productCheckout = null,
     Object? dataBill = freezed,
-    Object? startDate = null,
-    Object? endDate = null,
-    Object? textSearch = null,
+    Object? state = null,
   }) {
-    return _then(_$HistoryOrderStateImpl(
-      event: null == event
-          ? _value.event
-          : event // ignore: cast_nullable_to_non_nullable
-              as HistoryOrderEvent,
-      historyOrderSelect: freezed == historyOrderSelect
-          ? _value.historyOrderSelect
-          : historyOrderSelect // ignore: cast_nullable_to_non_nullable
-              as HistoryOrderModel?,
-      messageError: null == messageError
-          ? _value.messageError
-          : messageError // ignore: cast_nullable_to_non_nullable
-              as String,
-      getOrderDetailState: null == getOrderDetailState
-          ? _value.getOrderDetailState
-          : getOrderDetailState // ignore: cast_nullable_to_non_nullable
-              as PageState,
+    return _then(_$DetailHistoryOrderModelImpl(
       customer: freezed == customer
           ? _value.customer
           : customer // ignore: cast_nullable_to_non_nullable
@@ -266,52 +482,26 @@ class __$$HistoryOrderStateImplCopyWithImpl<$Res>
           ? _value.dataBill
           : dataBill // ignore: cast_nullable_to_non_nullable
               as DataBillResponseData?,
-      startDate: null == startDate
-          ? _value.startDate
-          : startDate // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      endDate: null == endDate
-          ? _value.endDate
-          : endDate // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      textSearch: null == textSearch
-          ? _value.textSearch
-          : textSearch // ignore: cast_nullable_to_non_nullable
-              as String,
+      state: null == state
+          ? _value.state
+          : state // ignore: cast_nullable_to_non_nullable
+              as PageState,
     ));
   }
 }
 
 /// @nodoc
 
-class _$HistoryOrderStateImpl implements _HistoryOrderState {
-  const _$HistoryOrderStateImpl(
-      {this.event = HistoryOrderEvent.normal,
-      this.historyOrderSelect,
-      this.messageError = '',
-      this.getOrderDetailState =
-          const PageState(status: PageCommonState.loading),
-      this.customer,
+class _$DetailHistoryOrderModelImpl implements _DetailHistoryOrderModel {
+  const _$DetailHistoryOrderModelImpl(
+      {this.customer,
       final List<CustomerPolicyModel> coupons = const [],
       final List<ProductCheckoutModel> productCheckout = const [],
       this.dataBill,
-      required this.startDate,
-      required this.endDate,
-      this.textSearch = ''})
+      this.state = const PageState(status: PageCommonState.normal)})
       : _coupons = coupons,
         _productCheckout = productCheckout;
 
-  @override
-  @JsonKey()
-  final HistoryOrderEvent event;
-  @override
-  final HistoryOrderModel? historyOrderSelect;
-  @override
-  @JsonKey()
-  final String messageError;
-  @override
-  @JsonKey()
-  final PageState getOrderDetailState;
   @override
   final CustomerModel? customer;
   final List<CustomerPolicyModel> _coupons;
@@ -335,30 +525,19 @@ class _$HistoryOrderStateImpl implements _HistoryOrderState {
   @override
   final DataBillResponseData? dataBill;
   @override
-  final DateTime startDate;
-  @override
-  final DateTime endDate;
-  @override
   @JsonKey()
-  final String textSearch;
+  final PageState state;
 
   @override
   String toString() {
-    return 'HistoryOrderState(event: $event, historyOrderSelect: $historyOrderSelect, messageError: $messageError, getOrderDetailState: $getOrderDetailState, customer: $customer, coupons: $coupons, productCheckout: $productCheckout, dataBill: $dataBill, startDate: $startDate, endDate: $endDate, textSearch: $textSearch)';
+    return 'DetailHistoryOrderModel(customer: $customer, coupons: $coupons, productCheckout: $productCheckout, dataBill: $dataBill, state: $state)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$HistoryOrderStateImpl &&
-            (identical(other.event, event) || other.event == event) &&
-            (identical(other.historyOrderSelect, historyOrderSelect) ||
-                other.historyOrderSelect == historyOrderSelect) &&
-            (identical(other.messageError, messageError) ||
-                other.messageError == messageError) &&
-            (identical(other.getOrderDetailState, getOrderDetailState) ||
-                other.getOrderDetailState == getOrderDetailState) &&
+            other is _$DetailHistoryOrderModelImpl &&
             (identical(other.customer, customer) ||
                 other.customer == customer) &&
             const DeepCollectionEquality().equals(other._coupons, _coupons) &&
@@ -366,58 +545,34 @@ class _$HistoryOrderStateImpl implements _HistoryOrderState {
                 .equals(other._productCheckout, _productCheckout) &&
             (identical(other.dataBill, dataBill) ||
                 other.dataBill == dataBill) &&
-            (identical(other.startDate, startDate) ||
-                other.startDate == startDate) &&
-            (identical(other.endDate, endDate) || other.endDate == endDate) &&
-            (identical(other.textSearch, textSearch) ||
-                other.textSearch == textSearch));
+            (identical(other.state, state) || other.state == state));
   }
 
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      event,
-      historyOrderSelect,
-      messageError,
-      getOrderDetailState,
       customer,
       const DeepCollectionEquality().hash(_coupons),
       const DeepCollectionEquality().hash(_productCheckout),
       dataBill,
-      startDate,
-      endDate,
-      textSearch);
+      state);
 
   @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
-  _$$HistoryOrderStateImplCopyWith<_$HistoryOrderStateImpl> get copyWith =>
-      __$$HistoryOrderStateImplCopyWithImpl<_$HistoryOrderStateImpl>(
-          this, _$identity);
+  _$$DetailHistoryOrderModelImplCopyWith<_$DetailHistoryOrderModelImpl>
+      get copyWith => __$$DetailHistoryOrderModelImplCopyWithImpl<
+          _$DetailHistoryOrderModelImpl>(this, _$identity);
 }
 
-abstract class _HistoryOrderState implements HistoryOrderState {
-  const factory _HistoryOrderState(
-      {final HistoryOrderEvent event,
-      final HistoryOrderModel? historyOrderSelect,
-      final String messageError,
-      final PageState getOrderDetailState,
-      final CustomerModel? customer,
+abstract class _DetailHistoryOrderModel implements DetailHistoryOrderModel {
+  const factory _DetailHistoryOrderModel(
+      {final CustomerModel? customer,
       final List<CustomerPolicyModel> coupons,
       final List<ProductCheckoutModel> productCheckout,
       final DataBillResponseData? dataBill,
-      required final DateTime startDate,
-      required final DateTime endDate,
-      final String textSearch}) = _$HistoryOrderStateImpl;
+      final PageState state}) = _$DetailHistoryOrderModelImpl;
 
-  @override
-  HistoryOrderEvent get event;
-  @override
-  HistoryOrderModel? get historyOrderSelect;
-  @override
-  String get messageError;
-  @override
-  PageState get getOrderDetailState;
   @override
   CustomerModel? get customer;
   @override
@@ -427,13 +582,9 @@ abstract class _HistoryOrderState implements HistoryOrderState {
   @override
   DataBillResponseData? get dataBill;
   @override
-  DateTime get startDate;
-  @override
-  DateTime get endDate;
-  @override
-  String get textSearch;
+  PageState get state;
   @override
   @JsonKey(ignore: true)
-  _$$HistoryOrderStateImplCopyWith<_$HistoryOrderStateImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$DetailHistoryOrderModelImplCopyWith<_$DetailHistoryOrderModelImpl>
+      get copyWith => throw _privateConstructorUsedError;
 }

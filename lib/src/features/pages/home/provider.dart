@@ -93,8 +93,7 @@ enum HomePaymentError {
   printCompleteError,
 }
 
-final homeProvider =
-    StateNotifierProvider.autoDispose<HomeNotifier, HomeState>((ref) {
+final homeProvider = StateNotifierProvider.autoDispose<HomeNotifier, HomeState>((ref) {
   return HomeNotifier(
     ref,
     ref.read(orderRepositoryProvider),
@@ -131,9 +130,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   void listenNotificationsChange() async {
     if (Hive.isBoxOpen(AppConfig.notificationBoxName)) {
-      Hive.box<NotificationModel>(AppConfig.notificationBoxName)
-          .listenable()
-          .addListener(() {
+      Hive.box<NotificationModel>(AppConfig.notificationBoxName).listenable().addListener(() {
         if (mounted) {
           ref.read(homeProvider.notifier).loadNotifications();
         }
@@ -166,6 +163,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
   late StreamController<int?> chatIdStreamController;
 
+  MenuNotifier? _menuNotifier;
+  CheckoutNotifier? _checkoutNotifier;
+  CartPageNotifier? _cartNotifier;
+
   @override
   void dispose() {
     chatIdStreamController.close();
@@ -193,13 +194,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
     OrderModel? order,
   }) async {
     if (!mounted) return;
+    _menuNotifier = ref.read(menuProvider.notifier);
+    _checkoutNotifier = ref.read(checkoutProvider.notifier);
+    _cartNotifier = ref.read(cartPageProvider.notifier);
     if (ref.read(o2oStatusProvider)) {
       ref.refresh(o2oConfigProvider);
     }
-    // changeOrderSelect(order);
-    // ref.read(menuProvider.notifier).init(
-    //       loadProducts: loadProducts,
-    //     );
+    changeOrderSelect(order);
+    _menuNotifier?.init(loadProducts: loadProducts);
   }
 
   // void onLoadProductSelecting() {
@@ -329,9 +331,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       final result = await _orderRepository.createAndUpdateOrder(
         tableIds,
         state.orderSelect!,
-        reservation: (reservationCrmId == null
-            ? null
-            : ReservationModel(id: reservationCrmId)),
+        reservation: (reservationCrmId == null ? null : ReservationModel(id: reservationCrmId)),
         typeOrder: kTypeOrder,
         updateSaleInfo: false,
       );
@@ -346,9 +346,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       if (reservationCrmId != null) {
         _updateReservationStatus(
           id: reservationCrmId,
-          status: tableSelect.isEmpty
-              ? ReservationStatusEnum.cancel
-              : ReservationStatusEnum.process,
+          status:
+              tableSelect.isEmpty ? ReservationStatusEnum.cancel : ReservationStatusEnum.process,
           table: tableSelect,
         );
       }
@@ -377,17 +376,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
         tableIds,
         order,
         waiterTransfer: waiterTransfer,
-        reservation: reservationCrmId == null
-            ? null
-            : ReservationModel(id: reservationCrmId),
+        reservation: reservationCrmId == null ? null : ReservationModel(id: reservationCrmId),
         updateSaleInfo: false,
       );
       if (reservationCrmId != null) {
         _updateReservationStatus(
           id: reservationCrmId,
-          status: tableSelect.isEmpty
-              ? ReservationStatusEnum.cancel
-              : ReservationStatusEnum.process,
+          status:
+              tableSelect.isEmpty ? ReservationStatusEnum.cancel : ReservationStatusEnum.process,
           table: tableSelect,
         );
       }
@@ -409,8 +405,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }) async {
     var phone = TextUtil.convertPhone((phoneNumer ?? '').trim());
 
-    if (phone.isEmpty || orderId == null)
-      return (status: FindCustomerStatus.success, error: null);
+    if (phone.isEmpty || orderId == null) return (status: FindCustomerStatus.success, error: null);
     try {
       if (showLoading) updateEvent(HomeEvent.addCustomerToOrder);
       var customerRepo = await _customerRepository.findCustomer(
@@ -528,10 +523,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
         ref.refresh(typeOrderWaiterProvider);
         bool off = newTypeOrder == TypeOrderEnum.offline.type;
         ref.read(menuProvider.notifier).init(loadProducts: false);
-        ref.read(menuProvider.notifier).getProducts(
-              fetchOffline: off,
-              fetchOnline: !off,
-            );
+        // ref.read(menuProvider.notifier).getProducts(
+        //       fetchOffline: off,
+        //       fetchOnline: !off,
+        //     );
       }
     } catch (ex) {
       ref.read(checkoutProvider.notifier).resetInfo();
@@ -625,8 +620,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         mode: appPrinterType ?? LocalStorage.getPrintSetting().appPrinterType,
         closeShiftData: closeShiftData,
         paymentData: paymentData,
-        useOddBill: useOddBill ??
-            ref.read(printSettingProvider).billReturnSetting.useOddBill,
+        useOddBill: useOddBill ?? ref.read(printSettingProvider).billReturnSetting.useOddBill,
         useDefaultPrinters: useDefaultPrinters,
         totalBill: totalBill,
         refId: null,
@@ -700,9 +694,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
           }
           if (Platform.isAndroid || Platform.isIOS) {
             appLocalNotificationService?.showLocalNotification(title, '');
-          } else if (Platform.isWindows ||
-              Platform.isMacOS ||
-              Platform.isLinux) {
+          } else if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
             try {
               LocalNotification notification = LocalNotification(
                 title: title,
@@ -739,8 +731,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
             break;
           default:
         }
-        if (event[1] ==
-            '$kPrintChannel.${LocalStorage.getDataLogin()?.restaurant?.id ?? 0}') {
+        if (event[1] == '$kPrintChannel.${LocalStorage.getDataLogin()?.restaurant?.id ?? 0}') {
           _handlePrintRedisEvent(event);
         }
       }
@@ -786,20 +777,17 @@ class HomeNotifier extends StateNotifier<HomeState> {
           var status = data['status'] as int?;
           if (status != 1) return;
           var notes = data['notes'] as String?;
-          var itemsData =
-              (jsonDecode(data['items']) as Map<String, dynamic>?) ?? {};
+          var itemsData = (jsonDecode(data['items']) as Map<String, dynamic>?) ?? {};
           List<RequestOrderItemModel> items = itemsData.values
               .toList()
-              .map((e) =>
-                  RequestOrderItemModel.fromJson(e as Map<String, dynamic>))
+              .map((e) => RequestOrderItemModel.fromJson(e as Map<String, dynamic>))
               .toList();
 
           Map<int, List<ProductModel>> productPrint =
               ref.read(menuProvider.notifier).mapO2oItemWithPrintType(items);
           ref.read(tablesAndOrdersProvider).whenData(
             (value) async {
-              var order = value.offline?.userUsing
-                  .firstWhereOrNull((e) => e.id == orderId);
+              var order = value.offline?.userUsing.firstWhereOrNull((e) => e.id == orderId);
               if (order == null) return;
 
               List<int> printerCheck = productPrint.keys.toList();
@@ -822,18 +810,16 @@ class HomeNotifier extends StateNotifier<HomeState> {
               for (var printer in printers) {
                 var products = productPrint[printer.type] ?? [];
                 if (products.isEmpty) continue;
-                var resultSend =
-                    await ref.read(homeProvider.notifier).sendPrintData(
-                          type: PrintTypeEnum.order,
-                          products: products,
-                          printers: printers
-                              .map((e) => PrinterModel(
-                                  ip: e.ip, port: e.port, name: e.name))
-                              .toList(),
-                          useDefaultPrinters: true,
-                          totalBill: true,
-                          note: notes ?? '',
-                        );
+                var resultSend = await ref.read(homeProvider.notifier).sendPrintData(
+                      type: PrintTypeEnum.order,
+                      products: products,
+                      printers: printers
+                          .map((e) => PrinterModel(ip: e.ip, port: e.port, name: e.name))
+                          .toList(),
+                      useDefaultPrinters: true,
+                      totalBill: true,
+                      note: notes ?? '',
+                    );
               }
               showLogs(productPrint, flags: 'productPrint');
               // ref.read(menuProvider.notifier).printO2oRequest(
@@ -850,8 +836,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       case kCallStaffChannel:
         final note = data['note'];
         final table = data['table'];
-        var title =
-            '${S.current.table} ${table ?? ''} ${S.current.request_service.toLowerCase()}';
+        var title = '${S.current.table} ${table ?? ''} ${S.current.request_service.toLowerCase()}';
         var body = note ?? '';
         var id = await _saveNotification(
           title: title,
@@ -930,18 +915,14 @@ class HomeNotifier extends StateNotifier<HomeState> {
       dynamic dataDecode = data['data'];
       List<LineItemDataBill> lineItems = [];
       if (dataDecode['payment_data'] != null) {
-        lineItems =
-            (dataDecode['payment_data']['order_line_items'] as List<dynamic>)
-                .map((e) {
+        lineItems = (dataDecode['payment_data']['order_line_items'] as List<dynamic>).map((e) {
           var json = Map<String, dynamic>.from(e);
           var listItem = (e['list_item'] as List<dynamic>)
-              .map((e) =>
-                  SubLineItemDataBill.fromJson(e as Map<String, dynamic>))
+              .map((e) => SubLineItemDataBill.fromJson(e as Map<String, dynamic>))
               .toList();
           json['language'] = null;
           json['list_item'] = [];
-          var result =
-              LineItemDataBill.fromJson(json).copyWith(listItem: listItem);
+          var result = LineItemDataBill.fromJson(json).copyWith(listItem: listItem);
           return result;
         }).toList();
         dataDecode['payment_data']['order_line_items'] = null;
@@ -950,15 +931,13 @@ class HomeNotifier extends StateNotifier<HomeState> {
 
       var notificationData = NotificationDataModel.fromJson(dataDecode);
       notificationData = notificationData.copyWith(
-          paymentData: notificationData.paymentData
-              ?.copyWith(orderLineItems: lineItems));
+          paymentData: notificationData.paymentData?.copyWith(orderLineItems: lineItems));
       var printDeviceId = data['printer_device_id'] as String?;
 
       var printType = notificationData.type;
       var printStatus = notificationData.printStatus;
       if ([PrintStatusEnum.done, PrintStatusEnum.error].contains(printStatus)) {
-        if (notificationData.handleDeviceId != kDeviceId)
-          _handlePrintStatus(notificationData);
+        if (notificationData.handleDeviceId != kDeviceId) _handlePrintStatus(notificationData);
         return;
       }
       switch (printType) {
@@ -990,8 +969,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     try {
       var noti = state.notifications;
       var checks = noti.where((e) {
-        var notiData = NotificationDataModel.fromJson(
-            jsonDecode(e.data) as Map<String, dynamic>);
+        var notiData = NotificationDataModel.fromJson(jsonDecode(e.data) as Map<String, dynamic>);
         if (notiData.senderDeviceId == kDeviceId && refId == notiData.id) {
           return true;
         }
@@ -999,8 +977,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       }).toList();
       var check = checks.firstOrNull;
       if (check != null) {
-        var notiData = NotificationDataModel.fromJson(
-            jsonDecode(check.data) as Map<String, dynamic>);
+        var notiData =
+            NotificationDataModel.fromJson(jsonDecode(check.data) as Map<String, dynamic>);
         String title = data.title ?? '';
         String body = data.message ?? '';
         try {
@@ -1031,9 +1009,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         if (data.printStatus == PrintStatusEnum.error) {
           if (Platform.isAndroid || Platform.isIOS) {
             appLocalNotificationService?.showLocalNotification(title, body);
-          } else if (Platform.isWindows ||
-              Platform.isMacOS ||
-              Platform.isLinux) {
+          } else if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
             try {
               LocalNotification notification = LocalNotification(
                 title: title,
@@ -1067,8 +1043,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
           port: printer.port!,
           buildReceipt: (generator) async {
             showLogs(receiptData, flags: 'data');
-            var bytes = await AppPrinterHtmlUtils.instance
-                .getReceptBillContent(data.paymentData!);
+            var bytes = await AppPrinterHtmlUtils.instance.getReceptBillContent(data.paymentData!);
             return bytes;
           },
           onComplete: (success, error) async {
@@ -1082,12 +1057,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
               id: DateTimeUtils.formatToString(
                   time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
               handleDeviceId: kDeviceId,
-              printStatus:
-                  success ? PrintStatusEnum.done : PrintStatusEnum.error,
+              printStatus: success ? PrintStatusEnum.done : PrintStatusEnum.error,
               message: error,
             );
-            bool ignoreSendEvent =
-                callback.senderDeviceId == callback.handleDeviceId;
+            bool ignoreSendEvent = callback.senderDeviceId == callback.handleDeviceId;
             await _checkBeforeSendData(
               data: callback.toJson(),
               ignoreSendEvent: ignoreSendEvent,
@@ -1116,10 +1089,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       if (data.closeShiftData == null || printers.isEmpty) return;
 
       var bytes = printMode == AppPrinterSettingTypeEnum.normal
-          ? await AppPrinterNormalUtils.instance
-              .getCloseShift(data.closeShiftData!)
-          : await AppPrinterHtmlUtils.instance
-              .getCloseShiftContent(data.closeShiftData!);
+          ? await AppPrinterNormalUtils.instance.getCloseShift(data.closeShiftData!)
+          : await AppPrinterHtmlUtils.instance.getCloseShiftContent(data.closeShiftData!);
       for (var printer in printers) {
         PrintQueue.instance.addTask(
           ip: printer.ip!,
@@ -1138,13 +1109,11 @@ class HomeNotifier extends StateNotifier<HomeState> {
               id: DateTimeUtils.formatToString(
                   time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
               handleDeviceId: kDeviceId,
-              printStatus:
-                  success ? PrintStatusEnum.done : PrintStatusEnum.error,
+              printStatus: success ? PrintStatusEnum.done : PrintStatusEnum.error,
               message: error,
             );
 
-            bool ignoreSendEvent =
-                callback.senderDeviceId == callback.handleDeviceId;
+            bool ignoreSendEvent = callback.senderDeviceId == callback.handleDeviceId;
             await _checkBeforeSendData(
               data: callback.toJson(),
               ignoreSendEvent: ignoreSendEvent,
@@ -1192,8 +1161,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
               products: products,
               title: cancel ? 'HUY DO' : 'BIll tổng',
             )
-          : await AppPrinterHtmlUtils.instance.generateImageBill(
-              AppPrinterHtmlUtils.instance.kitchenBillContent(
+          : await AppPrinterHtmlUtils.instance
+              .generateImageBill(AppPrinterHtmlUtils.instance.kitchenBillContent(
               order: order,
               product: products,
               note: note,
@@ -1220,12 +1189,10 @@ class HomeNotifier extends StateNotifier<HomeState> {
               id: DateTimeUtils.formatToString(
                   time: DateTime.now(), newPattern: DateTimePatterns.dateTime3),
               handleDeviceId: kDeviceId,
-              printStatus:
-                  success ? PrintStatusEnum.done : PrintStatusEnum.error,
+              printStatus: success ? PrintStatusEnum.done : PrintStatusEnum.error,
               message: error,
             );
-            bool ignoreSendEvent =
-                callback.senderDeviceId == callback.handleDeviceId;
+            bool ignoreSendEvent = callback.senderDeviceId == callback.handleDeviceId;
             showLogs(ignoreSendEvent, flags: "ignoreSendEvent");
             if (success) {
               title =
@@ -1239,8 +1206,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                 /// nếu có bill tổng có:
                 /// + đồ ăn + đồ uống => in bill lẻ tất cả
                 /// + chỉ có đồ uống => bỏ qua
-                Set<ProductModel> foods = <ProductModel>{},
-                    drinks = <ProductModel>{};
+                Set<ProductModel> foods = <ProductModel>{}, drinks = <ProductModel>{};
                 bool onlyDrinks = true;
                 for (var p in products) {
                   // 4 - đồ uống
@@ -1272,11 +1238,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
                 }
                 if (!initOddBillData) {
                   for (var item in foods) {
-                    var listComboItemPrint =
-                        ProductHelper().getComboDescription(item);
+                    var listComboItemPrint = ProductHelper().getComboDescription(item);
                     // món thường
-                    if (listComboItemPrint == null ||
-                        listComboItemPrint.isEmpty) {
+                    if (listComboItemPrint == null || listComboItemPrint.isEmpty) {
                       var byteDatas = printNormal
                           ? await AppPrinterNormalUtils.instance.generateBill(
                               order: state.orderSelect!,
@@ -1287,8 +1251,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                               products: [item],
                               title: 'BILL lẻ',
                             )
-                          : await AppPrinterHtmlUtils.instance
-                              .generateImageBill(
+                          : await AppPrinterHtmlUtils.instance.generateImageBill(
                               AppPrinterHtmlUtils.instance.kitchenBillContent(
                                 product: [item],
                                 totalBill: false,
@@ -1313,8 +1276,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                                 ],
                                 title: 'BILL lẻ',
                               )
-                            : await AppPrinterHtmlUtils.instance
-                                .generateImageBill(
+                            : await AppPrinterHtmlUtils.instance.generateImageBill(
                                 AppPrinterHtmlUtils.instance.kitchenBillContent(
                                   product: [
                                     item.copyWith(description: jsonEncode([ci]))
@@ -1325,8 +1287,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                                   timeOrders: data.timeOrders,
                                 ),
                               );
-                        oddBillDatas[item.copyWith(
-                            description: jsonEncode([ci]))] = byteDatas;
+                        oddBillDatas[item.copyWith(description: jsonEncode([ci]))] = byteDatas;
                       }
                     }
                   }
@@ -1385,8 +1346,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
                         if (success) {
                           showLogs(null, flags: "✅ In bill lẻ thành công");
                         } else {
-                          showLogs("❌ In bill lẻ thất bại\n$key",
-                              flags: 'BILL LẺ');
+                          showLogs("❌ In bill lẻ thất bại\n$key", flags: 'BILL LẺ');
                           _saveNotification(
                             title: subTitle,
                             error: error,
@@ -1506,8 +1466,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     }
     if (saveNotification) {
       var notiId = await _saveNotification(
-        title:
-            title ?? 'Yêu cầu in đã được gửi tới hệ thống và đang chờ xử lý.',
+        title: title ?? 'Yêu cầu in đã được gửi tới hệ thống và đang chờ xử lý.',
         error: message ?? '',
         dataDecode: data,
         order: order,
@@ -1956,8 +1915,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     state = state.copyWith(ignoreCheckCodeWaiter: !state.ignoreCheckCodeWaiter);
   }
 
-  Future<(MInvoiceInfo? mInvoiceInfo, String? error)> searchTaxCodeInfo(
-      String taxCode) async {
+  Future<(MInvoiceInfo? mInvoiceInfo, String? error)> searchTaxCodeInfo(String taxCode) async {
     try {
       updateEvent(HomeEvent.findingTaxCode);
       final result = await _invoiceRepository.getMInvoiceTaxInfo(taxCode);
@@ -2026,8 +1984,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
   //   }
   // }
 
-  Future<bool> unlockOrder(
-      {bool loadingHome = true, String? messageError}) async {
+  Future<bool> unlockOrder({bool loadingHome = true, String? messageError}) async {
     try {
       state = state.copyWith(lockedOrder: true);
       if (loadingHome) updateEvent(HomeEvent.unlockOrder);
@@ -2590,13 +2547,12 @@ class HomeNotifier extends StateNotifier<HomeState> {
       if (checkPrinter != null) {
         throw checkPrinter;
       }
-      var resultSendPrintData =
-          await ref.read(homeProvider.notifier).sendPrintData(
-                type: PrintTypeEnum.closeShift,
-                closeShiftData: data,
-                printers: [printer],
-                printDirectly: printDirectly,
-              );
+      var resultSendPrintData = await ref.read(homeProvider.notifier).sendPrintData(
+            type: PrintTypeEnum.closeShift,
+            closeShiftData: data,
+            printers: [printer],
+            printDirectly: printDirectly,
+          );
       if (showLoading) updateEvent(HomeEvent.normal);
       return (
         resultSendPrintData: resultSendPrintData,
@@ -2855,8 +2811,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
       final orderSelect = state.orderSelect;
       if (restaurantId == null || orderSelect == null) {
         state = state.copyWith(
-          getChatMessageState: PageState(
-              status: PageCommonState.error, messageError: S.current.no_data),
+          getChatMessageState:
+              PageState(status: PageCommonState.error, messageError: S.current.no_data),
         );
         return;
       }
@@ -2938,9 +2894,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     if (reser != null) {
       var tableIds = table.map((e) => e.id).toList();
       if (!reser.equalsOtherReservation(ReservationModel(
-          status: status.type,
-          tableId: tableIds,
-          table: table.map((e) => e.name).join(', ')))) {
+          status: status.type, tableId: tableIds, table: table.map((e) => e.name).join(', ')))) {
         updateReservation(reser.copyWith(
           status: status.type,
           statusName: status.title,
@@ -2983,8 +2937,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         updateSaleInfo: false,
       );
       state = state.copyWith(
-        orderSelect:
-            state.orderSelect?.copyWith(reservationCrmId: newReservation?.id),
+        orderSelect: state.orderSelect?.copyWith(reservationCrmId: newReservation?.id),
       );
 
       showLogs(state.orderSelect, flags: 'updateReservationOrder');
@@ -3022,7 +2975,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     WindowsMethodEnum method = WindowsMethodEnum.data,
     dynamic arguments,
   }) async {
-    if (!Platform.isWindows || state.pinnedOrder) return;
+    if (!(Platform.isWindows || Platform.isMacOS) || state.pinnedOrder) return;
 
     var args = arguments ?? _tranferDataToCustomerPage(method: method);
     final subWindows = await DesktopMultiWindow.getAllSubWindowIds();
@@ -3039,11 +2992,9 @@ class HomeNotifier extends StateNotifier<HomeState> {
     for (var i in productsCheckout) {
       var p = products.firstWhereOrNull((e) => e.id == i.id);
       if (p != null) {
-        items.add(
-            p.copyWith(numberSelecting: i.quantity, unitPrice: i.unitPrice));
+        items.add(p.copyWith(numberSelecting: i.quantity, unitPrice: i.unitPrice));
       } else {
-        items.add(ProductModel(
-            id: i.id, name: i.name, unitPrice: i.unitPrice, unit: i.unit));
+        items.add(ProductModel(id: i.id, name: i.name, unitPrice: i.unitPrice, unit: i.unit));
       }
     }
 
@@ -3063,8 +3014,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     };
   }
 
-  dynamic _tranferDataToCustomerPage(
-      {WindowsMethodEnum method = WindowsMethodEnum.data}) {
+  dynamic _tranferDataToCustomerPage({WindowsMethodEnum method = WindowsMethodEnum.data}) {
     var products = ref.read(menuProvider).products;
     var checkoutState = ref.read(checkoutProvider);
     var productCheckout = checkoutState.productCheckout;
@@ -3078,8 +3028,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
         ));
       } else {
         items.add(
-          ProductModel(
-              id: i.id, name: i.name, unitPrice: i.unitPrice, unit: i.unit),
+          ProductModel(id: i.id, name: i.name, unitPrice: i.unitPrice, unit: i.unit),
         );
       }
     }
@@ -3290,8 +3239,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
       data = values.where((e) => true).toList();
 
       data = List.from(data.reversed);
-      data.sort((a, b) => (b.datetime ?? DateTime.now())
-          .compareTo((a.datetime ?? DateTime.now())));
+      data.sort((a, b) => (b.datetime ?? DateTime.now()).compareTo((a.datetime ?? DateTime.now())));
 
       state = state.copyWith(notifications: data);
     } else {

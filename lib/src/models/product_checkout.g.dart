@@ -9,11 +9,11 @@ part of 'product_checkout.dart';
 _$ProductCheckoutModelImpl _$$ProductCheckoutModelImplFromJson(
         Map<String, dynamic> json) =>
     _$ProductCheckoutModelImpl(
-      id: (json['id'] as num).toInt(),
-      quantity: (json['quantity'] as num).toInt(),
-      unitPrice: json['unit_price'] as String,
-      name: json['name'] as String,
-      unit: json['unit'] as String,
+      id: (json['id'] as num?)?.toInt() ?? -1,
+      quantity: (json['quantity'] as num?)?.toInt() ?? 0,
+      unitPrice: json['unit_price'] as String? ?? '0.0',
+      name: json['name'] as String? ?? '',
+      unit: json['unit'] as String? ?? '',
       tax: (json['tax'] as num?)?.toDouble() ?? 0.0,
       totalOrdered: (json['total_ordered'] as num?)?.toDouble() ?? 0.0,
       quantityCancel: (json['quantity_cancel'] as num?)?.toInt() ?? 0,

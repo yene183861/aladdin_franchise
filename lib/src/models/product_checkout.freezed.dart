@@ -285,11 +285,11 @@ class __$$ProductCheckoutModelImplCopyWithImpl<$Res>
 class _$ProductCheckoutModelImpl extends _ProductCheckoutModel
     with DiagnosticableTreeMixin {
   const _$ProductCheckoutModelImpl(
-      {required this.id,
-      required this.quantity,
-      required this.unitPrice,
-      required this.name,
-      required this.unit,
+      {this.id = -1,
+      this.quantity = 0,
+      this.unitPrice = '0.0',
+      this.name = '',
+      this.unit = '',
       this.tax = 0.0,
       this.totalOrdered = 0.0,
       this.quantityCancel = 0,
@@ -307,14 +307,19 @@ class _$ProductCheckoutModelImpl extends _ProductCheckoutModel
       _$$ProductCheckoutModelImplFromJson(json);
 
   @override
+  @JsonKey()
   final int id;
   @override
+  @JsonKey()
   final int quantity;
   @override
+  @JsonKey()
   final String unitPrice;
   @override
+  @JsonKey()
   final String name;
   @override
+  @JsonKey()
   final String unit;
   @override
   @JsonKey()
@@ -448,11 +453,11 @@ class _$ProductCheckoutModelImpl extends _ProductCheckoutModel
 
 abstract class _ProductCheckoutModel extends ProductCheckoutModel {
   const factory _ProductCheckoutModel(
-      {required final int id,
-      required final int quantity,
-      required final String unitPrice,
-      required final String name,
-      required final String unit,
+      {final int id,
+      final int quantity,
+      final String unitPrice,
+      final String name,
+      final String unit,
       final double tax,
       final double totalOrdered,
       final int quantityCancel,

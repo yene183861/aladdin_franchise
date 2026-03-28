@@ -3,6 +3,7 @@
 
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/const.dart';
+import 'package:aladdin_franchise/src/utils/app_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -107,6 +108,8 @@ class LineItemDataBill with _$LineItemDataBill {
       : nameEn.trim().isEmpty
           ? name
           : nameEn;
+
+  double get totalPrice => (AppUtils.convertToDouble(price) ?? 0) * count;
 }
 
 @freezed

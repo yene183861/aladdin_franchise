@@ -13,11 +13,11 @@ part 'product_checkout.g.dart';
 class ProductCheckoutModel with _$ProductCheckoutModel {
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory ProductCheckoutModel({
-    required int id,
-    required int quantity,
-    required String unitPrice,
-    required String name,
-    required String unit,
+    @Default(-1) int id,
+    @Default(0) int quantity,
+    @Default('0.0') String unitPrice,
+    @Default('') String name,
+    @Default('') String unit,
     @Default(0.0) double tax,
     @Default(0.0) double totalOrdered,
     @Default(0) int quantityCancel,

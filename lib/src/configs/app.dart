@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:io';
 
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/const.dart';
@@ -43,7 +44,9 @@ class AppConfig {
   static const double defaultRawTextSize = 13.0;
   static const bool autoAcceptO2O = true;
 
-  static const double heightBtn = 56.0;
+  static const double heightBtn = 48.0;
+
+  static final canOpenCustomerPage = Platform.isWindows || Platform.isMacOS;
 
   static List<String> reasonCancelItem = [
     S.current.customer_select_mistake,

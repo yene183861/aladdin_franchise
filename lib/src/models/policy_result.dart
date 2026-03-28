@@ -31,7 +31,7 @@ class PolicyResultModel with _$PolicyResultModel {
 class HistoryPolicyResultModel with _$HistoryPolicyResultModel {
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory HistoryPolicyResultModel({
-    required String name,
+    @Default('') String name,
     @Default(0.0) double total,
     @Default([]) List<DiscountPolicy> listUse,
     int? isType,

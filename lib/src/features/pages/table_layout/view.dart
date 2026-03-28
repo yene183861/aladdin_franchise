@@ -384,15 +384,15 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
                                           onLongPress: (p0) {
                                             if (editMode) return;
                                             if (order == null) return;
-                                            ref
-                                                .read(homeProvider.notifier)
-                                                .changeOrderSelect(order);
-                                            showModalBottomSheet(
-                                              context: context,
-                                              builder: (context) {
-                                                return const DetailOrderBottomSheet();
-                                              },
-                                            );
+                                            // ref
+                                            //     .read(homeProvider.notifier)
+                                            //     .changeOrderSelect(order);
+                                            // showModalBottomSheet(
+                                            //   context: context,
+                                            //   builder: (context) {
+                                            //      return const DetailOrderBottomSheet();
+                                            //   },
+                                            // );
                                           },
                                           item: item,
                                           // itemSetting: itemSetting,
@@ -590,40 +590,40 @@ class _TableLayoutPageState extends ConsumerState<TableLayoutPage> {
   }
 }
 
-class DetailOrderBottomSheet extends ConsumerStatefulWidget {
-  const DetailOrderBottomSheet({super.key});
+// class DetailOrderBottomSheet extends ConsumerStatefulWidget {
+//   const DetailOrderBottomSheet({super.key});
 
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _DetailOrderBottomSheetState();
-}
+//   @override
+//   ConsumerState<ConsumerStatefulWidget> createState() => _DetailOrderBottomSheetState();
+// }
 
-class _DetailOrderBottomSheetState extends ConsumerState<DetailOrderBottomSheet> {
-  ItemScrollController? itemScrollController;
-  ItemPositionsListener? itemPositionsListener;
+// class _DetailOrderBottomSheetState extends ConsumerState<DetailOrderBottomSheet> {
+//   ItemScrollController? itemScrollController;
+//   ItemPositionsListener? itemPositionsListener;
 
-  ItemScrollController? itemSelectingScrollController;
-  ItemPositionsListener? itemSelectingPositionsListener;
+//   ItemScrollController? itemSelectingScrollController;
+//   ItemPositionsListener? itemSelectingPositionsListener;
 
-  @override
-  void initState() {
-    super.initState();
-    itemScrollController = ItemScrollController();
-    itemPositionsListener = ItemPositionsListener.create();
-    itemSelectingScrollController = ItemScrollController();
-    itemSelectingPositionsListener = ItemPositionsListener.create();
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     itemScrollController = ItemScrollController();
+//     itemPositionsListener = ItemPositionsListener.create();
+//     itemSelectingScrollController = ItemScrollController();
+//     itemSelectingPositionsListener = ItemPositionsListener.create();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return OrderItemsWidget(
-      priceSidebar: true,
-      itemPositionsListener: itemPositionsListener,
-      itemScrollController: itemScrollController,
-      itemSelectingPositionsListener: itemSelectingPositionsListener,
-      itemSelectingScrollController: itemSelectingScrollController,
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return OrderItemsWidget(
+//       priceSidebar: true,
+//       itemPositionsListener: itemPositionsListener,
+//       itemScrollController: itemScrollController,
+//       itemSelectingPositionsListener: itemSelectingPositionsListener,
+//       itemSelectingScrollController: itemSelectingScrollController,
+//     );
+//   }
+// }
 
 class _GridPainter extends CustomPainter {
   @override
