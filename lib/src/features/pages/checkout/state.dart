@@ -53,6 +53,8 @@ enum CheckoutEvent {
 
   dynamicPosCallback,
   getPaymentGateway,
+  //
+  checkPaymentMethod
 }
 
 @freezed

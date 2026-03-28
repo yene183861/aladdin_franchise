@@ -22,13 +22,20 @@ class HistoryOrderState with _$HistoryOrderState {
     @Default(HistoryOrderEvent.normal) HistoryOrderEvent event,
     HistoryOrderModel? historyOrderSelect,
     @Default('') String messageError,
-    @Default(PageState(status: PageCommonState.loading)) PageState getOrderDetailState,
+    required DateTime startDate,
+    required DateTime endDate,
+    @Default('') String textSearch,
+    @Default({}) Map<int, DetailHistoryOrderModel?> detail,
+  }) = _HistoryOrderState;
+}
+
+@freezed
+class DetailHistoryOrderModel with _$DetailHistoryOrderModel {
+  const factory DetailHistoryOrderModel({
     CustomerModel? customer,
     @Default([]) List<CustomerPolicyModel> coupons,
     @Default([]) List<ProductCheckoutModel> productCheckout,
     DataBillResponseData? dataBill,
-    required DateTime startDate,
-    required DateTime endDate,
-    @Default('') String textSearch,
-  }) = _HistoryOrderState;
+    @Default(PageState(status: PageCommonState.normal)) PageState state,
+  }) = _DetailHistoryOrderModel;
 }

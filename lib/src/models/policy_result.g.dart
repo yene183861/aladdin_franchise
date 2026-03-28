@@ -33,7 +33,7 @@ Map<String, dynamic> _$$PolicyResultModelImplToJson(
 _$HistoryPolicyResultModelImpl _$$HistoryPolicyResultModelImplFromJson(
         Map<String, dynamic> json) =>
     _$HistoryPolicyResultModelImpl(
-      name: json['name'] as String,
+      name: json['name'] as String? ?? '',
       total: (json['total'] as num?)?.toDouble() ?? 0.0,
       listUse: (json['list_use'] as List<dynamic>?)
               ?.map((e) => DiscountPolicy.fromJson(e as Map<String, dynamic>))

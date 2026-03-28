@@ -1,31 +1,28 @@
-import 'package:aladdin_franchise/generated/assets.dart';
 import 'package:aladdin_franchise/generated/l10n.dart';
-import 'package:aladdin_franchise/src/configs/app.dart';
-import 'package:aladdin_franchise/src/configs/color.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/core/network/provider.dart';
 import 'package:aladdin_franchise/src/features/dialogs/confirm_action.dart';
 import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/processing.dart';
-import 'package:aladdin_franchise/src/features/pages/history_order/components/barrel_component.dart';
-import 'package:aladdin_franchise/src/features/pages/history_order/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/history_order/state.dart';
+import 'package:aladdin_franchise/src/features/pages/history_order/components/data/item_column_enum.dart';
 import 'package:aladdin_franchise/src/features/widgets/app_error_simple.dart';
-import 'package:aladdin_franchise/src/features/widgets/gap.dart';
+import 'package:aladdin_franchise/src/features/widgets/app_loading_simple.dart';
+import 'package:aladdin_franchise/src/features/widgets/empty_data_widget.dart';
+import 'package:aladdin_franchise/src/features/widgets/refresh_data.dart';
 import 'package:aladdin_franchise/src/models/history_order.dart';
-import 'package:aladdin_franchise/src/features/widgets/app_icon_widget.dart';
-import 'package:aladdin_franchise/src/utils/app_log.dart';
-import 'package:aladdin_franchise/src/utils/app_util.dart';
-
-import 'package:aladdin_franchise/src/utils/date_time.dart';
 import 'package:aladdin_franchise/src/utils/navigator.dart';
-import 'package:aladdin_franchise/src/utils/size_util.dart';
-import 'package:aladdin_franchise/src/utils/text_util.dart';
+import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
+import 'package:responsive_framework/responsive_framework.dart';
+
+import 'components/widgets/order_row.dart';
+import 'components/widgets/app_bar/search_field.dart';
+import 'components/widgets/detail/view.dart';
+import 'components/widgets/app_bar/view.dart';
+import 'provider.dart';
+import 'state.dart';
+import 'order_card.dart';
 
 class HistoryOrderPage extends ConsumerStatefulWidget {
   const HistoryOrderPage({super.key});
@@ -35,6 +32,8 @@ class HistoryOrderPage extends ConsumerStatefulWidget {
 }
 
 class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
+  static const columns = HistoryItemColumnEnum.values;
+
   _listenEvent(BuildContext context, WidgetRef ref) =>
       (HistoryOrderEvent? previous, HistoryOrderEvent? next) {
         switch (next) {
@@ -47,223 +46,25 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
             break;
 
           case HistoryOrderEvent.normal:
-            Navigator.pop(context);
+            pop(context);
             break;
           case HistoryOrderEvent.updateTax:
             showProcessingDialog(context, message: 'Đang cập nhật lại thông tin thuế');
+            break;
+          case HistoryOrderEvent.error:
+            pop(context);
+            if (ref.read(historyOrderPageProvider).messageError.trim().isNotEmpty) {
+              showMessageDialog(
+                context,
+                message: ref.read(historyOrderPageProvider).messageError.trim(),
+              );
+            }
             break;
 
           default:
             break;
         }
       };
-  static void _onTapItem({
-    required HistoryOrderModel item,
-    required WidgetRef ref,
-    required BuildContext context,
-  }) async {
-    await ref.read(historyOrderPageProvider.notifier).onChangeHistoryOrderSelect(item);
-    if (context.mounted) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return HistoryOrderDetailDialog(
-            item: item,
-            completeBillAction: () {
-              return _printBillForCustomer(
-                item: item,
-                context: context,
-                ref: ref,
-                completeBillAction: true,
-              );
-            },
-          );
-        },
-      );
-    }
-  }
-
-  static Future<bool> _printBillForCustomer({
-    required HistoryOrderModel item,
-    required BuildContext context,
-    required WidgetRef ref,
-    bool completeBillAction = false,
-  }) async {
-    await ref.read(historyOrderPageProvider.notifier).onChangeHistoryOrderSelect(item);
-    bool refreshData = false;
-    // ignore: prefer_function_declarations_over_variables
-    var action = () async {
-      var res = await ref
-          .read(historyOrderPageProvider.notifier)
-          .printBillForCustomer(context, completeBillAction: completeBillAction);
-
-      if (res.error != null && context.mounted) {
-        await showMessageDialog(context, message: res.error!);
-      }
-      if (res.refreshData) {
-        refreshData = true;
-        ref.refresh(historyOrderProvider);
-      }
-    };
-    if (!completeBillAction) {
-      showConfirmAction(
-        context,
-        message: 'Bạn muốn in hóa đơn cho khách hàng',
-        action: action,
-      );
-    } else {
-      await action();
-      return refreshData;
-    }
-
-    return false;
-  }
-
-  final colSettings = [
-    {
-      'title': S.current.order_code,
-      'size': 100.0,
-      'align': Alignment.center,
-      'item_builder': (dynamic item, BuildContext context, WidgetRef ref) {
-        if (item is! HistoryOrderModel) return const Text('');
-        return Center(
-            child: Text(
-          item.orderCode,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
-        ));
-      },
-    },
-    {
-      'title': S.current.table,
-      'size': null,
-      'align': Alignment.center,
-      'item_builder': null,
-    },
-    {
-      'title': S.current.status,
-      'size': 160.0,
-      'align': Alignment.center,
-      'item_builder': (dynamic item, BuildContext context, WidgetRef ref) {
-        if (item is! HistoryOrderModel) return const Text('');
-
-        return Center(
-            child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Container(
-                width: TextUtil.getTextSize(
-                        text: OrderStatusEnum.waiting.title,
-                        textStyle: AppTextStyle.regular(
-                          color: AppColors.white,
-                          rawFontSize: AppConfig.defaultRawTextSize - 1.5,
-                        )).width +
-                    12,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  borderRadius: AppConfig.borderRadiusMain,
-                  color: item.status.color,
-                ),
-                child: Text(
-                  item.status.title,
-                  style: AppTextStyle.regular(
-                    color: AppColors.white,
-                    rawFontSize: AppConfig.defaultRawTextSize - 1.5,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-            if ([OrderStatusEnum.waiting, OrderStatusEnum.completed].contains(item.status) &&
-                ((item.price?.getTotalPriceFinal() ?? 0) > 0)) ...[
-              const Gap(4),
-              InkWell(
-                onTap: () async {
-                  await _printBillForCustomer(
-                    context: context,
-                    ref: ref,
-                    item: item,
-                  );
-                },
-                child: SvgPicture.asset(
-                  Assets.iconsPrinter,
-                  width: 28,
-                  height: 28,
-                ),
-              ),
-            ],
-          ],
-        ));
-      },
-    },
-    {
-      'title': S.current.customers,
-      'size': 180.0,
-      'align': Alignment.center,
-      'item_builder': null,
-    },
-    {
-      'title': S.current.voucher,
-      'size': 180.0,
-      'align': Alignment.center,
-      'item_builder': null,
-    },
-    {
-      'title': S.current.total_amount,
-      'size': 200.0,
-      'align': Alignment.center,
-      'item_builder': null,
-    },
-    {
-      'title': S.current.method,
-      'size': 120.0,
-      'align': Alignment.center,
-      'item_builder': (dynamic value, BuildContext context, WidgetRef ref) {
-        if (value is! HistoryOrderModel) return const Text('');
-        return Center(
-          child: Text(
-            value.orderType == AppConfig.orderOfflineValue
-                ? S.current.orderOffline
-                : S.current.orderOnline,
-          ),
-        );
-      },
-    },
-    {
-      'title': S.current.time,
-      'size': 140.0,
-      'align': Alignment.centerRight,
-      'item_builder': null,
-    },
-  ];
-
-  TableSpan buildColumnSpan(int index, double maxWidth) {
-    double? maxValue = colSettings[index]['size'] as double?;
-    double remain = maxWidth;
-    for (var e in colSettings) {
-      var size = e['size'] as double?;
-      remain = remain - (size ?? 0);
-    }
-
-    return TableSpan(
-      extent: maxValue == null ? FixedTableSpanExtent(remain) : FixedTableSpanExtent(maxValue),
-    );
-  }
-
-  TableSpan buildRowSpan(int index) {
-    TableSpanDecoration backGroundDecoration = TableSpanDecoration(
-      color: index % 2 == 0 ? null : Colors.grey.shade100,
-    );
-    return TableSpan(
-      extent: const FixedTableSpanExtent(50),
-      backgroundDecoration: backGroundDecoration,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -271,243 +72,201 @@ class _HistoryOrderPageState extends ConsumerState<HistoryOrderPage> {
       historyOrderPageProvider.select((value) => value.event),
       _listenEvent(context, ref),
     );
+    bool smallDevice = !ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
     return Scaffold(
-      body: LayoutBuilder(builder: (context, constraint) {
-        var maxWidth = constraint.maxWidth;
-        var isDesktop = Device.screenType == ScreenType.desktop;
-        var isTablet = Device.screenType == ScreenType.tablet;
-        bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
-        bool showDataTable = isDesktop || (isTablet && !portraitOrientation);
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              color: const Color(0xff292929),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  ResponsiveIconButtonWidget(
-                    onPressed: () => pop(context),
-                    iconData: Icons.arrow_back_rounded,
-                    color: AppColors.white,
-                  ),
-                  Text(
-                    S.current.order_of_the_day,
-                    style: AppTextStyle.bold(color: AppColors.white),
-                  ),
-                  if (showDataTable) ...[
-                    const Gap(12),
-                    const HistoryDateRange(textColor: Colors.white),
-                    const Gap(12),
-                    const OrderSearchField(),
-                    const Gap(8),
-                  ],
-                  Expanded(
-                    child: Consumer(builder: (context, ref, child) {
-                      var historyOrder = ref.watch(historyOrderProvider);
-                      String total = historyOrder.when(
-                        data: (data) {
-                          var totalMoney = 0.0;
-                          for (var element in data) {
-                            totalMoney += element.price?.getTotalPriceFinal() ?? 0.0;
-                          }
-
-                          return AppUtils.formatCurrency(value: totalMoney);
-                        },
-                        error: (error, stackTrace) => '********* đ',
-                        loading: () => '********* đ',
-                      );
-                      return Text.rich(
-                        TextSpan(text: '${S.current.total_amount}:    ', children: [
-                          TextSpan(
-                            text: total,
-                            style: AppTextStyle.bold(
-                              color: AppColors.white,
-                              rawFontSize: AppConfig.defaultRawTextSize + 1,
-                            ),
-                          )
-                        ]),
-                        style: AppTextStyle.regular(color: AppColors.white),
-                        textAlign: TextAlign.end,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      );
-                    }),
-                  ),
-                ],
-              ),
+      body: Column(
+        children: [
+          const HistoryOrderAppBar(),
+          if (smallDevice) ...[
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+              child: HistorySearchField(),
             ),
-            if (!showDataTable) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8).copyWith(bottom: 0),
-                child: const Row(
-                  children: [
-                    HistoryDateRange(),
-                    Gap(10),
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 4.0),
-                        child: OrderSearchField(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            Expanded(
-              child: Consumer(builder: (context, ref, child) {
-                var historyOrder = ref.watch(historyOrderProvider);
-                var search = ref
-                    .watch(historyOrderPageProvider.select((value) => value.textSearch))
-                    .trim()
-                    .toLowerCase();
+            const DateRangeSelector(textColor: Color(0xFFE53935)),
+          ],
+          const Expanded(child: HistoryDataView(columns: columns)),
+        ],
+      ),
+    );
+  }
+}
 
-                return historyOrder.when(
-                  data: (d) {
-                    var data = List<HistoryOrderModel>.from(d);
-                    if (search.trim().isNotEmpty) {
-                      data = data.where((e) {
-                        var result = [
-                          e.orderCode.trim().toLowerCase(),
-                          if (e.customer != null) ...[
-                            e.customer!.name.trim().toLowerCase(),
-                            e.customer!.phone.trim().toLowerCase(),
-                          ],
-                        ].any((e) => e.contains(search));
-                        return result;
-                      }).toList();
-                    }
-                    data.sort((a, b) => a.timeCreated == null || b.timeCreated == null
-                        ? 0
-                        : a.timeCreated!.compareTo(b.timeCreated!));
-                    if (data.isEmpty) {
-                      return Center(
-                        child: Text(
-                          S.current.no_data,
-                          style: AppTextStyle.regular(),
-                        ),
-                      );
-                    }
-                    return !showDataTable
-                        ? OrderHistoryGridView(
-                            childAspectRatio: portraitOrientation ? 0.9 : 0.75,
-                            data: data,
-                            onTapItem: ({required context, required item, required ref}) {
-                              _onTapItem(item: item, ref: ref, context: context);
-                            },
-                            onTapPrintBill: (
-                                {completeBillAction,
-                                required context,
-                                required item,
-                                required ref}) {
-                              return _printBillForCustomer(
+class HistoryDataView extends ConsumerWidget {
+  const HistoryDataView({
+    super.key,
+    required this.columns,
+  });
+  final List<HistoryItemColumnEnum> columns;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var historyOrder = ref.watch(historyOrderProvider);
+    var search = ref
+        .watch(historyOrderPageProvider.select((value) => value.textSearch))
+        .trim()
+        .toLowerCase();
+    Color rowOdd = Theme.of(context).scaffoldBackgroundColor;
+    Color rowEven = Colors.grey.shade100;
+    bool largerDevice = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
+    return historyOrder.when(
+      skipLoadingOnRefresh: false,
+      skipError: false,
+      data: (d) {
+        var data = List<HistoryOrderModel>.from(d);
+        if (search.trim().isNotEmpty) {
+          data = data.where((e) {
+            var result = [
+              e.orderCode.trim().toLowerCase(),
+              if (e.customer != null) ...[
+                e.customer!.name.trim().toLowerCase(),
+                e.customer!.phone.trim().toLowerCase(),
+              ],
+            ].any((e) => e.contains(search));
+            return result;
+          }).toList();
+        }
+        data.sort((a, b) => a.timeCreated == null || b.timeCreated == null
+            ? 0
+            : a.timeCreated!.compareTo(b.timeCreated!));
+        if (data.isEmpty) {
+          return const EmptyDataWidget();
+        }
+        return Column(
+          children: [
+            if (largerDevice)
+              OrderRow(
+                item: const HistoryOrderModel(),
+                columns: columns,
+                isTitleColumn: true,
+                bgColor: rowOdd,
+                isEven: false,
+                style: AppTextStyle.bold(),
+              ),
+            Expanded(
+              child: RefreshDataWidget(
+                onRefresh: () {
+                  ref.refresh(historyOrderProvider);
+                },
+                indicatorTrigger: IndicatorTrigger.leadingEdge,
+                child: ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: largerDevice ? 0 : 16, vertical: 1),
+                  itemCount: data.length,
+                  addAutomaticKeepAlives: false,
+                  addRepaintBoundaries: true,
+                  itemBuilder: (_, index) {
+                    final item = data[index];
+                    final isEven = index.isEven;
+                    return largerDevice
+                        ? OrderRow(
+                            item: item,
+                            columns: columns,
+                            isEven: isEven,
+                            bgColor: isEven ? rowEven : rowOdd,
+                            style: AppTextStyle.regular(),
+                            onTap: () {
+                              showDialog(
                                 context: context,
-                                ref: ref,
-                                item: item,
+                                builder: (context) {
+                                  return HistoryOrderDetailDialog(item: item);
+                                },
+                              );
+                            },
+                            onTapPrint: () async {
+                              var confirm = await showConfirmAction(context,
+                                  message: 'Bạn muốn in hoá đơn cho khách?');
+                              if (confirm != true) return;
+                              var notifier = ref.read(historyOrderPageProvider.notifier);
+                              var order = notifier.convertToOrderModel(
+                                  id: item.orderExcute.order,
+                                  tableName: item.tableName,
+                                  code: item.orderCode,
+                                  typeOrder: item.orderType);
+                              notifier.printReceipt(
+                                requireCompleteBill: item.status == OrderStatusEnum.waiting,
+                                order: order,
                               );
                             },
                           )
-                        : TableView.builder(
-                            pinnedRowCount: 1,
-                            pinnedColumnCount: 0,
-                            columnCount: colSettings.length,
-                            rowCount: data.length + 1,
-                            columnBuilder: (index) {
-                              return buildColumnSpan(index, maxWidth);
+                        : OrderCard(
+                            item: item,
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return HistoryOrderDetailDialog(item: item);
+                                },
+                              );
                             },
-                            rowBuilder: buildRowSpan,
-                            cellBuilder: (BuildContext context, TableVicinity vicinity) {
-                              if (vicinity.yIndex == 0) {
-                                String colTitle = '';
-                                try {
-                                  colTitle =
-                                      (colSettings[vicinity.xIndex]['title'] ?? '') as String;
-                                } catch (ex) {
-                                  //
-                                }
-                                return TableViewCell(
-                                  child: Center(
-                                    child: Text(
-                                      colTitle,
-                                      style: AppTextStyle.bold(),
-                                    ),
-                                  ),
-                                );
-                              }
-                              var xIndex = vicinity.xIndex;
-                              var item = data[vicinity.yIndex - 1];
-                              var values = [
-                                item.orderCode,
-                                item.tableName,
-                                '',
-                                ((item.customer?.name ?? '').trim().isEmpty &&
-                                        (item.customer?.phone ?? '').trim().isEmpty)
-                                    ? ''
-                                    : '${(item.customer?.name ?? '').trim()} - ${(item.customer?.phone ?? '').trim()}',
-                                item.coupons.map((e) => e.name).toList().join(', '),
-                                AppUtils.formatCurrency(value: item.price?.getTotalPriceFinal()),
-                                '',
-                                item.timeCreated == null
-                                    ? ''
-                                    : DateTimeUtils.formatToString(
-                                        time: item.timeCreated!,
-                                        newPattern: DateTimePatterns.dateTimeNotSecond,
-                                      ),
-                              ];
-
-                              var func = colSettings[xIndex]['item_builder'];
-                              return TableViewCell(
-                                child: InkWell(
-                                  onTap: () {
-                                    _onTapItem(item: item, ref: ref, context: context);
-                                  },
-                                  hoverColor: Colors.transparent,
-                                  splashColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  child: func is Function
-                                      // nhớ khi khai báo cả context, ref nữa nha
-                                      ? func.call(item, context, ref)
-                                      : Align(
-                                          alignment: colSettings[vicinity.xIndex]['align']
-                                              as AlignmentGeometry,
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 2),
-                                            child: Text(
-                                              values[xIndex],
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              textAlign: TextAlign.center,
-                                              style: AppTextStyle.regular(),
-                                            ),
-                                          ),
-                                        ),
-                                ),
+                            onTapPrint: () async {
+                              var confirm = await showConfirmAction(context,
+                                  message: 'Bạn muốn in hoá đơn cho khách?');
+                              if (confirm != true) return;
+                              var notifier = ref.read(historyOrderPageProvider.notifier);
+                              var order = notifier.convertToOrderModel(
+                                  id: item.orderExcute.order,
+                                  tableName: item.tableName,
+                                  code: item.orderCode,
+                                  typeOrder: item.orderType);
+                              notifier.printReceipt(
+                                requireCompleteBill: item.status == OrderStatusEnum.waiting,
+                                order: order,
                               );
                             },
                           );
                   },
-                  error: (error, stackTrace) {
-                    return Center(
-                      child: AppErrorSimpleWidget(
-                        onTryAgain: () {
-                          ref.refresh(historyOrderProvider);
-                        },
-                        message: error.toString(),
-                      ),
-                    );
-                  },
-                  loading: () {
-                    return showDataTable
-                        ? OrderHistoryListViewLoading(colSettings: colSettings)
-                        : const OrderHistoryGridViewLoading();
-                  },
-                );
-              }),
+                ),
+              ),
             ),
           ],
         );
-      }),
+      },
+      error: (error, stackTrace) {
+        return Center(
+          child: AppErrorSimpleWidget(
+            onTryAgain: () {
+              ref.refresh(historyOrderProvider);
+            },
+            message: error.toString(),
+          ),
+        );
+      },
+      loading: () {
+        if (!largerDevice) {
+          return const Center(
+            child: AppLoadingSimpleWidget(),
+          );
+        }
+        return Column(
+          children: [
+            OrderRow(
+                item: const HistoryOrderModel(),
+                columns: columns,
+                isTitleColumn: true,
+                bgColor: rowOdd,
+                isEven: false,
+                style: AppTextStyle.bold()),
+            Expanded(
+              child: ListView.builder(
+                itemCount: 10,
+                addAutomaticKeepAlives: false,
+                addRepaintBoundaries: true,
+                itemBuilder: (context, index) {
+                  return OrderRow(
+                    item: const HistoryOrderModel(),
+                    columns: columns,
+                    isEven: index.isEven,
+                    bgColor: index.isEven ? rowEven : rowOdd,
+                    style: AppTextStyle.regular(),
+                    loading: true,
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

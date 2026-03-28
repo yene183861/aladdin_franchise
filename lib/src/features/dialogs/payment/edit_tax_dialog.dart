@@ -9,6 +9,7 @@ import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/widgets/button/app_buton.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/close_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/dialog/title_with_close_icon.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/title_line.dart';
@@ -26,53 +27,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:two_dimensional_scrollables/two_dimensional_scrollables.dart';
 
-Future<bool> showTaxActionDialog1(BuildContext context, WidgetRef ref) async {
-  Map<int, Map<String, dynamic>> taxChange = {};
-  Map<int, double> taxMap = {};
-  var result = await showConfirmActionWithChild(
-    context,
-    noTitle: true,
-    title: S.current.edit_tax_information,
-    closeDialog: false,
-    child: SizedBox(
-      width: MediaQuery.of(context).size.width,
-      child: EditTaxDialog1(
-        onSave: (value) {
-          taxChange = value;
-        },
-      ),
-    ),
-    onCheckAction: () {
-      return true;
-    },
-    actionTitle: S.current.save_and_continue_payment,
-    action: () async {
-      taxChange.forEach(
-        (key, value) {
-          taxMap[key] = value['tax_select'] ?? 0;
-        },
-      );
-
-      var res = await ref.read(checkoutProvider.notifier).onUpdateTax(taxMap);
-      if (res != null) {
-        if (context.mounted)
-          showMessageDialog(context, message: res, canPop: false);
-        return;
-      }
-      if (context.mounted) pop(context, true);
-    },
-  );
-
-  return result ?? false;
-}
-
 class EditTaxDialog1 extends ConsumerStatefulWidget {
   const EditTaxDialog1({
     super.key,
     this.onSave,
     this.isDialog = true,
     this.notAllowTaxs = const [],
-    // this.onCheckBeforeUpdate,
+    this.onCheckBeforeUpdate,
+    this.textAction,
   });
 
   final Function(Map<int, Map<String, dynamic>>)? onSave;
@@ -81,7 +43,8 @@ class EditTaxDialog1 extends ConsumerStatefulWidget {
 
   final List<double> notAllowTaxs;
 
-  // final String? Function(List<LineItemDataBill>)? onCheckBeforeUpdate;
+  final String? Function(List<LineItemDataBill>)? onCheckBeforeUpdate;
+  final String? textAction;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _EditTaxDialogState();
@@ -185,8 +148,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog1> {
   Widget build(BuildContext context) {
     bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
     bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation =
-        AppDeviceSizeUtil.checkPortraitOrientation(context);
+    bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
 
     bool smallDevice = (isMobile || (isTablet && portraitOrientation));
     // double maxWidth = MediaQuery.of(context).size.width;
@@ -207,9 +169,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog1> {
               valueListenable: enableBtnUpdateTax,
               builder: (context, value, child) {
                 bool enableUpdate = value;
-                var title = enableUpdate
-                    ? S.current.edit_tax_information
-                    : 'Chi tiết sản phẩm';
+                var title = enableUpdate ? S.current.edit_tax_information : 'Chi tiết sản phẩm';
                 if (widget.isDialog) {
                   return TitleWithCloseIconDialog(
                     title: title,
@@ -304,52 +264,50 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog1> {
           ValueListenableBuilder(
               valueListenable: enableBtnUpdateTax,
               builder: (context, status, child) {
-                if (!status) return const SizedBox.shrink();
-                return Align(
-                  alignment: Alignment.center,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: AppButton(
-                      textAction: 'Cập nhật thuế',
-                      onPressed: () async {
-                        Map<int, double> map = {};
-                        // List<LineItemDataBill> lineItemDataBill = [];
-                        taxMap.value.forEach(
-                          (key, value) {
-                            map[key] = value['tax_select'] ?? 0;
-                            // lineItemDataBill.add((value['item_data_bill'] as LineItemDataBill)
-                            //     .copyWith(tax: map[key]));
-                          },
-                        );
-                        // String? valid = widget.onCheckBeforeUpdate?.call(lineItemDataBill);
-                        // if (valid != null) {
-                        //   showMessageDialog(context, message: valid);
-                        //   return;
-                        // }
-                        var res = await ref
-                            .read(checkoutProvider.notifier)
-                            .onUpdateTax(map);
-                        if (context.mounted) {
-                          await showMessageDialog(context,
-                              message: res ?? 'Phân bổ thuế thành công',
-                              canPop: false);
-                          if (res == null) {
-                            await ref
-                                .read(checkoutProvider.notifier)
-                                .getDataBill(showLoading: true);
-                            if (ref
-                                    .read(checkoutProvider)
-                                    .paymentMethodSelect
-                                    ?.isBank ??
-                                false) {
-                              // load lại danh sách ngân hàng với số tiền mới
-                              ref.read(checkoutProvider.notifier).getBanks();
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    if (widget.isDialog) const AppCloseButton(),
+                    if (status)
+                      Padding(
+                        padding: EdgeInsets.only(top: widget.isDialog ? 0 : 8),
+                        child: AppButton(
+                          textAction: widget.textAction ?? 'Cập nhật thuế',
+                          onPressed: () async {
+                            Map<int, double> map = {};
+                            List<LineItemDataBill> lineItemDataBill = [];
+                            taxMap.value.forEach(
+                              (key, value) {
+                                map[key] = value['tax_select'] ?? 0;
+                                lineItemDataBill.add((value['item_data_bill'] as LineItemDataBill)
+                                    .copyWith(tax: map[key]));
+                              },
+                            );
+                            String? valid = widget.onCheckBeforeUpdate?.call(lineItemDataBill);
+                            if (valid != null) {
+                              showMessageDialog(context, message: valid);
+                              return;
                             }
-                          }
-                        }
-                      },
-                    ),
-                  ),
+                            var res = await ref.read(checkoutProvider.notifier).onUpdateTax(map);
+                            if (context.mounted) {
+                              await showMessageDialog(context,
+                                  message: res ?? 'Phân bổ thuế thành công', canPop: false);
+                              if (res == null) {
+                                await ref
+                                    .read(checkoutProvider.notifier)
+                                    .getDataBill(showLoading: true);
+                                if (ref.read(checkoutProvider).paymentMethodSelect?.isBank ??
+                                    false) {
+                                  // load lại danh sách ngân hàng với số tiền mới
+                                  ref.read(checkoutProvider.notifier).getBanks();
+                                }
+                                if (widget.isDialog && context.mounted) pop(context, true);
+                              }
+                            }
+                          },
+                        ),
+                      ),
+                  ],
                 );
               }),
         ],
@@ -423,8 +381,8 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog1> {
     );
   }
 
-  TableViewCell _buildCell(BuildContext context, TableVicinity vicinity,
-      List<int> ids, Map<int, Map<String, dynamic>> map,
+  TableViewCell _buildCell(BuildContext context, TableVicinity vicinity, List<int> ids,
+      Map<int, Map<String, dynamic>> map,
       {bool smallDevice = false}) {
     if (vicinity.yIndex == 0) {
       String colTitle = '';
@@ -474,10 +432,7 @@ class _EditTaxDialogState extends ConsumerState<EditTaxDialog1> {
             padding: EdgeInsets.symmetric(vertical: smallDevice ? 0 : 4),
             child: DropdownTaxWidget(
               idProductCheckout: id,
-              taxs: [
-                ...taxOptions,
-                if (!taxOptions.contains(taxSelect)) taxSelect
-              ],
+              taxs: [...taxOptions, if (!taxOptions.contains(taxSelect)) taxSelect],
               taxSelect: taxSelect,
               oddRowColor: oddRowColor,
               oddIndex: vicinity.yIndex % 2 == 0,
@@ -643,8 +598,7 @@ class DropdownTaxWidget extends StatelessWidget {
               height: double.maxFinite,
               decoration: BoxDecoration(
                 border: Border.all(
-                  color:
-                      oddIndex ? Colors.white : (oddRowColor ?? Colors.white),
+                  color: oddIndex ? Colors.white : (oddRowColor ?? Colors.white),
                 ),
                 borderRadius: AppConfig.borderRadiusSecond,
                 color: oddIndex ? Colors.white : null,
@@ -701,9 +655,7 @@ class _DropdownTaxItemWidget extends ConsumerWidget {
                 : (value == customTax
                     ? 'Tuỳ chỉnh'
                     : hintText ??
-                        (AppUtils.getPercentValue(
-                                value < 1 ? value * 100 : value) ??
-                            '')),
+                        (AppUtils.getPercentValue(value < 1 ? value * 100 : value) ?? '')),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTextStyle.regular(color: color),

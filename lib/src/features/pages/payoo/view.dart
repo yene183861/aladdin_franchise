@@ -68,7 +68,7 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
 
   void initWebviewController() async {
     try {
-      if (Platform.isWindows) {
+      if (Platform.isWindows || Platform.isMacOS) {
         _windowsController = WebviewController();
         await _windowsController!.initialize();
         await _windowsController!.setBackgroundColor(Colors.transparent);

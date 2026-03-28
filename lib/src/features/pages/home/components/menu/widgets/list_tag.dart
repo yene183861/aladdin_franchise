@@ -8,7 +8,7 @@ import 'package:aladdin_franchise/src/models/tag_product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'list_product.dart';
+import 'product_box.dart';
 
 class ListTagsWidget extends ConsumerWidget {
   const ListTagsWidget({super.key});
@@ -17,10 +17,10 @@ class ListTagsWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var productState = ref.watch(menuProvider.select((value) => value.productState));
     final tags = ref.watch(menuProvider.select((value) => value.tags));
-
+    Widget? child;
     switch (productState.status) {
       case StatusEnum.loading:
-        return ListView.separated(
+        child = ListView.separated(
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
             return AppShimmerLoading(
@@ -35,26 +35,33 @@ class ListTagsWidget extends ConsumerWidget {
               ),
             );
           },
-          separatorBuilder: (context, index) => const Gap(12),
-          itemCount: 2,
+          separatorBuilder: (context, index) => const Gap(8),
+          itemCount: 6,
         );
+        break;
       case StatusEnum.normal:
       case StatusEnum.error:
-        return Container();
+        break;
       case StatusEnum.success:
+        if (tags.isNotEmpty) {
+          child = ListView.separated(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            shrinkWrap: true,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (BuildContext context, int index) {
+              return _SubTagSelectWidget(tag: tags[index]);
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              return const SizedBox(width: 8);
+            },
+            itemCount: tags.length,
+          );
+        }
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      shrinkWrap: true,
-      scrollDirection: Axis.horizontal,
-      itemBuilder: (BuildContext context, int index) {
-        return _SubTagSelectWidget(tag: tags[index]);
-      },
-      separatorBuilder: (BuildContext context, int index) {
-        return const SizedBox(width: 8);
-      },
-      itemCount: tags.length,
+    if (child == null) return const SizedBox.shrink();
+    return Expanded(
+      child: child,
     );
   }
 }
@@ -86,5 +93,14 @@ class _SubTagSelectWidget extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+class _TagCard extends StatelessWidget {
+  const _TagCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
   }
 }

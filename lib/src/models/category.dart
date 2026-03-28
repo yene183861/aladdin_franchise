@@ -16,8 +16,10 @@ class CategoryModel with _$CategoryModel {
     String? slug,
     String? description,
     String? image,
-    List<SubCategoryModel>? children,
+    // List<SubCategoryModel>? children,
+    @Default([]) List<CategoryModel> children,
     @Default({}) Map<String, dynamic> language,
+    @JsonKey(includeToJson: false, includeFromJson: false) dynamic parentId,
   }) = _CategoryModel;
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) => _$CategoryModelFromJson(json);

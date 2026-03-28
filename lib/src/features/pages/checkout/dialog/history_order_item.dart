@@ -35,11 +35,10 @@ class _HistoryOrderItemDialog extends StatelessWidget {
     return Dialog(
         child: Column(
       children: [
-        const Gap(12),
         TitleWithCloseIconDialog(
           title: S.current.order_history,
           icon: Icons.history,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
         Flexible(
           child: Consumer(builder: (context, ref, child) {

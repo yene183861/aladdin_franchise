@@ -94,9 +94,12 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
             },
           ),
           theme: kAppTheme,
+          // theme: AppTheme.cnhsThemeData,
           home: isLogin.when(
             skipLoadingOnRefresh: false,
             data: (result) {
+              // return ThemePreview();
+              // return BistroScreen();
               if (result) {
                 return HomePage();
               }
@@ -127,6 +130,59 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           },
         );
       },
+    );
+  }
+}
+
+class ThemePreview extends StatelessWidget {
+  const ThemePreview({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+
+    Widget item(String name, Color color, Color textColor) {
+      return Container(
+        margin: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          name,
+          style: TextStyle(color: textColor),
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Theme Preview')),
+      body: ListView(
+        children: [
+          item('primary', c.primary, c.onPrimary),
+          item('secondary', c.secondary, c.onSecondary),
+          item('tertiary', c.tertiary, c.onTertiary),
+          item('surface', c.surface, c.onSurface),
+          item('background', c.background, c.onBackground),
+          item('error', c.error, c.onError),
+        ],
+      ),
+    );
+  }
+}
+
+class TestScreen extends StatelessWidget {
+  const TestScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          Text('121212'),
+        ],
+      ),
     );
   }
 }

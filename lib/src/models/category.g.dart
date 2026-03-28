@@ -14,8 +14,9 @@ _$CategoryModelImpl _$$CategoryModelImplFromJson(Map<String, dynamic> json) =>
       description: json['description'] as String?,
       image: json['image'] as String?,
       children: (json['children'] as List<dynamic>?)
-          ?.map((e) => SubCategoryModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+              ?.map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
       language: json['language'] as Map<String, dynamic>? ?? const {},
     );
 
@@ -26,7 +27,7 @@ Map<String, dynamic> _$$CategoryModelImplToJson(_$CategoryModelImpl instance) =>
       'slug': instance.slug,
       'description': instance.description,
       'image': instance.image,
-      'children': instance.children?.map((e) => e.toJson()).toList(),
+      'children': instance.children.map((e) => e.toJson()).toList(),
       'language': instance.language,
     };
 

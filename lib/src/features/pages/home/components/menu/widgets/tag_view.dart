@@ -25,14 +25,15 @@ class TagViewWidget extends StatelessWidget {
           )
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       child: Text(
         tag.getNameView(),
         style: AppTextStyle.regular(
-          rawFontSize: 12,
+          rawFontSize: 11,
           fontWeight: FontWeight.bold,
           color: AppColors.tcTagInProduct,
         ),
+        textAlign: TextAlign.center,
       ),
     );
   }

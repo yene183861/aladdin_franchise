@@ -408,7 +408,7 @@ class _$HistoryPolicyResultModelImpl
     with DiagnosticableTreeMixin
     implements _HistoryPolicyResultModel {
   const _$HistoryPolicyResultModelImpl(
-      {required this.name,
+      {this.name = '',
       this.total = 0.0,
       final List<DiscountPolicy> listUse = const [],
       this.isType,
@@ -419,6 +419,7 @@ class _$HistoryPolicyResultModelImpl
       _$$HistoryPolicyResultModelImplFromJson(json);
 
   @override
+  @JsonKey()
   final String name;
   @override
   @JsonKey()
@@ -488,7 +489,7 @@ class _$HistoryPolicyResultModelImpl
 
 abstract class _HistoryPolicyResultModel implements HistoryPolicyResultModel {
   const factory _HistoryPolicyResultModel(
-      {required final String name,
+      {final String name,
       final double total,
       final List<DiscountPolicy> listUse,
       final int? isType,

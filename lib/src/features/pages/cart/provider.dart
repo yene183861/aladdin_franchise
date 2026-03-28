@@ -13,6 +13,7 @@ import 'package:aladdin_franchise/src/models/order.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/utils/app_printer/app_printer_common.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'state.dart';
 
@@ -24,6 +25,10 @@ class CartPageNotifier extends StateNotifier<CartPageState> {
   CartPageNotifier(this.ref, this._orderRepository) : super(const CartPageState());
   final Ref ref;
   final OrderRepository _orderRepository;
+
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+
   OrderModel? getOrderSelect() {
     return ref.read(homeProvider).orderSelect;
   }

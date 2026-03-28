@@ -3,8 +3,11 @@ import 'dart:math';
 import 'package:aladdin_franchise/generated/l10n.dart';
 import 'package:aladdin_franchise/src/configs/app.dart';
 import 'package:aladdin_franchise/src/configs/color.dart';
+import 'package:aladdin_franchise/src/configs/dev_config.dart';
 import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
+import 'package:aladdin_franchise/src/features/pages/home/components/menu/view.dart';
+import 'package:aladdin_franchise/src/features/widgets/button/icon_button.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
 import 'package:aladdin_franchise/src/features/widgets/textfield_simple.dart';
@@ -25,13 +28,13 @@ class CartOrderLine extends ConsumerWidget {
   final ProductModel item;
   final bool allowEnterNote;
 
-
   final Function(ProductModel)? onTap;
 
   final bool selected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    bool newUI = DevConfig.newUI;
     // var lockedOrder = ref.watch(homeProvider.select((value) => value.lockedOrder));
     return InkWell(
       onTap: () {
@@ -70,43 +73,48 @@ class CartOrderLine extends ConsumerWidget {
                       Expanded(
                         child: Row(
                           children: [
-                            if (allowEnterNote)
-                              Flexible(
-                                  child: Text(
-                                item.getNameView(),
-                                style: AppTextStyle.bold(),
-                              ))
-                            else
-                              Expanded(
+                            Flexible(
+                                fit: allowEnterNote ? FlexFit.loose : FlexFit.tight,
                                 child: Text(
                                   item.getNameView(),
                                   style: AppTextStyle.bold(),
-                                ),
-                              ),
-                            const Gap(8),
-                            Text.rich(
-                              TextSpan(
-                                children: [
-                                  if (allowEnterNote) const TextSpan(text: '( '),
-                                  TextSpan(
-                                    text: AppUtils.formatCurrency(
-                                        value: double.tryParse(item.unitPrice) ?? 0, symbol: 'đ'),
-                                    style: AppTextStyle.bold(
-                                      rawFontSize: AppConfig.defaultRawTextSize - 0.5,
+                                )),
+                            if (!newUI) ...[
+                              const Gap(8),
+                              Text.rich(
+                                TextSpan(
+                                  children: [
+                                    if (allowEnterNote) const TextSpan(text: '( '),
+                                    TextSpan(
+                                      text: AppUtils.formatCurrency(
+                                          value: double.tryParse(item.unitPrice) ?? 0, symbol: 'đ'),
+                                      style: AppTextStyle.bold(
+                                        rawFontSize: AppConfig.defaultRawTextSize - 0.5,
+                                      ),
                                     ),
+                                    const TextSpan(text: ' / '),
+                                    TextSpan(
+                                      text: item.getUnitView(),
+                                    ),
+                                    if (allowEnterNote) const TextSpan(text: ' )'),
+                                  ],
+                                  style: AppTextStyle.medium(
+                                    color: Colors.grey,
+                                    rawFontSize: AppConfig.defaultRawTextSize - 1.5,
                                   ),
-                                  const TextSpan(text: ' / '),
-                                  TextSpan(
-                                    text: item.getUnitView(),
-                                  ),
-                                  if (allowEnterNote) const TextSpan(text: ' )'),
-                                ],
-                                style: AppTextStyle.medium(
-                                  color: Colors.grey,
-                                  rawFontSize: AppConfig.defaultRawTextSize - 1.5,
                                 ),
                               ),
-                            ),
+                            ] else
+                              Text(
+                                AppUtils.formatCurrency(
+                                    value: (double.tryParse(item.unitPrice) ?? 0) *
+                                        (item.numberSelecting - item.quantityPromotion),
+                                    symbol: 'đ'),
+                                style: AppTextStyle.bold(
+                                  color: AppColors.mainColor,
+                                  rawFontSize: AppConfig.defaultRawTextSize - 0.5,
+                                ),
+                              ),
                           ],
                         ),
                       ),
@@ -114,70 +122,138 @@ class CartOrderLine extends ConsumerWidget {
                     ],
                   ),
                   const Gap(8),
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  if (newUI) ...[
+                    Text(
+                      'x${item.numberSelecting} ${item.getUnitView()}',
+                      style: AppTextStyle.regular(
+                        color: Colors.grey.shade400,
+                        rawFontSize: AppConfig.defaultRawTextSize - 0.5,
+                      ),
+                    ),
+                    const Gap(4),
+                    Row(
                       children: [
-                        Expanded(
-                          child: allowEnterNote
-                              ? AppTextFormField(
-                                  key: ValueKey(item.id),
-                                  contentPadding:
-                                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  hintText: S.current.note,
-                                  initialValue: item.note,
-                                  onChanged: (value) {
-                                    ref.read(cartPageProvider.notifier).onChangeNoteProduct(
-                                          item.id,
-                                          value.trim(),
-                                        );
-                                  },
-                                )
-                              : _totalAmount(),
+                        AppIconButton(
+                          icon: Icons.remove,
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () {
+                            ref.read(cartPageProvider.notifier).addProductToCart(
+                                item.copyWith(numberSelecting: max(0, item.numberSelecting - 1)));
+                          },
                         ),
-                        const Gap(12),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFf1f4fa),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade300),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              _qtyButton(
-                                Icons.remove,
-                                () {
-                                  ref.read(cartPageProvider.notifier).addProductToCart(item
-                                      .copyWith(numberSelecting: max(0, item.numberSelecting - 1)));
-                                },
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8),
-                                child: Text(
-                                  item.numberSelecting.toString(),
-                                  style: AppTextStyle.bold(),
-                                ),
-                              ),
-                              _qtyButton(
-                                Icons.add,
-                                () {
-                                  ref.read(cartPageProvider.notifier).addProductToCart(item
-                                      .copyWith(numberSelecting: max(0, item.numberSelecting + 1)));
-                                },
-                              ),
-                            ],
+                        // _qtyButton(
+                        //   Icons.remove,
+                        //   () {
+                        //     ref.read(cartPageProvider.notifier).addProductToCart(
+                        //         item.copyWith(numberSelecting: max(0, item.numberSelecting - 1)));
+                        //   },
+                        // ),
+                        // Container(
+                        //   padding: const EdgeInsets.symmetric(horizontal: 8),
+                        //   width: 40 + 8 * 2,
+                        //   alignment: Alignment.center,
+                        //   child: AppTextFormField(
+                        //     initialValue: item.numberSelecting.toString(),
+                        //     textAlign: TextAlign.center,
+                        //     fillColor: Colors.transparent,
+                        //     contentPadding: EdgeInsets.zero,
+                        //     maxLength: 2,
+                        //     minLines: 1,
+                        //     maxLines: 1,
+                        //   ),
+                        // ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            item.numberSelecting.toString(),
+                            style: AppTextStyle.bold(),
                           ),
                         ),
+                        AppIconButton(
+                          icon: Icons.add,
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () {
+                            ref.read(cartPageProvider.notifier).addProductToCart(
+                                item.copyWith(numberSelecting: max(0, item.numberSelecting + 1)));
+                          },
+                        ),
+                        // _qtyButton(
+                        //   Icons.add,
+                        //   () {
+                        //     ref.read(cartPageProvider.notifier).addProductToCart(
+                        //         item.copyWith(numberSelecting: max(0, item.numberSelecting + 1)));
+                        //   },
+                        // ),
                       ],
                     ),
-                  ),
+                  ] else ...[
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: allowEnterNote
+                                ? AppTextFormField(
+                                    key: ValueKey(item.id),
+                                    contentPadding:
+                                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    hintText: S.current.note,
+                                    initialValue: item.note,
+                                    onChanged: (value) {
+                                      ref.read(cartPageProvider.notifier).onChangeNoteProduct(
+                                            item.id,
+                                            value.trim(),
+                                          );
+                                    },
+                                  )
+                                : _totalAmount(),
+                          ),
+                          const Gap(12),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFf1f4fa),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade300),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                _qtyButton(
+                                  Icons.remove,
+                                  () {
+                                    ref.read(cartPageProvider.notifier).addProductToCart(
+                                        item.copyWith(
+                                            numberSelecting: max(0, item.numberSelecting - 1)));
+                                  },
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Text(
+                                    item.numberSelecting.toString(),
+                                    style: AppTextStyle.bold(),
+                                  ),
+                                ),
+                                _qtyButton(
+                                  Icons.add,
+                                  () {
+                                    ref.read(cartPageProvider.notifier).addProductToCart(
+                                        item.copyWith(
+                                            numberSelecting: max(0, item.numberSelecting + 1)));
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
