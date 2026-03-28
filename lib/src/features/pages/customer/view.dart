@@ -75,7 +75,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
     super.initState();
     paymentStatusNotifier = ValueNotifier<PaymentStatusEnum?>(null);
     detailProductNotifier = ValueNotifier<ProductModel?>(null);
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isMacOS) {
       DesktopMultiWindow.setMethodHandler(_handleMethodCallback);
     }
     WidgetsBinding.instance.addPostFrameCallback(
@@ -307,7 +307,7 @@ class _CustomerPageState extends ConsumerState<CustomerPage> {
 
   @override
   void dispose() {
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isMacOS) {
       DesktopMultiWindow.setMethodHandler(null);
     }
     _paymentTimer?.cancel();

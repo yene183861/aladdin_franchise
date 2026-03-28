@@ -60,4 +60,8 @@ class AppColors {
   static const Color bgCheckbox = Color(0xff1a4d24);
   static const Color bgIconChatPopup = Colors.white;
   static const Color bgTitleChatPopup = Color(0xffFCAF17);
+
+  // static Color
+
+  void updateColors() {}
 }

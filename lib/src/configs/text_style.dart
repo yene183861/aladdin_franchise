@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class AppTextStyle {
-  static bool get _useFontScale => LocalStorage.getAppSetting().useFontScale;
+  // static bool get _useFontScale => LocalStorage.getAppSetting().useFontScale;
+  static bool get _useFontScale => false;
 
   /// light w300
   ///

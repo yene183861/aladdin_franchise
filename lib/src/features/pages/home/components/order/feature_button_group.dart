@@ -15,6 +15,7 @@ import 'package:aladdin_franchise/src/features/dialogs/message.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/edit_tax_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/edit_tax_dialog.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/new_payment_dialogs.dart';
+import 'package:aladdin_franchise/src/features/dialogs/payment/payment_dialog_service.dart';
 import 'package:aladdin_franchise/src/features/dialogs/payment/payment_method_dialog.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
@@ -141,7 +142,7 @@ class __FeatureGroupWidgetState extends ConsumerState<_FeatureGroupWidget> {
                                 iconSize: 18,
                               ),
                     onPressed: () async {
-                      if (Platform.isWindows) {
+                      if (Platform.isWindows || Platform.isMacOS) {
                         final subWindows = await DesktopMultiWindow.getAllSubWindowIds();
 
                         if (subWindows.isNotEmpty) {
@@ -519,12 +520,13 @@ void paymentBtnCallback({
     // }
 
     if (context.mounted) {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return PaymentMethodSelectDialog();
-        },
-      );
+      PaymentDialogService.showFull(context, ref);
+      // await showDialog(
+      //   context: context,
+      //   builder: (context) {
+      //     return PaymentMethodSelectDialog();
+      //   },
+      // );
     }
   } catch (ex) {
     if (context.mounted) {

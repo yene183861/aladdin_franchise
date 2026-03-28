@@ -45,6 +45,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'state.dart';
 
@@ -79,6 +80,9 @@ class CheckoutNotifier extends StateNotifier<CheckoutState> {
   final CustomerRepository _customerRepository;
   final CouponRepository _couponRepository;
   final RestaurantRepository _restaurantRepository;
+
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
 
   late HomeNotifier homeNotifier;
   OrderModel? getOrderSelect() {
@@ -396,7 +400,7 @@ class CheckoutNotifier extends StateNotifier<CheckoutState> {
     }
   }
 
-  Future<void> getDataBill({
+  Future<String?> getDataBill({
     bool showLoading = false,
     bool retry = false,
   }) async {
@@ -405,7 +409,7 @@ class CheckoutNotifier extends StateNotifier<CheckoutState> {
     try {
       if (order == null) {
         resetInfo();
-        return;
+        return null;
       }
       if (showLoading) updateEvent(CheckoutEvent.getDataBill);
       state = state.copyWith(dataBillState: const PageState(status: PageCommonState.loading));
@@ -429,6 +433,8 @@ class CheckoutNotifier extends StateNotifier<CheckoutState> {
       }
       homeNotifier.syncInfoCustomerPage(method: WindowsMethodEnum.price);
       if (showLoading) updateEvent();
+
+      return null;
     } catch (ex) {
       if (showLoading) updateEvent();
       state = state.copyWith(
@@ -437,6 +443,8 @@ class CheckoutNotifier extends StateNotifier<CheckoutState> {
           status: PageCommonState.error,
         ),
       );
+
+      return ex.toString();
     }
   }
 
@@ -1243,6 +1251,14 @@ class CheckoutNotifier extends StateNotifier<CheckoutState> {
     }
   }
 
+  /// - In bill:
+  ///   + Grab/ Shopee (requireEditTax = true): món thuế = 0 thì k được in bill
+  ///   + Hình thức khác:
+  ///       + k được in nếu có món thuế 0 và khác 0
+  ///       + nếu các món thuế = 0 được cấu hình sửa thuế thì được in
+  /// - Đẩy hoá đơn:
+  ///   món thuế = 0 thì k đẩy hoá đơn
+  ///
   /// kiểm tra thuế
   /// - ĐK in bill
   ///   + Grab, Shopee (requireEditTax = true): có món thuế = 0 -> k được in bill
@@ -1301,8 +1317,9 @@ class CheckoutNotifier extends StateNotifier<CheckoutState> {
     return null;
   }
 
+  /// check cùng 1 kiều thuế
   bool isSameTaxType({
-    PaymentMethod? paymentMethod,
+    // PaymentMethod? paymentMethod,
     List<ProductModel> productSelect = const [],
     List<ProductCheckoutModel> productCheckout = const [],
   }) {
@@ -1827,5 +1844,40 @@ class CheckoutNotifier extends StateNotifier<CheckoutState> {
     showLogs(null, flags: 'state updatePaymentGatewayInfo after');
     showLog(state.statusPaymentGateway, flags: 'statusPaymentGateway');
     showLog(state.totalPaymentGateway, flags: 'totalPaymentGateway');
+  }
+
+  ({List<CustomerPolicyModel> coupons, String? error}) checkPaymentMethodSelect(
+      PaymentMethod method) {
+    try {
+      updateEvent(CheckoutEvent.checkPaymentMethod);
+      if (state.coupons.isEmpty) {
+        updateEvent();
+        return (coupons: [], error: null);
+      }
+      List<CustomerPolicyModel> couponInvalidResult = [];
+      // kiểm tra với danh sách giảm giá đang có
+      for (final c in state.coupons) {
+        if (c.paymentNotAllowed.any((element) => element.key == method.key)) {
+          couponInvalidResult.add(c);
+        }
+      }
+      updateEvent();
+      if (couponInvalidResult.isNotEmpty) {
+        return (
+          coupons: couponInvalidResult,
+          error: S.current.msg_coupons_invalid_with_payment_method(
+              couponInvalidResult.length.toString(),
+              couponInvalidResult.join(','),
+              method.name.toUpperCase()),
+          // "Có ${couponInvalidResult.length} mã giảm giá ${couponInvalidResult.join(',')}"
+          // " không được phép dùng với PTTT (${method.name.toUpperCase()}).\n"
+          // " Vui lòng xoá bỏ mã hoặc chọn phương thức thanh toán khác!"
+        );
+      }
+      return (coupons: [], error: null);
+    } catch (ex) {
+      updateEvent();
+      return (coupons: [], error: "${S.current.can_not_check_payment_method}\n${ex.toString()}");
+    }
   }
 }

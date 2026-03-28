@@ -29,6 +29,8 @@ mixin _$HistoryOrderState {
   DateTime get startDate => throw _privateConstructorUsedError;
   DateTime get endDate => throw _privateConstructorUsedError;
   String get textSearch => throw _privateConstructorUsedError;
+  Map<int, DetailHistoryOrderModel?> get detail =>
+      throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $HistoryOrderStateCopyWith<HistoryOrderState> get copyWith =>
@@ -52,7 +54,8 @@ abstract class $HistoryOrderStateCopyWith<$Res> {
       DataBillResponseData? dataBill,
       DateTime startDate,
       DateTime endDate,
-      String textSearch});
+      String textSearch,
+      Map<int, DetailHistoryOrderModel?> detail});
 
   $HistoryOrderModelCopyWith<$Res>? get historyOrderSelect;
   $PageStateCopyWith<$Res> get getOrderDetailState;
@@ -84,6 +87,7 @@ class _$HistoryOrderStateCopyWithImpl<$Res, $Val extends HistoryOrderState>
     Object? startDate = null,
     Object? endDate = null,
     Object? textSearch = null,
+    Object? detail = null,
   }) {
     return _then(_value.copyWith(
       event: null == event
@@ -130,6 +134,10 @@ class _$HistoryOrderStateCopyWithImpl<$Res, $Val extends HistoryOrderState>
           ? _value.textSearch
           : textSearch // ignore: cast_nullable_to_non_nullable
               as String,
+      detail: null == detail
+          ? _value.detail
+          : detail // ignore: cast_nullable_to_non_nullable
+              as Map<int, DetailHistoryOrderModel?>,
     ) as $Val);
   }
 
@@ -198,7 +206,8 @@ abstract class _$$HistoryOrderStateImplCopyWith<$Res>
       DataBillResponseData? dataBill,
       DateTime startDate,
       DateTime endDate,
-      String textSearch});
+      String textSearch,
+      Map<int, DetailHistoryOrderModel?> detail});
 
   @override
   $HistoryOrderModelCopyWith<$Res>? get historyOrderSelect;
@@ -232,6 +241,7 @@ class __$$HistoryOrderStateImplCopyWithImpl<$Res>
     Object? startDate = null,
     Object? endDate = null,
     Object? textSearch = null,
+    Object? detail = null,
   }) {
     return _then(_$HistoryOrderStateImpl(
       event: null == event
@@ -278,6 +288,10 @@ class __$$HistoryOrderStateImplCopyWithImpl<$Res>
           ? _value.textSearch
           : textSearch // ignore: cast_nullable_to_non_nullable
               as String,
+      detail: null == detail
+          ? _value._detail
+          : detail // ignore: cast_nullable_to_non_nullable
+              as Map<int, DetailHistoryOrderModel?>,
     ));
   }
 }
@@ -297,9 +311,11 @@ class _$HistoryOrderStateImpl implements _HistoryOrderState {
       this.dataBill,
       required this.startDate,
       required this.endDate,
-      this.textSearch = ''})
+      this.textSearch = '',
+      final Map<int, DetailHistoryOrderModel?> detail = const {}})
       : _coupons = coupons,
-        _productCheckout = productCheckout;
+        _productCheckout = productCheckout,
+        _detail = detail;
 
   @override
   @JsonKey()
@@ -341,10 +357,18 @@ class _$HistoryOrderStateImpl implements _HistoryOrderState {
   @override
   @JsonKey()
   final String textSearch;
+  final Map<int, DetailHistoryOrderModel?> _detail;
+  @override
+  @JsonKey()
+  Map<int, DetailHistoryOrderModel?> get detail {
+    if (_detail is EqualUnmodifiableMapView) return _detail;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_detail);
+  }
 
   @override
   String toString() {
-    return 'HistoryOrderState(event: $event, historyOrderSelect: $historyOrderSelect, messageError: $messageError, getOrderDetailState: $getOrderDetailState, customer: $customer, coupons: $coupons, productCheckout: $productCheckout, dataBill: $dataBill, startDate: $startDate, endDate: $endDate, textSearch: $textSearch)';
+    return 'HistoryOrderState(event: $event, historyOrderSelect: $historyOrderSelect, messageError: $messageError, getOrderDetailState: $getOrderDetailState, customer: $customer, coupons: $coupons, productCheckout: $productCheckout, dataBill: $dataBill, startDate: $startDate, endDate: $endDate, textSearch: $textSearch, detail: $detail)';
   }
 
   @override
@@ -370,7 +394,8 @@ class _$HistoryOrderStateImpl implements _HistoryOrderState {
                 other.startDate == startDate) &&
             (identical(other.endDate, endDate) || other.endDate == endDate) &&
             (identical(other.textSearch, textSearch) ||
-                other.textSearch == textSearch));
+                other.textSearch == textSearch) &&
+            const DeepCollectionEquality().equals(other._detail, _detail));
   }
 
   @override
@@ -386,7 +411,8 @@ class _$HistoryOrderStateImpl implements _HistoryOrderState {
       dataBill,
       startDate,
       endDate,
-      textSearch);
+      textSearch,
+      const DeepCollectionEquality().hash(_detail));
 
   @JsonKey(ignore: true)
   @override
@@ -398,17 +424,19 @@ class _$HistoryOrderStateImpl implements _HistoryOrderState {
 
 abstract class _HistoryOrderState implements HistoryOrderState {
   const factory _HistoryOrderState(
-      {final HistoryOrderEvent event,
-      final HistoryOrderModel? historyOrderSelect,
-      final String messageError,
-      final PageState getOrderDetailState,
-      final CustomerModel? customer,
-      final List<CustomerPolicyModel> coupons,
-      final List<ProductCheckoutModel> productCheckout,
-      final DataBillResponseData? dataBill,
-      required final DateTime startDate,
-      required final DateTime endDate,
-      final String textSearch}) = _$HistoryOrderStateImpl;
+          {final HistoryOrderEvent event,
+          final HistoryOrderModel? historyOrderSelect,
+          final String messageError,
+          final PageState getOrderDetailState,
+          final CustomerModel? customer,
+          final List<CustomerPolicyModel> coupons,
+          final List<ProductCheckoutModel> productCheckout,
+          final DataBillResponseData? dataBill,
+          required final DateTime startDate,
+          required final DateTime endDate,
+          final String textSearch,
+          final Map<int, DetailHistoryOrderModel?> detail}) =
+      _$HistoryOrderStateImpl;
 
   @override
   HistoryOrderEvent get event;
@@ -432,6 +460,8 @@ abstract class _HistoryOrderState implements HistoryOrderState {
   DateTime get endDate;
   @override
   String get textSearch;
+  @override
+  Map<int, DetailHistoryOrderModel?> get detail;
   @override
   @JsonKey(ignore: true)
   _$$HistoryOrderStateImplCopyWith<_$HistoryOrderStateImpl> get copyWith =>

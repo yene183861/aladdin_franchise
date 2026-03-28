@@ -24,9 +24,12 @@ mixin _$CategoryModel {
   String get title => throw _privateConstructorUsedError;
   String? get slug => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
-  String? get image => throw _privateConstructorUsedError;
-  List<SubCategoryModel>? get children => throw _privateConstructorUsedError;
+  String? get image =>
+      throw _privateConstructorUsedError; // List<SubCategoryModel>? children,
+  List<CategoryModel> get children => throw _privateConstructorUsedError;
   Map<String, dynamic> get language => throw _privateConstructorUsedError;
+  @JsonKey(includeToJson: false, includeFromJson: false)
+  dynamic get parentId => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -46,8 +49,9 @@ abstract class $CategoryModelCopyWith<$Res> {
       String? slug,
       String? description,
       String? image,
-      List<SubCategoryModel>? children,
-      Map<String, dynamic> language});
+      List<CategoryModel> children,
+      Map<String, dynamic> language,
+      @JsonKey(includeToJson: false, includeFromJson: false) dynamic parentId});
 }
 
 /// @nodoc
@@ -68,8 +72,9 @@ class _$CategoryModelCopyWithImpl<$Res, $Val extends CategoryModel>
     Object? slug = freezed,
     Object? description = freezed,
     Object? image = freezed,
-    Object? children = freezed,
+    Object? children = null,
     Object? language = null,
+    Object? parentId = freezed,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -92,14 +97,18 @@ class _$CategoryModelCopyWithImpl<$Res, $Val extends CategoryModel>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
-      children: freezed == children
+      children: null == children
           ? _value.children
           : children // ignore: cast_nullable_to_non_nullable
-              as List<SubCategoryModel>?,
+              as List<CategoryModel>,
       language: null == language
           ? _value.language
           : language // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>,
+      parentId: freezed == parentId
+          ? _value.parentId
+          : parentId // ignore: cast_nullable_to_non_nullable
+              as dynamic,
     ) as $Val);
   }
 }
@@ -118,8 +127,9 @@ abstract class _$$CategoryModelImplCopyWith<$Res>
       String? slug,
       String? description,
       String? image,
-      List<SubCategoryModel>? children,
-      Map<String, dynamic> language});
+      List<CategoryModel> children,
+      Map<String, dynamic> language,
+      @JsonKey(includeToJson: false, includeFromJson: false) dynamic parentId});
 }
 
 /// @nodoc
@@ -138,8 +148,9 @@ class __$$CategoryModelImplCopyWithImpl<$Res>
     Object? slug = freezed,
     Object? description = freezed,
     Object? image = freezed,
-    Object? children = freezed,
+    Object? children = null,
     Object? language = null,
+    Object? parentId = freezed,
   }) {
     return _then(_$CategoryModelImpl(
       id: freezed == id
@@ -162,14 +173,18 @@ class __$$CategoryModelImplCopyWithImpl<$Res>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
-      children: freezed == children
+      children: null == children
           ? _value._children
           : children // ignore: cast_nullable_to_non_nullable
-              as List<SubCategoryModel>?,
+              as List<CategoryModel>,
       language: null == language
           ? _value._language
           : language // ignore: cast_nullable_to_non_nullable
               as Map<String, dynamic>,
+      parentId: freezed == parentId
+          ? _value.parentId
+          : parentId // ignore: cast_nullable_to_non_nullable
+              as dynamic,
     ));
   }
 }
@@ -184,8 +199,9 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
       this.slug,
       this.description,
       this.image,
-      final List<SubCategoryModel>? children,
-      final Map<String, dynamic> language = const {}})
+      final List<CategoryModel> children = const [],
+      final Map<String, dynamic> language = const {},
+      @JsonKey(includeToJson: false, includeFromJson: false) this.parentId})
       : _children = children,
         _language = language,
         super._();
@@ -203,14 +219,15 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
   final String? description;
   @override
   final String? image;
-  final List<SubCategoryModel>? _children;
+// List<SubCategoryModel>? children,
+  final List<CategoryModel> _children;
+// List<SubCategoryModel>? children,
   @override
-  List<SubCategoryModel>? get children {
-    final value = _children;
-    if (value == null) return null;
+  @JsonKey()
+  List<CategoryModel> get children {
     if (_children is EqualUnmodifiableListView) return _children;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
+    return EqualUnmodifiableListView(_children);
   }
 
   final Map<String, dynamic> _language;
@@ -223,8 +240,12 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
   }
 
   @override
+  @JsonKey(includeToJson: false, includeFromJson: false)
+  final dynamic parentId;
+
+  @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CategoryModel(id: $id, title: $title, slug: $slug, description: $description, image: $image, children: $children, language: $language)';
+    return 'CategoryModel(id: $id, title: $title, slug: $slug, description: $description, image: $image, children: $children, language: $language, parentId: $parentId)';
   }
 
   @override
@@ -238,7 +259,8 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('description', description))
       ..add(DiagnosticsProperty('image', image))
       ..add(DiagnosticsProperty('children', children))
-      ..add(DiagnosticsProperty('language', language));
+      ..add(DiagnosticsProperty('language', language))
+      ..add(DiagnosticsProperty('parentId', parentId));
   }
 
   @override
@@ -253,7 +275,8 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
                 other.description == description) &&
             (identical(other.image, image) || other.image == image) &&
             const DeepCollectionEquality().equals(other._children, _children) &&
-            const DeepCollectionEquality().equals(other._language, _language));
+            const DeepCollectionEquality().equals(other._language, _language) &&
+            const DeepCollectionEquality().equals(other.parentId, parentId));
   }
 
   @JsonKey(ignore: true)
@@ -266,7 +289,8 @@ class _$CategoryModelImpl extends _CategoryModel with DiagnosticableTreeMixin {
       description,
       image,
       const DeepCollectionEquality().hash(_children),
-      const DeepCollectionEquality().hash(_language));
+      const DeepCollectionEquality().hash(_language),
+      const DeepCollectionEquality().hash(parentId));
 
   @JsonKey(ignore: true)
   @override
@@ -289,8 +313,10 @@ abstract class _CategoryModel extends CategoryModel {
       final String? slug,
       final String? description,
       final String? image,
-      final List<SubCategoryModel>? children,
-      final Map<String, dynamic> language}) = _$CategoryModelImpl;
+      final List<CategoryModel> children,
+      final Map<String, dynamic> language,
+      @JsonKey(includeToJson: false, includeFromJson: false)
+      final dynamic parentId}) = _$CategoryModelImpl;
   const _CategoryModel._() : super._();
 
   factory _CategoryModel.fromJson(Map<String, dynamic> json) =
@@ -306,10 +332,13 @@ abstract class _CategoryModel extends CategoryModel {
   String? get description;
   @override
   String? get image;
-  @override
-  List<SubCategoryModel>? get children;
+  @override // List<SubCategoryModel>? children,
+  List<CategoryModel> get children;
   @override
   Map<String, dynamic> get language;
+  @override
+  @JsonKey(includeToJson: false, includeFromJson: false)
+  dynamic get parentId;
   @override
   @JsonKey(ignore: true)
   _$$CategoryModelImplCopyWith<_$CategoryModelImpl> get copyWith =>

@@ -6,6 +6,8 @@ import 'package:aladdin_franchise/src/models/history_order.dart';
 import 'package:aladdin_franchise/src/models/product_checkout.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'components/data/detail_history_order_model.dart';
+
 part 'state.freezed.dart';
 
 enum HistoryOrderEvent {
@@ -30,5 +32,24 @@ class HistoryOrderState with _$HistoryOrderState {
     required DateTime startDate,
     required DateTime endDate,
     @Default('') String textSearch,
+    @Default({}) Map<int, DetailHistoryOrderModel?> detail,
   }) = _HistoryOrderState;
 }
+
+// @freezed
+// class HistoryOrderState with _$HistoryOrderState {
+//   const factory HistoryOrderState({
+//     @Default(HistoryOrderEvent.normal) HistoryOrderEvent event,
+//     HistoryOrderModel? historyOrderSelect,
+//     @Default('') String messageError,
+//     @Default(PageState(status: PageCommonState.loading)) PageState getOrderDetailState,
+//     CustomerModel? customer,
+//     @Default([]) List<CustomerPolicyModel> coupons,
+//     @Default([]) List<ProductCheckoutModel> productCheckout,
+//     DataBillResponseData? dataBill,
+//     required DateTime startDate,
+//     required DateTime endDate,
+//     @Default('') String textSearch,
+//     @Default({}) Map<int, DetailHistoryOrderModel?> detail,
+//   }) = _HistoryOrderState;
+// }

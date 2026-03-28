@@ -15,6 +15,7 @@ import 'package:aladdin_franchise/src/data/enum/windows_method.dart';
 import 'package:aladdin_franchise/src/data/model/notification.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/customer/view.dart';
+import 'package:aladdin_franchise/src/features/pages/home/view_test.dart';
 import 'package:aladdin_franchise/src/utils/subwindows_moniter.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:device_preview_plus/device_preview_plus.dart';
@@ -66,8 +67,10 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final useFontScale = ref.watch(appSettingProvider.select((value) => value.useFontScale));
-    final fontScale = ref.watch(appSettingProvider.select((value) => value.fontScale));
+    final useFontScale =
+        ref.watch(appSettingProvider.select((value) => value.useFontScale));
+    final fontScale =
+        ref.watch(appSettingProvider.select((value) => value.fontScale));
     final isLogin = ref.watch(checkLoginProvider);
     final languageLocal = ref.watch(languageLocalProvider);
     return ResponsiveSizer(
@@ -80,7 +83,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: AppLanguageEnum.values.map((e) => Locale(e.name)).toList(),
+          supportedLocales:
+              AppLanguageEnum.values.map((e) => Locale(e.name)).toList(),
           locale: Locale(languageLocal.name),
           navigatorKey: AppConfig.navigatorKey,
           debugShowCheckedModeBanner: false,
@@ -94,9 +98,12 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
             },
           ),
           theme: kAppTheme,
+          // theme: AppTheme.cnhsThemeData,
           home: isLogin.when(
             skipLoadingOnRefresh: false,
             data: (result) {
+              // return ThemePreview();
+              // return BistroScreen();
               if (result) {
                 return HomePage();
               }
@@ -114,7 +121,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
             DevicePreview.appBuilder(context, child);
             return ResponsiveBreakpoints.builder(
               child: MediaQuery(
-                data: mediaQuery.copyWith(textScaleFactor: useFontScale ? max(0, fontScale) : 1.0),
+                data: mediaQuery.copyWith(
+                    textScaleFactor: useFontScale ? max(0, fontScale) : 1.0),
                 child: child!,
               ),
               breakpoints: [
@@ -127,6 +135,59 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
           },
         );
       },
+    );
+  }
+}
+
+class ThemePreview extends StatelessWidget {
+  const ThemePreview({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+
+    Widget item(String name, Color color, Color textColor) {
+      return Container(
+        margin: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          name,
+          style: TextStyle(color: textColor),
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Theme Preview')),
+      body: ListView(
+        children: [
+          item('primary', c.primary, c.onPrimary),
+          item('secondary', c.secondary, c.onSecondary),
+          item('tertiary', c.tertiary, c.onTertiary),
+          item('surface', c.surface, c.onSurface),
+          item('background', c.background, c.onBackground),
+          item('error', c.error, c.onError),
+        ],
+      ),
+    );
+  }
+}
+
+class TestScreen extends StatelessWidget {
+  const TestScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          Text('121212'),
+        ],
+      ),
     );
   }
 }
@@ -168,7 +229,8 @@ class MySecondApp extends ConsumerWidget {
         return Consumer(
           builder: (context, ref, child) {
             final fontScale = LocalStorage.getAppSetting().fontScale;
-            var language = ref.watch(customerPageProvider.select((value) => value.language));
+            var language = ref
+                .watch(customerPageProvider.select((value) => value.language));
             return MaterialApp(
               title: AppConfig.appName,
               localizationsDelegates: const [
@@ -177,7 +239,8 @@ class MySecondApp extends ConsumerWidget {
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              supportedLocales: AppLanguageEnum.values.map((e) => Locale(e.name)).toList(),
+              supportedLocales:
+                  AppLanguageEnum.values.map((e) => Locale(e.name)).toList(),
               locale: Locale(language.name),
               navigatorKey: AppConfig.navigatorKey,
               debugShowCheckedModeBanner: false,
@@ -199,14 +262,16 @@ class MySecondApp extends ConsumerWidget {
               builder: (context, child) {
                 return ResponsiveBreakpoints.builder(
                   child: MediaQuery(
-                    data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(fontScale)),
+                    data: MediaQuery.of(context)
+                        .copyWith(textScaler: TextScaler.linear(fontScale)),
                     child: child!,
                   ),
                   breakpoints: [
                     const Breakpoint(start: 0, end: 450, name: MOBILE),
                     const Breakpoint(start: 451, end: 800, name: TABLET),
                     const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-                    const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+                    const Breakpoint(
+                        start: 1921, end: double.infinity, name: '4K'),
                   ],
                 );
               },

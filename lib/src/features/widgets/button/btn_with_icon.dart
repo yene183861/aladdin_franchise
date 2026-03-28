@@ -53,7 +53,7 @@ class ButtonWithIconWidget extends StatelessWidget {
           children: [
             iconWidget ??
                 (icon != null ? ResponsiveIconWidget(iconData: icon!) : const SizedBox.shrink()),
-            const Gap(8),
+            if (iconWidget != null || icon != null) const Gap(8),
             Text(
               textAction ?? S.current.confirm,
               style: AppTextStyle.regular(color: AppColors.tcButtonMain),

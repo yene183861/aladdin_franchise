@@ -5,13 +5,13 @@ import 'package:aladdin_franchise/src/configs/text_style.dart';
 import 'package:aladdin_franchise/src/features/dialogs/detail_product.dart';
 import 'package:aladdin_franchise/src/features/pages/cart/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
-import 'package:aladdin_franchise/src/features/pages/checkout/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/provider.dart';
 import 'package:aladdin_franchise/src/features/pages/home/components/menu/widgets/tag_view.dart';
 import 'package:aladdin_franchise/src/features/pages/home/state.dart';
 import 'package:aladdin_franchise/src/features/widgets/gap.dart';
 import 'package:aladdin_franchise/src/features/widgets/image.dart';
+import 'package:aladdin_franchise/src/features/widgets/shimmer_box.dart';
 import 'package:aladdin_franchise/src/models/product.dart';
 import 'package:aladdin_franchise/src/models/tag_product.dart';
 import 'package:aladdin_franchise/src/utils/app_util.dart';
@@ -21,8 +21,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProductBox extends ConsumerWidget {
-  const ProductBox({super.key, required this.product});
+  const ProductBox({super.key, required this.product, this.marginLeft = 0.0, this.loading = false});
   final ProductModel product;
+  final double marginLeft;
+  final bool loading;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,8 +42,10 @@ class ProductBox extends ConsumerWidget {
         tags.add(element);
       }
     }
-    return InkWell(
+
+    var child = InkWell(
       onTap: () async {
+        if (loading) return;
         if (product.outOfStock == true) return;
         if (ref.read(homeProvider).orderSelect != null) {
           ref
@@ -51,8 +55,10 @@ class ProductBox extends ConsumerWidget {
         }
       },
       onLongPress: () {
+        if (loading) return;
         showDetailProductWidget(context: context, product: product, ref: ref);
       },
+      borderRadius: BorderRadius.circular(12),
       child: Stack(
         children: [
           Container(
@@ -159,6 +165,16 @@ class ProductBox extends ConsumerWidget {
         ],
       ),
     );
+    if (loading) {
+      return Container(
+          margin: EdgeInsets.only(left: marginLeft),
+          child: ShimmerBoxWidget(
+            borderRadius: BorderRadius.circular(12),
+            child: child,
+          ));
+    }
+
+    return Container(margin: EdgeInsets.only(left: marginLeft), child: child);
   }
 }
 
@@ -184,40 +200,6 @@ class ProductOutOfStockCircleWidget extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class ProductBoxLoadingWidget extends ConsumerWidget {
-  const ProductBoxLoadingWidget({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      clipBehavior: Clip.hardEdge,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.grey.shade100,
-      ),
-      child: const Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Expanded(
-            child: AppShimmerLoading(
-              margin: EdgeInsets.symmetric(horizontal: 8),
-              borderRadius: 12,
-            ),
-          ),
-          Gap(12),
-          AppShimmerLoading(margin: EdgeInsets.symmetric(horizontal: 8)),
-          Gap(4),
-          AppShimmerLoading(width: 60),
-          Gap(8),
-          AppShimmerLoading(margin: EdgeInsets.symmetric(horizontal: 28)),
-          Gap(8),
-        ],
       ),
     );
   }
