@@ -31,8 +31,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'state.dart';
 
-final menuProvider =
-    StateNotifierProvider.autoDispose<MenuNotifier, MenuState>((ref) {
+final menuProvider = StateNotifierProvider.autoDispose<MenuNotifier, MenuState>((ref) {
   return MenuNotifier(
     ref,
     ref.read(menuRepositoryProvider),
@@ -56,8 +55,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
   late TextEditingController ctrlSearch;
 
   final ItemScrollController categoryScrollController = ItemScrollController();
-  final ItemPositionsListener categoryPositionsListener =
-      ItemPositionsListener.create();
+  final ItemPositionsListener categoryPositionsListener = ItemPositionsListener.create();
 
   @override
   void dispose() {
@@ -75,6 +73,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
     );
     if (loadProducts) {
       await getProducts();
+      await getProducts1();
     }
   }
 
@@ -85,27 +84,75 @@ class MenuNotifier extends StateNotifier<MenuState> {
       changeSubCategorySelect(null);
     } else {
       var subCategorySelect = state.subCategorySelect;
-      var checkSubCategorySelect = categoryModel?.children
-          ?.firstWhereOrNull((e) => e == subCategorySelect);
+      var checkSubCategorySelect =
+          categoryModel?.children.firstWhereOrNull((e) => e == subCategorySelect);
       if (subCategorySelect == null || checkSubCategorySelect == null) {
-        changeSubCategorySelect((categoryModel?.children?.isEmpty ?? true)
-            ? null
-            : categoryModel!.children!.first);
+        changeSubCategorySelect(categoryModel!.children.firstOrNull);
       }
     }
   }
 
-  void changeSubCategorySelect(SubCategoryModel? subCategoryModel) {
-    state = state.copyWith(subCategorySelect: subCategoryModel);
+  // void changeSubCategorySelect(SubCategoryModel? subCategoryModel) {
+  //   state = state.copyWith(subCategorySelect: subCategoryModel);
+  // }
+  void changeSubCategorySelect(CategoryModel? value) {
+    state = state.copyWith(subCategorySelect: value);
   }
 
   void checkReloadMenu() {
     final lastTime = LocalStorage.getLastReloadMenu();
     final now = DateTime.now();
-    if ((now.compareToWithoutTime(lastTime) == false) &&
-        now.hour >= 9 &&
-        now.minute >= 5) {
+    if ((now.compareToWithoutTime(lastTime) == false) && now.hour >= 9 && now.minute >= 5) {
       getProducts();
+    }
+  }
+
+  Future<void> getProducts1() async {
+    try {
+      state = state.copyWith(productState: const ProcessState(status: StatusEnum.loading));
+
+      final categoryResult = await _menuRepository.getCategory(kTypeOrder);
+      List<CategoryModel> categories = categoryResult.data;
+      List<TagProductModel> tags = categoryResult.tags ?? [];
+      final products = await _menuRepository.getProduct(null, typeOrder: kTypeOrder);
+      Map<dynamic, MenuDataView> menuDataView = {};
+      for (var cate in categories) {
+        menuDataView[cate.id] = MenuDataView(item: cate);
+        var subs = cate.children;
+        if (subs.isNotEmpty) {
+          menuDataView['symbol_cate_${cate.id}'] = const MenuDataView(symbol: true);
+          for (var sub in subs) {
+            menuDataView[sub.id] = MenuDataView(item: sub.copyWith(parentId: cate.id));
+          }
+        }
+      }
+      var otherCate = const CategoryModel(id: -1, title: 'Khác');
+      for (var item in products) {
+        var cateId = item.categoryId;
+        var data = menuDataView[cateId];
+        if (data == null) {
+          menuDataView[otherCate.id] = MenuDataView(item: otherCate, products: {item});
+        } else {
+          var p = Set<ProductModel>.from(data.products);
+          p.add(item);
+          menuDataView[cateId] = data.copyWith(products: p);
+        }
+      }
+      state = state.copyWith(
+        menuDataView: menuDataView,
+        tags: tags,
+        productState: const ProcessState(status: StatusEnum.success),
+        tagSelect: tags.firstWhereOrNull((e) => e == state.tagSelect),
+      );
+    } catch (ex) {
+      if (mounted) {
+        state = state.copyWith(
+          productState: ProcessState(
+            status: StatusEnum.error,
+            message: ex.toString(),
+          ),
+        );
+      }
     }
   }
 
@@ -114,8 +161,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
     bool fetchOnline = true,
   }) async {
     try {
-      state = state.copyWith(
-          productState: const ProcessState(status: StatusEnum.loading));
+      state = state.copyWith(productState: const ProcessState(status: StatusEnum.loading));
 
       await fetchAllProducts(
         fetchOffline: fetchOffline,
@@ -134,8 +180,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
       if (categories.isNotEmpty) {
         var categorySelect = state.categorySelect;
 
-        var checkCategorySelect =
-            categories.firstWhereOrNull((e) => e.id == categorySelect?.id);
+        var checkCategorySelect = categories.firstWhereOrNull((e) => e.id == categorySelect?.id);
         if (categorySelect == null || checkCategorySelect == null) {
           changeCategorySelect(categories.first);
           checkCategorySelect = categories.first;
@@ -210,8 +255,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
       products: (data['product'] ?? []) as List<ProductModel>,
       categories: (data['category'] ?? []) as List<CategoryModel>,
       tags: (data['tag'] ?? []) as List<TagProductModel>,
-      status: (data['status'] ?? const ProcessState(status: StatusEnum.normal))
-          as ProcessState,
+      status: (data['status'] ?? const ProcessState(status: StatusEnum.normal)) as ProcessState,
     );
   }
 
@@ -238,8 +282,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
         final categoryResult = await _menuRepository.getCategory(typeOrder);
         List<CategoryModel> categories = categoryResult.data;
         List<TagProductModel> tags = categoryResult.tags ?? [];
-        final products =
-            await _menuRepository.getProduct(null, typeOrder: typeOrder);
+        final products = await _menuRepository.getProduct(null, typeOrder: typeOrder);
 
         result = {
           "status": const ProcessState(status: StatusEnum.success),
@@ -261,29 +304,23 @@ class MenuNotifier extends StateNotifier<MenuState> {
     state = state.copyWith(allProduct: allProduct);
   }
 
-  Map<int, List<ProductModel>> mapO2oItemWithPrintType(
-      List<RequestOrderItemModel> items) {
+  Map<int, List<ProductModel>> mapO2oItemWithPrintType(List<RequestOrderItemModel> items) {
     Map<int, List<ProductModel>> productPrint = {};
     var data = state.allProduct[TypeOrderEnum.offline.type] ?? {};
 
-    var status = (data['status'] ??
-        const ProcessState(status: StatusEnum.normal)) as ProcessState;
+    var status = (data['status'] ?? const ProcessState(status: StatusEnum.normal)) as ProcessState;
     List<ProductModel> products = data['product'] ?? [];
 
     for (var element in items) {
-      var p = products
-          .firstWhereOrNull((e) => e.codeProduct == element.codeProduct);
+      var p = products.firstWhereOrNull((e) => e.codeProduct == element.codeProduct);
       if (p != null) {
         var comboItems = ProductHelper().getComboDescription(p);
         // coi combo k có thành phần như là món thường để in
         if (comboItems == null || comboItems.isEmpty) {
           if (p.printerType != null) {
-            var items =
-                List<ProductModel>.from(productPrint[p.printerType] ?? []);
+            var items = List<ProductModel>.from(productPrint[p.printerType] ?? []);
             items.add(p.copyWith(
-                note: element.note,
-                description: null,
-                numberSelecting: element.quantity));
+                note: element.note, description: null, numberSelecting: element.quantity));
             productPrint[p.printerType!] = items;
           }
         } else {
@@ -291,8 +328,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
           for (var ci in comboItems) {
             var printerType = ci.printerType;
             if (printerType != null) {
-              var items =
-                  List<ComboItemModel>.from(printComboItem[printerType] ?? []);
+              var items = List<ComboItemModel>.from(printComboItem[printerType] ?? []);
               items.add(ci);
               printComboItem[printerType] = items;
             }
@@ -326,8 +362,7 @@ class MenuNotifier extends StateNotifier<MenuState> {
     for (var printer in printers) {
       var products = data[printer.type] ?? [];
       if (products.isEmpty) continue;
-      var bytes = LocalStorage.getPrintSetting().appPrinterType ==
-              AppPrinterSettingTypeEnum.normal
+      var bytes = LocalStorage.getPrintSetting().appPrinterType == AppPrinterSettingTypeEnum.normal
           ? await AppPrinterNormalUtils.instance.generateBill(
               order: order,
               billSingle: false,
@@ -337,8 +372,8 @@ class MenuNotifier extends StateNotifier<MenuState> {
               products: products,
               title: '',
             )
-          : await AppPrinterHtmlUtils.instance.generateImageBill(
-              AppPrinterHtmlUtils.instance.kitchenBillContent(
+          : await AppPrinterHtmlUtils.instance
+              .generateImageBill(AppPrinterHtmlUtils.instance.kitchenBillContent(
               order: order,
               product: products,
               note: note ?? '',
@@ -362,27 +397,24 @@ class MenuNotifier extends StateNotifier<MenuState> {
             if (printer.type == 2 && appSeting.billReturnSetting.useOddBill) {
               for (var p in products) {
                 List<int> byteDatas;
-                var oddHtmlBill =
-                    AppPrinterHtmlUtils.instance.kitchenBillContent(
+                var oddHtmlBill = AppPrinterHtmlUtils.instance.kitchenBillContent(
                   product: [p],
                   totalBill: false,
                   order: order,
                   note: note ?? '',
                   timeOrders: 1,
                 );
-                byteDatas =
-                    appSeting.appPrinterType == AppPrinterSettingTypeEnum.normal
-                        ? await AppPrinterNormalUtils.instance.generateBill(
-                            order: order,
-                            billSingle: true,
-                            cancel: false,
-                            timeOrder: 1,
-                            totalNote: note,
-                            products: [p],
-                            title: '',
-                          )
-                        : await AppPrinterHtmlUtils.instance
-                            .generateImageBill(oddHtmlBill);
+                byteDatas = appSeting.appPrinterType == AppPrinterSettingTypeEnum.normal
+                    ? await AppPrinterNormalUtils.instance.generateBill(
+                        order: order,
+                        billSingle: true,
+                        cancel: false,
+                        timeOrder: 1,
+                        totalNote: note,
+                        products: [p],
+                        title: '',
+                      )
+                    : await AppPrinterHtmlUtils.instance.generateImageBill(oddHtmlBill);
                 PrintQueue.instance.addTask(
                   ip: printer.ip,
                   port: printer.port,

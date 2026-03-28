@@ -9,4 +9,6 @@ class DevConfig {
   static bool useCoupon = true;
 
   static bool allowCustomTaxValue = kDebugMode ? true : false;
+
+  static bool newUI = true;
 }

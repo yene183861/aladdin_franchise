@@ -18,10 +18,20 @@ class MenuState with _$MenuState {
     @Default([]) List<TagProductModel> tags,
     @Default([]) List<dynamic> menuCategoryItem,
     CategoryModel? categorySelect,
-    SubCategoryModel? subCategorySelect,
+    SubCategoryModel? subCategorySelect1,
     TagProductModel? tagSelect,
     @Default('') String search,
     @Default(false) bool checkReloadWhenHiddenApp,
     @Default({}) Map<int, Map<String, dynamic>> allProduct,
+    @Default({}) Map<dynamic, MenuDataView> menuDataView, CategoryModel? subCategorySelect,
   }) = _HomeState;
+}
+
+@freezed
+class MenuDataView with _$MenuDataView {
+  const factory MenuDataView({
+    CategoryModel? item,
+    @Default(false) bool symbol,
+    @Default({}) Set<ProductModel> products,
+  }) = _MenuDataView;
 }

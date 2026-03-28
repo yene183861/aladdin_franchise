@@ -79,17 +79,14 @@ class HomePage extends ConsumerStatefulWidget {
   ConsumerState createState() => _HomePageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage>
-    with WidgetsBindingObserver {
-  _listenEvent(BuildContext context, WidgetRef ref) =>
-      (HomeEvent? previous, HomeEvent? next) {
+class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver {
+  _listenEvent(BuildContext context, WidgetRef ref) => (HomeEvent? previous, HomeEvent? next) {
         switch (next) {
           case HomeEvent.checkCode:
             showProcessingDialog(context, message: S.current.verifying);
             break;
           case HomeEvent.createNewOrder:
-            showProcessingDialog(context,
-                message: S.current.creating_a_new_order);
+            showProcessingDialog(context, message: S.current.creating_a_new_order);
             break;
           case HomeEvent.updateOrder:
             showProcessingDialog(context, message: S.current.updating_order);
@@ -98,31 +95,25 @@ class _HomePageState extends ConsumerState<HomePage>
             showProcessingDialog(context, message: S.current.cancel_order);
             break;
           case HomeEvent.loadingChangeOrderCurrent:
-            showProcessingDialog(context,
-                message: S.current.updating_order_panel);
+            showProcessingDialog(context, message: S.current.updating_order_panel);
             break;
           case HomeEvent.transferOrder:
-            showProcessingDialog(context,
-                message: S.current.orders_are_being_delivered);
+            showProcessingDialog(context, message: S.current.orders_are_being_delivered);
             break;
           case HomeEvent.processOrder:
             showProcessingDialog(context, message: S.current.processing);
             break;
           case HomeEvent.cancelDishInOrder:
-            showProcessingDialog(context,
-                message: S.current.sending_request_to_cancel_order);
+            showProcessingDialog(context, message: S.current.sending_request_to_cancel_order);
             break;
           case HomeEvent.paymentProcess:
-            showProcessingDialog(context,
-                message: S.current.processing_payment);
+            showProcessingDialog(context, message: S.current.processing_payment);
             break;
           case HomeEvent.checkLocalNetwork:
-            showProcessingDialog(context,
-                message: S.current.checking_connection);
+            showProcessingDialog(context, message: S.current.checking_connection);
             break;
           case HomeEvent.updateTypeOrderWaiter:
-            showProcessingDialog(context,
-                message: S.current.changing_form_of_sell_mode);
+            showProcessingDialog(context, message: S.current.changing_form_of_sell_mode);
             break;
           case HomeEvent.switchAccount:
             showProcessingDialog(
@@ -134,8 +125,7 @@ class _HomePageState extends ConsumerState<HomePage>
             Navigator.pop(context);
             showDoneSnackBar(
               context: context,
-              message:
-                  "${S.current.switched_accounts} ${ref.read(userInfoProvider).user?.name} "
+              message: "${S.current.switched_accounts} ${ref.read(userInfoProvider).user?.name} "
                   "(${ref.read(userInfoProvider).user?.username?.toUpperCase()})",
             );
             break;
@@ -144,8 +134,7 @@ class _HomePageState extends ConsumerState<HomePage>
             break;
           case HomeEvent.errorInfo:
             Navigator.pop(context);
-            showMessageDialog(context,
-                message: ref.read(homeProvider.notifier).getMessageError());
+            showMessageDialog(context, message: ref.read(homeProvider.notifier).getMessageError());
             break;
           case HomeEvent.findingCustomer:
             showProcessingDialog(context, message: S.current.getInfoProcessing);
@@ -162,8 +151,7 @@ class _HomePageState extends ConsumerState<HomePage>
           case HomeEvent.removeTicket:
             showProcessingDialog(
               context,
-              message:
-                  "${S.current.canceling} ${S.current.discount.toLowerCase()}",
+              message: "${S.current.canceling} ${S.current.discount.toLowerCase()}",
             );
             break;
           case HomeEvent.findingTaxCode:
@@ -174,13 +162,11 @@ class _HomePageState extends ConsumerState<HomePage>
             break;
           case HomeEvent.updateInvoice:
             showProcessingDialog(context,
-                message:
-                    "${S.current.updating} ${S.current.invoice.toLowerCase()}");
+                message: "${S.current.updating} ${S.current.invoice.toLowerCase()}");
             break;
           case HomeEvent.insertInvoice:
             showProcessingDialog(context,
-                message:
-                    "${S.current.creating} ${S.current.invoice.toLowerCase()}");
+                message: "${S.current.creating} ${S.current.invoice.toLowerCase()}");
             break;
           case HomeEvent.unlockOrder:
             showProcessingDialog(
@@ -271,37 +257,30 @@ class _HomePageState extends ConsumerState<HomePage>
             );
             break;
           case HomeEvent.getDataBill:
-            showProcessingDialog(context,
-                message: S.current.updating_payment_info);
+            showProcessingDialog(context, message: S.current.updating_payment_info);
             break;
           case HomeEvent.getProductCheckout:
-            showProcessingDialog(context,
-                message: S.current.updating_payment_info);
+            showProcessingDialog(context, message: S.current.updating_payment_info);
             break;
           case HomeEvent.checkPrinter:
-            showProcessingDialog(context,
-                message: S.current.checking_printer_status);
+            showProcessingDialog(context, message: S.current.checking_printer_status);
             break;
           // coupon
           case HomeEvent.removeCoupon:
             showProcessingDialog(
               context,
-              message:
-                  "${S.current.canceling} ${S.current.discount.toLowerCase()}",
+              message: "${S.current.canceling} ${S.current.discount.toLowerCase()}",
             );
             break;
 
           case HomeEvent.lockOrder:
-            showProcessingDialog(context,
-                message: S.current.locking_order_action);
+            showProcessingDialog(context, message: S.current.locking_order_action);
             break;
           case HomeEvent.updateReservation:
-            showProcessingDialog(context,
-                message: S.current.updating_reservation_info);
+            showProcessingDialog(context, message: S.current.updating_reservation_info);
             break;
           case HomeEvent.updateOrderReservation:
-            showProcessingDialog(context,
-                message: S.current.updating_order_reser);
+            showProcessingDialog(context, message: S.current.updating_order_reser);
             break;
           case HomeEvent.addCoupon:
             showProcessingDialog(context, message: S.current.checking);
@@ -361,13 +340,11 @@ class _HomePageState extends ConsumerState<HomePage>
 
           case CheckoutEvent.updateInvoice:
             showProcessingDialog(context,
-                message:
-                    "${S.current.updating} ${S.current.invoice.toLowerCase()}");
+                message: "${S.current.updating} ${S.current.invoice.toLowerCase()}");
             break;
           case CheckoutEvent.insertInvoice:
             showProcessingDialog(context,
-                message:
-                    "${S.current.creating} ${S.current.invoice.toLowerCase()}");
+                message: "${S.current.creating} ${S.current.invoice.toLowerCase()}");
             break;
 
           case CheckoutEvent.processed:
@@ -381,38 +358,31 @@ class _HomePageState extends ConsumerState<HomePage>
             );
             break;
           case CheckoutEvent.getDataBill:
-            showProcessingDialog(context,
-                message: S.current.updating_payment_info);
+            showProcessingDialog(context, message: S.current.updating_payment_info);
             break;
           case CheckoutEvent.paymentProcess:
-            showProcessingDialog(context,
-                message: S.current.processing_payment);
+            showProcessingDialog(context, message: S.current.processing_payment);
             break;
           case CheckoutEvent.completeBillAgain:
             showProcessingDialog(context, message: S.current.completing_order);
             break;
           case CheckoutEvent.dynamicPosCallback:
-            showProcessingDialog(context,
-                message: S.current.sending_command_pos);
+            showProcessingDialog(context, message: S.current.sending_command_pos);
             break;
           case CheckoutEvent.getProductCheckout:
-            showProcessingDialog(context,
-                message: S.current.updating_payment_info);
+            showProcessingDialog(context, message: S.current.updating_payment_info);
             break;
           case CheckoutEvent.getPaymentGateway:
-            showProcessingDialog(context,
-                message: S.current.loading_payment_gateway_url);
+            showProcessingDialog(context, message: S.current.loading_payment_gateway_url);
             break;
           case CheckoutEvent.getInvoice:
-            showProcessingDialog(context,
-                message: 'Đang tải thông tin hoá đơn');
+            showProcessingDialog(context, message: 'Đang tải thông tin hoá đơn');
             break;
           default:
             break;
         }
       };
-  _listenCartEvent(BuildContext context, WidgetRef ref) =>
-      (CartEvent? previous, CartEvent? next) {
+  _listenCartEvent(BuildContext context, WidgetRef ref) => (CartEvent? previous, CartEvent? next) {
         switch (next) {
           case CartEvent.normal:
             pop(context);
@@ -429,10 +399,10 @@ class _HomePageState extends ConsumerState<HomePage>
         }
       };
 
-  final GlobalKey _floatingBtnKey = GlobalKey();
-  OverlayEntry? _overlayEntry;
-  double chatPopupHeight = 600;
-  double chatPopupWidth = 600;
+  // final GlobalKey _floatingBtnKey = GlobalKey();
+  // OverlayEntry? _overlayEntry;
+  // double chatPopupHeight = 600;
+  // double chatPopupWidth = 600;
 
   @override
   void initState() {
@@ -467,26 +437,28 @@ class _HomePageState extends ConsumerState<HomePage>
     );
 
     var viewPadding = MediaQuery.of(context).viewPadding;
-    bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
-    bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
-    bool portraitOrientation =
-        AppDeviceSizeUtil.checkPortraitOrientation(context);
+    // bool isMobile = AppDeviceSizeUtil.checkMobileDevice();
+    // bool isTablet = AppDeviceSizeUtil.checkTabletDevice();
+    // bool portraitOrientation = AppDeviceSizeUtil.checkPortraitOrientation(context);
 
-    bool showOrderInfo = !(isMobile || (isTablet && portraitOrientation));
-    bool orderDetailSidePanel =
-        ResponsiveBreakpoints.of(context).largerThan(TABLET);
+    // bool showOrderInfo = !(isMobile || (isTablet && portraitOrientation));
+    bool orderDetailSidePanel = ResponsiveBreakpoints.of(context).largerThan(TABLET);
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       drawer: const HomeDrawer(),
       body: Stack(
         children: [
-          Padding(
-            padding:
-                EdgeInsets.fromLTRB(viewPadding.left, viewPadding.top, 0, 0),
+          Container(
+            padding: EdgeInsets.fromLTRB(viewPadding.left, viewPadding.top, 0, 0),
             child: Row(
               children: [
-                const Expanded(flex: 1, child: MenuPage()),
-                // do checkoutProvider,cartPageProvider  để autodispose
+                const Expanded(
+                    flex: 1,
+                    child: MenuSection(
+                      key: Key('menu'),
+                    )),
+                // do checkoutProvider,cartPageProvider để autodispose
                 Consumer(
                   builder: (context, ref, child) {
                     ref.watch(checkoutProvider);
@@ -503,282 +475,267 @@ class _HomePageState extends ConsumerState<HomePage>
               ],
             ),
           ),
-          Consumer(
-            builder: (context, ref, child) {
-              bool useO2o =
-                  LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
-              final orderSelect =
-                  ref.watch(homeProvider.select((value) => value.orderSelect));
+          // Consumer(
+          //   builder: (context, ref, child) {
+          //     bool useO2o = LocalStorage.getDataLogin()?.restaurant?.o2oStatus ?? false;
+          //     final orderSelect = ref.watch(homeProvider.select((value) => value.orderSelect));
 
-              bool smallDevice =
-                  ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
+          //     bool smallDevice = ResponsiveBreakpoints.of(context).smallerOrEqualTo(MOBILE);
 
-              return orderSelect == null
-                  ? const SizedBox.shrink()
-                  : !(kTypeOrder == AppConfig.orderOfflineValue && useO2o)
-                      ? const SizedBox.shrink()
-                      : FloatBubble(
-                          show: true,
-                          initialAlignment: smallDevice
-                              ? Alignment(1, (140 / 100.w) - 1)
-                              : Alignment.topRight,
-                          child: GestureDetector(
-                            onTap: () {
-                              _showChatPopup(ref);
-                            },
-                            child: Container(
-                              key: _floatingBtnKey,
-                              height: smallDevice ? 48 : 60,
-                              width: smallDevice ? 48 : 60,
-                              padding: EdgeInsets.all(smallDevice ? 12 : 12),
-                              decoration: const BoxDecoration(
-                                color: AppColors.bgBoxProduct,
-                                shape: BoxShape.circle,
-                              ),
-                              child: SvgPicture.asset(
-                                Assets.iconsChat,
-                                color: AppColors.secondColor,
-                              ),
-                            ),
-                          ),
-                        );
-            },
-          ),
+          //     return orderSelect == null
+          //         ? const SizedBox.shrink()
+          //         : !(kTypeOrder == AppConfig.orderOfflineValue && useO2o)
+          //             ? const SizedBox.shrink()
+          //             : FloatBubble(
+          //                 show: true,
+          //                 initialAlignment:
+          //                     smallDevice ? Alignment(1, (140 / 100.w) - 1) : Alignment.topRight,
+          //                 child: GestureDetector(
+          //                   onTap: () {
+          //                     _showChatPopup(ref);
+          //                   },
+          //                   child: Container(
+          //                     key: _floatingBtnKey,
+          //                     height: smallDevice ? 48 : 60,
+          //                     width: smallDevice ? 48 : 60,
+          //                     padding: EdgeInsets.all(smallDevice ? 12 : 12),
+          //                     decoration: const BoxDecoration(
+          //                       color: AppColors.bgBoxProduct,
+          //                       shape: BoxShape.circle,
+          //                     ),
+          //                     child: SvgPicture.asset(
+          //                       Assets.iconsChat,
+          //                       color: AppColors.secondColor,
+          //                     ),
+          //                   ),
+          //                 ),
+          //               );
+          //   },
+          // ),
         ],
       ),
-      bottomNavigationBar: Builder(
-        builder: (context) {
-          return showOrderInfo
-              ? const SizedBox.shrink()
-              : Container(
-                  height: 56,
-                  decoration: BoxDecoration(color: Colors.grey.shade900),
-                  alignment: Alignment.center,
-                  child: Consumer(
-                    builder: (context, ref, child) {
-                      var orderSelect = ref.watch(
-                          homeProvider.select((value) => value.orderSelect));
-                      if (orderSelect == null) {
-                        return GestureDetector(
-                          onTap: () {
-                            showOrderOptionDialog(context);
-                            // showConfirmCodeDialog(context, ref, action: () async {
-                            //   showOrderOptionDialog(context);
-                            // });
-                          },
-                          child: Text(
-                            S.current.selectOrder,
-                            style: AppTextStyle.bold(color: Colors.white),
-                          ),
-                        );
-                      }
+      // bottomNavigationBar: Builder(
+      //   builder: (context) {
+      //     return showOrderInfo
+      //         ? const SizedBox.shrink()
+      //         : Container(
+      //             height: 56,
+      //             decoration: BoxDecoration(color: Colors.grey.shade900),
+      //             alignment: Alignment.center,
+      //             child: Consumer(
+      //               builder: (context, ref, child) {
+      //                 var orderSelect =
+      //                     ref.watch(homeProvider.select((value) => value.orderSelect));
+      //                 if (orderSelect == null) {
+      //                   return GestureDetector(
+      //                     onTap: () {
+      //                       showOrderOptionDialog(context);
+      //                       // showConfirmCodeDialog(context, ref, action: () async {
+      //                       //   showOrderOptionDialog(context);
+      //                       // });
+      //                     },
+      //                     child: Text(
+      //                       S.current.selectOrder,
+      //                       style: AppTextStyle.bold(color: Colors.white),
+      //                     ),
+      //                   );
+      //                 }
 
-                      return Row(children: [
-                        const CartInfoWidget(),
-                        const VerticalDivider(
-                          indent: 20,
-                          endIndent: 20,
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              showOrderOptionDialog(context);
-                            },
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    "${S.current.table} ${orderSelect.getNameView()}",
-                                    style:
-                                        AppTextStyle.bold(color: Colors.white),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                                const Gap(4),
-                                const ResponsiveIconWidget(
-                                  iconData: Icons.change_circle_outlined,
-                                  color: Colors.white,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const Gap(8),
-                        AppButton(
-                          textAction: S.of(context).payment,
-                          onPressed: () async {
-                            if (ref
-                                    .read(homeProvider.notifier)
-                                    .getOrderSelect() ==
-                                null) {
-                              showMessageDialog(context,
-                                  message: S.current.noOrderSelect);
-                              return;
-                            }
+      //                 return Row(children: [
+      //                   const CartInfoWidget(),
+      //                   const VerticalDivider(
+      //                     indent: 20,
+      //                     endIndent: 20,
+      //                   ),
+      //                   Expanded(
+      //                     child: GestureDetector(
+      //                       onTap: () {
+      //                         showOrderOptionDialog(context);
+      //                       },
+      //                       child: Row(
+      //                         mainAxisSize: MainAxisSize.min,
+      //                         mainAxisAlignment: MainAxisAlignment.center,
+      //                         children: [
+      //                           Flexible(
+      //                             child: Text(
+      //                               "${S.current.table} ${orderSelect.getNameView()}",
+      //                               style: AppTextStyle.bold(color: Colors.white),
+      //                               textAlign: TextAlign.center,
+      //                             ),
+      //                           ),
+      //                           const Gap(4),
+      //                           const ResponsiveIconWidget(
+      //                             iconData: Icons.change_circle_outlined,
+      //                             color: Colors.white,
+      //                           ),
+      //                         ],
+      //                       ),
+      //                     ),
+      //                   ),
+      //                   const Gap(8),
+      //                   AppButton(
+      //                     textAction: S.of(context).payment,
+      //                     onPressed: () async {
+      //                       if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
+      //                         showMessageDialog(context, message: S.current.noOrderSelect);
+      //                         return;
+      //                       }
 
-                            final OrderModel? order =
-                                await Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                        builder: (context) => CheckoutPage()));
-                          },
-                        ),
-                        // AppButtonWidget(
-                        //   textAction: 'Thanh toán',
-                        //   color: AppColors.mainColor,
-                        //   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                        //   borderRadius: BorderRadius.circular(8),
-                        //   onTap: () async {
-                        //     if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
-                        //       showMessageDialog(context, message: S.current.noOrderSelect);
-                        //       return;
-                        //     }
+      //                       final OrderModel? order = await Navigator.of(context)
+      //                           .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
+      //                     },
+      //                   ),
+      //                   // AppButtonWidget(
+      //                   //   textAction: 'Thanh toán',
+      //                   //   color: AppColors.mainColor,
+      //                   //   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      //                   //   borderRadius: BorderRadius.circular(8),
+      //                   //   onTap: () async {
+      //                   //     if (ref.read(homeProvider.notifier).getOrderSelect() == null) {
+      //                   //       showMessageDialog(context, message: S.current.noOrderSelect);
+      //                   //       return;
+      //                   //     }
 
-                        //     final OrderModel? order = await Navigator.of(context)
-                        //         .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
-                        //   },
-                        // ),
-                        const Gap(8),
-                      ]);
-                    },
-                  ),
-                );
-        },
-      ),
+      //                   //     final OrderModel? order = await Navigator.of(context)
+      //                   //         .push(MaterialPageRoute(builder: (context) => CheckoutPage()));
+      //                   //   },
+      //                   // ),
+      //                   const Gap(8),
+      //                 ]);
+      //               },
+      //             ),
+      //           );
+      //   },
+      // ),
     );
   }
 
-  void _showChatPopup(WidgetRef ref) {
-    // ref.read(homeProvider.notifier).getO2OChatMessages();
-    if (_overlayEntry != null) {
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-    }
-    RenderBox renderBox =
-        _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
-    var buttonPosition = renderBox.localToGlobal(Offset.zero);
-    var buttonSize = renderBox.size;
+  // void _showChatPopup(WidgetRef ref) {
+  //   // ref.read(homeProvider.notifier).getO2OChatMessages();
+  //   if (_overlayEntry != null) {
+  //     _overlayEntry?.remove();
+  //     _overlayEntry = null;
+  //   }
+  //   RenderBox renderBox = _floatingBtnKey.currentContext!.findRenderObject() as RenderBox;
+  //   var buttonPosition = renderBox.localToGlobal(Offset.zero);
+  //   var buttonSize = renderBox.size;
 
-    var mediaQuery = MediaQuery.of(context);
-    var screenSize = mediaQuery.size;
-    double screenWidth = screenSize.width;
-    double screenHeight = screenSize.height;
+  //   var mediaQuery = MediaQuery.of(context);
+  //   var screenSize = mediaQuery.size;
+  //   double screenWidth = screenSize.width;
+  //   double screenHeight = screenSize.height;
 
-    double popupLeft = buttonPosition.dx;
-    double popupTop = buttonPosition.dy + buttonSize.height / 2;
+  //   double popupLeft = buttonPosition.dx;
+  //   double popupTop = buttonPosition.dy + buttonSize.height / 2;
 
-    if (popupTop + chatPopupHeight > screenHeight) {
-      popupTop = buttonPosition.dy - chatPopupHeight;
-    }
-    if (popupTop < 0) {
-      popupTop = 10;
-    }
+  //   if (popupTop + chatPopupHeight > screenHeight) {
+  //     popupTop = buttonPosition.dy - chatPopupHeight;
+  //   }
+  //   if (popupTop < 0) {
+  //     popupTop = 10;
+  //   }
 
-    if (buttonPosition.dx + buttonSize.width / 2 + 5 < screenWidth / 2) {
-      popupLeft = buttonPosition.dx + buttonSize.width + 5;
-    } else {
-      popupLeft = buttonPosition.dx - chatPopupWidth - 5;
-    }
+  //   if (buttonPosition.dx + buttonSize.width / 2 + 5 < screenWidth / 2) {
+  //     popupLeft = buttonPosition.dx + buttonSize.width + 5;
+  //   } else {
+  //     popupLeft = buttonPosition.dx - chatPopupWidth - 5;
+  //   }
 
-    _overlayEntry = _createOverlayEntry(popupLeft, popupTop);
+  //   _overlayEntry = _createOverlayEntry(popupLeft, popupTop);
 
-    Overlay.of(context).insert(_overlayEntry!);
-  }
+  //   Overlay.of(context).insert(_overlayEntry!);
+  // }
 
-  OverlayEntry _createOverlayEntry(double left, double top) {
-    bool canReply = true;
-    return OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          GestureDetector(
-            onTap: () {
-              _overlayEntry?.remove();
-              _overlayEntry = null;
-            },
-            child: Container(
-              color: Colors.transparent,
-            ),
-          ),
-          Positioned(
-            left: left,
-            top: top,
-            child: Material(
-              color: Colors.transparent,
-              child: GestureDetector(
-                onTap: () {
-                  // Prevent the popup from closing when tapped inside
-                },
-                child: Container(
-                  width: chatPopupWidth,
-                  height: chatPopupHeight,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 12,
-                        offset: Offset(2, 2),
-                      )
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        decoration: const BoxDecoration(
-                          color: AppColors.bgTitleChatPopup,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(12),
-                            topRight: Radius.circular(12),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              S.current.chat_with_customers,
-                              style: AppTextStyle.bold(color: Colors.white),
-                            ),
-                            ResponsiveIconButtonWidget(
-                              iconData: Icons.close,
-                              color: Colors.white,
-                              onPressed: () {
-                                _overlayEntry?.remove();
-                                _overlayEntry = null;
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Consumer(builder: (context, ref, child) {
-                          final getChatMessageState = ref.watch(homeProvider
-                              .select((value) => value.getChatMessageState));
+  // OverlayEntry _createOverlayEntry(double left, double top) {
+  //   bool canReply = true;
+  //   return OverlayEntry(
+  //     builder: (context) => Stack(
+  //       children: [
+  //         GestureDetector(
+  //           onTap: () {
+  //             _overlayEntry?.remove();
+  //             _overlayEntry = null;
+  //           },
+  //           child: Container(
+  //             color: Colors.transparent,
+  //           ),
+  //         ),
+  //         Positioned(
+  //           left: left,
+  //           top: top,
+  //           child: Material(
+  //             color: Colors.transparent,
+  //             child: GestureDetector(
+  //               onTap: () {
+  //                 // Prevent the popup from closing when tapped inside
+  //               },
+  //               child: Container(
+  //                 width: chatPopupWidth,
+  //                 height: chatPopupHeight,
+  //                 decoration: BoxDecoration(
+  //                   color: Colors.white,
+  //                   borderRadius: BorderRadius.circular(12),
+  //                   boxShadow: const [
+  //                     BoxShadow(
+  //                       color: Colors.black12,
+  //                       blurRadius: 12,
+  //                       offset: Offset(2, 2),
+  //                     )
+  //                   ],
+  //                 ),
+  //                 child: Column(
+  //                   children: [
+  //                     Container(
+  //                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+  //                       decoration: const BoxDecoration(
+  //                         color: AppColors.bgTitleChatPopup,
+  //                         borderRadius: BorderRadius.only(
+  //                           topLeft: Radius.circular(12),
+  //                           topRight: Radius.circular(12),
+  //                         ),
+  //                       ),
+  //                       child: Row(
+  //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                         children: [
+  //                           Text(
+  //                             S.current.chat_with_customers,
+  //                             style: AppTextStyle.bold(color: Colors.white),
+  //                           ),
+  //                           ResponsiveIconButtonWidget(
+  //                             iconData: Icons.close,
+  //                             color: Colors.white,
+  //                             onPressed: () {
+  //                               _overlayEntry?.remove();
+  //                               _overlayEntry = null;
+  //                             },
+  //                           ),
+  //                         ],
+  //                       ),
+  //                     ),
+  //                     Expanded(
+  //                       child: Consumer(builder: (context, ref, child) {
+  //                         final getChatMessageState =
+  //                             ref.watch(homeProvider.select((value) => value.getChatMessageState));
 
-                          final chatMessages = ref.watch(homeProvider
-                              .select((value) => value.chatMessages));
-                          return ListChatWidget(
-                            state: getChatMessageState,
-                            chatMessages: chatMessages,
-                            onReload: ref
-                                .read(homeProvider.notifier)
-                                .getO2OChatMessages,
-                          );
-                        }),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
+  //                         final chatMessages =
+  //                             ref.watch(homeProvider.select((value) => value.chatMessages));
+  //                         return ListChatWidget(
+  //                           state: getChatMessageState,
+  //                           chatMessages: chatMessages,
+  //                           onReload: ref.read(homeProvider.notifier).getO2OChatMessages,
+  //                         );
+  //                       }),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         )
+  //       ],
+  //     ),
+  //   );
+  // }
 }
 
 class CartInfoWidget extends ConsumerWidget {
